@@ -18,7 +18,10 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// This code was entirely written by Nathan Wagner
+// and is in the public domain.
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,8 +40,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -60,11 +63,9 @@ namespace boost { namespace geometry { namespace projections
             static const double DEG144 = 2.51327412287183459075;
             static const double DEG36 = 0.62831853071795864768;
             static const double DEG108 = 1.88495559215387594306;
-            static const double DEG180 = boost::math::constants::pi<double>();
+            static const double DEG180 = geometry::math::pi<double>();
             static const double ISEA_SCALE = 0.8301572857837594396028083;
             static const double V_LAT = 0.46364760899944494524;
-            static const double RAD2DEG = (180.0/boost::math::constants::pi<double>());
-            static const double DEG2RAD = (boost::math::constants::pi<double>()/180.0);
             static const double E_RAD = 0.91843818702186776133;
             static const double F_RAD = 0.18871053072122403508;
             static const double TABLE_G = 0.6615845383;
@@ -75,6 +76,12 @@ namespace boost { namespace geometry { namespace projections
             static const double ISEA_STD_LON = .19634954084936207740;
 
             #define DOWNTRI(tri) (((tri - 1) / 5) % 2 == 1)
+
+            /*
+             * Proj 4 provides its own entry points into
+             * the code, so none of the library functions
+             * need to be global
+             */
 
             struct hex {
                     int iso;
@@ -120,7 +127,7 @@ namespace boost { namespace geometry { namespace projections
                 int ix, iy, iz, s;
                 struct hex h;
 
-                x = x / cos(30 * boost::math::constants::pi<double>() / 180.0); /* rotated X coord */
+                x = x / cos(30 * geometry::math::d2r<double>()); /* rotated X coord */
                 y = y - x / 2.0; /* adjustment for rotated X */
 
                 /* adjust for actual hexwidth */
@@ -219,7 +226,7 @@ namespace boost { namespace geometry { namespace projections
             };
 
 
-            /* sqrt(5)/boost::math::constants::pi<double>() */
+            /* sqrt(5)/M_PI */
 
             /* 26.565051177 degrees */
 
@@ -353,10 +360,22 @@ namespace boost { namespace geometry { namespace projections
             {
                 int             i;
 
+                /*
+                 * spherical distance from center of polygon face to any of its
+                 * vertexes on the globe
+                 */
                 double          g;
 
+                /*
+                 * spherical angle between radius vector to center and adjacent edge
+                 * of spherical polygon on the globe
+                 */
                 double          G;
 
+                /*
+                 * plane angle between radius vector to center and adjacent edge of
+                 * plane polygon
+                 */
                 double          theta;
 
                 /* additional variables from snyder */
@@ -371,12 +390,16 @@ namespace boost { namespace geometry { namespace projections
 
                 struct snyder_constants c;
 
+                /*
+                 * TODO by locality of reference, start by trying the same triangle
+                 * as last time
+                 */
 
                 /* TODO put these constants in as radians to begin with */
                 c = constants[SNYDER_POLY_ICOSAHEDRON];
-                theta = c.theta * DEG2RAD;
-                g = c.g * DEG2RAD;
-                G = c.G * DEG2RAD;
+                theta = c.theta * geometry::math::d2r<double>();
+                g = c.g * geometry::math::d2r<double>();
+                G = c.G * geometry::math::d2r<double>();
 
                 for (i = 1; i <= 20; i++) {
                     double          z;
@@ -413,8 +436,16 @@ namespace boost { namespace geometry { namespace projections
                     /* TODO I don't know why we do this.  It's not in snyder */
                     /* maybe because we should have picked a better vertex */
                     if (Az < 0.0) {
-                        Az += 2.0 * boost::math::constants::pi<double>();
+                        Az += geometry::math::two_pi<double>();
                     }
+                    /*
+                     * adjust Az for the point to fall within the range of 0 to
+                     * 2(90 - theta) or 60 degrees for the hexagon, by
+                     * and therefore 120 degrees for the triangle
+                     * of the icosahedron
+                     * subtracting or adding multiples of 60 degrees to Az and
+                     * recording the amount of adjustment
+                     */
 
                     Az_adjust_multiples = 0;
                     while (Az < 0.0) {
@@ -451,7 +482,7 @@ namespace boost { namespace geometry { namespace projections
                     H = acos(sin(Az) * sin(G) * cos(g) - cos(Az) * cos(G));
 
                     /* eq 7 */
-                    /* Ag = (Az + G + H - DEG180) * boost::math::constants::pi<double>() * R * R / DEG180; */
+                    /* Ag = (Az + G + H - DEG180) * M_PI * R * R / DEG180; */
                     Ag = Az + G + H - DEG180;
 
                     /* eq 8 */
@@ -467,6 +498,10 @@ namespace boost { namespace geometry { namespace projections
                     /* eq 12 */
                     rho = 2.0 * Rprime * f * sin(z / 2.0);
 
+                    /*
+                     * add back the same 60 degree multiple adjustment from step
+                     * 2 to Azprime
+                     */
 
                     Azprime += DEG120 * Az_adjust_multiples;
 
@@ -475,6 +510,11 @@ namespace boost { namespace geometry { namespace projections
                     x = rho * sin(Azprime);
                     y = rho * cos(Azprime);
 
+                    /*
+                     * TODO
+                     * translate coordinates to the origin for the particular
+                     * hexagon on the flattened polyhedral map plot
+                     */
 
                     out->x = x;
                     out->y = y;
@@ -482,9 +522,13 @@ namespace boost { namespace geometry { namespace projections
                     return i;
                 }
 
+                /*
+                 * should be impossible, this implies that the coordinate is not on
+                 * any triangle
+                 */
 
                 fprintf(stderr, "impossible transform: %f %f is not on any triangle\n",
-                    ll->lon * RAD2DEG, ll->lat * RAD2DEG);
+                    ll->lon * geometry::math::r2d<double>(), ll->lat * geometry::math::r2d<double>());
 
                 throw proj_exception();
 
@@ -492,9 +536,22 @@ namespace boost { namespace geometry { namespace projections
                 return 0;        /* supresses a warning */
             }
 
+            /*
+             * return the new coordinates of any point in orginal coordinate system.
+             * Define a point (newNPold) in orginal coordinate system as the North Pole in
+             * new coordinate system, and the great circle connect the original and new
+             * North Pole as the lon0 longitude in new coordinate system, given any point
+             * in orginal coordinate system, this function return the new coordinates.
+             */
 
 
             /* formula from Snyder, Map Projections: A working manual, p31 */
+            /*
+             * old north pole at np in new coordinates
+             * could be simplified a bit with fewer intermediates
+             *
+             * TODO take a result pointer
+             */
             static
             struct isea_geo
             snyder_ctran(struct isea_geo * np, struct isea_geo * pt)
@@ -527,11 +584,11 @@ namespace boost { namespace geometry { namespace projections
 
                 /* normalize longitude */
                 /* TODO can we just do a modulus ? */
-                lambdap = fmod(lambdap, 2 * boost::math::constants::pi<double>());
-                while (lambdap > boost::math::constants::pi<double>())
-                    lambdap -= 2 * boost::math::constants::pi<double>();
-                while (lambdap < -boost::math::constants::pi<double>())
-                    lambdap += 2 * boost::math::constants::pi<double>();
+                lambdap = fmod(lambdap, geometry::math::two_pi<double>());
+                while (lambdap > geometry::math::pi<double>())
+                    lambdap -= geometry::math::two_pi<double>();
+                while (lambdap < -geometry::math::pi<double>())
+                    lambdap += geometry::math::two_pi<double>();
 
                 phip = asin(sin_phip);
 
@@ -547,19 +604,23 @@ namespace boost { namespace geometry { namespace projections
             {
                 struct isea_geo npt;
 
-                np->lon += boost::math::constants::pi<double>();
+                np->lon += geometry::math::pi<double>();
                 npt = snyder_ctran(np, pt);
-                np->lon -= boost::math::constants::pi<double>();
+                np->lon -= geometry::math::pi<double>();
 
-                npt.lon -= (boost::math::constants::pi<double>() - lon0 + np->lon);
+                npt.lon -= (geometry::math::pi<double>() - lon0 + np->lon);
 
-                npt.lon += boost::math::constants::pi<double>();
+                /*
+                 * snyder is down tri 3, isea is along side of tri1 from vertex 0 to
+                 * vertex 1 these are 180 degrees apart
+                 */
+                npt.lon += geometry::math::pi<double>();
                 /* normalize longitude */
-                npt.lon = fmod(npt.lon, 2 * boost::math::constants::pi<double>());
-                while (npt.lon > boost::math::constants::pi<double>())
-                    npt.lon -= 2 * boost::math::constants::pi<double>();
-                while (npt.lon < -boost::math::constants::pi<double>())
-                    npt.lon += 2 * boost::math::constants::pi<double>();
+                npt.lon = fmod(npt.lon, geometry::math::two_pi<double>());
+                while (npt.lon > geometry::math::pi<double>())
+                    npt.lon -= geometry::math::two_pi<double>();
+                while (npt.lon < -geometry::math::pi<double>())
+                    npt.lon += geometry::math::two_pi<double>();
 
                 return npt;
             }
@@ -605,7 +666,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 if (!g)
                     return 0;
-                g->o_lat = boost::math::constants::pi<double>() / 2.0;
+                g->o_lat = geometry::math::half_pi<double>();
                 g->o_lon = 0.0;
                 g->o_az = 0;
                 return 1;
@@ -641,9 +702,9 @@ namespace boost { namespace geometry { namespace projections
 
                 double          x, y;
 
-                rad = -degrees * boost::math::constants::pi<double>() / 180.0;
-                while (rad >= 2.0 * boost::math::constants::pi<double>()) rad -= 2.0 * boost::math::constants::pi<double>();
-                while (rad <= -2.0 * boost::math::constants::pi<double>()) rad += 2.0 * boost::math::constants::pi<double>();
+                rad = -degrees * geometry::math::d2r<double>();
+                while (rad >= geometry::math::two_pi<double>()) rad -= geometry::math::two_pi<double>();
+                while (rad <= -geometry::math::two_pi<double>()) rad += geometry::math::two_pi<double>();
 
                 x = pt->x * cos(rad) + pt->y * sin(rad);
                 y = -pt->x * sin(rad) + pt->y * cos(rad);
@@ -681,7 +742,7 @@ namespace boost { namespace geometry { namespace projections
                 isea_rotate(pt, downtri ? 240.0 : 60.0);
                 if (downtri) {
                     pt->x += 0.5;
-                    /* pt->y += cos(30.0 * boost::math::constants::pi<double>() / 180.0); */
+                    /* pt->y += cos(30.0 * M_PI / 180.0); */
                     pt->y += .86602540378443864672;
                 }
                 return quad;
@@ -702,7 +763,7 @@ namespace boost { namespace geometry { namespace projections
                 sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
 
                 /* apex to base is cos(30deg) */
-                hexwidth = cos(boost::math::constants::pi<double>() / 6.0) / sidelength;
+                hexwidth = cos(geometry::math::pi<double>() / 6.0) / sidelength;
 
                 /* TODO I think sidelength is always x.5, so
                  * (int)sidelength * 2 + 1 might be just as good
@@ -717,6 +778,10 @@ namespace boost { namespace geometry { namespace projections
                 d = h.x - h.z;
                 i = h.x + h.y + h.y;
 
+                /*
+                 * you want to test for max coords for the next quad in the same
+                 * "row" first to get the case where both are max
+                 */
                 if (quad <= 5) {
                     if (d == 0 && i == maxcoord) {
                         /* north pole */
@@ -995,6 +1060,9 @@ namespace boost { namespace geometry { namespace projections
 
                 return out;
             }
+            /*
+             * Proj 4 integration code follows
+             */
 
             struct par_isea
             {
@@ -1016,6 +1084,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_isea_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     struct isea_pt out;
@@ -1030,6 +1100,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = out.x;
                     xy_y = out.y;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "isea_spheroid";
+                }
+
             };
 
             // Icosahedral Snyder Equal Area

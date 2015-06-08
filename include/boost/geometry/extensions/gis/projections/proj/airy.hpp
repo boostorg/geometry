@@ -18,7 +18,11 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the airy (Airy) projection.
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -80,6 +85,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_airy_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
@@ -111,7 +118,7 @@ namespace boost { namespace geometry { namespace projections
                     case S_POLE:
                     case N_POLE:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
-                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > HALFPI)
+                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > geometry::math::half_pi<double>())
                             throw proj_exception();;
                         if ((lp_lat *= 0.5) > EPS) {
                             t = tan(lp_lat);
@@ -124,6 +131,12 @@ namespace boost { namespace geometry { namespace projections
                             xy_x = xy_y = 0.;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "airy_spheroid";
+                }
+
             };
 
             // Airy
@@ -133,19 +146,19 @@ namespace boost { namespace geometry { namespace projections
                 double beta;
 
                 proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
-                beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
+                beta = 0.5 * (geometry::math::half_pi<double>() - pj_param(par.params, "rlat_b").f);
                 if (fabs(beta) < EPS)
                     proj_parm.Cb = -0.5;
                 else {
                     proj_parm.Cb = 1./tan(beta);
                     proj_parm.Cb *= proj_parm.Cb * log(cos(beta));
                 }
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS)
                     if (par.phi0 < 0.) {
-                        proj_parm.p_halfpi = -HALFPI;
+                        proj_parm.p_halfpi = -geometry::math::half_pi<double>();
                         proj_parm.mode = S_POLE;
                     } else {
-                        proj_parm.p_halfpi =  HALFPI;
+                        proj_parm.p_halfpi =  geometry::math::half_pi<double>();
                         proj_parm.mode = N_POLE;
                     }
                 else {

@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -79,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_ortho_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
@@ -98,13 +100,15 @@ namespace boost { namespace geometry { namespace projections
                     case N_POLE:
                         coslam = - coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) throw proj_exception();;
+                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > geometry::math::half_pi<double>()) throw proj_exception();;
                         xy_y = cosphi * coslam;
                         break;
                     }
                     xy_x = cosphi * sin(lp_lon);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  rh, cosc, sinc;
@@ -137,23 +141,29 @@ namespace boost { namespace geometry { namespace projections
                             xy_x *= sinc * this->m_proj_parm.cosph0;
                         sinchk:
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             break;
                         }
                         lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT))
-                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -HALFPI : HALFPI)
+                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>())
                                            : atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ortho_spheroid";
+                }
+
             };
 
             // Orthographic
             template <typename Parameters>
             void setup_ortho(Parameters& par, par_ortho& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - HALFPI) <= EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) > EPS10) {
                     proj_parm.mode = OBLIQ;

@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -77,6 +78,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_hatano_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double th1, c;
@@ -91,6 +94,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = sin(lp_lat) * (lp_lat < 0. ? FYCS : FYCN);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double th;
@@ -98,7 +103,7 @@ namespace boost { namespace geometry { namespace projections
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
                     if (fabs(th) > 1.)
                         if (fabs(th) > ONETOL)    throw proj_exception();
-                        else            th = th > 0. ? HALFPI : - HALFPI;
+                        else            th = th > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     else
                         th = asin(th);
                     lp_lon = RXC * xy_x / cos(th);
@@ -106,10 +111,16 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = (th + sin(th)) * (xy_y < 0. ? RCS : RCN);
                     if (fabs(lp_lat) > 1.)
                         if (fabs(lp_lat) > ONETOL)    throw proj_exception();
-                        else            lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                        else            lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     else
                         lp_lat = asin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "hatano_spheroid";
+                }
+
             };
 
             // Hatano Asymmetrical Equal Area

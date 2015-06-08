@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -71,16 +72,18 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_boggs_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double theta, th1, c;
                     int i;
 
                     theta = lp_lat;
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS)
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS)
                         xy_x = 0.;
                     else {
-                        c = sin(theta) * PI;
+                        c = sin(theta) * geometry::math::pi<double>();
                         for (i = NITER; i; --i) {
                             theta -= th1 = (theta + sin(theta) - c) /
                                 (1. + cos(theta));
@@ -91,6 +94,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     xy_y = FYC * (lp_lat + FYC2 * sin(theta));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "boggs_spheroid";
+                }
+
             };
 
             // Boggs Eumorphic

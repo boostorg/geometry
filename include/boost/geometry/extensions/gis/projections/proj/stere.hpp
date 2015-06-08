@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
                 static double
             ssfn_(double phit, double sinphi, double eccen) {
                 sinphi *= eccen;
-                return (tan (.5 * (HALFPI + phit)) *
+                return (tan (.5 * (geometry::math::half_pi<double>() + phit)) *
                    pow((1. - sinphi) / (1. + sinphi), .5 * eccen));
             }
 
@@ -92,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_stere_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
@@ -100,7 +102,7 @@ namespace boost { namespace geometry { namespace projections
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
                     if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
-                        sinX = sin(X = 2. * atan(ssfn_(lp_lat, sinphi, this->m_par.e)) - HALFPI);
+                        sinX = sin(X = 2. * atan(ssfn_(lp_lat, sinphi, this->m_par.e)) - geometry::math::half_pi<double>());
                         cosX = cos(X);
                     }
                     switch (this->m_proj_parm.mode) {
@@ -127,6 +129,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = xy_x * sinlam;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
@@ -143,17 +147,17 @@ namespace boost { namespace geometry { namespace projections
                                 else
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1 + (xy_y * sinphi * this->m_proj_parm.cosX1 / rho));
 
-                        tp = tan(.5 * (HALFPI + phi_l));
+                        tp = tan(.5 * (geometry::math::half_pi<double>() + phi_l));
                         xy_x *= sinphi;
                         xy_y = rho * this->m_proj_parm.cosX1 * cosphi - xy_y * this->m_proj_parm.sinX1* sinphi;
-                        halfpi = HALFPI;
+                        halfpi = geometry::math::half_pi<double>();
                         halfe = .5 * this->m_par.e;
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
                     case S_POLE:
-                        phi_l = HALFPI - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
-                        halfpi = -HALFPI;
+                        phi_l = geometry::math::half_pi<double>() - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
+                        halfpi = -geometry::math::half_pi<double>();
                         halfe = -.5 * this->m_par.e;
                         break;
                     }
@@ -170,6 +174,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "stere_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -187,6 +197,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_stere_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  sinphi, cosphi, coslam, sinlam;
@@ -211,13 +223,15 @@ namespace boost { namespace geometry { namespace projections
                         coslam = - coslam;
                         lp_lat = - lp_lat;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < TOL) throw proj_exception();;
+                        if (fabs(lp_lat - geometry::math::half_pi<double>()) < TOL) throw proj_exception();;
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(FORTPI + .5 * lp_lat) );
                         xy_y *= coslam;
                         break;
                     }
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  c, rh, sinc, cosc;
@@ -253,6 +267,12 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "stere_spheroid";
+                }
+
             };
 
             template <typename Parameters>
@@ -260,7 +280,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double t;
 
-                if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
+                if (fabs((t = fabs(par.phi0)) - geometry::math::half_pi<double>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else
                     proj_parm.mode = t > EPS10 ? OBLIQ : EQUIT;
@@ -271,7 +291,7 @@ namespace boost { namespace geometry { namespace projections
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:
-                        if (fabs(proj_parm.phits - HALFPI) < EPS10)
+                        if (fabs(proj_parm.phits - geometry::math::half_pi<double>()) < EPS10)
                             proj_parm.akm1 = 2. * par.k0 /
                                sqrt(pow(1+par.e,1+par.e)*pow(1-par.e,1-par.e));
                         else {
@@ -286,7 +306,7 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     case OBLIQ:
                         t = sin(par.phi0);
-                        X = 2. * atan(ssfn_(par.phi0, t, par.e)) - HALFPI;
+                        X = 2. * atan(ssfn_(par.phi0, t, par.e)) - geometry::math::half_pi<double>();
                         t *= par.e;
                         proj_parm.akm1 = 2. * par.k0 * cos(par.phi0) / sqrt(1. - t * t);
                         proj_parm.sinX1 = sin(X);
@@ -303,7 +323,7 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     case S_POLE:
                     case N_POLE:
-                        proj_parm.akm1 = fabs(proj_parm.phits - HALFPI) >= EPS10 ?
+                        proj_parm.akm1 = fabs(proj_parm.phits - geometry::math::half_pi<double>()) >= EPS10 ?
                            cos(proj_parm.phits) / tan(FORTPI - .5 * proj_parm.phits) :
                            2. * par.k0 ;
                         break;
@@ -317,7 +337,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_stere(Parameters& par, par_stere& proj_parm)
             {
                 proj_parm.phits = pj_param(par.params, "tlat_ts").i ?
-                        pj_param(par.params, "rlat_ts").f : HALFPI;
+                        pj_param(par.params, "rlat_ts").f : geometry::math::half_pi<double>();
                 setup(par, proj_parm);
             }
 
@@ -326,12 +346,12 @@ namespace boost { namespace geometry { namespace projections
             void setup_ups(Parameters& par, par_stere& proj_parm)
             {
                 /* International Ellipsoid */
-                par.phi0 = pj_param(par.params, "bsouth").i ? - HALFPI: HALFPI;
+                par.phi0 = pj_param(par.params, "bsouth").i ? - geometry::math::half_pi<double>(): geometry::math::half_pi<double>();
                 if (!par.es) throw proj_exception(-34);
                 par.k0 = .994;
                 par.x0 = 2000000.;
                 par.y0 = 2000000.;
-                proj_parm.phits = HALFPI;
+                proj_parm.phits = geometry::math::half_pi<double>();
                 par.lam0 = 0.;
                 setup(par, proj_parm);
             }

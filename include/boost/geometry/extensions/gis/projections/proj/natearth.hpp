@@ -18,7 +18,20 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// The Natural Earth projection was designed by Tom Patterson, US National Park
+// Service, in 2007, using Flex Projector. The shape of the original projection
+// was defined at every 5 degrees and piece-wise cubic spline interpolation was
+// used to compute the complete graticule.
+// The code here uses polynomial functions instead of cubic splines and
+// is therefore much simpler to program. The polynomial approximation was
+// developed by Bojan Savric, in collaboration with Tom Patterson and Bernhard
+// Jenny, Institute of Cartography, ETH Zurich. It slightly deviates from
+// Patterson's original projection by adding additional curvature to meridians
+// where they meet the horizontal pole line. This improvement is by intention
+// and designed in collaboration with Tom Patterson.
+// Port to PROJ.4 by Bernhard Jenny, 6 June 2011
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +49,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -65,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
             static const double C3 = (9 * B3);
             static const double C4 = (11 * B4);
             static const double EPS = 1e-11;
-            static const double MAX_Y = (0.8707 * 0.52 * PI);
+            static const double MAX_Y = (0.8707 * 0.52 * geometry::math::pi<double>());
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -81,6 +93,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_natearth_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double phi2, phi4;
@@ -91,6 +105,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = lp_lat * (B0 + phi2 * (B1 + phi4 * (B2 + B3 * phi2 + B4 * phi4)));
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double yc, tol, y2, y4, f, fder;
@@ -120,6 +136,12 @@ namespace boost { namespace geometry { namespace projections
                     y2 = yc * yc;
                     lp_lon = xy_x / (A0 + y2 * (A1 + y2 * (A2 + y2 * y2 * y2 * (A3 + y2 * A4))));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "natearth_spheroid";
+                }
+
             };
 
             // Natural Earth

@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -79,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double sinlon, coslon, esphi, chi, schi, cchi, s;
@@ -87,8 +89,8 @@ namespace boost { namespace geometry { namespace projections
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
-                    chi = 2. * atan(tan((HALFPI + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - HALFPI;
+                    chi = 2. * atan(tan((geometry::math::half_pi<double>() + lp_lat) * .5) *
+                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>();
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -99,6 +101,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = p.i;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn;
@@ -133,8 +137,8 @@ namespace boost { namespace geometry { namespace projections
                         phi = chi;
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
-                            dphi = 2. * atan(tan((HALFPI + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - HALFPI - phi;
+                            dphi = 2. * atan(tan((geometry::math::half_pi<double>() + chi) * .5) *
+                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>() - phi;
                             phi += dphi;
                             if (fabs(dphi) <= EPSLN)
                                 break;
@@ -147,6 +151,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lon = lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mod_ster_ellipsoid";
+                }
+
             };
 
             template <typename Parameters>
@@ -156,8 +166,8 @@ namespace boost { namespace geometry { namespace projections
 
                 if (par.es) {
                     esphi = par.e * sin(par.phi0);
-                    chio = 2. * atan(tan((HALFPI + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - HALFPI;
+                    chio = 2. * atan(tan((geometry::math::half_pi<double>() + par.phi0) * .5) *
+                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - geometry::math::half_pi<double>();
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);
@@ -177,8 +187,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = DEG_TO_RAD * 20.;
-                par.phi0 = DEG_TO_RAD * 18.;
+                par.lam0 = geometry::math::d2r<double>() * 20.;
+                par.phi0 = geometry::math::d2r<double>() * 18.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
@@ -196,8 +206,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = DEG_TO_RAD * -165.;
-                par.phi0 = DEG_TO_RAD * -10.;
+                par.lam0 = geometry::math::d2r<double>() * -165.;
+                par.phi0 = geometry::math::d2r<double>() * -10.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
@@ -217,8 +227,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 4;
-                par.lam0 = DEG_TO_RAD * -96.;
-                par.phi0 = DEG_TO_RAD * -39.;
+                par.lam0 = geometry::math::d2r<double>() * -96.;
+                par.phi0 = geometry::math::d2r<double>() * -39.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 par.a = 6370997.;
@@ -247,8 +257,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 5;
-                par.lam0 = DEG_TO_RAD * -152.;
-                par.phi0 = DEG_TO_RAD * 64.;
+                par.lam0 = geometry::math::d2r<double>() * -152.;
+                par.phi0 = geometry::math::d2r<double>() * 64.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -291,8 +301,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 9;
-                par.lam0 = DEG_TO_RAD * -120.;
-                par.phi0 = DEG_TO_RAD * 45.;
+                par.lam0 = geometry::math::d2r<double>() * -120.;
+                par.phi0 = geometry::math::d2r<double>() * 45.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;

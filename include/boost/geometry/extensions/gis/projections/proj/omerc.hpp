@@ -18,7 +18,9 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Copyright (c) 2003, 2006   Gerald I. Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +39,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -76,11 +79,13 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_omerc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  Q, S, T, U, V, temp, u, v;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) > EPS) {
                         Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / Q;
                         S = .5 * (Q - temp);
@@ -110,6 +115,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  u, v, Qp, Sp, Tp, Vp, Up;
@@ -128,7 +135,7 @@ namespace boost { namespace geometry { namespace projections
                     Up = (Vp * this->m_proj_parm.cosgam + Sp * this->m_proj_parm.singam) / Tp;
                     if (fabs(fabs(Up) - 1.) < EPS) {
                         lp_lon = 0.;
-                        lp_lat = Up < 0. ? -HALFPI : HALFPI;
+                        lp_lat = Up < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL)
@@ -137,6 +144,12 @@ namespace boost { namespace geometry { namespace projections
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "omerc_ellipsoid";
+                }
+
             };
 
             // Oblique Mercator
@@ -172,9 +185,9 @@ namespace boost { namespace geometry { namespace projections
                     phi2 = pj_param(par.params, "rlat_2").f;
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL ||
-                        fabs(fabs(par.phi0) - HALFPI) <= TOL ||
-                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
+                        fabs(con - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(phi2) - geometry::math::half_pi<double>()) <= TOL) throw proj_exception(-33);
                 }
                 com = sqrt(par.one_es);
                 if (fabs(par.phi0) > EPS) {
@@ -207,8 +220,8 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         alpha_c = asin(D*sin(gamma0 = gamma));
                     if ((con = fabs(alpha_c)) <= TOL ||
-                        fabs(con - PI) <= TOL ||
-                        fabs(fabs(par.phi0) - HALFPI) <= TOL)
+                        fabs(con - geometry::math::pi<double>()) <= TOL ||
+                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL)
                         throw proj_exception(-32);
                     par.lam0 = lamc - asin(.5 * (F - 1. / F) *
                        tan(gamma0)) / proj_parm.B;
@@ -219,10 +232,10 @@ namespace boost { namespace geometry { namespace projections
                     p = (L - H) / (L + H);
                     J = proj_parm.E * proj_parm.E;
                     J = (J - L * H) / (J + L * H);
-                    if ((con = lam1 - lam2) < -PI)
-                        lam2 -= TWOPI;
-                    else if (con > PI)
-                        lam2 += TWOPI;
+                    if ((con = lam1 - lam2) < -geometry::math::pi<double>())
+                        lam2 -= geometry::math::two_pi<double>();
+                    else if (con > geometry::math::pi<double>())
+                        lam2 += geometry::math::two_pi<double>();
                     par.lam0 = adjlon(.5 * (lam1 + lam2) - atan(
                        J * tan(.5 * proj_parm.B * (lam1 - lam2)) / p) / proj_parm.B);
                     gamma0 = atan(2. * sin(proj_parm.B * adjlon(lam1 - par.lam0)) /

@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -60,20 +60,20 @@ namespace boost { namespace geometry { namespace projections
                 double dy0;
             };
 
-            static const double d4044118 = (40 + 44/60. + 11.8/3600.) * DEG_TO_RAD; // 40d 44' 11.8" [degrees]
+            static const double d4044118 = (40 + 44/60. + 11.8/3600.) * geometry::math::d2r<double>(); // 40d 44' 11.8" [degrees]
 
-            static const double d10  =  10 * DEG_TO_RAD;
-            static const double d20  =  20 * DEG_TO_RAD;
-            static const double d30  =  30 * DEG_TO_RAD;
-            static const double d40  =  40 * DEG_TO_RAD;
-            static const double d50  =  50 * DEG_TO_RAD;
-            static const double d60  =  60 * DEG_TO_RAD;
-            static const double d80  =  80 * DEG_TO_RAD;
-            static const double d90  =  90 * DEG_TO_RAD;
-            static const double d100 = 100 * DEG_TO_RAD;
-            static const double d140 = 140 * DEG_TO_RAD;
-            static const double d160 = 160 * DEG_TO_RAD;
-            static const double d180 = 180 * DEG_TO_RAD;
+            static const double d10  =  10 * geometry::math::d2r<double>();
+            static const double d20  =  20 * geometry::math::d2r<double>();
+            static const double d30  =  30 * geometry::math::d2r<double>();
+            static const double d40  =  40 * geometry::math::d2r<double>();
+            static const double d50  =  50 * geometry::math::d2r<double>();
+            static const double d60  =  60 * geometry::math::d2r<double>();
+            static const double d80  =  80 * geometry::math::d2r<double>();
+            static const double d90  =  90 * geometry::math::d2r<double>();
+            static const double d100 = 100 * geometry::math::d2r<double>();
+            static const double d140 = 140 * geometry::math::d2r<double>();
+            static const double d160 = 160 * geometry::math::d2r<double>();
+            static const double d180 = 180 * geometry::math::d2r<double>();
 
             static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
 
@@ -103,6 +103,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_igh_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                         int z;
@@ -131,9 +133,11 @@ namespace boost { namespace geometry { namespace projections
                         xy_y += this->m_proj_parm.pj[z-1]->params().y0;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        const double y90 = this->m_proj_parm.dy0 + sqrt(2); // lt=90 corresponds to y=y0+sqrt(2)
+                        const double y90 = this->m_proj_parm.dy0 + sqrt(2.0); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
                         if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
@@ -191,6 +195,12 @@ namespace boost { namespace geometry { namespace projections
                         if (!z) lp_lon = HUGE_VAL;
                         if (!z) lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "igh_spheroid";
+                }
+
             };
 
             // Interrupted Goode Homolosine

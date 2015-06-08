@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -74,6 +75,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_ocea_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t;
@@ -85,11 +88,13 @@ namespace boost { namespace geometry { namespace projections
                     t = cos(lp_lon);
                     xy_x = atan((tan(lp_lat) * this->m_proj_parm.cosphi + this->m_proj_parm.sinphi * xy_y) / t);
                     if (t < 0.)
-                        xy_x += PI;
+                        xy_x += geometry::math::pi<double>();
                     xy_x *= this->m_proj_parm.rtk;
                     xy_y = this->m_proj_parm.rok * (this->m_proj_parm.sinphi * sin(lp_lat) - this->m_proj_parm.cosphi * cos(lp_lat) * xy_y);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t, s;
@@ -101,6 +106,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = atan2(t * this->m_proj_parm.sinphi * s - xy_y * this->m_proj_parm.cosphi,
                         t * cos(xy_x));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ocea_spheroid";
+                }
+
             };
 
             // Oblique Cylindrical Equal Area
@@ -127,7 +138,7 @@ namespace boost { namespace geometry { namespace projections
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
-                par.lam0 = proj_parm.singam + HALFPI;
+                par.lam0 = proj_parm.singam + geometry::math::half_pi<double>();
                 proj_parm.cosphi = cos(proj_parm.sinphi);
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);

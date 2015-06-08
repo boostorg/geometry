@@ -38,7 +38,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <boost/assert.hpp>
+#include <boost/geometry/core/assert.hpp>
 
 namespace boost { namespace geometry { namespace projections {
 
@@ -55,7 +55,7 @@ static const int APA_SIZE = 3;
 /* determine latitude from authalic latitude */
 inline bool pj_authset(double es, double* APA)
 {
-    BOOST_ASSERT(0 != APA);
+    BOOST_GEOMETRY_ASSERT(0 != APA);
 
     double t = 0;
 
@@ -75,7 +75,7 @@ inline bool pj_authset(double es, double* APA)
 
 inline double pj_authlat(double beta, const double* APA)
 {
-    BOOST_ASSERT(0 != APA);
+    BOOST_GEOMETRY_ASSERT(0 != APA);
 
     double const t = beta + beta;
 

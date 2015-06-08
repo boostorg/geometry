@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -68,6 +69,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_eck2_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_x = FXC * lp_lon * (xy_y = sqrt(4. - 3. * sin(fabs(lp_lat))));
@@ -75,6 +78,8 @@ namespace boost { namespace geometry { namespace projections
                     if ( lp_lat < 0.) xy_y = -xy_y;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lon = xy_x / (FXC * ( lp_lat = 2. - fabs(xy_y) / FYC) );
@@ -82,12 +87,18 @@ namespace boost { namespace geometry { namespace projections
                     if (fabs(lp_lat) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
                         else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     } else
                         lp_lat = asin(lp_lat);
                     if (xy_y < 0)
                         lp_lat = -lp_lat;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck2_spheroid";
+                }
+
             };
 
             // Eckert II

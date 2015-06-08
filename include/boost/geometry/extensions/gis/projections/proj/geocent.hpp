@@ -18,7 +18,13 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Stub projection for geocentric.  The transformation isn't
+// really done here since this code is 2D.  The real transformation
+// is handled by pj_transform.c.
+// Author:   Frank Warmerdam, warmerdam@pobox.com
+// Copyright (c) 2002, Frank Warmerdam
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +42,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -63,17 +68,27 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_geocent_other<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                         xy_x = lp_lon;
                         xy_y = lp_lat;
                 }
 
+                // INVERSE(inverse)
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                         lp_lat = xy_y;
                         lp_lon = xy_x;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "geocent_other";
+                }
+
             };
 
             // Geocentric

@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 
+#include <boost/geometry/core/assert.hpp>
+
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -195,7 +197,7 @@ template <typename Point, typename AngleCollection>
 inline std::size_t assign_cluster_indices(AngleCollection& sorted, Point const& origin)
 {
     // Assign same cluster_index for all turns in same direction
-    BOOST_ASSERT(boost::size(sorted) >= 4u);
+    BOOST_GEOMETRY_ASSERT(boost::size(sorted) >= 4u);
 
     angle_equal_to<Point> comparator(origin);
     typename boost::range_iterator<AngleCollection>::type it = sorted.begin();
@@ -218,7 +220,7 @@ inline std::size_t assign_cluster_indices(AngleCollection& sorted, Point const& 
 template <typename AngleCollection>
 inline void block_turns(AngleCollection& sorted, std::size_t cluster_size)
 {
-    BOOST_ASSERT(boost::size(sorted) >= 4u && cluster_size > 0);
+    BOOST_GEOMETRY_ASSERT(boost::size(sorted) >= 4u && cluster_size > 0);
 
     std::vector<std::pair<bool, bool> > directions;
     for (std::size_t i = 0; i < cluster_size; i++)

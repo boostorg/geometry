@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -73,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_somerc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double phip, lamp, phipp, lampp, sp, cp;
@@ -80,7 +83,7 @@ namespace boost { namespace geometry { namespace projections
                     sp = this->m_par.e * sin(lp_lat);
                     phip = 2.* atan( exp( this->m_proj_parm.c * (
                         log(tan(FORTPI + 0.5 * lp_lat)) - this->m_proj_parm.hlf_e * log((1. + sp)/(1. - sp)))
-                        + this->m_proj_parm.K)) - HALFPI;
+                        + this->m_proj_parm.K)) - geometry::math::half_pi<double>();
                     lamp = this->m_proj_parm.c * lp_lon;
                     cp = cos(phip);
                     phipp = aasin(this->m_proj_parm.cosp0 * sin(phip) - this->m_proj_parm.sinp0 * cp * cos(lamp));
@@ -89,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.kR * log(tan(FORTPI + 0.5 * phipp));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid & spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double phip, lamp, phipp, lampp, cp, esp, con, delp;
@@ -115,6 +120,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         throw proj_exception();
                 }
+
+                static inline std::string get_name()
+                {
+                    return "somerc_ellipsoid";
+                }
+
             };
 
             // Swiss. Obl. Mercator

@@ -18,7 +18,12 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the aitoff (Aitoff) and wintri (Winkel Tripel)
+// projections.
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,8 +42,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -72,6 +77,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double c, d;
@@ -107,6 +114,8 @@ namespace boost { namespace geometry { namespace projections
                 *
                 ************************************************************************************/
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                         int iter, MAXITER = 10, round = 0, MAXROUND = 20;
@@ -141,13 +150,13 @@ namespace boost { namespace geometry { namespace projections
                             f1 -= xy_x; f2 -= xy_y;
                             dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
                             dp = (f1 * f2l - f2 * f1l) / dp;
-                            while (dl > boost::math::constants::pi<double>()) dl -= boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
-                            while (dl < -boost::math::constants::pi<double>()) dl += boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
+                            while (dl > geometry::math::pi<double>()) dl -= geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
+                            while (dl < -geometry::math::pi<double>()) dl += geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
                             lp_lat -= dp;    lp_lon -= dl;
                         } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
-                        if (lp_lat > (2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat-(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
-                        if (lp_lat < -(2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat+(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - (2.0 * boost::math::constants::pi<double>())) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        if (lp_lat > geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat-geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat+geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - geometry::math::two_pi<double>()) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon)))) {/* Aitoff */
@@ -164,6 +173,12 @@ namespace boost { namespace geometry { namespace projections
 
                     if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aitoff_spheroid";
+                }
+
             };
 
             template <typename Parameters>

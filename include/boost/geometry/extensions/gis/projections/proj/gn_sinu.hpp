@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -78,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double s, c;
@@ -86,18 +89,26 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = lp_lon * c / sqrt(1. - this->m_par.es * s * s);
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s;
 
-                    if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < HALFPI) {
+                    if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < geometry::math::half_pi<double>()) {
                         s = sin(lp_lat);
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if ((s - EPS10) < HALFPI)
+                    } else if ((s - EPS10) < geometry::math::half_pi<double>())
                         lp_lon = 0.;
                     else throw proj_exception();;
                 }
                 /* General spherical sinusoidals */
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -115,6 +126,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (!this->m_proj_parm.m)
@@ -137,6 +150,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.C_y * lp_lat;
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     xy_y /= this->m_proj_parm.C_y;
@@ -144,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ( this->m_proj_parm.n != 1. ? aasin(sin(xy_y) / this->m_proj_parm.n) : xy_y );
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.m + cos(xy_y)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_spheroid";
+                }
+
             };
 
             template <typename Parameters>

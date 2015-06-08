@@ -12,11 +12,12 @@
 #include <cstddef>
 #include <iterator>
 
-#include <boost/assert.hpp>
+
 #include <boost/core/ignore_unused.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -293,7 +294,7 @@ struct buffer_range
                 return error_code;
             }
 
-            BOOST_ASSERT(! generated_side.empty());
+            BOOST_GEOMETRY_ASSERT(! generated_side.empty());
 
             result = strategy::buffer::result_normal;
 

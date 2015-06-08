@@ -18,7 +18,9 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Copyright (c) 2003, 2006   Gerald I. Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +38,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -75,6 +76,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_rouss_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double s, al, cp, sp, al2, s2;
@@ -92,6 +95,8 @@ namespace boost { namespace geometry { namespace projections
                         s*al2*(this->m_proj_parm.B5+s*this->m_proj_parm.B7)));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;;
@@ -107,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                     s = sin(lp_lat);
                     lp_lon=al * sqrt(1. - this->m_par.es * s * s)/cos(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rouss_ellipsoid";
+                }
+
             };
 
             // Roussilhe Stereographic

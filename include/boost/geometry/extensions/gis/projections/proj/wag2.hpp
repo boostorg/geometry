@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +36,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -69,6 +68,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_wag2_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     lp_lat = aasin(C_p1 * sin(C_p2 * lp_lat));
@@ -76,12 +77,20 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = C_y * lp_lat;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = xy_y / C_y;
                     lp_lon = xy_x / (C_x * cos(lp_lat));
                     lp_lat = aasin(sin(lp_lat) / C_p1) / C_p2;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wag2_spheroid";
+                }
+
             };
 
             // Wagner II

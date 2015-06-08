@@ -49,13 +49,7 @@ namespace detail
 {
 
 /* some useful constants */
-static const double HALFPI = boost::math::constants::half_pi<double>();
 static const double FORTPI = boost::math::constants::pi<double>() / 4.0;
-static const double PI = boost::math::constants::pi<double>();
-static const double TWOPI = boost::math::constants::two_pi<double>();
-
-static const double RAD_TO_DEG = boost::math::constants::radian<double>();
-static const double DEG_TO_RAD = boost::math::constants::degree<double>();
 
 static const int PJD_UNKNOWN =0;
 static const int PJD_3PARAM = 1;

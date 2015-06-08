@@ -30,6 +30,7 @@
 * Added relate() and relation() algorithms.
 * Intersection has been implemented for combinations of pointlike and linear geometries
 * Added implementation for difference(pointlike, linear)
+* New algorithm is_empty, returning true if the geometry represents the empty set
 
 [*Improvements]
 
@@ -45,6 +46,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
 * [@https://svn.boost.org/trac/boost/ticket/11232 11232] Feature request - relate()
 * [@https://svn.boost.org/trac/boost/ticket/11332 11332] Assertion failure in buffer for extreme coordinate differences
+* [@https://svn.boost.org/trac/boost/ticket/11346 11346] Segment iterator does not work with ranges returning values instead of references
 
 [/=================]
 [heading Boost 1.58]

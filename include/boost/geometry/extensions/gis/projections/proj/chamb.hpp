@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <cstdio>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -111,6 +111,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_chamb_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double sinphi, cosphi, a;
@@ -152,6 +154,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y *= THIRD;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "chamb_spheroid";
+                }
+
             };
 
             // Chamberlin Trimetric
@@ -179,7 +187,7 @@ namespace boost { namespace geometry { namespace projections
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);
                 proj_parm.beta_1 = lc(proj_parm.c[0].v.r, proj_parm.c[1].v.r, proj_parm.c[2].v.r);
-                proj_parm.beta_2 = PI - proj_parm.beta_0;
+                proj_parm.beta_2 = geometry::math::pi<double>() - proj_parm.beta_0;
                 proj_parm.p.y = 2. * (proj_parm.c[0].p.y = proj_parm.c[1].p.y = proj_parm.c[2].v.r * sin(proj_parm.beta_0));
                 proj_parm.c[2].p.y = 0.;
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);

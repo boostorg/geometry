@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -73,11 +74,13 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_lagrng_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double v, c;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < TOL) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
@@ -89,6 +92,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = (v - 1./v) / c;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lagrng_spheroid";
+                }
+
             };
 
             // Lagrange

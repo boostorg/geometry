@@ -18,7 +18,11 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the aea (Albers Equal Area) projection.
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,8 +41,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -115,6 +119,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aea_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid & spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double rho = 0.0;
@@ -125,6 +131,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
                 }
 
+                // INVERSE(e_inverse)  ellipsoid & spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho = 0.0;
@@ -141,17 +149,23 @@ namespace boost { namespace geometry { namespace projections
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
                                     throw proj_exception();
                             } else
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
                             lp_lat = asin(lp_lat);
                         else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aea_ellipsoid";
+                }
+
             };
 
             template <typename Parameters>
@@ -210,7 +224,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_leac(Parameters& par, par_aea& proj_parm)
             {
                 proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? - HALFPI: HALFPI;
+                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? - geometry::math::half_pi<double>(): geometry::math::half_pi<double>();
                 setup(par, proj_parm);
             }
 

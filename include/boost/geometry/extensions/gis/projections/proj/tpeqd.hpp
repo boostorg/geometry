@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -73,6 +73,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tpeqd_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t, z1, z2, dl1, dl2, sp, cp;
@@ -90,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = -xy_y;
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cz1, cz2, s, d, cp, sp;
@@ -108,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = aasin(this->m_proj_parm.sa * sp + this->m_proj_parm.ca * cp * (s = cos(lp_lon -= this->m_proj_parm.lp)));
                     lp_lon = atan2(cp * sin(lp_lon), this->m_proj_parm.sa * cp * s - this->m_proj_parm.ca * sp) + this->m_proj_parm.lamc;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tpeqd_spheroid";
+                }
+
             };
 
             // Two Point Equidistant
@@ -139,7 +149,7 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.sa = sin(pp);
                 proj_parm.lp = adjlon(atan2(proj_parm.cp1 * cos(A12), proj_parm.sp1) - proj_parm.hz0);
                 proj_parm.dlam2 *= .5;
-                proj_parm.lamc = HALFPI - atan2(sin(A12) * proj_parm.sp1, cos(A12)) - proj_parm.dlam2;
+                proj_parm.lamc = geometry::math::half_pi<double>() - atan2(sin(A12) * proj_parm.sp1, cos(A12)) - proj_parm.dlam2;
                 proj_parm.thz0 = tan(proj_parm.hz0);
                 proj_parm.rhshz0 = .5 / sin(proj_parm.hz0);
                 proj_parm.r2z0 = 0.5 / proj_parm.z02;

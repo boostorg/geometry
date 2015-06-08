@@ -41,15 +41,15 @@ struct point_point
         bool equal = detail::equals::equals_point_point(point1, point2);
         if ( equal )
         {
-            set<interior, interior, '0'>(result);
+            relate::set<interior, interior, '0'>(result);
         }
         else
         {
-            set<interior, exterior, '0'>(result);
-            set<exterior, interior, '0'>(result);
+            relate::set<interior, exterior, '0'>(result);
+            relate::set<exterior, interior, '0'>(result);
         }
 
-        set<exterior, exterior, result_dimension<Point1>::value>(result);
+        relate::set<exterior, exterior, result_dimension<Point1>::value>(result);
     }
 };
 
@@ -92,7 +92,7 @@ struct point_multipoint
         if ( boost::empty(multi_point) )
         {
             // TODO: throw on empty input?
-            set<interior, exterior, '0', Transpose>(result);
+            relate::set<interior, exterior, '0', Transpose>(result);
             return;
         }
 
@@ -100,20 +100,20 @@ struct point_multipoint
 
         if ( rel.first ) // some point of MP is equal to P
         {
-            set<interior, interior, '0', Transpose>(result);
+            relate::set<interior, interior, '0', Transpose>(result);
 
             if ( rel.second ) // a point of MP was found outside P
             {
-                set<exterior, interior, '0', Transpose>(result);
+                relate::set<exterior, interior, '0', Transpose>(result);
             }
         }
         else
         {
-            set<interior, exterior, '0', Transpose>(result);
-            set<exterior, interior, '0', Transpose>(result);
+            relate::set<interior, exterior, '0', Transpose>(result);
+            relate::set<exterior, interior, '0', Transpose>(result);
         }
 
-        set<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
+        relate::set<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
     }
 };
 
@@ -147,12 +147,12 @@ struct multipoint_multipoint
             }
             else if ( empty1 )
             {
-                set<exterior, interior, '0'>(result);
+                relate::set<exterior, interior, '0'>(result);
                 return;
             }
             else if ( empty2 )
             {
-                set<interior, exterior, '0'>(result);
+                relate::set<interior, exterior, '0'>(result);
                 return;
             }
         }
@@ -215,23 +215,23 @@ struct multipoint_multipoint
 // TODO: if I/I is set for one MPt, this won't be changed when the other one in analysed
 //       so if e.g. only I/I must be analysed we musn't check the other MPt
 
-            set<interior, interior, '0', Transpose>(result);
+            relate::set<interior, interior, '0', Transpose>(result);
 
             if ( found_outside ) // some point of MP2 was found outside of MP1
             {
-                set<exterior, interior, '0', Transpose>(result);
+                relate::set<exterior, interior, '0', Transpose>(result);
             }
         }
         else
         {
-            set<interior, exterior, '0', Transpose>(result);
-            set<exterior, interior, '0', Transpose>(result);
+            relate::set<interior, exterior, '0', Transpose>(result);
+            relate::set<exterior, interior, '0', Transpose>(result);
 
             // if no point is intersecting the other MPt then we musn't analyse the reversed case
             all_handled = true;
         }
 
-        set<exterior, exterior, result_dimension<point_type>::value, Transpose>(result);
+        relate::set<exterior, exterior, result_dimension<point_type>::value, Transpose>(result);
 
         return all_handled;
     }

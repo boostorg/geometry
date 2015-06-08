@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -85,6 +86,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipse
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double al, als, n, cosphi, sinphi, t;
@@ -96,7 +99,7 @@ namespace boost { namespace geometry { namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
@@ -124,13 +127,15 @@ namespace boost { namespace geometry { namespace projections
                         ))));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double n, con, cosphi, d, ds, sinphi, t;
 
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
-                    if (fabs(lp_lat) >= HALFPI) {
-                        lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                    if (fabs(lp_lat) >= geometry::math::half_pi<double>()) {
+                        lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         lp_lon = 0.;
                     } else {
                         sinphi = sin(lp_lat);
@@ -154,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ))) / cosphi;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -171,6 +182,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tmerc_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double b, cosphi;
@@ -182,7 +195,7 @@ namespace boost { namespace geometry { namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
@@ -202,6 +215,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.esp * (xy_y - this->m_par.phi0);
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double h, g;
@@ -213,6 +228,12 @@ namespace boost { namespace geometry { namespace projections
                     if (xy_y < 0.) lp_lat = -lp_lat;
                     lp_lon = (g || h) ? atan2(g, h) : 0.;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_spheroid";
+                }
+
             };
 
             template <typename Parameters>
@@ -251,11 +272,11 @@ namespace boost { namespace geometry { namespace projections
                     else
                         throw proj_exception(-35);
                 else /* nearest central meridian input */
-                    if ((zone = int_floor((adjlon(par.lam0) + PI) * 30. / PI)) < 0)
+                    if ((zone = int_floor((adjlon(par.lam0) + geometry::math::pi<double>()) * 30. / geometry::math::pi<double>())) < 0)
                         zone = 0;
                     else if (zone >= 60)
                         zone = 59;
-                par.lam0 = (zone + .5) * PI / 30. - PI;
+                par.lam0 = (zone + .5) * geometry::math::pi<double>() / 30. - geometry::math::pi<double>();
                 par.k0 = 0.9996;
                 par.phi0 = 0.;
                 setup(par, proj_parm);

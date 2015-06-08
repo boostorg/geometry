@@ -53,6 +53,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/gstmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/healpix.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
 //#include <boost/geometry/extensions/gis/projections/proj/igh.hpp> -> in combined
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
@@ -133,19 +134,6 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
     typedef Projection<GeoPoint, cartesian_point_type, bg::projections::parameters> projection_type;
 
-    // TEMPORARY (will replaced by the internal name of the projection - this is ugly and does not work for Windows or many other compilers)
-    std::string name = typeid(projection_type).name();
-    boost::replace_all(name, "N5boost8geometry11projections", "");
-    boost::replace_all(name, "INS0_5model2ll5pointINS0_6degreeEdNS0_2cs10geographicELm2EEENS3_2d28point_xyIdNS7_9cartesianEEENS1_10parametersEEE", "");
-    boost::replace_all(name, "11", "");
-    boost::replace_all(name, "12", "");
-    boost::replace_all(name, "13", "");
-    boost::replace_all(name, "14", "");
-    boost::replace_all(name, "15", "");
-    boost::replace_all(name, "16", "");
-    boost::replace_all(name, "17", "");
-    boost::replace_all(name, "18", "");
-
     try
     {
         bg::projections::parameters par = bg::projections::detail::pj_init_plus(parameters);
@@ -162,12 +150,12 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 
         int const difference = std::abs(distance_expected - distance_found);
         BOOST_CHECK_MESSAGE(difference <= 1 || difference == deviation,
-                " projection: " << name
+                " projection: " << projection_type::get_name()
                 << " distance found: " << distance_found
                 << " expected: " << distance_expected);
 
 // For debug:
-//        std::cout << name << " " << distance_expected
+//        std::cout << projection_type::get_name() << " " << distance_expected
 //            << " " << distance_found
 //            << " " << (difference > 1 && difference != deviation ? " *** WRONG ***" : "")
 //            << " " << difference
@@ -175,11 +163,11 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
     }
     catch(bg::projections::proj_exception const& e)
     {
-        std::cout << "Exception in " << name << " : " << e.code() << std::endl;
+        std::cout << "Exception in " << projection_type::get_name() << " : " << e.code() << std::endl;
     }
     catch(...)
     {
-        std::cout << "Exception (unknown) in " << name << std::endl;
+        std::cout << "Exception (unknown) in " << projection_type::get_name() << std::endl;
     }
 }
 
@@ -246,6 +234,12 @@ void test_all()
     test_forward<bg::projections::gstmerc_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
     test_forward<bg::projections::hammer_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
     test_forward<bg::projections::hatano_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
+
+    test_forward<bg::projections::healpix_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::healpix_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::rhealpix_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::rhealpix_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+
     test_forward<bg::projections::imw_p_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
     test_forward<bg::projections::isea_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
     test_forward<bg::projections::kav5_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);

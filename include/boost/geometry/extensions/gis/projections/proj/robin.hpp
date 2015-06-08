@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -57,6 +58,15 @@ namespace boost { namespace geometry { namespace projections
             static const int NODES = 18;
             static const double ONEEPS = 1.000001;
             static const double EPS = 1e-8;
+
+            /*
+            note: following terms based upon 5 deg. intervals in degrees.
+
+            Some background on these coefficients is available at:
+
+            http://article.gmane.org/gmane.comp.gis.proj-4.devel/6039
+            http://trac.osgeo.org/proj/ticket/113
+            */
 
             struct COEFS {
                 double c0, c1, c2, c3;
@@ -124,6 +134,8 @@ namespace boost { namespace geometry { namespace projections
                 inline double DV(COEFS const& C, double z) const
                 { return (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3)); }
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     int i;
@@ -131,12 +143,14 @@ namespace boost { namespace geometry { namespace projections
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i >= NODES) i = NODES - 1;
-                    dphi = RAD_TO_DEG * (dphi - RC1 * i);
+                    dphi = geometry::math::r2d<double>() * (dphi - RC1 * i);
                     xy_x = V(X[i], dphi) * FXC * lp_lon;
                     xy_y = V(Y[i], dphi) * FYC;
                     if (lp_lat < 0.) xy_y = -xy_y;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int i;
@@ -148,7 +162,7 @@ namespace boost { namespace geometry { namespace projections
                     if (lp_lat >= 1.) { /* simple pathologic cases */
                         if (lp_lat > ONEEPS) throw proj_exception();
                         else {
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                             lp_lon /= X[NODES].c0;
                         }
                     } else { /* general problem */
@@ -168,11 +182,17 @@ namespace boost { namespace geometry { namespace projections
                             if (fabs(t1) < EPS)
                                 break;
                         }
-                        lp_lat = (5 * i + t) * DEG_TO_RAD;
+                        lp_lat = (5 * i + t) * geometry::math::d2r<double>();
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         lp_lon /= V(X[i], t);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "robin_spheroid";
+                }
+
             };
 
             // Robinson

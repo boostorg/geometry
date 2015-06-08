@@ -18,7 +18,11 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the aeqd (Azimuthal Equidistant) projection.
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -88,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
@@ -129,6 +135,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(e_inverse)  elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double c, Az, cosAz, A, B, D, E, F, psi, t;
@@ -151,8 +159,8 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = aasin(sin(Az) * sin(E) / cos(psi));
                         if ((t = fabs(psi)) < EPS10)
                             lp_lat = 0.;
-                        else if (fabs(t - HALFPI) < 0.)
-                            lp_lat = HALFPI;
+                        else if (fabs(t - geometry::math::half_pi<double>()) < 0.)
+                            lp_lat = geometry::math::half_pi<double>();
                         else
                             lp_lat = atan((1. - this->m_par.es * F * this->m_proj_parm.sinph0 / sin(psi)) * tan(psi) /
                                 this->m_par.one_es);
@@ -162,6 +170,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, this->m_proj_parm.mode == N_POLE ? -xy_y : xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -179,6 +193,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_guam<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_guam_fwd)  Guam elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  cosphi, sinphi, t;
@@ -191,6 +207,8 @@ namespace boost { namespace geometry { namespace projections
                         .5 * lp_lon * lp_lon * cosphi * sinphi * t;
                 }
 
+                // INVERSE(e_guam_inv)  Guam elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double x2, t;
@@ -205,6 +223,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     lp_lon = xy_x * t / cos(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_guam";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -222,6 +246,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spherical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
@@ -253,20 +279,22 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = -lp_lat;
                         coslam = -coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < EPS10) throw proj_exception();;
-                        xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
+                        if (fabs(lp_lat - geometry::math::half_pi<double>()) < EPS10) throw proj_exception();;
+                        xy_x = (xy_y = (geometry::math::half_pi<double>() + lp_lat)) * sin(lp_lon);
                         xy_y *= coslam;
                         break;
                     }
                 }
 
+                // INVERSE(s_inverse)  spherical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosc, c_rh, sinc;
 
-                    if ((c_rh = boost::math::hypot(xy_x, xy_y)) > PI) {
-                        if (c_rh - EPS10 > PI) throw proj_exception();;
-                        c_rh = PI;
+                    if ((c_rh = boost::math::hypot(xy_x, xy_y)) > geometry::math::pi<double>()) {
+                        if (c_rh - EPS10 > geometry::math::pi<double>()) throw proj_exception();;
+                        c_rh = geometry::math::pi<double>();
                     } else if (c_rh < EPS10) {
                         lp_lat = this->m_par.phi0;
                         lp_lon = 0.;
@@ -287,13 +315,19 @@ namespace boost { namespace geometry { namespace projections
                         }
                         lp_lon = atan2(xy_x, xy_y);
                     } else if (this->m_proj_parm.mode == N_POLE) {
-                        lp_lat = HALFPI - c_rh;
+                        lp_lat = geometry::math::half_pi<double>() - c_rh;
                         lp_lon = atan2(xy_x, -xy_y);
                     } else {
-                        lp_lat = c_rh - HALFPI;
+                        lp_lat = c_rh - geometry::math::half_pi<double>();
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_spheroid";
+                }
+
             };
 
             // Azimuthal Equidistant
@@ -301,7 +335,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_aeqd(Parameters& par, par_aeqd& proj_parm)
             {
                 par.phi0 = pj_param(par.params, "rlat_0").f;
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10) {
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                     proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
                     proj_parm.cosph0 = 0.;
@@ -322,10 +356,10 @@ namespace boost { namespace geometry { namespace projections
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
-                            proj_parm.Mp = pj_mlfn(HALFPI, 1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn(geometry::math::half_pi<double>(), 1., 0., proj_parm.en);
                             break;
                         case S_POLE:
-                            proj_parm.Mp = pj_mlfn(-HALFPI, -1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn(-geometry::math::half_pi<double>(), -1., 0., proj_parm.en);
                             break;
                         case EQUIT:
                         case OBLIQ:

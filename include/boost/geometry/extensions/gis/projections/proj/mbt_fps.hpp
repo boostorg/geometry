@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +36,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -73,6 +72,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_mbt_fps_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double k, V, t;
@@ -91,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = C_y * sin(t);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
@@ -99,6 +102,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (C_x * (1. + 3. * cos(lp_lat)/cos(t)));
                     lp_lat = aasin((C1 * sin(t) + sin(lp_lat)) / C3);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mbt_fps_spheroid";
+                }
+
             };
 
             // McBryde-Thomas Flat-Pole Sine (No. 2)

@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -155,6 +156,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_imw_p_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double yc = 0;
@@ -162,6 +165,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     XY t;
@@ -175,6 +180,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = lp_lon * xy_x / t.x;
                     } while (fabs(t.x - xy_x) > TOL || fabs(t.y - xy_y) > TOL);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "imw_p_ellipsoid";
+                }
+
             };
 
             // International Map of the World Polyconic
@@ -195,11 +206,11 @@ namespace boost { namespace geometry { namespace projections
                 if (pj_param(par.params, "tlon_1").i)
                     proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
                 else { /* use predefined based upon latitude */
-                    sig = fabs(sig * RAD_TO_DEG);
+                    sig = fabs(sig * geometry::math::r2d<double>());
                     if (sig <= 60)        sig = 2.;
                     else if (sig <= 76) sig = 4.;
                     else                sig = 8.;
-                    proj_parm.lam_1 = sig * DEG_TO_RAD;
+                    proj_parm.lam_1 = sig * geometry::math::d2r<double>();
                 }
                 proj_parm.mode = 0;
                 if (proj_parm.phi_1) xy(par, proj_parm, proj_parm.phi_1, &x1, &y1, &proj_parm.sphi_1, &proj_parm.R_1);

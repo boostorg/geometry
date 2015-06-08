@@ -18,7 +18,12 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the nzmg (New Zealand Map Grid) projection.
+// Very loosely based upon DMA code by Bradford W. Drew
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +42,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -85,6 +91,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_nzmg_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     COMPLEX p;
@@ -101,6 +109,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = p.r;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn, i;
@@ -127,6 +137,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lon = lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nzmg_ellipsoid";
+                }
+
             };
 
             // New Zealand Map Grid
@@ -135,8 +151,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 /* force to International major axis */
                 par.ra = 1. / (par.a = 6378388.0);
-                par.lam0 = DEG_TO_RAD * 173.;
-                par.phi0 = DEG_TO_RAD * -41.;
+                par.lam0 = geometry::math::d2r<double>() * 173.;
+                par.phi0 = geometry::math::d2r<double>() * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
             }

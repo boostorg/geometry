@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -70,6 +71,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_mbtfpp_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     lp_lat = asin(CS_ * sin(lp_lat));
@@ -77,21 +80,29 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = FYC * sin(C13 * lp_lat);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = xy_y / FYC;
                     if (fabs(lp_lat) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        else    lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     } else
                         lp_lat = asin(lp_lat);
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
                     if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        else    lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     } else
                         lp_lat = asin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mbtfpp_spheroid";
+                }
+
             };
 
             // McBride-Thomas Flat-Polar Parabolic

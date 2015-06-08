@@ -35,8 +35,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_PJ_TSFN_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_PJ_TSFN_HPP
 
-
-#include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace projections {
 namespace detail {
@@ -45,7 +44,7 @@ namespace detail {
     inline double pj_tsfn(double phi, double sinphi, double e)
     {
         sinphi *= e;
-        return (tan (.5 * (HALFPI - phi)) /
+        return (tan (.5 * (geometry::math::half_pi<double>() - phi)) /
            pow((1. - sinphi) / (1. + sinphi), .5 * e));
     }
 

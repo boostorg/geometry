@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -81,6 +81,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  sphere & ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double rho = 0.0;
@@ -90,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
                 }
 
+                // INVERSE(e_inverse)  sphere & ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho = 0.0;
@@ -105,10 +109,11 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     }
                 }
 
+                // SPECIAL(fac)
                 #ifdef SPECIAL_FACTORS_NOT_CONVERTED
                 inline void fac(Geographic lp, Factors &fac) const
                 {
@@ -122,6 +127,12 @@ namespace boost { namespace geometry { namespace projections
                         cosphi, this->m_proj_parm.en) : lp_lat)) / pj_msfn(sinphi, cosphi, this->m_par.es);
                 }
                 #endif
+
+                static inline std::string get_name()
+                {
+                    return "eqdc_ellipsoid";
+                }
+
             };
 
             // Equidistant Conic

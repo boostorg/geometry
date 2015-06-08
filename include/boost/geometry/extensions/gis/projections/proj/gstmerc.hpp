@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +36,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -77,6 +76,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gstmerc_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double L, Ls, sinLs1, Ls1;
@@ -89,6 +90,8 @@ namespace boost { namespace geometry { namespace projections
                     /*fprintf(stderr,"fwd:\nL      =%16.13f\nLs     =%16.13f\nLs1    =%16.13f\nLP(%16.13f,%16.13f)=XY(%16.4f,%16.4f)\n",L,Ls,Ls1,lp_lon+this->m_par.lam0,lp_lat,(xy_x*this->m_par.a + this->m_par.x0)*this->m_par.to_meter,(xy_y*this->m_par.a + this->m_par.y0)*this->m_par.to_meter);*/
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double L, LC, sinC;
@@ -99,6 +102,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat= -1.0*pj_phi2(exp((LC-this->m_proj_parm.c)/this->m_proj_parm.n1),this->m_par.e);
                     /*fprintf(stderr,"inv:\nL      =%16.13f\nsinC   =%16.13f\nLC     =%16.13f\nXY(%16.4f,%16.4f)=LP(%16.13f,%16.13f)\n",L,sinC,LC,((xy_x/this->m_par.ra)+this->m_par.x0)/this->m_par.to_meter,((xy_y/this->m_par.ra)+this->m_par.y0)/this->m_par.to_meter,lp_lon+this->m_par.lam0,lp_lat);*/
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gstmerc_spheroid";
+                }
+
             };
 
             // Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)

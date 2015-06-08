@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -73,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_moll_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double k, V;
@@ -86,13 +89,15 @@ namespace boost { namespace geometry { namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     else
                         lp_lat *= 0.5;
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
                     xy_y = this->m_proj_parm.C_y * sin(lp_lat);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
@@ -100,6 +105,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat += lp_lat;
                     lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "moll_spheroid";
+                }
+
             };
 
             template <typename Parameters>
@@ -109,8 +120,8 @@ namespace boost { namespace geometry { namespace projections
 
                 par.es = 0;
                 sp = sin(p);
-                r = sqrt(TWOPI * sp / (p2 + sin(p2)));
-                proj_parm.C_x = 2. * r / PI;
+                r = sqrt(geometry::math::two_pi<double>() * sp / (p2 + sin(p2)));
+                proj_parm.C_x = 2. * r / geometry::math::pi<double>();
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
             }
@@ -120,14 +131,14 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_moll(Parameters& par, par_moll& proj_parm)
             {
-                setup(par, proj_parm, HALFPI);
+                setup(par, proj_parm, geometry::math::half_pi<double>());
             }
 
             // Wagner IV
             template <typename Parameters>
             void setup_wag4(Parameters& par, par_moll& proj_parm)
             {
-                setup(par, proj_parm, PI/3.);
+                setup(par, proj_parm, geometry::math::pi<double>()/3.);
             }
 
             // Wagner V

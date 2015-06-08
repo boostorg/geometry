@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +36,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -70,6 +69,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_hammer_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosphi, d;
@@ -78,6 +79,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = this->m_proj_parm.m * d * cosphi * sin(lp_lon);
                     xy_y = this->m_proj_parm.rm * d * sin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "hammer_spheroid";
+                }
+
             };
 
             // Hammer & Eckert-Greifendorff

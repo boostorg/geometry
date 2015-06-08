@@ -16,7 +16,6 @@
 
 #include <cstddef>
 
-#include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/begin.hpp>
@@ -28,6 +27,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/util/condition.hpp>
@@ -87,7 +87,7 @@ public:
 
     inline char operator[](std::size_t index) const
     {
-        BOOST_ASSERT(index < static_size);
+        BOOST_GEOMETRY_ASSERT(index < static_size);
         return m_array[index];
     }
 
@@ -700,7 +700,8 @@ struct static_mask
     static const std::size_t static_height = Height;
     static const std::size_t static_size = Width * Height;
 
-    BOOST_STATIC_ASSERT(boost::mpl::size<Seq>::type::value == static_size);
+    BOOST_STATIC_ASSERT(
+        std::size_t(boost::mpl::size<Seq>::type::value) == static_size);
     
     template <detail::relate::field F1, detail::relate::field F2>
     struct static_get

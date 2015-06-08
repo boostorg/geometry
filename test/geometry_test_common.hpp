@@ -73,6 +73,10 @@
 # pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
+// Disable the deprecated std::auto_ptr support in SmartPtr and Core
+// boost::shared_ptr is used in Test
+#define BOOST_NO_AUTO_PTR
+
 # include <boost/test/floating_point_comparison.hpp>
 #ifndef BOOST_TEST_MODULE
 # include <boost/test/included/test_exec_monitor.hpp>

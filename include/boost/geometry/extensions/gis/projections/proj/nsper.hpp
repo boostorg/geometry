@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -90,6 +90,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_nsper_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
@@ -138,6 +140,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  rh, cosz, sinz;
@@ -181,13 +185,19 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nsper_spheroid";
+                }
+
             };
 
             template <typename Parameters>
             void setup(Parameters& par, par_nsper& proj_parm) 
             {
                 if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) < EPS10)
                     proj_parm.mode = EQUIT;
@@ -219,8 +229,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 double omega, gamma;
 
-                omega = pj_param(par.params, "dtilt").f * DEG_TO_RAD;
-                gamma = pj_param(par.params, "dazi").f * DEG_TO_RAD;
+                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<double>();
+                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<double>();
                 proj_parm.tilt = 1;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);

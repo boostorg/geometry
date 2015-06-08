@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -65,6 +66,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_nocol_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (fabs(lp_lon) < EPS) {
@@ -73,17 +76,17 @@ namespace boost { namespace geometry { namespace projections
                     } else if (fabs(lp_lat) < EPS) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(fabs(lp_lon) - HALFPI) < EPS) {
+                    } else if (fabs(fabs(lp_lon) - geometry::math::half_pi<double>()) < EPS) {
                         xy_x = lp_lon * cos(lp_lat);
-                        xy_y = HALFPI * sin(lp_lat);
-                    } else if (fabs(fabs(lp_lat) - HALFPI) < EPS) {
+                        xy_y = geometry::math::half_pi<double>() * sin(lp_lat);
+                    } else if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS) {
                         xy_x = 0;
                         xy_y = lp_lat;
                     } else {
                         double tb, c, d, m, n, r2, sp;
 
-                        tb = HALFPI / lp_lon - lp_lon / HALFPI;
-                        c = lp_lat / HALFPI;
+                        tb = geometry::math::half_pi<double>() / lp_lon - lp_lon / geometry::math::half_pi<double>();
+                        c = lp_lat / geometry::math::half_pi<double>();
                         d = (1 - c * c)/((sp = sin(lp_lat)) - c);
                         r2 = tb / d;
                         r2 *= r2;
@@ -91,12 +94,18 @@ namespace boost { namespace geometry { namespace projections
                         n = (sp / r2 + 0.5 * d)/(1. + 1./r2);
                         xy_x = cos(lp_lat);
                         xy_x = sqrt(m * m + xy_x * xy_x / (1. + r2));
-                        xy_x = HALFPI * ( m + (lp_lon < 0. ? -xy_x : xy_x));
+                        xy_x = geometry::math::half_pi<double>() * ( m + (lp_lon < 0. ? -xy_x : xy_x));
                         xy_y = sqrt(n * n - (sp * sp / r2 + d * sp - 1.) /
                             (1. + 1./r2));
-                        xy_y = HALFPI * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
+                        xy_y = geometry::math::half_pi<double>() * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nocol_spheroid";
+                }
+
             };
 
             // Nicolosi Globular

@@ -19,25 +19,24 @@
 
 struct point
 {
+    point() : x(0), y(0) {} // initialize to suppress warnings
     float x, y;
 };
 
 namespace boost { namespace geometry { namespace traits {
 
 template <> struct tag<point> { typedef point_tag type; };
-//template <> struct coordinate_type<point> { typedef float type; };
+template <> struct coordinate_type<point> { typedef float type; };
 template <> struct coordinate_system<point> { typedef bg::cs::cartesian type; };
 template <> struct dimension<point> { enum { value = 2 }; };
 
 template <> struct access<point, 0>
 {
-    static float get(point const& p) { return p.x; }
     static void set(point& p, float value) { p.x = value; }
 };
 
 template <> struct access<point, 1>
 {
-    static float get(point const& p) { return p.y; }
     static void set(point& p, float value) { p.y = value; }
 };
 

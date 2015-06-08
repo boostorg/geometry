@@ -18,6 +18,7 @@
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -60,7 +61,7 @@ struct segments_intersection_points
         // Up to now, division was postponed. Here we divide using numerator/
         // denominator. In case of integer this results in an integer
         // division.
-        BOOST_ASSERT(ratio.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
 
         typedef typename promote_integral<coordinate_type>::type promoted_type;
 

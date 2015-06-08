@@ -18,7 +18,12 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
+// Purpose:  Implementation of the krovak (Krovak) projection.
+// Definition: http://www.ihsenergy.com/epsg/guid7.html#1.4.3
+// Author:   Thomas Flemming, tf@ttqv.com
+// Copyright (c) 2001, Thomas Flemming, tf@ttqv.com
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -36,7 +41,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -92,6 +96,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_krovak_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                 /* calculate xy from lat/lon */
@@ -155,6 +161,8 @@ namespace boost { namespace geometry { namespace projections
                       }
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     /* calculate lat/lon from xy */
@@ -235,6 +243,12 @@ namespace boost { namespace geometry { namespace projections
 
                    lp_lon -= this->m_par.lam0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "krovak_ellipsoid";
+                }
+
             };
 
             // Krovak

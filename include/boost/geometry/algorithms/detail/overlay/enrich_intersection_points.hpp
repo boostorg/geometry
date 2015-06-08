@@ -22,7 +22,6 @@
 #  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #endif
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>

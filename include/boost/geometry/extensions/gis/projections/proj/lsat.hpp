@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -66,7 +67,7 @@ namespace boost { namespace geometry { namespace projections
             seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
                 double sdsq, h, s, fc, sd, sq, d__1;
 
-                lam *= DEG_TO_RAD;
+                lam *= geometry::math::d2r<double>();
                 sd = sin(lam);
                 sdsq = sd * sd;
                 s = proj_parm.p22 * proj_parm.sa * cos(lam) * sqrt((1. + proj_parm.t * sdsq) / ((
@@ -98,17 +99,19 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_lsat_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     int l, nn;
                     double lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
                         lamtp, cl, sd, sp, fac, sav, tanphi;
 
-                    if (lp_lat > HALFPI)
-                        lp_lat = HALFPI;
-                    else if (lp_lat < -HALFPI)
-                        lp_lat = -HALFPI;
-                    lampp = lp_lat >= 0. ? HALFPI : PI_HALFPI;
+                    if (lp_lat > geometry::math::half_pi<double>())
+                        lp_lat = geometry::math::half_pi<double>();
+                    else if (lp_lat < -geometry::math::half_pi<double>())
+                        lp_lat = -geometry::math::half_pi<double>();
+                    lampp = lp_lat >= 0. ? geometry::math::half_pi<double>() : PI_HALFPI;
                     tanphi = tan(lp_lat);
                     for (nn = 0;;) {
                         sav = lampp;
@@ -116,7 +119,7 @@ namespace boost { namespace geometry { namespace projections
                         cl = cos(lamtp);
                         if (fabs(cl) < TOL)
                             lamtp -= TOL;
-                        fac = lampp - sin(lampp) * (cl < 0. ? -HALFPI : HALFPI);
+                        fac = lampp - sin(lampp) * (cl < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>());
                         for (l = 50; l; --l) {
                             lamt = lp_lon + this->m_proj_parm.p22 * sav;
                             if (fabs(c = cos(lamt)) < TOL)
@@ -132,7 +135,7 @@ namespace boost { namespace geometry { namespace projections
                         if (lamdp <= this->m_proj_parm.rlm)
                             lampp = TWOPI_HALFPI;
                         else if (lamdp >= this->m_proj_parm.rlm2)
-                            lampp = HALFPI;
+                            lampp = geometry::math::half_pi<double>();
                     }
                     if (l) {
                         sp = sin(lp_lat);
@@ -151,6 +154,8 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = xy_y = HUGE_VAL;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn;
@@ -184,7 +189,7 @@ namespace boost { namespace geometry { namespace projections
                         * (1. + this->m_proj_parm.u)));
                     sl = lamt >= 0. ? 1. : -1.;
                     scl = cos(lamdp) >= 0. ? 1. : -1;
-                    lamt -= HALFPI * (1. - scl) * sl;
+                    lamt -= geometry::math::half_pi<double>() * (1. - scl) * sl;
                     lp_lon = lamt - this->m_proj_parm.p22 * lamdp;
                     if (fabs(this->m_proj_parm.sa) < TOL)
                         lp_lat = aasin(spp / sqrt(this->m_par.one_es * this->m_par.one_es + this->m_par.es * sppsq));
@@ -192,6 +197,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = atan((tan(lamdp) * cos(lamt) - this->m_proj_parm.ca * sin(lamt)) /
                             (this->m_par.one_es * this->m_proj_parm.sa));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lsat_ellipsoid";
+                }
+
             };
 
             // Space oblique for LANDSAT
@@ -206,13 +217,13 @@ namespace boost { namespace geometry { namespace projections
                 path = pj_param(par.params, "ipath").i;
                 if (path <= 0 || path > (land <= 3 ? 251 : 233)) throw proj_exception(-29);
                 if (land <= 3) {
-                    par.lam0 = DEG_TO_RAD * 128.87 - TWOPI / 251. * path;
+                    par.lam0 = geometry::math::d2r<double>() * 128.87 - geometry::math::two_pi<double>() / 251. * path;
                     proj_parm.p22 = 103.2669323;
-                    alf = DEG_TO_RAD * 99.092;
+                    alf = geometry::math::d2r<double>() * 99.092;
                 } else {
-                    par.lam0 = DEG_TO_RAD * 129.3 - TWOPI / 233. * path;
+                    par.lam0 = geometry::math::d2r<double>() * 129.3 - geometry::math::two_pi<double>() / 233. * path;
                     proj_parm.p22 = 98.8841202;
-                    alf = DEG_TO_RAD * 98.2;
+                    alf = geometry::math::d2r<double>() * 98.2;
                 }
                 proj_parm.p22 /= 1440.;
                 proj_parm.sa = sin(alf);
@@ -227,8 +238,8 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.t = ess * (2. - par.es) * par.rone_es * par.rone_es;
                 proj_parm.u = esc * par.rone_es;
                 proj_parm.xj = par.one_es * par.one_es * par.one_es;
-                proj_parm.rlm = PI * (1. / 248. + .5161290322580645);
-                proj_parm.rlm2 = proj_parm.rlm + TWOPI;
+                proj_parm.rlm = geometry::math::pi<double>() * (1. / 248. + .5161290322580645);
+                proj_parm.rlm2 = proj_parm.rlm + geometry::math::two_pi<double>();
                 proj_parm.a2 = proj_parm.a4 = proj_parm.b = proj_parm.c1 = proj_parm.c3 = 0.;
                 seraz0(0., 1., par, proj_parm);
                 for (lam = 9.; lam <= 81.0001; lam += 18.)

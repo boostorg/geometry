@@ -16,8 +16,8 @@
 
 test-suite boost-geometry-algorithms-relate
     :
-    [ run relate_areal_areal.cpp ]
-    [ run relate_linear_areal.cpp ]
-    [ run relate_linear_linear.cpp ]
-    [ run relate_pointlike_geometry.cpp ]
+    [ run relate_areal_areal.cpp        : : : : algorithms_relate_areal_areal ]
+    [ run relate_linear_areal.cpp       : : : : algorithms_relate_linear_areal ]
+    [ run relate_linear_linear.cpp      : : : : algorithms_relate_linear_linear ]
+    [ run relate_pointlike_geometry.cpp : : : : algorithms_relate_pointlike_geometry ]
     ;

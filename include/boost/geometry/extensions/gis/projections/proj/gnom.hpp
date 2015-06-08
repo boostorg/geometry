@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,7 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -79,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gnom_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
@@ -117,6 +119,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  rh, cosz, sinz;
@@ -132,7 +136,7 @@ namespace boost { namespace geometry { namespace projections
                         case OBLIQ:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
@@ -141,30 +145,36 @@ namespace boost { namespace geometry { namespace projections
                         case EQUIT:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
                         case S_POLE:
-                            lp_lat -= HALFPI;
+                            lp_lat -= geometry::math::half_pi<double>();
                             break;
                         case N_POLE:
-                            lp_lat = HALFPI - lp_lat;
+                            lp_lat = geometry::math::half_pi<double>() - lp_lat;
                             xy_y = -xy_y;
                             break;
                         }
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gnom_spheroid";
+                }
+
             };
 
             // Gnomonic
             template <typename Parameters>
             void setup_gnom(Parameters& par, par_gnom& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) < EPS10)
                     proj_parm.mode = EQUIT;

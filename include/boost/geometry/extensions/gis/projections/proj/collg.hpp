@@ -18,7 +18,7 @@
 // Last updated version of proj: 4.9.1
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -67,6 +68,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_collg_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if ((xy_y = 1. - sin(lp_lat)) <= 0.)
@@ -77,18 +80,26 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = FYC * (1. - xy_y);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = xy_y / FYC - 1.;
                     if (fabs(lp_lat = 1. - lp_lat * lp_lat) < 1.)
                         lp_lat = asin(lp_lat);
                     else if (fabs(lp_lat) > ONEEPS) throw proj_exception();
-                    else    lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                    else    lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     if ((lp_lon = 1. - sin(lp_lat)) <= 0.)
                         lp_lon = 0.;
                     else
                         lp_lon = xy_x / (FXC * sqrt(lp_lon));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "collg_spheroid";
+                }
+
             };
 
             // Collignon

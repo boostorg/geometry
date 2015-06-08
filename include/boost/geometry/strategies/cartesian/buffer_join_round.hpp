@@ -16,7 +16,6 @@
 
 #include <algorithm>
 
-#include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
