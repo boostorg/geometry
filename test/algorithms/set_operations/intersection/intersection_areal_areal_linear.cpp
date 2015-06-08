@@ -116,6 +116,27 @@ BOOST_AUTO_TEST_CASE( test_intersection_ring_ring_linestring )
          from_wkt<ML>("MULTILINESTRING((2 1,2 2),(2 0,1 0),(2 1,2 1))"),
          from_wkt<ML>("MULTILINESTRING((2 2,2 1),(2 0,1 0),(2 1,2 1))")
          );
+
+    tester::apply
+        ("r-r-02",
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<OG>("POLYGON((2 1,2 4,4 4,4 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("r-r-03",
+         from_wkt<OG>("POLYGON((2 1,2 4,4 4,4 0,1 0))"),
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("r-r-04",
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
 }
 
 
@@ -240,6 +261,41 @@ BOOST_AUTO_TEST_CASE( test_intersection_polygon_polygon_linestring )
          from_wkt<OG>("POLYGON((2 5,4 7,6 7,7 5,5 2))"),
          from_wkt<ML>("MULTILINESTRING((2 5,2 5),(4 7,6 7),(7 5,7 5),(5 2,5 2))")
          );
+
+    tester::apply
+        ("pg-pg-09",
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<OG>("POLYGON((2 1,2 4,4 4,4 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("pg-pg-10",
+         from_wkt<OG>("POLYGON((2 1,2 4,4 4,4 0,1 0))"),
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("pg-pg-11",
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("pg-pg-12",
+         from_wkt<OG>("POLYGON((),())"),
+         from_wkt<OG>("POLYGON((),(),())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("pg-pg-13",
+         from_wkt<OG>("POLYGON((2 1,2 4,4 4,4 0,1 0),())"),
+         from_wkt<OG>("POLYGON(())"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
 }
 
 
@@ -296,5 +352,40 @@ BOOST_AUTO_TEST_CASE( test_intersection_multipolygon_multipolygon_linestring )
          from_wkt<OG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0),(2 2,8 2,8 8,2 8)))"),
          from_wkt<OG>("MULTIPOLYGON(((2 4,2 6,8 6,8 4)))"),
          from_wkt<ML>("MULTILINESTRING((2 4,2 4),(2 4,2 6),(8 6,8 4))")
+         );
+
+    tester::apply
+        ("mpg-mpg-03",
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<OG>("MULTIPOLYGON(((2 1,2 4,4 4,4 0,1 0)))"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("mpg-mpg-04",
+         from_wkt<OG>("MULTIPOLYGON(((2 1,2 4,4 4,4 0,1 0)))"),
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("mpg-mpg-05",
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("mpg-mpg-06",
+         from_wkt<OG>("MULTIPOLYGON((()),((),()))"),
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<ML>("MULTILINESTRING()")
+         );
+
+    tester::apply
+        ("mpg-mpg-07",
+         from_wkt<OG>("MULTIPOLYGON(((2 1,2 4,4 4,4 0,1 0),(),()))"),
+         from_wkt<OG>("MULTIPOLYGON()"),
+         from_wkt<ML>("MULTILINESTRING()")
          );
 }
