@@ -22,9 +22,8 @@
 #include <iterator>
 #include <vector>
 
-#include <boost/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -65,8 +64,8 @@ struct envelope_linear_on_spheroid
                 Longitude, Units
             > constants;
 
-        BOOST_ASSERT(! math::larger(lon1, lon2));
-        BOOST_ASSERT(! math::larger(lon1, constants::max_longitude()));
+        BOOST_GEOMETRY_ASSERT(! math::larger(lon1, lon2));
+        BOOST_GEOMETRY_ASSERT(! math::larger(lon1, constants::max_longitude()));
 
         if (math::larger(lon2, constants::max_longitude()))
         {
@@ -92,7 +91,7 @@ struct envelope_linear_on_spheroid
                 Linear const
             > iterator_type;
 
-        BOOST_ASSERT(! geometry::is_empty(linear));
+        BOOST_GEOMETRY_ASSERT(! geometry::is_empty(linear));
 
         std::vector<interval_type> longitude_intervals;
         std::back_insert_iterator

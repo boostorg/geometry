@@ -14,6 +14,8 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
+
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
@@ -214,7 +216,7 @@ public :
         boost::ignore_unused(strategy);
 #endif
 
-        BOOST_ASSERT(! piece.sections.empty());
+        BOOST_GEOMETRY_ASSERT(! piece.sections.empty());
 
         coordinate_type const point_y = geometry::get<1>(turn.robust_point);
 

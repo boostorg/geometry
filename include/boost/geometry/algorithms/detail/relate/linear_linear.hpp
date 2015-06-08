@@ -19,6 +19,8 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
+#include <boost/geometry/core/assert.hpp>
+
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
@@ -580,7 +582,7 @@ struct linear_linear
                    OtherBoundaryChecker const& /*other_boundary_checker*/)
         {
             boost::ignore_unused(first, last);
-            //BOOST_ASSERT( first != last );
+            //BOOST_GEOMETRY_ASSERT( first != last );
 
             // here, the possible exit is the real one
             // we know that we entered and now we exit
@@ -590,7 +592,7 @@ struct linear_linear
             {
                 update<interior, exterior, '1', transpose_result>(res);
 
-                BOOST_ASSERT(first != last);
+                BOOST_GEOMETRY_ASSERT(first != last);
 
                 const TurnInfo * turn_ptr = NULL;
                 if ( m_degenerated_turn_ptr )
@@ -602,7 +604,7 @@ struct linear_linear
                 {
                     segment_identifier const& prev_seg_id = turn_ptr->operations[op_id].seg_id;
 
-                    //BOOST_ASSERT(!boost::empty(sub_range(geometry, prev_seg_id)));
+                    //BOOST_GEOMETRY_ASSERT(!boost::empty(sub_range(geometry, prev_seg_id)));
                     bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
                                                 range::back(sub_range(geometry, prev_seg_id)),
                                                 boundary_checker);
@@ -692,7 +694,7 @@ struct linear_linear
 
                     if ( first_in_range )
                     {
-                        //BOOST_ASSERT(!boost::empty(ls1_ref));
+                        //BOOST_GEOMETRY_ASSERT(!boost::empty(ls1_ref));
                         bool const front_b = is_endpoint_on_boundary<boundary_front>(
                                                 range::front(ls1_ref), boundary_checker);
                         if ( front_b )
@@ -721,7 +723,7 @@ struct linear_linear
 
                     if ( first_in_range )
                     {
-                        //BOOST_ASSERT(!boost::empty(ls1_ref));
+                        //BOOST_GEOMETRY_ASSERT(!boost::empty(ls1_ref));
                         bool const front_b = is_endpoint_on_boundary<boundary_front>(
                                                 range::front(ls1_ref), boundary_checker);
                         if ( front_b )

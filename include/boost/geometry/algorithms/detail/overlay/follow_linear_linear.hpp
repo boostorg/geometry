@@ -14,9 +14,9 @@
 #include <algorithm>
 #include <iterator>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -142,7 +142,7 @@ static inline bool is_isolated_point(Turn const& turn,
 
     if ( turn.method == method_none )
     {
-        BOOST_ASSERT( operation.operation == operation_continue );
+        BOOST_GEOMETRY_ASSERT( operation.operation == operation_continue );
         return true;
     }
 
@@ -327,7 +327,7 @@ public:
             throw inconsistent_turns_exception();
         }
 #else
-        BOOST_ASSERT(enter_count == 0);
+        BOOST_GEOMETRY_ASSERT(enter_count == 0);
 #endif
 
         return process_end(entered, linestring,
@@ -433,7 +433,7 @@ public:
           TurnIterator first, TurnIterator beyond,
           OutputIterator oit)
     {
-        BOOST_ASSERT( first != beyond );
+        BOOST_GEOMETRY_ASSERT( first != beyond );
 
         typedef copy_linestrings_in_range
             <

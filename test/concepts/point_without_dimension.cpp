@@ -19,6 +19,7 @@
 
 struct point
 {
+    point() : x(0), y(0) {} // initialize to suppress warnings
     float x, y;
 };
 

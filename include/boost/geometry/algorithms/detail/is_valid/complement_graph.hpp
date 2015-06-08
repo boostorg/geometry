@@ -17,9 +17,9 @@
 #include <utility>
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/core/addressof.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
 
@@ -197,8 +197,8 @@ public:
 
     inline void add_edge(vertex_handle v1, vertex_handle v2)
     {
-        BOOST_ASSERT( v1 != m_vertices.end() );
-        BOOST_ASSERT( v2 != m_vertices.end() );
+        BOOST_GEOMETRY_ASSERT( v1 != m_vertices.end() );
+        BOOST_GEOMETRY_ASSERT( v2 != m_vertices.end() );
         m_neighbors[v1->id()].insert(v2);
         m_neighbors[v2->id()].insert(v1);
     }

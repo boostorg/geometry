@@ -15,9 +15,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_STRATEGIES_CARTESIAN_POINT_IN_NSPHERE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_STRATEGIES_CARTESIAN_POINT_IN_NSPHERE_HPP
 
-#include <cassert>
-
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -75,7 +74,7 @@ struct point_in_nsphere
 //    static bool apply(A const& a, B const& b)
 //    {
 //        // Assertion if called
-//        assert(false);
+//        BOOST_GEOMETRY_ASSERT(false);
 //        return false;
 //    }
 //};
