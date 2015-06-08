@@ -844,7 +844,7 @@ struct buffered_piece_collection
             return;
         }
 
-        if (m_first_piece_index < static_cast<int>(boost::size(m_pieces)))
+        if (m_first_piece_index < static_cast<signed_size_type>(boost::size(m_pieces)))
         {
             // If piece was added
             // Reassign left-of-first and right-of-last
