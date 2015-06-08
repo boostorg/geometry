@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#include <boost/assert.hpp>
 #include <boost/core/addressof.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -27,6 +28,7 @@
 #include <boost/range.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -55,17 +57,32 @@ template
     typename Polygon,
     typename Value = typename ring_type<Polygon>::type,
     typename Reference = typename ring_return_type<Polygon>::type,
-    typename Difference = std::ptrdiff_t
+    typename Difference = typename boost::range_difference
+        <
+            typename boost::remove_reference
+                <
+                    typename interior_return_type<Polygon>::type
+                >::type
+        >::type
 >
 class polygon_rings_iterator
     : public boost::iterator_facade
         <
-            polygon_rings_iterator<Polygon, Value, Reference>,
+            polygon_rings_iterator<Polygon, Value, Reference, Difference>,
             Value,
             boost::random_access_traversal_tag,
-            Reference
+            Reference,
+            Difference
         >
 {
+    typedef typename boost::range_size
+        <
+            typename boost::remove_reference
+                <
+                    typename interior_return_type<Polygon>::type
+                >::type
+        >::type size_type;
+
 public:
     // default constructor
     polygon_rings_iterator()
@@ -82,7 +99,7 @@ public:
     // for end
     polygon_rings_iterator(Polygon& polygon, bool)
         : m_polygon(boost::addressof(polygon))
-        , m_index(num_rings(polygon))
+        , m_index(static_cast<size_type>(num_rings(polygon)))
     {}
 
     template
@@ -152,7 +169,8 @@ private:
                           OtherDifference
                       > const& other) const
     {
-        return m_polygon == other.m_polygon && m_index == other.m_index;
+        BOOST_ASSERT(m_polygon == other.m_polygon);
+        return m_index == other.m_index;
     }
 
     inline void increment()
@@ -180,7 +198,8 @@ private:
                                       OtherDifference
                                   > const& other) const
     {
-        return other.m_index - m_index;
+        return static_cast<Difference>(other.m_index)
+            - static_cast<Difference>(m_index);
     }
 
     inline void advance(Difference n)
@@ -190,7 +209,7 @@ private:
 
 private:
     Polygon* m_polygon;
-    std::size_t m_index;
+    size_type m_index;
 };
 
 
@@ -216,68 +235,32 @@ public:
 };
 
 
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+struct views_container_initializer
+{};
+
 template <typename Polygon>
-class polygon_boundary
+struct views_container_initializer<Polygon, polygon_tag>
 {
-    typedef boundary_view<typename ring_type<Polygon>::type> boundary_view_type;
     typedef polygon_rings_iterator<Polygon> rings_iterator_type;
 
-    inline void initialize_views(Polygon& polygon)
+    static inline std::size_t num_rings(Polygon const& polygon)
     {
-        std::pair<boundary_view_type*, std::ptrdiff_t> result
-            = std::get_temporary_buffer<boundary_view_type>(m_num_rings);
+        return geometry::num_interior_rings(polygon) + 1;
+    }
 
-        if ( result.second == 0 )
-        {
-            throw std::bad_alloc();
-        }
-
-        m_views = result.first;
+    template <typename BoundaryView>
+    static inline void apply(Polygon const& polygon, BoundaryView* views)
+    {
         std::uninitialized_copy(rings_iterator_type(polygon),
                                 rings_iterator_type(polygon, true),
-                                m_views);
+                                views);
     }
-
-
-public:
-    typedef boundary_view_type* iterator;
-    typedef boundary_view_type const* const_iterator;
-
-    typedef multi_linestring_tag tag_type;
-
-    explicit polygon_boundary(Polygon& polygon)
-        : m_num_rings(static_cast
-                          <
-                              std::ptrdiff_t
-                          >(num_interior_rings(polygon) + 1))
-    {
-        initialize_views(polygon);
-    }
-
-    ~polygon_boundary()
-    {
-        for (std::ptrdiff_t i = 0; i < m_num_rings; ++i)
-        {
-            m_views[i].~boundary_view_type();
-        }
-        std::return_temporary_buffer(m_views);
-    }
-
-    inline iterator begin() { return m_views; }
-    inline iterator end() { return m_views + m_num_rings; }
-    inline const_iterator begin() const { return m_views; }
-    inline const_iterator end() const { return m_views + m_num_rings; }
-
-private:
-    std::ptrdiff_t m_num_rings;
-    boundary_view_type* m_views;
 };
 
-
 template <typename MultiPolygon>
-class multipolygon_boundary
+struct views_container_initializer<MultiPolygon, multi_polygon_tag>
 {
-private:
     typedef typename boost::mpl::if_
         <
             boost::is_const<MultiPolygon>,
@@ -287,23 +270,17 @@ private:
 
     typedef polygon_rings_iterator<polygon_type> rings_iterator_type;
 
-    typedef boundary_view
-        <
-            typename ring_type<MultiPolygon>::type
-        > boundary_view_type;
-
-    inline void initialize_views(MultiPolygon& multipolygon)
+    static inline std::size_t num_rings(MultiPolygon const& multipolygon)
     {
-        std::pair<boundary_view_type*, std::ptrdiff_t> result
-            = std::get_temporary_buffer<boundary_view_type>(m_num_rings);
+        return geometry::num_interior_rings(multipolygon)
+            + static_cast<std::size_t>(boost::size(multipolygon));
+    }
 
-        if ( result.second == 0 )
-        {
-            throw std::bad_alloc();
-        }
-
-        m_views = result.first;
-        boundary_view_type* cur_it = m_views;
+    template <typename BoundaryView>
+    static inline void apply(MultiPolygon const& multipolygon,
+                             BoundaryView* views)
+    {
+        BoundaryView* cur_it = views;
         for (typename boost::range_iterator<MultiPolygon>::type
                  it = boost::begin(multipolygon);
              it != boost::end(multipolygon);
@@ -314,6 +291,45 @@ private:
                                              cur_it);
         }
     }
+};
+
+
+template <typename Areal>
+class areal_boundary
+{
+    typedef boundary_view<typename ring_type<Areal>::type> boundary_view_type;
+    typedef views_container_initializer<Areal> initializer;
+
+    inline void initialize_views(Areal const& areal)
+    {
+        std::pair<boundary_view_type*, std::ptrdiff_t> result
+            = std::get_temporary_buffer<boundary_view_type>(m_num_rings);
+
+        if ( result.second < m_num_rings )
+        {
+            throw std::bad_alloc();
+        }
+
+        m_views = result.first;
+        try
+        {
+            initializer::apply(areal, m_views);
+        }
+        catch (...)
+        {
+            clear();
+            throw;
+        }
+    }
+
+    inline void clear()
+    {
+        for (std::ptrdiff_t i = 0; i < m_num_rings; ++i)
+        {
+            m_views[i].~boundary_view_type();
+        }
+        std::return_temporary_buffer(m_views);
+    }
 
 public:
     typedef boundary_view_type* iterator;
@@ -321,23 +337,18 @@ public:
 
     typedef multi_linestring_tag tag_type;
 
-    multipolygon_boundary(MultiPolygon& multipolygon)
+    explicit areal_boundary(Areal& areal)
         : m_num_rings(static_cast
                           <
                               std::ptrdiff_t
-                          >(geometry::num_interior_rings(multipolygon)
-                            + boost::size(multipolygon)))
+                          >(initializer::num_rings(areal)))
     {
-        initialize_views(multipolygon);
+        initialize_views(areal);
     }
 
-    ~multipolygon_boundary()
+    ~areal_boundary()
     {
-        for (std::ptrdiff_t i = 0; i < m_num_rings; ++i)
-        {
-            m_views[i].~boundary_view_type();
-        }
-        std::return_temporary_buffer(m_views);
+        clear();
     }
 
     inline iterator begin() { return m_views; }
@@ -371,19 +382,19 @@ struct boundary_view<Ring, ring_tag>
 
 template <typename Polygon>
 struct boundary_view<Polygon, polygon_tag>
-    : detail::boundary_views::polygon_boundary<Polygon>
+    : detail::boundary_views::areal_boundary<Polygon>
 {
     explicit boundary_view(Polygon& polygon)
-        : detail::boundary_views::polygon_boundary<Polygon>(polygon)
+        : detail::boundary_views::areal_boundary<Polygon>(polygon)
     {}
 };
 
 template <typename MultiPolygon>
 struct boundary_view<MultiPolygon, multi_polygon_tag>
-    : detail::boundary_views::multipolygon_boundary<MultiPolygon>
+    : detail::boundary_views::areal_boundary<MultiPolygon>
 {
     explicit boundary_view(MultiPolygon& multipolygon)
-        : detail::boundary_views::multipolygon_boundary
+        : detail::boundary_views::areal_boundary
             <
                 MultiPolygon
             >(multipolygon)
