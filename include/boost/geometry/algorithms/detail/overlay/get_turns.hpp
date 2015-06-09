@@ -143,7 +143,7 @@ class get_turns_in_sections
 
     template <typename Geometry, typename Section>
     static inline bool neighbouring(Section const& section,
-            int index1, int index2)
+            signed_index_type index1, signed_index_type index2)
     {
         // About n-2:
         //   (square: range_count=5, indices 0,1,2,3
@@ -151,7 +151,7 @@ class get_turns_in_sections
         // Also tested for open polygons, and/or duplicates
         // About first condition: will be optimized by compiler (static)
         // It checks if it is areal (box,ring,(multi)polygon
-        int const n = int(section.range_count);
+        signed_index_type const n = static_cast<signed_index_type>(section.range_count);
 
         boost::ignore_unused_variable_warning(n);
         boost::ignore_unused_variable_warning(index1);
@@ -208,8 +208,8 @@ public :
 
         int const dir1 = sec1.directions[0];
         int const dir2 = sec2.directions[0];
-        int index1 = sec1.begin_index;
-        int ndi1 = sec1.non_duplicate_index;
+        signed_index_type index1 = sec1.begin_index;
+        signed_index_type ndi1 = sec1.non_duplicate_index;
 
         bool const same_source =
             source_id1 == source_id2
@@ -237,8 +237,8 @@ public :
                     begin_range_1, end_range_1, next1, true);
             advance_to_non_duplicate_next(nd_next1, it1, sec1, robust_policy);
 
-            int index2 = sec2.begin_index;
-            int ndi2 = sec2.non_duplicate_index;
+            signed_index_type index2 = sec2.begin_index;
+            signed_index_type ndi2 = sec2.non_duplicate_index;
 
             range2_iterator prev2, it2, end2;
 
@@ -360,7 +360,7 @@ private :
             typename boost::range_iterator<Range const>::type& it,
             typename boost::range_iterator<Range const>::type& prev,
             typename boost::range_iterator<Range const>::type& end,
-            int& index, int& ndi,
+            signed_index_type& index, signed_index_type& ndi,
             int dir, Box const& other_bounding_box, RobustPolicy const& robust_policy)
     {
         it = boost::begin(range) + section.begin_index;
