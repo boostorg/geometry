@@ -325,7 +325,7 @@ struct linear_areal
                     // if there was some previous ring
                     if ( prev_seg_id_ptr != NULL )
                     {
-                        signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                        signed_size_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
                         BOOST_GEOMETRY_ASSERT(next_ring_index >= 0);
                         
                         // if one of the last rings of previous single geometry was ommited
@@ -396,7 +396,7 @@ struct linear_areal
             // if there was some previous ring
             if ( prev_seg_id_ptr != NULL )
             {
-                signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                signed_size_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
                 BOOST_GEOMETRY_ASSERT(next_ring_index >= 0);
 
                 // if one of the last rings of previous single geometry was ommited
@@ -1334,8 +1334,8 @@ struct linear_areal
         if ( first == last )
             return last;
 
-        signed_index_type const multi_index = first->operations[1].seg_id.multi_index;
-        signed_index_type const ring_index = first->operations[1].seg_id.ring_index;
+        signed_size_type const multi_index = first->operations[1].seg_id.multi_index;
+        signed_size_type const ring_index = first->operations[1].seg_id.ring_index;
 
         fun(*first);
         ++first;
