@@ -104,9 +104,9 @@ public:
 
             // Check if any interior ring is outside
             ring_identifier ring_id(0, -1, 0);
-            int const irings_count = boost::numeric_cast<int>(
-                                        geometry::num_interior_rings(areal) );
-            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
+            std::size_t const irings_count = geometry::num_interior_rings(areal);
+            for ( ; static_cast<std::size_t>(ring_id.ring_index) < irings_count ;
+                    ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
@@ -140,9 +140,9 @@ public:
 
             // Check if any interior ring is inside
             ring_identifier ring_id(0, -1, 0);
-            int const irings_count = boost::numeric_cast<int>(
-                                        geometry::num_interior_rings(areal) );
-            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
+            std::size_t const irings_count = geometry::num_interior_rings(areal);
+            for ( ; static_cast<std::size_t>(ring_id.ring_index) < irings_count ;
+                    ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
