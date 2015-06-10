@@ -118,15 +118,17 @@ struct envelope_range_of_longitudes
                                                           max_gap_right);
 
                 BOOST_GEOMETRY_ASSERT(! math::larger(lon_min, lon_max));
-                BOOST_GEOMETRY_ASSERT(! math::larger(lon_max, max_longitude));
-                BOOST_GEOMETRY_ASSERT(! math::smaller(lon_min, min_longitude));
+                BOOST_GEOMETRY_ASSERT
+                    (! math::larger(lon_max, constants::max_longitude()));
+                BOOST_GEOMETRY_ASSERT
+                    (! math::smaller(lon_min, constants::min_longitude()));
 
                 BOOST_GEOMETRY_ASSERT
                     (! math::larger(max_gap_left, max_gap_right));
                 BOOST_GEOMETRY_ASSERT
-                    (! math::larger(max_gap_right, max_longitude));
+                    (! math::larger(max_gap_right, constants::max_longitude()));
                 BOOST_GEOMETRY_ASSERT
-                    (! math::smaller(max_gap_left, min_longitude));
+                    (! math::smaller(max_gap_left, constants::min_longitude()));
 
                 if (math::larger(max_gap, zero))
                 {
