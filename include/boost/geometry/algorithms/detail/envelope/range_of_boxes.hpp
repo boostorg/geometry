@@ -15,10 +15,10 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
@@ -117,17 +117,16 @@ struct envelope_range_of_longitudes
                                                           max_gap_left,
                                                           max_gap_right);
 
-                BOOST_ASSERT(! math::larger(lon_min, lon_max));
-                BOOST_ASSERT(! math::larger(lon_max,
-                                            constants::max_longitude()));
-                BOOST_ASSERT(! math::smaller(lon_min,
-                                             constants::min_longitude()));
+                BOOST_GEOMETRY_ASSERT(! math::larger(lon_min, lon_max));
+                BOOST_GEOMETRY_ASSERT(! math::larger(lon_max, max_longitude));
+                BOOST_GEOMETRY_ASSERT(! math::smaller(lon_min, min_longitude));
 
-                BOOST_ASSERT(! math::larger(max_gap_left, max_gap_right));
-                BOOST_ASSERT(! math::larger(max_gap_right,
-                                            constants::max_longitude()));
-                BOOST_ASSERT(! math::smaller(max_gap_left,
-                                             constants::min_longitude()));
+                BOOST_GEOMETRY_ASSERT
+                    (! math::larger(max_gap_left, max_gap_right));
+                BOOST_GEOMETRY_ASSERT
+                    (! math::larger(max_gap_right, max_longitude));
+                BOOST_GEOMETRY_ASSERT
+                    (! math::smaller(max_gap_left, min_longitude));
 
                 if (math::larger(max_gap, zero))
                 {
@@ -244,7 +243,7 @@ struct envelope_range_of_boxes<0, DimensionCount>
         typedef longitude_interval<coordinate_type> interval_type;
         typedef std::vector<interval_type> interval_range_type;
 
-        BOOST_ASSERT(! boost::empty(range_of_boxes));
+        BOOST_GEOMETRY_ASSERT(! boost::empty(range_of_boxes));
 
         iterator_type it_min = std::min_element(boost::begin(range_of_boxes),
                                                 boost::end(range_of_boxes),

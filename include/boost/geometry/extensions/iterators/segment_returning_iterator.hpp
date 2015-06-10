@@ -18,10 +18,11 @@
 
 #include <iterator>
 
-#include <boost/assert.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
+
+#include <boost/geometry/core/assert.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 
@@ -60,14 +61,14 @@ struct segment_returning_iterator
     {
         if (m_it != m_end)
         {
-            BOOST_ASSERT(m_prev != m_end);
+            BOOST_GEOMETRY_ASSERT(m_prev != m_end);
             ++m_it;
         }
     }
 
     reference operator*()
     {
-        BOOST_ASSERT(m_it != m_end && m_prev != m_end);
+        BOOST_GEOMETRY_ASSERT(m_it != m_end && m_prev != m_end);
 
         p1 = *m_prev;
         p2 = *m_it;

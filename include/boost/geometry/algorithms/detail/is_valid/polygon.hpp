@@ -18,9 +18,9 @@
 #include <set>
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -192,12 +192,12 @@ protected:
         {
             if (tit->operations[0].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT(tit->operations[1].seg_id.ring_index != -1);
+                BOOST_GEOMETRY_ASSERT(tit->operations[1].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[1].seg_id.ring_index);
             }
             else if (tit->operations[1].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT(tit->operations[0].seg_id.ring_index != -1);
+                BOOST_GEOMETRY_ASSERT(tit->operations[0].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[0].seg_id.ring_index);
             }
         }

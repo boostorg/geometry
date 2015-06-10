@@ -68,7 +68,7 @@ struct box_box_loop
         coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
 
         // TODO assert or exception?
-        //BOOST_ASSERT(min1 <= max1 && min2 <= max2);
+        //BOOST_GEOMETRY_ASSERT(min1 <= max1 && min2 <= max2);
 
         if ( max1 < min2 || max2 < min1 )
         {

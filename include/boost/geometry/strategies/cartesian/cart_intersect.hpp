@@ -264,7 +264,7 @@ private:
                               bool const a_is_point,
                               bool const b_is_point)
     {
-        //BOOST_ASSERT_MSG(!(a_is_point && b_is_point), "both segments shouldn't be degenerated");
+        //BOOST_GEOMETRY_ASSERT_MSG(!(a_is_point && b_is_point), "both segments shouldn't be degenerated");
 
         // for degenerated segments the second is always true because this function
         // shouldn't be called if both segments were degenerated

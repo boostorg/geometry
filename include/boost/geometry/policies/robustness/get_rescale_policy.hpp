@@ -23,6 +23,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/mpl/assert.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -70,7 +71,7 @@ inline void scale_box_to_integer_range(Box const& box,
         : boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
-    BOOST_ASSERT(factor >= 1);
+    BOOST_GEOMETRY_ASSERT(factor >= 1);
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(box, min_point);

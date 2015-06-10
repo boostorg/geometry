@@ -12,9 +12,9 @@
 
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
@@ -88,7 +88,7 @@ public:
 
         if (interrupt_policy.has_intersections)
         {
-            BOOST_ASSERT(! boost::empty(turns));
+            BOOST_GEOMETRY_ASSERT(! boost::empty(turns));
             return visitor.template apply<failure_self_intersections>(turns);
         }
         else

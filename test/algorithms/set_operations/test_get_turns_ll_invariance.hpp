@@ -32,6 +32,7 @@ namespace bg_turns = bg_detail::turns;
 
 template
 <
+    bool Enable = true,
     bool EnableRemoveDuplicateTurns = true,
     bool EnableDegenerateTurns = true
 >
@@ -166,6 +167,17 @@ public:
     }
 };
 
-
+template <bool EnableRemoveDuplicateTurns, bool EnableDegenerateTurns>
+class test_get_turns_ll_invariance
+<
+    false, EnableRemoveDuplicateTurns, EnableDegenerateTurns
+>
+{
+public:
+    template <typename Linear1, typename Linear2>
+    static inline void apply(Linear1 const&, Linear2 const&)
+    {
+    }
+};
 
 #endif // BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP

@@ -15,6 +15,10 @@
 #include <string>
 
 #include <boost/cstdint.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+
+#include <boost/geometry/core/assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -85,7 +89,7 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
     // because begin/end always are random access iterators.
     typename std::iterator_traits<Iterator>::difference_type
         diff = std::distance(begin, end);
-    BOOST_ASSERT(diff > 0);
+    BOOST_GEOMETRY_ASSERT(diff > 0);
     return hex.size() == 2 * std::string::size_type(diff);
 }
 

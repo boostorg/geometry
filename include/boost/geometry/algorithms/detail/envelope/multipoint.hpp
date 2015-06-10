@@ -19,6 +19,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -284,7 +285,7 @@ public:
         else if (points.empty())
         {
             // all points are pole points
-            BOOST_ASSERT(has_south_pole || has_north_pole);
+            BOOST_GEOMETRY_ASSERT(has_south_pole || has_north_pole);
             lon_min = coordinate_type(0);
             lon_max = coordinate_type(0);
             lat_min = has_south_pole

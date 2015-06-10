@@ -15,12 +15,12 @@
 #include <utility>
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/core/ref.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/sweep.hpp>
 
@@ -102,7 +102,7 @@ struct initialization_visitor
                              PriorityQueue& queue,
                              EventVisitor&)
     {
-        BOOST_ASSERT(queue.empty());
+        BOOST_GEOMETRY_ASSERT(queue.empty());
 
         // it is faster to build the queue directly from the entire
         // range, rather than insert elements one after the other
@@ -148,7 +148,7 @@ public:
             if (m_overlap_count == 0 && ! queue.empty())
             {
                 // we may have a gap
-                BOOST_ASSERT(queue.top().is_start_event());
+                BOOST_GEOMETRY_ASSERT(queue.top().is_start_event());
 
                 event_time_type next_event_time
                     = queue.top().interval().template get<0>();

@@ -9,10 +9,10 @@
 #ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 #define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 
-#include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/rational.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 
@@ -47,8 +47,8 @@ struct less<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_ASSERT(lhs.denominator() != 0);
-        BOOST_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
         return lhs.numerator() * rhs.denominator()
              < rhs.numerator() * lhs.denominator();
     }
@@ -78,8 +78,8 @@ struct equal<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_ASSERT(lhs.denominator() != 0);
-        BOOST_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
         return geometry::math::equals
             (
                 lhs.numerator() * rhs.denominator(),

@@ -52,7 +52,7 @@ void test_with_strategies(std::string const& caseid,
         PointStrategy const& point_strategy,
         DistanceStrategy const& distance_strategy,
         double expected_area,
-        int expected_numpoints,
+        std::size_t expected_numpoints,
         double tolerance = 0.01)
 {
     namespace bg = boost::geometry;
