@@ -17,6 +17,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <limits>
 
 #include <algorithms/test_envelope.hpp>
 
@@ -62,32 +63,44 @@ void test_3d()
     test_envelope<bg::model::box<P> >("BOX(1 1 1,3 3 3)", 1, 3, 1, 3, 1, 3);
 }
 
+template <typename Geometry>
+void test_empty_geometry(std::string const& wkt)
+{
+    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
+    coordinate_type max_val = (std::numeric_limits<coordinate_type>::max)();
+
+    test_envelope<Geometry>(wkt, max_val, -max_val, max_val, -max_val);
+}
+
 template <typename P>
 void test_empty()
 {
-    test_envelope<bg::model::linestring<P> >("LINESTRING()", 1, -1, 1, -1);
-    test_envelope<bg::model::ring<P> >("POLYGON(())", 1, -1, 1, -1);
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
+    coordinate_type max_val = (std::numeric_limits<coordinate_type>::max)();
 
-    test_envelope<bg::model::polygon<P> >("POLYGON(())", 1, -1, 1, -1);
+    test_empty_geometry<bg::model::linestring<P> >("LINESTRING()");
+    test_empty_geometry<bg::model::ring<P> >("POLYGON(())");
 
-    test_envelope<bg::model::multi_point<P> >("MULTIPOINT()", 1, -1, 1, -1);
+    test_empty_geometry<bg::model::polygon<P> >("POLYGON(())");
 
-    test_envelope
+    test_empty_geometry<bg::model::multi_point<P> >("MULTIPOINT()");
+
+    test_empty_geometry
         <
             bg::model::multi_linestring<bg::model::linestring<P> >
-        >("MULTILINESTRING()", 1, -1, 1, -1);
+        >("MULTILINESTRING()");
 
-    test_envelope
+    test_empty_geometry
         <
             bg::model::multi_polygon<bg::model::polygon<P> >
-        >("MULTIPOLYGON()", 1, -1, 1, -1);
+        >("MULTIPOLYGON()");
 }
 
 template <typename P>
 void test_invalid()
 {
     // polygon with empty exterior and interior rings
-    test_envelope<bg::model::polygon<P> >("POLYGON((),(),())", 1, -1, 1, -1);
+    test_empty_geometry<bg::model::polygon<P> >("POLYGON((),(),())");
 
     // polygon with empty interior rings
     test_envelope
@@ -125,10 +138,10 @@ void test_invalid()
           3, 19, 4, 18);
 
     // multilinestring with empty linestrings
-    test_envelope
+    test_empty_geometry
         <
             bg::model::multi_linestring<bg::model::linestring<P> >
-        >("MULTILINESTRING((),(),())", 1, -1, 1, -1);
+        >("MULTILINESTRING((),(),())");
 
     // multilinestring with empty and non-empty linestrings
     test_envelope
@@ -137,16 +150,16 @@ void test_invalid()
         >("MULTILINESTRING((),(10 20),())", 10, 10, 20, 20);
 
     // multipolygon with empty polygon
-    test_envelope
+    test_empty_geometry
         <
             bg::model::multi_polygon<bg::model::polygon<P> >
-        >("MULTIPOLYGON((()))", 1, -1, 1, -1);
+        >("MULTIPOLYGON((()))");
 
     // multipolygon with many empty polygons
-    test_envelope
+    test_empty_geometry
         <
             bg::model::multi_polygon<bg::model::polygon<P> >
-        >("MULTIPOLYGON(((),(),()),(()),((),(),(),(),()))", 1, -1, 1, -1);
+        >("MULTIPOLYGON(((),(),()),(()),((),(),(),(),()))");
 
     // multipolygon with empty polygons and non-empty (valid) polygon
     test_envelope
