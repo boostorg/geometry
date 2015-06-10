@@ -42,16 +42,6 @@ namespace detail { namespace envelope
 {
 
 
-struct default_is_empty_policy
-{
-    template <typename Geometry>
-    static inline bool apply(Geometry const& geometry)
-    {
-        return geometry::is_empty(geometry);
-    }
-};
-
-
 // implementation for simple ranges
 template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_range
@@ -93,7 +83,6 @@ template
 <
     std::size_t Dimension,
     std::size_t DimensionCount,
-    typename IsEmptyPolicy,
     typename EnvelopePolicy
 >
 struct envelope_multi_range
@@ -111,7 +100,7 @@ struct envelope_multi_range
 
         // skip through empty geometries
         iterator_type it = boost::begin(multirange);
-        while (it != boost::end(multirange) && IsEmptyPolicy::apply(*it))
+        while (it != boost::end(multirange) && geometry::is_empty(*it))
         {
             ++it;
         }
@@ -126,7 +115,7 @@ struct envelope_multi_range
             // using the envelope
             for (++it; it != boost::end(multirange); ++it)
             {
-                if (! IsEmptyPolicy::apply(*it))
+                if (! geometry::is_empty(*it))
                 {
                     Box helper_mbr;
                     EnvelopePolicy::apply(*it, helper_mbr);

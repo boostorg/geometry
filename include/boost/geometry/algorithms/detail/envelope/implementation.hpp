@@ -46,27 +46,30 @@ namespace detail { namespace envelope
 {
 
 
-struct polygon_is_empty_policy
-{
-    template <typename Polygon>
-    static inline bool apply(Polygon const& polygon)
-    {
-        return geometry::is_empty(exterior_ring(polygon));
-    }
-};
-
-
 template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_polygon
 {
     template <typename Polygon, typename Box>
-    static inline void apply(Polygon const& poly, Box& mbr)
+    static inline void apply(Polygon const& polygon, Box& mbr)
     {
-        // For polygon, inspecting outer ring is sufficient
-        envelope_range
-            <
-                Dimension, DimensionCount
-            >::apply(exterior_ring(poly), mbr);
+        typename ring_return_type<Polygon const>::type ext_ring
+            = exterior_ring(polygon);
+
+        if (geometry::is_empty(ext_ring))
+        {
+            // if the exterior ring is empty, consider the interior rings
+            envelope_multi_range
+                <
+                    Dimension,
+                    DimensionCount,
+                    envelope_range<Dimension, DimensionCount>
+                >::apply(interior_rings(polygon), mbr);
+        }
+        else
+        {
+            // otherwise, consider only the exterior ring
+            envelope_range<Dimension, DimensionCount>::apply(ext_ring, mbr);
+        }
     }
 };
 
@@ -102,7 +105,6 @@ struct envelope<MultiPolygon, Dimension, DimensionCount, multi_polygon_tag>
         <
             Dimension,
             DimensionCount,
-            detail::envelope::polygon_is_empty_policy,
             detail::envelope::envelope_polygon<Dimension, DimensionCount>
         >
 {};

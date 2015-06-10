@@ -45,7 +45,6 @@ struct envelope_multilinestring_on_spheroid
         <
             Dimension,
             DimensionCount,
-            detail::envelope::default_is_empty_policy,
             detail::envelope::envelope_range<Dimension, DimensionCount>
         >
 {};
@@ -81,7 +80,6 @@ struct envelope
         <
             Dimension,
             DimensionCount,
-            detail::envelope::default_is_empty_policy,
             detail::envelope::envelope_range<Dimension, DimensionCount>
         >
 {};
