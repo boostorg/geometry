@@ -86,6 +86,44 @@ void test_empty()
 template <typename P>
 void test_invalid()
 {
+    // polygon with empty exterior and interior rings
+    test_envelope<bg::model::polygon<P> >("POLYGON((),(),())", 1, -1, 1, -1);
+
+    // polygon with empty interior rings
+    test_envelope
+        <
+            bg::model::polygon<P>
+        >("POLYGON((1 2,1 20,22 20,22 2,1 2),(),())",
+          1, 22, 2, 20);
+
+    // another polygon with empty interior rings
+    test_envelope
+        <
+            bg::model::polygon<P>
+        >("POLYGON((1 2,1 20,22 20,22 2,1 2),(),(3 4,19 4,19 18,3 18,3 4),())",
+          1, 22, 2, 20);
+
+    // polygon with empty exterior ring
+    test_envelope
+        <
+            bg::model::polygon<P>
+        >("POLYGON((),(),(3 4,19 4,19 18,3 18,3 4),())",
+          3, 19, 4, 18);
+
+    // another polygon with empty exterior ring
+    test_envelope
+        <
+            bg::model::polygon<P>
+        >("POLYGON((),(),(3 4,19 4,19 18,3 18,3 4),(4 5,18 5,18 17,4 17,4 5))",
+          3, 19, 4, 18);
+
+    // yet one more polygon with empty exterior ring
+    test_envelope
+        <
+            bg::model::polygon<P>
+        >("POLYGON((),(),(4 5,18 5,18 17,4 17,4 5),(3 4,19 4,19 18,3 18,3 4))",
+          3, 19, 4, 18);
+
     // multilinestring with empty linestrings
     test_envelope
         <
@@ -132,7 +170,7 @@ void test_invalid()
         <
             bg::model::multi_polygon<bg::model::polygon<P> >
         >("MULTIPOLYGON(((),(),()),(()),((),(3 4,19 4,19 18,3 18,3 4)),(()))",
-          1, -1, 1, -1);
+          3, 19, 4, 18);
 
     // multipolygon with empty polygons and non-empty (invalid) polygon
     // that has an interior ring but empty exterior ring
@@ -140,7 +178,17 @@ void test_invalid()
         <
             bg::model::multi_polygon<bg::model::polygon<P> >
         >("MULTIPOLYGON(((),(),()),((),(),(3 4,19 4,19 18,3 18,3 4),()),(()))",
-          1, -1, 1, -1);
+          3, 19, 4, 18);
+
+    // multipolygon with empty polygons and non-empty (invalid) polygon
+    // that has two non-empty interior rings but empty exterior ring
+    test_envelope
+        <
+            bg::model::multi_polygon<bg::model::polygon<P> >
+        >("MULTIPOLYGON(((),(),()),\
+          ((),(),(3 4,19 4,19 18,3 18,3 4),(4 5,18 5,18 17,4 17,4 5),()),\
+          (()))",
+          3, 19, 4, 18);
 }
 
 int test_main(int, char* [])
