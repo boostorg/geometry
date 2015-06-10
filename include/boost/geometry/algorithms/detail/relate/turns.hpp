@@ -84,14 +84,30 @@ struct get_turns
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy)
     {
-        static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
-        static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
-
         RobustPolicy robust_policy = geometry::get_rescale_policy
             <
                 RobustPolicy
             >(geometry1, geometry2);
 
+        apply(turns, geometry1, geometry2, interrupt_policy, robust_policy);
+    }
+
+    template <typename Turns, typename InterruptPolicy>
+    static inline void apply(Turns & turns,
+                             Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             InterruptPolicy & interrupt_policy,
+                             RobustPolicy const& robust_policy)
+    {
+        static const bool reverse1 = detail::overlay::do_reverse
+            <
+                geometry::point_order<Geometry1>::value
+            >::value;
+
+        static const bool reverse2 = detail::overlay::do_reverse
+            <
+                geometry::point_order<Geometry2>::value
+            >::value;
 
         dispatch::get_turns
             <
