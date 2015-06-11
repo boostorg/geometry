@@ -13,6 +13,7 @@
 #include <deque>
 #include <vector>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/range.hpp>
 
@@ -80,6 +81,8 @@ private:
                                         TurnIterator turns_beyond,
                                         VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         // collect all polygons that have turns
         std::set<signed_index_type> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
