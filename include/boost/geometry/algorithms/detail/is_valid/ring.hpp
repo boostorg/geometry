@@ -12,6 +12,8 @@
 
 #include <deque>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -63,6 +65,8 @@ struct is_topologically_closed<Ring, closed>
     template <typename VisitPolicy>
     static inline bool apply(Ring const& ring, VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         if (geometry::equals(range::front(ring), range::back(ring)))
         {
             return visitor.template apply<no_failure>();
@@ -112,6 +116,8 @@ struct is_properly_oriented
     template <typename VisitPolicy>
     static inline bool apply(Ring const& ring, VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         typename ring_area_predicate
             <
                 area_result_type, IsInteriorRing

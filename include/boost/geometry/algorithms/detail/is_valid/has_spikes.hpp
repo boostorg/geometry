@@ -12,6 +12,7 @@
 
 #include <algorithm>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
 
@@ -79,6 +80,8 @@ struct has_spikes
     template <typename VisitPolicy>
     static inline bool apply(Range const& range, VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         typedef not_equal_to<typename point_type<Range>::type> not_equal;
 
         typedef typename closeable_view<Range const, Closure>::type view_type;
