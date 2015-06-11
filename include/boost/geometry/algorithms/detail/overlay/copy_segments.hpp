@@ -265,7 +265,7 @@ struct copy_segments_multi
         BOOST_GEOMETRY_ASSERT
             (
                 seg_id.multi_index >= 0
-                && seg_id.multi_index < int(boost::size(multi_geometry))
+                && static_cast<std::size_t>(seg_id.multi_index) < boost::size(multi_geometry)
             );
 
         // Call the single-version
