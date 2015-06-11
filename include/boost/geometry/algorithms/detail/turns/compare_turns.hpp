@@ -30,7 +30,7 @@ namespace detail { namespace turns
 // seg_id -> fraction -> other_id -> operation
 template
 <
-    typename IdLess = std::less<signed_index_type>,
+    typename IdLess = std::less<signed_size_type>,
     int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0,
     std::size_t OpId = 0
 >

@@ -81,7 +81,7 @@ private:
                                         VisitPolicy& visitor)
     {
         // collect all polygons that have turns
-        std::set<signed_index_type> multi_indices;
+        std::set<signed_size_type> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             multi_indices.insert(tit->operations[0].seg_id.multi_index);
@@ -90,7 +90,7 @@ private:
 
         // put polygon iterators without turns in a vector
         std::vector<PolygonIterator> polygon_iterators;
-        signed_index_type multi_index = 0;
+        signed_size_type multi_index = 0;
         for (PolygonIterator it = polygons_first; it != polygons_beyond;
              ++it, ++multi_index)
         {
@@ -124,7 +124,7 @@ private:
     class has_multi_index
     {
     public:
-        has_multi_index(signed_index_type multi_index)
+        has_multi_index(signed_size_type multi_index)
             : m_multi_index(multi_index)
         {}
 
@@ -136,7 +136,7 @@ private:
         }
 
     private:
-        signed_index_type const m_multi_index;
+        signed_size_type const m_multi_index;
     };
 
 
@@ -156,7 +156,7 @@ private:
                                  TurnIterator turns_beyond,
                                  VisitPolicy& visitor)
         {
-            signed_index_type multi_index = 0;
+            signed_size_type multi_index = 0;
             for (PolygonIterator it = polygons_first; it != polygons_beyond;
                  ++it, ++multi_index)
             {

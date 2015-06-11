@@ -793,8 +793,8 @@ struct areal_areal
         {
             segment_identifier const& seg_id = turn.operations[OpId].seg_id;
 
-            signed_index_type
-                count = boost::numeric_cast<signed_index_type>(
+            signed_size_type
+                count = boost::numeric_cast<signed_size_type>(
                             geometry::num_interior_rings(
                                 detail::single_geometry(analyser.geometry, seg_id)));
             
@@ -804,8 +804,8 @@ struct areal_areal
         template <typename Analyser, typename Turn>
         static inline void for_no_turns_rings(Analyser & analyser,
                                               Turn const& turn,
-                                              signed_index_type first,
-                                              signed_index_type last)
+                                              signed_size_type first,
+                                              signed_size_type last)
         {
             segment_identifier seg_id = turn.operations[OpId].seg_id;
 
