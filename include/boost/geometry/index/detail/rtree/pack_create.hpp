@@ -189,21 +189,21 @@ public:
     }
 
 private:
-    template <typename Box2>
+    template <typename BoxType>
     class expandable_box
     {
     public:
         expandable_box()
-            : m_is_first(true)
+            : m_initialized(false)
         {}
 
         template <typename Indexable>
         void expand(Indexable const& indexable)
         {
-            if ( m_is_first )
+            if ( !m_initialized )
             {
                 detail::bounds(indexable, m_box);
-                m_is_first = false;
+                m_initialized = true;
             }
             else
             {
@@ -211,14 +211,15 @@ private:
             }
         }
 
-        Box2 const& get() const
+        BoxType const& get() const
         {
+            BOOST_GEOMETRY_INDEX_ASSERT(m_initialized, "uninitialized envelope accessed");
             return m_box;
         }
 
     private:
-        bool m_is_first;
-        Box2 m_box;
+        bool m_initialized;
+        BoxType m_box;
     };
 
     struct subtree_elements_counts
