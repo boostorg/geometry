@@ -19,7 +19,6 @@
 #include "test_is_valid.hpp"
 #include <boost/geometry/algorithms/reverse.hpp>
 
-
 BOOST_AUTO_TEST_CASE( test_is_valid_point )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -880,6 +879,35 @@ inline void test_open_multipolygons()
 
         // polygon contains a spike
         test::apply("mpg20", open_mpgn, false);
+    }
+
+    // MySQL report 12.06.2015
+    {
+        std::string wkt = "MULTIPOLYGON("
+            "((-40.314872143936725 -85.6567579487603,-53.1473643859603 -98.48925019078388,-41.29168745244485 -90.56754012573627,-40.314872143936725 -85.6567579487603)),"
+            "((-186.91433298215597 -88.80210078879976,-192.54783347494038 -75.53420159905284,-192.7944062150986 -78.03769664281869,-186.91433298215597 -88.80210078879976)),"
+            "((170.89089207158912 -44.35600339378721,191.8949969913326 -31.3460752560506,169.32805525181837 -43.07341636227523,170.89089207158912 -44.35600339378721)),"
+            "((-2.6035109435630504 -13.058121512403435,26.839412016794036 43.97610638055074,26.974733141577826 43.72289807427111,26.97470368529088 43.722907009738066,-2.6035109435630504 -13.058121512403435))"
+            ")";
+
+        std::string msg;
+        CG mpoly = from_wkt<CG>(wkt);
+        BOOST_CHECK_MESSAGE(! bg::is_valid(mpoly, msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[0], msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[1], msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[2], msg), msg);
+        BOOST_CHECK_MESSAGE(! bg::is_valid(mpoly[3], msg), msg);
+            
+        // The last Polygon has wrong orientation, but after correcting it the self-intersections are detected, so still invalid
+        bg::reverse(mpoly[3]);
+        BOOST_CHECK_MESSAGE(! bg::is_valid(mpoly, msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[0], msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[1], msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[2], msg), msg);
+
+        // The Polygons itself is valid!
+        // This is not consistent with the result for MultiPolygon
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[3], msg), msg);
     }
 }
 
