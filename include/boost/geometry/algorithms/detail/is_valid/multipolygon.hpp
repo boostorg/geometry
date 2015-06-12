@@ -3,6 +3,7 @@
 // Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -22,6 +23,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
@@ -253,7 +255,8 @@ public:
     {
         typedef debug_validity_phase<MultiPolygon> debug_phase;
 
-        if (AllowEmptyMultiGeometries && boost::empty(multipolygon))
+        if (BOOST_GEOMETRY_CONDITION(
+                AllowEmptyMultiGeometries && boost::empty(multipolygon)))
         {
             return visitor.template apply<no_failure>();
         }

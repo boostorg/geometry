@@ -3,6 +3,7 @@
 // Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -55,6 +56,8 @@ struct is_topologically_closed
     template <typename VisitPolicy>
     static inline bool apply(Ring const&, VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         return visitor.template apply<no_failure>();
     }
 };
