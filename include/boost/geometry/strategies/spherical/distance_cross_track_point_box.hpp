@@ -17,12 +17,21 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_POINT_BOX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_POINT_BOX_HPP
 
+#include <algorithm>
+
+#include <boost/config.hpp>
+#include <boost/concept_check.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_void.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 
 #include <boost/geometry/util/math.hpp>
