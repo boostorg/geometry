@@ -233,6 +233,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 //    std::cout << "OUTPUT: " << area << std::endl;
 //    std::cout << bg::wkt(buffered) << std::endl;
 
+    bg::model::box<point_type> envelope_output;
+    bg::envelope(buffered, envelope_output);
+    rescale_policy_type rescale_policy_output
+            = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
+
     if (expected_area > -0.1)
     {
         double const difference = area - expected_area;
@@ -250,10 +255,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         if (check_self_intersections)
         {
+
             try
             {
                 bool has_self_ips = bg::detail::overlay::has_self_intersections(
-                                        buffered, rescale_policy, false);
+                                        buffered, rescale_policy_output, false);
                 // Be sure resulting polygon does not contain
                 // self-intersections
                 BOOST_CHECK_MESSAGE
@@ -302,7 +308,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 #elif defined(TEST_WITH_SVG)
     buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
-    buffer_mapper.map_self_ips(mapper, buffered, rescale_policy);
+    buffer_mapper.map_self_ips(mapper, buffered, rescale_policy_output);
 #endif
 
     // Check for self-intersections
@@ -312,7 +318,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         if (bg::detail::overlay::has_self_intersections(buffered,
                 rescale_policy, false))
         {
-            count = count_self_ips(buffered, rescale_policy);
+            count = count_self_ips(buffered, rescale_policy_output);
         }
 
         *self_ip_count += count;
