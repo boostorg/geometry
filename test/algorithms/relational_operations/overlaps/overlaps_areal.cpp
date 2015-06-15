@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
@@ -12,59 +12,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_overlaps.hpp"
-
-template <typename P>
-void test_box_box_2d()
-{
-#if defined(BOOST_GEOMETRY_COMPILE_FAIL)
-    test_geometry<P, P>("POINT(1 1)", "POINT(1 1)", true);
-#endif
-
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1, 3 3)", "BOX(0 0,2 2)", true);
-
-    // touch -> false
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1, 3 3)", "BOX(3 3,5 5)", false);
-
-    // disjoint -> false
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1, 3 3)", "BOX(4 4,6 6)", false);
-
-    // within -> false
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1, 5 5)", "BOX(2 2,3 3)", false);
-
-    // within+touch -> false
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1, 5 5)", "BOX(2 2,5 5)", false);
-}
-
-template <typename P>
-void test_3d()
-{
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1 1, 3 3 3)", "BOX(0 0 0,2 2 2)", true);
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1 1, 3 3 3)", "BOX(3 3 3,5 5 5)", false);
-    test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1 1, 3 3 3)", "BOX(4 4 4,6 6 6)", false);
-}
-
-template <typename P>
-void test_pp()
-{
-    typedef bg::model::multi_point<P> mpt;
-
-    test_geometry<mpt, mpt>("MULTIPOINT(0 0,1 1,2 2)", "MULTIPOINT(1 1,3 3,4 4)", true);
-    test_geometry<mpt, mpt>("MULTIPOINT(0 0,1 1,2 2)", "MULTIPOINT(1 1,2 2)", false);
-}
-
-template <typename P>
-void test_ll()
-{
-    typedef bg::model::linestring<P> ls;
-    typedef bg::model::multi_linestring<ls> mls;
-
-    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 1)", "LINESTRING(1 1,2 2,4 4)", true);
-    test_geometry<ls, ls>("LINESTRING(0 0,2 2,4 0)", "LINESTRING(0 1,2 1,3 2)", false);
-
-    test_geometry<ls, mls>("LINESTRING(0 0,2 2,3 1)", "MULTILINESTRING((1 1,2 2),(2 2,4 4))", true);
-    test_geometry<ls, mls>("LINESTRING(0 0,2 2,3 1)", "MULTILINESTRING((1 1,2 2),(3 3,4 4))", true);
-    test_geometry<ls, mls>("LINESTRING(0 0,3 3,3 1)", "MULTILINESTRING((3 3,2 2),(0 0,1 1))", false);
-}
 
 template <typename P>
 void test_aa()
@@ -102,11 +49,7 @@ void test_aa()
 template <typename P>
 void test_2d()
 {
-    test_pp<P>();
-    test_ll<P>();
     test_aa<P>();
-
-    test_box_box_2d<P>();
 }
 
 int test_main( int , char* [] )
@@ -117,8 +60,6 @@ int test_main( int , char* [] )
 #if defined(HAVE_TTMATH)
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
 #endif
-
-   //test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

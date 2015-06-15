@@ -14,20 +14,10 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-relational
+test-suite boost-geometry-algorithms-relational-overlaps
     :
-    [ run covered_by.cpp         : : : : algorithms_covered_by ]
-    [ run covered_by_multi.cpp   : : : : algorithms_covered_by_multi ]
-    [ run crosses.cpp            : : : : algorithms_crosses ]
-    [ run equals.cpp             : : : : algorithms_equals ]
-    [ run equals_multi.cpp       : : : : algorithms_equals_multi ]
-    [ run equals_on_spheroid.cpp : : : : algorithms_equals_on_spheroid ]
-    [ run touches.cpp            : : : : algorithms_touches ]
-    [ run touches_multi.cpp      : : : : algorithms_touches_multi ]
+    [ run overlaps.cpp       : : : : algorithms_overlaps ]
+    [ run overlaps_areal.cpp : : : : algorithms_overlaps_areal ]
+    [ run overlaps_box.cpp   : : : : algorithms_overlaps_box ]
     ;
 
-build-project disjoint ;
-build-project intersects ;
-build-project overlaps ;
-build-project relate ;
-build-project within ;
