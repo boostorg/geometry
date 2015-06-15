@@ -1,0 +1,147 @@
+# Use, modification, and distribution are
+# subject to the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Copyright Antony Polukhin 2014.
+# Copyright Adam Wulkiewicz 2015.
+
+general:
+  branches:
+    only:
+      - master
+      - develop
+
+machine:
+  environment:
+    # required directories
+    BOOST_DIR: boost-local
+    COVERAGE_DIR: coverage-local
+    PROJECT_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME
+    BOOST_ROOT: $PROJECT_ROOT/$BOOST_DIR
+    COVERAGE_ROOT: $PROJECT_ROOT/$COVERAGE_DIR
+    #COVERAGE_ROOT: $CIRCLE_ARTIFACTS
+
+    # set TravisCI variabls because various tools uses them
+    #TRAVIS_BRANCH: $CIRCLE_BRANCH
+    #TRAVIS_BUILD_DIR: $HOME/$CIRCLE_PROJECT_REPONAME
+    #TRAVIS_COMMIT: $CIRCLE_SHA1
+    #TRAVIS_COMMIT_RANGE: $CIRCLE_SHA1
+    #TRAVIS_BUILD_ID: $CIRCLE_BUILD_NUM
+    #TRAVIS_BUILD_NUMBER: $CIRCLE_BUILD_NUM
+    #TRAVIS_JOB_ID: $((CIRCLE_NODE_INDEX+1))
+    #TRAVIS_JOB_NUMBER: $TRAVIS_BUILD_NUMBER.$TRAVIS_JOB_ID
+    #TRAVIS_PULL_REQUEST: $CI_PULL_REQUEST
+
+dependencies:
+  pre:
+    - sudo apt-get update
+    - sudo apt-get install gcc-4.8 g++-4.8 build-essential
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 10
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 10
+    - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-4.8 10
+    - sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 20
+    - sudo update-alternatives --set cc /usr/bin/gcc
+    - sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 20
+    - sudo update-alternatives --set c++ /usr/bin/g++
+    - sudo update-alternatives --config gcc
+    - sudo update-alternatives --config g++
+    - sudo update-alternatives --config gcov
+    #- sudo apt-get install clang
+    #- sudo ln -s /usr/lib/llvm-3.0/lib/libprofile_rt.a /usr/lib/libprofile_rt.a
+    - sudo apt-get install python-yaml
+
+    - pwd
+
+    - mkdir $BOOST_ROOT
+    - cd $BOOST_ROOT && git init .
+    - cd $BOOST_ROOT && git remote add --no-tags -t $CIRCLE_BRANCH origin https://github.com/boostorg/boost.git
+    - cd $BOOST_ROOT && git fetch --depth=1
+    - cd $BOOST_ROOT && git checkout $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git submodule update --init --merge
+    - cd $BOOST_ROOT && git remote set-branches --add origin $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git pull --recurse-submodules
+    - cd $BOOST_ROOT && git submodule update --init
+    - cd $BOOST_ROOT && git checkout $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git submodule foreach "git reset --quiet --hard; git clean -fxd"
+    - cd $BOOST_ROOT && git reset --hard; git clean -fxd
+    - cd $BOOST_ROOT && git status
+    - cd $BOOST_ROOT && rm -rf libs/geometry/
+    - mkdir $BOOST_ROOT/libs/geometry
+    - cp -R `ls -A | grep -v $BOOST_DIR` $BOOST_ROOT/libs/geometry/
+    - cd $BOOST_ROOT && ./bootstrap.sh
+    - cd $BOOST_ROOT && ./b2 headers
+
+    # wait with the further modifications of the project directory until now
+    # to avoid copying into the $BOOST_ROOT/libs/geometry/
+
+    - wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz
+    - tar xvzf lcov-1.11.tar.gz
+    - cd lcov-1.11 && sudo make install
+    - gem install coveralls-lcov
+
+    - if [ ! -d $COVERAGE_ROOT ]; then mkdir $COVERAGE_ROOT; fi
+
+test:
+  override:
+    # `--coverage` flags required to generate coverage info for Coveralls
+    # temporary for test purposes
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms/detail
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms/relational_operations
+    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test
+    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/algorithms
+    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/rtree/exceptions
+  post:
+    ## Preparing Coveralls data by
+
+    ## ... changind data format to a readable one
+
+
+    ## VERSION 1
+    ## Copying Coveralls data to a separate folder
+    #- find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec cp "{}" $COVERAGE_ROOT \;
+    #- find $BOOST_ROOT/bin.v2/ -name "*.gcno" -exec cp "{}" $COVERAGE_ROOT \;
+    # upgraded version - change the file name if exists
+    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \;
+
+    - cd $BOOST_ROOT/libs/geometry && lcov --directory $COVERAGE_ROOT --base-directory ./ --capture --output-file $COVERAGE_ROOT/coverage.info
+
+    ## ... erasing /usr and unneeded directories data
+    - lcov --remove $COVERAGE_ROOT/coverage.info "/usr*" "*/libs/geometry/*" -o $COVERAGE_ROOT/coverage.info
+
+    ## ... erasing data that is not related to this project directly
+    - ls $BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove $COVERAGE_ROOT/coverage.info -o $COVERAGE_ROOT/coverage.info
+
+
+    ## VERSION 2 - remove unneeded data per test to not generate a huge *.info file
+    #- find $BOOST_ROOT/bin.v2/ \( -name "*.gcda" -o -name "*.gcno" \) -exec ls "{}" \; # TEST
+
+    ## ... for each found *.gcda file generate a $COVERAGE_ROOT/*.gcda.info file
+#    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'cd $BOOST_ROOT/libs/geometry && lcov --directory $HOME/geometry/$(dirname "$1") --base-directory ./ --capture --output-file $COVERAGE_ROOT/$(basename "$1").info' bash "{}" \;
+
+    ## ... save the space
+    #- rm -rf $BOOST_ROOT/bin.v2/
+
+    ## ... erasing /usr /test/ /example/ folder data
+#    - for f in $COVERAGE_ROOT/*.info ; do lcov --remove "$f" "/usr*" "*/geometry/test/*" "*/geometry/example/*" "*/geometry/index/*" "*/geometry/extensions/*" -o "$f"; done
+
+    ## ... erasing data that is not related to this project directly
+#    - for f in $COVERAGE_ROOT/*.info ; do ls $HOME/geometry/$BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove "$f" -o "$f" ; done
+
+    ## ... remove empty files since the next command can fail for them
+#    - for f in $COVERAGE_ROOT/*.info ; do if [ ! -s "$f" ]; then rm -f "$f"; fi ; done
+
+    ## ... generate one coverage.info file
+#    - lcov -o $COVERAGE_ROOT/coverage.info `find $COVERAGE_ROOT/ -maxdepth 1 -name "*.info" | sed -r 's/(.+)/--add-tracefile \1/g' | sed ':a;N;$!ba;s/\n/ /g'`
+
+
+    ## ... sanity check
+    - ls -lah $COVERAGE_ROOT
+
+    ## Sending data to Coveralls
+
+    ## ... convert data with coveralls-lcov
+    #- coveralls-lcov -v -n $COVERAGE_ROOT/coverage.info > $COVERAGE_ROOT/coverage.json # TEST
+
+    ## ... send
+    - coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN $COVERAGE_ROOT/coverage.info
