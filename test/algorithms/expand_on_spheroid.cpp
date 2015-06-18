@@ -616,7 +616,8 @@ BOOST_AUTO_TEST_CASE( expand_segment )
     tester::apply("s03",
                   from_wkt<B>("BOX(5 5,50 10)"),
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  5, 5, 50, 10.34527004614999);
+                  5, 5, 50, 10.34527004614999,
+                  4.0 * std::numeric_limits<double>::epsilon());
 
     // segment ending at the north pole
     tester::apply("s04",
