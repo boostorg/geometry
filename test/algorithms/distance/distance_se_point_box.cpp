@@ -375,7 +375,7 @@ void test_distance_point_box(Strategy const& strategy)
 
     std::string const box2 = "BOX(170 -60,400 80)";
 
-    // case 1
+    // case 1 - point is closer to western meridian
     tester::apply("pb2-1a", "POINT(160 0)", box2,
                   "POINT(160 0)", "SEGMENT(170 -60,170 80)", ps,
                   strategy);
@@ -399,6 +399,57 @@ void test_distance_point_box(Strategy const& strategy)
 
     // case 5 - equivalent point POINT(390 0) is inside box
     tester::apply("pb2-5", "POINT(30 0)", box2, 0, 0, strategy);
+
+
+    std::string const box3 = "BOX(-150 -50,-40 70)";
+
+    // case 1 - point is closer to western meridian
+    tester::apply("pb3-1a", "POINT(-170 10)", box3,
+                  "POINT(-170 10)", "SEGMENT(-150 -50,-150 70)", ps,
+                  strategy);
+
+    // case 2 - point is closer to eastern meridian
+    tester::apply("pb3-2a", "POINT(5 10)", box3,
+                  "POINT(5 10)", "SEGMENT(-40 -50,-40 70)", ps,
+                  strategy);
+
+    // case 2 - point is closer to western meridian
+    tester::apply("pb3-2a", "POINT(160 10)", box3,
+                  "POINT(160 10)", "SEGMENT(-150 -50,-150 70)", ps,
+                  strategy);
+
+    // case 2 - point is at equal distance from eastern and western meridian
+    tester::apply("pb3-2c1", "POINT(85 20)", box3,
+                  "POINT(85 20)", "SEGMENT(-150 -50,-150 70)", ps,
+                  strategy);
+
+    // case 2 - point is at equal distance from eastern and western meridian
+    tester::apply("pb3-2c2", "POINT(85 20)", box3,
+                  "POINT(85 20)", "SEGMENT(-40 -50,-40 70)", ps,
+                  strategy);
+
+    // box that is symmetric wrt the prime meridian
+    std::string const box4 = "BOX(-75 -45,75 65)";
+
+    // case 1 - point is closer to western meridian
+    tester::apply("pb4-1a", "POINT(-100 10)", box4,
+                  "POINT(-100 10)", "SEGMENT(-75 -45,-75 65)", ps,
+                  strategy);
+
+    // case 2 - point is closer to eastern meridian
+    tester::apply("pb4-2a", "POINT(90 15)", box4,
+                  "POINT(90 15)", "SEGMENT(75 -45,75 65)", ps,
+                  strategy);
+
+    // case 2 - point is at equal distance from eastern and western meridian
+    tester::apply("pb4-2c1", "POINT(-180 20)", box4,
+                  "POINT(-180 20)", "SEGMENT(-75 -45,-75 65)", ps,
+                  strategy);
+
+    // case 2 - point is at equal distance from eastern and western meridian
+    tester::apply("pb4-2c2", "POINT(-180 20)", box4,
+                  "POINT(-180 20)", "SEGMENT(75 -45,75 65)", ps,
+                  strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_point_box )
