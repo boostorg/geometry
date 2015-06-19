@@ -10,6 +10,7 @@ general:
     only:
       - master
       - develop
+      - test
 
 machine:
   environment:
@@ -32,6 +33,11 @@ machine:
     #TRAVIS_JOB_NUMBER: $TRAVIS_BUILD_NUMBER.$TRAVIS_JOB_ID
     #TRAVIS_PULL_REQUEST: $CI_PULL_REQUEST
 
+    # this is not fully bulletproof, ideally one should check
+    # if the current branch originates in master or develop
+    # but it's good enough
+    BOOST_BRANCH: $([[ "$CIRCLE_BRANCH" = "master" ]] && echo master || echo develop)
+
 dependencies:
   pre:
     - sudo apt-get update
@@ -49,19 +55,18 @@ dependencies:
     #- sudo apt-get install clang
     #- sudo ln -s /usr/lib/llvm-3.0/lib/libprofile_rt.a /usr/lib/libprofile_rt.a
     - sudo apt-get install python-yaml
-
-    - pwd
+    - sudo apt-get install jq
 
     - mkdir $BOOST_ROOT
     - cd $BOOST_ROOT && git init .
-    - cd $BOOST_ROOT && git remote add --no-tags -t $CIRCLE_BRANCH origin https://github.com/boostorg/boost.git
+    - cd $BOOST_ROOT && git remote add --no-tags -t $BOOST_BRANCH origin https://github.com/boostorg/boost.git
     - cd $BOOST_ROOT && git fetch --depth=1
-    - cd $BOOST_ROOT && git checkout $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git checkout $BOOST_BRANCH
     - cd $BOOST_ROOT && git submodule update --init --merge
-    - cd $BOOST_ROOT && git remote set-branches --add origin $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git remote set-branches --add origin $BOOST_BRANCH
     - cd $BOOST_ROOT && git pull --recurse-submodules
     - cd $BOOST_ROOT && git submodule update --init
-    - cd $BOOST_ROOT && git checkout $CIRCLE_BRANCH
+    - cd $BOOST_ROOT && git checkout $BOOST_BRANCH
     - cd $BOOST_ROOT && git submodule foreach "git reset --quiet --hard; git clean -fxd"
     - cd $BOOST_ROOT && git reset --hard; git clean -fxd
     - cd $BOOST_ROOT && git status
@@ -91,57 +96,56 @@ test:
     - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test
     - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/algorithms
     - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/rtree/exceptions
+    # run the tests in parallel - actually for now not in parallel
+    # the problem is that first the upper-level dir is handled
+    # then the tests from lower dir are run are executed and they're overlapping
+    #- cd $BOOST_ROOT/libs/geometry && index=0 ; run_tests() { for i in "$1"/* ; do if [ -f "$i"/Jamfile* ] ; then ((index++)) ; echo "$index - $i" ; ../../b2 cxxflags="--coverage" linkflags="--coverage" "$i" ; run_tests "$i" ; fi ; done } ; run_tests test
+    # so first try manually
+    #- cd $BOOST_ROOT/libs/geometry && case $CIRCLE_NODE_INDEX in 0) ../../b2 cxxflags="--coverage" linkflags="--coverage" test/io ;; 1) ../../b2 cxxflags="--coverage" linkflags="--coverage" test/views ;; esac:
+    #        parallel: true
+
   post:
-    ## Preparing Coveralls data by
-
-    ## ... changind data format to a readable one
-
-
-    ## VERSION 1
     ## Copying Coveralls data to a separate folder
     #- find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec cp "{}" $COVERAGE_ROOT \;
     #- find $BOOST_ROOT/bin.v2/ -name "*.gcno" -exec cp "{}" $COVERAGE_ROOT \;
     # upgraded version - change the file name if exists
-    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \;
+    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; echo "$srcgcda" ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \; #:
+        #parallel: true
 
-    - cd $BOOST_ROOT/libs/geometry && lcov --directory $COVERAGE_ROOT --base-directory ./ --capture --output-file $COVERAGE_ROOT/coverage.info
+    ## Preparing Coveralls data by
+
+    ## ... changind data format to a readable one
+
+    - cd $BOOST_ROOT/libs/geometry && lcov --directory $COVERAGE_ROOT --base-directory ./ --capture --output-file $COVERAGE_ROOT/coverage.info #:
+        #parallel: true
 
     ## ... erasing /usr and unneeded directories data
-    - lcov --remove $COVERAGE_ROOT/coverage.info "/usr*" "*/libs/geometry/*" -o $COVERAGE_ROOT/coverage.info
+    - lcov --remove $COVERAGE_ROOT/coverage.info "/usr*" "*/libs/geometry/*" -o $COVERAGE_ROOT/coverage.info #:
+        #parallel: true
 
     ## ... erasing data that is not related to this project directly
-    - ls $BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove $COVERAGE_ROOT/coverage.info -o $COVERAGE_ROOT/coverage.info
-
-
-    ## VERSION 2 - remove unneeded data per test to not generate a huge *.info file
-    #- find $BOOST_ROOT/bin.v2/ \( -name "*.gcda" -o -name "*.gcno" \) -exec ls "{}" \; # TEST
-
-    ## ... for each found *.gcda file generate a $COVERAGE_ROOT/*.gcda.info file
-#    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'cd $BOOST_ROOT/libs/geometry && lcov --directory $HOME/geometry/$(dirname "$1") --base-directory ./ --capture --output-file $COVERAGE_ROOT/$(basename "$1").info' bash "{}" \;
-
-    ## ... save the space
-    #- rm -rf $BOOST_ROOT/bin.v2/
-
-    ## ... erasing /usr /test/ /example/ folder data
-#    - for f in $COVERAGE_ROOT/*.info ; do lcov --remove "$f" "/usr*" "*/geometry/test/*" "*/geometry/example/*" "*/geometry/index/*" "*/geometry/extensions/*" -o "$f"; done
-
-    ## ... erasing data that is not related to this project directly
-#    - for f in $COVERAGE_ROOT/*.info ; do ls $HOME/geometry/$BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove "$f" -o "$f" ; done
-
-    ## ... remove empty files since the next command can fail for them
-#    - for f in $COVERAGE_ROOT/*.info ; do if [ ! -s "$f" ]; then rm -f "$f"; fi ; done
-
-    ## ... generate one coverage.info file
-#    - lcov -o $COVERAGE_ROOT/coverage.info `find $COVERAGE_ROOT/ -maxdepth 1 -name "*.info" | sed -r 's/(.+)/--add-tracefile \1/g' | sed ':a;N;$!ba;s/\n/ /g'`
-
+    - ls $BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove $COVERAGE_ROOT/coverage.info -o $COVERAGE_ROOT/coverage.info #:
+        #parallel: true
 
     ## ... sanity check
-    - ls -lah $COVERAGE_ROOT
+    - ls -lah $COVERAGE_ROOT #:
+        #parallel: true
 
     ## Sending data to Coveralls
 
-    ## ... convert data with coveralls-lcov
-    #- coveralls-lcov -v -n $COVERAGE_ROOT/coverage.info > $COVERAGE_ROOT/coverage.json # TEST
-
     ## ... send
-    - coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN $COVERAGE_ROOT/coverage.info
+    #- coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN $COVERAGE_ROOT/coverage.info :
+    #    parallel: true
+
+    ## ... or handle sending manually
+    ## ... convert data with coveralls-lcov
+    - coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN -v -n $COVERAGE_ROOT/coverage.info > $COVERAGE_ROOT/coverage.json #:
+        #parallel: true
+
+    ## ... alter the json file
+    - jq -c ".service_name = \"circleci\" | .service_job_id = \"$CIRCLE_BUILD_NUM.$((CIRCLE_NODE_INDEX+1))\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json #:
+        #parallel: true
+
+    ## ... send it to Coveralls
+    - curl --retry 3 -F "json_file=@$COVERAGE_ROOT/processed.json" 'https://coveralls.io/api/v1/jobs' #:
+        #parallel: true
