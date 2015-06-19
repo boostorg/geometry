@@ -170,6 +170,7 @@ public:
         //     meridians of the box, and
         // (2) does not intersect the box
         return_type const two = 2.0;
+        bool use_left_segment;
         if (lon_max > pi)
         {
             // the box crosses the antimeridian
@@ -178,14 +179,7 @@ public:
             return_type const lon_midway = (lon_min - lon_max) / two + pi;
             BOOST_GEOMETRY_ASSERT(lon_midway >= -pi && lon_midway <= pi);
 
-            if (plon <= lon_midway)
-            {
-                return m_ps_strategy.apply(point, bottom_right, top_right);
-            }
-            else
-            {
-                return m_ps_strategy.apply(point, bottom_left, top_left);
-            }
+            use_left_segment = plon > lon_midway;
         }
         else
         {
@@ -197,55 +191,35 @@ public:
                 // special case: the box is symmetric with respect to
                 // the prime meridian; the midway meridian is the antimeridian
 
-                if (plon < lon_min)
-                {
-                    return m_ps_strategy.apply(point, bottom_left, top_left);
-                }
-                else
-                {
-                    return m_ps_strategy.apply(point, bottom_right, top_right);
-                }
-            }
-
-            // midway longitude = lon_min - (2 * pi - (lon_max - lon_min)) / 2;
-            return_type lon_midway = (lon_min + lon_max) / two - pi;
-
-            // normalize the midway longitude
-            if (lon_midway > pi)
-            {
-                lon_midway -= two_pi;
-            }
-            else if (lon_midway < -pi)
-            {
-                lon_midway += two_pi;
-            }
-            BOOST_GEOMETRY_ASSERT(lon_midway >= -pi && lon_midway <= pi);
-
-            if (lon_sum > 0)
-            {
-                // the midway meridian is left of the box
-                if (plon < lon_min && plon >= lon_midway)
-                {
-                    return m_ps_strategy.apply(point, bottom_left, top_left);
-                }
-                else
-                {
-                    return m_ps_strategy.apply(point, bottom_right, top_right);
-                }
+                use_left_segment = plon < lon_min;
             }
             else
             {
-                // the midway meridian is right of the box
-                if (plon > lon_max && plon <= lon_midway)
+                // midway long. = lon_min - (2 * pi - (lon_max - lon_min)) / 2;
+                return_type lon_midway = (lon_min + lon_max) / two - pi;
+
+                // normalize the midway longitude
+                if (lon_midway > pi)
                 {
-                    return m_ps_strategy.apply(point, bottom_right, top_right);
+                    lon_midway -= two_pi;
                 }
-                else
+                else if (lon_midway < -pi)
                 {
-                    return m_ps_strategy.apply(point, bottom_left, top_left);
+                    lon_midway += two_pi;
                 }
+                BOOST_GEOMETRY_ASSERT(lon_midway >= -pi && lon_midway <= pi);
+
+                // if lon_sum is positive the midway meridian is left
+                // of the box, or right of the box otherwise
+                use_left_segment = lon_sum > 0
+                    ? (plon < lon_min && plon >= lon_midway)
+                    : (plon <= lon_max || plon > lon_midway);
             }
         }
+
+        return use_left_segment
+            ? m_ps_strategy.apply(point, bottom_left, top_left)
+            : m_ps_strategy.apply(point, bottom_right, top_right);
     }
 
     inline typename Strategy::radius_type radius() const
