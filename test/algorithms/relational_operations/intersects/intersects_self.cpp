@@ -22,8 +22,10 @@
 template <typename P>
 void test_all()
 {
+    typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::ring<P> ring;
+    typedef bg::model::ring<P, true, false> ring_open;
 
     // self-intersecting is not tested in disjoint, so that is done here.
 
@@ -64,54 +66,54 @@ void test_all()
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 3,3 3,3 1,1 1),(2 2,2 3.5,3.5 3.5,3.5 2,2 2))", true);
 
     // Mail Akira T on [Boost-users] at 27-7-2011 3:17
-    test_self_intersects<bg::model::linestring<P> >(
+    test_self_intersects<linestring>(
         "LINESTRING(0 0,0 4,4 4,2 2,2 5)", true);
 
-    test_self_intersects<bg::model::linestring<P> >(
+    test_self_intersects<linestring>(
         "LINESTRING(0 4,4 4,2 2,2 5)", true);
 
     // Test self-intersections at last segment in close/open rings:
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,0 0))", false);
 
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,4 1))", false);
 
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,0 1,0 0))", true);
 
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,4 1,0 1))", true);
 
     // Duplicates in first or last
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,0 1,0 1,0 0))", true);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,0 1,0 0,0 0))", true);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,4 1,0 1,0 1))", true);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,0 0,3 3,4 1,0 1,0 1,0 0))", true);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,0 0,3 3,4 1,0 1,0 1))", true);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,3 3,4 1,0 1,0 1,0 0))", true);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,3 3,4 1,0 1,0 1))", true);
 
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,0 0,0 0))", false);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,4 1,4 1,0 0))", false);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,4 1,4 1))", false);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,0 0,3 3,4 1,0 0))", false);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,0 0,3 3,4 1))", false);
-    test_self_intersects<bg::model::ring<P> >(
+    test_self_intersects<ring>(
         "POLYGON((0 0,3 3,3 3,4 1,0 0))", false);
-    test_self_intersects<bg::model::ring<P, true, false> >(
+    test_self_intersects<ring_open>(
         "POLYGON((0 0,3 3,3 3,4 1))", false);
 }
 

@@ -176,20 +176,20 @@ void test_all()
     test_multi_linestring_polygon<P>();
     test_multi_polygon_polygon<P>();
 
-    test_geometry<P, bg::model::ring<P> >(
+    test_geometry<P, ring>(
         "POINT(0 0)",
         "POLYGON((0 0,3 3,3 3,4 1))",
         true);
-    test_geometry<P, bg::model::polygon<P> >(
+    test_geometry<P, polygon>(
         "POINT(0 0)",
         "POLYGON((0 0,3 3,3 3,4 1))",
         true);
 
-    test_geometry<bg::model::ring<P>, P>(
+    test_geometry<ring, P>(
         "POLYGON((0 0,3 3,3 3,4 1))",
         "POINT(0 0)",
         true);
-    test_geometry<bg::model::polygon<P>, P>(
+    test_geometry<polygon, P>(
         "POLYGON((0 0,3 3,3 3,4 1))",
         "POINT(0 0)",
         true);
