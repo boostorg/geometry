@@ -82,6 +82,7 @@ dependencies:
     - wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz
     - tar xvzf lcov-1.11.tar.gz
     - cd lcov-1.11 && sudo make install
+
     - gem install coveralls-lcov
 
     - if [ ! -d $COVERAGE_ROOT ]; then mkdir $COVERAGE_ROOT; fi
@@ -93,59 +94,73 @@ test:
     #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms
     #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms/detail
     #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test/algorithms/relational_operations
-    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test
-    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/algorithms
-    - cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/rtree/exceptions
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" test
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/algorithms
+    #- cd $BOOST_ROOT/libs/geometry && ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test/rtree/exceptions
     # run the tests in parallel - actually for now not in parallel
     # the problem is that first the upper-level dir is handled
     # then the tests from lower dir are run are executed and they're overlapping
     #- cd $BOOST_ROOT/libs/geometry && index=0 ; run_tests() { for i in "$1"/* ; do if [ -f "$i"/Jamfile* ] ; then ((index++)) ; echo "$index - $i" ; ../../b2 cxxflags="--coverage" linkflags="--coverage" "$i" ; run_tests "$i" ; fi ; done } ; run_tests test
     # so first try manually
-    #- cd $BOOST_ROOT/libs/geometry && case $CIRCLE_NODE_INDEX in 0) ../../b2 cxxflags="--coverage" linkflags="--coverage" test/io ;; 1) ../../b2 cxxflags="--coverage" linkflags="--coverage" test/views ;; esac:
-    #        parallel: true
+    - cd $BOOST_ROOT/libs/geometry && case $CIRCLE_NODE_INDEX in 0) ../../b2 cxxflags="--coverage" linkflags="--coverage" test ;; 1) ../../b2 cxxflags="--coverage" linkflags="--coverage" index/test ;; esac:
+        parallel: true
 
   post:
     ## Copying Coveralls data to a separate folder
     #- find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec cp "{}" $COVERAGE_ROOT \;
     #- find $BOOST_ROOT/bin.v2/ -name "*.gcno" -exec cp "{}" $COVERAGE_ROOT \;
     # upgraded version - change the file name if exists
-    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; echo "$srcgcda" ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \; #:
-        #parallel: true
+    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; echo "$srcgcda" ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \; :
+        parallel: true
 
     ## Preparing Coveralls data by
 
     ## ... changind data format to a readable one
 
-    - cd $BOOST_ROOT/libs/geometry && lcov --directory $COVERAGE_ROOT --base-directory ./ --capture --output-file $COVERAGE_ROOT/coverage.info #:
-        #parallel: true
+    - cd $BOOST_ROOT/libs/geometry && lcov --directory $COVERAGE_ROOT --base-directory ./ --capture --output-file $COVERAGE_ROOT/coverage.info :
+        parallel: true
 
     ## ... erasing /usr and unneeded directories data
-    - lcov --remove $COVERAGE_ROOT/coverage.info "/usr*" "*/libs/geometry/*" -o $COVERAGE_ROOT/coverage.info #:
-        #parallel: true
+    - lcov --remove $COVERAGE_ROOT/coverage.info "/usr*" "*/libs/geometry/*" -o $COVERAGE_ROOT/coverage.info :
+        parallel: true
 
     ## ... erasing data that is not related to this project directly
-    - ls $BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove $COVERAGE_ROOT/coverage.info -o $COVERAGE_ROOT/coverage.info #:
-        #parallel: true
+    - ls $BOOST_ROOT/boost | sed -r '/(geometry.*)/d' | sed -r 's/(.+)/"*\/boost\/\1\/*"/g' | sed -r 's/(.+\.hpp)\/\*/\1/g' | sed ':a;N;$!ba;s/\n/ /g' | xargs lcov --remove $COVERAGE_ROOT/coverage.info -o $COVERAGE_ROOT/coverage.info :
+        parallel: true
 
     ## ... sanity check
-    - ls -lah $COVERAGE_ROOT #:
-        #parallel: true
+    - ls -lah $COVERAGE_ROOT :
+        parallel: true
 
     ## Sending data to Coveralls
 
-    ## ... send
-    #- coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN $COVERAGE_ROOT/coverage.info :
-    #    parallel: true
+    ## ... approach 1
+    ## ... gather all files in one container
+    - if [ $CIRCLE_NODE_INDEX = 0 ]; then mv $COVERAGE_ROOT/coverage.info $COVERAGE_ROOT/coverage0.info ; else scp $COVERAGE_ROOT/coverage.info node0:$COVERAGE_ROOT/coverage$CIRCLE_NODE_INDEX.info ; fi :
+        parallel: true
+    #  merge files (currently only 1 additional file)
+    - lcov --add-tracefile $COVERAGE_ROOT/coverage0.info --add-tracefile $COVERAGE_ROOT/coverage1.info -o $COVERAGE_ROOT/coverage.info
 
-    ## ... or handle sending manually
+    ## ... handle sending manually
     ## ... convert data with coveralls-lcov
     - coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN -v -n $COVERAGE_ROOT/coverage.info > $COVERAGE_ROOT/coverage.json #:
         #parallel: true
 
     ## ... alter the json file
-    - jq -c ".service_name = \"circleci\" | .service_job_id = \"$CIRCLE_BUILD_NUM.$((CIRCLE_NODE_INDEX+1))\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json #:
+    - jq -c ".service_name = \"circle-ci\" | .service_job_id = \"$CIRCLE_BUILD_NUM\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json
+    #- jq -c ".service_name = \"circle-ci\" | .service_job_id = \"$CIRCLE_BUILD_NUM\" | .parallel = true | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json #:
         #parallel: true
 
     ## ... send it to Coveralls
     - curl --retry 3 -F "json_file=@$COVERAGE_ROOT/processed.json" 'https://coveralls.io/api/v1/jobs' #:
         #parallel: true
+
+    ## ... notify Coveralls that the parallel build has ended
+    # this doesn't work - Coveralls returns an error
+    #- echo "{\"payload\":{\"build_num\":\"$CIRCLE_BUILD_NUM\",\"status\":\"done\"}}" > $COVERAGE_ROOT/payload.json && curl --retry 3 -F "json_file=@$COVERAGE_ROOT/payload.json" "https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN"
+
+## This doesn't work - Coveralls returns an error
+#notify:
+#  webhooks:
+    # Notify Coveralls that the build has ended
+    #- url: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
