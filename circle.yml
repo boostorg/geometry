@@ -107,10 +107,10 @@ test:
 
   post:
     ## Copying Coveralls data to a separate folder
-    #- find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec cp "{}" $COVERAGE_ROOT \;
-    #- find $BOOST_ROOT/bin.v2/ -name "*.gcno" -exec cp "{}" $COVERAGE_ROOT \;
+    #- find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec mv "{}" $COVERAGE_ROOT \;
+    #- find $BOOST_ROOT/bin.v2/ -name "*.gcno" -exec mv "{}" $COVERAGE_ROOT \;
     # upgraded version - change the file name if exists
-    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; echo "$srcgcda" ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; cp $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; cp $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else cp $srcgcda $COVERAGE_ROOT/ ; cp $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \; :
+    - find $BOOST_ROOT/bin.v2/ -name "*.gcda" -exec bash -c 'filen=$(basename $1) ; filen=${filen%.*} ; dirn=$(dirname $1) ; srcgcda=$dirn/$filen.gcda ; srcgcno=$dirn/$filen.gcno ; echo "$srcgcda" ; if [ -f $COVERAGE_ROOT/$(basename $1) ]; then randn=$RANDOM ; mv $srcgcda $COVERAGE_ROOT/$filen.$randn.gcda ; mv $srcgcno $COVERAGE_ROOT/$filen.$randn.gcno ; else mv $srcgcda $COVERAGE_ROOT/ ; mv $srcgcno $COVERAGE_ROOT/ ; fi' bash "{}" \; :
         parallel: true
 
     ## Preparing Coveralls data by
