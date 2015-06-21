@@ -140,12 +140,12 @@ void test_all()
     typedef bg::model::polygon<P, Clockwise> pt;
     typedef bg::model::multi_polygon<pt> mpt;
 
-    std::string gr = read_from_file<mpt>("data/gr.wkt");
-    std::string it = read_from_file<mpt>("data/it.wkt");
-    std::string nl = read_from_file<mpt>("data/nl.wkt");
-    std::string no = read_from_file<mpt>("data/no.wkt");
-    std::string uk = read_from_file<mpt>("data/uk.wkt");
-
+    std::string base_folder = "data/";
+    std::string gr = read_from_file<mpt>(base_folder + "gr.wkt");
+    std::string it = read_from_file<mpt>(base_folder + "it.wkt");
+    std::string nl = read_from_file<mpt>(base_folder + "nl.wkt");
+    std::string no = read_from_file<mpt>(base_folder + "no.wkt");
+    std::string uk = read_from_file<mpt>(base_folder + "uk.wkt");
     test_one<mpt, pt>("gr10", gr,    336279815057, 10);
     test_one<mpt, pt>("gr20", gr,    442317493728, 20);
     test_one<mpt, pt>("gr50", gr,    680442278144, 50);
