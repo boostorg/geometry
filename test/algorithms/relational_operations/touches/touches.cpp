@@ -1,39 +1,26 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014. 2015.
+// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_touches.hpp"
 
 template <typename P>
 void test_all()
 {
-    typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_polygon<polygon> mpolygon;
     typedef bg::model::multi_linestring<linestring> mlinestring;
-
-    // Just a normal polygon
-    test_self_touches<polygon>("POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))", false);
-
-    // Self intersecting
-    test_self_touches<polygon>("POLYGON((1 2,1 1,2 1,2 2.25,3 2.25,3 0,0 0,0 3,3 3,2.75 2,1 2))", false);
-
-    // Self touching at a point
-    test_self_touches<polygon>("POLYGON((0 0,0 3,2 3,2 2,1 2,1 1,2 1,2 2,3 2,3 0,0 0))", true);
-
-    // Self touching at a segment
-    test_self_touches<polygon>("POLYGON((0 0,0 3,2 3,2 2,1 2,1 1,2 1,2 2.5,3 2.5,3 0,0 0))", true);
 
     // Touching at corner
     test_touches<polygon, polygon>
@@ -196,35 +183,11 @@ void test_all()
     test_touches<linestring, mpolygon>("LINESTRING(-1 -1,3 3)", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", true);
 
     test_touches<mlinestring, mpolygon>("MULTILINESTRING((0 0,11 11))", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", false);
-
-    test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((5 1,5 2,6 2,6 1,5 1))", true);
-    test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((4 1,4 2,5 2,5 1,4 1))", false);
-    test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((4 1,4 2,6 2,6 1,4 1))", false);
-
-    // Point-size
-    test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((5 5,5 5,5 5,5 5,5 5))", true);
-    // TODO: should it be TRUE?
-    test_touches<box, box>("POLYGON((5 5,5 5,5 5,5 5,5 5))", "POLYGON((5 5,5 5,5 5,5 5,5 5))", true);
-}
-
-template <typename P>
-void test_box_3d()
-{
-    typedef bg::model::box<P> box;
-
-    check_touches<box, box>(box(P(0,0,0),P(5,5,5)), box(P(5,1,2),P(6,6,6)),
-                            "box(P(0,0,0),P(5,5,5))", "box(P(5,1,2),P(6,6,6))",
-                            true);
-
-    check_touches<box, box>(box(P(0,0,0),P(5,5,5)), box(P(5,5,5),P(6,6,6)),
-                            "box(P(0,0,0),P(5,5,5))", "box(P(5,5,5),P(6,6,6))",
-                            true);
 }
 
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<double> >();
-    test_box_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();

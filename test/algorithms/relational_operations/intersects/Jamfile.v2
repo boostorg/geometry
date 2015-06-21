@@ -14,19 +14,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-relational
+test-suite boost-geometry-algorithms-relational-intersects
     :
-    [ run covered_by.cpp         : : : : algorithms_covered_by ]
-    [ run covered_by_multi.cpp   : : : : algorithms_covered_by_multi ]
-    [ run crosses.cpp            : : : : algorithms_crosses ]
-    [ run equals.cpp             : : : : algorithms_equals ]
-    [ run equals_multi.cpp       : : : : algorithms_equals_multi ]
-    [ run equals_on_spheroid.cpp : : : : algorithms_equals_on_spheroid ]
+    [ run intersects.cpp              : : : : algorithms_intersects ]
+    [ run intersects_box_geometry.cpp : : : : algorithms_intersects_box_geometry ]
+    [ run intersects_multi.cpp        : : : : algorithms_intersects_multi ]
+    [ run intersects_self.cpp         : : : : algorithms_intersects_self ]
     ;
 
-build-project disjoint ;
-build-project intersects ;
-build-project overlaps ;
-build-project relate ;
-build-project touches ;
-build-project within ;

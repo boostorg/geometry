@@ -742,6 +742,7 @@ BOOST_AUTO_TEST_CASE( test_multipoint_of_point_pointers )
     {
         delete multipoint[i];
     }
+    delete zero;
 }
 
 
@@ -783,6 +784,7 @@ BOOST_AUTO_TEST_CASE( test_linestring_of_point_pointers )
     {
         delete linestring[i];
     }
+    delete zero;
 }
 
 
