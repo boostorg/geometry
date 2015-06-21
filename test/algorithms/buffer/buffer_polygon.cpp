@@ -227,8 +227,8 @@ void test_all()
     test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_miter, end_flat, 836.9106, 10.0);
     test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_miter, end_flat, 4386.6479, 25.0);
     test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_miter, end_flat, 16487.2000, 50.0);
-    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1642, 75.0);
-    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5140, 100.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1506, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5313, 100.0);
 
     test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2875, 10.0);
     test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.8329, 25.0);
@@ -469,8 +469,8 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737355.633, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953844.678, -0.5 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737395.242, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953824.206, -0.5 * 1000.0);
 
     test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638830.339, 30.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180030.278, 50.0 * 1000.0);

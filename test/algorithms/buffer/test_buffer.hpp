@@ -316,7 +316,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         std::size_t count = 0;
         if (bg::detail::overlay::has_self_intersections(buffered,
-                rescale_policy, false))
+                rescale_policy_output, false))
         {
             count = count_self_ips(buffered, rescale_policy_output);
         }
