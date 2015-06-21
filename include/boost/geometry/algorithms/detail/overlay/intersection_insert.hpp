@@ -285,7 +285,8 @@ namespace dispatch
 template
 <
     // real types
-    typename Geometry1, typename Geometry2,
+    typename Geometry1,
+    typename Geometry2,
     typename GeometryOut,
     overlay_type OverlayType,
     // orientation
