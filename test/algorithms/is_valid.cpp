@@ -4,6 +4,7 @@
 // Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -897,16 +898,13 @@ inline void test_open_multipolygons()
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[1], msg), msg);
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[2], msg), msg);
         BOOST_CHECK_MESSAGE(! bg::is_valid(mpoly[3], msg), msg);
-            
-        // The last Polygon has wrong orientation, but after correcting it the self-intersections are detected, so still invalid
+
+        // The last Polygon has wrong orientation, so correct it
         bg::reverse(mpoly[3]);
-        BOOST_CHECK_MESSAGE(! bg::is_valid(mpoly, msg), msg);
+        BOOST_CHECK_MESSAGE(bg::is_valid(mpoly, msg), msg);
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[0], msg), msg);
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[1], msg), msg);
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[2], msg), msg);
-
-        // The Polygons itself is valid!
-        // This is not consistent with the result for MultiPolygon
         BOOST_CHECK_MESSAGE(bg::is_valid(mpoly[3], msg), msg);
     }
 }
