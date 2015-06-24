@@ -229,6 +229,10 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
+    //Uncomment to create simple CSV to compare/use in tests - adapt precision if necessary
+    //std::cout << complete.str() << "," << std::fixed << std::setprecision(0) << area << std::endl;
+    //return;
+
     if (bg::is_empty(buffered) && bg::math::equals(expected_area, 0.0))
     {
         // As expected - don't get rescale policy for output (will be invalid)
