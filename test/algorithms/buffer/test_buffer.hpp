@@ -228,15 +228,24 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
-//    std::cout << caseid << std::endl;
-//    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
-//    std::cout << "OUTPUT: " << area << std::endl;
-//    std::cout << bg::wkt(buffered) << std::endl;
+    if (bg::is_empty(buffered) && bg::math::equals(expected_area, 0.0))
+    {
+        // As expected - don't calculate rescale policy for output (will be
+        // invalid)
+        return;
+    }
 
     bg::model::box<point_type> envelope_output;
+    bg::assign_inverse(envelope_output);
     bg::envelope(buffered, envelope_output);
     rescale_policy_type rescale_policy_output
             = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
+
+    //    std::cout << caseid << std::endl;
+    //    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
+    //    std::cout << "OUTPUT: " << area << std::endl;
+    //    std::cout << "OUTPUT env: " << bg::wkt(envelope_output) << std::endl;
+    //    std::cout << bg::wkt(buffered) << std::endl;
 
     if (expected_area > -0.1)
     {
