@@ -68,11 +68,18 @@ inline void scale_box_to_integer_range(Box const& box,
     num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(box));
     num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
     num_type const half = 0.5;
-    factor = math::equals(diff, num_type()) || diff >= range ? 1
-        : boost::numeric_cast<num_type>(
+    if (math::equals(diff, num_type())
+        || diff >= range
+        || ! boost::math::isfinite(diff))
+    {
+        factor = 1;
+    }
+    else
+    {
+        factor = boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
-
-    BOOST_GEOMETRY_ASSERT(factor >= 1);
+        BOOST_GEOMETRY_ASSERT(factor >= 1);
+    }
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(box, min_point);
