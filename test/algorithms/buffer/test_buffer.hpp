@@ -45,6 +45,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 
+const double same_distance = -999;
 
 #if defined(TEST_WITH_SVG)
 #  include <test_buffer_svg.hpp>
@@ -358,7 +359,7 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
-        double distance_left, double distance_right = -999,
+        double distance_left, double distance_right = same_distance,
         bool check_self_intersections = true,
         double tolerance = 0.01)
 {
@@ -388,7 +389,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
     <
         typename bg::coordinate_type<Geometry>::type
     > distance_strategy(distance_left,
-                        distance_right > -998 ? distance_right : distance_left);
+                        bg::math::equals(distance_right, same_distance)
+                        ? distance_left : distance_right);
 
     test_buffer<GeometryOut>
             (caseid, g,
@@ -401,7 +403,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     // Also test symmetric distance strategy if right-distance is not specified
     // (only in release mode)
-    if (bg::math::equals(distance_right, -999))
+    if (bg::math::equals(distance_right, same_distance))
     {
         bg::strategy::buffer::distance_symmetric
         <
@@ -443,7 +445,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
     <
         typename bg::coordinate_type<Geometry>::type
     > distance_strategy(distance_left,
-                        distance_right > -998 ? distance_right : distance_left);
+                        bg::math::equals(distance_right, same_distance)
+                        ? distance_left : distance_right);
 
     bg::strategy::buffer::point_circle circle_strategy(88);
     bg::strategy::buffer::side_straight side_strategy;
