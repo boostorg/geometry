@@ -430,10 +430,14 @@ void test_all()
             test_one<polygon_type, polygon_type>(out.str(), bowl, join_miter, end_flat, expected_miter[i - 1], double(i) / 2.0);
         }
     }
-    test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, 0.01);
-    test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, 0.01);
-    test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, -0.01);
-    test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, -0.01);
+
+    {
+        double const small_tolerance = 0.0000001;
+        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, 0.01, 0.01, true, small_tolerance);
+        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, 0.01, 0.01, true, small_tolerance);
+        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 3.94411299566854723e-05, -0.003, -0.003, true, small_tolerance);
+        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 3.94301960113807581e-05, -0.003, -0.003, true, small_tolerance);
+    }
 
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.405, 10.0);
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.453, 10.0);
