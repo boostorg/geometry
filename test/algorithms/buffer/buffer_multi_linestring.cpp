@@ -84,21 +84,25 @@ void test_all()
     // Cases formly causing a segmentation fault because a generated side was skipped
     // (The expected area for large distances is about R*R*PI where R is distance)
     // Note that for large distances the flat ends (not tested here) still give weird effects
-    test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052048.465, 41751.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
+    {
+        // The results can differ between MSVC and gcc/clang. Expected areas below are detected with gcc/clang
+        double mikado_tolerance = 10.0;
+        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052048.465, 41751.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812257.759, 79610.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812257.759, 79610.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950758.472, 96375.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950758.472, 96375.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832204.687, 59772.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832204.687, 59772.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
+    }
 
     // Coordinates in one linestring vary so much that
     // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
