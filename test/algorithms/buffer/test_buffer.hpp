@@ -150,7 +150,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     bg::model::box<point_type> envelope;
     if (bg::is_empty(geometry))
     {
-        bg::assign_inverse(envelope);
+        bg::assign_values(envelope, 0, 0, 1,  1);
     }
     else
     {
@@ -230,13 +230,18 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (bg::is_empty(buffered) && bg::math::equals(expected_area, 0.0))
     {
-        // As expected - don't calculate rescale policy for output (will be
-        // invalid)
+        // As expected - don't get rescale policy for output (will be invalid)
         return;
     }
 
+    BOOST_CHECK_MESSAGE
+        (
+            ! bg::is_empty(buffered),
+            complete.str() << " output is empty (unexpected)."
+        );
+
     bg::model::box<point_type> envelope_output;
-    bg::assign_inverse(envelope_output);
+    bg::assign_values(envelope_output, 0, 0, 1,  1);
     bg::envelope(buffered, envelope_output);
     rescale_policy_type rescale_policy_output
             = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
