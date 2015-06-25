@@ -87,19 +87,19 @@ void test_all()
     {
         // The results can differ between compilers and platforms
         double mikado_tolerance = 30.0;
-        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052043, 41751.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125, 41751.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812283, 79610.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253, 79610.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950770, 96375.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950612, 96375.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832200, 59772.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169, 59772.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
@@ -112,8 +112,8 @@ void test_all()
     // BG (2)     reports       794569660 (for a/b) which apparently misses parts
     // old value was            927681870 (for a/b) which also misses parts
     // (2: since selecting other IP at end points or when segment b is smaller than a)
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 794569660.193, 0.98);
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 794569660.193, 0.98);
+    test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 1063005187.214, 0.98);
+    test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
 }
 
 

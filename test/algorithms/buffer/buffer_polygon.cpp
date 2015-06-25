@@ -228,7 +228,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_miter, end_flat, 4386.6479, 25.0);
     test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_miter, end_flat, 16487.2000, 50.0);
     test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1506, 75.0);
-    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5313, 100.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5186, 100.0);
 
     test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2875, 10.0);
     test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.8329, 25.0);
@@ -247,11 +247,11 @@ void test_all()
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, polygon_type>("spike_simplex30", spike_simplex, join_round, end_round, 100.9199, 3.0);
-    test_one<polygon_type, polygon_type>("spike_simplex30", spike_simplex, join_miter, end_flat, 120.9859, 3.0);
+    test_one<polygon_type, polygon_type>("spike_simplex30", spike_simplex, join_miter, end_flat, 106.6979, 3.0);
 #endif
     test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_round, end_round, 998.9821, 15.0);
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_miter, end_flat, 1532.6543, 15.0);
+    test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_miter, end_flat, 1428.1560, 15.0);
 #endif
 
     test_one<polygon_type, polygon_type>("join_types", join_types, join_round, end_flat, 88.2060, 1.5);
@@ -473,11 +473,11 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737395.242, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953824.206, -0.5 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737356.991, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953811.679, -0.5 * 1000.0);
 
-    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638830.339, 30.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180030.278, 50.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638814.956, 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180044.822, 50.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
 
     // Tickets
