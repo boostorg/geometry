@@ -95,7 +95,9 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950612, 96375.0, same_distance, true, mikado_tolerance);
+        // msvc  29151950611
+        // mingw 29151950711
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950661, 96375.0, same_distance, true, 2*mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
