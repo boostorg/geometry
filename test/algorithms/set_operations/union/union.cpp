@@ -272,7 +272,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
-            1, 0, 7, 0.0403425433);
+            1, 0, 10, 0.0403425433);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
@@ -285,7 +285,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
             2, 0, 8, 0.0435229);
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
-            2, 0, 10, 2424.3449);
+            1, 0, 10, 2424.3449);
 
     test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
             1, 0, -1, 3461.3203125);
@@ -302,9 +302,9 @@ void test_areal()
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, if_typed<ct, double>(21, 23), 4.60853);
+                1, 0, if_typed<ct, double>(18, 23), 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, if_typed<ct, double>(21, 23), 4.60853);
+                1, 0, if_typed<ct, double>(18, 23), 4.60853);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
