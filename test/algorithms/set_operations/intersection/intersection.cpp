@@ -270,9 +270,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
+    // msvc  5.6023011e-5
+    // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-                0, 0, 5.6023011e-5);
+                0, 0, 5.6022983e-5);
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
