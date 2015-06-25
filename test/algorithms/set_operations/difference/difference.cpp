@@ -352,7 +352,7 @@ void test_all()
     // rings might be discarded. We check area only
     test_one<polygon, polygon, polygon>("isovist",
         isovist1[0], isovist1[1],
-        -1, -1, 0.279121,
+        -1, -1, 0.279132,
         -1, -1, 224.8892,
         0.001);
     // SQL Server gives: 0.279121891701124 and 224.889211358929
@@ -428,8 +428,8 @@ void test_all()
     // however, some long spikes are still generated in the resulting difference
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        if_typed_tt<ct>(1, 0), -1,
-        if_typed_tt<ct>(0.0000000000001105367, 0.0),
+        if_typed_tt<ct>(1, 1), -1,
+        if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949),
         1, -1, 3577.40960816756,
         0.01
         );
@@ -451,8 +451,8 @@ void test_all()
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
-            1, 10, 0.0334529710902111,
-            1, 4, 6.224536858e-10);
+            2, 10, 0.0334529710902111,
+            1, 4, 5.3469555172380723e-010);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_9081_314",
