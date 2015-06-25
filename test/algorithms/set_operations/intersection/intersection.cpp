@@ -245,7 +245,7 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.634079e-08, 0.01);
+                1, 4, 3.635930e-08, 0.01);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
@@ -272,7 +272,7 @@ void test_areal()
                 0, 0, 0.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-                0, 0, 0.0);
+                0, 0, 5.6023011e-5);
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
