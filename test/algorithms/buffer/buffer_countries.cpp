@@ -129,8 +129,9 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
     bg::strategy::buffer::join_round join_round(100);
     bg::strategy::buffer::end_flat end_flat;
 
+    // Test with a high tolerance, even a difference of 1000 is only ~1.0e-6%
     test_one<MP, P>(caseid, wkt, join_round, end_flat,
-        expected_area, distance * 1000.0, distance * 1000.0, NULL, 10.0);
+        expected_area, distance * 1000.0, distance * 1000.0, NULL, 10000.0);
 }
 
 
@@ -147,80 +148,80 @@ void test_all()
     std::string no = read_from_file<mpt>(base_folder + "no.wkt");
     std::string uk = read_from_file<mpt>(base_folder + "uk.wkt");
 
-    test_one<mpt, pt>("gr10", gr,    336279810671, 10);
-    test_one<mpt, pt>("gr20", gr,    442317493473, 20);
-    test_one<mpt, pt>("gr50", gr,    680442275975, 50);
-    test_one<mpt, pt>("gr100", gr,   910474619594, 100);
+    test_one<mpt, pt>("gr10", gr,    336279815682, 10);
+    test_one<mpt, pt>("gr20", gr,    442317491749, 20);
+    test_one<mpt, pt>("gr50", gr,    680442278645, 50);
+    test_one<mpt, pt>("gr100", gr,   910474621215, 100);
 
-    test_one<mpt, pt>("gr10", gr,    139313147949, -10);
-    test_one<mpt, pt>("gr20", gr,     96991352819, -20);
-    test_one<mpt, pt>("gr50", gr,     31391928991, -50);
-    test_one<mpt, pt>("gr100", gr,     2035400569, -100);
+    test_one<mpt, pt>("gr10", gr,    139313156846, -10);
+    test_one<mpt, pt>("gr20", gr,     96991350242, -20);
+    test_one<mpt, pt>("gr50", gr,     31391928002, -50);
+    test_one<mpt, pt>("gr100", gr,     2035400805, -100);
 
-    test_one<mpt, pt>("it1", it,     569862987755, 1);
-    test_one<mpt, pt>("it2", it,     579239198589, 2);
-    test_one<mpt, pt>("it5", it,     607625470130, 5);
-    test_one<mpt, pt>("it10", it,    655018589880, 10);
-    test_one<mpt, pt>("it20", it,    749353301907, 20);
-    test_one<mpt, pt>("it50", it,   1018323104810, 50);
-    test_one<mpt, pt>("it100", it,  1436451406336, 100);
+    test_one<mpt, pt>("it1", it,     569862998347, 1);
+    test_one<mpt, pt>("it2", it,     579239208963, 2);
+    test_one<mpt, pt>("it5", it,     607625463736, 5);
+    test_one<mpt, pt>("it10", it,    655018578530, 10);
+    test_one<mpt, pt>("it20", it,    749353305743, 20);
+    test_one<mpt, pt>("it50", it,   1018323115670, 50);
+    test_one<mpt, pt>("it100", it,  1436451405439, 100);
 
-    test_one<mpt, pt>("it1", it,     551474400669, -1);
-    test_one<mpt, pt>("it2", it,     542617732018, -2);
-    test_one<mpt, pt>("it5", it,     517402440294, -5);
-    test_one<mpt, pt>("it10", it,    477945541650, -10);
-    test_one<mpt, pt>("it20", it,    404693997504, -20);
-    test_one<mpt, pt>("it50", it,    238748452004, -50);
-    test_one<mpt, pt>("it100", it,    69768639809, -100);
+    test_one<mpt, pt>("it1", it,     551474421881, -1);
+    test_one<mpt, pt>("it2", it,     542617730624, -2);
+    test_one<mpt, pt>("it5", it,     517402445790, -5);
+    test_one<mpt, pt>("it10", it,    477945510429, -10);
+    test_one<mpt, pt>("it20", it,    404693983797, -20);
+    test_one<mpt, pt>("it50", it,    238748449624, -50);
+    test_one<mpt, pt>("it100", it,    69768648896, -100);
     test_one<mpt, pt>("it200", it,              0, -200);
 
-    test_one<mpt, pt>("nl1", nl,      97391172526, 1);
-    test_one<mpt, pt>("nl2", nl,     100816708212, 2);
-    test_one<mpt, pt>("nl5", nl,     110239802653, 5);
-    test_one<mpt, pt>("nl10", nl,    123408278195, 10);
-    test_one<mpt, pt>("nl20", nl,    145046915520, 20);
-    test_one<mpt, pt>("nl50", nl,    201207309368, 50);
-    test_one<mpt, pt>("nl100", nl,   303300934854, 100);
+    test_one<mpt, pt>("nl1", nl,      97391170774, 1);
+    test_one<mpt, pt>("nl2", nl,     100816707832, 2);
+    test_one<mpt, pt>("nl5", nl,     110239801028, 5);
+    test_one<mpt, pt>("nl10", nl,    123408274536, 10);
+    test_one<mpt, pt>("nl20", nl,    145046915403, 20);
+    test_one<mpt, pt>("nl50", nl,    201207309002, 50);
+    test_one<mpt, pt>("nl100", nl,   303300936340, 100);
 
-    test_one<mpt, pt>("nl1", nl,      90095047398, -1);
-    test_one<mpt, pt>("nl2", nl,      86601863871, -2);
-    test_one<mpt, pt>("nl5", nl,      77307843966, -5);
-    test_one<mpt, pt>("nl10", nl,     64668874567, -10);
-    test_one<mpt, pt>("nl20", nl,     46683533417, -20);
-    test_one<mpt, pt>("nl50", nl,     10244523182, -50);
+    test_one<mpt, pt>("nl1", nl,      90095050333, -1);
+    test_one<mpt, pt>("nl2", nl,      86601861798, -2);
+    test_one<mpt, pt>("nl5", nl,      77307843754, -5);
+    test_one<mpt, pt>("nl10", nl,     64668870425, -10);
+    test_one<mpt, pt>("nl20", nl,     46683531062, -20);
+    test_one<mpt, pt>("nl50", nl,     10244523910, -50);
     test_one<mpt, pt>("nl100", nl,              0, -100);
 
-    test_one<mpt, pt>("no1", no,    1819566575292, 1);
-    test_one<mpt, pt>("no2", no,    1865041267745, 2);
-    test_one<mpt, pt>("no5", no,    1973615512739, 5);
-    test_one<mpt, pt>("no10", no,   2102034187051, 10);
-    test_one<mpt, pt>("no20", no,   2292171183136, 20);
-    test_one<mpt, pt>("no50", no,   2725475407830, 50);
-    test_one<mpt, pt>("no100", no,  3374987104696, 100);
+    test_one<mpt, pt>("no1", no,    1819566570720, 1);
+    test_one<mpt, pt>("no2", no,    1865041238129, 2);
+    test_one<mpt, pt>("no5", no,    1973615533600, 5);
+    test_one<mpt, pt>("no10", no,   2102034240506, 10);
+    test_one<mpt, pt>("no20", no,   2292171257647, 20);
+    test_one<mpt, pt>("no50", no,   2725475403816, 50);
+    test_one<mpt, pt>("no100", no,  3374987120112, 100);
 
-    test_one<mpt, pt>("no1", no,    1725145388125, -1);
-    test_one<mpt, pt>("no2", no,    1678942474081, -2);
-    test_one<mpt, pt>("no5", no,    1547329299122, -5);
-    test_one<mpt, pt>("no10", no,   1361199050090, -10);
-    test_one<mpt, pt>("no20", no,   1089847760231, -20);
-    test_one<mpt, pt>("no50", no,    649622191128, -50);
-    test_one<mpt, pt>("no100", no,   306739131988, -100);
+    test_one<mpt, pt>("no1", no,    1725145487969, -1);
+    test_one<mpt, pt>("no2", no,    1678942603503, -2);
+    test_one<mpt, pt>("no5", no,    1547329249723, -5);
+    test_one<mpt, pt>("no10", no,   1361198873951, -10);
+    test_one<mpt, pt>("no20", no,   1089847815351, -20);
+    test_one<mpt, pt>("no50", no,    649622162382, -50);
+    test_one<mpt, pt>("no100", no,   306739133606, -100);
 
-    test_one<mpt, pt>("uk1", uk,     733080770975, 1);
-    test_one<mpt, pt>("uk2", uk,     749555914853, 2);
-    test_one<mpt, pt>("uk5", uk,     793752665801, 5);
-    test_one<mpt, pt>("uk10", uk,    857682292248, 10);
-    test_one<mpt, pt>("uk20", uk,    970488077460, 20);
-    test_one<mpt, pt>("uk50", uk,   1247830324987, 50);
-    test_one<mpt, pt>("uk100", uk,  1659861945224, 100);
+    test_one<mpt, pt>("uk1", uk,     733080790315, 1);
+    test_one<mpt, pt>("uk2", uk,     749555939251, 2);
+    test_one<mpt, pt>("uk5", uk,     793752660191, 5);
+    test_one<mpt, pt>("uk10", uk,    857682286960, 10);
+    test_one<mpt, pt>("uk20", uk,    970488082763, 20);
+    test_one<mpt, pt>("uk50", uk,   1247830325401, 50);
+    test_one<mpt, pt>("uk100", uk,  1659861958875, 100);
 
-    test_one<mpt, pt>("uk1", uk,     699378116368, -1);
-    test_one<mpt, pt>("uk2", uk,     683086470730, -2);
-    test_one<mpt, pt>("uk5", uk,     637325273069, -5);
-    test_one<mpt, pt>("uk10", uk,    572556659250, -10);
-    test_one<mpt, pt>("uk20", uk,    479258136223, -20);
-    test_one<mpt, pt>("uk50", uk,    274828079475, -50);
-    test_one<mpt, pt>("uk100", uk,    78205462286, -100);
+    test_one<mpt, pt>("uk1", uk,     699378146599, -1);
+    test_one<mpt, pt>("uk2", uk,     683086442146, -2);
+    test_one<mpt, pt>("uk5", uk,     637325279340, -5);
+    test_one<mpt, pt>("uk10", uk,    572556625332, -10);
+    test_one<mpt, pt>("uk20", uk,    479258129205, -20);
+    test_one<mpt, pt>("uk50", uk,    274828071591, -50);
+    test_one<mpt, pt>("uk100", uk,    78205461294, -100);
 }
 
 int test_main(int, char* [])
