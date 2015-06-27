@@ -227,6 +227,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         rescale_policy,
                         visitor);
 
+#if defined(TEST_WITH_SVG)
+    buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
+#endif
+
+
     typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
     //Uncomment to create simple CSV to compare/use in tests - adapt precision if necessary
@@ -326,7 +331,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         // self_ips NYI here
     }
 #elif defined(TEST_WITH_SVG)
-    buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
     buffer_mapper.map_self_ips(mapper, buffered, rescale_policy_output);
 #endif
 
