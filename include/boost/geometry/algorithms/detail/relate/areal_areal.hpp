@@ -88,7 +88,7 @@ public:
         // TODO: This is O(N)
         // Run in a loop O(NM) - optimize!
         int const pig = detail::within::point_in_geometry(pt, m_other_areal);
-        //BOOST_ASSERT( pig != 0 );
+        //BOOST_GEOMETRY_ASSERT( pig != 0 );
         
         // inside
         if ( pig > 0 )
@@ -104,9 +104,9 @@ public:
 
             // Check if any interior ring is outside
             ring_identifier ring_id(0, -1, 0);
-            int const irings_count = boost::numeric_cast<int>(
-                                        geometry::num_interior_rings(areal) );
-            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
+            std::size_t const irings_count = geometry::num_interior_rings(areal);
+            for ( ; static_cast<std::size_t>(ring_id.ring_index) < irings_count ;
+                    ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
@@ -140,9 +140,9 @@ public:
 
             // Check if any interior ring is inside
             ring_identifier ring_id(0, -1, 0);
-            int const irings_count = boost::numeric_cast<int>(
-                                        geometry::num_interior_rings(areal) );
-            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
+            std::size_t const irings_count = geometry::num_interior_rings(areal);
+            for ( ; static_cast<std::size_t>(ring_id.ring_index) < irings_count ;
+                    ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
@@ -405,7 +405,7 @@ struct areal_areal
                   typename TurnIt>
         void apply(Result & result, TurnIt it)
         {
-            //BOOST_ASSERT( it != last );
+            //BOOST_GEOMETRY_ASSERT( it != last );
 
             overlay::operation_type const op = it->operations[op_id].operation;
 
@@ -498,7 +498,7 @@ struct areal_areal
         template <typename Result>
         void apply(Result & result)
         {
-            //BOOST_ASSERT( first != last );
+            //BOOST_GEOMETRY_ASSERT( first != last );
 
             if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
             {
@@ -618,7 +618,7 @@ struct areal_areal
             // O(N) - running it in a loop gives O(NM)
             int const pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
-            //BOOST_ASSERT(pig != 0);
+            //BOOST_GEOMETRY_ASSERT(pig != 0);
             if ( pig > 0 )
             {
                 update<interior, interior, '2', transpose_result>(m_result);
@@ -793,8 +793,8 @@ struct areal_areal
         {
             segment_identifier const& seg_id = turn.operations[OpId].seg_id;
 
-            signed_index_type
-                count = boost::numeric_cast<signed_index_type>(
+            signed_size_type
+                count = boost::numeric_cast<signed_size_type>(
                             geometry::num_interior_rings(
                                 detail::single_geometry(analyser.geometry, seg_id)));
             
@@ -804,8 +804,8 @@ struct areal_areal
         template <typename Analyser, typename Turn>
         static inline void for_no_turns_rings(Analyser & analyser,
                                               Turn const& turn,
-                                              signed_index_type first,
-                                              signed_index_type last)
+                                              signed_size_type first,
+                                              signed_size_type last)
         {
             segment_identifier seg_id = turn.operations[OpId].seg_id;
 

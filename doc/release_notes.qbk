@@ -19,6 +19,36 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.59]
+[/=================]
+
+[*Additional functionality]
+
+* Added rtree const_iterator, begin(), end() and the support for Boost.Range.
+* The support for C++11 `std::initializer_list` in geometries models.
+* Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring.
+* Added relate() and relation() algorithms.
+* Intersection has been implemented for combinations of pointlike and linear geometries
+* Added implementation for difference(pointlike, linear)
+* New algorithm is_empty, returning true if the geometry represents the empty set
+
+[*Improvements]
+
+* Upgraded rtree const_query_iterator category to ForwardIterator.
+
+[*Breaking changes]
+
+* buffer side strategy now returns error_code instead of bool. If you have your own custom side strategy, it should be adapted
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/11113 11113] Support easy enumeration of all elements with BOOST_FOREACH
+* [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
+* [@https://svn.boost.org/trac/boost/ticket/11232 11232] Feature request - relate()
+* [@https://svn.boost.org/trac/boost/ticket/11332 11332] Assertion failure in buffer for extreme coordinate differences
+* [@https://svn.boost.org/trac/boost/ticket/11346 11346] Segment iterator does not work with ranges returning values instead of references
+
+[/=================]
 [heading Boost 1.58]
 [/=================]
 

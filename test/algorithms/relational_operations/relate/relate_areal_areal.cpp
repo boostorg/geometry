@@ -233,11 +233,15 @@ void test_polygon_polygon()
         bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", p1);
         bg::read_wkt("POLYGON((10 0,10 10,20 10,20 0,10 0))", p2);
         bg::read_wkt("POLYGON((5 5,5 10,6 10,6 5,5 5))", p3);
-        BOOST_CHECK(bgdr::relate(p1, p2, bgdr::mask9("FT*******")
-                                      || bgdr::mask9("F**T*****")
-                                      || bgdr::mask9("F***T****"))); // touches()
-        BOOST_CHECK(bgdr::relate(p1, p3, bgdr::mask9("T*****FF*"))); // contains()
-        BOOST_CHECK(bgdr::relate(p2, p3, bgdr::mask9("FF*FF****"))); // disjoint()
+        BOOST_CHECK(bg::relate(p1, p2, bg::de9im::mask("FT*******")
+                                    || bg::de9im::mask("F**T*****")
+                                    || bg::de9im::mask("F***T****"))); // touches()
+        BOOST_CHECK(bg::relate(p1, p3, bg::de9im::mask("T*****FF*"))); // contains()
+        BOOST_CHECK(bg::relate(p2, p3, bg::de9im::mask("FF*FF****"))); // disjoint()
+
+        BOOST_CHECK(bg::relate(p1, p2, bg::de9im::static_mask<'F','T'>()
+                                    || bg::de9im::static_mask<'F','*','*','T'>()
+                                    || bg::de9im::static_mask<'F','*','*','*','T'>()));
     }
 
     // CCW

@@ -1,7 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -28,7 +33,7 @@
 
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
-#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
@@ -125,8 +130,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     // Intersection: return nothing
     // Difference: return first of them
     if (Direction == overlay_intersection
-        || (Direction == overlay_difference
-            && geometry::num_points(geometry1) == 0))
+        || (Direction == overlay_difference && geometry::is_empty(geometry1)))
     {
         return out;
     }
@@ -162,14 +166,15 @@ struct overlay
                 OutputIterator out,
                 Strategy const& )
     {
-        if ( geometry::num_points(geometry1) == 0
-          && geometry::num_points(geometry2) == 0 )
+        bool const is_empty1 = geometry::is_empty(geometry1);
+        bool const is_empty2 = geometry::is_empty(geometry2);
+
+        if (is_empty1 && is_empty2)
         {
             return out;
         }
 
-        if ( geometry::num_points(geometry1) == 0
-          || geometry::num_points(geometry2) == 0 )
+        if (is_empty1 || is_empty2)
         {
             return return_if_one_input_is_empty
                 <
