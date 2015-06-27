@@ -15,10 +15,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 
 
-#include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
@@ -115,7 +115,7 @@ struct base_turn_handler
     {
         ti.method = method;
 
-        BOOST_ASSERT(index < info.count);
+        BOOST_GEOMETRY_ASSERT(index < info.count);
 
         geometry::convert(info.intersections[index], ti.point);
         ti.operations[0].fraction = info.fractions[index].robust_ra;
@@ -597,7 +597,7 @@ struct collinear : public base_turn_handler
 
         int const arrival = dir_info.arrival[0];
         // Should not be 0, this is checked before
-        BOOST_ASSERT(arrival != 0);
+        BOOST_GEOMETRY_ASSERT(arrival != 0);
 
         int const side_p = side.pk_wrt_p1();
         int const side_q = side.qk_wrt_q1();

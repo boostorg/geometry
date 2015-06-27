@@ -18,9 +18,10 @@
 #include <set>
 #include <vector>
 
-#include <boost/assert.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -185,24 +186,26 @@ protected:
                                         TurnIterator turns_beyond,
                                         VisitPolicy& visitor)
     {
+        boost::ignore_unused(visitor);
+
         // collect the interior ring indices that have turns with the
         // exterior ring
-        std::set<signed_index_type> ring_indices;
+        std::set<signed_size_type> ring_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             if (tit->operations[0].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT(tit->operations[1].seg_id.ring_index != -1);
+                BOOST_GEOMETRY_ASSERT(tit->operations[1].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[1].seg_id.ring_index);
             }
             else if (tit->operations[1].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT(tit->operations[0].seg_id.ring_index != -1);
+                BOOST_GEOMETRY_ASSERT(tit->operations[0].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[0].seg_id.ring_index);
             }
         }
 
-        signed_index_type ring_index = 0;
+        signed_size_type ring_index = 0;
         for (RingIterator it = rings_first; it != rings_beyond;
              ++it, ++ring_index)
         {
@@ -303,6 +306,8 @@ protected:
                                  TurnIterator beyond,
                                  VisitPolicy& visitor)
         {
+            boost::ignore_unused(visitor);
+
             typedef typename std::iterator_traits
                 <
                     TurnIterator

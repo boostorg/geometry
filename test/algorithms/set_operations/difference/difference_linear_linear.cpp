@@ -23,7 +23,7 @@
 #include "test_difference_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
@@ -552,14 +552,16 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
         (from_wkt<L>("LINESTRING(8 1, 4 .4,2 8)"),
          from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
          from_wkt<ML>("MULTILINESTRING((4 .4,2 8))"),
-         "lldf31x"
+         "lldf31x",
+         4.0 * std::numeric_limits<double>::epsilon()
          );
 
     tester::apply
         (from_wkt<L>("LINESTRING(2 8,4 .4,8 1)"),
          from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
          from_wkt<ML>("MULTILINESTRING((2 8,4 .4))"),
-         "lldf31x-r"
+         "lldf31x-r",
+         4.0 * std::numeric_limits<double>::epsilon()
          );
 
     tester::apply

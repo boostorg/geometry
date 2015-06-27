@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -57,8 +57,7 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/io/wkt/read.hpp>
-#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 #if defined(TEST_WITH_SVG)
@@ -268,7 +267,7 @@ struct test_traverse
                         << std::endl
                         << "op: " << bg::operation_char(turn.operations[0].operation)
                         << " / " << bg::operation_char(turn.operations[1].operation)
-                        << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
+                        //<< (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                         << std::endl;
 
                     out << "r: " << turn.operations[0].fraction
@@ -813,7 +812,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_3",
                 5, 192.49316937645651, dz_3[0], dz_3[1]);
         test_traverse<polygon, polygon, operation_union>::apply("dz_3",
-                6, 1446.496005965641, dz_3[0], dz_3[1]);
+                5, 1446.496005965641, dz_3[0], dz_3[1]);
 
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_4",
                 1, 473.59423868207693, dz_4[0], dz_4[1]);

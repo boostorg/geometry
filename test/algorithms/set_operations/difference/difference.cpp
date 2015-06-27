@@ -23,12 +23,8 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/perimeter.hpp>
 
-#include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/intersection.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 
@@ -36,7 +32,6 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #ifdef HAVE_TTMATH
@@ -357,7 +352,7 @@ void test_all()
     // rings might be discarded. We check area only
     test_one<polygon, polygon, polygon>("isovist",
         isovist1[0], isovist1[1],
-        -1, -1, 0.279121,
+        -1, -1, 0.279132,
         -1, -1, 224.8892,
         0.001);
     // SQL Server gives: 0.279121891701124 and 224.889211358929
@@ -433,8 +428,8 @@ void test_all()
     // however, some long spikes are still generated in the resulting difference
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, -1,
-        if_typed_tt<ct>(0.0000000000001105367, 0.00021401892),
+        if_typed_tt<ct>(1, 1), -1,
+        if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949),
         1, -1, 3577.40960816756,
         0.01
         );
@@ -456,8 +451,8 @@ void test_all()
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
-            1, 10, 0.0334529710902111,
-            0, 0, 0);
+            2, 10, 0.0334529710902111,
+            1, 4, 5.3469555172380723e-010);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_9081_314",
@@ -642,7 +637,7 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
-        1, 4, 384, 0.001);
+        1, 4, 385, 0.001);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
@@ -652,7 +647,7 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ticket_11121",
         ticket_11121[0], ticket_11121[1],
         2, 8, 489763.5,
-        1, 4, 6743503.5);
+        1, 4, 6731652.0);
 }
 
 
@@ -672,8 +667,8 @@ int test_main(int, char* [])
         ("MULTIPOLYGON(((516 2484,516 1608,1308 1932,2094 2466,2094 3150,1308 3066,516 2484)))");
 
     test_ticket_10835<int>
-        ("MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1020 2986))",
-         "MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1460 2895))");
+        ("MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1020 2986))",
+         "MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1460 2895))");
 
     test_ticket_10835<double>
         ("MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1020 2986))",

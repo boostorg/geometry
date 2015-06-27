@@ -52,7 +52,7 @@ struct azimuth<ReturnType, geographic_tag>
         return geometry::detail::vincenty_inverse<ReturnType>
                     ( get_as_radian<0>(p1), get_as_radian<1>(p1),
                       get_as_radian<0>(p2), get_as_radian<1>(p2),
-                      spheroid ).azimuth12();
+                      spheroid ).azimuth();
     }
 
     template <typename P1, typename P2>

@@ -37,7 +37,8 @@
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 
 namespace boost { namespace geometry
 {
@@ -67,7 +68,7 @@ struct box_box_loop
         coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
 
         // TODO assert or exception?
-        //BOOST_ASSERT(min1 <= max1 && min2 <= max2);
+        //BOOST_GEOMETRY_ASSERT(min1 <= max1 && min2 <= max2);
 
         if ( max1 < min2 || max2 < min1 )
         {
@@ -349,9 +350,9 @@ struct touches<Box1, Box2, box_tag, box_tag, areal_tag, areal_tag, false>
 
 template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
 struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, linear_tag, false>
-    : detail::relate::relate_base
+    : detail::relate::relate_impl
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Linear1,
         Linear2
     >
@@ -361,9 +362,9 @@ struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, linear_tag, false>
 
 template <typename Linear, typename Areal, typename Tag1, typename Tag2>
 struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
-    : detail::relate::relate_base
+    : detail::relate::relate_impl
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Linear,
         Areal
     >
@@ -372,9 +373,9 @@ struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
 // A/L
 template <typename Linear, typename Areal, typename Tag1, typename Tag2>
 struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
-    : detail::relate::relate_base
+    : detail::relate::relate_impl
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Areal,
         Linear
     >

@@ -13,9 +13,9 @@
 #include <algorithm>
 #include <deque>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -33,7 +33,7 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
@@ -60,7 +60,7 @@ namespace detail { namespace is_simple
 
 template <typename Turn>
 inline bool check_segment_indices(Turn const& turn,
-                                  signed_index_type last_index)
+                                  signed_size_type last_index)
 {
     return
         (turn.operations[0].seg_id.segment_index == 0
@@ -89,7 +89,7 @@ public:
     template <typename Turn>
     inline bool apply(Turn const& turn) const
     {
-        BOOST_ASSERT(boost::size(m_linestring) > 1);
+        BOOST_GEOMETRY_ASSERT(boost::size(m_linestring) > 1);
         return m_is_closed
             && turn.method == overlay::method_none
             && check_segment_indices(turn, boost::size(m_linestring) - 2)
@@ -112,7 +112,7 @@ private:
     static inline bool is_boundary_point_of(Point const& point,
                                             Linestring const& linestring)
     {
-        BOOST_ASSERT(boost::size(linestring) > 1);
+        BOOST_GEOMETRY_ASSERT(boost::size(linestring) > 1);
         return
             ! geometry::equals(range::front(linestring),
                                range::back(linestring))
@@ -125,7 +125,7 @@ private:
     static inline bool is_closing_point_of(Turn const& turn,
                                            Linestring const& linestring)
     {
-        BOOST_ASSERT(boost::size(linestring) > 1);
+        BOOST_GEOMETRY_ASSERT(boost::size(linestring) > 1);
         return
             turn.method == overlay::method_none
             &&
