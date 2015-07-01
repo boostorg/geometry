@@ -202,6 +202,9 @@ private:
         {
             if ( !m_initialized )
             {
+                // it's guaranteed that the Box will be initialized
+                // only for Points, Boxes and Segments but that's ok
+                // since only those Geometries can be stored
                 detail::bounds(indexable, m_box);
                 m_initialized = true;
             }

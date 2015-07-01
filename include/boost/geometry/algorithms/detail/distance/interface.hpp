@@ -395,7 +395,7 @@ distance(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return distance(geometry1, geometry2, default_strategy());
+    return boost::geometry::distance(geometry1, geometry2, default_strategy());
 }
 
 }} // namespace boost::geometry
