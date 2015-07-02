@@ -16,7 +16,13 @@
 
 test-suite boost-geometry-algorithms-disjoint
     :
-    [ run disjoint.cpp          : : : : algorithms_disjoint ]
-    [ run disjoint_coverage.cpp : : : : algorithms_disjoint_coverage ]
-    [ run disjoint_multi.cpp    : : : : algorithms_disjoint_multi ]
+    [ run disjoint.cpp                    : : : : algorithms_disjoint ]
+    [ run disjoint_coverage_a_a.cpp       : : : : algorithms_disjoint_coverage_a_a ]
+    [ run disjoint_coverage_l_a.cpp       : : : : algorithms_disjoint_coverage_l_a ]
+    [ run disjoint_coverage_l_l.cpp       : : : : algorithms_disjoint_coverage_l_l ]
+    [ run disjoint_coverage_p_a.cpp       : : : : algorithms_disjoint_coverage_p_a ]
+    [ run disjoint_coverage_p_l.cpp       : : : : algorithms_disjoint_coverage_p_l ]
+    [ run disjoint_coverage_p_p.cpp       : : : : algorithms_disjoint_coverage_p_p ]
+    [ run disjoint_multi.cpp              : : : : algorithms_disjoint_multi ]
+    [ run disjoint_point_box_geometry.cpp : : : : algorithms_disjoint_point_box_geometry ]
     ;

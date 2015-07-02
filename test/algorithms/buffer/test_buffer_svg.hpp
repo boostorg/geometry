@@ -49,7 +49,9 @@ public :
     svg_visitor(SvgMapper& mapper)
         : m_mapper(mapper)
         , m_zoom(false)
-    {}
+    {
+        bg::assign_inverse(m_alternate_box);
+    }
 
     void set_alternate_box(Box const& box)
     {
@@ -161,9 +163,9 @@ private :
                     << "/" << it->operations[1].enriched.next_ip_index
                     //<< " frac " << it->operations[0].fraction
 
-    //                If you want to see robust-point coordinates (e.g. to find duplicates)
-    //                << std::endl
-    //                << " " << bg::get<0>(it->robust_point) << " , " << bg::get<1>(it->robust_point)
+    //                If you want to see (robust)point coordinates (e.g. to find duplicates)
+                    << std::endl << std::setprecision(16) << bg::wkt(it->point)
+                    << std::endl  << bg::wkt(it->robust_point)
 
                     << std::endl;
                 out << " " << bg::method_char(it->method)
@@ -244,7 +246,7 @@ private :
                 }
                 catch (...)
                 {
-                    std::cout << "Error for piece " << piece.index << std::endl;
+                    std::cerr << "Error for piece " << piece.index << std::endl;
                 }
             }
             else if (do_pieces)
@@ -319,7 +321,9 @@ public :
     buffer_svg_mapper(std::string const& casename)
         : m_casename(casename)
         , m_zoom(false)
-    {}
+    {
+        bg::assign_inverse(m_alternate_box);
+    }
 
     template <typename Mapper, typename Visitor, typename Envelope>
     void prepare(Mapper& mapper, Visitor& visitor, Envelope const& envelope, double box_buffer_distance)
@@ -332,7 +336,7 @@ public :
 
         // Take care non-visible elements are skipped
         visitor.set_alternate_box(alternate_box);
-        m_zoom = true;
+        set_alternate_box(alternate_box);
 #else
         bg::model::box<Point> box = envelope;
         bg::buffer(box, box, box_buffer_distance);

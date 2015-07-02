@@ -126,7 +126,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        3, 0, 31, 0.2187385);
+        4, 0, 31, 0.2187385);
 }
 
 template <typename P>

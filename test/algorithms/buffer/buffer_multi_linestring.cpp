@@ -30,7 +30,7 @@ static std::string const mikado3 = "MULTILINESTRING((1 18,4.05590062111801241684
 static std::string const mikado4 = "MULTILINESTRING((-15 2,-15 -17,-6 11,-1.9358288770053475591481628725887 10.572192513368984023713892383967),(2.1545064377682408007785852532834 10.14163090128755406738036981551,6.87603305785123986026974307606 9.6446280991735537924114396446384),(8.4810810810810810522752944962122 9.475675675675674369813350494951,13 9),(-15 0,-8 9,-2.9850746268656713766631582984701 4.4865671641791049495395782287233),(-1.8235294117647056211239942058455 3.4411764705882355031008046353236,-1.1428571428571423496123315999284 2.8285714285714291804652020800859),(1.2307692307692308375521861307789 0.69230769230769229061195346730528,1.2857142857142858094476878250134 0.64285714285714290472384391250671,2 0,1.9459459459459460539676456392044 0.51351351351351348650808859019889),(1.908127208480565384363103476062 0.87279151943462895957281943992712,1.9078014184397162900097555393586 0.87588652482269502286271745106205),(1.4685990338164249813246442499803 5.0483091787439615671928550000302,0.63551401869158885560295857430901 12.962616822429906093816498469096,0 19,2.9565217391304345895264304999728 8.6521739130434784925682834000327),(0 19,3.4942528735632185643567027000245 6.770114942528735468840750399977),(4.75 2.375,5.2427184466019420838733822165523 0.65048543689320226235395239200443),(5.5384615384615383248956277384423 -0.38461538461538458122390693461057,5.7358490566037731994697423942853 -1.0754716981132084185901476303115),(5.9777777777777778567269706400111 -1.9222222222222207221875578397885,6.867052023121386739035187929403 -5.0346820809248553629799971531611,10 -16,-14 -19,-12 -12),(0 10,1.9476439790575916788384347455576 5.4554973821989527493769855936989),(-4 1,-4.2790697674418600726653494348284 0.16279069767441856075862460784265))";
 
 static std::string const mysql_2015_04_10a = "MULTILINESTRING((-58 19, 61 88),(1.922421e+307 1.520384e+308, 15 42, 89 -93,-89 -22),(-63 -5, -262141 -536870908, -3 87, 77 -69))";
-static std::string const mysql_2015_04_10b = "MULTILINESTRING((-58 19, 61 88),(-63 -5, -262141 -536870908, -3 87, 77 -69))";
+static std::string const mysql_2015_04_10b = "MULTILINESTRING((-58 19, 61 88),                                                     (-63 -5, -262141 -536870908, -3 87, 77 -69))";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -84,27 +84,40 @@ void test_all()
     // Cases formly causing a segmentation fault because a generated side was skipped
     // (The expected area for large distances is about R*R*PI where R is distance)
     // Note that for large distances the flat ends (not tested here) still give weird effects
-    test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052109.518, 41751.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
+    {
+        // The results can differ between compilers and platforms
+        double mikado_tolerance = 30.0;
+        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125, 41751.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812278.387, 79610.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253, 79610.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950703.779, 96375.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
+        // BSD         29151950588
+        // msvc        29151950611
+        // clang/linux 29151950612
+        // mingw       29151950711
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950650, 96375.0, same_distance, true, 3 * mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
-    test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832197.267, 59772.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169, 59772.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
+        test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
+    }
 
     // Coordinates in one linestring vary so much that
     // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
     // That geometry is skipped for the buffer
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 927681870.1710, 0.98);
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 927681870.1710, 0.98);
+    // SQL Server reports area 2117753600 (for b)
+    // PostGIS    reports      2087335072 (for b)
+    // BG (2)     reports       794569660 (for a/b) which apparently misses parts
+    // old value was            927681870 (for a/b) which also misses parts
+    // (2: since selecting other IP at end points or when segment b is smaller than a)
+    test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 1063005187.214, 0.98);
+    test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
 }
 
 

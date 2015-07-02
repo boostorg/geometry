@@ -203,9 +203,13 @@ void test_areal()
             if_typed<ct, float>(1.0, 0.01));
     }
 
+    // SQL Server reports: 0.400390625
+    // PostGIS reports 0.4
+    // BG did report 0.4 but is changed to 0.397
+    // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4, 0.4, 0.01);
+        1, 4, 0.397162651, 0.01);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
@@ -241,7 +245,7 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.6334e-08, 0.01);
+                1, 4, 3.635930e-08, 0.01);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
@@ -266,9 +270,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
+    // msvc  5.6023011e-5
+    // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-                0, 0, 0.0);
+                0, 0, 5.6022983e-5);
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],

@@ -35,6 +35,7 @@
 [*Improvements]
 
 * Upgraded rtree const_query_iterator category to ForwardIterator.
+* Buffer performance of buffers around multi-points is improved significantly
 
 [*Breaking changes]
 
@@ -47,6 +48,12 @@
 * [@https://svn.boost.org/trac/boost/ticket/11232 11232] Feature request - relate()
 * [@https://svn.boost.org/trac/boost/ticket/11332 11332] Assertion failure in buffer for extreme coordinate differences
 * [@https://svn.boost.org/trac/boost/ticket/11346 11346] Segment iterator does not work with ranges returning values instead of references
+
+[*Bugfixes]
+
+* Buffer: use a more robust way to calculate the side of an intersection, this fixes several errors in buffer generation
+* Fix in selection of segment to which calculate from IP from, in intersection of two segments. Now is selected the one close to a segment-point point, or else the one on the shortest segment. This avoids (rarely occuring) generation of tiny triangles making output polygons invalid
+* In rescaling round instead of truncate to the integer grid (this fix and the previous mentioned can have some impact on output geometries)
 
 [/=================]
 [heading Boost 1.58]

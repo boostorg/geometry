@@ -1104,15 +1104,11 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
                   from_wkt<G>("LINESTRING(10 10,20 20,10 30)"),
                   10, 10, 20, 30);
 
-    // linestring that circles most of the globe
-    tester::apply("l03",
-                  from_wkt<G>("LINESTRING(-170 25,-50 10,10 10,20 20,100 5,180 15)"),
-                  -170, 5, 180, 25.15036418555258);
-
     // linestring that circles the entire globe
     tester::apply("l03",
                   from_wkt<G>("LINESTRING(-185 0,-170 25,-50 10,10 10,20 20,100 5,180 15)"),
-                  -180, 0, 180, 25.15036418555258);
+                  -180, 0, 180, 25.15036418555258,
+                  4.0 * std::numeric_limits<double>::epsilon());
 
     // linestring that crosses the antimeridian but staying close to it
     tester::apply("l04",

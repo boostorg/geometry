@@ -45,6 +45,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 
+const double same_distance = -999;
 
 #if defined(TEST_WITH_SVG)
 #  include <test_buffer_svg.hpp>
@@ -150,7 +151,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     bg::model::box<point_type> envelope;
     if (bg::is_empty(geometry))
     {
-        bg::assign_inverse(envelope);
+        bg::assign_values(envelope, 0, 0, 1,  1);
     }
     else
     {
@@ -226,12 +227,40 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         rescale_policy,
                         visitor);
 
+#if defined(TEST_WITH_SVG)
+    buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
+#endif
+
+
     typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
-//    std::cout << caseid << std::endl;
-//    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
-//    std::cout << "OUTPUT: " << area << std::endl;
-//    std::cout << bg::wkt(buffered) << std::endl;
+    //Uncomment to create simple CSV to compare/use in tests - adapt precision if necessary
+    //std::cout << complete.str() << "," << std::fixed << std::setprecision(0) << area << std::endl;
+    //return;
+
+    if (bg::is_empty(buffered) && bg::math::equals(expected_area, 0.0))
+    {
+        // As expected - don't get rescale policy for output (will be invalid)
+        return;
+    }
+
+    BOOST_CHECK_MESSAGE
+        (
+            ! bg::is_empty(buffered),
+            complete.str() << " output is empty (unexpected)."
+        );
+
+    bg::model::box<point_type> envelope_output;
+    bg::assign_values(envelope_output, 0, 0, 1,  1);
+    bg::envelope(buffered, envelope_output);
+    rescale_policy_type rescale_policy_output
+            = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
+
+    //    std::cout << caseid << std::endl;
+    //    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
+    //    std::cout << "OUTPUT: " << area << std::endl;
+    //    std::cout << "OUTPUT env: " << bg::wkt(envelope_output) << std::endl;
+    //    std::cout << bg::wkt(buffered) << std::endl;
 
     if (expected_area > -0.1)
     {
@@ -250,10 +279,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         if (check_self_intersections)
         {
+
             try
             {
                 bool has_self_ips = bg::detail::overlay::has_self_intersections(
-                                        buffered, rescale_policy, false);
+                                        buffered, rescale_policy_output, false);
                 // Be sure resulting polygon does not contain
                 // self-intersections
                 BOOST_CHECK_MESSAGE
@@ -301,8 +331,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         // self_ips NYI here
     }
 #elif defined(TEST_WITH_SVG)
-    buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
-    buffer_mapper.map_self_ips(mapper, buffered, rescale_policy);
+    buffer_mapper.map_self_ips(mapper, buffered, rescale_policy_output);
 #endif
 
     // Check for self-intersections
@@ -310,9 +339,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         std::size_t count = 0;
         if (bg::detail::overlay::has_self_intersections(buffered,
-                rescale_policy, false))
+                rescale_policy_output, false))
         {
-            count = count_self_ips(buffered, rescale_policy);
+            count = count_self_ips(buffered, rescale_policy_output);
         }
 
         *self_ip_count += count;
@@ -338,7 +367,7 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
-        double distance_left, double distance_right = -999,
+        double distance_left, double distance_right = same_distance,
         bool check_self_intersections = true,
         double tolerance = 0.01)
 {
@@ -368,7 +397,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
     <
         typename bg::coordinate_type<Geometry>::type
     > distance_strategy(distance_left,
-                        distance_right > -998 ? distance_right : distance_left);
+                        bg::math::equals(distance_right, same_distance)
+                        ? distance_left : distance_right);
 
     test_buffer<GeometryOut>
             (caseid, g,
@@ -381,7 +411,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     // Also test symmetric distance strategy if right-distance is not specified
     // (only in release mode)
-    if (bg::math::equals(distance_right, -999))
+    if (bg::math::equals(distance_right, same_distance))
     {
         bg::strategy::buffer::distance_symmetric
         <
@@ -423,7 +453,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
     <
         typename bg::coordinate_type<Geometry>::type
     > distance_strategy(distance_left,
-                        distance_right > -998 ? distance_right : distance_left);
+                        bg::math::equals(distance_right, same_distance)
+                        ? distance_left : distance_right);
 
     bg::strategy::buffer::point_circle circle_strategy(88);
     bg::strategy::buffer::side_straight side_strategy;

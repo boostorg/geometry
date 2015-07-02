@@ -14,6 +14,7 @@
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
+#include <boost/range/algorithm/copy.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/index/rtree.hpp>

@@ -791,7 +791,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                       (10 10,11 10),(12 10,15 10),(20 10,30 20),\
                       (1 1,2 0),(-1 -1,0 0),(9 0,11 10),(12 10,13 0.3),\
                       (10 20,15 10),(20 10,25 10,30 15))"),
-         "mlmlsdf06"
+         "mlmlsdf06",
+         4.0 * std::numeric_limits<double>::epsilon()
         );
 
     tester::apply
