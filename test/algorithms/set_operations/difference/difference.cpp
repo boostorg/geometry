@@ -254,7 +254,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("fitting",
         fitting[0], fitting[1],
         1, 9, 21.0,
-        1, 4, 4.0);
+        1, 4, 4.0,
+        1, 5, 25.0);
 
     test_one<polygon, polygon, polygon>("identical",
         identical[0], identical[1],
@@ -319,7 +320,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("side_side",
         side_side[0], side_side[1],
         1, 5, 1,
-        1, 5, 1);
+        1, 5, 1,
+        1, 7, 2);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("buffer_mp1",
@@ -382,7 +384,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
-        1, -1, 13180420.0);
+        1, -1, 13180420.0,
+        1, -1, 16211128.5 + 13180420.0);
 
     test_one<polygon, polygon, polygon>("geos_4",
         geos_4[0], geos_4[1],
@@ -392,7 +395,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
-        2, -1, 8960.49049);
+        2, -1, 8960.49049,
+        2, -1, 71495.3331 + 8960.49049);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
@@ -405,8 +409,8 @@ void test_all()
         test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
             3, -1, 35723.8506317139,
-            1, -1, 58456.4964294434
-            );
+            1, -1, 58456.4964294434,
+            1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
     test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
@@ -637,7 +641,9 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
-        1, 4, 385, 0.001);
+        1, 4, 385,
+        1, 16, 3371540 + 385,
+        0.001);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
