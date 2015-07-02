@@ -31,6 +31,43 @@ namespace detail { namespace sym_difference
 {
 
 
+template <typename GeometryOut>
+struct compute_difference
+{
+    template
+    <
+        typename Geometry1,
+        typename Geometry2,
+        typename RobustPolicy,
+        typename OutputIterator,
+        typename Strategy
+    >
+    static inline OutputIterator apply(Geometry1 const& geometry1,
+                                       Geometry2 const& geometry2,
+                                       RobustPolicy const& robust_policy,
+                                       OutputIterator out,
+                                       Strategy const& strategy)
+    {
+        return geometry::dispatch::intersection_insert
+            <
+                Geometry1,
+                Geometry2,
+                GeometryOut,
+                overlay_difference,
+                geometry::detail::overlay::do_reverse
+                    <
+                        geometry::point_order<Geometry1>::value
+                    >::value,
+                geometry::detail::overlay::do_reverse
+                    <
+                        geometry::point_order<Geometry2>::value, true
+                    >::value
+            >::apply(geometry1, geometry2, robust_policy, out, strategy);
+    }
+};
+
+
+
 template <typename GeometryOut, typename Geometry1, typename Geometry2>
 struct sym_difference_generic
 {
@@ -46,45 +83,18 @@ struct sym_difference_generic
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
-        out = geometry::dispatch::intersection_insert
+        out = compute_difference
             <
-                Geometry1,
-                Geometry2,
-                GeometryOut,
-                overlay_difference,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Geometry1>::value
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Geometry2>::value, true
-                    >::value
+                GeometryOut
             >::apply(geometry1, geometry2, robust_policy, out, strategy);
 
-        out = geometry::dispatch::intersection_insert
+        return compute_difference
             <
-                Geometry2,
-                Geometry1,
-                GeometryOut,
-                overlay_difference,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Geometry2>::value
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Geometry1>::value, true
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<GeometryOut>::value
-                    >::value
+                GeometryOut
             >::apply(geometry2, geometry1, robust_policy, out, strategy);
-
-        return out;
     }
 };
+
 
 template <typename GeometryOut, typename Areal1, typename Areal2>
 struct sym_difference_areal_areal
@@ -111,40 +121,14 @@ struct sym_difference_areal_areal
         std::back_insert_iterator<helper_geometry_type> oit12(diff12);
         std::back_insert_iterator<helper_geometry_type> oit21(diff21);
 
-        geometry::dispatch::intersection_insert
+        compute_difference
             <
-                Areal1,
-                Areal2,
-                GeometryOut,
-                overlay_difference,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Areal1>::value
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Areal2>::value, true
-                    >::value
+                GeometryOut
             >::apply(areal1, areal2, robust_policy, oit12, strategy);
 
-        geometry::dispatch::intersection_insert
+        compute_difference
             <
-                Areal2,
-                Areal1,
-                GeometryOut,
-                overlay_difference,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Areal2>::value
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<Areal1>::value, true
-                    >::value,
-                geometry::detail::overlay::do_reverse
-                    <
-                        geometry::point_order<GeometryOut>::value
-                    >::value
+                GeometryOut
             >::apply(areal2, areal1, robust_policy, oit21, strategy);
 
         return geometry::dispatch::union_insert
