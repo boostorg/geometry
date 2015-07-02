@@ -15,6 +15,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <cstddef>
 #include <limits>
 #include <iostream>
 #include <string>
@@ -22,6 +23,7 @@
 #include <geometry_test_common.hpp>
 #include <from_wkt.hpp>
 
+#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -365,6 +367,34 @@ struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 };
 
 
+template <typename CoordinateSystem, typename Geometry>
+void test_empty_geometry(std::string const& case_id, std::string const& wkt)
+{
+    std::size_t const dim = bg::dimension<Geometry>::value;
+
+    typedef bg::model::point<double, dim, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<Geometry, B> tester;
+
+    typedef typename bg::coordinate_type<Geometry>::type ct;
+    ct high_val = boost::numeric::bounds<ct>::highest();
+    ct low_val = boost::numeric::bounds<ct>::lowest();
+
+    if (BOOST_GEOMETRY_CONDITION(dim == 2))
+    {
+        tester::apply(case_id,
+                      from_wkt<Geometry>(wkt),
+                      high_val, high_val, low_val, low_val);
+    }
+    else
+    {
+        tester::apply(case_id,
+                      from_wkt<Geometry>(wkt),
+                      high_val, high_val, high_val, low_val, low_val, low_val);
+    }
+}
+
+
 template <typename CoordinateSystem>
 void test_envelope_point()
 {
@@ -659,9 +689,7 @@ void test_envelope_multipoint()
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty multipoint
-    tester::apply("mp00",
-                  from_wkt<G>("MULTIPOINT()"),
-                  1, 1, -1, -1);
+    test_empty_geometry<CoordinateSystem, G>("mp00", "MULTIPOINT()");
 
     tester::apply("mp01",
                   from_wkt<G>("MULTIPOINT(0 0,10 10)"),
@@ -804,9 +832,7 @@ void test_envelope_multipoint_with_height()
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty multipoint
-    tester::apply("mph00",
-                  from_wkt<G>("MULTIPOINT()"),
-                  1, 1, 1, -1, -1, -1);
+    test_empty_geometry<CoordinateSystem, G>("mph00", "MULTIPOINT()");
 
     tester::apply("mph01",
                   from_wkt<G>("MULTIPOINT(0 0 567,10 10 1456)"),
@@ -1060,9 +1086,7 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty linestring
-    tester::apply("l00",
-                  from_wkt<G>("LINESTRING()"),
-                  1, 1, -1, -1);
+    test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
 
     tester::apply("l01",
                   from_wkt<G>("LINESTRING(10 15)"),
@@ -1181,9 +1205,7 @@ BOOST_AUTO_TEST_CASE( envelope_linestring_with_height )
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty linestring
-    tester::apply("lh00",
-                  from_wkt<G>("LINESTRING()"),
-                  1, 1, 1, -1, -1, -1);
+    test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
 
     tester::apply("lh01",
                   from_wkt<G>("LINESTRING(10 15 30,20 25 434,30 35 186)"),
@@ -1200,19 +1222,15 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring )
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty multilinestring
-    tester::apply("ml00",
-                  from_wkt<G>("MULTILINESTRING()"),
-                  1, 1, -1, -1);
+    test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
 
     // invalid multilinestring
-    tester::apply("ml00a",
-                  from_wkt<G>("MULTILINESTRING(())"),
-                  1, 1, -1, -1);
+    test_empty_geometry<coordinate_system_type, G>("ml00a",
+                                                   "MULTILINESTRING(())");
 
     // invalid multilinestring
-    tester::apply("ml00b",
-                  from_wkt<G>("MULTILINESTRING((),())"),
-                  1, 1, -1, -1);
+    test_empty_geometry<coordinate_system_type, G>("ml00b",
+                                                   "MULTILINESTRING((),())");
 
     // invalid multilinestring
     tester::apply("ml00c",
