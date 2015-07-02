@@ -11,7 +11,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_INITIALIZE_HPP
 
 #include <cstddef>
-#include <limits>
+
+#include <boost/numeric/conversion/bounds.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -65,9 +66,9 @@ struct initialize
 
     static inline void apply(Box& box,
         coordinate_type min_value
-            = (std::numeric_limits<coordinate_type>::max)(),
+            = boost::numeric::bounds<coordinate_type>::highest(),
         coordinate_type max_value
-            = -(std::numeric_limits<coordinate_type>::max)())
+            = boost::numeric::bounds<coordinate_type>::lowest())
     {
         initialize_loop
             <
