@@ -17,7 +17,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <limits>
+#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithms/test_envelope.hpp>
 
@@ -66,18 +66,16 @@ void test_3d()
 template <typename Geometry>
 void test_empty_geometry(std::string const& wkt)
 {
-    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
-    coordinate_type max_val = (std::numeric_limits<coordinate_type>::max)();
+    typedef typename bg::coordinate_type<Geometry>::type ct;
+    ct high_val = boost::numeric::bounds<ct>::highest();
+    ct low_val = boost::numeric::bounds<ct>::lowest();
 
-    test_envelope<Geometry>(wkt, max_val, -max_val, max_val, -max_val);
+    test_envelope<Geometry>(wkt, high_val, low_val, high_val, low_val);
 }
 
 template <typename P>
 void test_empty()
 {
-    typedef typename bg::coordinate_type<P>::type coordinate_type;
-    coordinate_type max_val = (std::numeric_limits<coordinate_type>::max)();
-
     test_empty_geometry<bg::model::linestring<P> >("LINESTRING()");
     test_empty_geometry<bg::model::ring<P> >("POLYGON(())");
 
