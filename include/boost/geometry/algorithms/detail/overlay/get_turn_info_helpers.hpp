@@ -217,7 +217,9 @@ public:
         : base_t(pi, pj, pk, qi, qj, qk, robust_policy)
         , m_result(strategy::apply(segment_type1(pi, pj),
                                    segment_type2(qi, qj),
-                                   robust_policy))
+                                   robust_policy,
+                                   base_t::rpi(), base_t::rpj(),
+                                   base_t::rqi(), base_t::rqj()))
         , m_robust_policy(robust_policy)
     {}
 
