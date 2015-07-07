@@ -43,6 +43,7 @@
 
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
+
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -56,16 +57,19 @@ namespace detail { namespace envelope
 {
 
 
-template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_one_segment
 {
     template<typename Point, typename Box>
     static inline void apply(Point const& p1, Point const& p2, Box& mbr)
     {
-        envelope_one_point<Dimension, DimensionCount, CS_Tag>::apply(p1, mbr);
-        dispatch::expand
+        envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr);
+        detail::expand::point_loop
             <
-                Box, Point, Dimension, DimensionCount
+                strategy::compare::default_strategy,
+                strategy::compare::default_strategy,
+                Dimension,
+                DimensionCount
             >::apply(mbr, p2);
     }
 };
@@ -306,7 +310,7 @@ public:
 
 
 template <std::size_t DimensionCount>
-struct envelope_one_segment<0, DimensionCount, spherical_equatorial_tag>
+struct envelope_segment_on_sphere
 {
     template <typename Point, typename Box>
     static inline void apply(Point const& p1, Point const& p2, Box& mbr)
@@ -323,12 +327,32 @@ struct envelope_one_segment<0, DimensionCount, spherical_equatorial_tag>
 
         // now compute the envelope range for coordinates of
         // dimension 2 and higher
-        envelope_one_segment
-            <
-                2, DimensionCount, spherical_equatorial_tag
-            >::apply(p1, p2, mbr);
+        envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr);
+    }
+
+    template <typename Segment, typename Box>
+    static inline void apply(Segment const& segment, Box& mbr)
+    {
+        typename point_type<Segment>::type p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
+        apply(p[0], p[1], mbr);
     }
 };
+
+
+
+template <std::size_t DimensionCount, typename CS_Tag>
+struct envelope_segment
+    : envelope_one_segment<0, DimensionCount>
+{};
+
+
+template <std::size_t DimensionCount>
+struct envelope_segment<DimensionCount, spherical_equatorial_tag>
+    : envelope_segment_on_sphere<DimensionCount>
+{};
+
 
 
 }} // namespace detail::envelope
@@ -340,14 +364,8 @@ namespace dispatch
 {
 
 
-template
-<
-    typename Segment,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename CS_Tag
->
-struct envelope<Segment, Dimension, DimensionCount, segment_tag, CS_Tag>
+template <typename Segment, typename CS_Tag>
+struct envelope<Segment, segment_tag, CS_Tag>
 {
     template <typename Box>
     static inline void apply(Segment const& segment, Box& mbr)
@@ -355,9 +373,9 @@ struct envelope<Segment, Dimension, DimensionCount, segment_tag, CS_Tag>
         typename point_type<Segment>::type p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
-        detail::envelope::envelope_one_segment
+        detail::envelope::envelope_segment
             <
-                Dimension, DimensionCount, CS_Tag
+                dimension<Segment>::value, CS_Tag
             >::apply(p[0], p[1], mbr);
     }
 };

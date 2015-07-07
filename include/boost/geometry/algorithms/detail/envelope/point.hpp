@@ -23,6 +23,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -44,7 +45,7 @@ namespace detail { namespace envelope
 {
 
 
-template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_one_point
 {
     template <std::size_t Index, typename Point, typename Box>
@@ -69,8 +70,7 @@ struct envelope_one_point
 };
 
 
-template <std::size_t DimensionCount>
-struct envelope_one_point<0, DimensionCount, spherical_equatorial_tag>
+struct envelope_point_on_spheroid
 {
     template<typename Point, typename Box>
     static inline void apply(Point const& point, Box& mbr)
@@ -90,16 +90,10 @@ struct envelope_one_point<0, DimensionCount, spherical_equatorial_tag>
 
         envelope_one_point
             <
-                2, DimensionCount, spherical_equatorial_tag
+                2, dimension<Point>::value
             >::apply(normalized_point, mbr);
     }
 };
-
-
-template <std::size_t Dimension, std::size_t DimensionCount>
-struct envelope_one_point<Dimension, DimensionCount, geographic_tag>
-    : envelope_one_point<Dimension, DimensionCount, spherical_equatorial_tag>
-{};
 
 
 }} // namespace detail::envelope
@@ -110,20 +104,26 @@ namespace dispatch
 {
 
 
-template
-<
-    typename Point,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename CS_Tag
->
-struct envelope<Point, Dimension, DimensionCount, point_tag, CS_Tag>
-    : detail::envelope::envelope_one_point<Dimension, DimensionCount, CS_Tag>
+template <typename Point, typename CS_Tag>
+struct envelope<Point, point_tag, CS_Tag>
+    : detail::envelope::envelope_one_point<0, dimension<Point>::value>
+{};
+
+
+template <typename Point>
+struct envelope<Point, point_tag, spherical_equatorial_tag>
+    : detail::envelope::envelope_point_on_spheroid
+{};
+
+
+template <typename Point>
+struct envelope<Point, point_tag, geographic_tag>
+    : detail::envelope::envelope_point_on_spheroid
 {};
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
 
 }} // namespace boost::geometry
 

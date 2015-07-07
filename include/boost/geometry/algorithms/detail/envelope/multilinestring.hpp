@@ -19,12 +19,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTILINESTRING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTILINESTRING_HPP
 
-#include <cstddef>
-
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/detail/envelope/linestring.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -34,76 +30,35 @@ namespace boost { namespace geometry
 {
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace envelope
-{
-
-
-template <std::size_t Dimension, std::size_t DimensionCount>
-struct envelope_multilinestring_on_spheroid
-    : envelope_multi_range
-        <
-            Dimension,
-            DimensionCount,
-            detail::envelope::envelope_range<Dimension, DimensionCount>
-        >
-{};
-
-template <std::size_t DimensionCount>
-struct envelope_multilinestring_on_spheroid<0, DimensionCount>
-    : envelope_linear_on_spheroid<DimensionCount>
-{};
-
-
-}} // namespace detail::envelope
-#endif // DOXYGEN_NO_DETAIL
-
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
 
-template
-<
-    typename MultiLinestring,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename CS_Tag
->
+template <typename MultiLinestring, typename CS_Tag>
 struct envelope
     <
-        MultiLinestring,
-        Dimension, DimensionCount,
-        multi_linestring_tag, CS_Tag
+        MultiLinestring, multi_linestring_tag, CS_Tag
     > : detail::envelope::envelope_multi_range
         <
-            Dimension,
-            DimensionCount,
-            detail::envelope::envelope_range<Dimension, DimensionCount>
+            detail::envelope::envelope_range
         >
 {};
 
-template
-<
-    typename MultiLinestring,
-    std::size_t Dimension,
-    std::size_t DimensionCount
->
+template <typename MultiLinestring>
 struct envelope
     <
-        MultiLinestring,
-        Dimension, DimensionCount,
-        multi_linestring_tag, spherical_equatorial_tag
-    > : detail::envelope::envelope_multilinestring_on_spheroid
+        MultiLinestring, multi_linestring_tag, spherical_equatorial_tag
+    > : detail::envelope::envelope_multi_range_on_spheroid
         <
-            Dimension, DimensionCount
+            detail::envelope::envelope_linestring_on_spheroid
         >
 {};
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
+
 
 }} // namespace boost::geometry
 

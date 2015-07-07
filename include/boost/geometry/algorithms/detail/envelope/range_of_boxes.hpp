@@ -146,7 +146,7 @@ struct envelope_range_of_longitudes
 
 
 template <std::size_t Dimension, std::size_t DimensionCount>
-struct envelope_range_of_boxes
+struct envelope_range_of_boxes_by_expansion
 {
     template <typename RangeOfBoxes, typename Box>
     static inline void apply(RangeOfBoxes const& range_of_boxes, Box& mbr)
@@ -210,8 +210,8 @@ struct envelope_range_of_boxes
 
 };
 
-template <std::size_t DimensionCount>
-struct envelope_range_of_boxes<0, DimensionCount>
+
+struct envelope_range_of_boxes
 {
     template <std::size_t Index>
     struct latitude_less
@@ -309,7 +309,10 @@ struct envelope_range_of_boxes<0, DimensionCount>
 
         // what remains to be done is to compute the envelope range
         // for the remaining dimensions (if any)
-        envelope_range_of_boxes<2, DimensionCount>::apply(range_of_boxes, mbr);
+        envelope_range_of_boxes_by_expansion
+            <
+                2, dimension<Box>::value
+            >::apply(range_of_boxes, mbr);
     }
 };
 

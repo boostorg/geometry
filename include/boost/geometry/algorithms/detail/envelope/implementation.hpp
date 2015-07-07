@@ -19,9 +19,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_IMPLEMENTATION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_IMPLEMENTATION_HPP
 
-#include <cstddef>
-
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -33,7 +32,6 @@
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
-#include <boost/geometry/algorithms/detail/expand/box.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -46,7 +44,6 @@ namespace detail { namespace envelope
 {
 
 
-template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_polygon
 {
     template <typename Polygon, typename Box>
@@ -60,15 +57,13 @@ struct envelope_polygon
             // if the exterior ring is empty, consider the interior rings
             envelope_multi_range
                 <
-                    Dimension,
-                    DimensionCount,
-                    envelope_range<Dimension, DimensionCount>
+                    envelope_range
                 >::apply(interior_rings(polygon), mbr);
         }
         else
         {
             // otherwise, consider only the exterior ring
-            envelope_range<Dimension, DimensionCount>::apply(ext_ring, mbr);
+            envelope_range::apply(ext_ring, mbr);
         }
     }
 };
@@ -82,36 +77,30 @@ namespace dispatch
 {
 
 
-template <typename Ring, std::size_t Dimension, std::size_t DimensionCount>
-struct envelope<Ring, Dimension, DimensionCount, ring_tag>
-    : detail::envelope::envelope_range<Dimension, DimensionCount>
+template <typename Ring>
+struct envelope<Ring, ring_tag>
+    : detail::envelope::envelope_range
 {};
 
 
-template <typename Polygon, std::size_t Dimension, std::size_t DimensionCount>
-struct envelope<Polygon, Dimension, DimensionCount, polygon_tag>
-    : detail::envelope::envelope_polygon<Dimension, DimensionCount>
+template <typename Polygon>
+struct envelope<Polygon, polygon_tag>
+    : detail::envelope::envelope_polygon
 {};
 
 
-template
-<
-    typename MultiPolygon,
-    std::size_t Dimension,
-    std::size_t DimensionCount
->
-struct envelope<MultiPolygon, Dimension, DimensionCount, multi_polygon_tag>
+template <typename MultiPolygon>
+struct envelope<MultiPolygon, multi_polygon_tag>
     : detail::envelope::envelope_multi_range
         <
-            Dimension,
-            DimensionCount,
-            detail::envelope::envelope_polygon<Dimension, DimensionCount>
+            detail::envelope::envelope_polygon
         >
 {};
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
+
 
 }} // namespace boost::geometry
 
