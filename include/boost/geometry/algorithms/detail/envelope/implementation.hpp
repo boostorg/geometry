@@ -26,8 +26,7 @@
 #include <boost/geometry/algorithms/is_empty.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/box.hpp>
-#include <boost/geometry/algorithms/detail/envelope/linestring.hpp>
-#include <boost/geometry/algorithms/detail/envelope/multilinestring.hpp>
+#include <boost/geometry/algorithms/detail/envelope/linear.hpp>
 #include <boost/geometry/algorithms/detail/envelope/multipoint.hpp>
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
