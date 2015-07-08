@@ -179,12 +179,17 @@ void test_areal()
         geos_1[0], geos_1[1],
             1, -1, 3461.0214843, 0.005); // MSVC 14 reports 3461.025390625
 
+    // Expectations:
+    // In most cases: 0 (no intersection)
+    // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
+    // In some cases: 5.6022983000000002e-05 (powerpc64le-gcc-6-0)
     test_one<Polygon, Polygon, Polygon>("geos_2",
         geos_2[0], geos_2[1],
-            0, 0, 0.0);
+            0, 0, 6.0e-5, -1.0); // -1 denotes: compare with <=
+
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
-            0, -0, 0.0);
+            0, 0, 0.0);
     test_one<Polygon, Polygon, Polygon>("geos_4",
         geos_4[0], geos_4[1],
             1, -1, 0.08368849);
