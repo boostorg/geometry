@@ -170,6 +170,33 @@ void test_ticket_11121()
     BOOST_CHECK(bg::is_valid(sym_diff));
 }
 
+template <typename CoordinateType>
+void test_bug21155501()
+{
+    typedef bg::model::point<CoordinateType,2,bg::cs::cartesian> point_type;
+    typedef bg::model::polygon
+        <
+        point_type, /*ClockWise*/false, /*Closed*/false
+        > polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
+
+    polygon_type g1;
+    bg::read_wkt("POLYGON((-8.3935546875 27.449790329784214,4.9658203125 18.729501999072138,11.8212890625 23.563987128451217,9.7119140625 25.48295117535531,9.8876953125 31.728167146023935,8.3056640625 32.99023555965106,8.5693359375 37.16031654673677,-1.8896484375 35.60371874069731,-0.5712890625 32.02670629333614,-8.9208984375 29.458731185355344,-8.3935546875 27.449790329784214))", g1);
+    multipolygon_type g2;
+    bg::read_wkt("MULTIPOLYGON(((4.9658203125 18.729501999072138,-3.4868710311820115 24.246968623627644,8.3589904332912 33.833614418115445,8.3056640625 32.99023555965106,9.8876953125 31.728167146023935,9.7119140625 25.48295117535531,11.8212890625 23.563987128451217,4.9658203125 18.729501999072138)),((-3.88714525609152 24.508246314579743,-8.3935546875 27.449790329784214,-8.9208984375 29.458731185355344,-0.5712890625 32.02670629333614,-1.8896484375 35.60371874069731,8.5693359375 37.16031654673677,8.362166569827938 33.883846345901595,-3.88714525609152 24.508246314579743)))", g2);
+    bg::correct(g1);
+    bg::correct(g2);
+
+    multipolygon_type diff12, diff21, sym_diff;
+    bg::difference(g1, g2, diff12);
+    bg::difference(g2, g1, diff21);
+    bg::sym_difference(g1, g2, sym_diff);
+
+    BOOST_CHECK(bg::is_valid(diff12));
+    BOOST_CHECK(bg::is_valid(diff21));
+    BOOST_CHECK(bg::is_valid(sym_diff));
+}
+
 template <typename P>
 void test_all()
 {
@@ -254,7 +281,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("fitting",
         fitting[0], fitting[1],
         1, 9, 21.0,
-        1, 4, 4.0);
+        1, 4, 4.0,
+        1, 5, 25.0);
 
     test_one<polygon, polygon, polygon>("identical",
         identical[0], identical[1],
@@ -319,7 +347,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("side_side",
         side_side[0], side_side[1],
         1, 5, 1,
-        1, 5, 1);
+        1, 5, 1,
+        1, 7, 2);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("buffer_mp1",
@@ -382,7 +411,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
-        1, -1, 13180420.0);
+        1, -1, 13180420.0,
+        1, -1, 16211128.5 + 13180420.0);
 
     test_one<polygon, polygon, polygon>("geos_4",
         geos_4[0], geos_4[1],
@@ -392,7 +422,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
-        2, -1, 8960.49049);
+        2, -1, 8960.49049,
+        2, -1, 71495.3331 + 8960.49049);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
@@ -405,8 +436,8 @@ void test_all()
         test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
             3, -1, 35723.8506317139,
-            1, -1, 58456.4964294434
-            );
+            1, -1, 58456.4964294434,
+            1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
     test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
@@ -637,7 +668,9 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
-        1, 4, 385, 0.001);
+        1, 4, 385,
+        1, 16, 3371540 + 385,
+        0.001);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
@@ -675,6 +708,10 @@ int test_main(int, char* [])
          "MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1459.78 2895))");
 
     test_ticket_11121<int>();
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_bug21155501<double>();
+#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

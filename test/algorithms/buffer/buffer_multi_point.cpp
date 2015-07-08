@@ -112,18 +112,26 @@ void test_many_points_per_circle()
             distance_strategy(6051788), side_strategy, point_circle(8000),
             115058661065242.812, tolerance);
 
+    // Expectations:
+    // 115058672785641.031
+    // 115058672785680.281
+    // 115058672785679.922
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_1",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(83585),
-            115058672785641.031, tolerance);
+            115058672785660, 25.0);
 
     // Takes about 7 seconds in release mode
+    // Expectations:
+    // 115058672880035.391
+    // 115058672879944.547
+    // 115058672879920.484
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_1_250k",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(250000),
-            115058672880035.391, tolerance);
+            115058672879977, 75.0);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Takes about 110 seconds in release mode
@@ -135,19 +143,29 @@ void test_many_points_per_circle()
 #endif
 
     // 5666962: area ~> 100890546298964
+    // Expectations:
+    // 100891031341796.875
+    // 100891031341794.766
+    // 100891031341794.078
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_2",
             mysql_report_2015_02_25_2, join, end_flat,
             distance_strategy(5666962), side_strategy, point_circle(46641),
-            100891031341796.875, tolerance);
+            100891031341795, 3.0);
 
     // Multipoint b with large distances/many points
     // Area ~> pi * 10x
+
+    // Expectations:
+    // 3141871558222.398
+    // 3141871558231.5166
+    // 3141871558231.48926
+
     test_with_custom_strategies<multi_point_type, polygon>(
             "multipoint_b_50k",
             multipoint_b, join, end_flat,
             distance_strategy(1000000), side_strategy, point_circle(50000),
-            3141871558222.398, tolerance);
+            3141871558227, 10.0);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Tests optimization min/max radius
