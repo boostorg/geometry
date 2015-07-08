@@ -125,13 +125,15 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         double const d2r = bg::math::d2r<double>();
         double const r2d = bg::math::r2d<double>();
 
-        bg::detail::vincenty_inverse<calc_t> vi(lon1 * d2r,
-                                                lat1 * d2r,
-                                                lon2 * d2r,
-                                                lat2 * d2r,
-                                                spheroid);
-        calc_t dist = vi.distance();
-        calc_t az12 = vi.azimuth();
+        typedef bg::detail::vincenty_inverse<calc_t, true, true> inverse_formula;
+        typename inverse_formula::result_type
+            result_i = inverse_formula::apply(lon1 * d2r,
+                                             lat1 * d2r,
+                                             lon2 * d2r,
+                                             lat2 * d2r,
+                                             spheroid);
+        calc_t dist = result_i.distance;
+        calc_t az12 = result_i.azimuth;
         //calc_t az21 = vi.azimuth21();
 
         calc_t az12_deg = az12 * r2d;
@@ -141,13 +143,15 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
         //check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
 
-        bg::detail::vincenty_direct<calc_t> vd(lon1 * d2r,
-                                               lat1 * d2r,
-                                               dist,
-                                               az12,
-                                               spheroid);
-        calc_t direct_lon2 = vd.lon2();
-        calc_t direct_lat2 = vd.lat2();
+        typedef bg::detail::vincenty_direct<calc_t> direct_formula;
+        typename direct_formula::result_type
+            result_d = direct_formula::apply(lon1 * d2r,
+                                             lat1 * d2r,
+                                             dist,
+                                             az12,
+                                             spheroid);
+        calc_t direct_lon2 = result_d.lon2;
+        calc_t direct_lat2 = result_d.lat2;
         //calc_t direct_az21 = vd.azimuth21();
 
         calc_t direct_lon2_deg = direct_lon2 * r2d;
