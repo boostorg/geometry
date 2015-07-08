@@ -214,11 +214,19 @@ void test_areal()
     // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4, 0.397162651, 0.01);
+        1, 4,
+        #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            0.40
+        #else
+            0.397162651, 0.01
+        #endif
+            );
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
@@ -230,7 +238,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20140223_shalabuda",
         ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
-        1, 4, 3.77106);
+        1, 4, 3.77106, 0.001);
 
 #if 0
     // TODO: fix this testcase, it should give 0 but instead it gives one of the input polygons
@@ -275,11 +283,14 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // msvc  5.6023011e-5
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
                 0, 0, 5.6022983e-5);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
