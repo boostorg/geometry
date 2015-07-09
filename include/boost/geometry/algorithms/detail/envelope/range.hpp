@@ -137,7 +137,8 @@ struct envelope_multi_range_on_spheroid
                 MultiRange const
             >::type iterator_type;
 
-        // compute the boxes of the single geometries
+        // due to the periodicity of longitudes we need to compute the boxes
+        // of all the single geometries and keep them in a container
         std::vector<Box> boxes;
         for (iterator_type it = boost::begin(multirange);
              it != boost::end(multirange);
@@ -151,8 +152,11 @@ struct envelope_multi_range_on_spheroid
             }
         }
 
-        // compute the envelope of the range of boxes or initialize if
-        // no boxes have been found
+        // now we need to compute the envelope of the range of boxes
+        // (cannot be done in an incremental fashion as in the
+        // Cartesian coordinate system)
+        // if all single geometries are empty no boxes have been found
+        // and the MBR is simply initialized
         if (! boxes.empty())
         {
             envelope_range_of_boxes::apply(boxes, mbr);
