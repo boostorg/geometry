@@ -9,15 +9,12 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
-
-// Use, modification and distribution is subject to the Boost Software License,
-// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_LINEAR_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_LINEAR _HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_LINEAR_HPP
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>

@@ -12,8 +12,8 @@
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
-// Use, modification and distribution is subject to the Boost Software License,
-// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_RANGE_HPP
@@ -93,34 +93,33 @@ struct envelope_multi_range
                 MultiRange const
             >::type iterator_type;
 
-        // initialize MBR
-        initialize<Box, 0, dimension<Box>::value>::apply(mbr);
-
-        // skip through empty geometries
-        iterator_type it = boost::begin(multirange);
-        while (it != boost::end(multirange) && geometry::is_empty(*it))
+        bool initialized = false;
+        for (iterator_type it = boost::begin(multirange);
+             it != boost::end(multirange);
+             ++it)
         {
-            ++it;
-        }
-
-        // if there are still elements left, apply the envelope policy
-        if (it != boost::end(multirange))
-        {
-            // compute the initial envelope
-            EnvelopePolicy::apply(*it, mbr);
-
-            // for the remaining non-empty geometries just expand the mbr
-            // using the envelope
-            for (++it; it != boost::end(multirange); ++it)
+            if (! geometry::is_empty(*it))
             {
-                if (! geometry::is_empty(*it))
+                if (initialized)
                 {
                     Box helper_mbr;
                     EnvelopePolicy::apply(*it, helper_mbr);
 
                     dispatch::expand<Box, Box>::apply(mbr, helper_mbr);
                 }
+                else
+                {
+                    // compute the initial envelope
+                    EnvelopePolicy::apply(*it, mbr);
+                    initialized = true;
+                }
             }
+        }
+
+        if (! initialized)
+        {
+            // if not already initialized, initialize MBR
+            initialize<Box, 0, dimension<Box>::value>::apply(mbr);
         }
     }
 };
@@ -138,9 +137,6 @@ struct envelope_multi_range_on_spheroid
                 MultiRange const
             >::type iterator_type;
 
-        // initialize MBR
-        initialize<Box, 0, dimension<Box>::value>::apply(mbr);
-
         // compute the boxes of the single geometries
         std::vector<Box> boxes;
         for (iterator_type it = boost::begin(multirange);
@@ -155,11 +151,17 @@ struct envelope_multi_range_on_spheroid
             }
         }
 
-        // compute the envelope of the range of boxes
+        // compute the envelope of the range of boxes or initialize if
+        // no boxes have been found
         if (! boxes.empty())
         {
             envelope_range_of_boxes::apply(boxes, mbr);
         }
+        else
+        {
+            initialize<Box, 0, dimension<Box>::value>::apply(mbr);
+        }
+
     }
 };
 
