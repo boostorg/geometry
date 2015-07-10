@@ -12,11 +12,11 @@
 
 #include <algorithm>
 
-#include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -83,7 +83,7 @@ struct has_spikes
     {
         typedef not_equal_to<typename point_type<Range>::type> not_equal;
 
-        BOOST_ASSERT(first != last);
+        BOOST_GEOMETRY_ASSERT(first != last);
 
         Iterator second = first;
         ++second;
