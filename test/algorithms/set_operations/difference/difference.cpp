@@ -229,10 +229,12 @@ void test_all()
         1, 5, 8.0,
         1, 5, 8.0);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("star_comb_15",
         star_comb_15[0], star_comb_15[1],
         30, 160, 227.658275102812,
         30, 198, 480.485775259312);
+#endif
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -355,7 +357,6 @@ void test_all()
         buffer_mp1[0], buffer_mp1[1],
         1, 61, 10.2717,
         1, 61, 10.2717);
-#endif
 
     if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
@@ -364,6 +365,7 @@ void test_all()
             1, 91, 12.09857,
             1, 155, 24.19714);
     }
+#endif
 
     /*** TODO: self-tangencies for difference
     test_one<polygon, polygon, polygon>("wrapped_a",
@@ -383,9 +385,14 @@ void test_all()
         isovist1[0], isovist1[1],
         -1, -1, 0.279132,
         -1, -1, 224.8892,
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        0.1);
+#else
         0.001);
-    // SQL Server gives: 0.279121891701124 and 224.889211358929
-    // PostGIS gives:    0.279121991127244 and 224.889205853156
+#endif
+    // SQL Server gives:    0.279121891701124 and 224.889211358929
+    // PostGIS gives:       0.279121991127244 and 224.889205853156
+    // No robustness gives: 0.279121991127106 and 224.825363749290
 
 #ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",
@@ -402,6 +409,7 @@ void test_all()
     // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
 #endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("geos_2",
         geos_2[0], geos_2[1],
         1, -1, 138.6923828,
@@ -413,6 +421,7 @@ void test_all()
         1, -1, 16211128.5,
         1, -1, 13180420.0,
         1, -1, 16211128.5 + 13180420.0);
+#endif
 
     test_one<polygon, polygon, polygon>("geos_4",
         geos_4[0], geos_4[1],
@@ -440,16 +449,19 @@ void test_all()
             1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         1, -1, 2.8570121719168924,
         1, -1, 64.498061986388564);
+#endif
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3370866.2295081965,
         1, 5, 384.2295081964694, 0.01);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // 2011-07-02 / 2014-06-19
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
@@ -464,6 +476,7 @@ void test_all()
         1, -1, 3577.40960816756,
         0.01
         );
+#endif
 
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",
@@ -496,7 +509,6 @@ void test_all()
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
             6, 24, 20.096189);
-#endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_a",
             ticket_10108_a[0], ticket_10108_a[1],
@@ -506,6 +518,7 @@ void test_all()
             ticket_10108_b[0], ticket_10108_b[1],
             1, 5, 1081.68697,
             1, 5, 1342.65795);
+#endif
 
     // From assemble-test, with a u/u case
     test_one<polygon, polygon, polygon>("assemble_0210",
