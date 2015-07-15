@@ -187,9 +187,11 @@ void test_areal()
         geos_2[0], geos_2[1],
             0, 0, 6.0e-5, -1.0); // -1 denotes: compare with <=
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
             0, 0, 0.0);
+#endif
     test_one<Polygon, Polygon, Polygon>("geos_4",
         geos_4[0], geos_4[1],
             1, -1, 0.08368849);
