@@ -126,7 +126,12 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        4, 0, 31, 0.2187385);
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        3,
+#else
+        4,
+#endif
+        0, 31, 0.2187385);
 }
 
 template <typename P>
