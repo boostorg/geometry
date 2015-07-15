@@ -8,12 +8,13 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_expand_on_spheroid
 #endif
 
 #include <boost/test/included/unit_test.hpp>
+
+#include <cstddef>
 
 #include <iostream>
 #include <string>
@@ -23,112 +24,70 @@
 
 #include <boost/type_traits/is_same.hpp>
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 
-typedef bg::cs::spherical_equatorial<bg::radian> se_rad_type;
-typedef bg::cs::spherical_equatorial<bg::degree> se_deg_type;
-
-typedef bg::model::point<double, 2, se_rad_type> rad_point_type;
-typedef bg::model::point<double, 2, se_deg_type> deg_point_type;
-
-typedef bg::model::segment<rad_point_type> rad_segment_type;
-typedef bg::model::segment<deg_point_type> deg_segment_type;
-
-typedef bg::model::box<rad_point_type> rad_box_type;
-typedef bg::model::box<deg_point_type> deg_box_type;
-
-
-template <typename Units>
-char const* units2string()
-{
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Units, bg::degree>::value)))
-    {
-        return "degrees";
-    }
-    return "radians";
-}
-
-template <typename Units>
-struct other_system_info
-{
-    typedef bg::degree units;
-    typedef bg::cs::spherical_equatorial<units> type;
-
-    template <typename T>
-    static inline T convert(T const& value)
-    {
-        return value * bg::math::r2d<T>();
-    }
-};
-
-template <>
-struct other_system_info<bg::degree>
-{
-    typedef bg::radian units;
-    typedef bg::cs::spherical_equatorial<units> type;
-
-    template <typename T>
-    static inline T convert(T const& value)
-    {
-        return value * bg::math::d2r<T>();
-    }
-};
-
-
-class equals_with_tolerance
-{
-private:
-    double m_tolerence;
-
-    template <typename T>
-    static inline T const& get_max(T const& a, T const& b, T const& c)
-    {
-        return (std::max)((std::max)(a, b), c);
-    }
-
-    template <typename T>
-    static inline bool check_close(T const& a, T const& b, double tol)
-    {
-        return (a == b)
-            || (std::abs(a - b) <= tol * get_max(std::abs(a), std::abs(b), 1.0));
-    }
-
-public:
-    equals_with_tolerance(double tolerence) : m_tolerence(tolerence) {}
-
-    template <typename T>
-    inline bool operator()(T const& value1, T const& value2) const
-    {
-        return check_close(value1, value2, m_tolerence);
-    }
-};
-
-
-template <typename Box1, typename Box2>
-inline bool box_equals(Box1 const& box1, Box2 const& box2, double tol)
-{
-    equals_with_tolerance equals(tol);
-
-    return equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
-        && equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-        && equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
-        && equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2));
-}
+#include "test_envelope_expand_on_spheroid.hpp"
 
 
 class test_expand_on_spheroid
 {
 private:
+    template
+    <
+        typename Geometry,
+        typename Tag = typename bg::tag<Geometry>::type
+    >
+    struct write_geometry
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Geometry const& geometry)
+        {
+            os << bg::wkt(geometry);
+            return os;
+        }
+    };
+
+    template <typename Segment>
+    struct write_geometry<Segment, bg::segment_tag>
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Segment const& segment)
+        {
+            os << "SEGMENT" << bg::dsv(segment);
+            return os;
+        }
+    };
+
+    template <typename Box>
+    struct write_geometry<Box, bg::box_tag>
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Box const& box)
+        {
+            os << "BOX" << bg::dsv(box);
+            return os;
+        }
+    };
+
     template <typename Box, typename Geometry>
     static inline void check_message(bool same_boxes,
                                      std::string const& case_id,
@@ -140,34 +99,13 @@ private:
                                      Box const& expected2,
                                      Box const& detected)
     {
-        bool const is_box = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::box_tag
-            >::value;
-
-        bool const is_segment = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::segment_tag
-            >::value;
-
         std::ostringstream stream;
         stream << "case ID: " << case_id << ", "
                << "MBR units: " << units_str << "; "
                << "input box: BOX" << bg::dsv(box) << ", "
                << "geometry: ";
 
-        if (BOOST_GEOMETRY_CONDITION(is_box))
-        {
-            stream << "BOX" << bg::dsv(geometry);
-        }
-        else if (BOOST_GEOMETRY_CONDITION(is_segment))
-        {
-            stream << "SEGMENT" << bg::dsv(geometry);
-        }
-        else
-        {
-            stream << bg::wkt(geometry);
-        }
+        write_geometry<Geometry>::apply(stream, geometry);
         stream << "; " << "expected: " << bg::dsv(expected1);
 
         if (expected_are_different)
@@ -188,9 +126,13 @@ private:
                                      Box const& box,
                                      Geometry const& geometry,
                                      double lon_min1, double lat_min1,
+                                     double height_min1,
                                      double lon_max1, double lat_max1,
+                                     double height_max1,
                                      double lon_min2, double lat_min2,
+                                     double height_min2,
                                      double lon_max2, double lat_max2,
+                                     double height_max2,
                                      double tolerance)
         {
             typedef typename bg::coordinate_system
@@ -209,39 +151,20 @@ private:
                 || (lon_max1 != lon_max2) || (lat_max1 != lat_max2);
 
             Box expected1;
-            bg::assign_values(expected1,
-                              lon_min1, lat_min1, lon_max1, lat_max1);
+            initialize_box<Box>::apply(expected1,
+                                       lon_min1, lat_min1, height_min1,
+                                       lon_max1, lat_max1, height_max1);
 
             Box expected2;
-            bg::assign_values(expected2,
-                              lon_min2, lat_min2, lon_max2, lat_max2);
+            initialize_box<Box>::apply(expected2,
+                                       lon_min2, lat_min2, height_min2,
+                                       lon_max2, lat_max2, height_max2);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-            bool const is_box = boost::is_same
-                <
-                    typename bg::tag<Geometry>::type, bg::box_tag
-                >::value;
-
-            bool const is_segment = boost::is_same
-                <
-                    typename bg::tag<Geometry>::type, bg::segment_tag
-                >::value;
-
             std::cout << "input box: BOX" << bg::dsv(box) << std::endl;
 
             std::cout << "geometry: ";
-            if (BOOST_GEOMETRY_CONDITION(is_box))
-            {
-                std::cout << "BOX" << bg::dsv(geometry);
-            }
-            else if(BOOST_GEOMETRY_CONDITION(is_segment))
-            {
-                std::cout << "SEGMENT" << bg::dsv(geometry);
-            }
-            else
-            {
-                std::cout << bg::wkt(geometry);
-            }
+            write_geometry<Geometry>::apply(std::cout, geometry);
 
             std::cout << std::endl
                       << "MBR units: " << units_str
@@ -257,11 +180,13 @@ private:
                       << "detected: " << bg::dsv(detected)
                       << std::endl << std::endl;
 #endif
-            bool same_boxes = box_equals(detected, expected1, tolerance);
+            bool same_boxes
+                = box_equals<Box>::apply(detected, expected1, tolerance);
+
             if (expected_are_different)
             {
                 same_boxes = same_boxes
-                    || box_equals(detected, expected2, tolerance);
+                    || box_equals<Box>::apply(detected, expected2, tolerance);
             }
 
             check_message(same_boxes, case_id, units_str,
@@ -274,14 +199,18 @@ private:
                                  Box const& box,
                                  Geometry const& geometry,
                                  double lon_min1, double lat_min1,
+                                 double height_min1,
                                  double lon_max1, double lat_max1,
+                                 double height_max1,
                                  double lon_min2, double lat_min2,
+                                 double height_min2,
                                  double lon_max2, double lat_max2,
+                                 double height_max2,
                                  double tolerance)
         {
             typedef other_system_info
                 <
-                    typename bg::coordinate_system<Box>::type::units
+                    typename bg::coordinate_system<Box>::type
                 > other;
 
             typedef bg::model::box
@@ -289,7 +218,7 @@ private:
                     bg::model::point
                         <
                             typename bg::coordinate_type<Box>::type,
-                            2,
+                            bg::dimension<Box>::value,
                             typename other::type
                         >
                 > other_mbr_type;
@@ -300,26 +229,41 @@ private:
 #endif
 
             base_test(case_id, box, geometry,
-                      lon_min1, lat_min1, lon_max1, lat_max1,
-                      lon_min2, lat_min2, lon_max2, lat_max2,
+                      lon_min1, lat_min1, height_min1,
+                      lon_max1, lat_max1, height_max1,
+                      lon_min2, lat_min2, height_min2,
+                      lon_max2, lat_max2, height_max2,
                       tolerance);
 
             other_mbr_type other_box;
-            bg::assign_values(other_box,
-                              other::convert(bg::get<0, 0>(box)),
-                              other::convert(bg::get<0, 1>(box)),
-                              other::convert(bg::get<1, 0>(box)),
-                              other::convert(bg::get<1, 1>(box)));
+            bg::detail::indexed_point_view<Box const, 0> p_min(box);
+            bg::detail::indexed_point_view<Box const, 1> p_max(box);
+            bg::detail::indexed_point_view
+                <
+                    other_mbr_type, 0
+                > other_min(other_box);
+
+            bg::detail::indexed_point_view
+                <
+                    other_mbr_type, 1
+                > other_max(other_box);
+
+            bg::transform(p_min, other_min);
+            bg::transform(p_max, other_max);
 
             base_test(case_id, other_box, geometry,
                       other::convert(lon_min1),
                       other::convert(lat_min1),
+                      height_min1,
                       other::convert(lon_max1),
                       other::convert(lat_max1),
+                      height_max1,
                       other::convert(lon_min2),
                       other::convert(lat_min2),
+                      height_min2,
                       other::convert(lon_max2),
                       other::convert(lat_max2),
+                      height_max2,
                       tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -337,17 +281,23 @@ private:
                                  Box const& box,
                                  Geometry const& geometry,
                                  double lon_min1, double lat_min1,
+                                 double height_min1,
                                  double lon_max1, double lat_max1,
+                                 double height_max1,
                                  double lon_min2, double lat_min2,
+                                 double height_min2,
                                  double lon_max2, double lat_max2,
+                                 double height_max2,
                                  double tolerance)
         {
             basic_tester
                 <
                     false
                 >::apply(case_id, box, geometry,
-                         lon_min1, lat_min1, lon_max1, lat_max1,
-                         lon_min2, lat_min2, lon_max2, lat_max2,
+                         lon_min1, lat_min1, height_min1,
+                         lon_max1, lat_max1, height_max1,
+                         lon_min2, lat_min2, height_min1,
+                         lon_max2, lat_max2, height_max2,
                          tolerance);
 
             std::string case_id_r = case_id + "[R]";
@@ -356,8 +306,10 @@ private:
                 <
                     false
                 >::apply(case_id_r, geometry, box,
-                         lon_min1, lat_min1, lon_max1, lat_max1,
-                         lon_min2, lat_min2, lon_max2, lat_max2,
+                         lon_min1, lat_min1, height_min1,
+                         lon_max1, lat_max1, height_max1,
+                         lon_min2, lat_min2, height_min2,
+                         lon_max2, lat_max2, height_max2,
                          tolerance);
         }
     };
@@ -368,10 +320,10 @@ public:
     static inline void apply(std::string const& case_id,
         Box const& box,
         Geometry const& geometry,
-        double lon_min1, double lat_min1,
-        double lon_max1, double lat_max1,
-        double lon_min2, double lat_min2,
-        double lon_max2, double lat_max2,
+        double lon_min1, double lat_min1, double height_min1,
+        double lon_max1, double lat_max1, double height_max1,
+        double lon_min2, double lat_min2, double height_min2,
+        double lon_max2, double lat_max2, double height_max2,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
 
@@ -383,9 +335,27 @@ public:
                         bg::box_tag
                     >::value
             >::apply(case_id, box, geometry,
-                     lon_min1, lat_min1, lon_max1, lat_max1,
-                     lon_min2, lat_min2, lon_max2, lat_max2,
+                     lon_min1, lat_min1, height_min1,
+                     lon_max1, lat_max1, height_max1,
+                     lon_min2, lat_min2, height_min2,
+                     lon_max2, lat_max2, height_max2,
                      tolerance);
+    }
+
+    template <typename Box, typename Geometry>
+    static inline void apply(std::string const& case_id,
+        Box const& box,
+        Geometry const& geometry,
+        double lon_min1, double lat_min1,
+        double lon_max1, double lat_max1,
+        double lon_min2, double lat_min2,
+        double lon_max2, double lat_max2,
+        double tolerance = std::numeric_limits<double>::epsilon())
+    {
+        apply(case_id, box, geometry,
+              lon_min1, lat_min1, 0, lon_max1, lat_max1, 0,
+              lon_min2, lat_min2, 0, lon_max2, lat_max2, 0,
+              tolerance);
     }
 
     template <typename Box, typename Geometry>
@@ -397,17 +367,33 @@ public:
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, box, geometry,
-              lon_min, lat_min, lon_max, lat_max,
-              lon_min, lat_min, lon_max, lat_max,
+              lon_min, lat_min, 0, lon_max, lat_max, 0,
+              lon_min, lat_min, 0, lon_max, lat_max, 0,
+              tolerance);
+    }
+
+    template <typename Box, typename Geometry>
+    static inline void apply(std::string const& case_id,
+        Box const& box,
+        Geometry const& geometry,
+        double lon_min, double lat_min, double height_min,
+        double lon_max, double lat_max, double height_max,
+        double tolerance = std::numeric_limits<double>::epsilon())
+    {
+        apply(case_id, box, geometry,
+              lon_min, lat_min, height_min, lon_max, lat_max, height_max,
+              lon_min, lat_min, height_min, lon_max, lat_max, height_max,
               tolerance);
     }
 };
 
 
-BOOST_AUTO_TEST_CASE( expand_point )
+template <typename CoordinateSystem>
+void test_expand_point()
 {
-    typedef deg_box_type B;
-    typedef deg_point_type G;
+    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef point_type G;
     typedef test_expand_on_spheroid tester;
 
     tester::apply("p01",
@@ -596,11 +582,51 @@ BOOST_AUTO_TEST_CASE( expand_point )
                   10, -90, 100, 90);
 }
 
+BOOST_AUTO_TEST_CASE( expand_point )
+{
+    test_expand_point<bg::cs::spherical_equatorial<bg::degree> >();
+    test_expand_point<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_expand_point_with_height()
+{
+    typedef bg::model::point<double, 3, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef point_type G;
+    typedef test_expand_on_spheroid tester;
+
+    // deactivate this for now
+    tester::apply("ph01",
+                  from_wkt<B>("BOX(0 0 20,5 5 100)"),
+                  from_wkt<G>("POINT(10 10 80)"),
+                  0, 0, 20, 10, 10, 100);
+
+    tester::apply("ph02",
+                  from_wkt<B>("BOX(0 0 20,5 5 100)"),
+                  from_wkt<G>("POINT(10 10 120)"),
+                  0, 0, 20, 10, 10, 120);
+
+    tester::apply("ph03",
+                  from_wkt<B>("BOX(0 0 20,5 5 100)"),
+                  from_wkt<G>("POINT(10 10 5)"),
+                  0, 0, 5, 10, 10, 100);
+}
+
+BOOST_AUTO_TEST_CASE( expand_point_with_height )
+{
+    test_expand_point_with_height<bg::cs::spherical_equatorial<bg::degree> >();
+    test_expand_point_with_height<bg::cs::geographic<bg::degree> >();
+}
+
 
 BOOST_AUTO_TEST_CASE( expand_segment )
 {
-    typedef deg_box_type B;
-    typedef deg_segment_type G;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::segment<point_type> G;
     typedef test_expand_on_spheroid tester;
 
     tester::apply("s01",
@@ -675,10 +701,42 @@ BOOST_AUTO_TEST_CASE( expand_segment )
 }
 
 
-BOOST_AUTO_TEST_CASE( expand_box )
+BOOST_AUTO_TEST_CASE( expand_segment_with_height )
 {
-    typedef deg_box_type B;
-    typedef deg_box_type G;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::segment<point_type> G;
+    typedef test_expand_on_spheroid tester;
+
+    tester::apply("sh01",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 150,40 40 500)"),
+                  10, 10, 100, 50, 50, 1000);
+
+    tester::apply("sh02",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 60,40 40 1500)"),
+                  10, 10, 60, 50, 50, 1500);
+
+    tester::apply("sh03",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 150,40 40 1500)"),
+                  10, 10, 100, 50, 50, 1500);
+
+    tester::apply("sh04",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 60,40 40 800)"),
+                  10, 10, 60, 50, 50, 1000);
+}
+
+
+template <typename CoordinateSystem>
+void test_expand_box()
+{
+    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::box<point_type> G;
     typedef test_expand_on_spheroid tester;
 
     tester::apply("b01",
@@ -845,4 +903,46 @@ BOOST_AUTO_TEST_CASE( expand_box )
                   from_wkt<B>("BOX(-179 -40,0 -30)"),
                   from_wkt<G>("BOX(0 -10,185 50)"),
                   -180, -40, 180, 50);
+}
+
+BOOST_AUTO_TEST_CASE( expand_box )
+{
+    test_expand_box<bg::cs::spherical_equatorial<bg::degree> >();
+    test_expand_box<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_expand_box_with_height()
+{
+    typedef bg::model::point<double, 3, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::box<point_type> G;
+    typedef test_expand_on_spheroid tester;
+
+    tester::apply("bh01",
+                  from_wkt<B>("BOX(11 11 100,19 19 1000)"),
+                  from_wkt<G>("BOX(10 10 200,20 20 800)"),
+                  10, 10, 100, 20, 20, 1000);
+
+    tester::apply("bh02",
+                  from_wkt<B>("BOX(11 11 200,19 19 1000)"),
+                  from_wkt<G>("BOX(10 10 100,20 20 800)"),
+                  10, 10, 100, 20, 20, 1000);
+
+    tester::apply("bh03",
+                  from_wkt<B>("BOX(11 11 100,19 19 800)"),
+                  from_wkt<G>("BOX(10 10 200,20 20 1000)"),
+                  10, 10, 100, 20, 20, 1000);
+
+    tester::apply("bh04",
+                  from_wkt<B>("BOX(11 11 200,19 19 1000)"),
+                  from_wkt<G>("BOX(10 10 100,20 20 800)"),
+                  10, 10, 100, 20, 20, 1000);
+}
+
+BOOST_AUTO_TEST_CASE( expand_box_with_height )
+{
+    test_expand_box_with_height<bg::cs::spherical_equatorial<bg::degree> >();
+    test_expand_box_with_height<bg::cs::geographic<bg::degree> >();
 }
