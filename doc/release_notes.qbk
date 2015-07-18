@@ -31,6 +31,8 @@
 * Intersection has been implemented for combinations of pointlike and linear geometries
 * Added implementation for difference(pointlike, linear)
 * New algorithm is_empty, returning true if the geometry represents the empty set
+* The envelope algorithm supports pointlike and linear geometries in the spherical equatorial coordinate system
+* The envelope algorithm supports pointlike geometries in the geographic coordinate system
 
 [*Improvements]
 
@@ -44,16 +46,19 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/11113 11113] Support easy enumeration of all elements with BOOST_FOREACH
-* [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
 * [@https://svn.boost.org/trac/boost/ticket/11232 11232] Feature request - relate()
+* [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
+* [@https://svn.boost.org/trac/boost/ticket/11268 11268] Regression in boost::geometry::intersection interface with multi_linestring and box -- does not compile on 1.57 VS 1.55
 * [@https://svn.boost.org/trac/boost/ticket/11332 11332] Assertion failure in buffer for extreme coordinate differences
 * [@https://svn.boost.org/trac/boost/ticket/11346 11346] Segment iterator does not work with ranges returning values instead of references
+* [@https://svn.boost.org/trac/boost/ticket/11436 11436] sym_difference(py1, py2, mpy) returns invalid multipolygon
 
 [*Bugfixes]
 
 * Buffer: use a more robust way to calculate the side of an intersection, this fixes several errors in buffer generation
 * Fix in selection of segment to which calculate from IP from, in intersection of two segments. Now is selected the one close to a segment-point point, or else the one on the shortest segment. This avoids (rarely occuring) generation of tiny triangles making output polygons invalid
 * In rescaling round instead of truncate to the integer grid (this fix and the previous mentioned can have some impact on output geometries)
+* Fix potential infinite loop in detail::has_spikes (the loop can happen if the points passed have NaN coordinates)
 
 [/=================]
 [heading Boost 1.58]
