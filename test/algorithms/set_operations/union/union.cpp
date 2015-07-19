@@ -223,20 +223,24 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 1, 13, 20016.4);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, 0, 8, 14729.07145);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
         0,
         if_typed_tt<ct>(9, 8),
         67.3550722317627);
+#endif
 
 
     test_one<Polygon, Polygon, Polygon>("isovist",
@@ -282,10 +286,18 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
             1, 0, 10, 1289.08374);
 
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // The number of clips is reversed here
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
+            1, 0, 8, 0.0435229);
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
+            2, 0, 10, 2424.3449);
+#else
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
             2, 0, 8, 0.0435229);
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
             1, 0, 10, 2424.3449);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
             1, 0, -1, 3461.3203125);
@@ -307,13 +319,17 @@ void test_areal()
                 1, 0, if_typed<ct, double>(18, 23), 4.60853);
 #endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, if_typed<ct, float>(14, 13), 13.6569);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, 13, 13.6569);
 
@@ -339,8 +355,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.4853);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
                 1, 0, 18, 18.5710);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, 18, 18.5710);
 
@@ -354,9 +372,9 @@ void test_areal()
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
                 1, 0, if_typed_tt<ct>(16, 14), 15.6569);
-#endif
-    test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_t_rev", buffer_rt_t[1], buffer_rt_t[0],
                 1, 0, if_typed_tt<ct>(16, if_typed<ct, float>(15, 14)), 15.6569);
+#endif
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
