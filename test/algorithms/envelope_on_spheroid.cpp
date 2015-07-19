@@ -15,6 +15,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <cstddef>
 #include <limits>
 #include <iostream>
 #include <string>
@@ -22,8 +23,10 @@
 #include <geometry_test_common.hpp>
 #include <from_wkt.hpp>
 
+#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/type_traits/is_same.hpp>
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -38,125 +41,53 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 
-
-typedef bg::cs::spherical_equatorial<bg::radian> se_rad_type;
-typedef bg::cs::spherical_equatorial<bg::degree> se_deg_type;
-
-typedef bg::model::point<double, 2, se_rad_type> rad_point_type;
-typedef bg::model::point<double, 2, se_deg_type> deg_point_type;
-
-typedef bg::model::multi_point<rad_point_type> rad_multipoint_type;
-typedef bg::model::multi_point<deg_point_type> deg_multipoint_type;
-
-typedef bg::model::segment<rad_point_type> rad_segment_type;
-typedef bg::model::segment<deg_point_type> deg_segment_type;
-
-typedef bg::model::box<rad_point_type> rad_box_type;
-typedef bg::model::box<deg_point_type> deg_box_type;
-
-typedef bg::model::linestring<rad_point_type> rad_linestring_type;
-typedef bg::model::linestring<deg_point_type> deg_linestring_type;
-
-typedef bg::model::multi_linestring
-    <
-        rad_linestring_type
-    > rad_multilinestring_type;
-
-typedef bg::model::multi_linestring
-    <
-        deg_linestring_type
-    > deg_multilinestring_type;
-
-
-typedef bg::model::ring<rad_point_type> rad_cw_ring_type;
-typedef bg::model::ring<deg_point_type> deg_cw_ring_type;
-
-typedef bg::model::ring<rad_point_type, false> rad_ccw_ring_type;
-typedef bg::model::ring<deg_point_type, false> deg_ccw_ring_type;
-
-
-template <typename Units>
-char const* units2string()
-{
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Units, bg::degree>::value)))
-    {
-        return "degrees";
-    }
-    return "radians";
-}
-
-template <typename Units>
-struct other_system_info
-{
-    typedef bg::degree units;
-    typedef bg::cs::spherical_equatorial<units> type;
-
-    template <typename T>
-    static inline T convert(T const& value)
-    {
-        return value * bg::math::r2d<T>();
-    }
-};
-
-template <>
-struct other_system_info<bg::degree>
-{
-    typedef bg::radian units;
-    typedef bg::cs::spherical_equatorial<units> type;
-
-    template <typename T>
-    static inline T convert(T const& value)
-    {
-        return value * bg::math::d2r<T>();
-    }
-};
-
-
-class equals_with_tolerance
-{
-private:
-    double m_tolerance;
-
-    template <typename T>
-    static inline T const& get_max(T const& a, T const& b, T const& c)
-    {
-        return (std::max)((std::max)(a, b), c);
-    }
-
-    template <typename T>
-    static inline bool check_close(T const& a, T const& b, double tol)
-    {
-        return (a == b)
-            || (std::abs(a - b) <= tol * get_max(std::abs(a), std::abs(b), 1.0));
-    }
-
-public:
-    equals_with_tolerance(double tolerance) : m_tolerance(tolerance) {}
-
-    template <typename T>
-    inline bool operator()(T const& value1, T const& value2) const
-    {
-        return check_close(value1, value2, m_tolerance);
-    }
-};
-
-
-template <typename Box1, typename Box2>
-inline bool box_equals(Box1 const& box1, Box2 const& box2, double tol)
-{
-    equals_with_tolerance equals(tol);
-
-    return equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
-        && equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-        && equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
-        && equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2));
-}
+#include "test_envelope_expand_on_spheroid.hpp"
 
 
 template <typename MBR>
 class envelope_on_spheroid_basic_tester
 {
 private:
+    template
+    <
+        typename Geometry,
+        typename Tag = typename bg::tag<Geometry>::type
+    >
+    struct write_geometry
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Geometry const& geometry)
+        {
+            os << bg::wkt(geometry);
+            return os;
+        }
+    };
+
+    template <typename Segment>
+    struct write_geometry<Segment, bg::segment_tag>
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Segment const& segment)
+        {
+            os << "SEGMENT" << bg::dsv(segment);
+            return os;
+        }
+    };
+
+    template <typename Box>
+    struct write_geometry<Box, bg::box_tag>
+    {
+        template <typename OutputStream>
+        static inline OutputStream& apply(OutputStream& os,
+                                          Box const& box)
+        {
+            os << "BOX" << bg::dsv(box);
+            return os;
+        }
+    };
+
     template <typename Geometry, typename Box>
     static inline void check_message(bool same_boxes,
                                      std::string const& case_id,
@@ -165,33 +96,12 @@ private:
                                      Box const& expected,
                                      Box const& detected)
     {
-        bool const is_box = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::box_tag
-            >::value;
-
-        bool const is_segment = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::segment_tag
-            >::value;
-
         std::ostringstream stream;
         stream << "case ID: " << case_id << ", "
                << "MBR units: " << units_str << "; "
                << "geometry: ";
 
-        if (BOOST_GEOMETRY_CONDITION(is_box))
-        {
-            stream << "BOX" << bg::dsv(geometry);
-        }
-        else if (BOOST_GEOMETRY_CONDITION(is_segment))
-        {
-            stream << "SEGMENT" << bg::dsv(geometry);
-        }
-        else
-        {
-            stream << bg::wkt(geometry);
-        }
+        write_geometry<Geometry>::apply(stream, geometry);
 
         stream << "; " << "expected: " << bg::dsv(expected)
                << ", " << "detected: " << bg::dsv(detected);
@@ -202,8 +112,8 @@ private:
     template <typename Box, typename Geometry>
     static inline void base_test(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
+        double lon_min, double lat_min, double height_min,
+        double lon_max, double lat_max, double height_max,
         double tolerance)
     {
         typedef typename bg::coordinate_system<Box>::type::units box_units_type;
@@ -214,32 +124,13 @@ private:
         bg::envelope(geometry, detected);
 
         Box expected;
-        bg::assign_values(expected, lon_min, lat_min, lon_max, lat_max);
+        initialize_box<Box>::apply(expected,
+                                   lon_min, lat_min, height_min,
+                                   lon_max, lat_max, height_max);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-        bool const is_box = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::box_tag
-            >::value;
-
-        bool const is_segment = boost::is_same
-            <
-                typename bg::tag<Geometry>::type, bg::segment_tag
-            >::value;
-
         std::cout << "geometry: ";
-        if (BOOST_GEOMETRY_CONDITION(is_box))
-        {
-            std::cout << "BOX" << bg::dsv(geometry);
-        }
-        else if(BOOST_GEOMETRY_CONDITION(is_segment))
-        {
-            std::cout << "SEGMENT" << bg::dsv(geometry);
-        }
-        else
-        {
-            std::cout << bg::wkt(geometry);
-        }
+        write_geometry<Geometry>::apply(std::cout, geometry);
 
         std::cout << std::endl
                   << "MBR units: " << units_str
@@ -250,7 +141,7 @@ private:
                   << std::endl << std::endl;
 #endif
 
-        check_message(box_equals(detected, expected, tolerance),
+        check_message(box_equals<Box>::apply(detected, expected, tolerance),
                       case_id, units_str,
                       geometry, expected, detected);
     }
@@ -259,13 +150,13 @@ public:
     template <typename Geometry>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
+        double lon_min, double lat_min, double height_min,
+        double lon_max, double lat_max, double height_max,
         double tolerance)
     {
         typedef other_system_info
             <
-                typename bg::coordinate_system<MBR>::type::units
+                typename bg::coordinate_system<MBR>::type
             > other;
 
         typedef bg::model::box
@@ -273,7 +164,7 @@ public:
                 bg::model::point
                     <
                         typename bg::coordinate_type<MBR>::type,
-                        2,
+                        bg::dimension<MBR>::value,
                         typename other::type
                     >
             > other_mbr_type;
@@ -284,15 +175,30 @@ public:
 #endif
 
         base_test<MBR>(case_id, geometry,
-                       lon_min, lat_min, lon_max, lat_max,
+                       lon_min, lat_min, height_min,
+                       lon_max, lat_max, height_max,
                        tolerance);
 
-        base_test<other_mbr_type>(case_id, geometry,
-                                  other::convert(lon_min),
-                                  other::convert(lat_min),
-                                  other::convert(lon_max),
-                                  other::convert(lat_max),
-                                  tolerance);
+        if (lon_max < lon_min)
+        {
+            // we are in the case were a special MBR is returned;
+            // makes no sense to change units
+            base_test<other_mbr_type>(case_id, geometry,
+                                      lon_min, lat_min, height_min,
+                                      lon_max, lat_max, height_max,
+                                      tolerance);
+        }
+        else
+        {
+            base_test<other_mbr_type>(case_id, geometry,
+                                      other::convert(lon_min),
+                                      other::convert(lat_min),
+                                      height_min,
+                                      other::convert(lon_max),
+                                      other::convert(lat_max),
+                                      height_max,
+                                      tolerance);
+        }
     }
 };
 
@@ -331,17 +237,18 @@ struct test_envelope_on_spheroid
 {
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min1, double lat_min1,
-        double lon_max1, double lat_max1,
-        double lon_min2, double lat_min2,
-        double lon_max2, double lat_max2,
+        double lon_min1, double lat_min1, double height_min1,
+        double lon_max1, double lat_max1, double height_max1,
+        double lon_min2, double lat_min2, double height_min2,
+        double lon_max2, double lat_max2, double height_max2,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         envelope_on_spheroid_basic_tester
             <
                 MBR
             >::apply(case_id, geometry,
-                     lon_min1, lat_min1, lon_max1, lat_max1,
+                     lon_min1, lat_min1, height_min1,
+                     lon_max1, lat_max1, height_max1,
                      tolerance);
 
         if (BOOST_GEOMETRY_CONDITION(TestReverse))
@@ -354,7 +261,8 @@ struct test_envelope_on_spheroid
                 <
                     MBR
                 >::apply(reversed_case_id, reversed_geometry,
-                         lon_min2, lat_min2, lon_max2, lat_max2,
+                         lon_min2, lat_min2, height_min2,
+                         lon_max2, lat_max2, height_max2,
                          tolerance);        
         }
 
@@ -366,13 +274,40 @@ struct test_envelope_on_spheroid
 
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
+        double lon_min1, double lat_min1,
+        double lon_max1, double lat_max1,
+        double lon_min2, double lat_min2,
+        double lon_max2, double lat_max2,
+        double tolerance = std::numeric_limits<double>::epsilon())
+    {
+        apply(case_id, geometry,
+              lon_min1, lat_min1, 0, lon_max1, lat_max1, 0,
+              lon_min2, lat_min2, 0, lon_max2, lat_max2, 0,
+              tolerance);
+    }
+
+    static inline void apply(std::string const& case_id,
+        Geometry const& geometry,
+        double lon_min, double lat_min, double height_min,
+        double lon_max, double lat_max, double height_max,
+        double tolerance = std::numeric_limits<double>::epsilon())
+    {
+        apply(case_id, geometry,
+              lon_min, lat_min, height_min,
+              lon_max, lat_max, height_max,
+              lon_min, lat_min, height_min,
+              lon_max, lat_max, height_max,
+              tolerance);
+    }
+
+    static inline void apply(std::string const& case_id,
+        Geometry const& geometry,
         double lon_min, double lat_min,
         double lon_max, double lat_max,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, geometry,
-              lon_min, lat_min, lon_max, lat_max,
-              lon_min, lat_min, lon_max, lat_max,
+              lon_min, lat_min, 0, lon_max, lat_max, 0,
               tolerance);
     }
 };
@@ -399,7 +334,10 @@ struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 
         std::string ccw_case_id = case_id + "-2ccw";
 
-        deg_ccw_ring_type ccw_ring;            
+        bg::model::ring
+            <
+                typename bg::point_type<Geometry>::type, false
+            > ccw_ring;
         bg::convert(geometry, ccw_ring);
             
         envelope_on_spheroid_basic_tester
@@ -429,10 +367,41 @@ struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 };
 
 
-BOOST_AUTO_TEST_CASE( envelope_point )
+template <typename CoordinateSystem, typename Geometry>
+void test_empty_geometry(std::string const& case_id, std::string const& wkt)
 {
-    typedef deg_point_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    std::size_t const dim = bg::dimension<Geometry>::value;
+
+    typedef bg::model::point<double, dim, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<Geometry, B> tester;
+
+    typedef typename bg::coordinate_type<Geometry>::type ct;
+    ct high_val = boost::numeric::bounds<ct>::highest();
+    ct low_val = boost::numeric::bounds<ct>::lowest();
+
+    if (BOOST_GEOMETRY_CONDITION(dim == 2))
+    {
+        tester::apply(case_id,
+                      from_wkt<Geometry>(wkt),
+                      high_val, high_val, low_val, low_val);
+    }
+    else
+    {
+        tester::apply(case_id,
+                      from_wkt<Geometry>(wkt),
+                      high_val, high_val, high_val, low_val, low_val, low_val);
+    }
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_point()
+{
+    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
+    typedef point_type G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
 
     tester::apply("p01",
                   from_wkt<G>("POINT(10 10)"),
@@ -506,11 +475,43 @@ BOOST_AUTO_TEST_CASE( envelope_point )
                   0, -90, 0, -90);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_point )
+{
+    test_envelope_point<bg::cs::spherical_equatorial<bg::degree> >();
+    test_envelope_point<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_point_with_height()
+{
+    typedef bg::model::point<double, 3, CoordinateSystem> point_type;
+    typedef point_type G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    tester::apply("ph01",
+                  from_wkt<G>("POINT(10 10 1256)"),
+                  10, 10, 1256, 10, 10, 1256);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_point_with_height )
+{
+    test_envelope_point_with_height
+        <
+            bg::cs::spherical_equatorial<bg::degree>
+        >();
+    test_envelope_point_with_height<bg::cs::geographic<bg::degree> >();
+}
+
 
 BOOST_AUTO_TEST_CASE( envelope_segment )
 {
-    typedef deg_segment_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::segment<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
 
     tester::apply("s01",
                   from_wkt<G>("SEGMENT(10 10,40 40)"),
@@ -661,10 +662,34 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 }
 
 
-BOOST_AUTO_TEST_CASE( envelope_multipoint )
+BOOST_AUTO_TEST_CASE( envelope_segment_with_height )
 {
-    typedef deg_multipoint_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::segment<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    tester::apply("sh01",
+                  from_wkt<G>("SEGMENT(10 10 567,40 40 1356)"),
+                  10, 10, 567, 40, 40, 1356);
+
+    tester::apply("sh02",
+                  from_wkt<G>("SEGMENT(10 10 1356,40 40 567)"),
+                  10, 10, 567, 40, 40, 1356);
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_multipoint()
+{
+    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
+    typedef bg::model::multi_point<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty multipoint
+    test_empty_geometry<CoordinateSystem, G>("mp00", "MULTIPOINT()");
 
     tester::apply("mp01",
                   from_wkt<G>("MULTIPOINT(0 0,10 10)"),
@@ -791,11 +816,51 @@ BOOST_AUTO_TEST_CASE( envelope_multipoint )
 #endif
 }
 
-
-BOOST_AUTO_TEST_CASE( envelope_box )
+BOOST_AUTO_TEST_CASE( envelope_multipoint )
 {
-    typedef deg_box_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    test_envelope_multipoint<bg::cs::spherical_equatorial<bg::degree> >();
+    test_envelope_multipoint<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_multipoint_with_height()
+{
+    typedef bg::model::point<double, 3, CoordinateSystem> point_type;
+    typedef bg::model::multi_point<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty multipoint
+    test_empty_geometry<CoordinateSystem, G>("mph00", "MULTIPOINT()");
+
+    tester::apply("mph01",
+                  from_wkt<G>("MULTIPOINT(0 0 567,10 10 1456)"),
+                  0, 0, 567, 10, 10, 1456);
+
+    tester::apply("mph02",
+                  from_wkt<G>("MULTIPOINT(0 0 567,10 10 1456,20 90 967)"),
+                  0, 0, 567, 10, 90, 1456);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_multipoint_with_height )
+{
+    test_envelope_multipoint_with_height
+        <
+            bg::cs::spherical_equatorial<bg::degree>
+        >();
+    test_envelope_multipoint_with_height<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_box()
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
 
     tester::apply("b01",
                   from_wkt<G>("BOX(10 10,20 20)"),
@@ -976,11 +1041,52 @@ BOOST_AUTO_TEST_CASE( envelope_box )
                   0, -90, 0, -90);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_box )
+{
+    test_envelope_box<bg::cs::spherical_equatorial<bg::degree> >();
+    test_envelope_box<bg::cs::geographic<bg::degree> >();
+}
+
+
+template <typename CoordinateSystem>
+void test_envelope_box_with_height()
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    tester::apply("bh01",
+                  from_wkt<G>("BOX(10 10 567,20 20 2834)"),
+                  10, 10, 567, 20, 20, 2834);
+
+    tester::apply("bh02",
+                  from_wkt<G>("BOX(10 10 567,20 20 567)"),
+                  10, 10, 567, 20, 20, 567);
+
+    tester::apply("bh03",
+                  from_wkt<G>("BOX(0 10 567,170 90 1567)"),
+                  0, 10, 567, 170, 90, 1567);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_box_with_height )
+{
+    test_envelope_box_with_height<bg::cs::spherical_equatorial<bg::degree> >();
+    test_envelope_box_with_height<bg::cs::geographic<bg::degree> >();
+}
+
 
 BOOST_AUTO_TEST_CASE( envelope_linestring )
 {
-    typedef deg_linestring_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::linestring<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty linestring
+    test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
 
     tester::apply("l01",
                   from_wkt<G>("LINESTRING(10 15)"),
@@ -1086,14 +1192,61 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
 }
 
 
+BOOST_AUTO_TEST_CASE( envelope_linestring_with_height )
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::linestring<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty linestring
+    test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
+
+    tester::apply("lh01",
+                  from_wkt<G>("LINESTRING(10 15 30,20 25 434,30 35 186)"),
+                  10, 15, 30, 30, 35, 434);
+}
+
+
 BOOST_AUTO_TEST_CASE( envelope_multilinestring )
 {
-    typedef deg_multilinestring_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
+
+    // invalid multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00a",
+                                                   "MULTILINESTRING(())");
+
+    // invalid multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00b",
+                                                   "MULTILINESTRING((),())");
+
+    // invalid multilinestring
+    tester::apply("ml00c",
+                  from_wkt<G>("MULTILINESTRING((10 15),(),())"),
+                  10, 15, 10, 15);
+
+    // invalid multilinestring
+    tester::apply("ml00d",
+                  from_wkt<G>("MULTILINESTRING((),(10 15),())"),
+                  10, 15, 10, 15);
 
     tester::apply("ml01",
+                  from_wkt<G>("MULTILINESTRING((10 15))"),
+                  10, 15, 10, 15);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    tester::apply("ml01a",
                   from_wkt<G>("MULTILINESTRING((),(),(10 15),())"),
                   10, 15, 10, 15);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
 
     tester::apply("ml02",
                   from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
@@ -1118,6 +1271,30 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring )
     tester::apply("ml05a",
                   from_wkt<G>("MULTILINESTRING((-140 40,-100 80),(10 35,100 80),(170 25,-160 80))"),
                   10, 25, 260, 80.07385383411011);
+}
+
+
+BOOST_AUTO_TEST_CASE( envelope_multilinestring_with_height )
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_spheroid<G, B> tester;
+
+    tester::apply("mlh01",
+                  from_wkt<G>("MULTILINESTRING((10 15 1000))"),
+                  10, 15, 1000, 10, 15, 1000);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    tester::apply("mlh01a",
+                  from_wkt<G>("MULTILINESTRING((),(),(10 15 1000),())"),
+                  10, 15, 1000, 10, 15, 1000);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+
+    tester::apply("mlh02",
+                  from_wkt<G>("MULTILINESTRING((-170 40 400,-100 80 300),(-10 25 600,10 35 700,120 45 450))"),
+                  -10, 25, 300, 260, 80, 700);
 }
 
 

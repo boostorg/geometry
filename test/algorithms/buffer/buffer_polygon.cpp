@@ -335,7 +335,9 @@ void test_all()
     test_one<polygon_type, polygon_type>("snake4", snake, join_miter, end_flat, 64.44, 0.4);
     test_one<polygon_type, polygon_type>("snake5", snake, join_miter, end_flat, 72, 0.5);
     test_one<polygon_type, polygon_type>("snake6", snake, join_miter, end_flat, 75.44, 0.6);
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon_type, polygon_type>("snake16", snake, join_miter, end_flat, 114.24, 1.6);
+#endif
 
     test_one<polygon_type, polygon_type>("funnelgate2", funnelgate, join_miter, end_flat, 120.982, 2);
     test_one<polygon_type, polygon_type>("funnelgate3", funnelgate, join_miter, end_flat, 13*13, 3);
@@ -473,11 +475,21 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737356.991, -0.2 * 1000.0);
     test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953811.679, -0.5 * 1000.0);
+#else
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737292.653, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953824.799, -0.5 * 1000.0);
+#endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638814.956, 30.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180044.822, 50.0 * 1000.0);
+#else
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638827.704, 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180033.564, 50.0 * 1000.0);
+#endif
     test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
 
     // Tickets
