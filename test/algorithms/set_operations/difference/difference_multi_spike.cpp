@@ -43,7 +43,10 @@ void test_spikes_in_ticket_8364()
         if_typed<ct, int>(2775595.5, 2775256.487954), // SQL Server: 2775256.47588724
         3,
         -1, // don't check point-count
-        if_typed<ct, int>(7893.0, 7810.487954)); // SQL Server: 7810.48711165739
+        if_typed<ct, int>(7893.0, 7810.487954), // SQL Server: 7810.48711165739
+        if_typed<ct, int>(1, 5),
+        -1,
+        if_typed<ct, int>(2783349.5, 2775256.487954 + 7810.487954));
 
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step4",
         "MULTIPOLYGON(((2567 2688,2136 2790,2052 2712,1032 2130,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2580,2567 2688)))",
@@ -53,7 +56,10 @@ void test_spikes_in_ticket_8364()
         if_typed<ct, int>(2615783.5, 2616029.559567), // SQL Server: 2616029.55616044
         1,
         if_typed<ct, int>(9, 11),
-        if_typed<ct, int>(161133.5, 161054.559567)); // SQL Server: 161054.560110092
+        if_typed<ct, int>(161133.5, 161054.559567), // SQL Server: 161054.560110092
+        if_typed<ct, int>(1, 2),
+        if_typed<ct, int>(25, 31),
+        if_typed<ct, int>(2776875.5, 2616029.559567 + 161054.559567));
 }
 
 template <typename P, bool ClockWise, bool Closed>
@@ -74,7 +80,10 @@ void test_spikes_in_ticket_8365()
         if_typed<ct, int>(7975092.5, 7975207.6047877), // SQL Server:
         2,
         -1,
-        if_typed<ct, int>(196.5, 197.1047877)); // SQL Server:
+        if_typed<ct, int>(196.5, 197.1047877), // SQL Server:
+        if_typed<ct, int>(3, 4),
+        -1,
+        if_typed<ct, int>(7975092.5 + 196.5, 7975207.6047877 + 197.1047877));
 }
 
 

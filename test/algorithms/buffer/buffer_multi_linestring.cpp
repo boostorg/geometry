@@ -86,7 +86,12 @@ void test_all()
     // Note that for large distances the flat ends (not tested here) still give weird effects
     {
         // The results can differ between compilers and platforms
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        double mikado_tolerance = 40.0;
+#else
         double mikado_tolerance = 30.0;
+#endif
+
         test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125, 41751.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
@@ -108,6 +113,7 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // Coordinates in one linestring vary so much that
     // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
     // That geometry is skipped for the buffer
@@ -118,6 +124,7 @@ void test_all()
     // (2: since selecting other IP at end points or when segment b is smaller than a)
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 1063005187.214, 0.98);
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
+#endif
 }
 
 

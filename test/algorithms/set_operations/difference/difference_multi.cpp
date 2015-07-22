@@ -58,14 +58,14 @@ void test_areal()
     test_one<Polygon, Ring, MultiPolygon>("simplex_multi_r_mp",
             case_single_simplex, case_multi_simplex[0],
             4, 17, 2.58, 5, 21, 5.58);
-    test_one<Ring, MultiPolygon, Polygon>("simplex_multi_mp_r",
+    test_one<Polygon, MultiPolygon, Ring>("simplex_multi_mp_r",
             case_multi_simplex[0], case_single_simplex,
             5, 21, 5.58, 4, 17, 2.58);
 
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
             case_61_multi[0], case_61_multi[1],
-            2, 10, 2, 2, 10, 2);
+            2, 10, 2, 2, 10, 2, 1, 10, 4);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_62_multi",
             case_62_multi[0], case_62_multi[1],
             0, 0, 0, 1, 5, 1);
@@ -74,7 +74,7 @@ void test_areal()
             0, 0, 0, 1, 5, 1);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_64_multi",
         case_64_multi[0], case_64_multi[1],
-            1, 5, 1, 1, 5, 1);
+        1, 5, 1, 1, 5, 1, 1, 7, 2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi",
         case_65_multi[0], case_65_multi[1],
             0, 0, 0, 2, 10, 3);
@@ -139,10 +139,13 @@ void test_areal()
             2, 12, 7962.66, 1, 18, 2775258.93,
             0.001);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
+            4, 42, 0.0907392476356186 + 0.126018011439877,
             0.001);
+#endif
 
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
