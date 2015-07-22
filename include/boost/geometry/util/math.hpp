@@ -85,6 +85,9 @@ struct abs<T, true>
 {
     static inline T apply(T const& value)
     {
+        using ::fabs;
+        using std::fabs; // for long double
+
         return fabs(value);
     }
 };
