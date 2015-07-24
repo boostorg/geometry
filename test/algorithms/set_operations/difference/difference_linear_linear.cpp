@@ -1201,6 +1201,19 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 
         tester::apply(mls1, mls2, mls_out, "mlmldf26", 1e-10);
     }
+    {
+        std::string wkt1 = "MULTILINESTRING((12 -11,6 4))";
+        std::string wkt2 = "MULTILINESTRING((18 10,2.814814814814815 2.4074074074074057),(-1 18,11 -6))";
+
+        std::string wkt_out = "MULTILINESTRING((12 -11,6 4))";
+
+        ML mls1, mls2, mls_out;
+        bg::read_wkt(wkt1, mls1);
+        bg::read_wkt(wkt2, mls2);
+        bg::read_wkt(wkt_out, mls_out);
+
+        tester::apply(mls1, mls2, mls_out, "mlmldf27");
+    }
 }
 
 
