@@ -91,7 +91,8 @@ struct less_seg_fraction_other_op
             ?
             use_other_id(left, right)
             :
-            (left.operations[OpId].fraction < right.operations[OpId].fraction);
+            (left.operations[OpId].fraction < right.operations[OpId].fraction)
+            ;
     }
 
     template <typename Turn>
