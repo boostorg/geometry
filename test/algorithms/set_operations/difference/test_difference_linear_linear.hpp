@@ -14,6 +14,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
+#include "../check_turn_less.hpp"
 #include <from_wkt.hpp>
 #include <to_svg.hpp>
 
@@ -104,6 +105,8 @@ private:
         std::cout << std::endl;
         std::cout << std::endl;
 #endif
+
+        check_turn_less::apply(geometry1, geometry2);
     }
 
 
