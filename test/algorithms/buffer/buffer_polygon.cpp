@@ -148,6 +148,8 @@ static std::string const mysql_report_2015_02_17_3
     = "POLYGON((10 10,10 20,20 20,20 10,10 10))";
 
 // Polygons causing assertion failure
+static std::string const mysql_report_2015_07_05_0
+    = "POLYGON((0 0,0 30000,30000 20000,25000 0,0 0),(-11 3,4.99294e+306 1.78433e+307,15 -14,-11 3))";
 static std::string const mysql_report_2015_07_05_1
     = "POLYGON((9192 27876,128 4.5036e+15,-1 5,3 9,9192 27876),(-11 3,4.99294e+306 1.78433e+307,15 -14,-11 3))";
 static std::string const mysql_report_2015_07_05_2
@@ -561,18 +563,23 @@ void test_all()
             mysql_report_2015_02_17_3,
             join_round32, end_round32, 64, -1);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-        test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
-            join_round32, end_round32, 0, 6);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
-            join_round32, end_round32, 0, 549755813889);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
-            join_round32, end_round32, 0, 49316);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4", mysql_report_2015_07_05_4,
-            join_round32, end_round32, 0, 1479986);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
-            join_round32, end_round32, 0, 38141);
-#endif
+        {
+            double high_tolerance = 1.0e+20;
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_0", mysql_report_2015_07_05_0,
+                join_round32, end_round32, 700643542.242915988, 6);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
+                join_round32, end_round32, 2.07548405999982264e+19, 6);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
+                join_round32, end_round32, 9.48681585720922691e+23, 549755813889);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
+                join_round32, end_round32, 6.10005339242509925e+22, 49316,
+                same_distance, false, high_tolerance);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4", mysql_report_2015_07_05_4,
+                join_round32, end_round32, 4.25405937213774089e+23, 1479986,
+                same_distance, false, high_tolerance);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
+                join_round32, end_round32, 644489321051.62439, 38141);
+        }
     }
 
 

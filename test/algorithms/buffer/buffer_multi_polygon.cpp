@@ -501,14 +501,13 @@ void test_all()
         neighbouring_with_holes,
         join_round32, end_round32, 0, -10);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
         mysql_report_2015_07_05_1,
-        join_round32, end_round32, 0, 5526);
+        join_round32, end_round32, 6.04454566324708726e+23, 5526,
+        same_distance, false, 1e+020);
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
         mysql_report_2015_07_05_2,
         join_round32, end_round32, 0, 948189399);
-#endif
 }
 
 int test_main(int, char* [])
