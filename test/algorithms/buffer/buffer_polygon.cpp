@@ -147,6 +147,19 @@ static std::string const mysql_report_2015_02_17_2
 static std::string const mysql_report_2015_02_17_3
     = "POLYGON((10 10,10 20,20 20,20 10,10 10))";
 
+// Polygons causing assertion failure
+static std::string const mysql_report_2015_07_05_0
+    = "POLYGON((0 0,0 30000,30000 20000,25000 0,0 0),(-11 3,4.99294e+306 1.78433e+307,15 -14,-11 3))";
+static std::string const mysql_report_2015_07_05_1
+    = "POLYGON((9192 27876,128 4.5036e+15,-1 5,3 9,9192 27876),(-11 3,4.99294e+306 1.78433e+307,15 -14,-11 3))";
+static std::string const mysql_report_2015_07_05_2
+    = "POLYGON((-15 -15,1.31128e+308 2.47964e+307,-20 -9,-15 -15),(11 -4,1.04858e+06 5.36871e+08,7.03687e+13 -1.15292e+18,-12 17,10284 -21812,11 -4),(-28066 -10001,2.19902e+12 3.35544e+07,8.80784e+306 1.04773e+308,1.42177e+308 1.6141e+308,-28066 -10001))";
+static std::string const mysql_report_2015_07_05_3
+    = "POLYGON((-2.68435e+08 -12,27090 -14130,5.76461e+17 5.49756e+11,-2.68435e+08 -12),(2.68435e+08 65539,1.42845e+308 1.63164e+308,-1 -8,-4 10,2.68435e+08 65539),(13 17,8.79609e+12 -2.2518e+15,1.02101e+308 3.13248e+306,17868 780,5 -4,13 17),(-1 14,1.35905e+308 2.09331e+307,1.37439e+11 -2047,-1 14))";
+static std::string const mysql_report_2015_07_05_4
+    = "POLYGON((2.19902e+12 524287,1.13649e+308 1.36464e+308,-10 -19,2.19902e+12 524287),(1.44115e+17 -1.09951e+12,-14 0,-4347 16243,1.44115e+17 -1.09951e+12))";
+static std::string const mysql_report_2015_07_05_5
+    = "POLYGON((9 3,-8193 8.38861e+06,-2 -4,9 3),(-10 -2,32268 -2557,1.72036e+308 5.67867e+307,4.91634e+307 1.41031e+308,-2.68435e+08 -19,-10 -2),(-5 4,9.50167e+307 1.05883e+308,-422 -25737,-5 4))";
 
 class buffer_custom_side_strategy
 {
@@ -549,6 +562,24 @@ void test_all()
         test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_3_d1",
             mysql_report_2015_02_17_3,
             join_round32, end_round32, 64, -1);
+
+        {
+            double high_tolerance = 1.0e+20;
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_0", mysql_report_2015_07_05_0,
+                join_round32, end_round32, 700643542.242915988, 6);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
+                join_round32, end_round32, 2.07548405999982264e+19, 6);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
+                join_round32, end_round32, 9.48681585720922691e+23, 549755813889);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
+                join_round32, end_round32, 6.10005339242509925e+22, 49316,
+                same_distance, false, high_tolerance);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4", mysql_report_2015_07_05_4,
+                join_round32, end_round32, 4.25405937213774089e+23, 1479986,
+                same_distance, false, high_tolerance);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
+                join_round32, end_round32, 644489321051.62439, 38141);
+        }
     }
 
 

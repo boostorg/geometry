@@ -18,6 +18,11 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 //#include <boost/geometry/strategies/spherical/side_via_plane.hpp>
@@ -29,10 +34,7 @@
 #include <boost/geometry/strategies/geographic/side_thomas.hpp>
 #include <boost/geometry/strategies/geographic/side_vincenty.hpp>
 
-#include <boost/geometry/core/cs.hpp>
-
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry {
@@ -120,7 +122,9 @@ void test_side(std::string const& case_id, Point const& p1, Point const& p2, Poi
 template <typename Point>
 void test_all()
 {
-    Point amsterdam(5.9, 52.4);
+    typedef typename bg::coordinate_type<Point>::type CT;
+
+    Point amsterdam(bg::math::rounding_cast<CT>(5.9), bg::math::rounding_cast<CT>(52.4));
     Point barcelona(2.0, 41.0);
     Point paris(2.0, 48.0);
     Point milan(7.0, 45.0);

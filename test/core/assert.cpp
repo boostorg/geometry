@@ -52,13 +52,12 @@ bool is_ok(assert_failure_exception const& ) { return true; }
 
 int test_main(int, char* [])
 {
-    int a = 10;
-    int b = 20;
+    int a = 1;
 
-    fun1(a == a);
-    BOOST_CHECK_EXCEPTION(fun1(a == b), assert_failure_exception, is_ok);
-    fun2(a == a);
-    BOOST_CHECK_EXCEPTION(fun2(a == b), assert_failure_exception, is_ok);
+    fun1(a == 1);
+    BOOST_CHECK_EXCEPTION(fun1(a == 2), assert_failure_exception, is_ok);
+    fun2(a == 1);
+    BOOST_CHECK_EXCEPTION(fun2(a == 2), assert_failure_exception, is_ok);
 
     return 0;
 }

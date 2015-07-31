@@ -50,13 +50,15 @@ struct two_dimensional_view
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>
 struct two_dimensional_view<Point, Dimension1, Dimension2, point_tag>
 {
-    BOOST_MPL_ASSERT_MSG((Dimension1 < dimension<Point>::value),
-                         COORDINATE_DIMENSION1_IS_LARGER_THAN_POINT_DIMENSION,
-                         (boost::mpl::int_<Dimension1>));
+    BOOST_MPL_ASSERT_MSG(
+        (Dimension1 < static_cast<std::size_t>(dimension<Point>::value)),
+        COORDINATE_DIMENSION1_IS_LARGER_THAN_POINT_DIMENSION,
+        (boost::mpl::int_<Dimension1>));
 
-    BOOST_MPL_ASSERT_MSG((Dimension2 < dimension<Point>::value),
-                         COORDINATE_DIMENSION2_IS_LARGER_THAN_POINT_DIMENSION,
-                         (boost::mpl::int_<Dimension2>));
+    BOOST_MPL_ASSERT_MSG(
+        (Dimension2 < static_cast<std::size_t>(dimension<Point>::value)),
+        COORDINATE_DIMENSION2_IS_LARGER_THAN_POINT_DIMENSION,
+        (boost::mpl::int_<Dimension2>));
 
     two_dimensional_view(Point& point)
         : m_point(point)
