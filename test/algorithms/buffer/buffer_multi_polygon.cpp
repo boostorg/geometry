@@ -274,6 +274,13 @@ static std::string const neighbouring
 static std::string const neighbouring_with_holes
     = "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4)),((10 10,10 20,20 20,20 10,10 10),(14 14,14 16,16 16,16 14,14 14)))";
 
+
+// MultiPolygons causing assertion failure
+static std::string const mysql_report_2015_07_05_1
+    = "MULTIPOLYGON(((44 25,2.68435e+08 1.75922e+13,-6.87195e+10 -6.87195e+10,44 25),(-9704 8028,1.01776e+308 4.42027e+307,1.34218e+08 7.20576e+16,-9704 8028),(27945 15972,13 24,18 34,27945 15972),(3.3444e+307 1.47467e+308,1.22536e+38 1.42547e+38,10 -88,-28578 24802,3.3444e+307 1.47467e+308)))";
+static std::string const mysql_report_2015_07_05_2
+    = "MULTIPOLYGON(((19777 -21893,3.22595e+307 6.86823e+307,-40 -13,19777 -21893)),((-1322 4851,8.49998e+307 3.94481e+307,75 -69,8.64636e+307 3.94909e+307,-1.15292e+18 7.20576e+16,-1322 4851)))";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -493,6 +500,14 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("neighbouring_with_holes_large",
         neighbouring_with_holes,
         join_round32, end_round32, 0, -10);
+
+    test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
+        mysql_report_2015_07_05_1,
+        join_round32, end_round32, 6.04454566324708726e+23, 5526,
+        same_distance, false, 1e+020);
+    test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
+        mysql_report_2015_07_05_2,
+        join_round32, end_round32, 0, 948189399);
 }
 
 int test_main(int, char* [])

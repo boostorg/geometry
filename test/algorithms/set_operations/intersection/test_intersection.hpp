@@ -54,7 +54,9 @@ check_result(
     {
         if (expected_point_count > 0)
         {
-            n += bg::num_points(*it, true);
+            // here n should rather be of type std::size_t, but expected_point_count
+            // is set to -1 in some test cases so type int was left for now
+            n += static_cast<int>(bg::num_points(*it, true));
         }
 
         // instead of specialization we check it run-time here
