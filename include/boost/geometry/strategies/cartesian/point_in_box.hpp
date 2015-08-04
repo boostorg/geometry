@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -19,6 +24,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -33,7 +39,8 @@ struct within_range
     template <typename Value1, typename Value2>
     static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
     {
-        return value > min_value && value < max_value;
+        return math::larger(value, min_value)
+            && math::smaller(value, max_value);
     }
 };
 
@@ -43,7 +50,8 @@ struct covered_by_range
     template <typename Value1, typename Value2>
     static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
     {
-        return value >= min_value && value <= max_value;
+        return math::larger_or_equals(value, min_value)
+            && math::smaller_or_equals(value, max_value);
     }
 };
 
