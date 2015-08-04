@@ -44,6 +44,20 @@ void test_3d()
 }
 
 template <typename P>
+void test_eps()
+{
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
+    
+    bg::model::box<P> b1(P(0, 0), P(1, 1));
+    bg::model::box<P> b2(P(-1, -1), P(eps/2, eps/2));
+
+    test_geometry(b1, b2,
+                  "box(P(0, 0), P(1, 1))", "box(P(-1, -1), P(eps/2, eps/2))",
+                  false);
+}
+
+template <typename P>
 void test_2d()
 {
     test_box_box_2d<P>();
@@ -53,9 +67,11 @@ int test_main( int , char* [] )
 {
     test_2d<bg::model::d2::point_xy<int> >();
     test_2d<bg::model::d2::point_xy<double> >();
+    test_eps<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
+    test_eps<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
    //test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
