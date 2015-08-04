@@ -209,6 +209,26 @@ struct smaller<Type, true>
     }
 };
 
+template <typename Type,
+          bool IsFloatingPoint = boost::is_floating_point<Type>::value>
+struct smaller_or_equals
+{
+    static inline bool apply(Type const& a, Type const& b)
+    {
+        return a <= b;
+    }
+};
+
+template <typename Type>
+struct smaller_or_equals<Type, true>
+{
+    static inline bool apply(Type const& a, Type const& b)
+    {
+        return a <= b
+            || equals<Type, true>::apply(a, b, equals_default_policy());
+    }
+};
+
 
 template <typename Type,
           bool IsFloatingPoint = boost::is_floating_point<Type>::value>
@@ -507,6 +527,24 @@ template <typename T1, typename T2>
 inline bool larger(T1 const& a, T2 const& b)
 {
     return detail::smaller
+        <
+            typename select_most_precise<T1, T2>::type
+        >::apply(b, a);
+}
+
+template <typename T1, typename T2>
+inline bool smaller_or_equals(T1 const& a, T2 const& b)
+{
+    return detail::smaller_or_equals
+        <
+            typename select_most_precise<T1, T2>::type
+        >::apply(a, b);
+}
+
+template <typename T1, typename T2>
+inline bool larger_or_equals(T1 const& a, T2 const& b)
+{
+    return detail::smaller_or_equals
         <
             typename select_most_precise<T1, T2>::type
         >::apply(b, a);
