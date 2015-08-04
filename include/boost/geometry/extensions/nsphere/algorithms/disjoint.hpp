@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -23,6 +23,8 @@
 
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
 
+#include <boost/geometry/util/math.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -40,15 +42,17 @@ template
 >
 struct box_nsphere_comparable_distance_cartesian
 {
-    typedef typename geometry::select_most_precise<
-        typename coordinate_type<typename point_type<Box>::type>::type,
-        typename coordinate_type<typename point_type<NSphere>::type>::type
-    >::type coordinate_type;
+    typedef typename geometry::select_most_precise
+        <
+            typename coordinate_type<Box>::type,
+            typename coordinate_type<NSphere>::type
+        >::type coordinate_type;
 
-    typedef typename geometry::default_distance_result<
-        Box,
-        typename point_type<NSphere>::type
-    >::type result_type;
+    typedef typename geometry::default_distance_result
+        <
+            Box,
+            typename point_type<NSphere>::type
+        >::type result_type;
 
     static inline result_type apply(Box const& box, NSphere const& nsphere)
     {
@@ -94,11 +98,17 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
     {
         typedef typename coordinate_system<Point>::type p_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
-        static const bool check_cs = ::boost::is_same<p_cs, cs::cartesian>::value && ::boost::is_same<s_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (p_cs, s_cs));
+        static const bool check_cs = ::boost::is_same<p_cs, cs::cartesian>::value
+                                  && ::boost::is_same<s_cs, cs::cartesian>::value;
+        BOOST_MPL_ASSERT_MSG(check_cs,
+                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
+                             (p_cs, s_cs));
 
-        return get_radius<0>(s) * get_radius<0>(s)
-               <   geometry::comparable_distance(p, center_view<const NSphere>(s));
+        typename radius_type<NSphere>::type const r = get_radius<0>(s);
+        center_view<const NSphere> const c(s);
+
+        return math::smaller(r * r,
+                             geometry::comparable_distance(p, c));
     }
 };
 
@@ -109,13 +119,19 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
     {
         typedef typename coordinate_system<Box>::type b_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
-        static const bool check_cs = ::boost::is_same<b_cs, cs::cartesian>::value && ::boost::is_same<s_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (b_cs, s_cs));
+        static const bool check_cs = ::boost::is_same<b_cs, cs::cartesian>::value
+                                  && ::boost::is_same<s_cs, cs::cartesian>::value;
+        BOOST_MPL_ASSERT_MSG(check_cs,
+                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
+                             (b_cs, s_cs));
 
-        return get_radius<0>(s) * get_radius<0>(s)
-               <   geometry::detail::disjoint::box_nsphere_comparable_distance_cartesian<
-                       Box, NSphere, 0, DimensionCount
-                   >::apply(b, s);
+        typename radius_type<NSphere>::type const r = get_radius<0>(s);
+
+        return math::smaller(r * r,
+                             geometry::detail::disjoint::box_nsphere_comparable_distance_cartesian
+                                <
+                                    Box, NSphere, 0, DimensionCount
+                                >::apply(b, s));
     }
 };
 
@@ -126,14 +142,22 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
     {
         typedef typename coordinate_system<NSphere1>::type s1_cs;
         typedef typename coordinate_system<NSphere2>::type s2_cs;
-        static const bool check_cs = ::boost::is_same<s1_cs, cs::cartesian>::value && ::boost::is_same<s2_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (s1_cs, s2_cs));
+        static const bool check_cs = ::boost::is_same<s1_cs, cs::cartesian>::value
+                                  && ::boost::is_same<s2_cs, cs::cartesian>::value;
+        BOOST_MPL_ASSERT_MSG(check_cs,
+                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
+                             (s1_cs, s2_cs));
 
         /*return get_radius<0>(s1) + get_radius<0>(s2)
                <   ::sqrt(geometry::comparable_distance(center_view<NSphere>(s1), center_view<NSphere>(s2)));*/
 
-        return get_radius<0>(s1) * get_radius<0>(s1) + 2 * get_radius<0>(s1) * get_radius<0>(s2) + get_radius<0>(s2) * get_radius<0>(s2)
-               <   geometry::comparable_distance(center_view<const NSphere1>(s1), center_view<const NSphere2>(s2));
+        typename radius_type<NSphere1>::type const r1 = get_radius<0>(s1);
+        typename radius_type<NSphere2>::type const r2 = get_radius<0>(s2);
+        center_view<NSphere1 const> const c1(s1);
+        center_view<NSphere2 const> const c2(s2);
+
+        return math::smaller(r1 * r1 + 2 * r1 * r2 + r2 * r2,
+                             geometry::comparable_distance(c1, c2));
     }
 };
 
