@@ -73,20 +73,20 @@ struct box_box_loop
         // TODO assert or exception?
         //BOOST_GEOMETRY_ASSERT(min1 <= max1 && min2 <= max2);
 
-        if ( math::equals(max1, min2) )
+        if (math::equals(max1, min2))
         {
             touch = true;
         }
-        else if ( max1 < min2 )
+        else if (max1 < min2)
         {
             return false;
         }
 
-        if ( math::equals(max2, min1) )
+        if (math::equals(max2, min1))
         {
             touch = true;
         }
-        else if ( max2 < min1 )
+        else if (max2 < min1)
         {
             return false;
         }
