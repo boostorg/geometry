@@ -45,8 +45,8 @@ void test_geometry(Geometry1 const& geometry1,
     detected = bg::overlaps(geometry2, geometry1);
 
     BOOST_CHECK_MESSAGE(detected == expected,
-        "overlaps: " << wkt2
-        << " with " << wkt1
+        "overlaps: " << wkt1
+        << " with " << wkt2
         << " -> Expected: " << expected
         << " detected: " << detected);
 }
