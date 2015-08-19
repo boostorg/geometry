@@ -2,6 +2,11 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -13,7 +18,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
-
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -35,8 +40,8 @@ static inline bool preceding(int dir, Point const& point,
 {
     typename geometry::robust_point_type<Point, RobustPolicy>::type robust_point;
     geometry::recalculate(robust_point, point, robust_policy);
-    return (dir == 1  && get<Dimension>(robust_point) < get<min_corner, Dimension>(robust_box))
-        || (dir == -1 && get<Dimension>(robust_point) > get<max_corner, Dimension>(robust_box));
+    return (dir == 1  && math::smaller(get<Dimension>(robust_point), get<min_corner, Dimension>(robust_box)))
+        || (dir == -1 && math::larger(get<Dimension>(robust_point), get<max_corner, Dimension>(robust_box)));
 }
 
 template
@@ -52,8 +57,8 @@ static inline bool exceeding(int dir, Point const& point,
 {
     typename geometry::robust_point_type<Point, RobustPolicy>::type robust_point;
     geometry::recalculate(robust_point, point, robust_policy);
-    return (dir == 1  && get<Dimension>(robust_point) > get<max_corner, Dimension>(robust_box))
-        || (dir == -1 && get<Dimension>(robust_point) < get<min_corner, Dimension>(robust_box));
+    return (dir == 1  && math::larger(get<Dimension>(robust_point), get<max_corner, Dimension>(robust_box)))
+        || (dir == -1 && math::smaller(get<Dimension>(robust_point), get<min_corner, Dimension>(robust_box)));
 }
 
 

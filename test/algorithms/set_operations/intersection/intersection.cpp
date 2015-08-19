@@ -9,6 +9,7 @@
 // Modifications copyright (c) 2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -681,6 +682,39 @@ void test_boxes_nd()
     test_boxes_per_d(p3(0,0,0), p3(5,5,5), p3(3,3,3), p3(6,6,6), true);
 }
 
+template <typename P>
+void test_boxes_eps()
+{
+    typedef bg::model::box<P> box;
+
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
+
+    P p_eps(-eps/2, -eps/2);
+    box b1(P(-1, -1), p_eps);
+    box b2(P(0, 0), P(1, 1));
+
+    box box_out;
+    bool detected = bg::intersection(b1, b2, box_out);
+
+    BOOST_CHECK_EQUAL(detected, true);
+    if ( detected )
+    {
+        BOOST_CHECK( bg::equals(box_out, box(p_eps, P(0, 0))) );
+    }
+
+    /*
+    P p_out;
+    detected = bg::intersection(p_eps, b2, p_out);
+
+    BOOST_CHECK_EQUAL(detected, true);
+    if ( detected )
+    {
+        BOOST_CHECK( bg::equals(p_out, p_eps) );
+    }
+    */
+}
+
 template <typename CoordinateType>
 void test_ticket_10868(std::string const& wkt_out)
 {
@@ -729,6 +763,7 @@ int test_main(int, char* [])
 #endif
 
     test_boxes_nd<double>();
+    test_boxes_eps<bg::model::d2::point_xy<double> >();
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // ticket #10868 still fails for 32-bit integers

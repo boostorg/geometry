@@ -6,11 +6,11 @@
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_within.hpp"
 
@@ -170,6 +170,25 @@ void test_strategy()
     BOOST_CHECK_EQUAL(r, true);
 }
 
+template <typename P>
+void test_eps()
+{
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
+
+    P p1(eps/2, eps/2);
+    bg::model::box<P> b1(P(0, 0), P(eps/2, eps/2));
+    bg::model::box<P> b2(P(0, 0), P(1, 1));
+
+    check_geometry(p1, b2,
+                   "point(eps/2, eps/2)", "box(P(0, 0), P(1, 1))",
+                   false);
+
+    check_geometry(b1, b2,
+                   "box(P(0, 0), P(eps/2, eps/2))", "box(P(0, 0), P(1, 1))",
+                   false);
+}
+
 
 int test_main( int , char* [] )
 {
@@ -177,6 +196,8 @@ int test_main( int , char* [] )
     test_all<bg::model::d2::point_xy<double> >();
 
     test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+
+    test_eps<bg::model::d2::point_xy<double> >();
 
     test_mixed();
     test_3d();
@@ -186,6 +207,7 @@ int test_main( int , char* [] )
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
     test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+    test_eps<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;

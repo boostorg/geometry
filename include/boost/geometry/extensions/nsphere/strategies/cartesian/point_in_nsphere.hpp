@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2015 Adam Wulkiewicz, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -23,6 +23,8 @@
 
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
 
+#include <boost/geometry/util/math.hpp>
+
 namespace boost { namespace geometry { namespace strategy
 {
 
@@ -32,10 +34,10 @@ namespace within
 struct point_nsphere_within_comparable_distance
 {
     template <typename ComparableDistance, typename Radius>
-    static inline bool apply(ComparableDistance const& ed_comp_dist
-                           , Radius const& ing_radius)
+    static inline bool apply(ComparableDistance const& ed_comp_dist,
+                             Radius const& ing_radius)
     {
-        return ed_comp_dist < ing_radius * ing_radius;
+        return math::smaller(ed_comp_dist, ing_radius * ing_radius);
     }
 };
 
@@ -43,10 +45,10 @@ struct point_nsphere_within_comparable_distance
 struct point_nsphere_covered_by_comparable_distance
 {
     template <typename ComparableDistance, typename Radius>
-    static inline bool apply(ComparableDistance const& ed_comp_dist
-                           , Radius const& ing_radius)
+    static inline bool apply(ComparableDistance const& ed_comp_dist,
+                             Radius const& ing_radius)
     {
-        return ed_comp_dist <= ing_radius * ing_radius;
+        return math::smaller_or_equals(ed_comp_dist, ing_radius * ing_radius);
     }
 };
 

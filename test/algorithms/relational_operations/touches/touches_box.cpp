@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014. 2015.
+// This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -42,13 +42,29 @@ void test_box_3d()
                             true);
 }
 
+template <typename P>
+void test_eps()
+{
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
+
+    bg::model::box<P> b1(P(0, 0), P(1, 1));
+    bg::model::box<P> b2(P(-1, -1), P(eps/2, eps/2));
+
+    check_touches(b1, b2,
+                  "box(P(0, 0), P(1, 1))", "box(P(-1, -1), P(eps/2, eps/2))",
+                  true);
+}
+
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<double> >();
+    test_eps<bg::model::d2::point_xy<double> >();
     test_box_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
+    test_eps<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;
