@@ -12,6 +12,7 @@
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_relate.hpp"
+#include "../nan_cases.hpp"
 
 //TEST
 //#include <to_svg.hpp>
@@ -47,6 +48,16 @@ void test_multipoint_multipoint()
     //typedef bg::model::d2::point_xy<float> ptf;
     //typedef bg::model::multi_point<ptf> mptf;
     //test_geometry<mptf, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
+
+    // assertion failure in relate->boundary_checker->std::equal_range with msvc
+    if (BOOST_GEOMETRY_CONDITION(is_nan_case_supported<mpt>::value))
+    {
+        mpt g;
+        std::string wkt;
+        nan_case(g, wkt);
+
+        check_geometry(g, g, wkt, wkt, "*********");
+    }
 }
 
 template <typename P>
@@ -78,6 +89,27 @@ void test_point_multilinestring()
     test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
     test_geometry<P, mls>("POINT(5 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
     test_geometry<P, mls>("POINT(1 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
+
+    // assertion failure in relate->boundary_checker->std::equal_range with msvc
+    if (BOOST_GEOMETRY_CONDITION(is_nan_case_supported<mls>::value))
+    {
+        // on the boundary
+        std::string wkt0 = "POINT(3.1e+307 1)";
+        P g0;
+        bg::read_wkt(wkt0, g0);
+
+        // disjoint
+        std::string wkt1 = "POINT(1.1e+308 1.2e+308)";
+        P g1;
+        bg::read_wkt(wkt1, g1);
+
+        mls g2;
+        std::string wkt2;
+        nan_case(g2, wkt2);
+
+        check_geometry(g0, g2, wkt0, wkt2, "*********");
+        check_geometry(g1, g2, wkt1, wkt2, "*********");
+    }
 }
 
 template <typename P>
