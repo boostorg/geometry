@@ -41,15 +41,15 @@ namespace detail
     template <size_t D, typename P, typename B>
     inline bool exceeding(short int dir, P const& point, B const& box)
     {
-        return (dir == 1  && math::larger(get<D>(point), get<1, D>(box)))
-            || (dir == -1 && math::smaller(get<D>(point), get<0, D>(box)));
+        return (dir == 1  && get<D>(point) > get<1, D>(box))
+            || (dir == -1 && get<D>(point) < get<0, D>(box));
     }
 
     template <size_t D, typename P, typename B>
     inline bool preceding(short int dir, P const& point, B const& box)
     {
-        return (dir == 1  && math::smaller(get<D>(point), get<0, D>(box)))
-            || (dir == -1 && math::larger(get<D>(point), get<1, D>(box)));
+        return (dir == 1  && get<D>(point) < get<0, D>(box))
+            || (dir == -1 && get<D>(point) > get<0, D>(box));
     }
 }
 
