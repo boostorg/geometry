@@ -20,7 +20,6 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
-#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -37,8 +36,7 @@ struct nsphere_within_range
                            , ContainingValue const& ing_min
                            , ContainingValue const& ing_max)
     {
-        return math::smaller(ing_min, ed_min)
-            && math::smaller(ed_max, ing_max);
+        return ing_min < ed_min && ed_max < ing_max;
     }
 };
 
@@ -51,8 +49,7 @@ struct nsphere_covered_by_range
                            , ContainingValue const& ing_min
                            , ContainingValue const& ing_max)
     {
-        return math::smaller_or_equals(ing_min, ed_min)
-            && math::smaller_or_equals(ed_max, ing_max);
+        return ing_min <= ed_min && ed_max <= ing_max;
     }
 };
 

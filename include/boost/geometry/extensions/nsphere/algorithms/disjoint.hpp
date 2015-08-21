@@ -23,8 +23,6 @@
 
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
 
-#include <boost/geometry/util/math.hpp>
-
 namespace boost { namespace geometry
 {
 
@@ -107,8 +105,7 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
         typename radius_type<NSphere>::type const r = get_radius<0>(s);
         center_view<const NSphere> const c(s);
 
-        return math::smaller(r * r,
-                             geometry::comparable_distance(p, c));
+        return r * r < geometry::comparable_distance(p, c);
     }
 };
 
@@ -127,11 +124,10 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
 
         typename radius_type<NSphere>::type const r = get_radius<0>(s);
 
-        return math::smaller(r * r,
-                             geometry::detail::disjoint::box_nsphere_comparable_distance_cartesian
-                                <
-                                    Box, NSphere, 0, DimensionCount
-                                >::apply(b, s));
+        return r * r < geometry::detail::disjoint::box_nsphere_comparable_distance_cartesian
+                           <
+                               Box, NSphere, 0, DimensionCount
+                           >::apply(b, s);
     }
 };
 
@@ -156,8 +152,8 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
         center_view<NSphere1 const> const c1(s1);
         center_view<NSphere2 const> const c2(s2);
 
-        return math::smaller(r1 * r1 + 2 * r1 * r2 + r2 * r2,
-                             geometry::comparable_distance(c1, c2));
+        return r1 * r1 + 2 * r1 * r2 + r2 * r2
+                < geometry::comparable_distance(c1, c2);
     }
 };
 
