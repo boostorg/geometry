@@ -29,8 +29,6 @@
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
-#include <boost/geometry/util/math.hpp>
-
 namespace boost { namespace geometry
 {
 
@@ -48,8 +46,8 @@ struct point_box
 {
     static inline bool apply(Point const& point, Box const& box)
     {
-        if ( math::smaller(get<Dimension>(point), get<min_corner, Dimension>(box))
-          || math::larger(get<Dimension>(point), get<max_corner, Dimension>(box)) )
+        if (get<Dimension>(point) < get<min_corner, Dimension>(box)
+            || get<Dimension>(point) > get<max_corner, Dimension>(box))
         {
             return true;
         }
