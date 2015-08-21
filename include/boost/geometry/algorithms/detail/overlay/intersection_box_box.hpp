@@ -17,7 +17,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/util/math.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -44,35 +44,26 @@ struct intersection_box_box
     {
         typedef typename coordinate_type<BoxOut>::type ct;
 
-        ct min1 = get<min_corner, Dimension>(box1);
-        ct min2 = get<min_corner, Dimension>(box2);
         ct max1 = get<max_corner, Dimension>(box1);
-        ct max2 = get<max_corner, Dimension>(box2);
+        ct min2 = get<min_corner, Dimension>(box2);
 
-        if (math::smaller(max1, min2) || math::smaller(max2, min1))
+        if (max1 < min2)
         {
             return false;
         }
-        
-        ct const res_min = min1 < min2 ? min2 : min1;
-        ct const res_max = max1 > max2 ? max2 : max1;
+
+        ct max2 = get<max_corner, Dimension>(box2);
+        ct min1 = get<min_corner, Dimension>(box1);
+
+        if (max2 < min1)
+        {
+            return false;
+        }
 
         // Set dimensions of output coordinate
-        // This condition is needed because math::smaller() compares values WRT
-        // machine epsilon, so max may be lesser than min when compared with
-        // raw operator<
-        if (res_min <= res_max)
-        {
-            set<min_corner, Dimension>(box_out, res_min);
-            set<max_corner, Dimension>(box_out, res_max);
-        }
-        else
-        {
-            set<min_corner, Dimension>(box_out, res_max);
-            set<max_corner, Dimension>(box_out, res_min);
-        }
+        set<min_corner, Dimension>(box_out, min1 < min2 ? min2 : min1);
+        set<max_corner, Dimension>(box_out, max1 > max2 ? max2 : max1);
         
-
         return intersection_box_box<Dimension + 1, DimensionCount>
                ::apply(box1, box2, robust_policy, box_out, strategy);
     }
