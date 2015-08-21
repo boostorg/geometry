@@ -111,52 +111,15 @@ void test_3d()
 
 }
 
-template <typename P>
-void test_eps()
-{
-    typedef typename bg::coordinate_type<P>::type coord_type;
-    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
-    
-    P p_1(-1, -1);
-    P p0(0, 0);
-    P p1(eps/2, 0);
-    P p2(0, eps/2);
-    P p3(-1-eps/2, -1);
-    P p4(-1, -1-eps/2);
-
-    bg::model::box<P> b0(p_1, p0);
-    bg::model::box<P> b1(p1, P(1, 1));
-    bg::model::box<P> b2(p2, P(1, 1));
-    bg::model::box<P> b3(P(-2, -2), p3);
-    bg::model::box<P> b4(P(-2, -2), p4);
-
-    check_disjoint("eps_p0_p1", p0, p1, false);
-    check_disjoint("eps_p0_p2", p0, p2, false);
-    check_disjoint("eps_p_1_p3", p_1, p3, false);
-    check_disjoint("eps_p_1_p4", p_1, p4, false);
-
-    check_disjoint("eps_b0_b1", b0, b1, false);
-    check_disjoint("eps_b0_b2", b0, b2, false);
-    check_disjoint("eps_b0_b3", b0, b3, false);
-    check_disjoint("eps_b0_b4", b0, b4, false);
-
-    check_disjoint("eps_b0_p1", b0, p1, false);
-    check_disjoint("eps_b0_p2", b0, p2, false);
-    check_disjoint("eps_b0_p3", b0, p3, false);
-    check_disjoint("eps_b0_p4", b0, p4, false);
-}
 
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<float> >();
-    test_eps<bg::model::d2::point_xy<float> >();
     
     test_all<bg::model::d2::point_xy<double> >();
-    test_eps<bg::model::d2::point_xy<double> >();
 
 #ifdef HAVE_TTMATH
     test_all<bg::model::d2::point_xy<ttmath_big> >();
-    test_eps<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
