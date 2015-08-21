@@ -24,7 +24,6 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
-#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -39,8 +38,7 @@ struct within_range
     template <typename Value1, typename Value2>
     static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
     {
-        return math::larger(value, min_value)
-            && math::smaller(value, max_value);
+        return value > min_value && value < max_value;
     }
 };
 
@@ -50,8 +48,7 @@ struct covered_by_range
     template <typename Value1, typename Value2>
     static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
     {
-        return math::larger_or_equals(value, min_value)
-            && math::smaller_or_equals(value, max_value);
+        return value >= min_value && value <= max_value;
     }
 };
 

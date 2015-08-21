@@ -25,7 +25,6 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
-#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -43,9 +42,8 @@ struct box_within_range
                              BoxContainingValue const& bing_min,
                              BoxContainingValue const& bing_max)
     {
-        return math::smaller_or_equals(bing_min, bed_min) // contained in containing
-            && math::smaller_or_equals(bed_max, bing_max) // contd.
-            && math::smaller(bed_min, bed_max);           // interiors overlap
+        return bing_min <= bed_min && bed_max <= bing_max // contained in containing
+            && bed_min < bed_max;                         // interiors overlap
     }
 };
 
@@ -58,8 +56,7 @@ struct box_covered_by_range
                              BoxContainingValue const& bing_min,
                              BoxContainingValue const& bing_max)
     {
-        return math::larger_or_equals(bed_min, bing_min)
-            && math::smaller_or_equals(bed_max, bing_max);
+        return bed_min >= bing_min && bed_max <= bing_max;
     }
 };
 
