@@ -1841,7 +1841,6 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get());
     
-    B bb = t.bounds();
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
 
