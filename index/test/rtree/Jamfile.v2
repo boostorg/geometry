@@ -12,6 +12,7 @@ build-project generated ;
 
 test-suite boost-geometry-index-rtree
     :
+    [ run rtree_epsilon.cpp ]
     [ run rtree_insert_remove.cpp ]
     [ run rtree_move_pack.cpp ]
     [ run rtree_values.cpp ]
