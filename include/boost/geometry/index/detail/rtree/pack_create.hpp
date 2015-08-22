@@ -14,6 +14,8 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
 
+#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
 
 namespace pack_utils {
@@ -214,6 +216,11 @@ private:
             }
         }
 
+        void expand_by_epsilon()
+        {
+            geometry::detail::expand_by_epsilon(m_box);
+        }
+
         BoxType const& get() const
         {
             BOOST_GEOMETRY_INDEX_ASSERT(m_initialized, "uninitialized envelope accessed");
@@ -262,6 +269,21 @@ private:
                 //       non-true reference types and move_iterator without boost::forward<>.
                 elements_box.expand(translator(*(first->second)));
                 rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
+            }
+
+            // Enlarge bounds of a leaf node.
+            // It's because Points and Segments are compared WRT machine epsilon
+            // This ensures that leafs bounds correspond to the stored elements
+            // NOTE: this is done only if the Indexable is a different kind of Geometry
+            //   than the bounds (only Box for now). Spatial predicates are checked
+            //   the same way for Geometry of the same kind.
+            if ( BOOST_GEOMETRY_CONDITION((
+                    ! index::detail::is_bounding_geometry
+                        <
+                            typename indexable_type<Translator>::type
+                        >::value )) )
+            {
+                elements_box.expand_by_epsilon();
             }
 
             auto_remover.release();
