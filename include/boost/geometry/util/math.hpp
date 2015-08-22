@@ -442,7 +442,7 @@ struct scaled_epsilon
 {
     static inline T apply(T const& val)
     {
-        return (std::max)(math::abs(val), T(1))
+        return (std::max)(abs<T>::apply(val), T(1))
                     * std::numeric_limits<T>::epsilon();
     }
 };
