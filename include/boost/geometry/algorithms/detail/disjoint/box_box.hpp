@@ -28,7 +28,6 @@
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
-#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -36,7 +35,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
-
 
 template
 <
@@ -47,11 +45,11 @@ struct box_box
 {
     static inline bool apply(Box1 const& box1, Box2 const& box2)
     {
-        if (math::smaller(get<max_corner, Dimension>(box1), get<min_corner, Dimension>(box2)))
+        if (get<max_corner, Dimension>(box1) < get<min_corner, Dimension>(box2))
         {
             return true;
         }
-        if (math::larger(get<min_corner, Dimension>(box1), get<max_corner, Dimension>(box2)))
+        if (get<min_corner, Dimension>(box1) > get<max_corner, Dimension>(box2))
         {
             return true;
         }

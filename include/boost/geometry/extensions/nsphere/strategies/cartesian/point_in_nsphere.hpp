@@ -37,7 +37,7 @@ struct point_nsphere_within_comparable_distance
     static inline bool apply(ComparableDistance const& ed_comp_dist,
                              Radius const& ing_radius)
     {
-        return math::smaller(ed_comp_dist, ing_radius * ing_radius);
+        return ed_comp_dist < ing_radius * ing_radius;
     }
 };
 
@@ -48,7 +48,7 @@ struct point_nsphere_covered_by_comparable_distance
     static inline bool apply(ComparableDistance const& ed_comp_dist,
                              Radius const& ing_radius)
     {
-        return math::smaller_or_equals(ed_comp_dist, ing_radius * ing_radius);
+        return ed_comp_dist <= ing_radius * ing_radius;
     }
 };
 

@@ -28,8 +28,6 @@
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/assign.hpp>
 
-#include <boost/geometry/util/math.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -68,7 +66,7 @@ inline bool point_in_circle(P const& p, C const& c)
             strategy_type, P, point_type
         >::apply(strategy, get_radius<0>(c));
 
-    return math::smaller(r, rad);
+    return r < rad;
 }
 /// 2D version
 template<typename T, typename C>

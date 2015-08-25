@@ -137,31 +137,10 @@ void test_mixed()
 }
 
 
-template <typename P>
-void test_eps()
-{
-    typedef typename bg::coordinate_type<P>::type coord_type;
-    coord_type const eps = std::numeric_limits<coord_type>::epsilon();
-
-    P p1(-eps/2, -eps/2);
-    bg::model::box<P> b1(P(-eps/2, -eps/2), P(0, 0));
-    bg::model::box<P> b2(P(0, 0), P(1, 1));
-
-    check_geometry(p1, b2,
-                   "point(-eps/2, -eps/2)", "box(P(0, 0), P(1, 1))",
-                   true);
-
-    check_geometry(b1, b2,
-                   "box(P(-eps/2, -eps/2), P(0, 0))", "box(P(0, 0), P(1, 1))",
-                   true);
-}
-
-
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
-    test_eps<bg::model::d2::point_xy<double> >();
 
     //test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 

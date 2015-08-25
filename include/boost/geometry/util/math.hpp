@@ -201,11 +201,12 @@ struct smaller<Type, true>
 {
     static inline bool apply(Type const& a, Type const& b)
     {
-        if (equals<Type, true>::apply(a, b, equals_default_policy()))
+        if (!(a < b)) // a >= b
         {
             return false;
         }
-        return a < b;
+        
+        return ! equals<Type, true>::apply(b, a, equals_default_policy());
     }
 };
 
@@ -224,8 +225,12 @@ struct smaller_or_equals<Type, true>
 {
     static inline bool apply(Type const& a, Type const& b)
     {
-        return a <= b
-            || equals<Type, true>::apply(a, b, equals_default_policy());
+        if (a <= b)
+        {
+            return true;
+        }
+
+        return equals<Type, true>::apply(a, b, equals_default_policy());
     }
 };
 
@@ -427,6 +432,30 @@ struct relaxed_epsilon
     }
 };
 
+// This must be consistent with math::equals.
+// By default math::equals() scales the error by epsilon using the greater of
+// compared values but here is only one value, though it should work the same way.
+// (a-a) <= max(a, a) * EPS       -> 0 <= a*EPS
+// (a+da-a) <= max(a+da, a) * EPS -> da <= (a+da)*EPS
+template <typename T, bool IsFloat = boost::is_floating_point<T>::value>
+struct scaled_epsilon
+{
+    static inline T apply(T const& val)
+    {
+        return (std::max)(abs<T>::apply(val), T(1))
+                    * std::numeric_limits<T>::epsilon();
+    }
+};
+
+template <typename T>
+struct scaled_epsilon<T, false>
+{
+    static inline T apply(T const& val)
+    {
+        return T(0);
+    }
+};
+
 // ItoF ItoI FtoF
 template <typename Result, typename Source,
           bool ResultIsInteger = std::numeric_limits<Result>::is_integer,
@@ -478,6 +507,12 @@ template <typename T>
 inline T relaxed_epsilon(T const& factor)
 {
     return detail::relaxed_epsilon<T>::apply(factor);
+}
+
+template <typename T>
+inline T scaled_epsilon(T const& value)
+{
+    return detail::scaled_epsilon<T>::apply(value);
 }
 
 

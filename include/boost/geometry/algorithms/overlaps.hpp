@@ -31,7 +31,6 @@
 #include <boost/geometry/algorithms/relate.hpp>
 #include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 
-#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -68,8 +67,7 @@ struct box_box_loop
         // B1: |-------|
         // B2:           |------|
         // in any dimension -> no overlap
-        if (math::smaller_or_equals(max1, min2)
-         || math::larger_or_equals(min1, max2))
+        if (max1 <= min2 || min1 >= max2)
         {
             overlaps = false;
             return;
@@ -82,29 +80,15 @@ struct box_box_loop
         // B1: |--------------------|
         // B2: |-------------|
         // this is "within-touch" -> then no overlap. So use < and >
-
-        if (! math::equals(min1, min2))
+        if (min1 < min2 || max1 > max2)
         {
-            if (min1 < min2)
-            {
-                one_in_two = false;
-            }
-            else // Same other way round - min2 < min1
-            {
-                two_in_one = false;
-            }
+            one_in_two = false;
         }
 
-        if (! math::equals(max1, max2))
+        // Same other way round
+        if (min2 < min1 || max2 > max1)
         {
-            if (max1 > max2)
-            {
-                one_in_two = false;
-            }
-            else // Same other way round - max2 > max1
-            {
-                two_in_one = false;
-            }
+            two_in_one = false;
         }
 
         box_box_loop
