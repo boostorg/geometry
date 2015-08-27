@@ -40,6 +40,7 @@
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
+#include <boost/geometry/algorithms/detail/overlay/split_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -248,6 +249,9 @@ std::cout << "traverse" << std::endl;
         std::map<ring_identifier, properties> selected_ring_properties;
         select_rings<Direction>(geometry1, geometry2, turn_info_per_ring,
                 selected_ring_properties);
+
+        // split the rings into simple rings
+        split_rings<Direction>::apply(rings, robust_policy);
 
         // Add rings created during traversal
         {
