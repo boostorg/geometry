@@ -169,7 +169,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("33",
                 case_33[0], case_33[1], 2, 0, 8, 4.5);
     test_one<Polygon, Polygon, Polygon>("36",
-                case_36[0], case_36[1], 1, 0, 10, 14.375);
+                case_36[0], case_36[1], 1, 1, 10, 14.375);
     test_one<Polygon, Polygon, Polygon>("40",
                 case_40[0], case_40[1], 2, 0, 18, 11);
 
@@ -181,6 +181,20 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("59_iet",
                 case_59[0], case_59[2], 1, 1, 14, 17.20833);
 
+    test_one<Polygon, Polygon, Polygon>("80",
+                case_80[0], case_80[1], 1, 2, 18, 221.369);
+    test_one<Polygon, Polygon, Polygon>("81",
+                case_81[0], case_81[1], 1, 1, 10, 147.5);
+    test_one<Polygon, Polygon, Polygon>("82",
+                case_82[0], case_82[1], 2, 0, 9, 175);
+    test_one<Polygon, Polygon, Polygon>("83",
+                case_83[0], case_83[1], 1, 2, 13, 172.917);
+    test_one<Polygon, Polygon, Polygon>("84",
+                case_84[0], case_84[1], 2, 0, 11, 170);
+    test_one<Polygon, Polygon, Polygon>("85",
+                case_85[0], case_85[1], 1, 2, 15, 1320);
+    test_one<Polygon, Polygon, Polygon>("86",
+                case_86[0], case_86[1], 1, 1, 10, 1500);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,

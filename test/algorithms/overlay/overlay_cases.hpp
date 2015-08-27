@@ -180,6 +180,7 @@ static std::string case_35[2] = {
         "POLYGON((2 2,4 2,4 1,2 2))" };
 
 static std::string case_36[2] = {
+        // union as one polygon with a hole touching the exterior ring
         "POLYGON((1 0,0 3,4 2,1 0))",
         "POLYGON((1 5,5 5,4 2,3 3,2 1,1 2,1 5))" };
 
@@ -351,6 +352,56 @@ static std::string case_72[2] = {
 static std::string case_79[2] = {
         "POLYGON((0 0,0 5,5 5,5 3,2 3,2 2,5 2,5 0,0 0))",
         "POLYGON((0 0,0 5,5 5,5 0,2 0,2 2,1 2,1 0,0 0))"
+    };
+
+static std::string case_80[2] =
+    {
+        // union has one polygon with two holes; one of them is
+        // touching the exterior ring
+        // reported by MySQL QA on Aug 19, 2015
+        "POLYGON((0 6,-11 -6,6 0,0 6),(3 1,5 0,-2 0,3 1))",
+        "POLYGON((5 4,6 0,9 12,-7 -12,5 -19,5 4))"
+    };
+
+static std::string case_81[2] =
+    {
+        // union has a polygon with one hole touching the exterior ring
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 5,30 10,20 0,20 5,10 5))"
+    };
+
+static std::string case_82[2] =
+    {
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 10,30 10,20 0,20 5,10 10))"
+    };
+
+static std::string case_83[2] =
+    {
+        // union as a single polygon and two holes both touching the
+        // exterior ring at vertices
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 5,20 7,10 10,30 10,20 0,20 5,10 5))"
+    };
+
+static std::string case_84[2] =
+    {
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((15 5,20 7,10 10,30 10,20 0,20 5,15 5))"
+    };
+
+static std::string case_85[2] =
+    {
+        // union has a single polygon and two holes that touch each
+        // other at a vertex
+        "POLYGON((0 0,0 40,40 40,40 0,0 0),(10 10,30 10,30 30,10 30,10 10))",
+        "POLYGON((5 15,5 30,30 15,5 15))"
+    };
+
+static std::string case_86[2] =
+    {
+        "POLYGON((0 0,0 40,40 40,40 0,20 0,0 0),(10 10,20 0,30 10,30 30,10 30,10 10))",
+        "POLYGON((10 10,10 30,30 30,30 10,10 10))"
     };
 
 static std::string case_many_situations[2] = {
