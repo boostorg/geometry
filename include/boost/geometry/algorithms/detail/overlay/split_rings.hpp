@@ -14,6 +14,7 @@
 #include <iterator>
 #include <list>
 #include <set>
+#include <stack>
 
 #include <boost/range.hpp>
 
@@ -87,12 +88,16 @@ public:
         }
     }
 
-    iterator begin() { return m_list.begin(); }
-    const_iterator begin() const { return m_list.begin(); }
+    inline iterator begin() { return m_list.begin(); }
+    inline const_iterator begin() const { return m_list.begin(); }
 
-    iterator end() { return m_list.end(); }
-    const_iterator end() const { return m_list.end(); }
+    inline iterator end() { return m_list.end(); }
+    inline const_iterator end() const { return m_list.end(); }
 
+    inline void swap(ring_as_dcl& other)
+    {
+        m_list.swap(other.m_list);
+    }
 private:
     List m_list;
 };
@@ -303,25 +308,36 @@ class split_ring<overlay_union, Ring, RobustPolicy>
     template <closure_selector Closure, typename RingType, typename Collection>
     static inline void split_one_ring(RingType& ring, Collection& collection)
     {
-        // we implement split_one_ring recursively (instead of using a
-        // stack or a queue) so that rings do not get copied
+        // create and initialize a stack with the input ring
+        std::stack<RingType> stack;
+        stack.push(RingType());
+        stack.top().swap(ring);
 
-        typename boost::range_iterator<RingType>::type pos1, pos2;
-        bool duplicate_found = find_duplicate_points
-            <
-                Closure
-            >::apply(ring, pos1, pos2);
+        // while the stack is not empty:
+        // look for duplicates, split and push to stack;
+        // otherwise, copy to output collection
+        while (! stack.empty())
+        {
+            RingType& top_ring = stack.top();
 
-        if (duplicate_found)
-        {
-            RingType other_ring;
-            ring.split_at(pos1, pos2, other_ring);
-            split_one_ring<Closure>(ring, collection);
-            split_one_ring<Closure>(other_ring, collection);
-        }
-        else
-        {
-            copy_to_collection(ring, collection);
+            typename boost::range_iterator<RingType>::type pos1, pos2;
+            bool duplicate_found = find_duplicate_points
+                <
+                    Closure
+                >::apply(top_ring, pos1, pos2);
+
+            if (duplicate_found)
+            {
+                RingType other_ring;
+                stack.push(other_ring);
+                top_ring.split_at(pos1, pos2, other_ring);
+                stack.top().swap(other_ring);
+            }
+            else
+            {
+                copy_to_collection(top_ring, collection);
+                stack.pop();
+            }
         }
     }
 
