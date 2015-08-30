@@ -35,6 +35,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_INIT_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_INIT_HPP
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -204,8 +205,14 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
 
     if (! s.empty())
     {
-        // TODO: IMPLEMENT SPLIT
-        pin.to_meter = atof(s.c_str());
+        std::size_t const divisor = s.find('/');
+        if (divisor == std::string::npos)
+            pin.to_meter = std::atof(s.c_str());
+        else
+        {
+            std::string const numerator(s.substr(0, divisor)), denominator(s.substr(divisor + 1));
+            pin.to_meter = std::atof(numerator.c_str()) / std::atof(denominator.c_str());
+        }
         //if (*s == '/') /* ratio number */
         //    pin.to_meter /= strtod(++s, 0);
         pin.fr_meter = 1. / pin.to_meter;
