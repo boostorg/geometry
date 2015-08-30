@@ -131,16 +131,14 @@ public:
         iterator_type last = is_closed ? --boost::end(ring) : boost::end(ring);
         for (iterator_type it = boost::begin(ring); it != last; ++it)
         {
-            typename point_set_type::const_iterator pit = point_set.find(it);
-            if (pit != point_set.end())
+            std::pair<typename point_set_type::iterator, bool> res
+                = point_set.insert(it);
+
+            if (! res.second)
             {
-                pos1 = *pit;
+                pos1 = *res.first;
                 pos2 = it;
                 return true;
-            }
-            else
-            {
-                point_set.insert(it);
             }
         }
 
@@ -305,13 +303,21 @@ class split_ring<overlay_union, Ring, RobustPolicy>
         collection.push_back(tmp);
     }
 
+    template <typename Stack>
+    static inline void move_to_top(Stack& stack,
+                                   typename Stack::value_type& value)
+    {
+        typedef typename Stack::value_type value_type;
+        stack.push(value_type());
+        stack.top().swap(value);
+    }
+
     template <closure_selector Closure, typename RingType, typename Collection>
     static inline void split_one_ring(RingType& ring, Collection& collection)
     {
         // create and initialize a stack with the input ring
         std::stack<RingType> stack;
-        stack.push(RingType());
-        stack.top().swap(ring);
+        move_to_top(stack, ring);
 
         // while the stack is not empty:
         // look for duplicates, split and push to stack;
@@ -329,9 +335,8 @@ class split_ring<overlay_union, Ring, RobustPolicy>
             if (duplicate_found)
             {
                 RingType other_ring;
-                stack.push(other_ring);
                 top_ring.split_at(pos1, pos2, other_ring);
-                stack.top().swap(other_ring);
+                move_to_top(stack, other_ring);
             }
             else
             {
