@@ -122,14 +122,16 @@ class find_duplicate_points
 
 public:
     template <typename Ring, typename Iterator>
-    static inline bool apply(Ring& ring, Iterator& pos1, Iterator& pos2)
+    static inline bool apply(Ring const& ring, Iterator& pos1, Iterator& pos2)
     {
         typedef typename Ring::iterator iterator_type;
         typedef std::set<iterator_type, point_iterator_less> point_set_type;
         point_set_type point_set;
 
-        iterator_type last = is_closed ? --boost::end(ring) : boost::end(ring);
-        for (iterator_type it = boost::begin(ring); it != last; ++it)
+        Ring& nc_ring = const_cast<Ring&>(ring);
+        iterator_type last
+            = is_closed ? --boost::end(nc_ring) : boost::end(nc_ring);
+        for (iterator_type it = boost::begin(nc_ring); it != last; ++it)
         {
             std::pair<typename point_set_type::iterator, bool> res
                 = point_set.insert(it);
@@ -143,7 +145,7 @@ public:
         }
 
         // initialize pos1 and pos2 with something
-        pos1 = boost::begin(ring);
+        pos1 = boost::begin(nc_ring);
         pos2 = pos1;
         return false;
     }
