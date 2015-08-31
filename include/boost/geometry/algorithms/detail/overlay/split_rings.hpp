@@ -261,18 +261,19 @@ class split_ring<overlay_union, Ring, RobustPolicy>
                                         MUU_Turns const& muu_turns,
                                         RingOut& ring_out)
     {
+        typedef typename boost::range_size<Ring>::type size_type;
         typedef typename boost::range_iterator
             <
                 MUU_Turns const
             >::type iterator_type;
 
-        typename boost::range_size<Ring>::type point_index = 0;
+        size_type point_index = 0;
         for (iterator_type it = muu_turns.begin(); it != muu_turns.end(); ++it)
         {
             signed_size_type segment_index
                 = get_correct_op(*it).seg_id.segment_index;
 
-            while (point_index <= segment_index)
+            while (point_index <= static_cast<size_type>(segment_index))
             {
                 ring_out.push_back(ring[point_index]);
                 ++point_index;
