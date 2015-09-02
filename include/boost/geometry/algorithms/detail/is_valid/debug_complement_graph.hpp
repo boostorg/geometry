@@ -55,11 +55,7 @@ debug_print_complement_graph(OutputStream& os,
     }
 }
 #else
-template <typename OutputStream, typename TurnPoint>
-inline void debug_print_complement_graph(OutputStream&,
-                                         complement_graph<TurnPoint> const&)
-{
-}
+#define debug_print_complement_graph(A, B)
 #endif
 
 
