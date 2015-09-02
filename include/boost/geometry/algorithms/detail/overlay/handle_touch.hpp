@@ -198,14 +198,16 @@ private :
             it != boost::end(turn.operations);
             ++it)
         {
-            if (it->operation == operation_union)
+            if (it->operation == operation_union
+                || it->operation == operation_continue)
             {
                 signed_size_type index = it->enriched.travels_to_ip_index;
                 if (index == original_turn_index)
                 {
-                    // Traveled through, not found
+                    // Completely traveled, the target is not found
                     return false;
                 }
+
                 if (index >= 0 && index < turns_size)
                 {
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH

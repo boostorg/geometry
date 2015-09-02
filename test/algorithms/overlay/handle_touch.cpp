@@ -48,6 +48,7 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
+#include <algorithms/overlay/multi_overlay_cases.hpp>
 
 
 
@@ -98,7 +99,9 @@ struct test_handle_touch
         typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
         typedef std::vector<ring_type> out_vector;
 
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
         std::cout << "*** Case: " << case_id << std::endl;
+#endif
 
         bg::detail::overlay::handle_touch(Direction, turns);
 
@@ -399,6 +402,69 @@ void test_geometries()
                 );
     // Should result in 2 polygons:
     // "MULTIPOLYGON(((2 4,2 6,3 6,3 7,7 7,7 6,8 6,8 4,6 4,6 5,4 5,4 4,2 4)),((1 0,1 2,0 2,0 4,2 4,2 3,8 3,8 4,10 4,10 2,9 2,9 0,1 0)))"
+
+    // With a c/c turn
+    test_handle_touch_union::apply
+            (
+                "uu_case_10", 1, 0,
+                "MULTIPOLYGON(((6 4,6 9,9 9,9 6,11 6,11 4,6 4)),((10 7,10 10,12 10,12 7,10 7)))",
+                "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((6 10,8 12,10 10,8 8,6 10)))"
+                );
+
+    // With c/c turns in both involved polygons
+    test_handle_touch_union::apply
+            (
+                "uu_case_11", 1, 0,
+                "MULTIPOLYGON(((7 4,7 8,9 8,9 6,11 6,11 4,7 4)),((10 7,10 10,12 10,12 7,10 7)))",
+                "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
+                );
+
+    // Same but here c/c not directly involved in the turns itself
+    // (This one breaks if continue is not checked in handle_touch)
+    test_handle_touch_union::apply
+            (
+                "uu_case_12", 1, 0,
+                "MULTIPOLYGON(((10 8,10 10,12 10,12 8,10 8)),((10 4,10 7,12 7,12 4,10 4)),((7 5,7 8,9 8,9 5,7 5)))",
+                "MULTIPOLYGON(((7 3,7 6,9 6,9 5,11 5,11 3,7 3)),((10 6,10 9,12 9,12 6,10 6)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
+                );
+
+    test_handle_touch_union::apply
+        (
+            "case_62_multi", 0, 1, case_62_multi[0], case_62_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_63_multi", 0, 1, case_63_multi[0], case_63_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_65_multi", 0, 2, case_65_multi[0], case_65_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_66_multi", 0, 2, case_66_multi[0], case_66_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_75_multi", 0, 4, case_75_multi[0], case_75_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_76_multi", 0, 5, case_76_multi[0], case_76_multi[1]
+        );
+    test_handle_touch_union::apply
+        (
+            "case_101_multi", 2, 0, case_101_multi[0], case_101_multi[1]
+        );
+
+    // NOTE: this result is still to be checked
+    test_handle_touch_union::apply
+        (
+            "case_recursive_boxes_3", 8, 18,
+            case_recursive_boxes_3[0], case_recursive_boxes_3[1]
+        );
+
+
 
 }
 
