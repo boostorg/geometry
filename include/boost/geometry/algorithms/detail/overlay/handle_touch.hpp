@@ -20,6 +20,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 
 
 namespace boost { namespace geometry
@@ -118,8 +119,8 @@ private :
         // Iterate through all u/u points
         int index = 0;
         for (turn_iterator it = boost::begin(turns);
-            it != boost::end(turns);
-            ++it, ++index)
+             it != boost::end(turns);
+             ++it, ++index)
         {
             turn_type& turn = *it;
             if (turn.both(operation_union))
@@ -127,7 +128,7 @@ private :
                 bool traverse = turn_should_be_traversed(turns, turn, map);
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
                 std::cout << " " << index << " "
-                             << std::boolalpha << traverse
+                          << std::boolalpha << traverse
                           << std::endl;
 #endif
 
@@ -136,10 +137,69 @@ private :
                     // Remove the discarded flag
                     turn.discarded = false;
 
-                    // TODO: insert into sequence
+                    insert_into_sequence(turn, turns, index, 0, map);
+                    insert_into_sequence(turn, turns, index, 1, map);
                 }
             }
         }
+    }
+
+    static inline void insert_into_sequence(turn_type& uu_turn,
+                                            Turns& turns,
+                                            int turn_index,
+                                            int operation_index,
+                                            const map_type& map)
+    {
+        ring_identifier const ring_id = ring_id_from_op(uu_turn, operation_index);
+        map_type::const_iterator mit = map.find(ring_id);
+        if (mit == map.end())
+        {
+            return;
+        }
+
+        // Create a temporary vector of u/u and c/c operations, to circulate
+        // through
+
+        typedef typename turn_type::turn_operation_type turn_operation_type;
+        typedef detail::overlay::indexed_turn_operation
+                <
+                turn_operation_type
+                > indexed_turn_op;
+
+        std::vector<indexed_turn_op> vec;
+
+        // Insert u/u turn itself
+        push_back_operations(vec, uu_turn, turn_index);
+
+        for (std::vector<int>::const_iterator vit = mit->second.begin();
+             vit != mit->second.end();
+             ++vit)
+        {
+            int const turn_on_ring_index = *vit;
+            push_back_operations(vec, turns[turn_on_ring_index],
+                                 turn_on_ring_index);
+        }
+
+        // std::sort(vec.begin(), vec.end(), less_by_segment_ratio<...>();
+        // Now re-assign...
+    }
+
+    template <typename Vector, typename Turn>
+    static inline void push_back_operations(Vector& vec, const Turn& turn,
+                                            int turn_index)
+    {
+        typedef typename boost::range_value<Vector>::type value;
+        vec.push_back
+            (
+                value(turn_index, 0, turn.operations[0],
+                    turn.operations[1].seg_id)
+            );
+        vec.push_back
+            (
+                value(turn_index, 1, turn.operations[1],
+                    turn.operations[0].seg_id)
+            );
+
     }
 
     static inline bool turn_should_be_traversed(const Turns& turns,
