@@ -142,6 +142,11 @@ void test_areal_linear()
         "POLYGON((0 0,0 10,10 10,10 0,0 0))",
          1, 5, 32.882456);
 
+    test_one_lp<LineString, LineString, Polygon>("case33b",
+        "LINESTRING(0 5,-5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 10);
+
     test_one_lp<LineString, LineString, Polygon>("case34",
         "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 4)",
         "POLYGON((0 0,0 10,10 10,10 0,0 0))",
