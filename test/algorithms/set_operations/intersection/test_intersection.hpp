@@ -257,6 +257,9 @@ void test_one_lp(std::string const& caseid,
         double percentage = 0.0001,
         bool debug1 = false, bool debug2 = false)
 {
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << caseid << " -- start" << std::endl;
+#endif
     Areal areal;
     bg::read_wkt(wkt_areal, areal);
     bg::correct(areal);
@@ -274,6 +277,9 @@ void test_one_lp(std::string const& caseid,
     test_intersection<OutputType, void>(caseid + "_rev", areal, linear,
         expected_count, expected_point_count,
         expected_length, percentage, debug2);
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << caseid << " -- end" << std::endl;
+#endif
 }
 
 template <typename Geometry1, typename Geometry2>
