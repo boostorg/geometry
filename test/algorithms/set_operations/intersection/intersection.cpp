@@ -522,6 +522,10 @@ void test_areal_linear()
         "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
          1, 6, 21.099019);
 
+    test_one_lp<LineString, Polygon, LineString>("case29",
+        "POLYGON((5 5,15 15,15 5,5 5))",
+        "LINESTRING(0 0,10 10)",
+        1, 2, 5 * std::sqrt(2.0));
 
     // PROPERTIES CHANGED BY switch_to_integer
     // TODO test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
