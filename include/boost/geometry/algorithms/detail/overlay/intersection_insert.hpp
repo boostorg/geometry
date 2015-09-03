@@ -41,6 +41,7 @@
 #include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/views/detail/boundary_view.hpp>
 
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 #include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
@@ -175,21 +176,86 @@ template
 struct intersection_of_linestring_with_areal
 {
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
-        template <typename Turn, typename Operation>
-        static inline void debug_follow(Turn const& turn, Operation op,
-                    int index)
-        {
-            std::cout << index
-                << " at " << op.seg_id
-                << " meth: " << method_char(turn.method)
-                << " op: " << operation_char(op.operation)
-                << " vis: " << visited_char(op.visited)
-                << " of:  " << operation_char(turn.operations[0].operation)
-                << operation_char(turn.operations[1].operation)
-                << " " << geometry::wkt(turn.point)
-                << std::endl;
-        }
+    template <typename Turn, typename Operation>
+    static inline void debug_follow(Turn const& turn, Operation op,
+                                    int index)
+    {
+        std::cout << index
+                  << " at " << op.seg_id
+                  << " meth: " << method_char(turn.method)
+                  << " op: " << operation_char(op.operation)
+                  << " vis: " << visited_char(op.visited)
+                  << " of:  " << operation_char(turn.operations[0].operation)
+                  << operation_char(turn.operations[1].operation)
+                  << " " << geometry::wkt(turn.point)
+                  << std::endl;
+    }
+
+    template <typename Turn>
+    static inline void debug_turn(Turn const& t, bool non_crossing)
+    {
+        std::cout << "checking turn @"
+                  << geometry::wkt(t.point)
+                  << "; " << method_char(t.method)
+                  << ":" << operation_char(t.operations[0].operation)
+                  << "/" << operation_char(t.operations[1].operation)
+                  << "; non-crossing? "
+                  << std::boolalpha << non_crossing << std::noboolalpha
+                  << std::endl;
+    }
 #endif
+
+    class is_non_crossing_turn
+    {
+        template <typename Turn>
+        static inline bool has_method_error(Turn const& t)
+        {
+            return t.method == overlay::method_error;
+        }
+
+        // returns true is the turn is a m:u/u, m:i/i, t:u/u or t:i/i
+        template <typename Turn>
+        static inline bool is_taa_or_maa(Turn const& t)
+        {
+            return
+                (t.method == overlay::method_touch
+                 || t.method == overlay::method_touch_interior)
+                &&
+                t.operations[0].operation == t.operations[1].operation;
+        }
+
+        // return true is the operation is intersection or blocked
+        template <std::size_t I, typename Turn>
+        static inline bool has_op_i_or_b(Turn const& t)
+        {
+            return t.operations[I].operation == overlay::operation_intersection
+                || t.operations[I].operation == overlay::operation_blocked;
+        }
+
+    public:
+        template <typename Turn>
+        static inline bool apply(Turn const& t)
+        {
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+            bool non_crossing = has_method_error(t) || is_taa_or_maa(t)
+                || (! has_op_i_or_b<0>(t) && ! has_op_i_or_b<1>(t));
+            debug_turn(t, non_crossing);
+#endif
+            return has_method_error(t)
+                || is_taa_or_maa(t)
+                || (! has_op_i_or_b<0>(t) && ! has_op_i_or_b<1>(t));
+        }
+    };
+
+    template <typename Turns>
+    static inline bool no_crossing_turns_or_empty(Turns const& turns)
+    {
+        return detail::check_iterator_range
+            <
+                is_non_crossing_turn,
+                true // allow an empty turns range
+            >::apply(boost::begin(turns), boost::end(turns));
+    }
 
     template
     <
@@ -212,7 +278,8 @@ struct intersection_of_linestring_with_areal
                     LineStringOut,
                     LineString,
                     Areal,
-                    OverlayType
+                    OverlayType,
+                    false // do not remove spikes for linear geometries
                 > follower;
 
         typedef typename point_type<LineStringOut>::type point_type;
@@ -231,7 +298,7 @@ struct intersection_of_linestring_with_areal
                 detail::overlay::assign_null_policy
             >(linestring, areal, robust_policy, turns, policy);
 
-        if (turns.empty())
+        if (no_crossing_turns_or_empty(turns))
         {
             // No intersection points, it is either completely
             // inside (interior + borders)
