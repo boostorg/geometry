@@ -86,6 +86,71 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case25", "LINESTRING(4 0,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case26", "LINESTRING(4 0,4 3,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case27", "LINESTRING(4 4,4 5,5 5)", poly_9, 1, 3, 2.0);
+
+    test_one_lp<LineString, LineString, Polygon>("case28",
+        "LINESTRING(-1.3 0,-15 0,-1.3 0)",
+        "POLYGON((2 3,-9 -7,12 -13,2 3))",
+         1, 3, 27.4);
+
+    test_one_lp<LineString, LineString, Polygon>("case29",
+        "LINESTRING(5 5,-10 5,5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case29a",
+        "LINESTRING(1 1,5 5,-10 5,5 5,6 6)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case30",
+        "LINESTRING(-10 5,5 5,-10 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 4, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case30a",
+        "LINESTRING(-20 10,-10 5,5 5,-10 5,-20 -10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 6, 49.208096);
+
+    test_one_lp<LineString, LineString, Polygon>("case31",
+        "LINESTRING(0 5,5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case31",
+        "LINESTRING(0 5,5 5,1 1,9 1,5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case32",
+        "LINESTRING(5 5,0 5,5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case32a",
+        "LINESTRING(-10 10,5 5,0 5,5 5,20 10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 4, 21.081851);
+
+    test_one_lp<LineString, LineString, Polygon>("case33",
+        "LINESTRING(-5 5,0 5,-5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 10);
+
+    test_one_lp<LineString, LineString, Polygon>("case33a",
+        "LINESTRING(-10 10,-5 5,0 5,-5 5,-10 -10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 5, 32.882456);
+
+    test_one_lp<LineString, LineString, Polygon>("case34",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 4)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case35",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
 }
 
 template <typename CoordinateType>
