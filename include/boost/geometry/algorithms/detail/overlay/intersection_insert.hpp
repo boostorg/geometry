@@ -205,25 +205,8 @@ struct intersection_of_linestring_with_areal
     }
 #endif
 
-    class is_non_crossing_turn
+    class is_crossing_turn
     {
-        template <typename Turn>
-        static inline bool has_method_error(Turn const& t)
-        {
-            return t.method == overlay::method_error;
-        }
-
-        // returns true is the turn is a m:u/u, m:i/i, t:u/u or t:i/i
-        template <typename Turn>
-        static inline bool is_taa_or_maa(Turn const& t)
-        {
-            return
-                (t.method == overlay::method_touch
-                 || t.method == overlay::method_touch_interior)
-                &&
-                t.operations[0].operation == t.operations[1].operation;
-        }
-
         // return true is the operation is intersection or blocked
         template <std::size_t I, typename Turn>
         static inline bool has_op_i_or_b(Turn const& t)
@@ -232,18 +215,62 @@ struct intersection_of_linestring_with_areal
                 || t.operations[I].operation == overlay::operation_blocked;
         }
 
+        template <typename Turn>
+        static inline bool has_method_crosses(Turn const& t)
+        {
+            return t.method == overlay::method_crosses;
+        }
+
+        template <typename Turn>
+        static inline bool is_cc(Turn const& t)
+        {
+            return
+                (t.method == overlay::method_touch_interior
+                 ||
+                 t.method == overlay::method_equal
+                 ||
+                 t.method == overlay::method_collinear)
+                &&
+                t.operations[0].operation == t.operations[1].operation
+                &&
+                t.operations[0].operation == overlay::operation_continue
+                ;
+        }
+
+        template <typename Turn>
+        static inline bool is_tab_or_mab(Turn const& t)
+        {
+            return
+                (t.method == overlay::method_touch
+                 ||
+                 t.method == overlay::method_touch_interior
+                 ||
+                 t.method == overlay::method_collinear)
+                &&
+                t.operations[1].operation != t.operations[0].operation
+                &&
+                (has_op_i_or_b<0>(t) || has_op_i_or_b<1>(t));
+        }
+
     public:
         template <typename Turn>
         static inline bool apply(Turn const& t)
         {
+            bool const is_crossing
+                = has_method_crosses(t) || is_cc(t) || is_tab_or_mab(t);
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
-            bool non_crossing = has_method_error(t) || is_taa_or_maa(t)
-                || (! has_op_i_or_b<0>(t) && ! has_op_i_or_b<1>(t));
-            debug_turn(t, non_crossing);
+            debug_turn(t, ! is_crossing);
 #endif
-            return has_method_error(t)
-                || is_taa_or_maa(t)
-                || (! has_op_i_or_b<0>(t) && ! has_op_i_or_b<1>(t));
+            return is_crossing;
+        }
+    };
+
+    struct is_non_crossing_turn
+    {
+        template <typename Turn>
+        static inline bool apply(Turn const& t)
+        {
+            return ! is_crossing_turn::apply(t);
         }
     };
 
