@@ -66,7 +66,7 @@ struct test_handle_touch
 
     static void apply(std::string const& case_id,
                       std::size_t expected_traverse,
-                      std::size_t expected_discarded,
+                      std::size_t expected_skipped,
                       G1 const& g1, G2 const& g2)
     {
 
@@ -108,18 +108,18 @@ struct test_handle_touch
         // Check number of resulting u/u turns
 
         std::size_t uu_traverse = 0;
-        std::size_t uu_discarded = 0;
+        std::size_t uu_skipped = 0;
         BOOST_FOREACH(turn_info const& turn, turns)
         {
             if (turn.both(bg::detail::overlay::operation_union))
             {
-                if (turn.discarded)
+                if (turn.switch_source)
                 {
-                    uu_discarded++;
+                    uu_traverse++;
                 }
                 else
                 {
-                    uu_traverse++;
+                    uu_skipped++;
                 }
             }
         }
@@ -130,10 +130,10 @@ struct test_handle_touch
                             << " detected: " << uu_traverse
                             << " type: " << string_from_type
                             <typename bg::coordinate_type<G1>::type>::name());
-        BOOST_CHECK_MESSAGE(expected_discarded == uu_discarded,
+        BOOST_CHECK_MESSAGE(expected_skipped == uu_skipped,
                             "handle_touch: " << case_id
-                            << " discarded expected: " << expected_discarded
-                            << " detected: " << uu_discarded
+                            << " skipped expected: " << expected_skipped
+                            << " detected: " << uu_skipped
                             << " type: " << string_from_type
                             <typename bg::coordinate_type<G1>::type>::name());
 
@@ -191,13 +191,13 @@ struct test_handle_touch
                     if (turn.both(bg::detail::overlay::operation_union))
                     {
                         // Adapt color to give visual feedback in SVG
-                        if (turn.discarded)
+                        if (turn.switch_source)
                         {
-                            color = "fill:rgb(255,0,0);"; // red
+                            color = "fill:rgb(0,128,0);"; // green
                         }
                         else
                         {
-                            color = "fill:rgb(0,128,0);"; // green
+                            color = "fill:rgb(255,0,0);"; // red
                         }
                     }
                     else if (turn.discarded)
@@ -215,7 +215,6 @@ struct test_handle_touch
                             << std::endl
                             << "op: " << bg::operation_char(turn.operations[0].operation)
                                 << " / " << bg::operation_char(turn.operations[1].operation)
-                                //<< (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                                 << std::endl;
 
                         if (turn.operations[0].enriched.next_ip_index != -1)
@@ -272,7 +271,7 @@ struct test_handle_touch
 
     inline static void apply(std::string const& case_id,
                              std::size_t expected_traverse,
-                             std::size_t expected_discarded,
+                             std::size_t expected_skipped,
                              std::string const& wkt1, std::string const& wkt2)
     {
         if (wkt1.empty() || wkt2.empty())
@@ -290,7 +289,7 @@ struct test_handle_touch
         bg::correct(g2);
 
         detail_test_handle_touch::apply(case_id,
-                                        expected_traverse, expected_discarded,
+                                        expected_traverse, expected_skipped,
                                         g1, g2);
 
     }
