@@ -156,6 +156,11 @@ void test_areal_linear()
         "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
         "POLYGON((0 0,0 10,10 10,10 0,0 0))",
          0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case36",
+        "LINESTRING(-1 -1,10 10)",
+        "POLYGON((5 5,15 15,15 5,5 5))",
+        1, 2, 6 * std::sqrt(2.0));
 }
 
 template <typename CoordinateType>
