@@ -324,6 +324,20 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
+    test_one_with_holes<Polygon, Polygon, Polygon>("case87",
+        case_87[0], case_87[1],
+        1, 1, 11, 54.70134);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case88",
+        case_88[0], case_88[1],
+        1, 1, 13, 35.933385);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    test_one_with_holes<Polygon, Polygon, Polygon>("case89",
+        case_89[0], case_89[1],
+        2, 0, 13, 390);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+
     return;
 
 
