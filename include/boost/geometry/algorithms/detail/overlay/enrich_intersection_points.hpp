@@ -343,10 +343,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    // DISCARD ALL UU
-    // #76 is the reason that this is necessary...
-    // With uu, at all points there is the risk that rings are being traversed twice or more.
-    // Without uu, all rings having only uu will be untouched and gathered by assemble
+    // Update some operations
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -354,7 +351,18 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     {
         if (it->both(detail::overlay::operation_union))
         {
-            it->discarded = true;
+            if (for_operation == detail::overlay::operation_union)
+            {
+                // Set switch_source to false, it might be turned to true later
+                it->switch_source = false;
+
+                // Never start with a u/u turn
+                it->selectable_start = false;
+            }
+            else
+            {
+                it->discarded = true;
+            }
         }
         if (it->both(detail::overlay::operation_none))
         {
