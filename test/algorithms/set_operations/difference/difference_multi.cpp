@@ -136,7 +136,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120221_volker",
         ggl_list_20120221_volker[0], ggl_list_20120221_volker[1],
-            2, 12, 7962.66, 1, 18, 2775258.93,
+            2, 12, 7962.66, 2, 18, 2775258.93,
             0.001);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
