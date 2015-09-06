@@ -10,7 +10,7 @@
 #define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 
-#define BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+//#define BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
 
 
 #include <iostream>
@@ -48,8 +48,8 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
+#include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
-
 
 
 namespace detail
@@ -295,43 +295,45 @@ struct test_handle_touch
     }
 };
 
-
-template <typename MultiPolygon>
+template <typename Polygon>
 void test_geometries()
 {
     namespace ov = bg::detail::overlay;
 
     typedef test_handle_touch
             <
-            MultiPolygon, MultiPolygon,
-            ov::operation_intersection
-            > test_handle_touch_intersection;
+                Polygon, Polygon,
+                ov::operation_union
+            > test_union;
+
+    test_union::apply("case_36", 1, 0, case_36[0], case_36[1]);
+    test_union::apply("case_80", 1, 0, case_80[0], case_80[1]);
+    test_union::apply("case_81", 1, 0, case_81[0], case_81[1]);
+    test_union::apply("case_82", 0, 2, case_82[0], case_82[1]);
+    test_union::apply("case_83", 2, 0, case_83[0], case_83[1]);
+    test_union::apply("case_84", 0, 3, case_84[0], case_84[1]);
+    test_union::apply("case_85", 1, 0, case_85[0], case_85[1]);
+}
+
+
+template <typename MultiPolygon>
+void test_multi_geometries()
+{
+    namespace ov = bg::detail::overlay;
+
     typedef test_handle_touch
             <
-            MultiPolygon, MultiPolygon,
-            ov::operation_union
-            > test_handle_touch_union;
+                MultiPolygon, MultiPolygon,
+                ov::operation_union
+            > test_union;
 
-    test_handle_touch_union::apply
-            (
-                "case_36", 1, 0,
-                "MULTIPOLYGON(((1 0,0 3,4 2,1 0)))",
-                "MULTIPOLYGON(((1 5,5 5,4 2,3 3,2 1,1 2,1 5)))"
-                );
-    test_handle_touch_union::apply
-            (
-                "case_85", 1, 0,
-                "MULTIPOLYGON(((0 0,0 40,40 40,40 0,0 0),(10 10,30 10,30 30,10 30,10 10)))",
-                "MULTIPOLYGON(((5 15,5 30,30 15,5 15)))"
-                );
-
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_1", 0, 1,
                 "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)))",
                 "MULTIPOLYGON(((4 4,2 6,4 8,6 6,4 4)))"
                 );
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_2", 0, 2,
                 "MULTIPOLYGON(((0 0,0 2,2 4,4 2,6 4,8 2,8 0,0 0)))",
@@ -339,14 +341,14 @@ void test_geometries()
                 );
 
     // Provided by Menelaos (1)
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_3", 0, 2,
                 "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
                 "MULTIPOLYGON(((10 0,15 5,15 0,10 0)),((10 5,10 10,15 10,15 5,10 5)))"
                 );
     // Provided by Menelaos (2)
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_4", 1, 0,
                 "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
@@ -354,7 +356,7 @@ void test_geometries()
                 );
 
     // Mailed by Barend
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_5", 1, 0,
                 "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)),((4 6,6 8,8 6,6 4,4 6)))",
@@ -362,7 +364,7 @@ void test_geometries()
                 );
 
     // Formerly referred to as a
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_6", 2, 0,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
@@ -372,7 +374,7 @@ void test_geometries()
     // "POLYGON((4 9,4 10,6 10,6 12,8 12,8 11,10 11,10 9,11 9,11 2,3 2,3 9,4 9),(6 10,6 8,7 8,7 10,6 10),(6 8,5 8,5 3,9 3,9 7,8 7,8 6,6 6,6 8))"
 
     // Formerly referred to as b
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_7", 0, 2,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
@@ -382,7 +384,7 @@ void test_geometries()
     // "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 8,7 10,6 10,6 12,8 12,8 11,10 11,10 7,8 7,8 6,6 6,6 8,7 8)))"
 
     // Formerly referred to as c
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_8", 0, 4,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((8 8,8 10,10 10,10 8,8 8)),((7 11,7 13,13 13,13 5,7 5,7 7,11 7,11 11,7 11)))",
@@ -393,7 +395,7 @@ void test_geometries()
     // "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((8 8,8 10,10 10,10 8,8 8)),((7 12,7 13,13 13,13 5,7 5,7 6,6 6,6 8,8 8,8 7,11 7,11 11,8 11,8 10,6 10,6 12,7 12)))"
 
     // Formerly referred to as d
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_9", 0, 2,
                 "MULTIPOLYGON(((2 4,2 6,4 6,4 4,2 4)),((6 4,6 6,8 6,8 4,6 4)),((1 0,1 3,9 3,9 0,1 0)))",
@@ -403,7 +405,7 @@ void test_geometries()
     // "MULTIPOLYGON(((2 4,2 6,3 6,3 7,7 7,7 6,8 6,8 4,6 4,6 5,4 5,4 4,2 4)),((1 0,1 2,0 2,0 4,2 4,2 3,8 3,8 4,10 4,10 2,9 2,9 0,1 0)))"
 
     // With a c/c turn
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_10", 1, 0,
                 "MULTIPOLYGON(((6 4,6 9,9 9,9 6,11 6,11 4,6 4)),((10 7,10 10,12 10,12 7,10 7)))",
@@ -411,7 +413,7 @@ void test_geometries()
                 );
 
     // With c/c turns in both involved polygons
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_11", 1, 0,
                 "MULTIPOLYGON(((7 4,7 8,9 8,9 6,11 6,11 4,7 4)),((10 7,10 10,12 10,12 7,10 7)))",
@@ -420,50 +422,52 @@ void test_geometries()
 
     // Same but here c/c not directly involved in the turns itself
     // (This one breaks if continue is not checked in handle_touch)
-    test_handle_touch_union::apply
+    test_union::apply
             (
                 "uu_case_12", 1, 0,
                 "MULTIPOLYGON(((10 8,10 10,12 10,12 8,10 8)),((10 4,10 7,12 7,12 4,10 4)),((7 5,7 8,9 8,9 5,7 5)))",
                 "MULTIPOLYGON(((7 3,7 6,9 6,9 5,11 5,11 3,7 3)),((10 6,10 9,12 9,12 6,10 6)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
                 );
 
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_62_multi", 0, 1, case_62_multi[0], case_62_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_63_multi", 0, 1, case_63_multi[0], case_63_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_65_multi", 0, 2, case_65_multi[0], case_65_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_66_multi", 0, 2, case_66_multi[0], case_66_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_75_multi", 0, 4, case_75_multi[0], case_75_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_76_multi", 0, 5, case_76_multi[0], case_76_multi[1]
         );
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_101_multi", 2, 0, case_101_multi[0], case_101_multi[1]
         );
+    test_union::apply
+        (
+            "case_108_multi", 0, 0, case_108_multi[0], case_108_multi[1]
+        );
 
     // NOTE: this result is still to be checked
-    test_handle_touch_union::apply
+    test_union::apply
         (
             "case_recursive_boxes_3", 8, 18,
             case_recursive_boxes_3[0], case_recursive_boxes_3[1]
         );
-
-
 
 }
 
@@ -473,18 +477,21 @@ void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
 
-    typedef bg::model::multi_polygon
-            <
-            bg::model::polygon<point_type>
-            > multi_polygon;
+    test_multi_geometries
+        <
+            bg::model::multi_polygon
+                <
+                bg::model::polygon<point_type>
+                >
+        >();
 
-    typedef bg::model::multi_polygon
-            <
-            bg::model::polygon<point_type, false>
-            > multi_polygon_ccw;
+    test_geometries<bg::model::polygon<point_type> >();
 
-    test_geometries<multi_polygon>();
-    //    test_geometries<multi_polygon_ccw, true>();
+    // CCW:
+    //    test_geometries<bg::model::multi_polygon
+    //            <
+    //            bg::model::polygon<point_type, false>
+    //            >, true>();
 }
 
 

@@ -353,6 +353,74 @@ static std::string case_79[2] = {
         "POLYGON((0 0,0 5,5 5,5 0,2 0,2 2,1 2,1 0,0 0))"
     };
 
+static std::string case_80[2] =
+    {
+        // union has one polygon with two holes; one of them is
+        // touching the exterior ring
+        // reported by MySQL QA on Aug 19, 2015
+        "POLYGON((0 6,-11 -6,6 0,0 6),(3 1,5 0,-2 0,3 1))",
+        "POLYGON((5 4,6 0,9 12,-7 -12,5 -19,5 4))"
+    };
+
+static std::string case_81[2] =
+    {
+        // union has a polygon with one hole touching the exterior ring
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 5,30 10,20 0,20 5,10 5))"
+    };
+
+static std::string case_82[2] =
+    {
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 10,30 10,20 0,20 5,10 10))"
+    };
+
+static std::string case_83[2] =
+    {
+        // union as a single polygon and two holes both touching the
+        // exterior ring at vertices
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((10 5,20 7,10 10,30 10,20 0,20 5,10 5))"
+    };
+
+static std::string case_84[2] =
+    {
+        "POLYGON((0 0,10 10,20 0,0 0))",
+        "POLYGON((15 5,20 7,10 10,30 10,20 0,20 5,15 5))"
+    };
+
+static std::string case_85[2] =
+    {
+        // union has a single polygon and two holes that touch each
+        // other at a vertex
+        "POLYGON((0 0,0 40,40 40,40 0,0 0),(10 10,30 10,30 30,10 30,10 10))",
+        "POLYGON((5 15,5 30,30 15,5 15))"
+    };
+
+static std::string case_86[2] =
+    {
+        "POLYGON((0 0,0 40,40 40,40 0,20 0,0 0),(10 10,20 0,30 10,30 30,10 30,10 10))",
+        "POLYGON((10 10,10 30,30 30,30 10,10 10))"
+    };
+
+static std::string case_87[2] =
+    {
+        "POLYGON((0 5,-6 -17,12 17,0 5),(4 6,5 5,0 1,4 6))",
+        "POLYGON((3 9,-15 -5,13 -11,3 9))"
+    };
+
+static std::string case_88[2] =
+    {
+        "POLYGON((5 6,-15 -13,1 -8,5 6))",
+        "POLYGON((0 8,-19 6,18 -17,20 8,11 17,0 8),(3 2,3 -1,1 0,3 2),(1 3,4 4,0 -1,1 3))"
+    };
+
+static std::string case_89[2] =
+    {
+        "POLYGON((0 0,0 40,40 40,40 0,0 0),(10 10,20 19,20 20,10 10),(20 20,30 30,20 21,20 20))",
+        "POLYGON((10 10,10 30,30 30,30 10,10 10))"
+    };
+
 static std::string case_many_situations[2] = {
         "POLYGON((2 6,2 14,10 18,18 14,18 6,16 5,14 4,12 3,10 2,8 3,6 4,4 5,2 6))",
         "POLYGON((2 6,2 7,2 8,2 9,2 10,2 11,2 12,1 14"
