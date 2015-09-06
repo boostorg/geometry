@@ -176,7 +176,7 @@ private :
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
             std::cout << "-> Examine " << turn_index << std::endl;
 #endif
-            if (can_reach(turns, current_turn, ring_id_q, turn_index))
+            if (can_reach(turns, current_turn, -1, ring_id_q, turn_index))
             {
                 return true;
             }
@@ -187,71 +187,100 @@ private :
 
     static inline bool can_reach(const Turns& turns,
                                  const turn_type& turn,
+                                 signed_size_type operation_index,
                                  const ring_identifier& target_ring_id,
                                  signed_size_type original_turn_index,
                                  std::size_t iteration = 0)
     {
+        if (iteration >= boost::size(turns))
+        {
+            // Defensive check to avoid infinite recursion
+            return false;
+        }
+
+        if (operation_index != -1 && turn.both(operation_union))
+        {
+            // If we end up in a u/u turn, check the way how
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+        std::cout << "   Via u/u " << std::endl;
+#endif
+            return can_reach_via(turns, operation_index,
+                                 turn.operations[operation_index],
+                                 target_ring_id,
+                                 original_turn_index, iteration);
+        }
+        else
+        {
+            // Check if specified ring can be reached via one of both operations
+            return can_reach_via(turns, 0, turn.operations[0], target_ring_id,
+                                 original_turn_index, iteration)
+                || can_reach_via(turns, 1, turn.operations[1], target_ring_id,
+                                 original_turn_index, iteration);
+        }
+    }
+
+    template <typename Operation>
+    static inline
+    bool can_reach_via(const Turns& turns,
+            signed_size_type operation_index,
+            const Operation& operation,
+            const ring_identifier& target_ring_id,
+            signed_size_type original_turn_index,
+            std::size_t iteration = 0)
+    {
+        if (operation.operation != operation_union
+            && operation.operation != operation_continue)
+        {
+            return false;
+        }
+
+        signed_size_type const index = operation.enriched.travels_to_ip_index;
+        if (index == original_turn_index)
+        {
+            // Completely traveled, the target is not found
+            return false;
+        }
+
         signed_size_type const turns_size =
                 static_cast<signed_size_type>(boost::size(turns));
 
-        // For any union operation in both operations, check if the specified
-        // ring can be reached again
-        for (operation_const_iterator it = boost::begin(turn.operations);
-            it != boost::end(turn.operations);
-            ++it)
+        if (index < 0 || index >= turns_size)
         {
-            if (it->operation == operation_union
-                || it->operation == operation_continue)
+            return false;
+        }
+
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+        std::cout << "   Now to " << index << " " << operation_index << std::endl;
+#endif
+        const turn_type& new_turn = turns[index];
+
+        if (new_turn.both(operation_union))
+        {
+            ring_identifier const ring_id = ring_id_from_op(new_turn, operation_index);
+            if (ring_id == target_ring_id)
             {
-                signed_size_type index = it->enriched.travels_to_ip_index;
-                if (index == original_turn_index)
-                {
-                    // Completely traveled, the target is not found
-                    return false;
-                }
-
-                if (index >= 0 && index < turns_size)
-                {
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                    std::cout << "   Now to " << index << std::endl;
+                std::cout << " Found (at u/u)!" << std::endl;
 #endif
-                    const turn_type& new_turn = turns[index];
-
-                    if (new_turn.both(operation_union))
-                    {
-                        // If we end up in a u/u turn again, there is no
-                        // connected interior
-                        return false;
-                    }
-
-
-                    ring_identifier const ring_id1 = ring_id_from_op(new_turn, 0);
-                    ring_identifier const ring_id2 = ring_id_from_op(new_turn, 1);
-                    if (ring_id1 == target_ring_id
-                            || ring_id2 == target_ring_id)
-                    {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                        std::cout << " Found!" << std::endl;
-#endif
-                        return true;
-                    }
-
-                    if (iteration >= boost::size(turns))
-                    {
-                        // Defensive check to avoid infinite recursion
-                        return false;
-                    }
-
-                    // Recursively check this turn
-                    if (can_reach(turns, new_turn, target_ring_id,
-                                         original_turn_index, iteration + 1))
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
-        return false;
+        else
+        {
+            ring_identifier const ring_id1 = ring_id_from_op(new_turn, 0);
+            ring_identifier const ring_id2 = ring_id_from_op(new_turn, 1);
+            if (ring_id1 == target_ring_id || ring_id2 == target_ring_id)
+            {
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+                std::cout << " Found!" << std::endl;
+#endif
+                return true;
+            }
+        }
+
+        // Recursively check this turn
+        return can_reach(turns, new_turn, operation_index, target_ring_id,
+                             original_turn_index, iteration + 1);
     }
 };
 
