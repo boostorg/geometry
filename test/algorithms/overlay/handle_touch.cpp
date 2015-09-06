@@ -67,6 +67,7 @@ struct test_handle_touch
     static void apply(std::string const& case_id,
                       std::size_t expected_traverse,
                       std::size_t expected_skipped,
+                      std::size_t expected_start,
                       G1 const& g1, G2 const& g2)
     {
 
@@ -109,6 +110,7 @@ struct test_handle_touch
 
         std::size_t uu_traverse = 0;
         std::size_t uu_skipped = 0;
+        std::size_t uu_start = 0;
         BOOST_FOREACH(turn_info const& turn, turns)
         {
             if (turn.both(bg::detail::overlay::operation_union))
@@ -120,6 +122,10 @@ struct test_handle_touch
                 else
                 {
                     uu_skipped++;
+                }
+                if (turn.selectable_start)
+                {
+                    uu_start++;
                 }
             }
         }
@@ -133,6 +139,12 @@ struct test_handle_touch
         BOOST_CHECK_MESSAGE(expected_skipped == uu_skipped,
                             "handle_touch: " << case_id
                             << " skipped expected: " << expected_skipped
+                            << " detected: " << uu_skipped
+                            << " type: " << string_from_type
+                            <typename bg::coordinate_type<G1>::type>::name());
+        BOOST_CHECK_MESSAGE(expected_start == uu_start,
+                            "handle_touch: " << case_id
+                            << " start expected: " << expected_start
                             << " detected: " << uu_skipped
                             << " type: " << string_from_type
                             <typename bg::coordinate_type<G1>::type>::name());
@@ -191,7 +203,11 @@ struct test_handle_touch
                     if (turn.both(bg::detail::overlay::operation_union))
                     {
                         // Adapt color to give visual feedback in SVG
-                        if (turn.switch_source)
+                        if (turn.switch_source && turn.selectable_start)
+                        {
+                            color = "fill:rgb(0,0,255);"; // blue
+                        }
+                        else if (turn.switch_source)
                         {
                             color = "fill:rgb(0,128,0);"; // green
                         }
@@ -272,6 +288,7 @@ struct test_handle_touch
     inline static void apply(std::string const& case_id,
                              std::size_t expected_traverse,
                              std::size_t expected_skipped,
+                             std::size_t expected_start,
                              std::string const& wkt1, std::string const& wkt2)
     {
         if (wkt1.empty() || wkt2.empty())
@@ -289,7 +306,9 @@ struct test_handle_touch
         bg::correct(g2);
 
         detail_test_handle_touch::apply(case_id,
-                                        expected_traverse, expected_skipped,
+                                        expected_traverse,
+                                        expected_skipped,
+                                        expected_start,
                                         g1, g2);
 
     }
@@ -306,13 +325,13 @@ void test_geometries()
                 ov::operation_union
             > test_union;
 
-    test_union::apply("case_36", 1, 0, case_36[0], case_36[1]);
-    test_union::apply("case_80", 1, 0, case_80[0], case_80[1]);
-    test_union::apply("case_81", 1, 0, case_81[0], case_81[1]);
-    test_union::apply("case_82", 0, 2, case_82[0], case_82[1]);
-    test_union::apply("case_83", 2, 0, case_83[0], case_83[1]);
-    test_union::apply("case_84", 0, 3, case_84[0], case_84[1]);
-    test_union::apply("case_85", 1, 0, case_85[0], case_85[1]);
+    test_union::apply("case_36", 1, 0, 0, case_36[0], case_36[1]);
+    test_union::apply("case_80", 1, 0, 0, case_80[0], case_80[1]);
+    test_union::apply("case_81", 1, 0, 0, case_81[0], case_81[1]);
+    test_union::apply("case_82", 0, 2, 0, case_82[0], case_82[1]);
+    test_union::apply("case_83", 2, 0, 1, case_83[0], case_83[1]);
+    test_union::apply("case_84", 0, 3, 0, case_84[0], case_84[1]);
+    test_union::apply("case_85", 1, 0, 0, case_85[0], case_85[1]);
 }
 
 
@@ -329,13 +348,13 @@ void test_multi_geometries()
 
     test_union::apply
             (
-                "uu_case_1", 0, 1,
+                "uu_case_1", 0, 1, 0,
                 "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)))",
                 "MULTIPOLYGON(((4 4,2 6,4 8,6 6,4 4)))"
                 );
     test_union::apply
             (
-                "uu_case_2", 0, 2,
+                "uu_case_2", 0, 2, 0,
                 "MULTIPOLYGON(((0 0,0 2,2 4,4 2,6 4,8 2,8 0,0 0)))",
                 "MULTIPOLYGON(((0 8,8 8,8 6,6 4,4 6,2 4,0 6,0 8)))"
                 );
@@ -343,14 +362,14 @@ void test_multi_geometries()
     // Provided by Menelaos (1)
     test_union::apply
             (
-                "uu_case_3", 0, 2,
+                "uu_case_3", 0, 2, 0,
                 "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
                 "MULTIPOLYGON(((10 0,15 5,15 0,10 0)),((10 5,10 10,15 10,15 5,10 5)))"
                 );
     // Provided by Menelaos (2)
     test_union::apply
             (
-                "uu_case_4", 1, 0,
+                "uu_case_4", 1, 0, 0,
                 "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
                 "MULTIPOLYGON(((10 0,15 5,20 5,20 0,10 0)),((10 5,10 10,15 10,15 5,10 5)))"
                 );
@@ -358,7 +377,7 @@ void test_multi_geometries()
     // Mailed by Barend
     test_union::apply
             (
-                "uu_case_5", 1, 0,
+                "uu_case_5", 1, 0, 0,
                 "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)),((4 6,6 8,8 6,6 4,4 6)))",
                 "MULTIPOLYGON(((4 4,2 6,4 8,6 6,4 4)),((4 2,7 6,8 3,4 2)))"
                 );
@@ -366,7 +385,7 @@ void test_multi_geometries()
     // Formerly referred to as a
     test_union::apply
             (
-                "uu_case_6", 2, 0,
+                "uu_case_6", 2, 0, 0,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
                 "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)),((9 9,11 9,11 2,3 2,3 9,5 9,5 3,9 3,9 9)))"
                 );
@@ -376,7 +395,7 @@ void test_multi_geometries()
     // Formerly referred to as b
     test_union::apply
             (
-                "uu_case_7", 0, 2,
+                "uu_case_7", 0, 2, 0,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
                 "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)))"
                 );
@@ -386,7 +405,7 @@ void test_multi_geometries()
     // Formerly referred to as c
     test_union::apply
             (
-                "uu_case_8", 0, 4,
+                "uu_case_8", 0, 4, 0,
                 "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((8 8,8 10,10 10,10 8,8 8)),((7 11,7 13,13 13,13 5,7 5,7 7,11 7,11 11,7 11)))",
                 "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)))"
                 );
@@ -397,7 +416,7 @@ void test_multi_geometries()
     // Formerly referred to as d
     test_union::apply
             (
-                "uu_case_9", 0, 2,
+                "uu_case_9", 0, 2, 0,
                 "MULTIPOLYGON(((2 4,2 6,4 6,4 4,2 4)),((6 4,6 6,8 6,8 4,6 4)),((1 0,1 3,9 3,9 0,1 0)))",
                 "MULTIPOLYGON(((0 2,0 4,2 4,2 2,0 2)),((8 2,8 4,10 4,10 2,8 2)),((3 5,3 7,7 7,7 5,3 5)))"
                 );
@@ -407,7 +426,7 @@ void test_multi_geometries()
     // With a c/c turn
     test_union::apply
             (
-                "uu_case_10", 1, 0,
+                "uu_case_10", 1, 0, 0,
                 "MULTIPOLYGON(((6 4,6 9,9 9,9 6,11 6,11 4,6 4)),((10 7,10 10,12 10,12 7,10 7)))",
                 "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((6 10,8 12,10 10,8 8,6 10)))"
                 );
@@ -415,7 +434,7 @@ void test_multi_geometries()
     // With c/c turns in both involved polygons
     test_union::apply
             (
-                "uu_case_11", 1, 0,
+                "uu_case_11", 1, 0, 0,
                 "MULTIPOLYGON(((7 4,7 8,9 8,9 6,11 6,11 4,7 4)),((10 7,10 10,12 10,12 7,10 7)))",
                 "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
                 );
@@ -424,55 +443,55 @@ void test_multi_geometries()
     // (This one breaks if continue is not checked in handle_touch)
     test_union::apply
             (
-                "uu_case_12", 1, 0,
+                "uu_case_12", 1, 0, 0,
                 "MULTIPOLYGON(((10 8,10 10,12 10,12 8,10 8)),((10 4,10 7,12 7,12 4,10 4)),((7 5,7 8,9 8,9 5,7 5)))",
                 "MULTIPOLYGON(((7 3,7 6,9 6,9 5,11 5,11 3,7 3)),((10 6,10 9,12 9,12 6,10 6)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
                 );
 
     test_union::apply
         (
-            "case_62_multi", 0, 1, case_62_multi[0], case_62_multi[1]
+            "case_62_multi", 0, 1, 0, case_62_multi[0], case_62_multi[1]
         );
     test_union::apply
         (
-            "case_63_multi", 0, 1, case_63_multi[0], case_63_multi[1]
+            "case_63_multi", 0, 1, 0, case_63_multi[0], case_63_multi[1]
         );
     test_union::apply
         (
-            "case_65_multi", 0, 2, case_65_multi[0], case_65_multi[1]
+            "case_65_multi", 0, 2, 0, case_65_multi[0], case_65_multi[1]
         );
     test_union::apply
         (
-            "case_66_multi", 0, 2, case_66_multi[0], case_66_multi[1]
+            "case_66_multi", 0, 2, 0, case_66_multi[0], case_66_multi[1]
         );
     test_union::apply
         (
-            "case_75_multi", 0, 4, case_75_multi[0], case_75_multi[1]
+            "case_75_multi", 0, 4, 0, case_75_multi[0], case_75_multi[1]
         );
     test_union::apply
         (
-            "case_76_multi", 0, 5, case_76_multi[0], case_76_multi[1]
+            "case_76_multi", 0, 5, 0, case_76_multi[0], case_76_multi[1]
         );
     test_union::apply
         (
-            "case_101_multi", 2, 0, case_101_multi[0], case_101_multi[1]
+            "case_101_multi", 2, 0, 0, case_101_multi[0], case_101_multi[1]
         );
     test_union::apply
         (
-            "case_108_multi", 0, 0, case_108_multi[0], case_108_multi[1]
+            "case_108_multi", 0, 0, 0, case_108_multi[0], case_108_multi[1]
         );
 
     // NOTE: this result is still to be checked
     test_union::apply
         (
-            "case_recursive_boxes_3", 8, 18,
+            "case_recursive_boxes_3", 8, 18, 0,
             case_recursive_boxes_3[0], case_recursive_boxes_3[1]
         );
 
 }
 
 
-template <typename T>
+template <typename T, bool Clockwise>
 void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
@@ -481,23 +500,17 @@ void test_all()
         <
             bg::model::multi_polygon
                 <
-                bg::model::polygon<point_type>
+                bg::model::polygon<point_type, Clockwise>
                 >
         >();
 
-    test_geometries<bg::model::polygon<point_type> >();
-
-    // CCW:
-    //    test_geometries<bg::model::multi_polygon
-    //            <
-    //            bg::model::polygon<point_type, false>
-    //            >, true>();
+    test_geometries<bg::model::polygon<point_type, Clockwise> >();
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<double>();
+    test_all<double, true>();
 
     return 0;
 }

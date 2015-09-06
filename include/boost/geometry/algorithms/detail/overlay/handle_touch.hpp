@@ -125,9 +125,10 @@ private :
             if (turn.both(operation_union))
             {
                 bool traverse = turn_should_be_traversed(turns, turn, map);
+                bool start = traverse && turn_should_be_startable(turns, turn, index);
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
                 std::cout << " " << index << " "
-                          << std::boolalpha << traverse
+                          << std::boolalpha << traverse << " " << start
                           << std::endl;
 #endif
 
@@ -137,11 +138,64 @@ private :
                     // separate rings (outer ring / inner ring)
                     turn.switch_source = true;
 
-                    // It will now be traversed - the traveral information is,
-                    // for union, already assigned
+                    if (start)
+                    {
+                        turn.selectable_start = true;
+                    }
                 }
             }
         }
+    }
+
+    static inline
+    bool turn_should_be_startable(const Turns& turns,
+                                  const turn_type& uu_turn,
+                                  signed_size_type uu_turn_index)
+    {
+        return turn_startable(turns, uu_turn, 0, uu_turn_index)
+            || turn_startable(turns, uu_turn, 1, uu_turn_index);
+
+    }
+
+    static inline
+    bool turn_startable(const Turns& turns,
+                        const turn_type& uu_turn,
+                        std::size_t op_index,
+                        signed_size_type original_turn_index,
+                        std::size_t iteration = 0)
+    {
+        if (iteration >= boost::size(turns))
+        {
+            // Defensive check to avoid infinite recursion
+            return false;
+        }
+
+        signed_size_type const index
+                = uu_turn.operations[op_index].enriched.travels_to_ip_index;
+        if (index == original_turn_index)
+        {
+            // Completely traveled, having u/u only, via this op_index
+            return true;
+        }
+        signed_size_type const turns_size =
+                static_cast<signed_size_type>(boost::size(turns));
+
+        if (index < 0 || index >= turns_size)
+        {
+            return false;
+        }
+
+        const turn_type& new_turn = turns[index];
+
+        if (new_turn.selectable_start)
+        {
+            // Already selectable - no need to select u/u turn too
+            return false;
+        }
+
+        // If this u/u turn is traversed normally (without skipping), sources are switched
+        return turn_startable(turns, new_turn, 1 - op_index,
+                              original_turn_index, iteration + 1);
     }
 
     static inline bool turn_should_be_traversed(const Turns& turns,

@@ -188,12 +188,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("82",
                 case_82[0], case_82[1], 2, 0, 9, 175);
 
-#if defined(BOOST_GEOMETRY_OVERLAY_INCLUDE_FAILING_TESTS)
-    // Requires selecting a u/u turn as a starting point if (and only if)
-    // there are only u/u turns involved in a ring
+    // Case where one u/u turn should be selectable as a starting point
     test_one<Polygon, Polygon, Polygon>("83",
                 case_83[0], case_83[1], 1, 2, 13, 172.917);
-#endif
+
     test_one<Polygon, Polygon, Polygon>("84",
                 case_84[0], case_84[1], 2, 0, 11, 170);
     test_one<Polygon, Polygon, Polygon>("85",
