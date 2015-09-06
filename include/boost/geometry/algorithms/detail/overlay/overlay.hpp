@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_touch.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -207,17 +208,26 @@ std::cout << "get turns" << std::endl;
                 detail::overlay::assign_null_policy
             >(geometry1, geometry2, robust_policy, turn_points, policy);
 
+        operation_type const operation =
+                Direction == overlay_union
+                    ? geometry::detail::overlay::operation_union
+                    : geometry::detail::overlay::operation_intersection;
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
         geometry::enrich_intersection_points<Reverse1, Reverse2>(turn_points,
-                Direction == overlay_union
-                    ? geometry::detail::overlay::operation_union
-                    : geometry::detail::overlay::operation_intersection,
+                    operation,
                     geometry1, geometry2,
                     robust_policy,
                     side_strategy);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "handle_touch" << std::endl;
+#endif
+
+        handle_touch(operation, turn_points);
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
@@ -229,9 +239,7 @@ std::cout << "traverse" << std::endl;
         traverse<Reverse1, Reverse2, Geometry1, Geometry2>::apply
                 (
                     geometry1, geometry2,
-                    Direction == overlay_union
-                        ? geometry::detail::overlay::operation_union
-                        : geometry::detail::overlay::operation_intersection,
+                    operation,
                     robust_policy,
                     turn_points, rings
                 );

@@ -149,14 +149,21 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
     return true;
 }
 
-
-inline bool select_source(operation_type operation,
+template <typename Turn>
+inline bool select_source(Turn const& turn, operation_type operation,
                           signed_size_type source1,
                           signed_size_type source2)
 {
-    return (operation == operation_intersection && source1 != source2)
-        || (operation == operation_union && source1 == source2)
-        ;
+    if (operation == operation_intersection)
+    {
+        // Always switch sources
+        return source1 != source2;
+    }
+    else if (operation == operation_union)
+    {
+        return turn.switch_source ? source1 != source2 : source1 == source2;
+    }
+    return false;
 }
 
 
@@ -190,7 +197,7 @@ inline bool select_next_ip(operation_type operation,
         // In some cases there are two alternatives.
         // For "ii", take the other one (alternate)
         //           UNLESS the other one is already visited
-        // For "uu", take the same one (see above);
+        // For "uu", take the other one if switch_source flag is set
         // For "cc", take either one, but if there is a starting one,
         //           take that one.
         if (   (it->operation == operation_continue
@@ -200,7 +207,7 @@ inline bool select_next_ip(operation_type operation,
             || (it->operation == operation
                 && ! it->visited.finished()
                 && (! has_tp
-                    || select_source(operation,
+                    || select_source(turn, operation,
                             it->seg_id.source_index, seg_id.source_index)
                     )
                 )
