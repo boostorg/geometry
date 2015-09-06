@@ -11,9 +11,6 @@
 
 #include <cstddef>
 
-#include <map>
-#include <vector>
-
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -43,8 +40,6 @@ private :
             typename turn_type::container_type const
         >::type operation_const_iterator;
 
-    typedef std::map<ring_identifier, std::vector<int> > map_type;
-
 public :
     static inline void apply(detail::overlay::operation_type operation,
                 Turns& turns)
@@ -55,10 +50,42 @@ public :
             return;
         }
 
-        map_type turns_per_ring;
-        create_ring_map(turns, turns_per_ring);
+        // Iterate through all u/u points
+        int index = 0;
+        for (turn_iterator it = boost::begin(turns);
+             it != boost::end(turns);
+             ++it, ++index)
+        {
+            turn_type& turn = *it;
+            if (turn.both(operation_union))
+            {
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+                std::cout << " * handle_touch uu: " << index << std::endl;
+#endif
 
-        handle(turns, turns_per_ring);
+                bool const traverse = turn_should_be_traversed(turns, turn);
+                bool const start = traverse
+                                   && turn_should_be_startable(turns, turn, index);
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+                std::cout << " * handle_touch " << index << " result: "
+                          << std::boolalpha
+                          << traverse << " " << start
+                          << std::endl;
+#endif
+
+                if (traverse)
+                {
+                    // Indicate the sources should switch here to create
+                    // separate rings (outer ring / inner ring)
+                    turn.switch_source = true;
+
+                    if (start)
+                    {
+                        turn.selectable_start = true;
+                    }
+                }
+            }
+        }
     }
 
 private :
@@ -79,6 +106,13 @@ private :
         return ring_id_from_seg_id(turn.operations[operation_index].seg_id);
     }
 
+    static inline bool in_range(const Turns& turns, signed_size_type index)
+    {
+        signed_size_type const turns_size =
+                static_cast<signed_size_type>(boost::size(turns));
+        return index >= 0 && index < turns_size;
+    }
+
     static inline bool has_uu(const Turns& turns)
     {
         for (turn_const_iterator it = boost::begin(turns);
@@ -92,59 +126,6 @@ private :
             }
         }
         return false;
-    }
-
-    // Create a map of turns per ring (in both sources), excluding u/u turns
-    // and other discarded turns
-    static inline void create_ring_map(const Turns& turns, map_type& map)
-    {
-        int index = 0;
-        for (turn_const_iterator it = boost::begin(turns);
-            it != boost::end(turns);
-            ++it, ++index)
-        {
-            const turn_type& turn = *it;
-            if (! turn.both(operation_union) && ! turn.discarded)
-            {
-                map[ring_id_from_op(turn, 0)].push_back(index);
-                map[ring_id_from_op(turn, 1)].push_back(index);
-            }
-        }
-    }
-
-
-    static inline void handle(Turns& turns, const map_type& map)
-    {
-        // Iterate through all u/u points
-        int index = 0;
-        for (turn_iterator it = boost::begin(turns);
-             it != boost::end(turns);
-             ++it, ++index)
-        {
-            turn_type& turn = *it;
-            if (turn.both(operation_union))
-            {
-                bool traverse = turn_should_be_traversed(turns, turn, map);
-                bool start = traverse && turn_should_be_startable(turns, turn, index);
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " " << index << " "
-                          << std::boolalpha << traverse << " " << start
-                          << std::endl;
-#endif
-
-                if (traverse)
-                {
-                    // Indicate the sources should switch here to create
-                    // separate rings (outer ring / inner ring)
-                    turn.switch_source = true;
-
-                    if (start)
-                    {
-                        turn.selectable_start = true;
-                    }
-                }
-            }
-        }
     }
 
     static inline
@@ -177,10 +158,8 @@ private :
             // Completely traveled, having u/u only, via this op_index
             return true;
         }
-        signed_size_type const turns_size =
-                static_cast<signed_size_type>(boost::size(turns));
 
-        if (index < 0 || index >= turns_size)
+        if (! in_range(turns, index))
         {
             return false;
         }
@@ -198,45 +177,37 @@ private :
                               original_turn_index, iteration + 1);
     }
 
-    static inline bool turn_should_be_traversed(const Turns& turns,
-                                                const turn_type& uu_turn,
-                                                const map_type& map)
+    static inline
+    bool turn_should_be_traversed(const Turns& turns,
+                                  const turn_type& uu_turn)
+    {
+        return turn_should_be_traversed(turns, uu_turn, 0)
+            || turn_should_be_traversed(turns, uu_turn, 1);
+    }
+
+    static inline
+    bool turn_should_be_traversed(const Turns& turns,
+                                  const turn_type& uu_turn,
+                                  int operation_index)
     {
         // Suppose this is a u/u turn between P and Q
         // Examine all other turns on P and check if Q can be reached
-
-        ring_identifier const ring_id_p = ring_id_from_op(uu_turn, 0);
-        ring_identifier const ring_id_q = ring_id_from_op(uu_turn, 1);
-
         // Use one of the operations and check if you can reach the other
-
-        map_type::const_iterator mit = map.find(ring_id_p);
-        if (mit == map.end())
+        signed_size_type const index
+            = uu_turn.operations[operation_index].enriched.travels_to_ip_index;
+        if (! in_range(turns, index))
         {
-            // No other turns found
             return false;
         }
 
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-        std::cout << " Check p: " << ring_id_p << " q: " << ring_id_q << std::endl;
+                std::cout << " Examine: " << index << std::endl;
 #endif
+        ring_identifier const other_ring_id
+            = ring_id_from_op(uu_turn, 1 - operation_index);
 
-        for (std::vector<int>::const_iterator vit = mit->second.begin();
-             vit != mit->second.end();
-             ++vit)
-        {
-            int const turn_index = *vit;
-            const turn_type& current_turn = turns[turn_index];
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-            std::cout << "-> Examine " << turn_index << std::endl;
-#endif
-            if (can_reach(turns, current_turn, -1, ring_id_q, turn_index))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return can_reach(turns, turns[index], operation_index,
+                         other_ring_id, index);
     }
 
     static inline bool can_reach(const Turns& turns,
@@ -248,13 +219,16 @@ private :
     {
         if (iteration >= boost::size(turns))
         {
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+        std::cout << "   Too much iterations" << std::endl;
+#endif
             // Defensive check to avoid infinite recursion
             return false;
         }
 
         if (operation_index != -1 && turn.both(operation_union))
         {
-            // If we end up in a u/u turn, check the way how
+            // If we end up in a u/u turn, check the way how, for this operation
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
         std::cout << "   Via u/u " << std::endl;
 #endif
@@ -295,10 +269,7 @@ private :
             return false;
         }
 
-        signed_size_type const turns_size =
-                static_cast<signed_size_type>(boost::size(turns));
-
-        if (index < 0 || index >= turns_size)
+        if (! in_range(turns, index))
         {
             return false;
         }
