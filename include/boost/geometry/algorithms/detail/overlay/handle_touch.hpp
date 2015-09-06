@@ -63,7 +63,7 @@ public :
                 std::cout << " * handle_touch uu: " << index << std::endl;
 #endif
 
-                bool const traverse = turn_should_be_traversed(turns, turn);
+                bool const traverse = turn_should_be_traversed(turns, turn, index);
                 bool const start = traverse
                                    && turn_should_be_startable(turns, turn, index);
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
@@ -179,15 +179,17 @@ private :
 
     static inline
     bool turn_should_be_traversed(const Turns& turns,
-                                  const turn_type& uu_turn)
+                                  const turn_type& uu_turn,
+                                  signed_size_type uu_index)
     {
-        return turn_should_be_traversed(turns, uu_turn, 0)
-            || turn_should_be_traversed(turns, uu_turn, 1);
+        return turn_should_be_traversed(turns, uu_turn, uu_index, 0)
+            || turn_should_be_traversed(turns, uu_turn, uu_index, 1);
     }
 
     static inline
     bool turn_should_be_traversed(const Turns& turns,
                                   const turn_type& uu_turn,
+                                  signed_size_type uu_index,
                                   int operation_index)
     {
         // Suppose this is a u/u turn between P and Q
@@ -207,13 +209,14 @@ private :
             = ring_id_from_op(uu_turn, 1 - operation_index);
 
         return can_reach(turns, turns[index], operation_index,
-                         other_ring_id, index);
+                         other_ring_id, uu_index, index);
     }
 
     static inline bool can_reach(const Turns& turns,
                                  const turn_type& turn,
                                  signed_size_type operation_index,
                                  const ring_identifier& target_ring_id,
+                                 signed_size_type uu_index,
                                  signed_size_type original_turn_index,
                                  std::size_t iteration = 0)
     {
@@ -235,15 +238,15 @@ private :
             return can_reach_via(turns, operation_index,
                                  turn.operations[operation_index],
                                  target_ring_id,
-                                 original_turn_index, iteration);
+                                 uu_index, original_turn_index, iteration);
         }
         else
         {
             // Check if specified ring can be reached via one of both operations
             return can_reach_via(turns, 0, turn.operations[0], target_ring_id,
-                                 original_turn_index, iteration)
+                                 uu_index, original_turn_index, iteration)
                 || can_reach_via(turns, 1, turn.operations[1], target_ring_id,
-                                 original_turn_index, iteration);
+                                 uu_index, original_turn_index, iteration);
         }
     }
 
@@ -253,6 +256,7 @@ private :
             signed_size_type operation_index,
             const Operation& operation,
             const ring_identifier& target_ring_id,
+            signed_size_type uu_index,
             signed_size_type original_turn_index,
             std::size_t iteration = 0)
     {
@@ -265,7 +269,18 @@ private :
         signed_size_type const index = operation.enriched.travels_to_ip_index;
         if (index == original_turn_index)
         {
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+            std::cout << " Dead end at "  << index << std::endl;
+#endif
             // Completely traveled, the target is not found
+            return false;
+        }
+        if (index == uu_index)
+        {
+            // End up where trial was started
+#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
+            std::cout << " Travel comlete at " << index << std::endl;
+#endif
             return false;
         }
 
@@ -305,7 +320,7 @@ private :
 
         // Recursively check this turn
         return can_reach(turns, new_turn, operation_index, target_ring_id,
-                             original_turn_index, iteration + 1);
+                         uu_index, original_turn_index, iteration + 1);
     }
 };
 
