@@ -25,6 +25,7 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/11533 11533] Assert failure in rtree caused by a bug in remove() if min elements number is 1
+* [@https://svn.boost.org/trac/boost/ticket/11607 11607] Private geometry::exception::what()
 
 [*Bugfixes]
 
