@@ -21,9 +21,9 @@
 
 
 template <typename Geometry>
-void check_geometry(Geometry const& geometry, std::string const& wkt, int expected)
+void check_geometry(Geometry const& geometry, std::string const& wkt, std::size_t expected)
 {
-    int detected = bg::num_points(geometry);
+    std::size_t detected = bg::num_points(geometry);
     BOOST_CHECK_MESSAGE(detected == expected,
         "num_points: " << wkt
         << " -> Expected: " << expected

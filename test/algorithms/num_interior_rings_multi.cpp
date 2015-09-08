@@ -15,11 +15,11 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 template <typename Geometry>
-void test_geometry(std::string const& wkt, int expected)
+void test_geometry(std::string const& wkt, std::size_t expected)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
-    int detected = bg::num_interior_rings(geometry);
+    std::size_t detected = bg::num_interior_rings(geometry);
     BOOST_CHECK_MESSAGE(detected == expected,
         "num_interior_rings: " << wkt
         << " -> Expected: " << expected
