@@ -32,6 +32,9 @@ static std::string const mikado4 = "MULTILINESTRING((-15 2,-15 -17,-6 11,-1.9358
 static std::string const mysql_2015_04_10a = "MULTILINESTRING((-58 19, 61 88),(1.922421e+307 1.520384e+308, 15 42, 89 -93,-89 -22),(-63 -5, -262141 -536870908, -3 87, 77 -69))";
 static std::string const mysql_2015_04_10b = "MULTILINESTRING((-58 19, 61 88),                                                     (-63 -5, -262141 -536870908, -3 87, 77 -69))";
 
+static std::string const mysql_2015_09_08a = "MULTILINESTRING((7 -4, -3 -5), (72057594037927936 15, 72057594037927940 70368744177660, 32771 36028797018963964, 8589934589 2305843009213693953, 7 2, 9.300367e+307 9.649737e+307, -4092 -274877906946, 5 10, -3 4))";
+static std::string const mysql_2015_09_08b = "MULTILINESTRING((-9 -10, 0 -1, 5 -10, -6 7, -7 7, 5.041061e+307 9.926906e+307, 6.870356e+307 1.064454e+307, 35184372088830 288230376151711743, 183673728842483250000000000000000000000.000000 244323751784861950000000000000000000000.000000), (-23530 -7131, -6 1, 1 1, 2 -6, 32766 -4194302, -4 -6), (134217725 0, 50336782742294697000000000000000000000.000000 36696596077212901000000000000000000000.000000, 7434 16486, 3.025467e+307 8.926790e+307), (2147483646 67108868, 71328904281592545000000000000000000000.000000 225041650340452780000000000000000000000.000000, -7 4, 1.667154e+307 3.990414e+307))"; 
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -124,6 +127,11 @@ void test_all()
     // (2: since selecting other IP at end points or when segment b is smaller than a)
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 1063005187.214, 0.98);
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
+#endif
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<multi_linestring_type, polygon>("mysql_2015_09_08a", mysql_2015_09_08a, join_round32, end_round32, 0.0, 4051744443.0);
+    test_one<multi_linestring_type, polygon>("mysql_2015_09_08b", mysql_2015_09_08b, join_round32, end_round32, 0.0, 2061380362.0);
 #endif
 }
 
