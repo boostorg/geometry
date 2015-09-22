@@ -18,6 +18,7 @@
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
@@ -349,6 +350,20 @@ void test_point_output(std::string const& wkt1, std::string const& wkt2, unsigne
     std::vector<typename bg::point_type<Geometry1>::type> points;
     bg::intersection(g1, g2, points);
     BOOST_CHECK_EQUAL(points.size(), expected_count);
+}
+
+
+template <typename PolygonOut, typename Areal1, typename Areal2>
+inline void test_validity(std::string const& wkt1,
+                          std::string const& wkt2)
+{
+    Areal1 a1;
+    Areal2 a2;
+    bg::read_wkt(wkt1, a1);
+    bg::read_wkt(wkt2, a2);
+    bg::model::multi_polygon<PolygonOut> out;
+    bg::intersection(a1, a2, out);
+    BOOST_CHECK(bg::is_valid(out));
 }
 
 
