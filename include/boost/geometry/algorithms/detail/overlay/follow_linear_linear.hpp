@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -22,6 +22,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+#include <boost/geometry/algorithms/detail/overlay/inconsistent_turns_exception.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -34,24 +35,6 @@
 
 namespace boost { namespace geometry
 {
-
-#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-class inconsistent_turns_exception : public geometry::exception
-{
-public:
-
-    inline inconsistent_turns_exception() {}
-
-    virtual ~inconsistent_turns_exception() throw()
-    {}
-
-    virtual char const* what() const throw()
-    {
-        return "Boost.Geometry Inconsistent Turns exception";
-    }
-};
-#endif
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
