@@ -44,6 +44,14 @@ void test_aa()
     test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
                                "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                                false);
+
+    // mysql 21872795
+    test_geometry<poly, poly>("POLYGON((2 2,2 8,8 8,8 2,2 2))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(8 8,4 6,4 4,8 8))",
+                              true);
+    test_geometry<poly, poly>("POLYGON((2 2,2 8,8 8,8 2,2 2))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 4,4 6,2 2))",
+                              true);
 }
 
 template <typename P>
