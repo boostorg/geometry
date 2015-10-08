@@ -46,6 +46,10 @@ template <typename Box, typename FwdIter, typename Translator>
 inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
     Box result;
+    
+    // Only here to suppress 'uninitialized local variable used' warning
+    // until the suggestion below is not implemented
+    geometry::assign_inverse(result);
 
     //BOOST_GEOMETRY_INDEX_ASSERT(first != last, "non-empty range required");
     // NOTE: this is not elegant temporary solution,
@@ -77,6 +81,7 @@ inline Box values_box(FwdIter first, FwdIter last, Translator const& tr)
 
     Box result = elements_box<Box>(first, last, tr);
 
+#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
     if (BOOST_GEOMETRY_CONDITION((
         ! is_bounding_geometry
             <
@@ -85,6 +90,7 @@ inline Box values_box(FwdIter first, FwdIter last, Translator const& tr)
     {
         geometry::detail::expand_by_epsilon(result);
     }
+#endif
 
     return result;
 }

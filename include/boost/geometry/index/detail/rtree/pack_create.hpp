@@ -271,6 +271,7 @@ private:
                 rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
             }
 
+#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
             // Enlarge bounds of a leaf node.
             // It's because Points and Segments are compared WRT machine epsilon
             // This ensures that leafs bounds correspond to the stored elements
@@ -285,6 +286,7 @@ private:
             {
                 elements_box.expand_by_epsilon();
             }
+#endif
 
             auto_remover.release();
             return internal_element(elements_box.get(), n);
