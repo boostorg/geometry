@@ -7,6 +7,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Enable enlargement of Values' bounds by epsilon in the rtree
+// for Points and Segments
+#define BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
+
 #include <vector>
 
 #include <rtree/test_rtree.hpp>
