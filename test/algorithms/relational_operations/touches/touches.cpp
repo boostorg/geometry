@@ -118,6 +118,20 @@ void test_all()
             true
         );
 
+    // mysql 21873343
+    test_touches<polygon, polygon>
+        (
+            "POLYGON((0 0,0 10,10 10,10 0,0 0), (0 8, 8 5, 8 8, 0 8))",
+            "POLYGON((0 8,-8 5,-8 8,0 8))",
+            true
+        );
+    test_touches<polygon, polygon>
+        (
+            "POLYGON((0 0,0 10,10 10,10 0,0 0), (0 6, 6 3, 6 6, 0 6))",
+            "POLYGON((0 6,-6 3,-6 6,0 6))",
+            true
+        );
+
     // Point-Polygon
     test_touches<P, ring>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
     test_touches<P, polygon>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
