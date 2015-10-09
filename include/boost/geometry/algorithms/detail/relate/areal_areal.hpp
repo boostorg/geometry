@@ -338,7 +338,7 @@ struct areal_areal
         template <std::size_t OpId, typename Turn>
         inline void per_turn(Turn const& turn)
         {
-            static const std::size_t other_op_id = (OpId + 1) % 2;
+            //static const std::size_t other_op_id = (OpId + 1) % 2;
             static const bool transpose_result = OpId != 0;
 
             overlay::operation_type const op = turn.operations[OpId].operation;
