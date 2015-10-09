@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -1828,20 +1828,19 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     typedef typename Tree::bounds_type B;
     //typedef typename bg::traits::point_type<B>::type P;
 
-    B b;
-    bg::assign_inverse(b);
-
     Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
     B qbox;
 
+    B b;
+    bg::assign_inverse(b);
+    
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
     generate::rtree(t, input, qbox);
 
-    BOOST_FOREACH(Value const& v, input)
-        bg::expand(b, t.indexable_get()(v));
-
+    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get());
+    
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
 
@@ -1852,9 +1851,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
         input.pop_back();
     }
 
-    bg::assign_inverse(b);
-    BOOST_FOREACH(Value const& v, input)
-        bg::expand(b, t.indexable_get()(v));
+    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get());
 
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
