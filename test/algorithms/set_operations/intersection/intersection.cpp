@@ -447,6 +447,86 @@ void test_areal_linear()
     test_one_lp<LineString, Polygon, LineString>("case19", poly_9, "LINESTRING(1 2,1 3,0 3)", 1, 2, 1.0);
     test_one_lp<LineString, Polygon, LineString>("case20", poly_9, "LINESTRING(1 2,1 3,2 3)", 1, 3, 2.0);
 
+    test_one_lp<LineString, Polygon, LineString>("case21",
+        "POLYGON((2 3,-9 -7,12 -13,2 3))",
+        "LINESTRING(-1.3 0,-15 0,-1.3 0)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case22",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,-10 5,5 5)",
+         2, 4, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case22a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(1 1,5 5,-10 5,5 5,6 6)",
+         2, 6, 17.071068);
+
+    test_one_lp<LineString, Polygon, LineString>("case23",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 5,5 5,-10 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case23a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-20 10,-10 5,5 5,-10 5,-20 -10)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case24",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(0 5,5 5,0 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case24",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(0 5,5 5,1 1,9 1,5 5,0 5)",
+         1, 6, 29.313708);
+
+    test_one_lp<LineString, Polygon, LineString>("case25",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case25a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,0 5,5 5,20 10)",
+         1, 4, 20.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case25b",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,1 5,5 5,20 10)",
+         1, 4, 18.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case25c",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,-1 5,5 5,20 10)",
+         2, 6, 20.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case26",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-5 5,0 5,-5 5)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case26a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,-5 5,0 5,-5 5,-10 -10)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case27",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 4)",
+         1, 6, 21.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case28",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
+         1, 6, 21.099019);
+
+    test_one_lp<LineString, Polygon, LineString>("case29",
+        "POLYGON((5 5,15 15,15 5,5 5))",
+        "LINESTRING(0 0,10 10)",
+        1, 2, 5 * std::sqrt(2.0));
+
     // PROPERTIES CHANGED BY switch_to_integer
     // TODO test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
 
