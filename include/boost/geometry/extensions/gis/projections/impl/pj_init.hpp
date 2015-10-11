@@ -205,9 +205,11 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
 
     if (! s.empty())
     {
-        std::size_t const divisor = s.find('/');
-        if (divisor == std::string::npos)
+        std::size_t const pos = s.find('/');
+        if (pos == std::string::npos)
+        {
             pin.to_meter = std::atof(s.c_str());
+        }
         else
         {
             std::string const numerator(s.substr(0, divisor)), denominator(s.substr(divisor + 1));
