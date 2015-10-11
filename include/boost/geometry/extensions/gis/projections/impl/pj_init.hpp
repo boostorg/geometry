@@ -41,6 +41,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <boost/geometry/util/math.hpp>
 
@@ -208,15 +209,22 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
         std::size_t const pos = s.find('/');
         if (pos == std::string::npos)
         {
-            pin.to_meter = std::atof(s.c_str());
+            pin.to_meter = lexical_cast<double>(s);
         }
         else
         {
-            std::string const numerator(s.substr(0, divisor)), denominator(s.substr(divisor + 1));
-            pin.to_meter = std::atof(numerator.c_str()) / std::atof(denominator.c_str());
+            double const numerator = lexical_cast<double>(s.substr(0, pos));
+            double const denominator = lexical_cast<double>(s.substr(pos + 1));
+            if (numerator == 0.0 || denominator == 0.0)
+            {
+                throw proj_exception(-99);
+            }
+            pin.to_meter = numerator / denominator;
         }
-        //if (*s == '/') /* ratio number */
-        //    pin.to_meter /= strtod(++s, 0);
+        if (pin.to_meter == 0.0)
+        {
+            throw proj_exception(-99);
+        }
         pin.fr_meter = 1. / pin.to_meter;
     }
     else
