@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
@@ -135,6 +136,7 @@ struct buffer_range
             RobustPolicy const& )
     {
         output_point_type intersection_point;
+        geometry::assign_zero(intersection_point);
 
         strategy::buffer::join_selector join
                 = get_join_type(penultimate_input, previous_input, input);
