@@ -713,6 +713,67 @@ inline void test_open_polygons()
                    0.7808688094430304 -0.6246950475544243,\
                    0.7808688094430304 -0.6246950475544243))",
          AllowDuplicates);
+
+
+    // MySQL report on Sep 30, 2015
+    test::apply
+        ("pg077",
+         "POLYGON((72.8714768817168 -167.0048853643874,9274.40641550926 3433.5957427942167,-58.09039811390054 187.50989457746405,-81.09039811390053 179.50989457746405,-207.99999999999997 135.36742435621204,-208 1,-208 0,-208 -276.9111154485375,49.8714768817168 -176.0048853643874))",
+         true);
+
+    test::apply("pg077-simplified",
+                "POLYGON((-200 0,-207.99999999999997 135.36742435621204,-208 1,-208 0,-208 -276.9111154485375))",
+                true);
+
+    test::apply
+        ("pg078",
+         "POLYGON((0 10,-10 0,0 0,10 0))",
+         true);
+
+    test::apply
+        ("pg078spike1",
+         "POLYGON((0 10,-10 0,0 0,-10 0,10 0))",
+         false);
+
+    test::apply
+        ("pg078spike2",
+         "POLYGON((0 10,-10 0,0 0,-8 0,10 0))",
+         false);
+
+    test::apply
+        ("pg078spike3",
+         "POLYGON((0 10,-10 0,0 0,-11 0,10 0))",
+         false);
+
+    test::apply
+        ("pg078reversed",
+         "POLYGON((0 10,10 0,0 0,-10 0))",
+         false);
+
+    test::apply
+        ("pg079",
+         "POLYGON((10 0,0 10,0 0,0 -10))",
+         true);
+
+    test::apply
+        ("pg079spike1",
+         "POLYGON((10 0,0 10,0 0,0 10,0 -10))",
+         false);
+
+    test::apply
+        ("pg079spike2",
+         "POLYGON((10 0,0 10,0 0,0 8,0 -10))",
+         false);
+
+    test::apply
+        ("pg079spike3",
+         "POLYGON((10 0,0 10,0 0,0 11,0 -10))",
+         false);
+
+    test::apply
+        ("pg079reversed",
+         "POLYGON((10 0,0 -10,0 0,0 10))",
+         false);
 }
 
 template <typename Point>
