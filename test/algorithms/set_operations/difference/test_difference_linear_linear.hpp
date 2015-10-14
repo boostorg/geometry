@@ -64,6 +64,7 @@ private:
                              << ", difference L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_diff)
+                             << std::setprecision(20)
                              << " computed: " << bg::wkt(mls_output) );
 
         set_operation_output("difference", case_id,
