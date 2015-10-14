@@ -579,7 +579,8 @@ void test_all()
                 join_round32, end_round32, 4.25405937213774089e+23, 1479986,
                 same_distance, false, high_tolerance);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
-                join_round32, end_round32, 644489321051.62439, 38141);
+                join_round32, end_round32, 644489321051.62439, 38141,
+                same_distance, false, 10000.0);
         }
     }
 
