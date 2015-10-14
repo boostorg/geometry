@@ -129,10 +129,9 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
 #endif
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    test_one<multi_linestring_type, polygon>("mysql_2015_09_08a", mysql_2015_09_08a, join_round32, end_round32, 0.0, 4051744443.0);
-    test_one<multi_linestring_type, polygon>("mysql_2015_09_08b", mysql_2015_09_08b, join_round32, end_round32, 0.0, 2061380362.0);
-#endif
+    // Two other cases with inf for length calculation
+    test_one<multi_linestring_type, polygon>("mysql_2015_09_08a", mysql_2015_09_08a, join_round32, end_round32, 5.12436196736438764e+19, 4051744443.0);
+    test_one<multi_linestring_type, polygon>("mysql_2015_09_08b", mysql_2015_09_08b, join_round32, end_round32, 1.32832149026508268e+19, 2061380362.0);
 }
 
 

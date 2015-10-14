@@ -680,7 +680,14 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                         distance, side_strategy, join_strategy, end_strategy, robust_policy,
                         first_p1);
             }
-            collection.finish_ring();
+            if (code == strategy::buffer::result_error_numerical)
+            {
+                collection.abort_ring();
+            }
+            else
+            {
+                collection.finish_ring();
+            }
         }
         if (code == strategy::buffer::result_no_output && n >= 1)
         {
