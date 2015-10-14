@@ -51,8 +51,8 @@ class liang_barsky
 private:
     typedef model::referring_segment<Point> segment_type;
 
-    template <typename PointType, typename CalcType>
-    inline bool check_edge(PointType const& p, PointType const& q, CalcType& t1, CalcType& t2) const
+    template <typename CoordinateType, typename CalcType>
+    inline bool check_edge(CoordinateType const& p, CoordinateType const& q, CalcType& t1, CalcType& t2) const
     {
         bool visible = true;
 
@@ -86,7 +86,7 @@ public:
     inline bool clip_segment(Box const& b, segment_type& s, bool& sp1_clipped, bool& sp2_clipped) const
     {
         typedef typename select_coordinate_type<Box, Point>::type coordinate_type;
-        typedef double calc_type;
+        typedef typename select_most_precise<coordinate_type, double>::type calc_type;
 
         calc_type t1 = 0;
         calc_type t2 = 1;
