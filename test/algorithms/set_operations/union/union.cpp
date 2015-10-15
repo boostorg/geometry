@@ -262,7 +262,7 @@ void test_areal()
         1,
         0,
         -1,
-        313.36036462, 0.01);
+        313.36036462, 0.1);
 
     // SQL Server gives: 313.360374193241
     // PostGIS gives:    313.360364623393
@@ -333,10 +333,8 @@ void test_areal()
                 1, 0, if_typed<ct, double>(18, 23), 4.60853);
 #endif
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
 
@@ -369,10 +367,8 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.4853);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
                 1, 0, 18, 18.5710);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, 18, 18.5710);
 

@@ -44,7 +44,7 @@
 
 // To test that "get_turns" can be called using additional information
 template <typename Point, typename SegmentRatio>
-struct my_turn_op : public bg::detail::overlay::turn_operation<SegmentRatio>
+struct my_turn_op : public bg::detail::overlay::turn_operation<Point, SegmentRatio>
 {
 };
 

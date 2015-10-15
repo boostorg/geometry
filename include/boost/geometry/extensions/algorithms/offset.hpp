@@ -81,7 +81,7 @@ struct offset_range
                 distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
                 first_p1, first_p2, last_p1, last_p2);
         }
-        collection.finish_ring();
+        collection.finish_ring(strategy::buffer::result_normal);
     }
 };
 

@@ -802,19 +802,19 @@ template <typename Geometry1, typename Geometry2, typename SegmentRatio,
           typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
-    typedef overlay::turn_operation<SegmentRatio> type;
+    typedef overlay::turn_operation<typename point_type<Geometry1>::type, SegmentRatio> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
 struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, linear_tag>
 {
-    typedef overlay::turn_operation_linear<SegmentRatio> type;
+    typedef overlay::turn_operation_linear<typename point_type<Geometry1>::type, SegmentRatio> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
 struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, areal_tag>
 {
-    typedef overlay::turn_operation_linear<SegmentRatio> type;
+    typedef overlay::turn_operation_linear<typename point_type<Geometry1>::type, SegmentRatio> type;
 };
 
 }} // namespace detail::get_turns
