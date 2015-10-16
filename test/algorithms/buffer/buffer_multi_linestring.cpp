@@ -139,6 +139,8 @@ void test_all()
             mysql_2015_09_08b, join_round32, end_round32,
             1.32832149026508268e+19, 2061380362.0,
             same_distance, true, 1.0e12);
+
+    test_one<multi_linestring_type, polygon>("mysql_report_2015_09_21", "MULTILINESTRING((-5 15,7 15,19 -10,-11 -2),(2 13,2 -9))", join_round32, end_round32, 186.550431076137, 1.0);
 }
 
 
