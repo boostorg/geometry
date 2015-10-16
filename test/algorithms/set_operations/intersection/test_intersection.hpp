@@ -354,17 +354,27 @@ void test_point_output(std::string const& wkt1, std::string const& wkt2, unsigne
 
 
 template <typename PolygonOut, typename Areal1, typename Areal2>
-inline void test_validity(std::string const& wkt1,
+inline void test_validity(std::string const& caseid,
+                          std::string const& wkt1,
                           std::string const& wkt2)
 {
     Areal1 a1;
     Areal2 a2;
     bg::read_wkt(wkt1, a1);
     bg::read_wkt(wkt2, a2);
+    bg::correct(a1);
+    bg::correct(a2);
+
     bg::model::multi_polygon<PolygonOut> out;
     bg::intersection(a1, a2, out);
-    BOOST_CHECK(bg::is_valid(out));
-}
 
+    std::string reason;
+    bool b = bg::is_valid(out, reason);
+    BOOST_CHECK_MESSAGE(b,
+                        "caseid: " << caseid << "; g1: " << bg::wkt(a1)
+                        << "; g2: " << bg::wkt(a2)
+                        << "; i: " << bg::wkt(out)
+                        << "; reason: " << reason);
+}
 
 #endif

@@ -90,6 +90,13 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         2, 10, 1.5);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1],
+        2, 11, 9.8050578678287668);
+    test_validity<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1]);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         10, 97, 47.0);
@@ -106,7 +113,7 @@ void test_areal()
     test_one_with_holes<Polygon, MultiPolygon, MultiPolygon>(
         "case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        13, 7, 162, 67.0); // Area from SQL Server
+        13, 7, 169, 67.0); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
