@@ -21,6 +21,7 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
@@ -346,6 +347,51 @@ void test_one_lp(std::string const& caseid,
     difference_output(lp + caseid, g1, g2, pieces);
 }
 
+template <typename PolygonOut, typename Areal1, typename Areal2>
+inline void test_validity(std::string const& caseid,
+                          std::string const& wkt1,
+                          std::string const& wkt2,
+                          bool check_sym_difference = true)
+{
+    Areal1 a1;
+    Areal2 a2;
+    bg::read_wkt(wkt1, a1);
+    bg::read_wkt(wkt2, a2);
+    bg::correct(a1);
+    bg::correct(a2);
 
+    bg::model::multi_polygon<PolygonOut> df12;
+    bg::difference(a1, a2, df12);
+    std::string reason12;
+    bool b12 = bg::is_valid(df12, reason12);
+    BOOST_CHECK_MESSAGE(b12,
+                        caseid << "_a; g1: " << bg::wkt(a1)
+                        << "; g2: " << bg::wkt(a2)
+                        << "; df12: " << bg::wkt(df12)
+                        << "; reason: " << reason12);
+
+    bg::model::multi_polygon<PolygonOut> df21;
+    bg::difference(a1, a2, df21);
+    std::string reason21;
+    bool b21 = bg::is_valid(df21, reason21);
+    BOOST_CHECK_MESSAGE(b21,
+                        caseid << "_b; g2: " << bg::wkt(a2)
+                        << "; g1: " << bg::wkt(a1)
+                        << "; df21: " << bg::wkt(df21)
+                        << "; reason: " << reason21);
+
+    if (check_sym_difference)
+    {
+        bg::model::multi_polygon<PolygonOut> sdf;
+        bg::sym_difference(a1, a2, sdf);
+        std::string reason_s;
+        bool b_s = bg::is_valid(sdf, reason_s);
+        BOOST_CHECK_MESSAGE(b_s,
+                            caseid << "_s; g1: " << bg::wkt(a1)
+                            << "; g2: " << bg::wkt(a2)
+                            << "; sdf: " << bg::wkt(sdf)
+                            << "; reason: " << reason_s);
+    }
+}
 
 #endif

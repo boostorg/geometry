@@ -91,6 +91,12 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1],
+            3, 13, 6.194942132, 4, 20, 83.194942);
+    test_validity<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1]);
+
     // Ticket on GGL list 2011/10/25
     // to mix polygon/multipolygon in call to difference
     test_one<Polygon, Polygon, Polygon>("ggl_list_20111025_vd_pp",
