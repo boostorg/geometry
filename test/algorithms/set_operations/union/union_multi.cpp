@@ -102,12 +102,19 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_105_multi",
         case_105_multi[0], case_105_multi[1],
         1, 0, 5, 25);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
         case_108_multi[0], case_108_multi[1],
         1, 2, 14, 1400);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
         case_109_multi[0], case_109_multi[1],
         1, 9, 45, 1250);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1],
+        1, 1, 19, 99.194942);
+    test_validity<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1]);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],

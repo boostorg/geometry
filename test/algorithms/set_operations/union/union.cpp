@@ -196,6 +196,18 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("86",
                 case_86[0], case_86[1], 1, 1, 10, 1500);
 
+    test_one<Polygon, Polygon, Polygon>("97",
+                case_97[0], case_97[1], 1, 1, 17, 127.6875598);
+    test_validity<Polygon, Polygon, Polygon>("97", case_97[0], case_97[1]);
+
+    test_one<Polygon, Polygon, Polygon>("98",
+                case_98[0], case_98[1], 1, 2, 23, 155.2452558);
+    test_validity<Polygon, Polygon, Polygon>("98", case_98[0], case_98[1]);
+
+    test_one<Polygon, Polygon, Polygon>("103",
+                case_103[0], case_103[1], 1, 0, 10, 64.072499);
+    test_validity<Polygon, Polygon, Polygon>("103", case_103[0], case_103[1]);
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],

@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
@@ -202,6 +203,27 @@ void test_one(std::string const& caseid, std::string const& wkt1, std::string co
         expected_area, percentage);
 }
 
+template <typename PolygonOut, typename Areal1, typename Areal2>
+inline void test_validity(std::string const& caseid,
+                          std::string const& wkt1,
+                          std::string const& wkt2)
+{
+    Areal1 a1;
+    Areal2 a2;
+    bg::read_wkt(wkt1, a1);
+    bg::read_wkt(wkt2, a2);
+    bg::correct(a1);
+    bg::correct(a2);
 
+    bg::model::multi_polygon<PolygonOut> out;
+    bg::union_(a1, a2, out);
+
+    std::string reason;
+    bool b = bg::is_valid(out, reason);
+    BOOST_CHECK_MESSAGE(b,
+                        "caseid: " << caseid
+                        << "; geometry: " << bg::wkt(out)
+                        << "; reason: " << reason);
+}
 
 #endif
