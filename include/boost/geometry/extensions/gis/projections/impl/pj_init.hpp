@@ -35,11 +35,13 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_INIT_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_INIT_HPP
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <boost/geometry/util/math.hpp>
 
@@ -204,10 +206,25 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
 
     if (! s.empty())
     {
-        // TODO: IMPLEMENT SPLIT
-        pin.to_meter = atof(s.c_str());
-        //if (*s == '/') /* ratio number */
-        //    pin.to_meter /= strtod(++s, 0);
+        std::size_t const pos = s.find('/');
+        if (pos == std::string::npos)
+        {
+            pin.to_meter = lexical_cast<double>(s);
+        }
+        else
+        {
+            double const numerator = lexical_cast<double>(s.substr(0, pos));
+            double const denominator = lexical_cast<double>(s.substr(pos + 1));
+            if (numerator == 0.0 || denominator == 0.0)
+            {
+                throw proj_exception(-99);
+            }
+            pin.to_meter = numerator / denominator;
+        }
+        if (pin.to_meter == 0.0)
+        {
+            throw proj_exception(-99);
+        }
         pin.fr_meter = 1. / pin.to_meter;
     }
     else
