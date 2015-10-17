@@ -411,6 +411,50 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
+    test_one<polygon, polygon, polygon>(
+            "case97", case_97[0], case_97[1],
+            2, 15, 105.6875598,
+            3, 14, 10.18755981);
+    test_validity<polygon, polygon, polygon>("case97", case_97[0], case_97[1]);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<polygon, polygon, polygon>(
+            "case98", case_98[0], case_98[1],
+            3, 20, 99.7452558,
+            3, 14, 37.7452558);
+#else
+    test_one<polygon, polygon, polygon>(
+            "case98", case_98[0], case_98[1],
+            3, 20, 99.7452558,
+            3, 14, 37.7452558,
+            5, 33, 99.7452558 + 37.7452558);
+#endif
+    test_validity<polygon, polygon, polygon>("case98", case_98[0], case_98[1]);
+
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<polygon, polygon, polygon>(
+            "case99", case_99[0], case_99[1],
+            1, 9, 71938982209960000,
+            1, 5, 2.40230376e+20);
+    test_one<polygon, polygon, polygon>(
+            "case100", case_100[0], case_100[1],
+            1, 9, 1108087364.695,
+            1, 5, 1.49257218e+22,
+            1, 10, 1108087364.695);
+    test_one<polygon, polygon, polygon>(
+            "case101", case_101[0], case_101[1],
+            2, 10, 332066650.1372,
+            2, 10, 4.41568936e+20,
+            2, 15, 410392630.5984);
+    test_one<polygon, polygon, polygon>(
+            "case102", case_102[0], case_102[1],
+            2, 10, 7.16365077392662e19,
+            2, 10, 90403104.0,
+            2, 18, 7.16365077392662e19);
+    test_validity<polygon, polygon, polygon>(
+            "case102", case_102[0], case_102[1]);
+#endif // BOOST_GEOMETRY_NO_ROBUSTNESS
+
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
         3, 37, 61,

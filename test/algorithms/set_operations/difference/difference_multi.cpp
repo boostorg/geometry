@@ -91,6 +91,12 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1],
+            3, 13, 6.194942132, 4, 20, 83.194942);
+    test_validity<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+        case_110_multi[0], case_110_multi[1]);
+
     // Ticket on GGL list 2011/10/25
     // to mix polygon/multipolygon in call to difference
     test_one<Polygon, Polygon, Polygon>("ggl_list_20111025_vd_pp",
@@ -136,7 +142,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120221_volker",
         ggl_list_20120221_volker[0], ggl_list_20120221_volker[1],
-            2, 12, 7962.66, 1, 18, 2775258.93,
+            2, 12, 7962.66, 2, 18, 2775258.93,
             0.001);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)

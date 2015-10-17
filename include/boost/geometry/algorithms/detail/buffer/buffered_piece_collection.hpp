@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/split_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -1338,6 +1339,11 @@ struct buffered_piece_collection
         traverser::apply(offsetted_rings, offsetted_rings,
                         detail::overlay::operation_union,
                         m_robust_policy, m_turns, traversed_rings);
+
+        overlay::split_rings
+            <
+                overlay_union
+            >::apply(traversed_rings, m_robust_policy);
     }
 
     inline void reverse()

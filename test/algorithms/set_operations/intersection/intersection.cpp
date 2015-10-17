@@ -324,6 +324,64 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
+    test_one_with_holes<Polygon, Polygon, Polygon>("case87",
+        case_87[0], case_87[1],
+        1, 1, 11, 54.70134);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case88",
+        case_88[0], case_88[1],
+        1, 1, 13, 35.933385);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    test_one_with_holes<Polygon, Polygon, Polygon>("case89",
+        case_89[0], case_89[1],
+        2, 0, 13, 390);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case90",
+        case_90[0], case_90[1],
+        2, 0, 13, 143.067882);
+    test_validity<Polygon, Polygon, Polygon>("case90", case_90[0], case_90[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case91",
+        case_91[0], case_91[1],
+        3, 0, 13, 216.6667);
+    test_validity<Polygon, Polygon, Polygon>("case91", case_91[0], case_91[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case92",
+        case_92[0], case_92[1],
+        2, 0, 13, 633.3333);
+    test_validity<Polygon, Polygon, Polygon>("case92", case_92[0], case_92[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case93",
+        case_93[0], case_93[1],
+        3, 0, 17, 231.42857);
+    test_validity<Polygon, Polygon, Polygon>("case93", case_93[0], case_93[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case94",
+        case_94[0], case_94[1],
+        2, 1, 16, 645.71429);
+    test_validity<Polygon, Polygon, Polygon>("case94", case_94[0], case_94[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case95",
+        case_95[0], case_95[1],
+        3, 0, 16, 226.66667);
+    test_validity<Polygon, Polygon, Polygon>("case95", case_95[0], case_95[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case96",
+        case_96[0], case_96[1],
+        4, 0, 19, 221.42857);
+    test_validity<Polygon, Polygon, Polygon>("case96", case_96[0], case_96[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case97",
+        case_97[0], case_97[1],
+        2, 0, 10, 11.81244);
+    test_validity<Polygon, Polygon, Polygon>("case97", case_97[0], case_97[1]);
+
+    test_one_with_holes<Polygon, Polygon, Polygon>("case98",
+        case_98[0], case_98[1],
+        2, 0, 10, 17.754744);
+    test_validity<Polygon, Polygon, Polygon>("case98", case_98[0], case_98[1]);
     return;
 
 
