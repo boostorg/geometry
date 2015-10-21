@@ -31,6 +31,8 @@ struct is_simple
     static inline bool apply(Geometry const& geometry)
     {
         concept::check<Geometry const>();
+        if(boost::geometry::is_empty(geometry))
+            return true;
         return dispatch::is_simple<Geometry>::apply(geometry);
     }
 };
