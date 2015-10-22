@@ -377,6 +377,25 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 0, 217, 36.752837);
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_one<Polygon, Polygon, Polygon>("ticket_11725",
+        "POLYGON((0 0, 0 1, 3 1, 3 0, 0 0))",
+        "POLYGON((0 1, 0 3, 3 3, 3 1, 2 2, 1 2 , 1 1, 0 1))",
+        1, 1, -1, 7.5);
+    test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
+        "POLYGON((7 3,0 10,0 -6,9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
+        "POLYGON((0 8,-8 14,-11 18,-19 11, -3 1, 0 8))",
+        2, 1, -1, 234.5);
+    test_one<Polygon, Polygon, Polygon>("mysql_21964079_2",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0), (0 8, 4 4, 4 6, 0 8))",
+        "POLYGON((0 8,-8 8,-10 4,0 8))",
+        2, 1, -1, 112.0);
+    test_one<Polygon, Polygon, Polygon>("mysql_21964049",
+        "POLYGON((7 0,10 -3,7 1,7 0))",
+        "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))",
+        1, 1, -1, 220.5);
+#endif
 }
 
 template <typename P>
