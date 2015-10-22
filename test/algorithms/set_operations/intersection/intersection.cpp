@@ -324,14 +324,20 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_one<Polygon, Polygon, Polygon>("mysql_21964465",
+        "POLYGON((0 0,0 10,10 10,10 0, 0 0), (0 8, 4 4, 4 6, 0 8))",
+        "POLYGON((0 8,-8 8,-2 2,0 8))",
+        0, -1, 0.0);
+#endif
+
     return;
 
-
     test_one<Polygon, Polygon, Polygon>(
-            "polygon_pseudo_line",
-            "Polygon((0 0,0 4,4 4,4 0,0 0))",
-            "Polygon((2 -2,2 -1,2 6,2 -2))",
-            5, 22, 1.1901714);
+        "polygon_pseudo_line",
+        "Polygon((0 0,0 4,4 4,4 0,0 0))",
+        "Polygon((2 -2,2 -1,2 6,2 -2))",
+        5, 22, 1.1901714);
 }
 
 template <typename Polygon, typename Box>
