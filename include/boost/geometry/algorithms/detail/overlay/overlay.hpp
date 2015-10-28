@@ -78,6 +78,11 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
             && ! turn_info.both(operation_intersection)
             ;
 
+        if (! both_uu && turn_info.colocated)
+        {
+            skip = true;
+        }
+
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn_info.operations);
             op_it != boost::end(turn_info.operations);

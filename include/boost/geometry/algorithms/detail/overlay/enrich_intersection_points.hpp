@@ -26,6 +26,7 @@
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -494,6 +495,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     // #76 is the reason that this is necessary...
     // With uu, at all points there is the risk that rings are being traversed twice or more.
     // Without uu, all rings having only uu will be untouched and gathered by assemble
+    bool has_uu = false;
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -502,6 +504,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         if (it->both(detail::overlay::operation_union))
         {
             it->discarded = true;
+            has_uu = true;
         }
         if (it->both(detail::overlay::operation_none))
         {
@@ -509,6 +512,10 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         }
     }
 
+    if (has_uu)
+    {
+        detail::overlay::handle_colocations(turn_points);
+    }
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
