@@ -43,6 +43,7 @@ void test_3d()
     test_geometry<bg::model::box<P>, bg::model::box<P> >("BOX(1 1 1, 3 3 3)", "BOX(4 4 4,6 6 6)", false);
 }
 
+
 template <typename P>
 void test_2d()
 {

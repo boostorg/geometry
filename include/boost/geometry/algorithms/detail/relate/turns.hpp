@@ -128,8 +128,8 @@ struct get_turns
 template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0>
 struct op_to_int
 {
-    template <typename SegmentRatio>
-    inline int operator()(detail::overlay::turn_operation<SegmentRatio> const& op) const
+    template <typename Operation>
+    inline int operator()(Operation const& op) const
     {
         switch(op.operation)
         {

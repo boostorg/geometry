@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
@@ -135,6 +136,7 @@ struct buffer_range
             RobustPolicy const& )
     {
         output_point_type intersection_point;
+        geometry::assign_zero(intersection_point);
 
         strategy::buffer::join_selector join
                 = get_join_type(penultimate_input, previous_input, input);
@@ -392,7 +394,7 @@ inline void buffer_point(Point const& point, Collection& collection,
     point_strategy.apply(point, distance_strategy, range_out);
     collection.add_piece(strategy::buffer::buffered_point, range_out, false);
     collection.set_piece_center(point);
-    collection.finish_ring();
+    collection.finish_ring(strategy::buffer::result_normal);
 }
 
 
@@ -680,7 +682,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                         distance, side_strategy, join_strategy, end_strategy, robust_policy,
                         first_p1);
             }
-            collection.finish_ring();
+            collection.finish_ring(code);
         }
         if (code == strategy::buffer::result_no_output && n >= 1)
         {
@@ -740,12 +742,7 @@ private:
                     join_strategy, end_strategy, point_strategy,
                     robust_policy);
 
-            if (code == strategy::buffer::result_error_numerical)
-            {
-                collection.abort_ring();
-                return;
-            }
-            collection.finish_ring(is_interior);
+            collection.finish_ring(code, is_interior);
         }
     }
 
@@ -805,14 +802,8 @@ public:
                     join_strategy, end_strategy, point_strategy,
                     robust_policy);
 
-            if (code == strategy::buffer::result_error_numerical)
-            {
-                collection.abort_ring();
-            }
-            else
-            {
-                collection.finish_ring(false, geometry::num_interior_rings(polygon) > 0u);
-            }
+            collection.finish_ring(code, false,
+                    geometry::num_interior_rings(polygon) > 0u);
         }
 
         apply_interior_rings(interior_rings(polygon),

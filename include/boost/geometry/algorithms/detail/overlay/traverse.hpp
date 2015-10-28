@@ -174,7 +174,17 @@ inline bool select_next_ip(operation_type operation,
     {
         return false;
     }
+
     bool has_tp = false;
+
+    typedef typename std::iterator_traits
+    <
+        Iterator
+    >::value_type operation_type;
+
+    typename operation_type::comparable_distance_type
+            max_remaining_distance = 0;
+
     selected = boost::end(turn.operations);
     for (Iterator it = boost::begin(turn.operations);
         it != boost::end(turn.operations);
@@ -206,9 +216,23 @@ inline bool select_next_ip(operation_type operation,
                 )
             )
         {
+            if (it->operation == operation_continue)
+            {
+                max_remaining_distance = it->remaining_distance;
+            }
             selected = it;
             debug_traverse(turn, *it, " Candidate");
             has_tp = true;
+        }
+
+        if (it->operation == operation_continue && has_tp)
+        {
+            if (it->remaining_distance > max_remaining_distance)
+            {
+                max_remaining_distance = it->remaining_distance;
+                selected = it;
+                debug_traverse(turn, *it, " Candidate override");
+            }
         }
     }
 

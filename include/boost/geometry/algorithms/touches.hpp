@@ -1,12 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,8 +16,6 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
@@ -39,6 +39,7 @@
 
 #include <boost/geometry/algorithms/relate.hpp>
 #include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -70,12 +71,12 @@ struct box_box_loop
         // TODO assert or exception?
         //BOOST_GEOMETRY_ASSERT(min1 <= max1 && min2 <= max2);
 
-        if ( max1 < min2 || max2 < min1 )
+        if (max1 < min2 || max2 < min1)
         {
             return false;
         }
 
-        if ( max1 == min2 || max2 == min1 )
+        if (max1 == min2 || max2 == min1)
         {
             touch = true;
         }
@@ -385,6 +386,16 @@ struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
 
 template <typename Areal1, typename Areal2, typename Tag1, typename Tag2>
 struct touches<Areal1, Areal2, Tag1, Tag2, areal_tag, areal_tag, false>
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            Areal1,
+            Areal2
+        >
+{};
+
+template <typename Areal1, typename Areal2>
+struct touches<Areal1, Areal2, ring_tag, ring_tag, areal_tag, areal_tag, false>
     : detail::touches::areal_areal<Areal1, Areal2>
 {};
 

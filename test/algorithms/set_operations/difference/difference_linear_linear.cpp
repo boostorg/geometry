@@ -553,7 +553,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
          from_wkt<ML>("MULTILINESTRING((4 .4,2 8))"),
          "lldf31x",
-         4.0 * std::numeric_limits<double>::epsilon()
+         1e-10
          );
 
     tester::apply
@@ -561,7 +561,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
          from_wkt<ML>("MULTILINESTRING((2 8,4 .4))"),
          "lldf31x-r",
-         4.0 * std::numeric_limits<double>::epsilon()
+         1e-10
          );
 
     tester::apply

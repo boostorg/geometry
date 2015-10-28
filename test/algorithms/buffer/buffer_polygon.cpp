@@ -570,7 +570,8 @@ void test_all()
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
                 join_round32, end_round32, 2.07548405999982264e+19, 6);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
-                join_round32, end_round32, 9.48681585720922691e+23, 549755813889);
+                join_round32, end_round32, 9.48681585720922691e+23, 549755813889,
+                same_distance, true, high_tolerance);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
                 join_round32, end_round32, 6.10005339242509925e+22, 49316,
                 same_distance, false, high_tolerance);
@@ -578,7 +579,8 @@ void test_all()
                 join_round32, end_round32, 4.25405937213774089e+23, 1479986,
                 same_distance, false, high_tolerance);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
-                join_round32, end_round32, 644489321051.62439, 38141);
+                join_round32, end_round32, 644489321051.62439, 38141,
+                same_distance, false, 10000.0);
         }
     }
 

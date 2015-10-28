@@ -80,6 +80,30 @@ void test_additional()
         "LINESTRING(1 2)",
         "BOX(0 0,3 5)",
         true);
+
+    // http://stackoverflow.com/questions/32457920/boost-rtree-of-box-gives-wrong-intersection-with-segment
+    // http://lists.boost.org/geometry/2015/09/3476.php
+    // For now disabled by default even though it works properly on MSVC14
+    // it's probable that the result depends on the compiler
+#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    test_geometry<bg::model::segment<P>, bg::model::box<P> >(
+        "SEGMENT(12 0,20 10)",
+        "BOX(0 0,10 10)",
+        false);
+    test_geometry<bg::model::segment<P>, bg::model::box<P> >(
+        "SEGMENT(2 0,8 6)",
+        "BOX(0 0,10 10)",
+        true);
+    test_geometry<bg::model::segment<P>, bg::model::box<P> >(
+        "SEGMENT(2 0,18 8)",
+        "BOX(0 0,10 10)",
+        true);
+    typedef bg::model::point<typename bg::coordinate_type<P>::type, 3, bg::cs::cartesian> point3d_t;
+    test_geometry<bg::model::segment<point3d_t>, bg::model::box<point3d_t> >(
+        "SEGMENT(2 1 0,2 1 10)",
+        "BOX(0 0 0,10 0 10)",
+        false);
+#endif
 }
 
 

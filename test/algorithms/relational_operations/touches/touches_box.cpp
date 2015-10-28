@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014. 2015.
+// This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -41,6 +41,7 @@ void test_box_3d()
                             "box(P(0,0,0),P(5,5,5))", "box(P(5,5,5),P(6,6,6))",
                             true);
 }
+
 
 int test_main( int , char* [] )
 {

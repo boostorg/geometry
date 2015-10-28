@@ -52,6 +52,8 @@
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
+#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -599,19 +601,18 @@ inline void enlarge_sections(Sections& sections)
     // Reason: turns might, rarely, be missed otherwise (case: "buffer_mp1")
     // Drawback: not really, range is now completely inside the section. Section is a tiny bit too large,
     // which might cause (a small number) of more comparisons
-    // TODO: make dimension-agnostic
+    
+    // NOTE: above is old comment to the not used code expanding the Boxes by relaxed_epsilon(10)
+    
+    // Enlarge sections by scaled epsilon, this should be consistent with math::equals().
+    // Points and Segments are equal-compared WRT machine epsilon, but Boxes aren't
+    // Enlarging Boxes ensures that they correspond to the bound objects,
+    // Segments in this case, since Sections are collections of Segments.
     for (typename boost::range_iterator<Sections>::type it = boost::begin(sections);
         it != boost::end(sections);
         ++it)
     {
-        typedef typename boost::range_value<Sections>::type section_type;
-        typedef typename section_type::box_type box_type;
-        typedef typename geometry::coordinate_type<box_type>::type coordinate_type;
-        coordinate_type const reps = math::relaxed_epsilon(10.0);
-        geometry::set<0, 0>(it->bounding_box, geometry::get<0, 0>(it->bounding_box) - reps);
-        geometry::set<0, 1>(it->bounding_box, geometry::get<0, 1>(it->bounding_box) - reps);
-        geometry::set<1, 0>(it->bounding_box, geometry::get<1, 0>(it->bounding_box) + reps);
-        geometry::set<1, 1>(it->bounding_box, geometry::get<1, 1>(it->bounding_box) + reps);
+        detail::expand_by_epsilon(it->bounding_box);
     }
 }
 
@@ -802,6 +803,8 @@ inline void sectionalize(Geometry const& geometry,
             Reverse,
             DimensionVector
         >::apply(geometry, robust_policy, sections, ring_id, max_count);
+
+    detail::sectionalize::enlarge_sections(sections);
 }
 
 
