@@ -864,4 +864,29 @@ static std::string ticket_11121[2] =
         "POLYGON((-7901 -1485,-7901 529,-7901 529,15802 544,15802 -1485,-7901 -1485))"
     };
 
+
+static std::string ticket_11725[2] =
+    {
+        "POLYGON((0 0, 0 1, 3 1, 3 0, 0 0))",
+        "POLYGON((0 1, 0 3, 3 3, 3 1, 2 2, 1 2 , 1 1, 0 1))"
+    };
+
+static std::string mysql_21964079_1[2] =
+    {
+        "POLYGON((7 3,0 10,0 -6,9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
+        "POLYGON((0 8,-8 14,-11 18,-19 11, -3 1, 0 8))"
+    };
+
+static std::string mysql_21964079_2[2] =
+    {
+        "POLYGON((0 0,0 10,10 10,10 0,0 0), (0 8, 4 4, 4 6, 0 8))",
+        "POLYGON((0 8,-8 8,-10 4,0 8))"
+    };
+
+static std::string mysql_21964049[2] =
+    {
+        "POLYGON((7 0,10 -3,7 1,7 0))",
+        "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))"
+    };
+
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP
