@@ -338,7 +338,7 @@ struct areal_areal
         template <std::size_t OpId, typename Turn>
         inline void per_turn(Turn const& turn)
         {
-            static const std::size_t other_op_id = (OpId + 1) % 2;
+            //static const std::size_t other_op_id = (OpId + 1) % 2;
             static const bool transpose_result = OpId != 0;
 
             overlay::operation_type const op = turn.operations[OpId].operation;
@@ -357,11 +357,14 @@ struct areal_areal
             else if ( op == overlay::operation_intersection )
             {
                 // ignore i/i
-                if ( turn.operations[other_op_id].operation != overlay::operation_intersection )
+                /*if ( turn.operations[other_op_id].operation != overlay::operation_intersection )
                 {
-                    update<interior, interior, '2', transpose_result>(m_result);
+                    // not correct e.g. for G1 touching G2 in a point where a hole is touching the exterior ring
+                    // in this case 2 turns i/... and u/u will be generated for this IP
+                    //update<interior, interior, '2', transpose_result>(m_result);
+
                     //update<boundary, interior, '1', transpose_result>(m_result);
-                }
+                }*/
 
                 update<boundary, boundary, '0', transpose_result>(m_result);
             }
@@ -473,8 +476,11 @@ struct areal_areal
                 // ignore i/i
                 if ( it->operations[other_op_id].operation != overlay::operation_intersection )
                 {
-                    // already set in interrupt policy
+                    // this was set in the interrupt policy but it was wrong
+                    // also here it's wrong since it may be a fake entry point
                     //update<interior, interior, '2', transpose_result>(result);
+
+                    // already set in interrupt policy
                     //update<boundary, boundary, '0', transpose_result>(result);
                     m_enter_detected = true;
                 }
@@ -523,6 +529,7 @@ struct areal_areal
         template <typename Result>
         static inline void update_enter(Result & result)
         {
+            update<interior, interior, '2', transpose_result>(result);
             update<boundary, interior, '1', transpose_result>(result);
             update<exterior, interior, '2', transpose_result>(result);
         }
@@ -574,6 +581,7 @@ struct areal_areal
             , m_flags(0)
         {
             // check which relations must be analysed
+            // NOTE: 1 and 4 could probably be connected
 
             if ( ! may_update<interior, interior, '2', transpose_result>(m_result) )
             {
@@ -662,21 +670,12 @@ struct areal_areal
                 if ( it->operations[0].operation == overlay::operation_intersection 
                   && it->operations[1].operation == overlay::operation_intersection )
                 {
-                    // ignore exterior ring
-                    if ( it->operations[OpId].seg_id.ring_index >= 0 )
-                    {
-                        found_ii = true;
-                    }
+                    found_ii = true;
                 }
                 else if ( it->operations[0].operation == overlay::operation_union 
                        && it->operations[1].operation == overlay::operation_union )
                 {
-                    // ignore if u/u is for holes
-                    //if ( it->operations[OpId].seg_id.ring_index >= 0
-                    //  && it->operations[other_id].seg_id.ring_index >= 0 )
-                    {
-                        found_uu = true;
-                    }
+                    found_uu = true;
                 }
                 else // ignore
                 {
@@ -687,8 +686,11 @@ struct areal_areal
             // only i/i was generated for this ring
             if ( found_ii )
             {
-                //update<interior, interior, '0', transpose_result>(m_result);
-                //update<boundary, boundary, '0', transpose_result>(m_result);
+                update<interior, interior, '2', transpose_result>(m_result);
+                m_flags |= 1;
+
+                //update<boundary, boundary, '0', transpose_result>(m_result);                
+
                 update<boundary, interior, '1', transpose_result>(m_result);
                 update<exterior, interior, '2', transpose_result>(m_result);
                 m_flags |= 4;

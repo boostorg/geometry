@@ -7,6 +7,7 @@
 // Modifications copyright (c) 2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -86,6 +87,81 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case25", "LINESTRING(4 0,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case26", "LINESTRING(4 0,4 3,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case27", "LINESTRING(4 4,4 5,5 5)", poly_9, 1, 3, 2.0);
+
+    test_one_lp<LineString, LineString, Polygon>("case28",
+        "LINESTRING(-1.3 0,-15 0,-1.3 0)",
+        "POLYGON((2 3,-9 -7,12 -13,2 3))",
+         1, 3, 27.4);
+
+    test_one_lp<LineString, LineString, Polygon>("case29",
+        "LINESTRING(5 5,-10 5,5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case29a",
+        "LINESTRING(1 1,5 5,-10 5,5 5,6 6)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case30",
+        "LINESTRING(-10 5,5 5,-10 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 4, 20);
+
+    test_one_lp<LineString, LineString, Polygon>("case30a",
+        "LINESTRING(-20 10,-10 5,5 5,-10 5,-20 -10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 6, 49.208096);
+
+    test_one_lp<LineString, LineString, Polygon>("case31",
+        "LINESTRING(0 5,5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case31",
+        "LINESTRING(0 5,5 5,1 1,9 1,5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case32",
+        "LINESTRING(5 5,0 5,5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case32a",
+        "LINESTRING(-10 10,5 5,0 5,5 5,20 10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         2, 4, 21.081851);
+
+    test_one_lp<LineString, LineString, Polygon>("case33",
+        "LINESTRING(-5 5,0 5,-5 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 10);
+
+    test_one_lp<LineString, LineString, Polygon>("case33a",
+        "LINESTRING(-10 10,-5 5,0 5,-5 5,-10 -10)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 5, 32.882456);
+
+    test_one_lp<LineString, LineString, Polygon>("case33b",
+        "LINESTRING(0 5,-5 5,0 5)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         1, 3, 10);
+
+    test_one_lp<LineString, LineString, Polygon>("case34",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 4)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case35",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+         0, 0, 0);
+
+    test_one_lp<LineString, LineString, Polygon>("case36",
+        "LINESTRING(-1 -1,10 10)",
+        "POLYGON((5 5,15 15,15 5,5 5))",
+        1, 2, 6 * std::sqrt(2.0));
 }
 
 template <typename CoordinateType>
@@ -599,6 +675,21 @@ void test_all()
             5, 22, 1.1901714,
             5, 27, 1.6701714);
     ***/
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_one<polygon, polygon, polygon>("ticket_11725_2",
+        "POLYGON((0 0,0 3,3 3,3 0,0 0))",
+        "POLYGON((3 1,1 1,1 2,2 2,3 1))",
+        2, -1, 7.5, 0, -1, 0.0);
+    test_one<polygon, polygon, polygon>("mysql_21977775",
+        "POLYGON((8 6,5 7,-1 4,-8 -7, 0 -17, 8 6), (3 6, 5 5, 0 -2, 3 6))",
+        "POLYGON((3 3,-17 11,-8 -3, 3 3))",
+        2, -1, 160.856568913, 2, -1, 92.3565689126);
+    test_one<polygon, polygon, polygon>("mysql_21965285",
+        "POLYGON((7 3,0 10,0 -6, 9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
+        "POLYGON((0 6,0 8,-14 13,0 6))",
+        0, -1, 0.0, 0, -1, 0.0);
+#endif
 }
 
 /*******

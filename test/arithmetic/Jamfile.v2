@@ -11,6 +11,6 @@
 
 test-suite boost-geometry-arithmetic
     :
-    [ run arithmetic.cpp  : : : : arithmetic ]
+    [ run general.cpp     : : : : arithmetic_general ]
     [ run dot_product.cpp : : : : arithmetic_dot_product ]
     ;

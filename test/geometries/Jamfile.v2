@@ -25,6 +25,6 @@ test-suite boost-geometry-geometries
     #    geometries_custom_linestring_test_fail_clear
     #]
     [ run custom_linestring.cpp    : : : : geometries_custom_linestring ]
-    [ run geometries.cpp           : : : : geometries ]
+    [ run initialization.cpp       : : : : geometries_initialization ]
     [ run segment.cpp              : : : : geometries_segment ]
     ;

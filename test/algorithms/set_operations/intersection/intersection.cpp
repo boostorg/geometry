@@ -9,6 +9,7 @@
 // Modifications copyright (c) 2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -323,14 +324,20 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_one<Polygon, Polygon, Polygon>("mysql_21964465",
+        "POLYGON((0 0,0 10,10 10,10 0, 0 0), (0 8, 4 4, 4 6, 0 8))",
+        "POLYGON((0 8,-8 8,-2 2,0 8))",
+        0, -1, 0.0);
+#endif
+
     return;
 
-
     test_one<Polygon, Polygon, Polygon>(
-            "polygon_pseudo_line",
-            "Polygon((0 0,0 4,4 4,4 0,0 0))",
-            "Polygon((2 -2,2 -1,2 6,2 -2))",
-            5, 22, 1.1901714);
+        "polygon_pseudo_line",
+        "Polygon((0 0,0 4,4 4,4 0,0 0))",
+        "Polygon((2 -2,2 -1,2 6,2 -2))",
+        5, 22, 1.1901714);
 }
 
 template <typename Polygon, typename Box>
@@ -445,6 +452,86 @@ void test_areal_linear()
     test_one_lp<LineString, Polygon, LineString>("case18", "POLYGON((1 1,1 5,5 5,5 1,1 1))", angly, 2, 12, 10.0 + sqrt(2.0));
     test_one_lp<LineString, Polygon, LineString>("case19", poly_9, "LINESTRING(1 2,1 3,0 3)", 1, 2, 1.0);
     test_one_lp<LineString, Polygon, LineString>("case20", poly_9, "LINESTRING(1 2,1 3,2 3)", 1, 3, 2.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case21",
+        "POLYGON((2 3,-9 -7,12 -13,2 3))",
+        "LINESTRING(-1.3 0,-15 0,-1.3 0)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case22",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,-10 5,5 5)",
+         2, 4, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case22a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(1 1,5 5,-10 5,5 5,6 6)",
+         2, 6, 17.071068);
+
+    test_one_lp<LineString, Polygon, LineString>("case23",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 5,5 5,-10 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case23a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-20 10,-10 5,5 5,-10 5,-20 -10)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case24",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(0 5,5 5,0 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case24",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(0 5,5 5,1 1,9 1,5 5,0 5)",
+         1, 6, 29.313708);
+
+    test_one_lp<LineString, Polygon, LineString>("case25",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5)",
+         1, 3, 10);
+
+    test_one_lp<LineString, Polygon, LineString>("case25a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,0 5,5 5,20 10)",
+         1, 4, 20.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case25b",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,1 5,5 5,20 10)",
+         1, 4, 18.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case25c",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,5 5,-1 5,5 5,20 10)",
+         2, 6, 20.540925);
+
+    test_one_lp<LineString, Polygon, LineString>("case26",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-5 5,0 5,-5 5)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case26a",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(-10 10,-5 5,0 5,-5 5,-10 -10)",
+         0, 0, 0);
+
+    test_one_lp<LineString, Polygon, LineString>("case27",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 4)",
+         1, 6, 21.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case28",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        "LINESTRING(5 5,0 5,5 5,5 4,0 4,5 3)",
+         1, 6, 21.099019);
+
+    test_one_lp<LineString, Polygon, LineString>("case29",
+        "POLYGON((5 5,15 15,15 5,5 5))",
+        "LINESTRING(0 0,10 10)",
+        1, 2, 5 * std::sqrt(2.0));
 
     // PROPERTIES CHANGED BY switch_to_integer
     // TODO test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
@@ -680,6 +767,7 @@ void test_boxes_nd()
     test_boxes_per_d(p2(0,0), p2(5,5), p2(3,3), p2(6,6), true);
     test_boxes_per_d(p3(0,0,0), p3(5,5,5), p3(3,3,3), p3(6,6,6), true);
 }
+
 
 template <typename CoordinateType>
 void test_ticket_10868(std::string const& wkt_out)

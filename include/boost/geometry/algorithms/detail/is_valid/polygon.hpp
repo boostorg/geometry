@@ -11,6 +11,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_POLYGON_HPP
 
 #include <cstddef>
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+#include <iostream>
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 #include <algorithm>
 #include <deque>
@@ -327,7 +330,9 @@ protected:
                 g.add_edge(v2, vip);
             }
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             debug_print_complement_graph(std::cout, g);
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
             if (g.has_cycles())
             {

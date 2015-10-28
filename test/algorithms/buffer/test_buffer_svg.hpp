@@ -131,6 +131,8 @@ private :
                     color = 'b';
                     is_good = false;
                     break;
+                default:
+                    ; // to avoid "enumeration value not handled" warning
             }
             if (!it->selectable_start)
             {

@@ -93,6 +93,10 @@ static std::string const mysql_report_2015_06_11 = "LINESTRING("
     "-162.7456296900030000 11.7183989853218000, 115.6208648232840000 "
     "51.0941612539320000, -48.7772321835054000 50.4339743128205000)";
 
+static std::string const mysql_report_2015_09_08a = "LINESTRING(1 1, 2 1, 1.765258e+308 4, -1 1, 10 4)";
+static std::string const mysql_report_2015_09_08b = "LINESTRING(2199023255556 16777218, 32770 8194, 1.417733e+308 7.823620e+307, -8 -9, 2147483649 20)";
+static std::string const mysql_report_2015_09_08c = "LINESTRING(-5 -8, 2 8, 2.160023e+307 1.937208e+307, -4 -3, -5 -4, 8796093022208 281474976710653)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -270,6 +274,12 @@ void test_all()
             mysql_report_2015_06_11, join_round32, end_round32,
             27862.733459829971,
             5.9518403867035365);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<linestring, polygon>("mysql_report_2015_09_08a", mysql_report_2015_09_08a, join_round32, end_round32, 0.0, 1.0);
+    test_one<linestring, polygon>("mysql_report_2015_09_08b", mysql_report_2015_09_08b, join_round32, end_round32, 0.0, 1099511627778.0);
+    test_one<linestring, polygon>("mysql_report_2015_09_08c", mysql_report_2015_09_08c, join_round32, end_round32, 0.0, 0xbe);
+#endif
 }
 
 template <bool Clockwise, typename P>

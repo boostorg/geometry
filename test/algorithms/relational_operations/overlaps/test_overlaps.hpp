@@ -2,6 +2,12 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -22,15 +28,12 @@
 
 
 template <typename Geometry1, typename Geometry2>
-void test_geometry(std::string const& wkt1,
-        std::string const& wkt2, bool expected)
+void test_geometry(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
 {
-    Geometry1 geometry1;
-    Geometry2 geometry2;
-
-    bg::read_wkt(wkt1, geometry1);
-    bg::read_wkt(wkt2, geometry2);
-
     bool detected = bg::overlaps(geometry1, geometry2);
 
     BOOST_CHECK_MESSAGE(detected == expected,
@@ -46,6 +49,20 @@ void test_geometry(std::string const& wkt1,
         << " with " << wkt2
         << " -> Expected: " << expected
         << " detected: " << detected);
+}
+
+template <typename Geometry1, typename Geometry2>
+void test_geometry(std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
+{
+    Geometry1 geometry1;
+    Geometry2 geometry2;
+
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
+
+    test_geometry(geometry1, geometry2, wkt1, wkt2, expected);
 }
 
 

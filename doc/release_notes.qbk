@@ -19,6 +19,19 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.60]
+[/=================]
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/11533 11533] Assert failure in rtree caused by a bug in remove() if min elements number is 1
+* [@https://svn.boost.org/trac/boost/ticket/11607 11607] Private geometry::exception::what()
+
+[*Bugfixes]
+
+* Fix removing values from an empty rtree - no effect and 0 returned instead of assertion failure.
+
+[/=================]
 [heading Boost 1.59]
 [/=================]
 
