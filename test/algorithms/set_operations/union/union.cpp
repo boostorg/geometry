@@ -181,6 +181,8 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("59_iet",
                 case_59[0], case_59[2], 1, 1, 14, 17.20833);
 
+    test_one<Polygon, Polygon, Polygon>("80",
+                case_80[0], case_80[1], 2, 2, 18, 129.0);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
@@ -383,6 +385,7 @@ void test_areal()
         ticket_11725[0], ticket_11725[1],
         1, 1, -1, 7.5);
 #endif
+
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
         2, 1, -1, 234.5);

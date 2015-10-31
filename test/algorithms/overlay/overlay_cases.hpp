@@ -353,6 +353,12 @@ static std::string case_79[2] = {
         "POLYGON((0 0,0 5,5 5,5 0,2 0,2 2,1 2,1 0,0 0))"
     };
 
+// Two colocations of interior/exterior ring
+static std::string case_80[2] = {
+        "POLYGON((0 5,5 10,10 5,5 0,0 5),(10 5,4 6,5 4,10 5))",
+        "POLYGON((10 0,10 10,20 10,20 0,10 0),(10 5,15 3,18 8,10 5))"
+    };
+
 static std::string case_many_situations[2] = {
         "POLYGON((2 6,2 14,10 18,18 14,18 6,16 5,14 4,12 3,10 2,8 3,6 4,4 5,2 6))",
         "POLYGON((2 6,2 7,2 8,2 9,2 10,2 11,2 12,1 14"
