@@ -160,6 +160,9 @@ inline void handle_colocations(TurnPoints& turn_points)
                     = cluster_turn.operations[vit->op_index];
             segment_identifier cluster_other_id
                     = cluster_turn.operations[1 - vit->op_index].seg_id;
+            bool const uu_or_ux
+                    = cluster_turn.both(operation_union)
+                    || cluster_turn.combination(operation_blocked, operation_union);
 
             for (++vit; vit != it->second.end(); ++vit)
             {
@@ -171,9 +174,10 @@ inline void handle_colocations(TurnPoints& turn_points)
 
                 if (cluster_op.fraction == op.fraction)
                 {
-                    if (cluster_other_id.multi_index == other_id.multi_index
-                            && cluster_other_id.ring_index == -1
-                            && other_id.ring_index >= 0)
+                    if (uu_or_ux
+                        && cluster_other_id.multi_index == other_id.multi_index
+                        && cluster_other_id.ring_index == -1
+                        && other_id.ring_index >= 0)
                     {
                         // If the two turns on this same segment are a
                         // colocation with two different segments on the
