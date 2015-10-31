@@ -37,17 +37,15 @@
 template <typename MultiPolygon, bool Reverse>
 void test_geometries()
 {
-    namespace ov = bg::detail::overlay;
-
     typedef test_traverse
         <
             MultiPolygon, MultiPolygon,
-            ov::operation_intersection, Reverse, Reverse
+            bg::overlay_intersection, Reverse, Reverse
         > test_traverse_intersection;
     typedef test_traverse
         <
             MultiPolygon, MultiPolygon,
-            ov::operation_union, Reverse, Reverse
+            bg::overlay_union, Reverse, Reverse
         > test_traverse_union;
 
     // Intersections:
