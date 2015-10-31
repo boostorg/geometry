@@ -19,6 +19,12 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
+#if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
+#  include <iostream>
+#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#  include <boost/geometry/io/wkt/wkt.hpp>
+#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#endif
 
 namespace boost { namespace geometry
 {
@@ -191,7 +197,7 @@ inline void handle_colocations(TurnPoints& turn_points)
         }
     }
 
-#if BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS
+#if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
     for (typename map_type::const_iterator it = map.begin();
          it != map.end(); ++it)
