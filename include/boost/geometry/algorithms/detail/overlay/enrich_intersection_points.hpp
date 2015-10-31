@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
@@ -467,6 +468,7 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename TurnPoints,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,

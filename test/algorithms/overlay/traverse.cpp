@@ -174,7 +174,7 @@ struct test_traverse
 
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::assign_null_policy>(g1, g2, rescale_policy, turns, policy);
-        bg::enrich_intersection_points<Reverse1, Reverse2>(turns, op,
+        bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns, op,
             g1, g2, rescale_policy, side_strategy_type());
 
         typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
