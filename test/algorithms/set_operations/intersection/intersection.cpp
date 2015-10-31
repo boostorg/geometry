@@ -325,7 +325,7 @@ void test_areal()
                 1, 29, 0.457126);
 
     // Case 58 with interior/exterior tangency
-    test_one<Polygon, Polygon, Polygon>("case_58_iets",
+    test_one<Polygon, Polygon, Polygon>("case_58_iet",
         case_58[0], case_58[2],
         2, -1, 1.0 / 3.0);
 
