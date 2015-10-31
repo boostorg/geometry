@@ -108,6 +108,10 @@ inline void handle_colocations(TurnPoints& turn_points)
             std::vector<turn_operation_index>
         > map_type;
 
+    // Create and fill map on segment-identifier Map is sorted on seg_id,
+    // meaning it is sorted on ring_identifier too. This means that exterior
+    // rings are handled first. If there is a colocation on the exterior ring,
+    // that information can be used for the interior ring too
     map_type map;
 
     int index = 0;
@@ -152,6 +156,7 @@ inline void handle_colocations(TurnPoints& turn_points)
     {
         if (it->second.size() > 1)
         {
+            segment_identifier const& current_ring_seg_id = it->first;
             std::vector<turn_operation_index>::const_iterator
                              vit = it->second.begin();
 
@@ -160,7 +165,7 @@ inline void handle_colocations(TurnPoints& turn_points)
                     = cluster_turn.operations[vit->op_index];
             segment_identifier cluster_other_id
                     = cluster_turn.operations[1 - vit->op_index].seg_id;
-            bool const uu_or_ux
+            bool const discard_colocated
                     = cluster_turn.both(operation_union)
                     || cluster_turn.combination(operation_blocked, operation_union);
 
@@ -174,16 +179,34 @@ inline void handle_colocations(TurnPoints& turn_points)
 
                 if (cluster_op.fraction == op.fraction)
                 {
-                    if (uu_or_ux
-                        && cluster_other_id.multi_index == other_id.multi_index
-                        && cluster_other_id.ring_index == -1
-                        && other_id.ring_index >= 0)
+                    // Two turns of current ring with same source are colocated,
+                    // one is from exterior ring, one from interior ring
+                    bool const colocated_ext_int
+                        = cluster_other_id.multi_index == other_id.multi_index
+                           && cluster_other_id.ring_index == -1
+                           && other_id.ring_index >= 0;
+
+                    // Turn of current interior ring with other interior ring
+                    bool const touch_int_int
+                        = current_ring_seg_id.ring_index >= 0
+                           && other_id.ring_index >= 0;
+
+                    if (discard_colocated && colocated_ext_int)
                     {
                         // If the two turns on this same segment are a
                         // colocation with two different segments on the
                         // other geometry, of the same polygon but with
                         // the outer (u/u or u/x) and the inner ring (non u/u),
                         // that turn with inner ring should be discarded
+                        turn.discarded = true;
+                        turn.colocated = true;
+                    }
+                    else if (cluster_turn.colocated
+                             && touch_int_int
+                             && turn.both(operation_intersection))
+                    {
+                        // Two holes touch each other at a point where the
+                        // exterior ring also touches
                         turn.discarded = true;
                         turn.colocated = true;
                     }
