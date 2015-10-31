@@ -67,21 +67,15 @@ struct less_by_fraction_and_type
             return left_op.fraction < right_op.fraction;
         }
 
-        // Fraction is the same, now sort u/u first, all others as last
-        // For a colocated turn on exterior/interior ring, this means that
-        // the turn of the exterior ring (u/u) is sorted first, and that of
-        // the interior ring (i/u) comes next (alternatively we might sort
-        // on ring-id instead)
-        int const left_code
-                = left_turn.both(detail::overlay::operation_union) ? 0 : 1;
-        int const right_code
-                = right_turn.both(detail::overlay::operation_union) ? 0 : 1;
-        if (left_code != right_code)
-        {
-            return left_code < right_code;
-        }
+        turn_operation_type const& left_other_op
+                = left_turn.operations[1 - left.op_index];
 
-        return left.turn_index < right.turn_index;
+        turn_operation_type const& right_other_op
+                = right_turn.operations[1 - right.op_index];
+
+        // Fraction is the same, now sort on ring id, first outer ring,
+        // then interior rings
+        return left_other_op.seg_id < right_other_op.seg_id;
     }
 
 private:
@@ -171,25 +165,17 @@ inline void handle_colocations(TurnPoints& turn_points)
 
                 if (cluster_op.fraction == op.fraction)
                 {
-                    if (cluster_turn.both(operation_union)
-                        && ! turn.both(operation_union)
-                        && ! turn.both(operation_continue))
+                    if (cluster_other_id.multi_index == other_id.multi_index
+                            && cluster_other_id.ring_index == -1
+                            && other_id.ring_index >= 0)
                     {
-                        // One of previous colocated was a u/u turn and this one
-                        // is not a u/u or c/c turn. Set the flag for colocation
+                        // If the two turns on this same segment are a
+                        // colocation with two different segments on the
+                        // other geometry, of the same polygon but with
+                        // the outer (u/u or u/x) and the inner ring (non u/u),
+                        // that turn with inner ring should be discarded
+                        turn.discarded = true;
                         turn.colocated = true;
-
-                        if (cluster_other_id.multi_index == other_id.multi_index
-                                && cluster_other_id.ring_index == -1
-                                && other_id.ring_index >= 0)
-                        {
-                            // If the two turns on this same segment are a
-                            // colocation with two different segments on the
-                            // other geometry, of the same polygon but with
-                            // the outer (u/u) and the inner ring (non u/u),
-                            // that turn with inner ring should be discarded
-                            turn.discarded = true;
-                        }
                     }
                 }
                 else

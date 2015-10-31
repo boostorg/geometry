@@ -491,11 +491,9 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    // DISCARD ALL UU
-    // #76 is the reason that this is necessary...
-    // With uu, at all points there is the risk that rings are being traversed twice or more.
-    // Without uu, all rings having only uu will be untouched and gathered by assemble
-    bool has_uu = false;
+    // Iterate through turns and discard uu
+    // and check if there are possible colocations
+    bool check_colocations = false;
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -503,16 +501,25 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     {
         if (it->both(detail::overlay::operation_union))
         {
+            // Discard  (necessary for a.o. #76). With uu, at all points there
+            // is the risk that rings are being traversed twice or more.
+            // Without uu, all rings having only uu will be untouched
+            // and gathered by assemble
             it->discarded = true;
-            has_uu = true;
+            check_colocations = true;
         }
-        if (it->both(detail::overlay::operation_none))
+        else if (it->combination(detail::overlay::operation_union,
+                                 detail::overlay::operation_blocked))
+        {
+            check_colocations = true;
+        }
+        else if (it->both(detail::overlay::operation_none))
         {
             it->discarded = true;
         }
     }
 
-    if (has_uu)
+    if (check_colocations)
     {
         detail::overlay::handle_colocations(turn_points);
     }
