@@ -678,17 +678,14 @@ void test_all()
 
 #ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     test_one<polygon, polygon, polygon>("ticket_11725_2",
-        "POLYGON((0 0,0 3,3 3,3 0,0 0))",
-        "POLYGON((3 1,1 1,1 2,2 2,3 1))",
+        ticket_11725_2[0], ticket_11725_2[1],
         2, -1, 7.5, 0, -1, 0.0);
     test_one<polygon, polygon, polygon>("mysql_21977775",
-        "POLYGON((8 6,5 7,-1 4,-8 -7, 0 -17, 8 6), (3 6, 5 5, 0 -2, 3 6))",
-        "POLYGON((3 3,-17 11,-8 -3, 3 3))",
+        mysql_21977775[0], mysql_21977775[1],
         2, -1, 160.856568913, 2, -1, 92.3565689126);
     test_one<polygon, polygon, polygon>("mysql_21965285",
-        "POLYGON((7 3,0 10,0 -6, 9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
-        "POLYGON((0 6,0 8,-14 13,0 6))",
-        0, -1, 0.0, 0, -1, 0.0);
+        mysql_21965285[0], mysql_21965285[1],
+        1, -1, 92.0, 0, -1, 0.0);
 #endif
 }
 

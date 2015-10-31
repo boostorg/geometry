@@ -310,7 +310,7 @@ static std::string case_58[3] = {
         "POLYGON((3 3,3 4,4 4,4 3,3 3))",
         // ST: self-tangent
         "POLYGON((0 2,0 5,4 4,1 4,1 3,4 4,2 3,2 2,4 4,3 2,4 2,4 4,5 0,0 2))",
-        // IET: inner/ext tangency
+        // IET: inner/ext tangency (the correct version)
         "POLYGON((0 2,0 5,4 4,5 0,0 2),(4 4,1 4,1 3,4 4),(4 4,2 3,2 2,4 4),(4 4,3 2,4 2,4 4))"
     };
 
@@ -877,6 +877,12 @@ static std::string ticket_11725[2] =
         "POLYGON((0 1, 0 3, 3 3, 3 1, 2 2, 1 2 , 1 1, 0 1))"
     };
 
+static std::string ticket_11725_2[2] =
+    {
+        "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))",
+        "POLYGON((3 1, 1 1, 1 2, 2 2, 3 1))",
+    };
+
 static std::string mysql_21964079_1[2] =
     {
         "POLYGON((7 3,0 10,0 -6,9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
@@ -901,6 +907,17 @@ static std::string mysql_21964465[2] =
         "POLYGON((0 8,-8 8,-2 2,0 8))",
     };
 
+static std::string mysql_21977775[2] =
+    {
+        "POLYGON((8 6, 5 7, -1 4, -8 -7, 0 -17, 8 6), (3 6, 5 5, 0 -2, 3 6))",
+        "POLYGON((3 3, -17 11, -8 -3, 3 3))",
+    };
+
+static std::string mysql_21965285[2] =
+    {
+        "POLYGON((7 3, 0 10, 0 -6, 9 -5, 7 7, 7 3), (0 8, 2 3, 2 -2, 0 8))",
+        "POLYGON((0 6, 0 8, -14 13, 0 6))",
+    };
 
 
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP
