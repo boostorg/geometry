@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/range.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
@@ -96,7 +97,7 @@ private:
 // This function can be extended to replace handle_tangencies: at each
 // colocation incoming and outgoing vectors should be inspected
 
-template <typename TurnPoints>
+template <overlay_type OverlayType, typename TurnPoints>
 inline void handle_colocations(TurnPoints& turn_points)
 {
     typedef typename boost::range_value<TurnPoints>::type turn_type;
@@ -207,6 +208,15 @@ inline void handle_colocations(TurnPoints& turn_points)
                     {
                         // Two holes touch each other at a point where the
                         // exterior ring also touches
+                        turn.discarded = true;
+                        turn.colocated = true;
+                    }
+                    else if (OverlayType == overlay_difference
+                             && turn.both(operation_intersection)
+                             && colocated_ext_int)
+                    {
+                        // For difference (polygon inside out) we need to
+                        // discard i/i instead, in case of colocations
                         turn.discarded = true;
                         turn.colocated = true;
                     }

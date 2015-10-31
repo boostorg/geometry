@@ -515,6 +515,12 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         {
             check_colocations = true;
         }
+        else if (OverlayType == overlay_difference
+                 && it->both(detail::overlay::operation_intersection))
+        {
+            // For difference operation (u/u -> i/i)
+            check_colocations = true;
+        }
         else if (it->both(detail::overlay::operation_none))
         {
             it->discarded = true;
@@ -523,7 +529,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
 
     if (check_colocations)
     {
-        detail::overlay::handle_colocations(turn_points);
+        detail::overlay::handle_colocations<OverlayType>(turn_points);
     }
 
     // Create a map of vectors of indexed operation-types to be able
