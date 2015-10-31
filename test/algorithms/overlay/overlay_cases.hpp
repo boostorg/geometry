@@ -895,4 +895,12 @@ static std::string mysql_21964049[2] =
         "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))"
     };
 
+static std::string mysql_21964465[2] =
+    {
+        "POLYGON((0 0,0 10,10 10,10 0, 0 0), (0 8, 4 4, 4 6, 0 8))",
+        "POLYGON((0 8,-8 8,-2 2,0 8))",
+    };
+
+
+
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP

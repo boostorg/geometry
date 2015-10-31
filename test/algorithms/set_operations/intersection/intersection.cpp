@@ -324,12 +324,17 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-    test_one<Polygon, Polygon, Polygon>("mysql_21964465",
-        "POLYGON((0 0,0 10,10 10,10 0, 0 0), (0 8, 4 4, 4 6, 0 8))",
-        "POLYGON((0 8,-8 8,-2 2,0 8))",
+    test_one<Polygon, Polygon, Polygon>("case_80",
+        case_80[0], case_80[1],
         0, -1, 0.0);
-#endif
+
+    test_one<Polygon, Polygon, Polygon>("mysql_21964049",
+        mysql_21964049[0], mysql_21964049[1],
+        0, -1, 0.0);
+
+    test_one<Polygon, Polygon, Polygon>("mysql_21964465",
+        mysql_21964465[0], mysql_21964465[1],
+        0, -1, 0.0);
 
     return;
 
