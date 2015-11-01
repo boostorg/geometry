@@ -474,8 +474,6 @@ void test_specific()
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
 
     ut_settings settings;
-    settings.percentage = 0.001;
-    settings.remove_spikes = true;
     settings.test_validity = true;
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
@@ -497,15 +495,20 @@ void test_specific()
         1, 4, 6731652.0,
         settings);
 
+    {
+        ut_settings settings;
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // Generates spikes, both a-b and b-a
-    test_one<polygon, polygon, polygon>("ticket_11676",
-        ticket_11676[0], ticket_11676[1],
-        1, 18, 2537992.5,
-        2, 11, 294963.5,
-        2, -1, 2537992.5 + 294963.5,
-        settings);
+        settings.test_validity = true;
 #endif
+
+        // Generates spikes, both a-b and b-a
+        test_one<polygon, polygon, polygon>("ticket_11676",
+            ticket_11676[0], ticket_11676[1],
+            1, 18, 2537992.5,
+            2, 11, 294963.5,
+            2, -1, 2537992.5 + 294963.5,
+            settings);
+    }
 }
 
 
