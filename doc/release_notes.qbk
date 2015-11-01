@@ -24,9 +24,10 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10803 10803] Union algorithm returning invalid geometry
+* [@https://svn.boost.org/trac/boost/ticket/11522 11522] Namespace clash in buffer for traits::detail
 * [@https://svn.boost.org/trac/boost/ticket/11533 11533] Assert failure in rtree caused by a bug in remove() if min elements number is 1
 * [@https://svn.boost.org/trac/boost/ticket/11607 11607] Private geometry::exception::what()
-* [@https://svn.boost.org/trac/boost/ticket/11522 11522] Namespace clash in buffer for traits::detail
 
 [*Bugfixes]
 
