@@ -337,7 +337,12 @@ void test_one_lp(std::string const& caseid,
 
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_EQUAL(n, std::size_t(expected_point_count));
+        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
+                "difference: " << caseid
+                << " #points expected: " << std::size_t(expected_point_count)
+                << " detected: " << n
+                << " type: " << (type_for_assert_message<G1, G2>())
+                );
     }
 
     BOOST_CHECK_CLOSE(length, expected_length, 0.001);
@@ -345,7 +350,6 @@ void test_one_lp(std::string const& caseid,
     std::string lp = "lp_";
     difference_output(lp + caseid, g1, g2, pieces);
 }
-
 
 
 #endif
