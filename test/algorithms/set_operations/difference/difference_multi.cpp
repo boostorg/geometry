@@ -206,16 +206,23 @@ void test_specific()
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    boost::ignore_unused<polygon, multi_polygon>();
+    {
+        // Spikes in a-b and b-a, failure in symmetric difference
 
+        ut_settings settings;
+        settings.sym_difference = false;
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // Spikes in a-b and b-a, failure in symmetric difference
-    test_one<polygon, multi_polygon, multi_polygon>("ticket_11674",
-        ticket_11674[0], ticket_11674[1],
-        3, 27, 9105781.5,
-        5, 22, 119059.5,
-        2, -1, -1);
+        settings.test_validity = true;
+        settings.sym_difference = true;
 #endif
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_11674",
+            ticket_11674[0], ticket_11674[1],
+            3, 27, 9105781.5,
+            5, 22, 119059.5,
+            2, -1, -1,
+            settings);
+    }
 }
 
 
