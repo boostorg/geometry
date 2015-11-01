@@ -146,6 +146,23 @@ void test_areal()
             tolerance(0.001));
 #endif
 
+    {
+        // Bug 21155501
+
+        // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
+
+        ut_settings settings;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.test_validity = true;
+#endif
+        test_one<Polygon, MultiPolygon, MultiPolygon>("bug_21155501",
+            bug_21155501[0], bug_21155501[1],
+                1, 9, 3.758937,
+                0, 0, 0.0,
+                settings);
+
+    }
+
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
