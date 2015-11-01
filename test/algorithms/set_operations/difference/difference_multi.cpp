@@ -105,23 +105,6 @@ void test_areal()
         ggl_list_20111025_vd[2], ggl_list_20111025_vd[3],
             1, 4, 8.0, 1, 4, 12.5);
 
-    // Second case
-    // This can be tested with this SQL for SQL-Server
-    /*
-    with viewy as (select geometry::STGeomFromText(
-            'POLYGON((5 0,5 4,8 4,8 0,5 0))',0) as  p,
-      geometry::STGeomFromText(
-            'MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((4 0,4 2,6 2,6 0,4 0)))',0) as q)
-    select
-        p.STDifference(q).STArea(),p.STDifference(q).STNumGeometries(),p.STDifference(q) as p_min_q,
-        q.STDifference(p).STArea(),q.STDifference(p).STNumGeometries(),q.STDifference(p) as q_min_p,
-        p.STSymDifference(q).STArea(),q.STSymDifference(p) as p_xor_q
-    from viewy
-
-    Outputting:
-    10, 1, <WKB>, 6, 2, <WKB>, 16, <WKB>
-    */
-
     test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_2",
         ggl_list_20111025_vd_2[0], ggl_list_20111025_vd_2[1],
             1, 7, 10.0, 2, 10, 6.0);

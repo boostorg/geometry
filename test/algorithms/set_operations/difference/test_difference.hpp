@@ -237,19 +237,6 @@ void test_one(std::string const& caseid,
         double expected_area_s,
         ut_settings const& settings = ut_settings())
 {
-#ifdef BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
-    std::cout
-        << "-- " << caseid << std::endl
-        << "with qu as (" << std::endl
-        << "select geometry::STGeomFromText('" << wkt1 << "',0) as p," << std::endl
-        << "geometry::STGeomFromText('" << wkt2 << "',0) as q)" << std::endl
-        << "select " << std::endl
-        << " p.STDifference(q).STNumGeometries() as cnt1,p.STDifference(q).STNumPoints() as pcnt1,p.STDifference(q).STArea() as area1," << std::endl
-        << " q.STDifference(p).STNumGeometries() as cnt2,q.STDifference(p).STNumPoints() as pcnt2,q.STDifference(p).STArea() as area2," << std::endl
-        << " p.STDifference(q) as d1,q.STDifference(p) as d2 from qu" << std::endl << std::endl;
-#endif
-
-
     G1 g1;
     bg::read_wkt(wkt1, g1);
 
@@ -279,40 +266,6 @@ void test_one(std::string const& caseid,
             expected_area_s,
             true, settings);
     }
-
-
-#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
-    std::cout
-        << (counter > 0 ? "union " : "")
-        << "select " << counter++
-        << ", '" << caseid << "' as caseid"
-        << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        //<< ", " << expected_area1 << " as expected_area_a"
-        //<< ", " << expected_count1 << " as expected_count_a"
-        << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        //<< ", " << expected_area2 << " as expected_area_b"
-        //<< ", " << expected_count2 << " as expected_count_b"
-        << ", ST_NumPoints(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_NumGeometries(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_Area(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        //<< ", " << expected_area1 + expected_area2 << " as expected_area_s"
-        //<< ", " << expected_count1 + expected_count2 << " as expected_count_s"
-        << std::endl;
-#endif
-
 }
 
 template <typename OutputType, typename G1, typename G2>
