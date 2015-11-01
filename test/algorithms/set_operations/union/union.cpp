@@ -247,16 +247,20 @@ void test_areal()
         67.3550722317627);
 #endif
 
+    {
+        ut_settings settings;
+        settings.percentage = 0.1;
 
-    test_one<Polygon, Polygon, Polygon>("isovist",
-        isovist1[0], isovist1[1],
-        1,
-        0,
-        -1,
-        313.36036462, 0.1);
+        test_one<Polygon, Polygon, Polygon>("isovist",
+            isovist1[0], isovist1[1],
+            1,
+            0,
+            -1,
+            313.36036462, settings);
 
-    // SQL Server gives: 313.360374193241
-    // PostGIS gives:    313.360364623393
+        // SQL Server gives: 313.360374193241
+        // PostGIS gives:    313.360364623393
+    }
 
     // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
     // This ticket was actually reported for Boost.Polygon
@@ -266,10 +270,13 @@ void test_areal()
     // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
     //                       2515271327070.5156 (double)
     //                       2515271320603.0000 (int)
-    // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
-    // Because of the width of the polygon (400000 meter) this causes a substantial difference.
+    // Note the int-test was tested outside of this unit test.
+    // It is in two points 0.37 off (logical for an int).
+    // Because of the width of the polygon (400000 meter)
+    // this causes a substantial difference.
 
-    test_one<Polygon, Polygon, Polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
+    test_one<Polygon, Polygon, Polygon>("ticket_5103",
+                ticket_5103[0], ticket_5103[1],
                 1, 0, 25, 2515271327070.5);
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],

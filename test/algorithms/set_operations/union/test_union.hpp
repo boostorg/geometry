@@ -210,7 +210,7 @@ void test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         int expected_count, int expected_hole_count,
         int expected_point_count, double expected_area,
-        ut_settings const& settings)
+        ut_settings const& settings = ut_settings())
 {
     G1 g1;
     bg::read_wkt(wkt1, g1);
@@ -218,7 +218,7 @@ void test_one(std::string const& caseid,
     G2 g2;
     bg::read_wkt(wkt2, g2);
 
-    // Reverse if necessary
+    // Reverse/close if necessary (e.g. G1/G2 are ccw and/or open)
     bg::correct(g1);
     bg::correct(g2);
 
@@ -226,21 +226,5 @@ void test_one(std::string const& caseid,
         expected_count, expected_hole_count, expected_point_count,
         expected_area, settings);
 }
-
-template <typename OutputType, typename G1, typename G2>
-void test_one(std::string const& caseid,
-        std::string const& wkt1, std::string const& wkt2,
-        int expected_count, int expected_hole_count,
-        int expected_point_count, double expected_area,
-        double percentage = 0.001)
-{
-    ut_settings settings;
-    settings.percentage = percentage;
-
-    test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
-        expected_count, expected_hole_count, expected_point_count,
-        expected_area, settings);
-}
-
 
 #endif
