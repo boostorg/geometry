@@ -412,6 +412,27 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // Fails, a-b is partly generated, b-a does not have any output
+    test_one<polygon, polygon, polygon>("case_58_iet",
+        case_58[0], case_58[2],
+        0, 0, 0.0,
+        0, 0, 0.0);
+#endif
+
+    test_one<polygon, polygon, polygon>("case_80",
+        case_80[0], case_80[1],
+        1, 9, 44.5,
+        1, 10, 84.5);
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // Fails, holes are not subtracted
+    test_one<polygon, polygon, polygon>("case_81",
+        case_81[0], case_81[1],
+        0, 0, 0.0,
+        0, 0, 0.0);
+#endif
+
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
         3, 37, 61,
