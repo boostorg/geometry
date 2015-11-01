@@ -136,14 +136,14 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120221_volker",
         ggl_list_20120221_volker[0], ggl_list_20120221_volker[1],
             2, 12, 7962.66, 1, 18, 2775258.93,
-            0.001);
+            tolerance(0.001));
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
             4, 42, 0.0907392476356186 + 0.126018011439877,
-            0.001);
+            tolerance(0.001));
 #endif
 
     /* TODO: fix
@@ -175,7 +175,6 @@ void test_areal()
 template <typename P>
 void test_all()
 {
-    //typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;

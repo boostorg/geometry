@@ -173,7 +173,7 @@ void test_all()
         distance_zero[0], distance_zero[1],
         -1, -1, 8.7048386,
         -1, -1, 0.0098387,
-        0.001);
+        tolerance(0.001));
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
@@ -224,7 +224,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
         intersect_holes_new_ring[0], intersect_holes_new_ring[1],
         3, 15, 9.8961,
-        4, 25, 121.8961, 0.01);
+        4, 25, 121.8961,
+        tolerance(0.01));
 
     test_one<polygon, polygon, polygon>("first_within_hole_of_second",
         first_within_hole_of_second[0], first_within_hole_of_second[1],
@@ -322,9 +323,9 @@ void test_all()
         -1, -1, 0.279132,
         -1, -1, 224.8892,
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        0.1);
+        tolerance(0.1));
 #else
-        0.001);
+        tolerance(0.001));
 #endif
     // SQL Server gives:    0.279121891701124 and 224.889211358929
     // PostGIS gives:       0.279121991127244 and 224.889205853156
@@ -350,7 +351,7 @@ void test_all()
         geos_2[0], geos_2[1],
         1, -1, 138.6923828,
         1, -1, 211.859375,
-        0.01); // MSVC 14 expects 138.69214 and 211.85913
+        tolerance(0.01)); // MSVC 14 expects 138.69214 and 211.85913
 
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
@@ -374,7 +375,7 @@ void test_all()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, if_typed<ct, float>(14, 13), 16815.6,
         1, 4, 3200.4,
-        0.01);
+        tolerance(0.01));
 
     if ( BOOST_GEOMETRY_CONDITION((! boost::is_same<ct, float>::value)) )
     {
@@ -395,7 +396,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3370866.2295081965,
-        1, 5, 384.2295081964694, 0.01);
+        1, 5, 384.2295081964694,
+        tolerance(0.01));
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // 2011-07-02 / 2014-06-19
@@ -410,7 +412,7 @@ void test_all()
         if_typed_tt<ct>(1, 1), -1,
         if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949),
         1, -1, 3577.40960816756,
-        0.01
+        tolerance(0.01)
         );
 #endif
 
@@ -559,22 +561,29 @@ void test_specific()
 {
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
 
+    ut_settings settings;
+    settings.percentage = 0.001;
+    settings.remove_spikes = true;
+    settings.test_validity = true;
+
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
         1, 4, 385,
         1, 16, 3371540 + 385,
-        0.001);
+        settings);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
         1, 6, 1510434,
-        0, 0, 0);
+        0, 0, 0,
+        settings);
 
     test_one<polygon, polygon, polygon>("ticket_11121",
         ticket_11121[0], ticket_11121[1],
         2, 8, 489763.5,
-        1, 4, 6731652.0);
+        1, 4, 6731652.0,
+        settings);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Generates spikes, both a-b and b-a
@@ -582,7 +591,8 @@ void test_specific()
         ticket_11676[0], ticket_11676[1],
         1, 18, 2537992.5,
         2, 11, 294963.5,
-        2, -1, 2537992.5 + 294963.5);
+        2, -1, 2537992.5 + 294963.5,
+        settings);
 #endif
 }
 

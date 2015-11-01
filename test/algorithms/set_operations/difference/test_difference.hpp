@@ -24,8 +24,10 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/remove_spikes.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -45,6 +47,32 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
+
+
+struct ut_settings
+{
+    double percentage;
+    bool sym_difference;
+    bool remove_spikes;
+
+    // TODO: set by default to true when all tests pass
+    bool test_validity;
+
+    ut_settings()
+        : percentage(0.0001)
+        , sym_difference(true)
+        , remove_spikes(false)
+        , test_validity(false)
+    {}
+
+};
+
+inline ut_settings tolerance(double percentage)
+{
+    ut_settings result;
+    result.percentage = percentage;
+    return result;
+}
 
 
 template <typename Output, typename G1, typename G2>
@@ -91,38 +119,44 @@ template <typename OutputType, typename G1, typename G2>
 void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         int expected_count, int expected_point_count,
         double expected_area,
-        double percentage = 0.0001,
-        bool sym = false)
+        bool sym,
+        ut_settings const& settings)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     boost::ignore_unused<coordinate_type>();
 
-    std::vector<OutputType> clip;
+    bg::model::multi_polygon<OutputType> result;
 
     if (sym)
     {
-        bg::sym_difference(g1, g2, clip);
+        bg::sym_difference(g1, g2, result);
     }
     else
     {
-        bg::difference(g1, g2, clip);
+        bg::difference(g1, g2, result);
     }
 
-    typename bg::default_area_result<G1>::type area = 0;
-    std::size_t n = 0;
-    for (typename std::vector<OutputType>::iterator it = clip.begin();
-            it != clip.end();
-            ++it)
+    if (settings.remove_spikes)
     {
-        if (expected_point_count >= 0)
-        {
-            n += bg::num_points(*it);
-        }
-
-        area += bg::area(*it);
+        bg::remove_spikes(result);
     }
 
-    difference_output(caseid, g1, g2, clip);
+    typename bg::default_area_result<G1>::type const area = bg::area(result);
+    std::size_t const n = expected_point_count >= 0
+                          ? bg::num_points(result) : 0;
+
+#if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+    if (settings.test_validity)
+    {
+        // std::cout << bg::dsv(result) << std::endl;
+        std::string message;
+        bool const valid = bg::is_valid(result, message);
+        BOOST_CHECK_MESSAGE(valid,
+            "difference: " << caseid << " not valid " << message);
+    }
+#endif
+
+    difference_output(caseid, g1, g2, result);
 
 #ifndef BOOST_GEOMETRY_DEBUG_ASSEMBLE
     {
@@ -150,7 +184,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
                     g1, g2, rescale_policy, std::back_inserter(inserted)));
         }
 
-        BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
+        BOOST_CHECK_EQUAL(boost::size(result), boost::size(inserted) - 1);
     }
 #endif
 
@@ -169,15 +203,15 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     if (expected_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(int(clip.size()) == expected_count,
+        BOOST_CHECK_MESSAGE(int(result.size()) == expected_count,
                 "difference: " << caseid
                 << " #outputs expected: " << expected_count
-                << " detected: " << clip.size()
+                << " detected: " << result.size()
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
 
-    BOOST_CHECK_CLOSE(area, expected_area, percentage);
+    BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
 #endif
 
 
@@ -201,7 +235,7 @@ void test_one(std::string const& caseid,
         int expected_count_s,
         int expected_point_count_s,
         double expected_area_s,
-        double percentage = 0.0001)
+        ut_settings const& settings = ut_settings())
 {
 #ifdef BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
     std::cout
@@ -227,18 +261,24 @@ void test_one(std::string const& caseid,
 
     test_difference<OutputType>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,
-        expected_area1, percentage);
+        expected_area1, false, settings);
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
     return;
 #endif
+
     test_difference<OutputType>(caseid + "_b", g2, g1,
         expected_count2, expected_point_count2,
-        expected_area2, percentage);
-    test_difference<OutputType>(caseid + "_s", g1, g2,
-        expected_count_s,
-        expected_point_count_s,
-        expected_area_s,
-        percentage, true);
+        expected_area2, false, settings);
+
+    if (settings.sym_difference)
+    {
+        test_difference<OutputType>(caseid + "_s", g1, g2,
+            expected_count_s,
+            expected_point_count_s,
+            expected_area_s,
+            true, settings);
+    }
 
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
@@ -284,7 +324,7 @@ void test_one(std::string const& caseid,
         int expected_count2,
         int expected_point_count2,
         double expected_area2,
-        double percentage = 0.0001)
+        ut_settings const& settings = ut_settings())
 {
     test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
         expected_count1, expected_point_count1, expected_area1,
@@ -293,7 +333,7 @@ void test_one(std::string const& caseid,
         expected_point_count1 >= 0 && expected_point_count2 >= 0
             ? (expected_point_count1 + expected_point_count2) : -1,
         expected_area1 + expected_area2,
-        percentage);
+        settings);
 }
 
 template <typename OutputType, typename G1, typename G2>
