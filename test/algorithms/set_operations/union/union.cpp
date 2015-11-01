@@ -390,7 +390,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 0, 217, 36.752837);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, Polygon, Polygon>("ticket_11725",
         ticket_11725[0], ticket_11725[1],
         1, 1, -1, 7.5);

@@ -251,7 +251,7 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Fails, a-b is partly generated, b-a does not have any output
     test_one<polygon, polygon, polygon>("case_58_iet",
         case_58[0], case_58[2],
@@ -264,7 +264,7 @@ void test_all()
         1, 9, 44.5,
         1, 10, 84.5);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Fails, holes are not subtracted
     test_one<polygon, polygon, polygon>("case_81",
         case_81[0], case_81[1],
@@ -330,7 +330,7 @@ void test_all()
     // PostGIS gives:       0.279121991127244 and 224.889205853156
     // No robustness gives: 0.279121991127106 and 224.825363749290
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
@@ -536,8 +536,7 @@ void test_all()
             5, 27, 1.6701714);
     ***/
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("ticket_11725_2",
         ticket_11725_2[0], ticket_11725_2[1],
         2, -1, 7.5, 0, -1, 0.0);
@@ -602,7 +601,7 @@ int test_main(int, char* [])
 
     test_ticket_11121<int>();
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_bug21155501<double>();
 #endif
 
