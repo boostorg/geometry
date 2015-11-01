@@ -183,9 +183,31 @@ void test_all()
 }
 
 
+// Test cases for integer coordinates / ccw / open
+template <typename Point, bool ClockWise, bool Closed>
+void test_specific()
+{
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
+
+    boost::ignore_unused<polygon, multi_polygon>();
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Spikes in a-b and b-a, failure in symmetric difference
+    test_one<polygon, multi_polygon, multi_polygon>("ticket_11674",
+        ticket_11674[0], ticket_11674[1],
+        3, 27, 9105781.5,
+        5, 22, 119059.5,
+        2, -1, -1);
+#endif
+}
+
+
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
+
+    test_specific<bg::model::d2::point_xy<int>, false, false>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

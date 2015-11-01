@@ -554,10 +554,11 @@ void test_all()
 }
 
 
-template <typename P, bool clockwise, bool closed>
+// Test cases for integer coordinates / ccw / open
+template <typename Point, bool ClockWise, bool Closed>
 void test_specific()
 {
-    typedef bg::model::polygon<P, clockwise, closed> polygon;
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
@@ -575,6 +576,15 @@ void test_specific()
         ticket_11121[0], ticket_11121[1],
         2, 8, 489763.5,
         1, 4, 6731652.0);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Generates spikes, both a-b and b-a
+    test_one<polygon, polygon, polygon>("ticket_11676",
+        ticket_11676[0], ticket_11676[1],
+        1, 18, 2537992.5,
+        2, 11, 294963.5,
+        2, -1, 2537992.5 + 294963.5);
+#endif
 }
 
 
