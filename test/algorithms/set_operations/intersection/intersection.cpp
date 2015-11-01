@@ -324,13 +324,16 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
-    // Case 58 with interior/exterior tangency
     test_one<Polygon, Polygon, Polygon>("case_58_iet",
         case_58[0], case_58[2],
         2, -1, 1.0 / 3.0);
 
     test_one<Polygon, Polygon, Polygon>("case_80",
         case_80[0], case_80[1],
+        0, -1, 0.0);
+
+    test_one<Polygon, Polygon, Polygon>("case_81",
+        case_81[0], case_81[1],
         0, -1, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
