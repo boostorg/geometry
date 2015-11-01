@@ -116,7 +116,7 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
 }
 
 template <typename OutputType, typename G1, typename G2>
-void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
+std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         int expected_count, int expected_point_count,
         double expected_area,
         bool sym,
@@ -140,6 +140,9 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         bg::remove_spikes(result);
     }
+
+    std::ostringstream return_string;
+    return_string << bg::wkt(result);
 
     typename bg::default_area_result<G1>::type const area = bg::area(result);
     std::size_t const n = expected_point_count >= 0
@@ -215,6 +218,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 #endif
 
 
+    return return_string.str();
 }
 
 
@@ -224,7 +228,7 @@ static int counter = 0;
 
 
 template <typename OutputType, typename G1, typename G2>
-void test_one(std::string const& caseid,
+std::string test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         int expected_count1,
         int expected_point_count1,
@@ -246,12 +250,12 @@ void test_one(std::string const& caseid,
     bg::correct(g1);
     bg::correct(g2);
 
-    test_difference<OutputType>(caseid + "_a", g1, g2,
+    std::string result = test_difference<OutputType>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,
         expected_area1, false, settings);
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-    return;
+    return result;
 #endif
 
     test_difference<OutputType>(caseid + "_b", g2, g1,
@@ -266,10 +270,11 @@ void test_one(std::string const& caseid,
             expected_area_s,
             true, settings);
     }
+    return result;
 }
 
 template <typename OutputType, typename G1, typename G2>
-void test_one(std::string const& caseid,
+std::string test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         int expected_count1,
         int expected_point_count1,
@@ -279,7 +284,7 @@ void test_one(std::string const& caseid,
         double expected_area2,
         ut_settings const& settings = ut_settings())
 {
-    test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
         expected_count1, expected_point_count1, expected_area1,
         expected_count2, expected_point_count2, expected_area2,
         expected_count1 + expected_count2,

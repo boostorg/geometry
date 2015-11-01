@@ -206,6 +206,29 @@ void test_specific()
             2, -1, -1,
             settings);
     }
+
+    {
+        ut_settings settings;
+        settings.test_validity = true;
+
+        std::string a_min_b =
+            test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_1",
+                ticket_10661[0], ticket_10661[1],
+                2, 11, 1441632.5,
+                2, 7, 13167454,
+                settings);
+
+        settings.test_validity = false;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.test_validity = true;
+#endif
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_2",
+            a_min_b, ticket_10661[2],
+            1, 8, 825192.0,
+            1, 10, 27226370.5,
+            1, -1, 825192.0 + 27226370.5,
+            settings);
+    }
 }
 
 

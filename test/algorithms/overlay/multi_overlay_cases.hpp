@@ -462,6 +462,16 @@ static std::string ticket_9081[2] =
     };
 
 // Integer, ccw, open
+static std::string ticket_10661[3] =
+    {
+        /* A */ "MULTIPOLYGON(((1701 985,3501 985,3501 2785,1701 2785,1701 985)))",
+        /* B */ "MULTIPOLYGON(((1698 1860,1698 1122,2598 1392,3492 1842,3492 32706,2598 2340,1698 1860)))",
+        /* C=A-B, */
+        /* D */ "MULTIPOLYGON(((1698 2772,1698 1860,2598 2340,3492 2412,3492 32743,1698 2772)))"
+        // Reported problem was: validity of difference C-D
+    };
+
+// Integer, ccw, open
 static std::string ticket_10803[2] =
     {
         "MULTIPOLYGON(((3174 1374,3174 2886,1374 2886,1374 2139,3174 1374)))",
