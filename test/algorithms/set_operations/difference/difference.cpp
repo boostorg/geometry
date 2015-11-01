@@ -41,54 +41,6 @@
 
 
 template <typename CoordinateType>
-void test_ticket_10658(std::string const& wkt_out)
-{
-    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::polygon
-        <
-            point_type, /*ClockWise*/false, /*Closed*/false
-        > polygon_type;
-    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
-
-    polygon_type polygon1;
-    bg::read_wkt(ticket_10658[0], polygon1);
-    polygon_type polygon2;
-    bg::read_wkt(ticket_10658[1], polygon2);
-
-    multipolygon_type multipolygon_out;
-    bg::sym_difference(polygon1, polygon2, multipolygon_out);
-    std::stringstream stream;
-    stream << bg::wkt(multipolygon_out);
-
-    BOOST_CHECK_EQUAL(stream.str(), wkt_out);
-}
-
-template <typename CoordinateType>
-void test_ticket_11121()
-{
-    typedef bg::model::point<CoordinateType,2,bg::cs::cartesian> point_type;
-    typedef bg::model::polygon
-        <
-            point_type, /*ClockWise*/false, /*Closed*/false
-        > polygon_type;
-    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
-
-    polygon_type polygon1;
-    bg::read_wkt(ticket_11121[0], polygon1);
-    polygon_type polygon2;
-    bg::read_wkt(ticket_11121[1], polygon2);
-
-    multipolygon_type diff12, diff21, sym_diff;
-    bg::difference(polygon1, polygon2, diff12);
-    bg::difference(polygon2, polygon1, diff21);
-    bg::sym_difference(polygon1, polygon2, sym_diff);
-
-    BOOST_CHECK(bg::is_valid(diff12));
-    BOOST_CHECK(bg::is_valid(diff21));
-    BOOST_CHECK(bg::is_valid(sym_diff));
-}
-
-template <typename CoordinateType>
 void test_bug21155501()
 {
     typedef bg::model::point<CoordinateType,2,bg::cs::cartesian> point_type;
@@ -602,14 +554,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
-
-    test_ticket_10658<int>
-        ("MULTIPOLYGON(((516 2484,516 1608,1308 1932,2094 2466,2094 3150,1308 3066,516 2484)))");
-
-    test_ticket_10658<double>
-        ("MULTIPOLYGON(((516 2484,516 1608,1308 1932,2094 2466,2094 3150,1308 3066,516 2484)))");
-
-    test_ticket_11121<int>();
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_bug21155501<double>();
