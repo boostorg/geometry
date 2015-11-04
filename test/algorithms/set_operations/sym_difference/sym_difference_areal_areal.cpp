@@ -67,12 +67,15 @@ struct test_sym_difference_of_areal_geometries
                   << expected_area
                   << "; detected: " << bg::area(sdf) << std::endl;
 #endif
+        ut_settings settings;
+        settings.percentage = tolerance;
+
         test_difference
             <
                 PolygonOut
             >(case_id, areal1, areal2,
               expected_polygon_count, expected_point_count, expected_area,
-              tolerance, true);
+              tolerance, settings);
     }
 };
 
