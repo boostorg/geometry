@@ -59,6 +59,13 @@ void test_areal()
         case_multi_2[0], case_multi_2[1],
         3, 0, 16, 59.1);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
+        case_58_multi[0], case_58_multi[3],
+        2, 0, 21, 19.83333333);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
+        case_58_multi[1], case_58_multi[2],
+        1, 3, 17, 48.333333);
+
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
         case_61_multi[0], case_61_multi[1],

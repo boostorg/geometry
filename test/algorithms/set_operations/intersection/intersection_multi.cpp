@@ -56,6 +56,20 @@ void test_areal()
         case_multi_simplex[0], case_single_simplex,
         2, 12, 6.42);
 
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Fails to generate one ring - would be correct if handle_tangencies is skipped
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
+        case_58_multi[0], case_58_multi[3],
+        3, 12, 0.666666667);
+#endif
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
+        case_58_multi[1], case_58_multi[2],
+        1, 10, 11.16666666667);
+#endif
+
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
         case_61_multi[0], case_61_multi[1],

@@ -18,7 +18,7 @@
 
 #include <string>
 
-// See powerpoint
+// For case 1..79, See powerpoint doc/other/test_cases/overlay_cases.ppt
 
 static std::string case_1[2] = {
         "POLYGON((0 1,2 5,5 3,0 1))",
@@ -347,6 +347,8 @@ static std::string case_72[2] = {
         "POLYGON((0 3,4 4,3 0,3 3,2 1,1 2,3 3,0 3))",
         "POLYGON((0 0,1 4,3 3,4 1,0 0))"
     };
+
+// 73..78: multi
 
 static std::string case_79[2] = {
         "POLYGON((0 0,0 5,5 5,5 3,2 3,2 2,5 2,5 0,0 0))",
