@@ -19,7 +19,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
-
+#include <boost/geometry/algorithms/detail/is_valid/has_invalid_coordinate.hpp>
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
@@ -53,7 +53,14 @@ struct is_valid<Segment, segment_tag>
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
 
-        if(! geometry::equals(p[0], p[1]))
+        if (detail::is_valid::has_invalid_coordinate
+                <
+                    Segment
+                >::apply(segment, visitor))
+        {
+            return false;
+        }
+        else if (! geometry::equals(p[0], p[1]))
         {
             return visitor.template apply<no_failure>();
         }
