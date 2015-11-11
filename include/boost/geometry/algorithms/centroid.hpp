@@ -220,19 +220,22 @@ struct centroid_range_state
         iterator_type it = boost::begin(view);
         iterator_type end = boost::end(view);
 
-        typename PointTransformer::result_type
-            previous_pt = transformer.apply(*it);
-
-        for ( ++it ; it != end ; ++it)
+        if (it != end)
         {
             typename PointTransformer::result_type
-                pt = transformer.apply(*it);
+                previous_pt = transformer.apply(*it);
 
-            strategy.apply(static_cast<point_type const&>(previous_pt),
-                           static_cast<point_type const&>(pt),
-                           state);
-            
-            previous_pt = pt;
+            for ( ++it ; it != end ; ++it)
+            {
+                typename PointTransformer::result_type
+                    pt = transformer.apply(*it);
+
+                strategy.apply(static_cast<point_type const&>(previous_pt),
+                               static_cast<point_type const&>(pt),
+                               state);
+
+                previous_pt = pt;
+            }
         }
     }
 };

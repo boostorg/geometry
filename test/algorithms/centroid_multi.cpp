@@ -72,6 +72,14 @@ void test_2d(bool is_integer = false)
         test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((1 1)))",
             1.0, 1.0);
+
+        test_centroid<bg::model::multi_linestring<bg::model::linestring<P> > >(
+            "MULTILINESTRING((0 0, 1 0), ())",
+            0.5, 0.0);
+
+        test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
+            "MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)), (()))",
+            0.5, 0.5);
     }
 
 
