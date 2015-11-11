@@ -140,6 +140,13 @@ void test_areal()
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         13, 157, 67.0); // Area from SQL Server
 
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Recent regression, missing one output polygon
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
+        case_recursive_boxes_6[0], case_recursive_boxes_6[1],
+        99, 99, 99.0);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
         2, 10, 6.0); // Area from SQL Server
