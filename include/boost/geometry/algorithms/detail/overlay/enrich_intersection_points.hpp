@@ -27,7 +27,6 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
-#include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -260,44 +259,6 @@ inline void enrich_sort(Container& operations,
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
     // the way round. See #105
-
-    if (clustered)
-    {
-        typedef typename boost::range_iterator<Container>::type nc_iterator;
-        nc_iterator it = boost::begin(operations);
-        nc_iterator begin_cluster = boost::end(operations);
-        for (nc_iterator prev = it++;
-            it != boost::end(operations);
-            prev = it++)
-        {
-            operations_type& prev_op = turn_points[prev->turn_index]
-                .operations[prev->operation_index];
-            operations_type& op = turn_points[it->turn_index]
-                .operations[it->operation_index];
-
-            if (prev_op.seg_id == op.seg_id
-                && (turn_points[prev->turn_index].method != method_crosses
-                    || turn_points[it->turn_index].method != method_crosses)
-                && prev_op.fraction == op.fraction)
-            {
-                if (begin_cluster == boost::end(operations))
-                {
-                    begin_cluster = prev;
-                }
-            }
-            else if (begin_cluster != boost::end(operations))
-            {
-                handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
-                        for_operation, geometry1, geometry2, robust_policy, strategy);
-                begin_cluster = boost::end(operations);
-            }
-        }
-        if (begin_cluster != boost::end(operations))
-        {
-            handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
-                    for_operation, geometry1, geometry2, robust_policy, strategy);
-        }
-    }
 
     update_discarded(turn_points, operations);
 }
