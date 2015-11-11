@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
+#include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -41,31 +42,6 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-// Wraps "turn_operation" from turn_info.hpp,
-// giving it extra information
-template <typename TurnOperation>
-struct indexed_turn_operation
-{
-    typedef TurnOperation type;
-
-    std::size_t turn_index;
-    std::size_t operation_index;
-    bool discarded;
-    // use pointers to avoid copies, const& is not possible because of usage in vector
-    segment_identifier const* other_seg_id; // segment id of other segment of intersection of two segments
-    TurnOperation const* subject;
-
-    inline indexed_turn_operation(std::size_t ti, std::size_t oi,
-                TurnOperation const& sub,
-                segment_identifier const& oid)
-        : turn_index(ti)
-        , operation_index(oi)
-        , discarded(false)
-        , other_seg_id(&oid)
-        , subject(boost::addressof(sub))
-    {}
-
-};
 
 template <typename IndexedTurnOperation>
 struct remove_discarded
@@ -73,127 +49,6 @@ struct remove_discarded
     inline bool operator()(IndexedTurnOperation const& operation) const
     {
         return operation.discarded;
-    }
-};
-
-
-template
-<
-    typename TurnPoints,
-    typename Indexed,
-    typename Geometry1, typename Geometry2,
-    typename RobustPolicy,
-    bool Reverse1, bool Reverse2,
-    typename Strategy
->
-struct sort_on_segment_and_ratio
-{
-    inline sort_on_segment_and_ratio(TurnPoints const& turn_points
-            , Geometry1 const& geometry1
-            , Geometry2 const& geometry2
-            , RobustPolicy const& robust_policy
-            , Strategy const& strategy
-            , bool* clustered)
-        : m_turn_points(turn_points)
-        , m_geometry1(geometry1)
-        , m_geometry2(geometry2)
-        , m_robust_policy(robust_policy)
-        , m_strategy(strategy)
-        , m_clustered(clustered)
-    {
-    }
-
-private :
-
-    TurnPoints const& m_turn_points;
-    Geometry1 const& m_geometry1;
-    Geometry2 const& m_geometry2;
-    RobustPolicy const& m_robust_policy;
-    Strategy const& m_strategy;
-    mutable bool* m_clustered;
-
-    typedef typename geometry::point_type<Geometry1>::type point_type;
-
-    inline bool default_order(Indexed const& left, Indexed const& right) const
-    {
-        // We've nothing to sort on. Take the indexes
-        return left.turn_index < right.turn_index;
-    }
-
-    inline bool consider_relative_order(Indexed const& left,
-                    Indexed const& right) const
-    {
-        point_type pi, pj, ri, rj, si, sj;
-
-        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject->seg_id,
-            pi, pj);
-        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            *left.other_seg_id,
-            ri, rj);
-        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            *right.other_seg_id,
-            si, sj);
-
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<point_type>::type
-            >::type strategy;
-
-        int const side_rj_p = strategy::apply(pi, pj, rj);
-        int const side_sj_p = strategy::apply(pi, pj, sj);
-
-        // Put the one turning left (1; right == -1) as last
-        if (side_rj_p != side_sj_p)
-        {
-            return side_rj_p < side_sj_p;
-        }
-
-        int const side_sj_r = strategy::apply(ri, rj, sj);
-        int const side_rj_s = strategy::apply(si, sj, rj);
-
-        // If they both turn left: the most left as last
-        // If they both turn right: this is not relevant, but take also here most left
-        if (side_rj_s != side_sj_r)
-        {
-            return side_rj_s < side_sj_r;
-        }
-
-        return default_order(left, right);
-    }
-
-public :
-
-    // Note that left/right do NOT correspond to m_geometry1/m_geometry2
-    // but to the "indexed_turn_operation"
-    inline bool operator()(Indexed const& left, Indexed const& right) const
-    {
-        if (! (left.subject->seg_id == right.subject->seg_id))
-        {
-            return left.subject->seg_id < right.subject->seg_id;
-        }
-
-        // Both left and right are located on the SAME segment.
-
-        if (! (left.subject->fraction == right.subject->fraction))
-        {
-            return left.subject->fraction < right.subject->fraction;
-        }
-
-
-        // First check "real" intersection (crosses)
-        // -> distance zero due to precision, solve it by sorting
-        if (m_turn_points[left.turn_index].method == method_crosses
-            && m_turn_points[right.turn_index].method == method_crosses)
-        {
-            return consider_relative_order(left, right);
-        }
-
-        // If that is not the case, cluster it later on.
-        // Indicate that this is necessary.
-        *m_clustered = true;
-
-        return default_order(left, right);
     }
 };
 
@@ -246,15 +101,14 @@ inline void enrich_sort(Container& operations,
     bool clustered = false;
     std::sort(boost::begin(operations),
                 boost::end(operations),
-                sort_on_segment_and_ratio
+                less_by_segment_ratio
                     <
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
                         RobustPolicy,
-                        Reverse1, Reverse2,
-                        Strategy
-                    >(turn_points, geometry1, geometry2, robust_policy, strategy, &clustered));
+                        Reverse1, Reverse2
+                    >(turn_points, geometry1, geometry2, robust_policy, &clustered));
 
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
