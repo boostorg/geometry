@@ -153,16 +153,46 @@ public :
         }
 
 
+        typedef typename boost::range_value<TurnPoints>::type turn_type;
+        turn_type const& left_turn = m_turn_points[left.turn_index];
+        turn_type const& right_turn = m_turn_points[right.turn_index];
+
         // First check "real" intersection (crosses)
         // -> distance zero due to precision, solve it by sorting
-        if (m_turn_points[left.turn_index].method == method_crosses
-            && m_turn_points[right.turn_index].method == method_crosses)
+        if (left_turn.method == method_crosses
+            && right_turn.method == method_crosses)
         {
             return consider_relative_order(left, right);
         }
 
+        bool const left_ux = left_turn.combination(operation_blocked, operation_union);
+        bool const right_ux = right_turn.combination(operation_blocked, operation_union);
+
+        operation_type const left_other_op = left_turn.operations[1 - left.operation_index].operation;
+        operation_type const right_other_op = right_turn.operations[1 - right.operation_index].operation;
+
+        if (left_ux && right_ux)
+        {
+
+            // Two ux on same ring at same point. Sort the open one last
+            // For example:
+            // 3 POINT(2 3) (left)  x s:0, v:0, m:1 // u s:1, v:3, m:1
+            // 2 POINT(2 3) (right) u s:0, v:0, m:1 // x s:1, v:1, m:0
+            // Should be sorted as: first right, then left, because left has
+            // the union operation on the other ring
+
+            BOOST_ASSERT(left_other_op != right_other_op);
+
+            int const left_code = left_other_op == operation_blocked ? 0 : 1;
+            int const right_code = right_other_op == operation_blocked ? 0 : 1;
+
+            return left_code < right_code;
+        }
+
+        // OBSOLETE
         // If that is not the case, cluster it later on.
         // Indicate that this is necessary.
+
         *m_clustered = true;
 
         return default_order(left, right);

@@ -62,11 +62,9 @@ void test_all()
     {
         bg::strategy::buffer::point_square point_strategy;
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
         test_with_custom_strategies<multi_point_type, polygon>("grid_a50",
                 grid_a, join, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
-#endif
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
