@@ -38,12 +38,18 @@ static std::string case_multi_2[2] =
 
 // Case 58, same as case_58 IET (single) but here the second polygon is inverted
 // To check behaviour of difference, but in an intersection operation
-static std::string case_58_multi[4] =
+static std::string case_58_multi[8] =
 {
     /* a */ "MULTIPOLYGON(((3 3,3 4,4 4,4 3,3 3)))",
     /* b */ "MULTIPOLYGON(((0 2,0 5,4 4,5 0,0 2),(4 4,1 4,1 3,4 4),(4 4,2 3,2 2,4 4),(4 4,3 2,4 2,4 4)))",
     /* a inv */ "MULTIPOLYGON(((-1 -1,-1 6,6 6,6 -1,-1 -1),(3 3,4 3,4 4,3 4,3 3)))",
-    /* b inv */ "MULTIPOLYGON(((6 6,6 0,5 0,4 4,0 5,0 6,6 6)),((4 4,1 3,1 4,4 4)),((4 4,2 2,2 3,4 4)),((4 4,4 2,3 2,4 4)))"
+    /* b inv */ "MULTIPOLYGON(((6 6,6 0,5 0,4 4,0 5,0 6,6 6)),((4 4,1 3,1 4,4 4)),((4 4,2 2,2 3,4 4)),((4 4,4 2,3 2,4 4)))",
+
+    // simpler versions of b
+    /* b */ "MULTIPOLYGON(((0 2,0 5,4 4,5 0,0 2),(4 4,1 4,1 3,4 4)))",
+    /* b */ "MULTIPOLYGON(((0 2,0 5,4 4,5 0,0 2),(4 4,3 2,4 2,4 4)))",
+    /* b */ "MULTIPOLYGON(((0 2,0 5,4 4,5 0,0 2),(4 4,2 3,2 2,4 4)))",
+    /* b */ "MULTIPOLYGON(((0 2,0 5,4 4,5 0,0 2),(4 4,2 3,2 2,4 4),(4 4,3 2,4 2,4 4)))",
 };
 
 static std::string case_61_multi[2] =

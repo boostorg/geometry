@@ -267,6 +267,10 @@ struct test_traverse
                     style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
                     lineheight = 6;
                 }
+                else if (turn.colocated)
+                {
+                    style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+                }
 
                 //if (! turn.is_discarded() && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
                 //if (! turn.discarded)

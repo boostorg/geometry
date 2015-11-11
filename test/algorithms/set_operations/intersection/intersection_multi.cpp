@@ -22,7 +22,6 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
@@ -68,6 +67,28 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
         case_58_multi[1], case_58_multi[2],
         1, 10, 11.16666666667);
+#endif
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b4",
+        case_58_multi[4], case_58_multi[2],
+        1, 10, 12.66666666);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b5",
+        case_58_multi[5], case_58_multi[2],
+        1, 10, 99.99);
+#endif
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b6",
+        case_58_multi[6], case_58_multi[2],
+        1, 10, 13.25);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b7",
+        case_58_multi[7], case_58_multi[2],
+        1, 10, 99.99);
+
 #endif
 
     // Constructed cases for multi/touch/equal/etc
