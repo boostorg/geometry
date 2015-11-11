@@ -38,20 +38,20 @@ template <typename Range, bool Reverse, typename SegmentIdentifier, typename Poi
 struct copy_segment_point_range
 {
     static inline bool apply(Range const& range,
-            SegmentIdentifier const& seg_id, bool second,
+            SegmentIdentifier const& seg_id, int offset,
             PointOut& point)
     {
         detail::normalized_view<Range const> view(range);
 
         signed_size_type const n = boost::size(view);
-        signed_size_type index = seg_id.segment_index;
-        if (second)
+        signed_size_type index = seg_id.segment_index + offset;
+
+        // Go to second (next on segment, so index < n) or third point (might
+        // continue on start of ring, therefore skip the closing point)
+        if (index >= n)
         {
-            index++;
-            if (index >= n)
-            {
-                index = 0;
-            }
+            // Should only happen for the third point
+            index = 1;
         }
 
         BOOST_GEOMETRY_ASSERT(index >= 0 && index < n);
@@ -66,7 +66,7 @@ template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename P
 struct copy_segment_point_polygon
 {
     static inline bool apply(Polygon const& polygon,
-            SegmentIdentifier const& seg_id, bool second,
+            SegmentIdentifier const& seg_id, int offset,
             PointOut& point)
     {
         // Call ring-version with the right ring
@@ -81,7 +81,7 @@ struct copy_segment_point_polygon
                     seg_id.ring_index < 0
                         ? geometry::exterior_ring(polygon)
                         : range::at(geometry::interior_rings(polygon), seg_id.ring_index),
-                    seg_id, second,
+                    seg_id, offset,
                     point
                 );
     }
@@ -92,11 +92,11 @@ template <typename Box, bool Reverse, typename SegmentIdentifier, typename Point
 struct copy_segment_point_box
 {
     static inline bool apply(Box const& box,
-            SegmentIdentifier const& seg_id, bool second,
+            SegmentIdentifier const& seg_id, int offset,
             PointOut& point)
     {
         signed_size_type index = seg_id.segment_index;
-        if (second)
+        for (int i = 0; i < offset; i++)
         {
             index++;
         }
@@ -119,7 +119,7 @@ template
 struct copy_segment_point_multi
 {
     static inline bool apply(MultiGeometry const& multi,
-                             SegmentIdentifier const& seg_id, bool second,
+                             SegmentIdentifier const& seg_id, int offset,
                              PointOut& point)
     {
 
@@ -130,7 +130,7 @@ struct copy_segment_point_multi
             );
 
         // Call the single-version
-        return Policy::apply(range::at(multi, seg_id.multi_index), seg_id, second, point);
+        return Policy::apply(range::at(multi, seg_id.multi_index), seg_id, offset, point);
     }
 };
 
@@ -271,7 +271,7 @@ struct copy_segment_point
  */
 template<bool Reverse, typename Geometry, typename SegmentIdentifier, typename PointOut>
 inline bool copy_segment_point(Geometry const& geometry,
-            SegmentIdentifier const& seg_id, bool second,
+            SegmentIdentifier const& seg_id, int offset,
             PointOut& point_out)
 {
     concept::check<Geometry const>();
@@ -283,7 +283,7 @@ inline bool copy_segment_point(Geometry const& geometry,
             Reverse,
             SegmentIdentifier,
             PointOut
-        >::apply(geometry, seg_id, second, point_out);
+        >::apply(geometry, seg_id, offset, point_out);
 }
 
 
@@ -300,7 +300,7 @@ template
     typename PointOut
 >
 inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            SegmentIdentifier const& seg_id, bool second,
+            SegmentIdentifier const& seg_id, int offset,
             PointOut& point_out)
 {
     concept::check<Geometry1 const>();
@@ -317,7 +317,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
                 Reverse1,
                 SegmentIdentifier,
                 PointOut
-            >::apply(geometry1, seg_id, second, point_out);
+            >::apply(geometry1, seg_id, offset, point_out);
     }
     else if (seg_id.source_index == 1)
     {
@@ -328,7 +328,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
                 Reverse2,
                 SegmentIdentifier,
                 PointOut
-            >::apply(geometry2, seg_id, second, point_out);
+            >::apply(geometry2, seg_id, offset, point_out);
     }
     // Exception?
     return false;
@@ -354,10 +354,33 @@ inline bool copy_segment_points(Geometry1 const& geometry1, Geometry2 const& geo
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, false, point1)
-        && copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, true,  point2);
+    return copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, 0, point1)
+        && copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, 1, point2);
 }
 
+/*!
+    \brief Helper function, copies three points: two from the specified segment
+    (from, to) and the next one
+    \ingroup overlay
+ */
+template
+<
+    bool Reverse1, bool Reverse2,
+    typename Geometry1, typename Geometry2,
+    typename SegmentIdentifier,
+    typename PointOut
+>
+inline bool copy_segment_points(Geometry1 const& geometry1, Geometry2 const& geometry2,
+            SegmentIdentifier const& seg_id,
+            PointOut& point1, PointOut& point2, PointOut& point3)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
+    return copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, 0, point1)
+        && copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, 1, point2)
+        && copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, 2, point3);
+}
 
 
 

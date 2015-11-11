@@ -324,7 +324,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("wrapped_05", wrapped, join_round, end_flat, 104.570, 0.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_05", wrapped, join_miter, end_flat, 105.000, 0.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_10", wrapped, join_round, end_flat, 142.281, 1.0);
+
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<multi_polygon_type, polygon_type>("wrapped_10", wrapped, join_miter, end_flat, 144.000, 1.0);
+#endif
+
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_round, end_flat, 167.066, 1.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_miter, end_flat, 169.000, 1.5);
 
@@ -355,9 +359,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
     test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_round, end_flat, 31.4186, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_miter, end_flat, 34, 1.0);
@@ -463,9 +465,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u3", rt_u3, join_round, end_flat, 133.4526, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0);
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
     if (BOOST_GEOMETRY_CONDITION(Clockwise))
@@ -480,7 +480,9 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0);
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u11", rt_u11, join_miter, end_flat, 131.3995, 1.0);

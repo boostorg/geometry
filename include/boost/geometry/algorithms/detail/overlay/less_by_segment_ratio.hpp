@@ -64,11 +64,13 @@ template
 struct less_by_segment_ratio
 {
     inline less_by_segment_ratio(TurnPoints const& turn_points
+            , operation_type for_operation
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
             , RobustPolicy const& robust_policy
             , bool* clustered)
         : m_turn_points(turn_points)
+        , m_for_operation(for_operation)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_robust_policy(robust_policy)
@@ -79,6 +81,7 @@ struct less_by_segment_ratio
 private :
 
     TurnPoints const& m_turn_points;
+    operation_type m_for_operation;
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     RobustPolicy const& m_robust_policy;
@@ -134,6 +137,80 @@ private :
         return default_order(left, right);
     }
 
+    inline int union_code(Indexed const& left, Indexed const& right) const
+    {
+        typedef typename boost::range_value<TurnPoints>::type turn_type;
+        turn_type const& left_turn = m_turn_points[left.turn_index];
+        turn_type const& right_turn = m_turn_points[right.turn_index];
+
+        segment_identifier const left_id = left_turn.operations[left.operation_index].seg_id;
+        segment_identifier const right_id = right_turn.operations[right.operation_index].seg_id;
+        segment_identifier const left_other_id = left_turn.operations[1 - left.operation_index].seg_id;
+        segment_identifier const right_other_id = right_turn.operations[1 - right.operation_index].seg_id;
+
+        // Check, otherwise it would have been sorted on left/right segid
+        BOOST_ASSERT(left_id == right_id);
+
+        point_type p_both1, p_both2, p_both3;
+        point_type p_left_o1, p_left_o2, p_left_o3;
+        point_type p_right_o1, p_right_o2, p_right_o3;
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2, left_id, p_both1, p_both2, p_both3);
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2, left_other_id, p_left_o1, p_left_o2, p_left_o3);
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2, right_other_id, p_right_o1, p_right_o2, p_right_o3);
+
+        // If the operation is union, get the two union-operations
+        operation_type const left_op = left_turn.operations[left.operation_index].operation;
+        operation_type const left_other_op = left_turn.operations[1 - left.operation_index].operation;
+        operation_type const right_op = right_turn.operations[right.operation_index].operation;
+        operation_type const right_other_op = right_turn.operations[1 - right.operation_index].operation;
+
+        point_type p_lhs;
+        if (left_op == operation_union && left_other_op != operation_union)
+        {
+            p_lhs = p_both3;
+        }
+        else if (left_other_op == operation_union && left_op != operation_union)
+        {
+            p_lhs = p_left_o3;
+        }
+        else
+        {
+            return -1;
+        }
+
+        point_type p_rhs;
+        if (right_op == operation_union && right_other_op != operation_union)
+        {
+            p_rhs = p_both3;
+        }
+        else if (right_other_op == operation_union && right_op != operation_union)
+        {
+            p_rhs = p_right_o3;
+        }
+        else
+        {
+            return -1;
+        }
+
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<point_type>::type
+            >::type strategy;
+
+        // Check if one union option (of left hand side) is located
+        // left (spatially left) of the other union option (of right hand side)
+        int const side = strategy::apply(p_both2, p_lhs, p_rhs);
+        if (side == 0)
+        {
+            // Collinear - undetermined (maybe check length)
+            return -1;
+        }
+
+        // If lhs is left of rhs, return 1, else return 0
+        return side == 1 ? 1 : 0;
+    }
+
+
 public :
 
     // Note that left/right do NOT correspond to m_geometry1/m_geometry2
@@ -187,6 +264,17 @@ public :
             int const right_code = right_other_op == operation_blocked ? 0 : 1;
 
             return left_code < right_code;
+        }
+
+        if (m_for_operation == operation_union)
+        {
+            int const code = union_code(left, right);
+            if (code != -1)
+            {
+                // Most left should be ordered first. If code = 1, then lhs
+                // is most-left, and we should return true (smaller)
+                return code == 1;
+            }
         }
 
         // OBSOLETE

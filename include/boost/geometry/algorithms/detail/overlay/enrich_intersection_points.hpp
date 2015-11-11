@@ -108,7 +108,8 @@ inline void enrich_sort(Container& operations,
                         Geometry1, Geometry2,
                         RobustPolicy,
                         Reverse1, Reverse2
-                    >(turn_points, geometry1, geometry2, robust_policy, &clustered));
+                    >(turn_points, for_operation, geometry1, geometry2,
+                      robust_policy, &clustered));
 
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
@@ -342,7 +343,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         }
     }
 
-    if (check_colocations)
+//    if (check_colocations)
     {
         detail::overlay::handle_colocations<OverlayType>(turn_points);
     }
