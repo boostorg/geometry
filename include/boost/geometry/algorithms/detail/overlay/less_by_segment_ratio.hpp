@@ -198,6 +198,23 @@ private :
                 typename cs_tag<point_type>::type
             >::type strategy;
 
+
+        // Check if lhs is opposite from rhs
+        //                    |lhs
+        //     both===========|
+        //                    |rhs
+        // In that case, take right (for intersection)
+
+        int const side_lhs = strategy::apply(p_both1, p_both2, p_lhs);
+        int const side_rhs = strategy::apply(p_both1, p_both2, p_rhs);
+
+        if (side_lhs * side_rhs == -1)
+        {
+            // 1,-1 or -1,1
+
+            return side_lhs == 1 ? 0 : 1;
+        }
+
         // Check if one union option (of left hand side) is located
         // left (spatially left) of the other union option (of right hand side)
         int const side = strategy::apply(p_both2, p_lhs, p_rhs);

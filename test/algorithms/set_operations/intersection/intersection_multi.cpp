@@ -118,14 +118,12 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
         1, 0, 22); // In "get_turns" using partitioning, #points went from 17 to 16
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
         4, 22, 4.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
         case_102_multi[0], case_102_multi[1],
         3, 26, 19.75);
-#endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         2, 10, 1.5);
