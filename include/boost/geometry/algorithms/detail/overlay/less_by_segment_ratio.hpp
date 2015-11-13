@@ -137,7 +137,7 @@ private :
         return default_order(left, right);
     }
 
-    inline int union_code(Indexed const& left, Indexed const& right) const
+    inline int overlay_code(Indexed const& left, Indexed const& right) const
     {
         typedef typename boost::range_value<TurnPoints>::type turn_type;
         typedef typename turn_type::turn_operation_type turn_op_type;
@@ -162,13 +162,13 @@ private :
 
         // If the operation is union, get the two union-operations
         point_type p_lhs;
-        if (left_op.operation == operation_union
-                && left_other_op.operation != operation_union)
+        if (left_op.operation == m_for_operation
+                && left_other_op.operation != m_for_operation)
         {
             p_lhs = left_op.fraction.is_one() ? p_both3 : p_both2;
         }
-        else if (left_other_op.operation == operation_union
-                 && left_op.operation  != operation_union)
+        else if (left_other_op.operation == m_for_operation
+                 && left_op.operation  != m_for_operation)
         {
             p_lhs = left_other_op.fraction.is_one() ? p_left_o3 : p_left_o2;
         }
@@ -178,13 +178,13 @@ private :
         }
 
         point_type p_rhs;
-        if (right_op.operation == operation_union
-                && right_other_op.operation != operation_union)
+        if (right_op.operation == m_for_operation
+                && right_other_op.operation != m_for_operation)
         {
             p_rhs = right_op.fraction.is_one() ? p_both3 : p_both2;
         }
-        else if (right_other_op.operation == operation_union
-                 && right_op.operation != operation_union)
+        else if (right_other_op.operation == m_for_operation
+                 && right_op.operation != m_for_operation)
         {
             p_rhs = right_other_op.fraction.is_one() ? p_right_o3 : p_right_o2;
         }
@@ -267,13 +267,14 @@ public :
             return left_code < right_code;
         }
 
-        if (m_for_operation == operation_union)
+        //if (m_for_operation == operation_union)
         {
-            int const code = union_code(left, right);
+            int const code = overlay_code(left, right);
             if (code != -1)
             {
-                // Most left should be ordered first. If code = 1, then lhs
+                // For union: if code = 1, then lhs
                 // is most-left, and we should return true (smaller)
+                // For intersection the same is valid
                 return code == 1;
             }
         }
