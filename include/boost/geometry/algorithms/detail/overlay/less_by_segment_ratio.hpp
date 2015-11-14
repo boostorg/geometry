@@ -228,6 +228,42 @@ private :
         return side == 1 ? 1 : 0;
     }
 
+    // TODO: alternatively we might return a tristate bool but we don' t have a
+    // dependency yet on that library
+    inline bool select_operation(bool& result,
+                                Indexed const& left, Indexed const& right) const
+    {
+        result = false;
+        typedef typename boost::range_value<TurnPoints>::type turn_type;
+
+        turn_type const& left_turn = m_turn_points[left.turn_index];
+        turn_type const& right_turn = m_turn_points[right.turn_index];
+
+        // If operation is intersection, and only one of the operations is
+        // intersection, that gets priority
+
+        if (left_turn.has(m_for_operation)
+            && ! left_turn.both(m_for_operation)
+            && ! right_turn.has(m_for_operation))
+        {
+            // There is one targetted operation in left and nothing in right
+            // Order left first, consider as left<right
+            result = true;
+            return true;
+        }
+
+        if (right_turn.has(m_for_operation)
+            && ! right_turn.both(m_for_operation)
+            && ! left_turn.has(m_for_operation))
+        {
+            // Order right first, so consider as ! left<right
+            result = false;
+            return true;
+        }
+
+        return false;
+    }
+
 
 public :
 
@@ -285,15 +321,20 @@ public :
         }
 
         //if (m_for_operation == operation_union)
+
+        int const code = overlay_code(left, right);
+        if (code != -1)
         {
-            int const code = overlay_code(left, right);
-            if (code != -1)
-            {
-                // For union: if code = 1, then lhs
-                // is most-left, and we should return true (smaller)
-                // For intersection the same is valid
-                return code == 1;
-            }
+            // For union: if code = 1, then lhs
+            // is most-left, and we should return true (smaller)
+            // For intersection the same is valid
+            return code == 1;
+        }
+
+        bool result = false;
+        if (select_operation(result, left, right))
+        {
+            return result;
         }
 
         // OBSOLETE

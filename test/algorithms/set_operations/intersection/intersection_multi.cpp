@@ -144,21 +144,17 @@ void test_areal()
         13, 157, 67.0); // Area from SQL Server
 #endif
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // Recent regression, missing one output polygon
+    // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        99, 99, 99.0);
-#endif
+        6, 47, 19.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
         2, 10, 6.0); // Area from SQL Server
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_b",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
         2, 10, 6.0); // Area from SQL Server
-#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],

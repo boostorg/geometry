@@ -409,7 +409,7 @@ static std::string case_recursive_boxes_5[2] =
 
 static std::string case_recursive_boxes_6[2] =
 {
-    // Recent regression
+    // Fixed by replacing handle_tangencies
     "MULTIPOLYGON(((2 2,1.5 1.5,2 1,1 1,2 0,0 0,0 3,1 3,1 4,2 4,2 5,5 5,5 0,2 0,2 2,3 1,3 2,3.5 1.5,4 2,2 2)),((1 5,2 5,0 3,0 5,1 5)))",
     "MULTIPOLYGON(((2 1,2 2,1 2,2 3,1 3,1 4,0 4,0 5,5 5,5 2,4 2,4 3,3 3,4 2,3 2,3 1,2 1)),((2 0,0 0,0 3,1 3,1 2,3 0,2 0)),((4 0,3 0,3 1,4 2,4 1,5 1,5 0,4 0)))"
 };
