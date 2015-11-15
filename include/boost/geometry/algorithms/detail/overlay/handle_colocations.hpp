@@ -180,7 +180,8 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
 // colocation incoming and outgoing vectors should be inspected
 
 template <overlay_type OverlayType, typename TurnPoints>
-inline void handle_colocations(TurnPoints& turn_points)
+inline void handle_colocations(TurnPoints& turn_points,
+                               operation_type for_operation)
 {
     typedef std::map
         <

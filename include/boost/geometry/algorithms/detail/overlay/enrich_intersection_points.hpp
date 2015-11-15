@@ -309,9 +309,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    // Iterate through turns and discard uu
-    // and check if there are possible colocations
-    bool check_colocations = false;
+    // Iterate through turns and discard uu or
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -324,39 +322,24 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             // Without uu, all rings having only uu will be untouched
             // and gathered by assemble
             it->discarded = true;
-            check_colocations = true;
-        }
-        else if (OverlayType != overlay_union
-                 && it->has(detail::overlay::operation_blocked)
-                 && ! it->has(for_operation))
-        {
-            // Discard all ux for intersection, because in case of colocated
-            // iu/ux occurances, it would order iu first but then stop at ux
-            // For union don't do this, it would disturb the assemble process
-            // and generate extra rings
-            it->discarded = true;
-        }
-        else if (it->combination(detail::overlay::operation_union,
-                                 detail::overlay::operation_blocked))
-        {
-            check_colocations = true;
-        }
-        else if (OverlayType == overlay_difference
-                 && it->both(detail::overlay::operation_intersection))
-        {
-            // For difference operation (u/u -> i/i)
-            check_colocations = true;
         }
         else if (it->both(detail::overlay::operation_none))
         {
             it->discarded = true;
         }
+        else if (OverlayType == overlay_intersection
+                 && it->has(detail::overlay::operation_blocked)
+                 && ! it->has(detail::overlay::operation_intersection))
+        {
+            // Discard all ux for intersection, because in case of colocated
+            // iu/ux occurances, it would order iu first but then stop at ux
+            // For union/difference don't do this, it would disturb the assemble process
+            // and generate extra rings
+            it->discarded = true;
+        }
     }
 
-//    if (check_colocations)
-    {
-        detail::overlay::handle_colocations<OverlayType>(turn_points);
-    }
+    detail::overlay::handle_colocations<OverlayType>(turn_points, for_operation);
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
