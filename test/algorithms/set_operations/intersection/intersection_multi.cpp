@@ -133,8 +133,6 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
         1, 47, 90.0); // Area from SQL Server
-
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
@@ -142,7 +140,6 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         13, 157, 67.0); // Area from SQL Server
-#endif
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",

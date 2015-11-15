@@ -137,7 +137,7 @@ private :
         return default_order(left, right);
     }
 
-    inline int overlay_code(Indexed const& left, Indexed const& right) const
+    inline bool select_by_side(bool& result, Indexed const& left, Indexed const& right) const
     {
         typedef typename boost::range_value<TurnPoints>::type turn_type;
         typedef typename turn_type::turn_operation_type turn_op_type;
@@ -174,7 +174,7 @@ private :
         }
         else
         {
-            return -1;
+            return false;
         }
 
         point_type p_rhs;
@@ -190,7 +190,7 @@ private :
         }
         else
         {
-            return -1;
+            return false;
         }
 
         typedef typename strategy::side::services::default_strategy
@@ -203,7 +203,7 @@ private :
         //                    |lhs
         //     both===========|
         //                    |rhs
-        // In that case, take right (for intersection)
+        // In that case, take right (for intersection and union)
 
         int const side_lhs = strategy::apply(p_both1, p_both2, p_lhs);
         int const side_rhs = strategy::apply(p_both1, p_both2, p_rhs);
@@ -211,8 +211,10 @@ private :
         if (side_lhs * side_rhs == -1)
         {
             // 1,-1 or -1,1
+            // Order the one going right first. So if lhs=right, result=true
 
-            return side_lhs == 1 ? 0 : 1;
+            result = side_lhs == -1;
+            return true;
         }
 
         // Check if one union option (of left hand side) is located
@@ -220,12 +222,12 @@ private :
         int const side = strategy::apply(p_both2, p_lhs, p_rhs);
         if (side == 0)
         {
-            // Collinear - undetermined (maybe check length)
-            return -1;
+            return false;
         }
 
-        // If lhs is left of rhs, return 1, else return 0
-        return side == 1 ? 1 : 0;
+        // If lhs is left of rhs, order first, so return true;
+        result = side == 1;
+        return true;
     }
 
     // TODO: alternatively we might return a tristate bool but we don' t have a
@@ -259,6 +261,23 @@ private :
             // Order right first, so consider as ! left<right
             result = false;
             return true;
+        }
+
+        // In case of an intersection, if both left and right do not contain
+        // such an operation, but there is a cc, than prioritize cc
+        if (! left_turn.has(m_for_operation)
+            && ! right_turn.has(m_for_operation))
+        {
+            if (left_turn.both(operation_continue))
+            {
+                result = true;
+                return true;
+            }
+            if (right_turn.both(operation_continue))
+            {
+                result = false;
+                return true;
+            }
         }
 
         return false;
@@ -320,18 +339,13 @@ public :
             return left_code < right_code;
         }
 
-        //if (m_for_operation == operation_union)
-
-        int const code = overlay_code(left, right);
-        if (code != -1)
-        {
-            // For union: if code = 1, then lhs
-            // is most-left, and we should return true (smaller)
-            // For intersection the same is valid
-            return code == 1;
-        }
 
         bool result = false;
+        if (select_by_side(result, left, right))
+        {
+            return result;
+        }
+
         if (select_operation(result, left, right))
         {
             return result;

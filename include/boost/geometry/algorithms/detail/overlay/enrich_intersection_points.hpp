@@ -326,6 +326,16 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             it->discarded = true;
             check_colocations = true;
         }
+        else if (OverlayType != overlay_union
+                 && it->has(detail::overlay::operation_blocked)
+                 && ! it->has(for_operation))
+        {
+            // Discard all ux for intersection, because in case of colocated
+            // iu/ux occurances, it would order iu first but then stop at ux
+            // For union don't do this, it would disturb the assemble process
+            // and generate extra rings
+            it->discarded = true;
+        }
         else if (it->combination(detail::overlay::operation_union,
                                  detail::overlay::operation_blocked))
         {
