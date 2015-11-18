@@ -198,12 +198,17 @@ private :
                 typename cs_tag<point_type>::type
             >::type strategy;
 
-
         // Check if lhs is opposite from rhs
         //                    |lhs
         //     both===========|
         //                    |rhs
-        // In that case, take right (for intersection and union)
+        // In that case, take spatially right for intersection,
+        // spatially left for union
+        // Taking spatially right means: order that one as LAST
+        // such that the other one is taken first, passed through this one
+
+        // Also, either lhs or rhs might continue collinearly
+
 
         int const side_lhs = strategy::apply(p_both1, p_both2, p_lhs);
         int const side_rhs = strategy::apply(p_both1, p_both2, p_rhs);
@@ -212,8 +217,22 @@ private :
         {
             // 1,-1 or -1,1
             // Order the one going right first. So if lhs=right, result=true
-
             result = side_lhs == -1;
+            return true;
+        }
+        else if (side_lhs != 0 && side_rhs == 0)
+        {
+            // 1,0 or -1,0
+            // For union, if lhs goes left, order first
+            result = side_lhs == -1;
+            return true;
+        }
+        else if (side_lhs == 0 && side_rhs != 0)
+        {
+            // 0,1 or 0,-1
+            // For union, if rhs goes left, order first so return false
+            // to apply the predicate lhs<rhs
+            result = side_rhs == 1;
             return true;
         }
 
