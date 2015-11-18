@@ -22,7 +22,6 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
@@ -55,6 +54,42 @@ void test_areal()
     test_one<Ring, MultiPolygon, Polygon>("simplex_multi_mp_r",
         case_multi_simplex[0], case_single_simplex,
         2, 12, 6.42);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Fails to generate one ring - would be correct if handle_tangencies is skipped
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
+        case_58_multi[0], case_58_multi[3],
+        3, 12, 0.666666667);
+#endif
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
+        case_58_multi[1], case_58_multi[2],
+        1, 10, 11.16666666667);
+#endif
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b4",
+        case_58_multi[4], case_58_multi[2],
+        1, 10, 12.66666666);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b5",
+        case_58_multi[5], case_58_multi[2],
+        1, 10, 99.99);
+#endif
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b6",
+        case_58_multi[6], case_58_multi[2],
+        1, 10, 13.25);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // No output at all
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b7",
+        case_58_multi[7], case_58_multi[2],
+        1, 10, 99.99);
+
+#endif
 
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
@@ -104,6 +139,13 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         13, 157, 67.0); // Area from SQL Server
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Recent regression, missing one output polygon
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
+        case_recursive_boxes_6[0], case_recursive_boxes_6[1],
+        99, 99, 99.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

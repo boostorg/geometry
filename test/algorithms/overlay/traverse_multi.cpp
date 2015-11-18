@@ -57,6 +57,25 @@ void test_geometries()
 
     test_traverse_intersection::apply
         (
+            "case_58_multi_b4", 1, 12.666666667,
+            case_58_multi[4], case_58_multi[2]
+        );
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_traverse_intersection::apply
+        (
+            "case_58_multi_b5", 1, 1,
+            case_58_multi[5], case_58_multi[2]
+        );
+#endif
+    test_traverse_intersection::apply
+        (
+            "case_58_multi_b6", 1, 13.25,
+            case_58_multi[6], case_58_multi[2]
+        );
+
+    test_traverse_intersection::apply
+        (
             "case_65_multi", 1, 1,
             case_65_multi[0], case_65_multi[1]
         );
