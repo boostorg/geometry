@@ -238,7 +238,7 @@ private :
 
         // Check if one union option (of left hand side) is located
         // left (spatially left) of the other union option (of right hand side)
-        int const side = strategy::apply(p_both2, p_lhs, p_rhs);
+        int const side = strategy::apply(left_turn.point, p_lhs, p_rhs);
         if (side == 0)
         {
             return false;
