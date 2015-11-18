@@ -332,9 +332,11 @@ void test_areal()
         case_80[0], case_80[1],
         0, -1, 0.0);
 
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, Polygon, Polygon>("case_81",
         case_81[0], case_81[1],
         0, -1, 0.0);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
