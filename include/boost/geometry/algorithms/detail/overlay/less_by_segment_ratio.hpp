@@ -37,6 +37,7 @@ struct indexed_turn_operation
     std::size_t turn_index;
     std::size_t operation_index;
     bool discarded;
+    mutable bool skip;
     // use pointers to avoid copies, const& is not possible because of usage in vector
     segment_identifier const* other_seg_id; // segment id of other segment of intersection of two segments
     TurnOperation const* subject;
@@ -47,6 +48,7 @@ struct indexed_turn_operation
         : turn_index(ti)
         , operation_index(oi)
         , discarded(false)
+        , skip(false)
         , other_seg_id(&oid)
         , subject(boost::addressof(sub))
     {}
@@ -297,6 +299,21 @@ private :
                 result = false;
                 return true;
             }
+        }
+
+        // Order ii first, so if left=ii, return true, if right=ii, return false
+        bool const left_ii = left_turn.both(operation_intersection);
+        bool const right_ii = right_turn.both(operation_intersection);
+
+        if (left_ii && ! right_ii)
+        {
+            result = true;
+            return true;
+        }
+        else if (right_ii && ! left_ii)
+        {
+            result = false;
+            return true;
         }
 
         return false;

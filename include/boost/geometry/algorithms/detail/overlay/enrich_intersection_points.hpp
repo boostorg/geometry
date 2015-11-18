@@ -52,6 +52,15 @@ struct remove_discarded
     }
 };
 
+struct skip_operation
+{
+    template <typename Toi>
+    inline bool operator()(Toi const& toi) const
+    {
+        return toi.skip;
+    }
+};
+
 
 template<typename Turns, typename Operations>
 inline void update_discarded(Turns& turn_points, Operations& operations)
@@ -69,6 +78,44 @@ inline void update_discarded(Turns& turn_points, Operations& operations)
         else if (it->discarded)
         {
             turn_points[it->turn_index].discarded = true;
+        }
+    }
+}
+
+// After a ii-turn (ordered first), all colocated turns should be skipped
+// such that the ii-turn traverses to a turn on another location
+template<typename Turns, typename Operations>
+inline void skip_after_ii(Turns const& turn_points, Operations& operations)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename boost::range_value<Operations>::type indexed_type;
+    typedef typename indexed_type::type turn_operation_type;
+
+    typename boost::range_iterator<Operations>::type it = boost::begin(operations);
+
+    turn_type cluster_turn = turn_points[it->turn_index];
+    turn_operation_type cluster_op = cluster_turn.operations[it->operation_index];
+
+    bool both_ii = cluster_turn.both(operation_intersection);
+
+    for (++it; it != operations.end(); ++it)
+    {
+        turn_type const& turn = turn_points[it->turn_index];
+        turn_operation_type const& op = turn.operations[it->operation_index];
+
+        if (both_ii
+            && cluster_op.seg_id == op.seg_id
+            && cluster_op.fraction == op.fraction)
+        {
+            it->skip = true;
+        }
+        else
+        {
+            // Not on same fraction on this segment
+            // assign for next potential cluster
+            cluster_turn = turn;
+            cluster_op = op;
+            both_ii = cluster_turn.both(operation_intersection);
         }
     }
 }
@@ -114,6 +161,16 @@ inline void enrich_sort(Container& operations,
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
     // the way round. See #105
+
+    // Skip operations after ii by flagging them and removing them (from this
+    // list only, they are not discarded)
+    skip_after_ii(turn_points, operations);
+    operations.erase
+            (
+                std::remove_if(boost::begin(operations), boost::end(operations),
+                               skip_operation()),
+                boost::end(operations)
+            );
 
     update_discarded(turn_points, operations);
 }

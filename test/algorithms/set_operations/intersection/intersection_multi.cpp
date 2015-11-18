@@ -107,11 +107,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi",
         case_65_multi[0], case_65_multi[1],
         1, 5, 1.0);
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
         3, 14, 2.85);
-#endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
         5, 33, 9);
@@ -153,6 +151,10 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_8",
         case_recursive_boxes_8[0], case_recursive_boxes_8[1],
         3, 19, 3.75);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_9",
+        case_recursive_boxes_9[0], case_recursive_boxes_9[1],
+        5, 27, 4.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
