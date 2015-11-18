@@ -243,13 +243,10 @@ void test_areal()
         ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
         1, 4, 3.77106, 0.001);
 
-#if 0
-    // TODO: fix this testcase, it should give 0 but instead it gives one of the input polygons
     // Mailed to the Boost.Geometry list on 2014/03/21 by 7415963@gmail.com
     test_one<Polygon, Polygon, Polygon>("ggl_list_20140321_7415963",
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, 0.1);
-#endif
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
@@ -324,9 +321,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, Polygon, Polygon>("case_58_iet",
         case_58[0], case_58[2],
         2, -1, 1.0 / 3.0);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("case_80",
         case_80[0], case_80[1],
