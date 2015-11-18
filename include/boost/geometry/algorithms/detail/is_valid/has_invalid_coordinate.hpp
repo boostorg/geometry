@@ -18,8 +18,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/util/has_nan_coordinate.hpp>
-#include <boost/geometry/util/has_infinite_coordinate.hpp>
+#include <boost/geometry/util/has_non_finite_coordinate.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
@@ -50,8 +49,7 @@ struct point_has_invalid_coordinate
         boost::ignore_unused(visitor);
 
         return
-            (geometry::has_nan_coordinate(point)
-             || geometry::has_infinite_coordinate(point))
+            geometry::has_non_finite_coordinate(point)
             ?
             (! visitor.template apply<failure_invalid_coordinate>())
             :
@@ -61,8 +59,7 @@ struct point_has_invalid_coordinate
     template <typename Point>
     static inline bool apply(Point const& point)
     {
-        return geometry::has_nan_coordinate(point)
-            || geometry::has_infinite_coordinate(point);
+        return geometry::has_non_finite_coordinate(point);
     }
 };
 
