@@ -17,10 +17,12 @@
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
     
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 struct isinf
 {
