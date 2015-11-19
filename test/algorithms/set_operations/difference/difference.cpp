@@ -466,16 +466,6 @@ void test_all()
         1, -1, 92.0,
         1, -1, 14.0,
         1, -1, 92.0 + 14.0);
-
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    typedef bg::model::multi_polygon<polygon> multi_polygon;
-    test_one<polygon, polygon, multi_polygon>("mysql_21965285_2",
-        "POLYGON((3 0, 15 0, -2 10, -7 3, -19 -19, 3 0))",
-        "MULTIPOLYGON(((1 1, -4 -3, 19 -8, 3 0, 1 1)),((3 0, 8 12, 1 19, -3 16, -2 7, 3 0)))",
-        2, -1, 183.71376870369406,
-        2, -1, 131.21376870369406,
-        4, -1, 183.71376870369406 + 131.21376870369406);
-#endif
 }
 
 
