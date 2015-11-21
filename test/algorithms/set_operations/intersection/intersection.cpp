@@ -345,6 +345,13 @@ void test_areal()
         mysql_21964465[0], mysql_21964465[1],
         0, -1, 0.0);
 
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<Polygon, Polygon, Polygon>("mysql_21965285_b_inv",
+        mysql_21965285_b_inv[0],
+        mysql_21965285_b_inv[1],
+        2, -1, 183.71376870369406);
+#endif
+
     return;
 
     test_one<Polygon, Polygon, Polygon>(
