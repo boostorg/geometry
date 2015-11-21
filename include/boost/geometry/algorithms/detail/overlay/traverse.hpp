@@ -331,6 +331,18 @@ public :
                                     geometry1, geometry2, robust_policy, state);
                             }
 
+                            if (current == it)
+                            {
+                                iit->visited.set_finished();
+                                detail::overlay::debug_traverse(*current, *iit, "->Finished early");
+                                if (geometry::num_points(current_output) >= min_num_points)
+                                {
+                                    clean_closing_dups_and_spikes(current_output, robust_policy);
+                                    rings.push_back(current_output);
+                                    continue;
+                                }
+                            }
+
                             if (! detail::overlay::select_next_ip(
                                             operation,
                                             *current,
