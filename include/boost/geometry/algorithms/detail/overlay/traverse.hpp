@@ -167,6 +167,7 @@ template
 >
 inline bool select_next_ip(operation_type operation,
             Turn& turn,
+            std::size_t start_turn_index,
             segment_identifier const& seg_id,
             Iterator& selected)
 {
@@ -227,11 +228,17 @@ inline bool select_next_ip(operation_type operation,
 
         if (it->operation == operation_continue && has_tp)
         {
-            if (it->remaining_distance > max_remaining_distance)
+            if (it->enriched.next_ip_index == start_turn_index
+                || it->enriched.travels_to_ip_index == start_turn_index)
+            {
+                selected = it;
+                debug_traverse(turn, *it, " Candidate override (start)");
+            }
+            else if (it->remaining_distance > max_remaining_distance)
             {
                 max_remaining_distance = it->remaining_distance;
                 selected = it;
-                debug_traverse(turn, *it, " Candidate override");
+                debug_traverse(turn, *it, " Candidate override (remaining)");
             }
         }
     }
@@ -289,10 +296,12 @@ public :
         {
             state.reset();
 
+            std::size_t start_turn_index = 0;
+
             // Iterate through all unvisited points
             for (turn_iterator it = boost::begin(turns);
                 state.good() && it != boost::end(turns);
-                ++it)
+                ++it, ++start_turn_index)
             {
                 // Skip discarded ones
                 if (! (it->discarded || ! it->selectable_start || it->blocked()))
@@ -346,6 +355,7 @@ public :
                             if (! detail::overlay::select_next_ip(
                                             operation,
                                             *current,
+                                            start_turn_index,
                                             current_seg_id,
                                             current_iit))
                             {
@@ -400,6 +410,7 @@ public :
                                         if (! detail::overlay::select_next_ip(
                                                     operation,
                                                     *current,
+                                                    start_turn_index,
                                                     current_seg_id,
                                                     current_iit))
                                         {
