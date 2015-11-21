@@ -95,6 +95,7 @@ inline void skip_after_ii(Turns const& turn_points, Operations& operations)
 
     turn_type cluster_turn = turn_points[it->turn_index];
     turn_operation_type cluster_op = cluster_turn.operations[it->operation_index];
+    turn_operation_type cluster_other_op = cluster_turn.operations[1 - it->operation_index];
 
     bool both_ii = cluster_turn.both(operation_intersection);
 
@@ -102,12 +103,19 @@ inline void skip_after_ii(Turns const& turn_points, Operations& operations)
     {
         turn_type const& turn = turn_points[it->turn_index];
         turn_operation_type const& op = turn.operations[it->operation_index];
+        turn_operation_type const& other_op = turn.operations[1 - it->operation_index];
 
         if (both_ii
             && cluster_op.seg_id == op.seg_id
             && cluster_op.fraction == op.fraction)
         {
-            it->skip = true;
+            if (op.seg_id.ring_index == -1
+                    && cluster_other_op.seg_id.ring_index == -1
+                    && other_op.seg_id.ring_index == -1)
+            {
+                // Colocated with ii on exterior rings, skip
+                it->skip = true;
+            }
         }
         else
         {
