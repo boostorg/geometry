@@ -85,7 +85,8 @@ inline void update_discarded(Turns& turn_points, Operations& operations)
 // After a ii-turn (ordered first), all colocated turns should be skipped
 // such that the ii-turn traverses to a turn on another location
 template<typename Turns, typename Operations>
-inline void skip_after_ii(Turns const& turn_points, Operations& operations)
+inline void skip_after_ii(Turns const& turn_points, Operations& operations,
+                          bool inverse2)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename boost::range_value<Operations>::type indexed_type;
@@ -109,11 +110,25 @@ inline void skip_after_ii(Turns const& turn_points, Operations& operations)
             && cluster_op.seg_id == op.seg_id
             && cluster_op.fraction == op.fraction)
         {
-            if (op.seg_id.ring_index == -1
-                    && cluster_other_op.seg_id.ring_index == -1
-                    && other_op.seg_id.ring_index == -1)
+            bool other_interior = other_op.seg_id.ring_index >= 0;
+            bool cluster_other_interior = cluster_other_op.seg_id.ring_index >= 0;
+
+            // For difference, reverse the condition from second source
+            if (inverse2)
             {
-                // Colocated with ii on exterior rings, skip
+                if (other_op.seg_id.source_index == 1)
+                {
+                    other_interior = ! other_interior;
+                }
+                if (cluster_other_op.seg_id.source_index == 1)
+                {
+                    cluster_other_interior = ! cluster_other_interior;
+                }
+            }
+
+            if (! other_interior && ! cluster_other_interior)
+            {
+                // Colocated with ii on exterior rings only, skip
                 it->skip = true;
             }
         }
@@ -147,7 +162,8 @@ template
 inline void enrich_sort(Container& operations,
             TurnPoints& turn_points,
             operation_type for_operation,
-            Geometry1 const& geometry1, Geometry2 const& geometry2,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2, bool inverse2,
             RobustPolicy const& robust_policy,
             Strategy const& strategy)
 {
@@ -172,7 +188,7 @@ inline void enrich_sort(Container& operations,
 
     // Skip operations after ii by flagging them and removing them (from this
     // list only, they are not discarded)
-    skip_after_ii(turn_points, operations);
+    skip_after_ii(turn_points, operations, inverse2);
     operations.erase
             (
                 std::remove_if(boost::begin(operations), boost::end(operations),
@@ -424,8 +440,10 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     std::cout << "ENRICH-sort Ring "
         << mit->first << std::endl;
 #endif
-        detail::overlay::enrich_sort<indexed_turn_operation, Reverse1, Reverse2>(mit->second, turn_points, for_operation,
-                    geometry1, geometry2, robust_policy, strategy);
+        detail::overlay::enrich_sort<indexed_turn_operation, Reverse1, Reverse2>(
+                    mit->second, turn_points, for_operation,
+                    geometry1, geometry2, OverlayType == overlay_difference,
+                    robust_policy, strategy);
     }
 
     for (typename mapped_vector_type::iterator mit

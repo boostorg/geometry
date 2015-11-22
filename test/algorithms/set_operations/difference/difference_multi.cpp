@@ -172,14 +172,11 @@ void test_areal()
             1, 1, 1, 1, 1, 1);
 */
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],
         mysql_21965285_b[1],
         2, -1, 183.71376870369406,
-        2, -1, 131.21376870369406,
-        4, -1, 183.71376870369406 + 131.21376870369406);
-#endif
+        2, -1, 131.21376870369406);
 }
 
 
