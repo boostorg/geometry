@@ -48,7 +48,6 @@ inline void clear_visit_info(Turns& turns)
         {
             op_it->visited.clear();
         }
-        it->discarded = false;
     }
 }
 

@@ -43,15 +43,6 @@ namespace detail { namespace overlay
 {
 
 
-template <typename IndexedTurnOperation>
-struct remove_discarded
-{
-    inline bool operator()(IndexedTurnOperation const& operation) const
-    {
-        return operation.discarded;
-    }
-};
-
 struct skip_operation
 {
     template <typename Toi>
@@ -61,26 +52,6 @@ struct skip_operation
     }
 };
 
-
-template<typename Turns, typename Operations>
-inline void update_discarded(Turns& turn_points, Operations& operations)
-{
-    // Vice-versa, set discarded to true for discarded operations;
-    // AND set discarded points to true
-    for (typename boost::range_iterator<Operations>::type it = boost::begin(operations);
-         it != boost::end(operations);
-         ++it)
-    {
-        if (turn_points[it->turn_index].discarded)
-        {
-            it->discarded = true;
-        }
-        else if (it->discarded)
-        {
-            turn_points[it->turn_index].discarded = true;
-        }
-    }
-}
 
 // After a ii-turn (ordered first), all colocated turns should be skipped
 // such that the ii-turn traverses to a turn on another location
@@ -195,29 +166,8 @@ inline void enrich_sort(Container& operations,
                                skip_operation()),
                 boost::end(operations)
             );
-
-    update_discarded(turn_points, operations);
 }
 
-
-template
-<
-    typename IndexType,
-    typename Container,
-    typename TurnPoints
->
-inline void enrich_discard(Container& operations, TurnPoints& turn_points)
-{
-    update_discarded(turn_points, operations);
-
-    // Then delete discarded operations from vector
-    remove_discarded<IndexType> predicate;
-    operations.erase(
-            std::remove_if(boost::begin(operations),
-                    boost::end(operations),
-                    predicate),
-            boost::end(operations));
-}
 
 template
 <
@@ -444,18 +394,6 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
                     mit->second, turn_points, for_operation,
                     geometry1, geometry2, OverlayType == overlay_difference,
                     robust_policy, strategy);
-    }
-
-    for (typename mapped_vector_type::iterator mit
-        = mapped_vector.begin();
-        mit != mapped_vector.end();
-        ++mit)
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-    std::cout << "ENRICH-discard Ring "
-        << mit->first << std::endl;
-#endif
-        detail::overlay::enrich_discard<indexed_turn_operation>(mit->second, turn_points);
     }
 
     for (typename mapped_vector_type::iterator mit
