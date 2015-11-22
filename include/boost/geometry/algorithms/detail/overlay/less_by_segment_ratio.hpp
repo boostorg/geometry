@@ -67,14 +67,12 @@ struct less_by_segment_ratio
             , operation_type for_operation
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
-            , RobustPolicy const& robust_policy
-            , bool* clustered)
+            , RobustPolicy const& robust_policy)
         : m_turn_points(turn_points)
         , m_for_operation(for_operation)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_robust_policy(robust_policy)
-        , m_clustered(clustered)
     {
     }
 
@@ -85,7 +83,6 @@ private :
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     RobustPolicy const& m_robust_policy;
-    mutable bool* m_clustered;
 
     typedef typename geometry::point_type<Geometry1>::type point_type;
 
@@ -384,12 +381,6 @@ public :
         {
             return result;
         }
-
-        // OBSOLETE
-        // If that is not the case, cluster it later on.
-        // Indicate that this is necessary.
-
-        *m_clustered = true;
 
         return default_order(left, right);
     }

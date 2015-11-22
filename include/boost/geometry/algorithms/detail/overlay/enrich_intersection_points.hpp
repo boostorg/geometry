@@ -140,7 +140,6 @@ inline void enrich_sort(Container& operations,
 {
     typedef typename IndexType::type operations_type;
 
-    bool clustered = false;
     std::sort(boost::begin(operations),
                 boost::end(operations),
                 less_by_segment_ratio
@@ -151,7 +150,7 @@ inline void enrich_sort(Container& operations,
                         RobustPolicy,
                         Reverse1, Reverse2
                     >(turn_points, for_operation, geometry1, geometry2,
-                      robust_policy, &clustered));
+                      robust_policy));
 
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
