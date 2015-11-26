@@ -145,8 +145,6 @@
 [heading Boost 1.57]
 [/=================]
 
-[*Additional functionality]
-
 [*Improvements]
 
 * The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
