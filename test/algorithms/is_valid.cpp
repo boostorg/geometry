@@ -13,11 +13,14 @@
 #define BOOST_TEST_MODULE test_is_valid
 #endif
 
+#include <limits>
 #include <iostream>
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_is_valid.hpp"
+
+#include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -1176,7 +1179,138 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
     test_open_multipolygons<point_type, do_not_allow_duplicates>();
 }
 
-BOOST_AUTO_TEST_CASE( test_geometry_with_NaN_coordinates )
+
+template <typename CoordinateType, typename Geometry>
+inline void check_one(Geometry const& geometry)
+{
+    bool const is_fp = boost::is_floating_point<CoordinateType>::value;
+
+    bg::validity_failure_type failure;
+    bool validity = bg::is_valid(geometry, failure);
+    if (BOOST_GEOMETRY_CONDITION(is_fp))
+    {
+        BOOST_CHECK(! validity);
+        BOOST_CHECK(failure == bg::failure_invalid_coordinate);
+    }
+    else
+    {
+        BOOST_CHECK(failure == bg::no_failure
+                    || failure != bg::failure_invalid_coordinate);
+    }
+}
+
+template <typename P, typename CoordinateType>
+inline void test_with_invalid_coordinate(CoordinateType invalid_value)
+{
+    typedef bg::model::segment<P> segment_t;
+    typedef bg::model::box<P> box_t;
+    typedef bg::model::linestring<P> linestring_t;
+    typedef bg::model::ring<P> ring_t; // cw, closed
+    typedef bg::model::polygon<P> polygon_t; // cw, closed
+    typedef bg::model::multi_point<P> multi_point_t;
+    typedef bg::model::multi_linestring<linestring_t> multi_linestring_t;
+    typedef bg::model::multi_polygon<polygon_t> multi_polygon_t;
+
+    typedef typename bg::coordinate_type<P>::type coord_t;
+
+    std::string wkt_point = "POINT(1 1)";
+    std::string wkt_segment = "LINESTRING(1 1,10 20)";
+    std::string wkt_box = "BOX(1 1,10 20)";
+    std::string wkt_linestring = "LINESTRING(1 1,2 3,4 -5)";
+    std::string wkt_ring = "POLYGON((1 1,2 2,2 1,1 1))";
+    std::string wkt_polygon = "POLYGON((1 1,1 200,200 200,200 1,1 1),(50 50,50 51,49 50,50 50))";
+    std::string wkt_multipoint = "MULTIPOINT(1 1,2 3,4 -5,-5 2)";
+    std::string wkt_multilinestring =
+        "MULTILINESTRING((1 1,2 3,4 -5),(-4 -2,-8 9))";
+    std::string wkt_multipolygon = "MULTIPOLYGON(((1 1,1 200,200 200,200 1,1 1),(50 50,50 51,49 50,50 50)),((500 500,550 550,550 500,500 500)))";
+
+    {
+        P p;
+        bg::read_wkt(wkt_point, p);
+        BOOST_CHECK(bg::is_valid(p));
+        bg::set<1>(p, invalid_value);
+        check_one<coord_t>(p);
+    }
+    {
+        segment_t s;
+        bg::read_wkt(wkt_segment, s);
+        BOOST_CHECK(bg::is_valid(s));
+        bg::set<1, 1>(s, invalid_value);
+        check_one<coord_t>(s);
+    }
+    {
+        box_t b;
+        bg::read_wkt(wkt_box, b);
+        BOOST_CHECK(bg::is_valid(b));
+        bg::set<1, 0>(b, invalid_value);
+        check_one<coord_t>(b);
+    }
+    {
+        linestring_t ls;
+        bg::read_wkt(wkt_linestring, ls);
+        BOOST_CHECK(bg::is_valid(ls));
+        bg::set<1>(ls[1], invalid_value);
+        check_one<coord_t>(ls);
+    }
+    {
+        ring_t r;
+        bg::read_wkt(wkt_ring, r);
+        BOOST_CHECK(bg::is_valid(r));
+        bg::set<0>(r[1], invalid_value);
+        check_one<coord_t>(r);
+    }
+    {
+        polygon_t pgn;
+        bg::read_wkt(wkt_polygon, pgn);
+        BOOST_CHECK(bg::is_valid(pgn));
+        bg::set<0>(bg::interior_rings(pgn)[0][1], invalid_value);
+        check_one<coord_t>(pgn);
+    }
+    {
+        multi_point_t mp;
+        bg::read_wkt(wkt_multipoint, mp);
+        BOOST_CHECK(bg::is_valid(mp));
+        bg::set<0>(mp[2], invalid_value);
+        check_one<coord_t>(mp);
+    }
+    {
+        multi_linestring_t mls;
+        bg::read_wkt(wkt_multilinestring, mls);
+        BOOST_CHECK(bg::is_valid(mls));
+        bg::set<0>(mls[1][1], invalid_value);
+        check_one<coord_t>(mls);
+    }
+    {
+        multi_polygon_t mpgn;
+        bg::read_wkt(wkt_multipolygon, mpgn);
+        BOOST_CHECK(bg::is_valid(mpgn));
+        bg::set<0>(bg::exterior_ring(mpgn[1])[1], invalid_value);
+        check_one<coord_t>(mpgn);
+    }
+}
+
+template <typename P>
+inline void test_with_invalid_coordinate()
+{
+    typedef typename bg::coordinate_type<P>::type coord_t;
+
+    coord_t const q_nan = std::numeric_limits<coord_t>::quiet_NaN();
+    coord_t const inf = std::numeric_limits<coord_t>::infinity();
+
+    test_with_invalid_coordinate<P, coord_t>(q_nan);
+    test_with_invalid_coordinate<P, coord_t>(inf);
+}
+
+BOOST_AUTO_TEST_CASE( test_geometries_with_invalid_coordinates )
+{
+    typedef point_type fp_point_type;
+    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
+
+    test_with_invalid_coordinate<fp_point_type>();
+    test_with_invalid_coordinate<int_point_type>();
+}
+
+BOOST_AUTO_TEST_CASE( test_with_NaN_coordinates )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -1200,12 +1334,12 @@ BOOST_AUTO_TEST_CASE( test_geometry_with_NaN_coordinates )
     test_valid
         <
             tester_allow_spikes, multi_linestring_type
-        >::apply("mls-NaN", mls, true);
+        >::apply("mls-NaN", mls, false);
 
     test_valid
         <
             tester_disallow_spikes, multi_linestring_type
-        >::apply("mls-NaN", mls, true);
+        >::apply("mls-NaN", mls, false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_variant )
