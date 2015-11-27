@@ -59,6 +59,13 @@ void test_areal()
         case_multi_2[0], case_multi_2[1],
         3, 0, 16, 59.1);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
+        case_58_multi[0], case_58_multi[3],
+        2, 0, 21, 19.83333333);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
+        case_58_multi[1], case_58_multi[2],
+        1, 3, 17, 48.333333);
+
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
         case_61_multi[0], case_61_multi[1],
@@ -120,6 +127,11 @@ void test_areal()
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
         3, 2, 110, 70.0);
 
+    // TODO: fix self touching interior ring (should get 3 interior rings)
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
+        case_recursive_boxes_6[0], case_recursive_boxes_6[1],
+        1, 2, 25, 24.0);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server
@@ -139,35 +151,48 @@ void test_areal()
         4,
 #endif
         0, 31, 0.2187385);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10803",
+        ticket_10803[0], ticket_10803[1],
+        1, 0, 9, 2663736.07038);
 }
 
-template <typename P>
+// Test cases (generic)
+template <typename Point, bool ClockWise, bool Closed>
 void test_all()
 {
 
-    {
-        typedef bg::model::ring<P> ring;
-        typedef bg::model::polygon<P> polygon;
-        typedef bg::model::multi_polygon<polygon> multi_polygon;
-        test_areal<ring, polygon, multi_polygon>();
-    }
+    typedef bg::model::ring<Point, ClockWise, Closed> ring;
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
+    test_areal<ring, polygon, multi_polygon>();
+}
 
-    {
-        typedef bg::model::ring<P, false> ring_ccw;
-        typedef bg::model::polygon<P, false> polygon_ccw;
-        typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
-        test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
-    }
+// Test cases for integer coordinates / ccw / open
+template <typename Point, bool ClockWise, bool Closed>
+void test_specific()
+{
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
 
+    ut_settings settings;
+    settings.test_validity = true;
+
+    test_one<polygon, multi_polygon, multi_polygon>("ticket_10803",
+        ticket_10803[0], ticket_10803[1],
+        1, 0, 9, 2664270, settings);
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<double>, true, true>();
+    test_all<bg::model::d2::point_xy<double>, false, false>();
+
+    test_specific<bg::model::d2::point_xy<int>, false, false>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<float>, true, true>();
 
 #if defined(HAVE_TTMATH)
     std::cout << "Testing TTMATH" << std::endl;

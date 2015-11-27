@@ -33,7 +33,6 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
-#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
@@ -106,23 +105,6 @@ void test_areal()
         ggl_list_20111025_vd[2], ggl_list_20111025_vd[3],
             1, 4, 8.0, 1, 4, 12.5);
 
-    // Second case
-    // This can be tested with this SQL for SQL-Server
-    /*
-    with viewy as (select geometry::STGeomFromText(
-            'POLYGON((5 0,5 4,8 4,8 0,5 0))',0) as  p,
-      geometry::STGeomFromText(
-            'MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((4 0,4 2,6 2,6 0,4 0)))',0) as q)
-    select
-        p.STDifference(q).STArea(),p.STDifference(q).STNumGeometries(),p.STDifference(q) as p_min_q,
-        q.STDifference(p).STArea(),q.STDifference(p).STNumGeometries(),q.STDifference(p) as q_min_p,
-        p.STSymDifference(q).STArea(),q.STSymDifference(p) as p_xor_q
-    from viewy
-
-    Outputting:
-    10, 1, <WKB>, 6, 2, <WKB>, 16, <WKB>
-    */
-
     test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_2",
         ggl_list_20111025_vd_2[0], ggl_list_20111025_vd_2[1],
             1, 7, 10.0, 2, 10, 6.0);
@@ -137,15 +119,32 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120221_volker",
         ggl_list_20120221_volker[0], ggl_list_20120221_volker[1],
             2, 12, 7962.66, 1, 18, 2775258.93,
-            0.001);
+            tolerance(0.001));
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
             4, 42, 0.0907392476356186 + 0.126018011439877,
-            0.001);
+            tolerance(0.001));
 #endif
+
+    {
+        // Bug 21155501
+
+        // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
+
+        ut_settings settings;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.test_validity = true;
+#endif
+        test_one<Polygon, MultiPolygon, MultiPolygon>("bug_21155501",
+            bug_21155501[0], bug_21155501[1],
+                1, 9, 3.758937,
+                0, 0, 0.0,
+                settings);
+
+    }
 
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
@@ -170,53 +169,83 @@ void test_areal()
          case_recursive_boxes_3[0], case_recursive_boxes_3[1],
             1, 1, 1, 1, 1, 1);
 */
-}
 
-template <typename MultiPolygon, typename MultiLineString>
-void test_areal_linear()
-{
-    typedef typename boost::range_value<MultiPolygon>::type Polygon;
-    typedef typename boost::range_value<MultiLineString>::type LineString;
-    typedef typename bg::point_type<Polygon>::type Point;
-    typedef bg::model::ring<Point> Ring;
-
-    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_1", "LINESTRING(2 0,2 5)", case_multi_simplex[0], 2, 4, 1.30);
-    test_one_lp<LineString, MultiLineString, Polygon>("case_p_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_single_simplex, 3, 6, 2.5);
-    test_one_lp<LineString, MultiLineString, MultiPolygon>("case_mp_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_multi_simplex[0], 5, 10, 3.1666667);
-    test_one_lp<LineString, MultiLineString, Ring>("case_r_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_single_simplex, 3, 6, 2.5);
-
-    // Collinear cases, with multiple turn points at the same location
-    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_2a", "LINESTRING(1 0,1 1,2 1,2 0)", "MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)),((1 1,1 2,2 2,2 1,1 1)))", 1, 2, 1.0);
-    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_2b", "LINESTRING(1 0,1 1,2 1,2 0)", "MULTIPOLYGON(((1 1,1 2,2 2,2 1,1 1)),((0 0,0 1,1 1,1 0,0 0)))", 1, 2, 1.0);
-
-    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_3",
-            "LINESTRING(6 6,6 7,7 7,7 6,8 6,8 7,9 7,9 6)",
-            "MULTIPOLYGON(((5 7,5 8,6 8,6 7,5 7)),((6 6,6 7,7 7,7 6,6 6)),((8 8,9 8,9 7,8 7,7 7,7 8,8 8)))", 2, 5, 3.0);
-
-    return;
-
-    // TODO: this case contains collinearities and should still be solved
-    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_4",
-            "LINESTRING(0 5,0 6,1 6,1 5,2 5,2 6,3 6,3 5,3 4,3 3,2 3,2 4,1 4,1 3,0 3,0 4)",
-            "MULTIPOLYGON(((0 2,0 3,1 2,0 2)),((2 5,3 6,3 5,2 5)),((1 5,1 6,2 6,2 5,1 5)),((2 3,2 4,3 4,2 3)),((0 3,1 4,1 3,0 3)),((4 3,3 3,3 5,4 5,4 4,4 3)))", 5, 11, 6.0);
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
+        mysql_21965285_b[0],
+        mysql_21965285_b[1],
+        2, -1, 183.71376870369406,
+        2, -1, 131.21376870369406,
+        4, -1, 183.71376870369406 + 131.21376870369406);
+#endif
 }
 
 
 template <typename P>
 void test_all()
 {
-    //typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
-    test_areal_linear<multi_polygon, bg::model::multi_linestring<bg::model::linestring<P> > >();
+}
+
+
+// Test cases for integer coordinates / ccw / open
+template <typename Point, bool ClockWise, bool Closed>
+void test_specific()
+{
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
+
+    {
+        // Spikes in a-b and b-a, failure in symmetric difference
+
+        ut_settings settings;
+        settings.sym_difference = false;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.test_validity = true;
+        settings.sym_difference = true;
+#endif
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_11674",
+            ticket_11674[0], ticket_11674[1],
+            3, 27, 9105781.5,
+            5, 22, 119059.5,
+            2, -1, -1,
+            settings);
+    }
+
+    {
+        ut_settings settings;
+        settings.test_validity = true;
+
+        std::string a_min_b =
+            test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_1",
+                ticket_10661[0], ticket_10661[1],
+                2, 11, 1441632.5,
+                2, 7, 13167454,
+                settings);
+
+        settings.test_validity = false;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.test_validity = true;
+#endif
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_2",
+            a_min_b, ticket_10661[2],
+            1, 8, 825192.0,
+            1, 10, 27226370.5,
+            1, -1, 825192.0 + 27226370.5,
+            settings);
+    }
 }
 
 
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double > >();
+
+    test_specific<bg::model::d2::point_xy<int>, false, false>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

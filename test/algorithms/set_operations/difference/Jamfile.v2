@@ -16,13 +16,15 @@
 
 test-suite boost-geometry-algorithms-difference
     :
-    [ run difference.cpp               : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+    [ run difference.cpp                 : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
                                              : algorithms_difference ]
     [ run difference_linear_linear.cpp : : : : algorithms_difference_linear_linear ]
+    [ run difference_areal_linear.cpp  : : : : algorithms_difference_areal_linear ]
     [ run difference_pl_l.cpp          : : : : algorithms_difference_pl_l ]
     [ run difference_pl_pl.cpp         : : : : algorithms_difference_pl_pl ]
-    [ run difference_multi.cpp         : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+    [ run difference_multi.cpp           : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
                                              : algorithms_difference_multi ]
-    [ run difference_multi_spike.cpp   : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
-                                             : algorithms_difference_multi_spike ]
+    [ run difference_multi_areal_linear.cpp : : : : algorithms_difference_multi_areal_linear ]
+    [ run difference_multi_spike.cpp          : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+                                                  : algorithms_difference_multi_spike ]
     ;

@@ -1195,7 +1195,7 @@ struct buffered_piece_collection
             typename cs_tag<Ring>::type
         >::type side_strategy_type;
 
-        enrich_intersection_points<false, false>(m_turns,
+        enrich_intersection_points<false, false, overlay_union>(m_turns,
                     detail::overlay::operation_union,
                     offsetted_rings, offsetted_rings,
                     m_robust_policy, side_strategy_type());

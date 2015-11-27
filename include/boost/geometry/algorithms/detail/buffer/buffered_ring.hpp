@@ -96,36 +96,36 @@ namespace traits
 
 
 template <typename Ring>
-struct tag<detail::buffer::buffered_ring<Ring> >
+struct tag<geometry::detail::buffer::buffered_ring<Ring> >
 {
     typedef ring_tag type;
 };
 
 
 template <typename Ring>
-struct point_order<detail::buffer::buffered_ring<Ring> >
+struct point_order<geometry::detail::buffer::buffered_ring<Ring> >
 {
     static const order_selector value = geometry::point_order<Ring>::value;
 };
 
 
 template <typename Ring>
-struct closure<detail::buffer::buffered_ring<Ring> >
+struct closure<geometry::detail::buffer::buffered_ring<Ring> >
 {
     static const closure_selector value = geometry::closure<Ring>::value;
 };
 
 
 template <typename Ring>
-struct point_type<detail::buffer::buffered_ring_collection<Ring> >
+struct point_type<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
     typedef typename geometry::point_type<Ring>::type type;
 };
 
 template <typename Ring>
-struct tag<detail::buffer::buffered_ring_collection<Ring> >
+struct tag<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    typedef detail::buffer::buffered_ring_collection_tag type;
+    typedef geometry::detail::buffer::buffered_ring_collection_tag type;
 };
 
 

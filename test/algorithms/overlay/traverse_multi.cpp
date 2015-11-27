@@ -37,17 +37,15 @@
 template <typename MultiPolygon, bool Reverse>
 void test_geometries()
 {
-    namespace ov = bg::detail::overlay;
-
     typedef test_traverse
         <
             MultiPolygon, MultiPolygon,
-            ov::operation_intersection, Reverse, Reverse
+            bg::overlay_intersection, Reverse, Reverse
         > test_traverse_intersection;
     typedef test_traverse
         <
             MultiPolygon, MultiPolygon,
-            ov::operation_union, Reverse, Reverse
+            bg::overlay_union, Reverse, Reverse
         > test_traverse_union;
 
     // Intersections:
@@ -55,6 +53,25 @@ void test_geometries()
         (
             "simplex", 2, 6.42,
             case_multi_simplex[0], case_multi_simplex[1]
+        );
+
+    test_traverse_intersection::apply
+        (
+            "case_58_multi_b4", 1, 12.666666667,
+            case_58_multi[4], case_58_multi[2]
+        );
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_traverse_intersection::apply
+        (
+            "case_58_multi_b5", 1, 1,
+            case_58_multi[5], case_58_multi[2]
+        );
+#endif
+    test_traverse_intersection::apply
+        (
+            "case_58_multi_b6", 1, 13.25,
+            case_58_multi[6], case_58_multi[2]
         );
 
     test_traverse_intersection::apply
