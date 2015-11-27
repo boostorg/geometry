@@ -24,11 +24,17 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10803 10803] Union algorithm returning invalid geometry
+* [@https://svn.boost.org/trac/boost/ticket/11522 11522] Namespace clash in buffer for traits::detail
 * [@https://svn.boost.org/trac/boost/ticket/11533 11533] Assert failure in rtree caused by a bug in remove() if min elements number is 1
 * [@https://svn.boost.org/trac/boost/ticket/11607 11607] Private geometry::exception::what()
+* [@https://svn.boost.org/trac/boost/ticket/11709 11709] is_simple segfault
+* [@https://svn.boost.org/trac/boost/ticket/11710 11710] is_simple - empty geometry logic
+* [@https://svn.boost.org/trac/boost/ticket/11711 11711] is_simple and is_valid - Points that are NaN or Infinity
 
 [*Bugfixes]
 
+* Fix colocations of touching interior ring / exterior ring, where it also touches another polygon
 * Fix removing values from an empty rtree - no effect and 0 returned instead of assertion failure.
 
 [/=================]
@@ -138,8 +144,6 @@
 [/=================]
 [heading Boost 1.57]
 [/=================]
-
-[*Additional functionality]
 
 [*Improvements]
 
