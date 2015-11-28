@@ -126,5 +126,21 @@ void test_centroid_exception()
     BOOST_CHECK_MESSAGE(false, "A centroid_exception should have been thrown" );
 }
 
+template <typename Geometry>
+void test_centroid_exception(std::string const& wkt)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    try
+    {
+        typename bg::point_type<Geometry>::type c;
+        bg::centroid(geometry, c);
+    }
+    catch(bg::centroid_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A centroid_exception should have been thrown" );
+}
 
 #endif

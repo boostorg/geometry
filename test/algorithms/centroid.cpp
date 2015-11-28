@@ -175,6 +175,21 @@ void test_exceptions()
     test_centroid_exception<bg::model::linestring<P> >();
     test_centroid_exception<bg::model::polygon<P> >();
     test_centroid_exception<bg::model::ring<P> >();
+
+    // Empty exterior ring
+    test_centroid_exception<bg::model::polygon<P> >(
+        "POLYGON((), ())");
+    test_centroid_exception<bg::model::polygon<P> >(
+        "POLYGON((), (0 0, 1 0, 1 1, 0 1, 0 0))");
+}
+
+template <typename P>
+void test_empty()
+{
+    // Empty interior ring
+    test_centroid<bg::model::polygon<P> >(
+        "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0), ())",
+        0.5, 0.5);
 }
 
 void test_large_integers()
@@ -255,6 +270,7 @@ int test_main(int, char* [])
     test_large_doubles();
 
     test_exceptions<bg::model::d2::point_xy<double> >();
+    test_empty<bg::model::d2::point_xy<double> >();
 
     return 0;
 }
