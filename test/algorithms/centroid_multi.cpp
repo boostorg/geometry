@@ -133,6 +133,10 @@ void test_exceptions()
     test_centroid_exception<multi_linestring>("MULTILINESTRING()");
     test_centroid_exception<multi_linestring>("MULTILINESTRING(())");
     test_centroid_exception<multi_linestring>("MULTILINESTRING((), ())");
+
+    // Multi-polygon containing polygon with empty exterior ring
+    test_centroid_exception<multi_polygon>
+        ("MULTIPOLYGON(((4 1,4 3,8 3,8 1,4 1)),((),(0 0,1 0,1 1,0 1,0 0)))");
 }
 
 template <typename P>
