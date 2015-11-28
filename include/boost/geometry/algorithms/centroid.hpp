@@ -283,9 +283,26 @@ struct centroid_polygon_state
                              typename Strategy::state_type& state)
     {
         typedef typename ring_type<Polygon>::type ring_type;
-        typedef centroid_range_state<geometry::closure<ring_type>::value> per_ring;
+        typedef centroid_range_state
+            <
+                geometry::closure<ring_type>::value
+            > per_ring;
 
-        per_ring::apply(exterior_ring(poly), transformer, strategy, state);
+        typename ring_return_type
+            <
+                Polygon const
+            >::type e_ring = exterior_ring(poly);
+
+        if (boost::empty(e_ring) && ! geometry::is_empty(poly))
+        {
+#if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
+            throw centroid_exception();
+#else
+            return;
+#endif
+        }
+
+        per_ring::apply(e_ring, transformer, strategy, state);
 
         typename interior_return_type<Polygon const>::type
             rings = interior_rings(poly);
