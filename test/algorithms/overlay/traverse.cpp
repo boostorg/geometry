@@ -569,8 +569,13 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse_intersection::apply("79",
         2, 20, case_79[0], case_79[1]);
 
+    // Should be 3 shapes
+    test_traverse_intersection::apply("82a",
+        2, 2.0, case_82[0], case_82[1]);
+    // Should be 3 shapes
+    test_traverse_intersection::apply("82b",
+        2, 2.0, case_82[0], case_82[2]);
     // other
-
 
     // pies (went wrong when not all cases where implemented, especially some collinear (opposite) cases
     test_traverse_intersection::apply("pie_16_4_12",
