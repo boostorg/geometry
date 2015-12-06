@@ -34,6 +34,7 @@
 #include "multi_overlay_cases.hpp"
 
 
+#if defined(TEST_WITH_SVG)
 template <typename Mapper>
 struct map_visitor
 {
@@ -61,6 +62,46 @@ struct map_visitor
             }
             index++;
         }
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    {
+        // Uncomment for more detailed debug info in SVG on traversal
+        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
+        stream(turns, turn, op, header, style);
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    {
+        std::string style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+        stream(turns, turn, op, header, style);
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void stream(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header, const std::string& style)
+    {
+        // Because turn index is unknown here, and still useful for debugging,
+        // walk through turns to get it (turns is a deque, there is no .data() )
+        std::size_t index = 0;
+        for (typename Turns::const_iterator it = turns.begin();
+             it != turns.end(); ++it, ++index)
+        {
+            Turn const& t = *it;
+            if (&t == &turn)
+            {
+                break;
+            }
+        }
+        std::ostringstream out;
+        out << m_traverse_seq++ << " " << header << " " << index;
+
+        if (&op == &turn.operations[0]) { out << "[0]"; }
+        if (&op == &turn.operations[1]) { out << "[1]"; }
+        out << " " << bg::visited_char(op.visited);
+
+        add_text(turn, out.str(), style);
     }
 
     template <typename Turn>
@@ -142,7 +183,7 @@ struct map_visitor
     std::map<std::pair<int, int>, int> m_offsets;
     int m_traverse_seq;
 };
-
+#endif
 
 template <typename Geometry, bg::overlay_type OverlayType>
 void test_overlay(std::string const& caseid,

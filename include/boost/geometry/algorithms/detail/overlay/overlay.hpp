@@ -64,6 +64,14 @@ struct overlay_null_visitor
 {
     template <typename Turns>
     void visit_turns(int phase, Turns const& turns) {}
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    {}
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    {}
 };
 
 template <typename TurnPoints, typename TurnInfoMap>
@@ -251,7 +259,8 @@ std::cout << "traverse" << std::endl;
                         ? geometry::detail::overlay::operation_union
                         : geometry::detail::overlay::operation_intersection,
                     robust_policy,
-                    turn_points, rings
+                    turn_points, rings,
+                    visitor
                 );
 
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
@@ -293,7 +302,8 @@ std::cout << "traverse" << std::endl;
                 OutputIterator out,
                 Strategy const& strategy)
     {
-        return apply(geometry1, geometry2, robust_policy, out, strategy, overlay_null_visitor());
+        overlay_null_visitor visitor;
+        return apply(geometry1, geometry2, robust_policy, out, strategy, visitor);
     }
 };
 

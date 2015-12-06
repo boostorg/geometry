@@ -47,6 +47,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -181,11 +182,13 @@ struct test_traverse
         typedef std::vector<ring_type> out_vector;
         out_vector v;
 
+        bg::detail::overlay::overlay_null_visitor visitor;
+
         bg::detail::overlay::traverse
             <
                 Reverse1, Reverse2,
                 G1, G2
-            >::apply(g1, g2, op, rescale_policy, turns, v);
+            >::apply(g1, g2, op, rescale_policy, turns, v, visitor);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),

@@ -78,17 +78,20 @@ class backtrack_check_self_intersections
 public :
     typedef state state_type;
 
-    template <typename Operation, typename Rings, typename Ring, typename Turns, typename RobustPolicy>
+    template <typename Operation, typename Rings, typename Ring, typename Turns, typename RobustPolicy, typename Visitor>
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, Ring& ring,
-                Turns& turns, Operation& operation,
-                std::string const& ,
+                Turns& turns, typename boost::range_value<Turns>::type const& turn, Operation& operation,
+                std::string const& reason,
                 Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 RobustPolicy const& robust_policy,
-                state_type& state
+                state_type& state,
+                Visitor& visitor
                 )
     {
+        visitor.visit_traverse_reject(turns, turn, operation, reason);
+
         state.m_good = false;
 
         // Check self-intersections and throw exception if appropriate
