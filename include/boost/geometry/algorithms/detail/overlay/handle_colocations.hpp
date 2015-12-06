@@ -99,25 +99,30 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
 
     std::vector<turn_operation_index>::const_iterator vit = vec.begin();
 
-    turn_type cluster_turn = turn_points[vit->turn_index];
-    turn_operation_type cluster_op
-            = cluster_turn.operations[vit->op_index];
-    segment_identifier cluster_other_id
-            = cluster_turn.operations[1 - vit->op_index].seg_id;
-    bool const discard_colocated
-            = cluster_turn.both(operation_union)
-            || cluster_turn.combination(operation_blocked, operation_union);
+    turn_operation_index cluster_toi = *vit;
 
     for (++vit; vit != vec.end(); ++vit)
     {
+        turn_type& cluster_turn = turn_points[cluster_toi.turn_index];
+        turn_operation_type cluster_op
+                = cluster_turn.operations[cluster_toi.op_index];
+        segment_identifier cluster_other_id
+                = cluster_turn.operations[1 - cluster_toi.op_index].seg_id;
+
         turn_operation_index const& toi = *vit;
         turn_type& turn = turn_points[toi.turn_index];
         turn_operation_type const& op = turn.operations[toi.op_index];
-        segment_identifier const& other_id
-                = turn.operations[1 - toi.op_index].seg_id;
 
         if (cluster_op.fraction == op.fraction)
         {
+            segment_identifier const& other_id
+                    = turn.operations[1 - toi.op_index].seg_id;
+
+            bool const discard_colocated
+                    = cluster_turn.both(operation_union)
+                    || cluster_turn.combination(operation_blocked, operation_union);
+
+
             // Two turns of current ring with same source are colocated,
             // one is from exterior ring, one from interior ring
             bool const colocated_ext_int
@@ -140,7 +145,7 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
                 turn.discarded = true;
                 turn.colocated = true;
             }
-            else if (cluster_turn.colocated
+            else if (cluster_turn.colocated // TODO this is wrong! depends on earlier state
                      && touch_int_int
                      && turn.both(operation_intersection))
             {
@@ -158,16 +163,15 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
                 turn.discarded = true;
                 turn.colocated = true;
             }
+
+            // Don't delete cc if colocated with ii (breaks, e.g., difference of #case_101_multi)
         }
         else
         {
             // Not on same fraction on this segment
             // assign for next potential cluster
-            cluster_turn = turn;
-            cluster_op = op;
-            cluster_other_id = other_id;
+            cluster_toi = toi;
         }
-
     }
 }
 
