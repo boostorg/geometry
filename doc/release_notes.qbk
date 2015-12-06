@@ -35,7 +35,9 @@
 [*Bugfixes]
 
 * Fix colocations of touching interior ring / exterior ring, where it also touches another polygon
-* Fix removing values from an empty rtree - no effect and 0 returned instead of assertion failure.
+* Fix removing values from an empty rtree - no effect and 0 returned instead of assertion failure
+* Fix segfault in centroid for multi geometries containing empty single geometries (thanks to Jiri Drbalek)
+* Fix liang_barsky strategy for integral coordinates (thanks to Dane Springmeyer)
 
 [/=================]
 [heading Boost 1.59]
