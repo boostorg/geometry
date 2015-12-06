@@ -348,21 +348,21 @@ public :
 
         bool const left_ux = left_turn.combination(operation_blocked, operation_union);
         bool const right_ux = right_turn.combination(operation_blocked, operation_union);
+        bool const left_ix = left_turn.combination(operation_blocked, operation_intersection);
+        bool const right_ix = right_turn.combination(operation_blocked, operation_intersection);
 
         operation_type const left_other_op = left_turn.operations[1 - left.operation_index].operation;
         operation_type const right_other_op = right_turn.operations[1 - right.operation_index].operation;
 
-        if (left_ux && right_ux)
+        if ((left_ux && right_ux) || (left_ix && right_ix))
         {
 
-            // Two ux on same ring at same point. Sort the open one last
+            // Two ux, or two ix on same ring at same point. Sort the open one last
             // For example:
             // 3 POINT(2 3) (left)  x s:0, v:0, m:1 // u s:1, v:3, m:1
             // 2 POINT(2 3) (right) u s:0, v:0, m:1 // x s:1, v:1, m:0
             // Should be sorted as: first right, then left, because left has
             // the union operation on the other ring
-
-            BOOST_ASSERT(left_other_op != right_other_op);
 
             int const left_code = left_other_op == operation_blocked ? 0 : 1;
             int const right_code = right_other_op == operation_blocked ? 0 : 1;

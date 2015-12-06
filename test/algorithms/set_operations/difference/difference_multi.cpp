@@ -29,7 +29,6 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
@@ -77,14 +76,17 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi",
         case_65_multi[0], case_65_multi[1],
             0, 0, 0, 2, 10, 3);
-    /* TODO: fix
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
             3, 13, 1.65, 3, 17, 6.15);
+
+    // 77_b, fixed by sorting colocated ix/ix turns like ux/ux
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
-            6, 31, 7, 6, 36, 13);
-    */
+            6, 31, 7.0,
+            5, 36, 13.0,
+            5, 43, 7.0 + 13.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
