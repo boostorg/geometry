@@ -41,22 +41,30 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, int offset,
             PointOut& point)
     {
-        detail::normalized_view<Range const> view(range);
+        typedef typename closeable_view
+        <
+            Range const,
+            closure<Range>::value
+        >::type cview_type;
 
-        signed_size_type const n = boost::size(view);
-        signed_size_type index = seg_id.segment_index + offset;
+        typedef typename reversible_view
+        <
+            cview_type const,
+            Reverse ? iterate_reverse : iterate_forward
+        >::type rview_type;
 
-        // Go to second (next on segment, so index < n) or third point (might
-        // continue on start of ring, therefore skip the closing point)
-        if (index >= n)
+        cview_type cview(range);
+        rview_type view(cview);
+
+        typedef typename boost::range_iterator<rview_type>::type iterator;
+        geometry::ever_circling_iterator<iterator> it(boost::begin(view), boost::end(view),
+                    boost::begin(view) + seg_id.segment_index, true);
+
+        for (signed_size_type i = 0; i < offset; ++i, ++it)
         {
-            // Should only happen for the third point
-            index = 1;
         }
 
-        BOOST_GEOMETRY_ASSERT(index >= 0 && index < n);
-
-        geometry::convert(*(boost::begin(view) + index), point);
+        geometry::convert(*it, point);
         return true;
     }
 };
