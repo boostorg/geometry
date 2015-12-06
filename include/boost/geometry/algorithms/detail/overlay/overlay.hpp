@@ -59,6 +59,13 @@ namespace detail { namespace overlay
 {
 
 
+//! Default visitor for overlay, doing nothing
+struct overlay_null_visitor
+{
+    template <typename Turns>
+    void visit_turns(int phase, Turns const& turns) {}
+};
+
 template <typename TurnPoints, typename TurnInfoMap>
 inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
         TurnPoints const& turn_points)
@@ -164,12 +171,13 @@ template
 >
 struct overlay
 {
-    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy, typename Visitor>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
                 RobustPolicy const& robust_policy,
                 OutputIterator out,
-                Strategy const& )
+                Strategy const& ,
+                Visitor& visitor)
     {
         bool const is_empty1 = geometry::is_empty(geometry1);
         bool const is_empty2 = geometry::is_empty(geometry2);
@@ -212,6 +220,8 @@ std::cout << "get turns" << std::endl;
                 detail::overlay::assign_null_policy
             >(geometry1, geometry2, robust_policy, turn_points, policy);
 
+        visitor.visit_turns(1, turn_points);
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
@@ -223,6 +233,9 @@ std::cout << "enrich" << std::endl;
                     geometry1, geometry2,
                     robust_policy,
                     side_strategy);
+
+        visitor.visit_turns(2, turn_points);
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
@@ -271,6 +284,16 @@ std::cout << "traverse" << std::endl;
         assign_parents(geometry1, geometry2, rings, selected_ring_properties);
 
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
+    }
+
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
+    static inline OutputIterator apply(
+                Geometry1 const& geometry1, Geometry2 const& geometry2,
+                RobustPolicy const& robust_policy,
+                OutputIterator out,
+                Strategy const& strategy)
+    {
+        return apply(geometry1, geometry2, robust_policy, out, strategy, overlay_null_visitor());
     }
 };
 
