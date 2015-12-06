@@ -81,7 +81,9 @@ public :
     template <typename Operation, typename Rings, typename Ring, typename Turns, typename RobustPolicy, typename Visitor>
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, Ring& ring,
-                Turns& turns, typename boost::range_value<Turns>::type const& turn, Operation& operation,
+                Turns& turns,
+                typename boost::range_value<Turns>::type const& turn,
+                Operation& operation,
                 std::string const& reason,
                 Geometry1 const& geometry1,
                 Geometry2 const& geometry2,

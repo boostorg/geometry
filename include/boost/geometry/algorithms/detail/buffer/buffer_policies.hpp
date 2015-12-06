@@ -46,15 +46,26 @@ class backtrack_for_buffer
 public :
     typedef detail::overlay::backtrack_state state_type;
 
-    template <typename Operation, typename Rings, typename Turns, typename Geometry, typename RobustPolicy>
+    template
+        <
+            typename Operation,
+            typename Rings,
+            typename Turns,
+            typename Geometry,
+            typename RobustPolicy,
+            typename Visitor
+        >
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
-                Turns& turns, Operation& operation,
+                Turns& turns,
+                typename boost::range_value<Turns>::type const& turn,
+                Operation& operation,
                 std::string const& /*reason*/,
                 Geometry const& ,
                 Geometry const& ,
                 RobustPolicy const& ,
-                state_type& state
+                state_type& state,
+                Visitor& visitor
                 )
     {
 #if defined(BOOST_GEOMETRY_COUNT_BACKTRACK_WARNINGS)
