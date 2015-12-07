@@ -74,6 +74,18 @@ struct less_by_fraction_and_type
             return left_op.fraction < right_op.fraction;
         }
 
+        // Order xx first - used to discard any following colocated turn
+        bool const left_both_xx = left_turn.both(operation_blocked);
+        bool const right_both_xx = right_turn.both(operation_blocked);
+        if (left_both_xx && ! right_both_xx)
+        {
+            return true;
+        }
+        if (! left_both_xx && right_both_xx)
+        {
+            return false;
+        }
+
         turn_operation_type const& left_other_op
                 = left_turn.operations[1 - left.op_index];
 
@@ -121,6 +133,18 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
             bool const discard_colocated
                     = cluster_turn.both(operation_union)
                     || cluster_turn.combination(operation_blocked, operation_union);
+
+
+            bool const cluster_both_xx = cluster_turn.both(operation_blocked);
+
+            // In case of colocated xx turns, all other turns may NOT be
+            // followed at all. xx cannot be discarded (otherwise colocated
+            // turns are followed).
+            if (cluster_both_xx)
+            {
+                turn.discarded = true;
+                turn.colocated = true;
+            }
 
 
             // Two turns of current ring with same source are colocated,

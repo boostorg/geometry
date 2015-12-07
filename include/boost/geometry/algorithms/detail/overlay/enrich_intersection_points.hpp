@@ -245,10 +245,12 @@ inline void enrich_assign(Container& operations,
 
 
 template <typename IndexedType, typename TurnPoints, typename MappedVector>
-inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vector)
+inline void create_map(TurnPoints const& turn_points,
+                operation_type for_operation,
+                MappedVector& mapped_vector)
 {
-    typedef typename boost::range_value<TurnPoints>::type turn_point_type;
-    typedef typename turn_point_type::container_type container_type;
+    typedef typename boost::range_value<TurnPoints>::type turn_type;
+    typedef typename turn_type::container_type container_type;
 
     std::size_t index = 0;
     for (typename boost::range_iterator<TurnPoints const>::type
@@ -256,31 +258,42 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        // Add operations on this ring, but skip discarded ones
-        if (! it->discarded)
+        // Add operations on this ring, but skip discarded and non relevant
+        turn_type const& turn = *it;
+        if (turn.discarded)
         {
-            std::size_t op_index = 0;
-            for (typename boost::range_iterator<container_type const>::type
-                    op_it = boost::begin(it->operations);
-                op_it != boost::end(it->operations);
-                ++op_it, ++op_index)
-            {
-                // We should NOT skip blocked operations here
-                // because they can be relevant for "the other side"
-                // NOT if (op_it->operation != operation_blocked)
+            continue;
+        }
+        if (for_operation != operation_union
+            && turn.has(operation_blocked)
+            && ! turn.has(for_operation))
+        {
+            // Don't include ux for intersection/difference
+            // Currently it is still necessary to include ix for union
+            continue;
+        }
 
-                ring_identifier ring_id
-                    (
-                        op_it->seg_id.source_index,
-                        op_it->seg_id.multi_index,
-                        op_it->seg_id.ring_index
-                    );
-                mapped_vector[ring_id].push_back
-                    (
-                        IndexedType(index, op_index, *op_it,
-                            it->operations[1 - op_index].seg_id)
-                    );
-            }
+        std::size_t op_index = 0;
+        for (typename boost::range_iterator<container_type const>::type
+                op_it = boost::begin(turn.operations);
+            op_it != boost::end(turn.operations);
+            ++op_it, ++op_index)
+        {
+            // We should NOT skip blocked operations here
+            // because they can be relevant for "the other side"
+            // NOT if (op_it->operation != operation_blocked)
+
+            ring_identifier ring_id
+                (
+                    op_it->seg_id.source_index,
+                    op_it->seg_id.multi_index,
+                    op_it->seg_id.ring_index
+                );
+            mapped_vector[ring_id].push_back
+                (
+                    IndexedType(index, op_index, *op_it,
+                        it->operations[1 - op_index].seg_id)
+                );
         }
     }
 }
@@ -334,7 +347,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    // Iterate through turns and discard uu or
+    // Iterate through turns and discard uu
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -352,16 +365,6 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         {
             it->discarded = true;
         }
-        else if (OverlayType == overlay_intersection
-                 && it->has(detail::overlay::operation_blocked)
-                 && ! it->has(detail::overlay::operation_intersection))
-        {
-            // Discard all ux for intersection, because in case of colocated
-            // iu/ux occurances, it would order iu first but then stop at ux
-            // For union/difference don't do this, it would disturb the assemble process
-            // and generate extra rings
-            it->discarded = true;
-        }
     }
 
     detail::overlay::handle_colocations<OverlayType>(turn_points, for_operation);
@@ -370,7 +373,8 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
 
-    detail::overlay::create_map<indexed_turn_operation>(turn_points, mapped_vector);
+    detail::overlay::create_map<indexed_turn_operation>(turn_points,
+            for_operation,  mapped_vector);
 
 
     // No const-iterator; contents of mapped copy is temporary,
