@@ -176,7 +176,7 @@ struct side_sorter
 
         // Sort by side and assign rank
         std::sort(m_array.begin(), m_array.end(),
-                less_by_side<Point>(both1, both2));
+                less_by_side<Point>(both1, both2));// TODO should be IP
         for (std::size_t i = 0; i < m_array.size(); i++)
         {
             m_array[i].rank = i;
@@ -202,7 +202,7 @@ struct side_sorter
     {
         //
         //     [1] A    B (to) [2]
-        //          \   |
+        //   (from) \   |
         //           \  |
         //            \ |
         //             \|
@@ -211,10 +211,10 @@ struct side_sorter
         //              | \          .
         //              |  \         .
         //              |   \        .
-        //              |    A [4]
+        //              |    A [4] (to)
         //              S (from)
 
-        // Segments are sorted CCW w.r.t. S-IP (+)
+        // Segments are sorted CCW w.r.t. S -> IP (+)
         // B (polygon is on the right side) goes from right IP to top, there is
         // nothing in between. Here B is completely independent on Subject/A
 
