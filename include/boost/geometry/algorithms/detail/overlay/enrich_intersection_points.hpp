@@ -29,11 +29,13 @@
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
+
 
 namespace boost { namespace geometry
 {
@@ -55,51 +57,46 @@ struct skip_operation
 
 // After a ii-turn (ordered first), all colocated turns should be skipped
 // such that the ii-turn traverses to a turn on another location
-template<typename Turns, typename Operations>
-inline void skip_after_ii(Turns const& turn_points, Operations& operations,
-                          bool inverse2)
+template <bool Reverse1, bool Reverse2, typename Turns, typename Operations, typename Geometry1, typename Geometry2>
+inline void skip_after_ii(Turns& turn_points,
+            operation_type for_operation,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            Operations& operations)
 {
+    typedef typename geometry::point_type<Geometry1>::type point_type;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename boost::range_value<Operations>::type indexed_type;
     typedef typename indexed_type::type turn_operation_type;
 
     typename boost::range_iterator<Operations>::type it = boost::begin(operations);
 
-    turn_type cluster_turn = turn_points[it->turn_index];
-    turn_operation_type cluster_op = cluster_turn.operations[it->operation_index];
-    turn_operation_type cluster_other_op = cluster_turn.operations[1 - it->operation_index];
-
-    bool both_ii = cluster_turn.both(operation_intersection);
-
+    indexed_type cluster_toi = *it;
     for (++it; it != operations.end(); ++it)
     {
-        turn_type const& turn = turn_points[it->turn_index];
+        turn_type& cluster_turn = turn_points[cluster_toi.turn_index];
+        turn_operation_type const& cluster_op = cluster_turn.operations[cluster_toi.operation_index];
+        turn_operation_type const& cluster_other_op = cluster_turn.operations[1 - cluster_toi.operation_index];
+
+        bool const both_ii = cluster_turn.both(operation_intersection);
+
+        turn_type& turn = turn_points[it->turn_index];
         turn_operation_type const& op = turn.operations[it->operation_index];
-        turn_operation_type const& other_op = turn.operations[1 - it->operation_index];
 
         if (both_ii
             && cluster_op.seg_id == op.seg_id
             && cluster_op.fraction == op.fraction)
         {
-            bool other_interior = other_op.seg_id.ring_index >= 0;
-            bool cluster_other_interior = cluster_other_op.seg_id.ring_index >= 0;
+            turn_operation_type const& other_op = turn.operations[1 - it->operation_index];
 
-            // For difference, reverse the condition from second source
-            if (inverse2)
-            {
-                if (other_op.seg_id.source_index == 1)
-                {
-                    other_interior = ! other_interior;
-                }
-                if (cluster_other_op.seg_id.source_index == 1)
-                {
-                    cluster_other_interior = ! cluster_other_interior;
-                }
-            }
+            sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
 
-            if (! other_interior && ! cluster_other_interior)
+            sorter.apply(cluster_op, cluster_other_op,
+                op, other_op,
+                geometry1, geometry2);
+
+            if (sorter.is_b_independent())
             {
-                // Colocated with ii on exterior rings only, skip
                 it->skip = true;
             }
         }
@@ -107,9 +104,7 @@ inline void skip_after_ii(Turns const& turn_points, Operations& operations,
         {
             // Not on same fraction on this segment
             // assign for next potential cluster
-            cluster_turn = turn;
-            cluster_op = op;
-            both_ii = cluster_turn.both(operation_intersection);
+            cluster_toi = *it;
         }
     }
 }
@@ -134,7 +129,7 @@ inline void enrich_sort(Container& operations,
             TurnPoints& turn_points,
             operation_type for_operation,
             Geometry1 const& geometry1,
-            Geometry2 const& geometry2, bool inverse2,
+            Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
             Strategy const& strategy)
 {
@@ -158,7 +153,7 @@ inline void enrich_sort(Container& operations,
 
     // Skip operations after ii by flagging them and removing them (from this
     // list only, they are not discarded)
-    skip_after_ii(turn_points, operations, inverse2);
+    skip_after_ii<Reverse1, Reverse2>(turn_points, for_operation, geometry1, geometry2, operations);
     operations.erase
             (
                 std::remove_if(boost::begin(operations), boost::end(operations),
@@ -391,7 +386,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
 #endif
         detail::overlay::enrich_sort<indexed_turn_operation, Reverse1, Reverse2>(
                     mit->second, turn_points, for_operation,
-                    geometry1, geometry2, OverlayType == overlay_difference,
+                    geometry1, geometry2,
                     robust_policy, strategy);
     }
 
