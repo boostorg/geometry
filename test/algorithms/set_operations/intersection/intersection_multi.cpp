@@ -90,6 +90,14 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi",
         case_65_multi[0], case_65_multi[1],
         1, 5, 1.0);
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi_inv_a",
+        case_65_multi[0], case_65_multi[3],
+        0, 0, 0.0);
+#endif
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi_inv_b",
+        case_65_multi[1], case_65_multi[2],
+        2, 10, 3.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
         3, 14, 2.85);
