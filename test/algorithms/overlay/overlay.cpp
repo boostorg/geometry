@@ -27,6 +27,8 @@
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
+//#include <boost/geometry/extensions/algorithms/inverse.hpp>
+
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
@@ -303,6 +305,20 @@ void test_all()
             case_multi_simplex[1], case_multi_simplex[0],
             2.58
         );
+
+
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_65_multi_inv_a",
+            case_65_multi[0], case_65_multi[3],
+            0.0
+        );
+
+
+//    std::cout
+//        << "    \""
+//        << bg::inverse<multi_polygon>(case_65_multi[0], 1.0)
+//        << "\"" << std::endl;
 }
 
 int test_main(int, char* [])
