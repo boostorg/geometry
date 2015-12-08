@@ -15,6 +15,7 @@
 
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/strategies/side.hpp>
 
 namespace boost { namespace geometry
 {
@@ -219,6 +220,39 @@ struct side_sorter
         // nothing in between. Here B is completely independent on Subject/A
 
         return rank(role_b, index_from) - 1 == rank(role_b, index_to);
+    }
+
+    bool is_intersection_switching_a_to_b() const
+    {
+        //
+        //                   A (from) [2]
+        //                  /
+        //                 /
+        //                /
+        //               /
+        // S <----------+----------- A (to) [3]
+        // (to) [1]    /|\           .
+        //            / | \          .
+        //           /  |  \         .
+        //          /   |   \        .
+        //    (to) B[0] |    B (from) [4]
+        //              S (from)
+
+        // Here A is supposed to be the ii turn, B the non ii turn (this is
+        // visible in the picture but might take some time to see it.
+        // Image is derived from #case_107_multi, inverse version, but rotated.
+        // All polygons are on the right side (of from->to)
+        // A makes a ii turn with S
+        // B makes a iu turn with S
+
+        // B goes from lowerright to IP, and
+        // then can switches to A's to at the right side.
+        // The polygon thus made on both right sides has no other segments
+        // in between.
+
+        // In these cases iu is sorted first, ii as last
+
+        return rank(role_b, index_from) - 1 == rank(role_a, index_to);
     }
 
 protected :

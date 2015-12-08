@@ -18,6 +18,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
 namespace boost { namespace geometry
@@ -134,6 +135,30 @@ private :
         return default_order(left, right);
     }
 
+    template <typename Operation>
+    inline bool order_ii_first(Operation const& ii_op,
+            Operation const& ii_other_op,
+            Operation const& right_op,
+            Operation const& right_other_op) const
+    {
+        sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
+
+        sorter.apply(ii_op, ii_other_op,
+            right_op, right_other_op,
+            m_geometry1, m_geometry2);
+
+        // If switching from a to b with no segments in between,
+        // then order u/i before i/i.
+        if (sorter.is_intersection_switching_a_to_b())
+        {
+            return false;
+        }
+
+        // In other cases, order ii before anything else (default behaviour)
+        // (only if ii is first, subsequent colocated turns can be skipped)
+        return true;
+    }
+
     inline bool select_by_side(bool& result, Indexed const& left, Indexed const& right) const
     {
         typedef typename boost::range_value<TurnPoints>::type turn_type;
@@ -149,6 +174,24 @@ private :
 
         // Check, otherwise it would have been sorted on left/right segid
         BOOST_ASSERT(left_op.seg_id == right_op.seg_id);
+
+        // Handle ii/iu or ii/other by side-sorting
+        {
+            bool const left_ii = left_turn.both(operation_intersection);
+            bool const right_ii = right_turn.both(operation_intersection);
+            if (left_ii && ! right_ii)
+            {
+                result = order_ii_first(left_op, left_other_op,
+                    right_op, right_other_op);
+                return true;
+            }
+            else if (! left_ii && right_ii)
+            {
+                result = ! order_ii_first(right_op, right_other_op,
+                    left_op, left_other_op);
+                return true;
+            }
+        }
 
         point_type p_both1, p_both2, p_both3;
         point_type p_left_o1, p_left_o2, p_left_o3;
@@ -294,21 +337,6 @@ private :
                 result = false;
                 return true;
             }
-        }
-
-        // Order ii first, so if left=ii, return true, if right=ii, return false
-        bool const left_ii = left_turn.both(operation_intersection);
-        bool const right_ii = right_turn.both(operation_intersection);
-
-        if (left_ii && ! right_ii)
-        {
-            result = true;
-            return true;
-        }
-        else if (right_ii && ! left_ii)
-        {
-            result = false;
-            return true;
         }
 
         return false;

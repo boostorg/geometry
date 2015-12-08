@@ -327,11 +327,15 @@ static std::string case_101_multi[2] =
     "MULTIPOLYGON(((6 1,5 1,5 2,6 3,6 4,7 5,6 5,7 6,8 6,8 5,9 5,8 4,9 4,9 5,10 5,10 1,8 1,8 3,7 3,7 2,6 2,7 1,8 1,7 0,5 0,5 1,5.5 0.5,6 1),(8.5 2.5,9 2,9 3,8.5 2.5)))"
 };
 
-static std::string case_102_multi[2] =
+static std::string case_102_multi[4] =
 {
     // interior ring 'fit' / union
     "MULTIPOLYGON(((0 2,0 7,5 7,5 2,0 2),(4 3,4 6,1 6,2 5,1 5,1 4,3 4,4 3)),((3 4,3 5,4 5,3 4)),((2 5,3 6,3 5,2 4,2 5)))",
-    "MULTIPOLYGON(((0 2,0 7,5 7,5 2,0 2),(2 4,3 5,2 5,2 4),(4 4,3 4,3 3,4 4),(4 5,4 6,3 6,4 5)))"
+    "MULTIPOLYGON(((0 2,0 7,5 7,5 2,0 2),(2 4,3 5,2 5,2 4),(4 4,3 4,3 3,4 4),(4 5,4 6,3 6,4 5)))",
+
+    /* inverse versions (first was already having an interior, so outer ring is just removed */
+    "MULTIPOLYGON(((4 3,3 4,1 4,1 5,2 5,1 6,4 6,4 3),(3 4,4 5,3 5,3 4),(2 5,2 4,3 5,3 6,2 5)))",
+    "MULTIPOLYGON(((-1 1,-1 8,6 8,6 1,-1 1),(0 2,5 2,5 7,0 7,0 2)),((2 4,2 5,3 5,2 4)),((4 4,3 3,3 4,4 4)),((4 5,3 6,4 6,4 5)))"
 };
 
 static std::string case_103_multi[2] =
@@ -362,11 +366,15 @@ static std::string case_106_multi[2] =
     "MULTIPOLYGON(((0 0,0 5,1 5,1 4,2 4,2 5,3 5,3 3,4 4,5 4,5 0,2 0,3 1,2 1,2 3,1 3,2 2,1.5 1.5,2 1,1 1,0 0)),((1 0,2 1,2 0,1 0)))"
 };
 
-static std::string case_107_multi[2] =
+static std::string case_107_multi[4] =
 {
     // For CCW polygon reports a iu/iu problem.
     "MULTIPOLYGON(((6 8,7 9,7 7,8 7,7 6,6 6,6 8)),((6.5 9.5,7 10,7 9,6 9,6 10,6.5 9.5)))",
-    "MULTIPOLYGON(((5 7,6 8,6 10,7 9,8 10,8 8,7 8,6 7,6 6,5 7)))"
+    "MULTIPOLYGON(((5 7,6 8,6 10,7 9,8 10,8 8,7 8,6 7,6 6,5 7)))",
+
+    /* inverse versions */
+    "MULTIPOLYGON(((5 5,5 11,9 11,9 5,5 5),(6 8,6 6,7 6,8 7,7 7,7 9,6 8),(6.5 9.5,6 10,6 9,7 9,7 10,6.5 9.5)))",
+    "MULTIPOLYGON(((4 5,4 11,9 11,9 5,4 5),(5 7,6 6,6 7,7 8,8 8,8 10,7 9,6 10,6 8,5 7)))"
 };
 
 static std::string case_108_multi[3] =

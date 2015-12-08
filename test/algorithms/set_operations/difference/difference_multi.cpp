@@ -148,23 +148,26 @@ void test_areal()
 
     }
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
+    // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
             5, 23, 4.75,
             5, 40, 12.75,
             5, 48, 4.75 + 12.75);
 
+    // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
         case_102_multi[0], case_102_multi[1],
-            2, 8, 0.75, 6, 25, 3.75);
+            2, 8, 0.75,
+            6, 25, 3.75,
+            6, 27, 0.75 + 3.75);
 
+    // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
             2, 11, 2.25,
             3, 14, 3.0,
             4, 21, 5.25);
-#endif
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
