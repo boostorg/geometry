@@ -150,29 +150,46 @@ void test_areal()
 
     }
 
-    /* TODO: fix
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
-            5, 23, 4.75, 5, 40, 12.75);
+            5, 23, 4.75,
+            5, 40, 12.75,
+            5, 48, 4.75 + 12.75);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
         case_102_multi[0], case_102_multi[1],
             2, 8, 0.75, 6, 25, 3.75);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
-            2, 11, 2.25, 3, 14, 3.0);
-    */
-    /*
+            2, 11, 2.25,
+            3, 14, 3.0,
+            4, 21, 5.25);
+#endif
+
+    // Areas correspond with POSTGIS,
+    // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-            1, 1, 1, 1, 1, 1);
+            10, 75, 26.0,
+            11, 77, 24.0,
+             4, 98, 50.0);
+
+    // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-            1, 1, 1, 1, 1, 1);
+            3, 15, 3.0,
+            5, 33, 7.0);
 
-     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
-         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-            1, 1, 1, 1, 1, 1);
-*/
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
+    // Areas and #clips by POSTGIS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
+        case_recursive_boxes_3[0], case_recursive_boxes_3[1],
+            24, -1, 21.5,
+            25, -1, 22.5,
+            37, -1, 44.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],
