@@ -136,14 +136,16 @@ private :
     }
 
     template <typename Operation>
-    inline bool order_ii_first(Operation const& ii_op,
+    inline bool order_ii_first(
+            point_type const& intersection_point,
+            Operation const& ii_op,
             Operation const& ii_other_op,
             Operation const& right_op,
             Operation const& right_other_op) const
     {
         sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
 
-        sorter.apply(ii_op, ii_other_op,
+        sorter.apply(intersection_point, ii_op, ii_other_op,
             right_op, right_other_op,
             m_geometry1, m_geometry2);
 
@@ -181,13 +183,15 @@ private :
             bool const right_ii = right_turn.both(operation_intersection);
             if (left_ii && ! right_ii)
             {
-                result = order_ii_first(left_op, left_other_op,
+                result = order_ii_first(left_turn.point,
+                    left_op, left_other_op,
                     right_op, right_other_op);
                 return true;
             }
             else if (! left_ii && right_ii)
             {
-                result = ! order_ii_first(right_op, right_other_op,
+                result = ! order_ii_first(right_turn.point,
+                    right_op, right_other_op,
                     left_op, left_other_op);
                 return true;
             }

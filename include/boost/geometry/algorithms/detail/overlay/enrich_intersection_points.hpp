@@ -91,7 +91,7 @@ inline void skip_after_ii(Turns& turn_points,
 
             sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
 
-            sorter.apply(cluster_op, cluster_other_op,
+            sorter.apply(cluster_turn.point, cluster_op, cluster_other_op,
                 op, other_op,
                 geometry1, geometry2);
 

@@ -145,7 +145,8 @@ template <bool Reverse1, bool Reverse2, typename Point>
 struct side_sorter
 {
     template <typename Operation,  typename Geometry1, typename Geometry2>
-    void apply(Operation const& op_a, Operation const& op_a_other,
+    void apply(Point const& intersection_point,
+            Operation const& op_a, Operation const& op_a_other,
             Operation const& op_b, Operation const& op_b_other,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2)
@@ -177,7 +178,7 @@ struct side_sorter
 
         // Sort by side and assign rank
         std::sort(m_array.begin(), m_array.end(),
-                less_by_side<Point>(both1, both2));// TODO should be IP
+                less_by_side<Point>(both1, intersection_point));
         for (std::size_t i = 0; i < m_array.size(); i++)
         {
             m_array[i].rank = i;

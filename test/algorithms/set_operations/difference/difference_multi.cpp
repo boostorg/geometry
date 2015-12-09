@@ -214,12 +214,13 @@ void test_areal()
             4, 19, 2.75,
             3, 22, 5.5);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_8",
         case_recursive_boxes_8[0], case_recursive_boxes_8[1],
             2, -1, 2.50,
             4, -1, 5.75,
             4, -1, 8.25);
+
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_9",
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
             3, -1, 1.5,
