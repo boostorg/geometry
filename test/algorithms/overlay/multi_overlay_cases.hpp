@@ -455,6 +455,7 @@ static std::string case_recursive_boxes_9[2] =
 
 static std::string case_recursive_boxes_10[4] =
 {
+    // Requires skipping ux for difference (a) and switching a->b
     "MULTIPOLYGON(((2 2,2 3,3 2,2 2)),((2 2,3 1,1 1,1 2,2 2)))",
     "MULTIPOLYGON(((3 2,2 1,2 3,3 3,3 2)))",
 
@@ -465,6 +466,7 @@ static std::string case_recursive_boxes_10[4] =
 
 static std::string case_recursive_boxes_11[4] =
 {
+    // Requires switching a->b
     "MULTIPOLYGON(((3 2,5 2,5 1,4 1,4 0,3 0,3 1,2 1,3 2)))",
     "MULTIPOLYGON(((5 2,4 1,4 3,5 2)),((3 1,3 2,4 2,3 1)),((4 1,5 1,5 0,4 0,4 1)),((3 2,2 1,3 1,2 0,1 1,2 2,2 3,3 3,3 2)))",
 

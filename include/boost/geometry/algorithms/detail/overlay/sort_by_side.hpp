@@ -256,6 +256,24 @@ struct side_sorter
         return rank(role_b, index_from) - 1 == rank(role_a, index_to);
     }
 
+    bool is_tight_a_to_b() const
+    {
+        // Similarly, but now for e.g. ordering colocated iu/ix turns.
+        // If A goes to IP (polygon on right side) and then, immediately CCW,
+        // B leaves IP, then order A first, before B, such that the outgoing
+        // segment of B is traversed.
+        return rank(role_a, index_from) - 1 == rank(role_b, index_to);
+    }
+
+    bool is_tight_b_to_a() const
+    {
+        // Symmetricly as is_tight_a_to_b. And here the condition is identical
+        // as is_intersection_switching_a_to_b but here we switch to a!
+        // Here it is not ii/iu but iu/ix (or similar)
+        return rank(role_b, index_from) - 1 == rank(role_a, index_to);
+    }
+
+
 protected :
 
     boost::array<point_with_role<Point>, 5> m_array;

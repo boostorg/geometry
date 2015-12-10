@@ -200,13 +200,13 @@ void test_areal()
             16, -1, 22.0,
             12, -1, 27.0,
             10, -1, 49.9);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-            7, -1, 3.5,
+            6, -1, 3.5,
             3, -1, 1.5,
-            9, -1, 5.0);
-#endif
+            8, -1, 5.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -226,17 +226,19 @@ void test_areal()
             3, -1, 1.5,
             4, -1, 2.5,
             6, -1, 4.0);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],
             2, -1, 1.25,
             2, -1, 0.75,
             4, -1, 2.00);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_11",
         case_recursive_boxes_11[0], case_recursive_boxes_11[1],
             3, -1, 2.5,
             3, -1, 4.5,
             3, -1, 7.0);
-#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],

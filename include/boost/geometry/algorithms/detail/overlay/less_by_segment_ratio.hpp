@@ -242,6 +242,30 @@ private :
                 typename cs_tag<point_type>::type
             >::type strategy;
 
+        sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
+        sorter.apply(left_turn.point, left_op, left_other_op,
+            right_op, right_other_op,
+            m_geometry1, m_geometry2);
+
+        if (left_other_op.operation == m_for_operation)
+        {
+            if (sorter.is_tight_b_to_a())
+            {
+                // Order A (left) last, so B (right) first, result is false
+                result = false;
+                return true;
+            }
+        }
+        if (right_other_op.operation == m_for_operation)
+        {
+            if (sorter.is_tight_a_to_b())
+            {
+                // Order B (right) last, so A (left) first, return is true
+                result = true;
+                return true;
+            }
+        }
+
         // Check if lhs is opposite from rhs
         //                    |lhs
         //     both===========|

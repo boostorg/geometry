@@ -314,6 +314,31 @@ void test_all()
             0.0
         );
 
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_recursive_boxes_10_inv_a",
+            case_recursive_boxes_10[0], case_recursive_boxes_10[3],
+            1.25
+        );
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_recursive_boxes_10_inv_b",
+            case_recursive_boxes_10[1], case_recursive_boxes_10[2],
+            0.75
+        );
+
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_recursive_boxes_11_inv_a",
+            case_recursive_boxes_11[0], case_recursive_boxes_11[3],
+            2.5
+        );
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_recursive_boxes_11_inv_b",
+            case_recursive_boxes_11[1], case_recursive_boxes_11[2],
+            4.5
+        );
 
 //    std::cout
 //        << "    \""
