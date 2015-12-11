@@ -199,6 +199,14 @@ struct side_sorter
             ;
     }
 
+    bool ccw(std::size_t rank1, std::size_t rank2) const
+    {
+        // Either e.g. rank1=3; rank2=2 -> going to 2, nothing in between
+        // Or rank1=0, rank2=4, also then nothing in between
+        return (rank1 - 1 == rank2)
+            || (rank1 == 0 && rank2 == 4);
+    }
+
     // Returns true if b is independent without segments in between
     bool is_b_independent() const
     {
@@ -262,7 +270,7 @@ struct side_sorter
         // If A goes to IP (polygon on right side) and then, immediately CCW,
         // B leaves IP, then order A first, before B, such that the outgoing
         // segment of B is traversed.
-        return rank(role_a, index_from) - 1 == rank(role_b, index_to);
+        return ccw(rank(role_a, index_from), rank(role_b, index_to));
     }
 
     bool is_tight_b_to_a() const
@@ -270,9 +278,8 @@ struct side_sorter
         // Symmetricly as is_tight_a_to_b. And here the condition is identical
         // as is_intersection_switching_a_to_b but here we switch to a!
         // Here it is not ii/iu but iu/ix (or similar)
-        return rank(role_b, index_from) - 1 == rank(role_a, index_to);
+        return ccw(rank(role_b, index_from), rank(role_a, index_to));
     }
-
 
 protected :
 

@@ -192,15 +192,13 @@ void test_areal()
             37, -1, 44.0);
 #endif
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     // 4, input is not valid
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-            16, -1, 22.0,
-            12, -1, 27.0,
-            10, -1, 49.9);
-#endif
+            15, -1, 22.0, // #clips should be 16
+            11, -1, 27.0, // #clips should be 12
+             8, -1, 49.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
