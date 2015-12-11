@@ -147,10 +147,6 @@ inline void enrich_sort(Container& operations,
                     >(turn_points, for_operation, geometry1, geometry2,
                       robust_policy));
 
-    // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
-    // It would give way to "lonely" ui turn points, traveling all
-    // the way round. See #105
-
     // Skip operations after ii by flagging them and removing them (from this
     // list only, they are not discarded)
     skip_after_ii<Reverse1, Reverse2>(turn_points, for_operation, geometry1, geometry2, operations);
