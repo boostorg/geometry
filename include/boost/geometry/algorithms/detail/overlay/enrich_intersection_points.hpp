@@ -45,70 +45,6 @@ namespace detail { namespace overlay
 {
 
 
-struct skip_operation
-{
-    template <typename Toi>
-    inline bool operator()(Toi const& toi) const
-    {
-        return toi.skip;
-    }
-};
-
-
-// After a ii-turn (ordered first), all colocated turns should be skipped
-// such that the ii-turn traverses to a turn on another location
-template <bool Reverse1, bool Reverse2, typename Turns, typename Operations, typename Geometry1, typename Geometry2>
-inline void skip_after_ii(Turns& turn_points,
-            operation_type for_operation,
-            Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            Operations& operations)
-{
-    typedef typename geometry::point_type<Geometry1>::type point_type;
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename boost::range_value<Operations>::type indexed_type;
-    typedef typename indexed_type::type turn_operation_type;
-
-    typename boost::range_iterator<Operations>::type it = boost::begin(operations);
-
-    indexed_type cluster_toi = *it;
-    for (++it; it != operations.end(); ++it)
-    {
-        turn_type& cluster_turn = turn_points[cluster_toi.turn_index];
-        turn_operation_type const& cluster_op = cluster_turn.operations[cluster_toi.operation_index];
-        turn_operation_type const& cluster_other_op = cluster_turn.operations[1 - cluster_toi.operation_index];
-
-        bool const both_ii = cluster_turn.both(operation_intersection);
-
-        turn_type& turn = turn_points[it->turn_index];
-        turn_operation_type const& op = turn.operations[it->operation_index];
-
-        if (both_ii
-            && cluster_op.seg_id == op.seg_id
-            && cluster_op.fraction == op.fraction)
-        {
-            turn_operation_type const& other_op = turn.operations[1 - it->operation_index];
-
-            sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sorter;
-
-            sorter.apply(cluster_turn.point, cluster_op, cluster_other_op,
-                op, other_op,
-                geometry1, geometry2);
-
-            if (sorter.is_b_independent())
-            {
-                it->skip = true;
-            }
-        }
-        else
-        {
-            // Not on same fraction on this segment
-            // assign for next potential cluster
-            cluster_toi = *it;
-        }
-    }
-}
-
 
 // Sorts IP-s of this ring on segment-identifier, and if on same segment,
 //  on distance.
@@ -146,16 +82,6 @@ inline void enrich_sort(Container& operations,
                         Reverse1, Reverse2
                     >(turn_points, for_operation, geometry1, geometry2,
                       robust_policy));
-
-    // Skip operations after ii by flagging them and removing them (from this
-    // list only, they are not discarded)
-    skip_after_ii<Reverse1, Reverse2>(turn_points, for_operation, geometry1, geometry2, operations);
-    operations.erase
-            (
-                std::remove_if(boost::begin(operations), boost::end(operations),
-                               skip_operation()),
-                boost::end(operations)
-            );
 }
 
 
@@ -363,7 +289,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         }
     }
 
-    detail::overlay::handle_colocations<OverlayType>(turn_points, for_operation);
+    detail::overlay::handle_colocations(turn_points);
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
