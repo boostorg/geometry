@@ -66,6 +66,35 @@ struct map_visitor
         }
     }
 
+    template <typename Clusters, typename Turns>
+    void visit_clusters(Clusters const& clusters, Turns const& turns)
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        int index = 0;
+        BOOST_FOREACH(turn_type const& turn, turns)
+        {
+            if (turn.cluster_id >= 0)
+            {
+                std::cout << " TURN: " << index << "  part of cluster "  << turn.cluster_id << std::endl;
+            }
+            index++;
+        }
+
+        for (typename Clusters::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
+        {
+            std::cout << " CLUSTER " << it->first << ": ";
+            for (typename std::set<bg::signed_size_type>::const_iterator sit = it->second.begin();
+                 sit != it->second.end(); ++sit)
+            {
+                std::cout << " "  << *sit;
+            }
+            std::cout << std::endl;
+        }
+
+        std::cout << std::endl;
+
+    }
+
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
     {
@@ -138,18 +167,26 @@ struct map_visitor
     {
         std::ostringstream out;
         out << index << " ";
+        if (turn.cluster_id != -1)
+        {
+            out << " c=" << turn.cluster_id << " ";
+        }
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
 
         std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
-        if (turn.colocated)
-        {
-            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
-        }
-        else if (turn.discarded)
+        if (turn.discarded)
         {
             style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
+        }
+        else if (turn.cluster_id != -1)
+        {
+            style =  "fill:rgb(0,0,255);font-family:Arial;font-size:8px";
+        }
+        else if (turn.colocated)
+        {
+            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
         }
         else if (! lab1 || ! lab2)
         {
@@ -280,7 +317,6 @@ void test_all()
             bg::model::polygon<point_type>
         > multi_polygon;
 
-
     test_overlay<multi_polygon, bg::overlay_union>
         (
             "case_multi_simplex_union",
@@ -306,33 +342,37 @@ void test_all()
             2.58
         );
 
-
-    test_overlay<multi_polygon, bg::overlay_intersection>
+    // Contains 5 clusters, needing immediate selection of next turn
+    test_overlay<multi_polygon, bg::overlay_union>
         (
-            "case_65_multi_inv_a",
-            case_65_multi[0], case_65_multi[3],
-            0.0
+            "case_58_multi_0_3_union",
+            case_58_multi[0], case_58_multi[3],
+            19.8333333
         );
 
-    test_overlay<multi_polygon, bg::overlay_intersection>
+    // Contains many clusters, needing to exclude u/u turns
+    test_overlay<multi_polygon, bg::overlay_union>
         (
-            "case_recursive_boxes_10_inv_a",
-            case_recursive_boxes_10[0], case_recursive_boxes_10[3],
-            1.25
+            "case_recursive_boxes_3_union",
+            case_recursive_boxes_3[0], case_recursive_boxes_3[1],
+            56.5
         );
-    test_overlay<multi_polygon, bg::overlay_intersection>
+    // Contains 4 clusters, one of which having 4 turns
+    test_overlay<multi_polygon, bg::overlay_union>
         (
-            "case_recursive_boxes_10_inv_b",
-            case_recursive_boxes_10[1], case_recursive_boxes_10[2],
-            0.75
+            "case_recursive_boxes_7_union",
+            case_recursive_boxes_7[0], case_recursive_boxes_7[1],
+            7.0
         );
 
-    test_overlay<multi_polygon, bg::overlay_intersection>
+    // Contains 5 clusters, needing immediate selection of next turn
+    test_overlay<multi_polygon, bg::overlay_union>
         (
-            "case_recursive_boxes_11_inv_a",
-            case_recursive_boxes_11[0], case_recursive_boxes_11[3],
-            2.5
+            "case_89_multi_union",
+            case_89_multi[0], case_89_multi[1],
+            6.0
         );
+
     test_overlay<multi_polygon, bg::overlay_intersection>
         (
             "case_recursive_boxes_11_inv_b",

@@ -118,14 +118,14 @@ void test_areal()
         1, 0, 14, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        17, 0, 159, 56.5); // Area from SQL Server
+        16, 1, 159, 56.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         1, 1, 42, 96.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-        3, 2, 110, 70.0);
+        3, 3, 110, 70.0);
 
     // TODO: fix self touching interior ring (should get 3 interior rings)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",

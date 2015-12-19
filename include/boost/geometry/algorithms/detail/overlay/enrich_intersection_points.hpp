@@ -246,11 +246,13 @@ template
     bool Reverse1, bool Reverse2,
     overlay_type OverlayType,
     typename TurnPoints,
+    typename Clusters,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,
     typename Strategy
 >
 inline void enrich_intersection_points(TurnPoints& turn_points,
+    Clusters& clusters,
     detail::overlay::operation_type for_operation,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
     RobustPolicy const& robust_policy,
@@ -289,7 +291,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         }
     }
 
-    detail::overlay::handle_colocations(turn_points);
+    detail::overlay::handle_colocations(turn_points, clusters);
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING

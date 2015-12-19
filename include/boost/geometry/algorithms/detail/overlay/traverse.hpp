@@ -86,68 +86,205 @@ inline void set_visited_for_continue(Info& info, Turn const& turn)
     }
 }
 
-
 template
 <
-    bool Reverse1, bool Reverse2,
-    typename GeometryOut,
-    typename G1,
-    typename G2,
-    typename Turns,
-    typename IntersectionInfo,
-    typename RobustPolicy
+    bool Reverse1, bool Reverse2
 >
-inline bool assign_next_ip(G1 const& g1, G2 const& g2,
-            Turns& turns,
-            typename boost::range_iterator<Turns>::type& ip,
-            GeometryOut& current_output,
-            IntersectionInfo& info,
-            segment_identifier& seg_id,
-            RobustPolicy const& robust_policy)
+struct traversal
 {
-    info.visited.set_visited();
-    set_visited_for_continue(*ip, info);
 
-    // If there is no next IP on this segment
-    if (info.enriched.next_ip_index < 0)
+    template <typename Turns, typename SortBySide>
+    static inline signed_size_type traverse_cluster(Turns& turns,
+        SortBySide const& sbs, std::size_t index)
     {
-        if (info.enriched.travels_to_vertex_index < 0
-            || info.enriched.travels_to_ip_index < 0)
+        typedef typename boost::range_value<Turns>::type turn_type;
+        typename SortBySide::rp const& ranked_point = sbs.m_ranked_points[index];
+        std::size_t result = ranked_point.turn_index;
+
+
+        turn_type& ranked_turn = turns[ranked_point.turn_index];
+        typename turn_type::turn_operation_type& ranked_op
+                = ranked_turn.operations[ranked_point.op_index];
+
+        signed_size_type next_turn_index = ranked_op.enriched.next_ip_index;
+        if (next_turn_index == -1)
         {
-            return false;
+            next_turn_index = ranked_op.enriched.travels_to_ip_index;
         }
 
-        BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_vertex_index >= 0);
-        BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_ip_index >= 0);
-
-        if (info.seg_id.source_index == 0)
+        for (std::size_t i = index + 1;
+             i < sbs.m_ranked_points.size();
+             i++)
         {
-            geometry::copy_segments<Reverse1>(g1, info.seg_id,
-                    info.enriched.travels_to_vertex_index,
-                    robust_policy,
-                    current_output);
+            const typename SortBySide::rp& next = sbs.m_ranked_points[i];
+            if (next.main_rank != ranked_point.main_rank)
+            {
+                return result;
+            }
+            if (next.turn_index == next_turn_index)
+            {
+                ranked_op.visited.set_visited();
+                result = next.turn_index;
+
+                // If there are more consecutively in same cluster, move
+                // to next one
+                return traverse_cluster(turns, sbs, i);
+            }
+        }
+        return result;
+    }
+
+
+    template
+    <
+        typename Geometry1,
+        typename Geometry2,
+        typename Clusters,
+        typename Turns,
+        typename Operation
+    >
+    static inline void select_turn_from_cluster(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                Clusters const& clusters, Turns& turns,
+                typename boost::range_iterator<Turns>::type& turn_it,
+                Operation const& op)
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        turn_type const& turn = *turn_it;
+        if (turn.cluster_id < 0)
+        {
+            return;
+        }
+        typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
+        if (mit == clusters.end())
+        {
+            return;
+        }
+
+        std::set<signed_size_type> const& ids = mit->second;
+
+        typedef typename geometry::point_type<Geometry1>::type point_type;
+        typedef sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sbs_type;
+        sbs_type sbs;
+
+        for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+             sit != ids.end(); ++sit)
+        {
+            signed_size_type turn_index = *sit;
+            turn_type const& cturn = turns[turn_index];
+            for (int i = 0; i < 2; i++)
+            {
+                Operation const& cop = cturn.operations[i];
+
+                // TODO: source_index is NOT a good criterium
+                bool is_subject = &cturn == &turn
+                               && op.seg_id.source_index == cop.seg_id.source_index;
+
+                sbs.add(cop, turn_index, i, geometry1, geometry2, is_subject);
+            }
+        }
+        sbs.apply(turn.point);
+
+        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+        {
+            const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
+            turn_type& ranked_turn = turns[ranked_point.turn_index];
+
+            if (ranked_point.main_rank == 0 && ranked_point.index != sort_by_side::index_from)
+            {
+                // There are outgoing arcs, quit
+                return;
+            }
+
+            if (ranked_point.main_rank == 1 && ranked_point.index == sort_by_side::index_to)
+            {
+                if (ranked_turn.discarded)
+                {
+                    // Might be collocated u/u turn
+                    return;
+                }
+
+                // Use this turn, or, in a cluster, traverse through it
+                signed_size_type turn_index = traverse_cluster(turns, sbs, i);
+                turn_it = turns.begin() + turn_index;
+
+                return;
+            }
+            if (ranked_point.main_rank >= 1)
+            {
+                // Nothing found, don't change
+                return;
+            }
+        }
+    }
+
+    template
+    <
+        typename GeometryOut,
+        typename G1,
+        typename G2,
+        typename Clusters,
+        typename Turns,
+        typename IntersectionInfo,
+        typename RobustPolicy
+    >
+    static inline bool assign_next_ip(G1 const& g1, G2 const& g2,
+                Clusters const& clusters, Turns& turns,
+                typename boost::range_iterator<Turns>::type& ip,
+                GeometryOut& current_output,
+                IntersectionInfo& info,
+                segment_identifier& seg_id,
+                RobustPolicy const& robust_policy)
+    {
+        info.visited.set_visited();
+        set_visited_for_continue(*ip, info);
+
+        // If there is no next IP on this segment
+        if (info.enriched.next_ip_index < 0)
+        {
+            if (info.enriched.travels_to_vertex_index < 0
+                || info.enriched.travels_to_ip_index < 0)
+            {
+                return false;
+            }
+
+            BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_vertex_index >= 0);
+            BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_ip_index >= 0);
+
+            if (info.seg_id.source_index == 0)
+            {
+                geometry::copy_segments<Reverse1>(g1, info.seg_id,
+                        info.enriched.travels_to_vertex_index,
+                        robust_policy,
+                        current_output);
+            }
+            else
+            {
+                geometry::copy_segments<Reverse2>(g2, info.seg_id,
+                        info.enriched.travels_to_vertex_index,
+                        robust_policy,
+                        current_output);
+            }
+            seg_id = info.seg_id;
+            ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
         }
         else
         {
-            geometry::copy_segments<Reverse2>(g2, info.seg_id,
-                    info.enriched.travels_to_vertex_index,
-                    robust_policy,
-                    current_output);
+            ip = boost::begin(turns) + info.enriched.next_ip_index;
+            seg_id = info.seg_id;
         }
-        seg_id = info.seg_id;
-        ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
-    }
-    else
-    {
-        ip = boost::begin(turns) + info.enriched.next_ip_index;
-        seg_id = info.seg_id;
+
+        detail::overlay::append_no_dups_or_spikes(current_output, ip->point,
+            robust_policy);
+
+        if (ip->cluster_id >= 0)
+        {
+            select_turn_from_cluster(g1, g2, clusters, turns, ip, info);
+        }
+
+        return true;
     }
 
-    detail::overlay::append_no_dups_or_spikes(current_output, ip->point,
-        robust_policy);
-
-    return true;
-}
+};
 
 
 inline bool select_source(operation_type operation,
@@ -268,12 +405,20 @@ template
 class traverse
 {
 public :
-    template <typename RobustPolicy, typename Turns, typename Rings, typename Visitor>
+    template
+    <
+        typename RobustPolicy,
+        typename Turns,
+        typename Rings,
+        typename Visitor,
+        typename Clusters
+    >
     static inline void apply(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 detail::overlay::operation_type operation,
                 RobustPolicy const& robust_policy,
                 Turns& turns, Rings& rings,
+                Clusters const& clusters,
                 Visitor& visitor)
     {
         typedef typename boost::range_value<Rings>::type ring_type;
@@ -283,6 +428,8 @@ public :
             <
                 typename turn_type::container_type
             >::type turn_operation_iterator_type;
+
+        typedef traversal<Reverse1, Reverse2> trav;
 
         std::size_t const min_num_points
                 = core_detail::closure::minimum_ring_size
@@ -327,9 +474,9 @@ public :
                             turn_operation_iterator_type current_iit = iit;
                             segment_identifier current_seg_id;
 
-                            if (! detail::overlay::assign_next_ip<Reverse1, Reverse2>(
+                            if (! trav::assign_next_ip(
                                         geometry1, geometry2,
-                                        turns,
+                                        clusters, turns,
                                         current, current_output,
                                         *iit, current_seg_id,
                                         robust_policy))
@@ -404,9 +551,9 @@ public :
                                         // will continue with the next one.
 
                                         // Below three reasons to stop.
-                                        detail::overlay::assign_next_ip<Reverse1, Reverse2>(
+                                        trav::assign_next_ip(
                                             geometry1, geometry2,
-                                            turns, current, current_output,
+                                            clusters, turns, current, current_output,
                                             *current_iit, current_seg_id,
                                             robust_policy);
 

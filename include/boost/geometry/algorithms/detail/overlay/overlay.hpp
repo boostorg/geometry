@@ -65,6 +65,9 @@ struct overlay_null_visitor
     template <typename Turns>
     void visit_turns(int phase, Turns const& turns) {}
 
+    template <typename Clusters, typename Turns>
+    void visit_clusters(Clusters const& , Turns const& ) {}
+
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
     {}
@@ -216,6 +219,15 @@ struct overlay
                 typename geometry::ring_type<GeometryOut>::type
             > ring_container_type;
 
+        // Define the clusters, mapping cluster_id -> turns
+        typedef std::map
+            <
+                signed_size_type,
+                std::set<signed_size_type>
+            > cluster_type;
+
+        cluster_type clusters;
+
         container_type turn_points;
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -235,6 +247,7 @@ std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turn_points,
+                clusters,
                 OverlayType == overlay_union
                     ? geometry::detail::overlay::operation_union
                     : geometry::detail::overlay::operation_intersection,
@@ -243,6 +256,8 @@ std::cout << "enrich" << std::endl;
                     side_strategy);
 
         visitor.visit_turns(2, turn_points);
+
+        visitor.visit_clusters(clusters, turn_points);
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -260,6 +275,7 @@ std::cout << "traverse" << std::endl;
                         : geometry::detail::overlay::operation_intersection,
                     robust_policy,
                     turn_points, rings,
+                    clusters,
                     visitor
                 );
 

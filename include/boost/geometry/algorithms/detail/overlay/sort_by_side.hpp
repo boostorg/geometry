@@ -10,8 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SORT_BY_SIDE_HPP
 
 #include <algorithm>
-
-#include <boost/array.hpp>
+#include <vector>
 
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -26,48 +25,76 @@ namespace detail { namespace overlay { namespace sort_by_side
 
 enum index_type { index_unknown = -1, index_from = 0, index_to = 1 };
 
-enum role_type { role_unknown = -1, role_subject = 1, role_a, role_b };
-
 // Point-wrapper, adding some properties
 template <typename Point>
-struct point_with_role
+struct ranked_point
 {
-    point_with_role()
+    ranked_point()
         : rank(0)
-        , role(role_unknown)
+        , main_rank(0)
+        , turn_index(-1)
+        , op_index(-1)
         , index(index_unknown)
         , operation(operation_none)
     {}
 
-    point_with_role(const Point& p, role_type r, index_type i,
-                    operation_type op)
+    ranked_point(const Point& p, signed_size_type ti, signed_size_type oi,
+                 index_type i, operation_type op)
         : point(p)
         , rank(0)
-        , role(r)
+        , main_rank(0)
+        , turn_index(ti)
+        , op_index(oi)
         , index(i)
         , operation(op)
     {}
 
     Point point;
     std::size_t rank;
-    role_type role;
+    std::size_t main_rank;
+    signed_size_type turn_index;
+    signed_size_type op_index;
     index_type index;
     operation_type operation;
 };
 
-struct less_by_role
+struct less_by_turn_index
 {
     template <typename T>
     inline bool operator()(const T& first, const T& second) const
     {
-        return first.role == second.role
+        return first.turn_index == second.turn_index
             ? first.index < second.index
-            : first.role < second.role
+            : first.turn_index < second.turn_index
             ;
     }
 };
 
-template <typename Point>
+struct less_by_index
+{
+    template <typename T>
+    inline bool operator()(const T& first, const T& second) const
+    {
+        // First order by from/to
+        if (first.index != second.index)
+        {
+            return first.index < second.index;
+        }
+        // All the same, order by turn index (we might consider length too)
+        return first.turn_index < second.turn_index;
+    }
+};
+
+struct less_false
+{
+    template <typename T>
+    inline bool operator()(const T&, const T& ) const
+    {
+        return false;
+    }
+};
+
+template <typename Point, typename LessOnSame>
 struct less_by_side
 {
     typedef typename strategy::side::services::default_strategy
@@ -83,7 +110,7 @@ struct less_by_side
     template <typename T>
     inline bool operator()(const T& first, const T& second) const
     {
-        less_by_role by_role;
+        LessOnSame on_same;
 
         // Order from left to right so state that left = -1, right = 1
         int const minus_side_first = -side::apply(m_p1, m_p2, first.point);
@@ -97,10 +124,10 @@ struct less_by_side
             int const first_code = direction_code(m_p1, m_p2, first.point);
             int const second_code = direction_code(m_p1, m_p2, second.point);
 
-            // Order by code, backwards first, then forward. For same direction, use role (for now)
+            // Order by code, backwards first, then forward.
             return first_code != second_code
                 ? first_code < second_code
-                : by_role(first, second)
+                : on_same(first, second)
                 ;
         }
         else if (minus_side_first == 0
@@ -129,11 +156,10 @@ struct less_by_side
         // Check mutual side
         int const side_second_wrt_first = side::apply(m_p2, first.point, second.point);
 
-        // If collinear order by role,
-        // otherwise, both are on same side, return true if second is right w.r.t. left
-        return side_second_wrt_first == 0
-            ? by_role(first, second)
-            : side_second_wrt_first == -1
+        // Both are on same side, return true if second is right w.r.t. left
+        return side_second_wrt_first != 0
+            ? side_second_wrt_first == -1
+            : on_same(first, second)
             ;
     }
 
@@ -144,146 +170,61 @@ private :
 template <bool Reverse1, bool Reverse2, typename Point>
 struct side_sorter
 {
-    template <typename Operation,  typename Geometry1, typename Geometry2>
-    void apply(Point const& intersection_point,
-            Operation const& op_a, Operation const& op_a_other,
-            Operation const& op_b, Operation const& op_b_other,
+    typedef ranked_point<Point> rp;
+
+
+    template <typename Operation, typename Geometry1, typename Geometry2>
+    void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
             Geometry1 const& geometry1,
-            Geometry2 const& geometry2)
+            Geometry2 const& geometry2,
+            bool is_subject = false)
     {
-        // All this has to be called in the context of sorting two operations,
-        // located on the same segment. Therefore this assertion should be true
-        BOOST_ASSERT(op_a.seg_id == op_b.seg_id);
-
-        Point both1, both2, both3;
-        Point a_other1, a_other2, a_other3;
-        Point b_other1, b_other2, b_other3;
+        Point point1, point2, point3;
         geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
-                op_a.seg_id, both1, both2, both3);
-        geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
-                op_a_other.seg_id, a_other1, a_other2, a_other3);
-        geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
-                op_b_other.seg_id, b_other1, b_other2, b_other3);
+                op.seg_id, point1, point2, point3);
+        Point const& point_to = op.fraction.is_one() ? point3 : point2;
 
-        Point const& both_to = op_a.fraction.is_one() ? both3 : both2;
-        Point const& a_other_to = op_a_other.fraction.is_one() ? a_other3 : a_other2;
-        Point const& b_other_to = op_b_other.fraction.is_one() ? b_other3 : b_other2;
+        m_ranked_points.push_back(rp(point1, turn_index, op_index, index_from, op.operation));
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index, index_to, op.operation));
 
-        typedef point_with_role<Point> pwr;
-        m_array[0] = pwr(both_to, role_subject, index_to, op_a.operation);
-        m_array[1] = pwr(a_other1, role_a, index_from, op_a_other.operation);
-        m_array[2] = pwr(a_other_to, role_a, index_to, op_a_other.operation);
-        m_array[3] = pwr(b_other1, role_b, index_from, op_b_other.operation);
-        m_array[4] = pwr(b_other_to, role_b, index_to, op_b_other.operation);
+        if (is_subject)
+        {
+            m_from = point1;
+        }
+    }
+
+    void apply(Point const& turn_point)
+    {
 
         // Sort by side and assign rank
-        std::sort(m_array.begin(), m_array.end(),
-                less_by_side<Point>(both1, intersection_point));
-        for (std::size_t i = 0; i < m_array.size(); i++)
+        less_by_side<Point, less_by_index> less1(m_from, turn_point);
+        less_by_side<Point, less_false> less2(m_from, turn_point);
+
+        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less1);
+
+        std::size_t colinear_rank = 0;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
-            m_array[i].rank = i;
+            if (i > 0
+                && less2(m_ranked_points[i - 1], m_ranked_points[i]))
+            {
+                // It is not collinear
+                colinear_rank++;
+            }
+
+            m_ranked_points[i].rank = i;
+            m_ranked_points[i].main_rank = colinear_rank;
         }
 
         // Sort back in original order
-        std::sort(m_array.begin(), m_array.end(), less_by_role());
+//        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_by_turn_index());
     }
 
-    std::size_t rank(role_type role, index_type index) const
-    {
-        BOOST_ASSERT(index >= index_from && index <= index_to
-                && role >= role_subject && role <= role_b);
 
-        return role == role_a ? m_array[1 + index].rank
-            : role == role_b ? m_array[3 + index].rank
-            : m_array.front().rank
-            ;
-    }
+//protected :
 
-    bool ccw(std::size_t rank1, std::size_t rank2) const
-    {
-        // Either e.g. rank1=3; rank2=2 -> going to 2, nothing in between
-        // Or rank1=0, rank2=4, also then nothing in between
-        return (rank1 - 1 == rank2)
-            || (rank1 == 0 && rank2 == 4);
-    }
-
-    // Returns true if b is independent without segments in between
-    bool is_b_independent() const
-    {
-        //
-        //     [1] A    B (to) [2]
-        //   (from) \   |
-        //           \  |
-        //            \ |
-        //             \|
-        // S <----------+----------- B (from) [3]
-        // (to) [0]     |\           .
-        //              | \          .
-        //              |  \         .
-        //              |   \        .
-        //              |    A [4] (to)
-        //              S (from)
-
-        // Segments are sorted CCW w.r.t. S -> IP (+)
-        // B (polygon is on the right side) goes from right IP to top, there is
-        // nothing in between. Here B is completely independent on Subject/A
-
-        return rank(role_b, index_from) - 1 == rank(role_b, index_to);
-    }
-
-    bool is_intersection_switching_a_to_b() const
-    {
-        //
-        //                   A (from) [2]
-        //                  /
-        //                 /
-        //                /
-        //               /
-        // S <----------+----------- A (to) [3]
-        // (to) [1]    /|\           .
-        //            / | \          .
-        //           /  |  \         .
-        //          /   |   \        .
-        //    (to) B[0] |    B (from) [4]
-        //              S (from)
-
-        // Here A is supposed to be the ii turn, B the non ii turn (this is
-        // visible in the picture but might take some time to see it.
-        // Image is derived from #case_107_multi, inverse version, but rotated.
-        // All polygons are on the right side (of from->to)
-        // A makes a ii turn with S
-        // B makes a iu turn with S
-
-        // B goes from lowerright to IP, and
-        // then can switches to A's to at the right side.
-        // The polygon thus made on both right sides has no other segments
-        // in between.
-
-        // In these cases iu is sorted first, ii as last
-
-        return rank(role_b, index_from) - 1 == rank(role_a, index_to);
-    }
-
-    bool is_tight_a_to_b() const
-    {
-        // Similarly, but now for e.g. ordering colocated iu/ix turns.
-        // If A goes to IP (polygon on right side) and then, immediately CCW,
-        // B leaves IP, then order A first, before B, such that the outgoing
-        // segment of B is traversed.
-        return ccw(rank(role_a, index_from), rank(role_b, index_to));
-    }
-
-    bool is_tight_b_to_a() const
-    {
-        // Symmetricly as is_tight_a_to_b. And here the condition is identical
-        // as is_intersection_switching_a_to_b but here we switch to a!
-        // Here it is not ii/iu but iu/ix (or similar)
-        return ccw(rank(role_b, index_from), rank(role_a, index_to));
-    }
-
-protected :
-
-    boost::array<point_with_role<Point>, 5> m_array;
+    std::vector<ranked_point<Point> > m_ranked_points;
+    Point m_from;
 };
 
 

@@ -58,6 +58,8 @@ enum method_type
 template <typename Point, typename SegmentRatio>
 struct turn_operation
 {
+    typedef SegmentRatio segment_ratio_type;
+
     operation_type operation;
     segment_identifier seg_id;
     SegmentRatio fraction;
@@ -91,11 +93,13 @@ template
 struct turn_info
 {
     typedef Point point_type;
+    typedef SegmentRatio segment_ratio_type;
     typedef Operation turn_operation_type;
     typedef Container container_type;
 
     Point point;
     method_type method;
+    int cluster_id;
     bool discarded;
     bool selectable_start; // Can be used as starting-turn in traverse
     bool colocated;
@@ -105,6 +109,7 @@ struct turn_info
 
     inline turn_info()
         : method(method_none)
+        , cluster_id(-1)
         , discarded(false)
         , selectable_start(true)
         , colocated(false)
