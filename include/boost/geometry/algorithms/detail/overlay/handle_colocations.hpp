@@ -304,6 +304,8 @@ inline void assign_cluster_to_turns(Turns& turns,
         if (turn.both(operation_union))
         {
             // They are processed (to create proper map) but will not be added
+            // This might leave a cluster with only 1 turn, which will be fixed
+            // afterwards
             continue;
         }
 
@@ -325,6 +327,32 @@ inline void assign_cluster_to_turns(Turns& turns,
         }
     }
 }
+
+template
+<
+    typename Turns,
+    typename Clusters
+>
+inline void remove_clusters(Turns& turns, Clusters& clusters)
+{
+    typename Clusters::iterator it = clusters.begin();
+    while (it != clusters.end())
+    {
+        // Hold iterator and increase. We can erase cit, this keeps the
+        // iterator valid (cf The standard associative-container erase idiom)
+        typename Clusters::iterator current_it = it;
+        ++it;
+
+        std::set<signed_size_type> const& turn_indices = current_it->second;
+        if (turn_indices.size() == 1)
+        {
+            signed_size_type turn_index = *turn_indices.begin();
+            turns[turn_index].cluster_id = -1;
+            clusters.erase(current_it);
+        }
+    }
+}
+
 
 // Checks colocated turns and flags combinations of uu/other, possibly a
 // combination of a ring touching another geometry's interior ring which is
@@ -413,6 +441,7 @@ inline void handle_colocations(Turns& turns, Clusters& clusters)
 
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
+    remove_clusters(turns, clusters);
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
