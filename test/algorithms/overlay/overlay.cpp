@@ -373,6 +373,14 @@ void test_all()
             6.0
         );
 
+    // Needs ux/next_turn_index==-1 to be filtered out
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_77_multi_intersection",
+            case_77_multi[0], case_77_multi[1],
+            9.0
+        );
+
     test_overlay<multi_polygon, bg::overlay_intersection>
         (
             "case_101_multi_intersection",

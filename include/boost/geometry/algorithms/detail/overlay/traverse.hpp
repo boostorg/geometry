@@ -130,6 +130,12 @@ struct traversal
         {
             next_turn_index = ranked_op.enriched.travels_to_ip_index;
         }
+        if (next_turn_index == -1)
+        {
+            // Turn found but dead end, do not use this turn. Can happen if,
+            // for example, in intersection ux is not filtered out
+            return -1;
+        }
 
         for (std::size_t i = index + 1;
              i < sbs.m_ranked_points.size();
@@ -214,7 +220,8 @@ struct traversal
                 return;
             }
 
-            if (ranked_point.main_rank == 1 && ranked_point.index == sort_by_side::index_to)
+            if (ranked_point.main_rank == 1
+                    && ranked_point.index == sort_by_side::index_to)
             {
                 if (ranked_turn.discarded)
                 {
@@ -224,9 +231,11 @@ struct traversal
 
                 // Use this turn, or, in a cluster, traverse through it
                 signed_size_type turn_index = traverse_cluster(turns, sbs, i);
-                turn_it = turns.begin() + turn_index;
-
-                return;
+                if (turn_index != -1)
+                {
+                    turn_it = turns.begin() + turn_index;
+                    return;
+                }
             }
             if (ranked_point.main_rank >= 1)
             {
