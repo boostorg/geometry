@@ -94,7 +94,7 @@ struct less_false
     }
 };
 
-template <typename Point, typename LessOnSame>
+template <typename Point, typename LessOnSame, typename Less>
 struct less_by_side
 {
     typedef typename strategy::side::services::default_strategy
@@ -111,12 +111,12 @@ struct less_by_side
     inline bool operator()(const T& first, const T& second) const
     {
         LessOnSame on_same;
+        Less less;
 
-        // Order from left to right so state that left = -1, right = 1
-        int const minus_side_first = -side::apply(m_p1, m_p2, first.point);
-        int const minus_side_second = -side::apply(m_p1, m_p2, second.point);
+        int const side_first = side::apply(m_p1, m_p2, first.point);
+        int const side_second = side::apply(m_p1, m_p2, second.point);
 
-        if (minus_side_first == 0 && minus_side_second == 0)
+        if (side_first == 0 && side_second == 0)
         {
             // Both collinear. They might point into different directions: <------*------>
             // If so, order the one going backwards as the very first.
@@ -130,14 +130,14 @@ struct less_by_side
                 : on_same(first, second)
                 ;
         }
-        else if (minus_side_first == 0
+        else if (side_first == 0
                 && direction_code(m_p1, m_p2, first.point) == -1)
         {
             // First collinear and going backwards.
             // Order as the very first, so return always true
             return true;
         }
-        else if (minus_side_second == 0
+        else if (side_second == 0
             && direction_code(m_p1, m_p2, second.point) == -1)
         {
             // Second is collinear and going backwards
@@ -147,9 +147,9 @@ struct less_by_side
 
         // They are not both collinear
 
-        if (minus_side_first != minus_side_second)
+        if (side_first != side_second)
         {
-            return minus_side_first < minus_side_second;
+            return less(side_first, side_second);
         }
 
         // They are both left, both right, and/or both collinear (with each other and/or with p1,p2)
@@ -167,7 +167,7 @@ private :
     Point m_p1, m_p2;
 };
 
-template <bool Reverse1, bool Reverse2, typename Point>
+template <bool Reverse1, bool Reverse2, typename Point, typename Compare>
 struct side_sorter
 {
     typedef ranked_point<Point> rp;
@@ -195,18 +195,23 @@ struct side_sorter
 
     void apply(Point const& turn_point)
     {
+        // We need three compare functors:
+        // 1) to order clockwise (union) or counter clockwise (intersection)
+        // 2) to order by side, resulting in unique ranks for all points
+        // 3) to order by side, resulting in non-unique ranks
+        //    to give colinear points
 
         // Sort by side and assign rank
-        less_by_side<Point, less_by_index> less1(m_from, turn_point);
-        less_by_side<Point, less_false> less2(m_from, turn_point);
+        less_by_side<Point, less_by_index, Compare> less_unique(m_from, turn_point);
+        less_by_side<Point, less_false, Compare> less_non_unique(m_from, turn_point);
 
-        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less1);
+        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_unique);
 
         std::size_t colinear_rank = 0;
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
             if (i > 0
-                && less2(m_ranked_points[i - 1], m_ranked_points[i]))
+                && less_non_unique(m_ranked_points[i - 1], m_ranked_points[i]))
             {
                 // It is not collinear
                 colinear_rank++;

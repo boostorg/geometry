@@ -86,9 +86,28 @@ inline void set_visited_for_continue(Info& info, Turn const& turn)
     }
 }
 
+//! Metafunction to define side_order (clockwise, ccw) by operation_type
+template <operation_type OpType>
+struct side_compare {};
+
+template <>
+struct side_compare<operation_union>
+{
+    typedef std::greater<int> type;
+};
+
+template <>
+struct side_compare<operation_intersection>
+{
+    typedef std::less<int> type;
+};
+
+
 template
 <
-    bool Reverse1, bool Reverse2
+    bool Reverse1,
+    bool Reverse2,
+    typename SideCompare
 >
 struct traversal
 {
@@ -163,7 +182,7 @@ struct traversal
         std::set<signed_size_type> const& ids = mit->second;
 
         typedef typename geometry::point_type<Geometry1>::type point_type;
-        typedef sort_by_side::side_sorter<Reverse1, Reverse2, point_type> sbs_type;
+        typedef sort_by_side::side_sorter<Reverse1, Reverse2, point_type, SideCompare> sbs_type;
         sbs_type sbs;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
@@ -390,7 +409,6 @@ inline bool select_next_ip(operation_type operation,
 }
 
 
-
 /*!
     \brief Traverses through intersection points / geometries
     \ingroup overlay
@@ -400,6 +418,7 @@ template
     bool Reverse1, bool Reverse2,
     typename Geometry1,
     typename Geometry2,
+    operation_type OpType,
     typename Backtrack = backtrack_check_self_intersections<Geometry1, Geometry2>
 >
 class traverse
@@ -415,7 +434,6 @@ public :
     >
     static inline void apply(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
-                detail::overlay::operation_type operation,
                 RobustPolicy const& robust_policy,
                 Turns& turns, Rings& rings,
                 Clusters const& clusters,
@@ -429,7 +447,12 @@ public :
                 typename turn_type::container_type
             >::type turn_operation_iterator_type;
 
-        typedef traversal<Reverse1, Reverse2> trav;
+        typedef traversal
+            <
+                Reverse1,
+                Reverse2,
+                typename side_compare<OpType>::type
+            > trav;
 
         std::size_t const min_num_points
                 = core_detail::closure::minimum_ring_size
@@ -460,7 +483,7 @@ public :
                     {
                         if (iit->visited.none()
                             && ! iit->visited.rejected()
-                            && (iit->operation == operation
+                            && (iit->operation == OpType
                                 || iit->operation == detail::overlay::operation_continue)
                             )
                         {
@@ -502,7 +525,7 @@ public :
                             }
 
                             if (! detail::overlay::select_next_ip(
-                                            operation,
+                                            OpType,
                                             *current,
                                             start_turn_index,
                                             current_seg_id,
@@ -558,7 +581,7 @@ public :
                                             robust_policy);
 
                                         if (! detail::overlay::select_next_ip(
-                                                    operation,
+                                                    OpType,
                                                     *current,
                                                     start_turn_index,
                                                     current_seg_id,
