@@ -375,9 +375,9 @@ void test_all()
 
     test_overlay<multi_polygon, bg::overlay_intersection>
         (
-            "case_recursive_boxes_11_inv_b",
-            case_recursive_boxes_11[1], case_recursive_boxes_11[2],
-            4.5
+            "case_101_multi_intersection",
+            case_101_multi[0], case_101_multi[1],
+            4.75
         );
 
 //    std::cout

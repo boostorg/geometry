@@ -94,7 +94,7 @@ struct less_false
     }
 };
 
-template <typename Point, typename LessOnSame, typename Less>
+template <typename Point, typename LessOnSame, typename Compare>
 struct less_by_side
 {
     typedef typename strategy::side::services::default_strategy
@@ -111,7 +111,7 @@ struct less_by_side
     inline bool operator()(const T& first, const T& second) const
     {
         LessOnSame on_same;
-        Less less;
+        Compare compare;
 
         int const side_first = side::apply(m_p1, m_p2, first.point);
         int const side_second = side::apply(m_p1, m_p2, second.point);
@@ -149,18 +149,25 @@ struct less_by_side
 
         if (side_first != side_second)
         {
-            return less(side_first, side_second);
+            return compare(side_first, side_second);
         }
 
         // They are both left, both right, and/or both collinear (with each other and/or with p1,p2)
         // Check mutual side
         int const side_second_wrt_first = side::apply(m_p2, first.point, second.point);
 
-        // Both are on same side, return true if second is right w.r.t. left
-        return side_second_wrt_first != 0
-            ? side_second_wrt_first == -1
-            : on_same(first, second)
-            ;
+        if (side_second_wrt_first == 0)
+        {
+            return on_same(first, second);
+        }
+
+        int const side_first_wrt_second = -side_second_wrt_first;
+
+        // Both are on same side, and not collinear
+        // Union: return true if second is right w.r.t. first, so -1,
+        // so other is 1. union has greater as compare functor
+        // Intersection: v.v.
+        return compare(side_first_wrt_second, side_second_wrt_first);
     }
 
 private :
