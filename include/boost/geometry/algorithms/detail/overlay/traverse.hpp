@@ -455,6 +455,7 @@ public :
             <
                 typename turn_type::container_type
             >::type turn_operation_iterator_type;
+        typedef typename turn_type::turn_operation_type op_type;
 
         typedef traversal
             <
@@ -483,48 +484,52 @@ public :
                 state.good() && it != boost::end(turns);
                 ++it, ++start_turn_index)
             {
+                turn_type& the_turn = *it;
                 // Skip discarded ones
-                if (! (it->discarded || ! it->selectable_start || it->blocked()))
+                if (! (the_turn.discarded || ! the_turn.selectable_start || the_turn.blocked()))
                 {
-                    for (turn_operation_iterator_type iit = boost::begin(it->operations);
-                        state.good() && iit != boost::end(it->operations);
+                    for (turn_operation_iterator_type iit = boost::begin(the_turn.operations);
+                        state.good() && iit != boost::end(the_turn.operations);
                         ++iit)
                     {
-                        if (iit->visited.none()
-                            && ! iit->visited.rejected()
-                            && (iit->operation == OpType
-                                || iit->operation == detail::overlay::operation_continue)
+                        op_type& the_op = *iit;
+
+                        if (the_op.visited.none()
+                            && ! the_op.visited.rejected()
+                            && (the_op.operation == OpType
+                                || the_op.operation == detail::overlay::operation_continue)
                             )
                         {
-                            set_visited_for_continue(*it, *iit);
+                            set_visited_for_continue(the_turn, the_op);
 
                             ring_type current_output;
                             detail::overlay::append_no_dups_or_spikes(current_output,
-                                it->point, robust_policy);
+                                the_turn.point, robust_policy);
 
-                            turn_iterator current = it;
+                            // Copy iterators, can be reassigned below
+                            turn_iterator current_it = it;
                             turn_operation_iterator_type current_iit = iit;
                             segment_identifier current_seg_id;
 
                             if (! trav::assign_next_ip(
                                         geometry1, geometry2,
                                         clusters, turns,
-                                        current, current_output,
-                                        *iit, current_seg_id,
+                                        current_it, current_output,
+                                        the_op, current_seg_id,
                                         robust_policy))
                             {
                                 Backtrack::apply(
                                     size_at_start,
-                                    rings, current_output, turns, *current, *current_iit,
+                                    rings, current_output, turns, *current_it, *current_iit,
                                     "No next IP",
                                     geometry1, geometry2, robust_policy, state, visitor);
                             }
 
-                            if (current == it)
+                            if (current_it == it)
                             {
-                                iit->visited.set_finished();
-                                detail::overlay::debug_traverse(*current, *iit, "->Finished early");
-                                visitor.visit_traverse(turns, *current, *iit, "E");
+                                the_op.visited.set_finished();
+                                detail::overlay::debug_traverse(*current_it, the_op, "->Finished early");
+                                visitor.visit_traverse(turns, *current_it, the_op, "E");
                                 if (geometry::num_points(current_output) >= min_num_points)
                                 {
                                     clean_closing_dups_and_spikes(current_output, robust_policy);
@@ -535,25 +540,25 @@ public :
 
                             if (! detail::overlay::select_next_ip(
                                             OpType,
-                                            *current,
+                                            *current_it,
                                             start_turn_index,
                                             current_seg_id,
                                             current_iit))
                             {
                                 Backtrack::apply(
                                     size_at_start,
-                                    rings, current_output, turns, *it, *iit,
+                                    rings, current_output, turns, the_turn, the_op,
                                     "Dead end at start",
                                     geometry1, geometry2, robust_policy, state, visitor);
                             }
                             else
                             {
 
-                                iit->visited.set_started();
-                                detail::overlay::debug_traverse(*it, *iit, "-> Started");
-                                detail::overlay::debug_traverse(*current, *current_iit, "Selected  ");
-                                visitor.visit_traverse(turns, *it, *iit, "B");
-                                visitor.visit_traverse(turns, *current, *current_iit, "V");
+                                the_op.visited.set_started();
+                                detail::overlay::debug_traverse(the_turn, the_op, "-> Started");
+                                detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
+                                visitor.visit_traverse(turns, the_turn, the_op, "B");
+                                visitor.visit_traverse(turns, *current_it, *current_iit, "V");
 
                                 typename boost::range_size<Turns>::type i = 0;
 
@@ -565,7 +570,7 @@ public :
                                         // This makes it suspicious for endless loops
                                         Backtrack::apply(
                                             size_at_start,
-                                            rings,  current_output, turns, *it, *iit,
+                                            rings,  current_output, turns, the_turn, the_op,
                                             "Visit again",
                                             geometry1, geometry2, robust_policy, state, visitor);
                                     }
@@ -585,13 +590,13 @@ public :
                                         // Below three reasons to stop.
                                         trav::assign_next_ip(
                                             geometry1, geometry2,
-                                            clusters, turns, current, current_output,
+                                            clusters, turns, current_it, current_output,
                                             *current_iit, current_seg_id,
                                             robust_policy);
 
                                         if (! detail::overlay::select_next_ip(
                                                     OpType,
-                                                    *current,
+                                                    *current_it,
                                                     start_turn_index,
                                                     current_seg_id,
                                                     current_iit))
@@ -601,14 +606,14 @@ public :
                                             // Might occur in polygons with spikes
                                             Backtrack::apply(
                                                 size_at_start,
-                                                rings,  current_output, turns, *it, *iit,
+                                                rings,  current_output, turns, the_turn, the_op,
                                                 "Dead end",
                                                 geometry1, geometry2, robust_policy, state, visitor);
                                         }
                                         else
                                         {
-                                            detail::overlay::debug_traverse(*current, *current_iit, "Selected  ");
-                                            visitor.visit_traverse(turns, *current, *current_iit, "V");
+                                            detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
+                                            visitor.visit_traverse(turns, *current_it, *current_iit, "V");
                                         }
 
                                         if (i++ > 2 + 2 * turns.size())
@@ -618,7 +623,7 @@ public :
                                             // Turn points marked as "ii" can be visited twice.
                                             Backtrack::apply(
                                                 size_at_start,
-                                                rings,  current_output, turns, *it, *iit,
+                                                rings,  current_output, turns, the_turn, the_op,
                                                 "Endless loop",
                                                 geometry1, geometry2, robust_policy, state, visitor);
                                         }
@@ -627,9 +632,9 @@ public :
 
                                 if (state.good())
                                 {
-                                    iit->visited.set_finished();
-                                    detail::overlay::debug_traverse(*current, *iit, "->Finished");
-                                    visitor.visit_traverse(turns, *current, *iit, "F");
+                                    the_op.visited.set_finished();
+                                    detail::overlay::debug_traverse(*current_it, the_op, "->Finished");
+                                    visitor.visit_traverse(turns, *current_it, the_op, "F");
                                     if (geometry::num_points(current_output) >= min_num_points)
                                     {
                                         clean_closing_dups_and_spikes(current_output, robust_policy);
