@@ -332,7 +332,7 @@ template
 >
 inline bool select_next_ip(operation_type operation,
             Turn& turn,
-            std::size_t start_turn_index,
+            signed_size_type start_turn_index,
             segment_identifier const& seg_id,
             Iterator& selected)
 {
@@ -477,7 +477,7 @@ public :
         {
             state.reset();
 
-            std::size_t start_turn_index = 0;
+            signed_size_type start_turn_index = 0;
 
             // Iterate through all unvisited points
             for (turn_iterator it = boost::begin(turns);
