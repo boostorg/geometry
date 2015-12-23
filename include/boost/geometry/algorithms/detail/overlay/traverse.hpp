@@ -65,27 +65,6 @@ inline void debug_traverse(Turn const& , Operation, const char*)
 #endif
 
 
-template <typename Turn, typename Operation>
-inline void set_visited_for_continue(Turn& turn, Operation const& op)
-{
-    // On "continue", set "visited" for ALL directions
-    if (op.operation == detail::overlay::operation_continue)
-    {
-        for (typename boost::range_iterator
-            <
-                typename Turn::container_type
-            >::type it = boost::begin(turn.operations);
-            it != boost::end(turn.operations);
-            ++it)
-        {
-            if (it->visited.none())
-            {
-                it->visited.set_visited();
-            }
-        }
-    }
-}
-
 //! Metafunction to define side_order (clockwise, ccw) by operation_type
 template <operation_type OpType>
 struct side_compare {};
@@ -233,7 +212,7 @@ struct traversal
 
 
     inline signed_size_type traverse_cluster(sbs_type const& sbs,
-                std::size_t index) const
+                std::size_t index)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
         typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[index];
@@ -266,8 +245,7 @@ struct traversal
             }
             if (next.turn_index == next_turn_index)
             {
-                ranked_op.visited.set_visited();
-                set_visited_for_continue(ranked_turn, ranked_op);
+                set_visited(ranked_turn, ranked_op);
 
                 result = next.turn_index;
 
@@ -282,7 +260,7 @@ struct traversal
 
     inline void select_turn_from_cluster(
                 typename boost::range_iterator<Turns>::type& turn_it,
-                turn_operation_type const& op) const
+                turn_operation_type const& op)
     {
         turn_type const& turn = *turn_it;
         if (turn.cluster_id < 0)
@@ -429,6 +407,26 @@ struct traversal
         }
     }
 
+    inline void set_visited(turn_type& turn, turn_operation_type& op)
+    {
+        op.visited.set_visited();
+
+        // On "continue", set "visited" for ALL directions in this turn
+        if (op.operation == detail::overlay::operation_continue)
+        {
+            for (turn_operation_iterator_type it = boost::begin(turn.operations);
+                it != boost::end(turn.operations);
+                ++it)
+            {
+                if (it->visited.none())
+                {
+                    it->visited.set_visited();
+                }
+            }
+        }
+    }
+
+
     template
     <
         typename Ring,
@@ -471,8 +469,7 @@ struct traversal
         visitor.visit_traverse(m_turns, the_turn, the_op, "Start");
 
         // Register the first visit
-        current_iit->visited.set_visited();
-        set_visited_for_continue(*current_it, *current_iit);
+        set_visited(*current_it, *current_iit);
         visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
 
         if (current_it == it)
@@ -516,8 +513,7 @@ struct traversal
                     return traverse_error_visit_again;
                 }
 
-                current_iit->visited.set_visited();
-                set_visited_for_continue(*current_it, *current_iit);
+                set_visited(*current_it, *current_iit);
                 visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
             }
 
