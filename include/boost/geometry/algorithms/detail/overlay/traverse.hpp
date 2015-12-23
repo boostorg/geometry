@@ -465,20 +465,17 @@ struct traversal
 
         // Register the start
         the_op.visited.set_started();
-        detail::overlay::debug_traverse(the_turn, the_op, "-> Started");
-        visitor.visit_traverse(m_turns, the_turn, the_op, "B");
+        visitor.visit_traverse(m_turns, the_turn, the_op, "Start");
 
         // Register the first visit
         current_iit->visited.set_visited();
         set_visited_for_continue(*current_it, *current_iit);
-        detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
-        visitor.visit_traverse(m_turns, *current_it, *current_iit, "V");
+        visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
 
         if (current_it == it)
         {
             the_op.visited.set_finished();
-            detail::overlay::debug_traverse(*current_it, the_op, "->Finished early");
-            visitor.visit_traverse(m_turns, *current_it, the_op, "E");
+            visitor.visit_traverse(m_turns, *current_it, the_op, "Early finish");
 
             return traverse_error_none;
         }
@@ -518,9 +515,7 @@ struct traversal
 
                 current_iit->visited.set_visited();
                 set_visited_for_continue(*current_it, *current_iit);
-
-                detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
-                visitor.visit_traverse(m_turns, *current_it, *current_iit, "V");
+                visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
             }
 
             if (i++ > 2 + 2 * m_turns.size())
@@ -530,8 +525,7 @@ struct traversal
         }
 
         the_op.visited.set_finished();
-        detail::overlay::debug_traverse(*current_it, the_op, "->Finished");
-        visitor.visit_traverse(m_turns, *current_it, the_op, "F");
+        visitor.visit_traverse(m_turns, *current_it, the_op, "Finish");
 
         return traverse_error_none;
     }
