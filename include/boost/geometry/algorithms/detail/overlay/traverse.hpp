@@ -149,6 +149,8 @@ struct traversal
             if (next.turn_index == next_turn_index)
             {
                 ranked_op.visited.set_visited();
+                set_visited_for_continue(ranked_turn, ranked_op);
+
                 result = next.turn_index;
 
                 // If there are more consecutively in same cluster, move
@@ -263,9 +265,6 @@ struct traversal
                 segment_identifier& seg_id,
                 RobustPolicy const& robust_policy)
     {
-        info.visited.set_visited();
-        set_visited_for_continue(*ip, info);
-
         // If there is no next IP on this segment
         if (info.enriched.next_ip_index < 0)
         {
@@ -500,8 +499,6 @@ public :
                                 || the_op.operation == detail::overlay::operation_continue)
                             )
                         {
-                            set_visited_for_continue(the_turn, the_op);
-
                             ring_type current_output;
                             detail::overlay::append_no_dups_or_spikes(current_output,
                                 the_turn.point, robust_policy);
@@ -540,43 +537,33 @@ public :
                                 continue; // continue current for loop
                             }
 
+                            // Register the start
                             the_op.visited.set_started();
-
                             detail::overlay::debug_traverse(the_turn, the_op, "-> Started");
-                            detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
-
                             visitor.visit_traverse(turns, the_turn, the_op, "B");
+
+                            // Register the first visit
+                            current_iit->visited.set_visited();
+                            set_visited_for_continue(*current_it, *current_iit);
+                            detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
                             visitor.visit_traverse(turns, *current_it, *current_iit, "V");
 
-                            if (current_it == it)
+                            if (current_it == it
+                                && geometry::num_points(current_output) >= min_num_points)
                             {
                                 the_op.visited.set_finished();
                                 detail::overlay::debug_traverse(*current_it, the_op, "->Finished early");
                                 visitor.visit_traverse(turns, *current_it, the_op, "E");
-                                if (geometry::num_points(current_output) >= min_num_points)
-                                {
-                                    clean_closing_dups_and_spikes(current_output, robust_policy);
-                                    rings.push_back(current_output);
-                                    continue; // continue current for loop
-                                }
+
+                                clean_closing_dups_and_spikes(current_output, robust_policy);
+                                rings.push_back(current_output);
+                                continue; // continue current for loop
                             }
 
                             typename boost::range_size<Turns>::type i = 0;
 
                             while (current_iit != iit && state.good())
                             {
-                                if (current_iit->visited.visited())
-                                {
-                                    // It visits a visited node again, without passing the start node.
-                                    // This makes it suspicious for endless loops
-                                    Backtrack::apply(
-                                        size_at_start,
-                                        rings,  current_output, turns, the_turn, the_op,
-                                        "Visit again",
-                                        geometry1, geometry2, robust_policy, state, visitor);
-                                    continue; // continue current while-loop
-                                }
-
                                 // We assume clockwise polygons only, non self-intersecting, closed.
                                 // However, the input might be different, and checking validity
                                 // is up to the library user.
@@ -611,6 +598,21 @@ public :
                                 }
                                 else
                                 {
+                                    if (current_iit->visited.visited())
+                                    {
+                                        // It visits a visited node again, without passing the start node.
+                                        // This makes it suspicious for endless loops
+                                        Backtrack::apply(
+                                            size_at_start,
+                                            rings,  current_output, turns, the_turn, the_op,
+                                            "Visit again",
+                                            geometry1, geometry2, robust_policy, state, visitor);
+                                        continue; // continue current while-loop
+                                    }
+
+                                    current_iit->visited.set_visited();
+                                    set_visited_for_continue(*current_it, *current_iit);
+
                                     detail::overlay::debug_traverse(*current_it, *current_iit, "Selected  ");
                                     visitor.visit_traverse(turns, *current_it, *current_iit, "V");
                                 }
