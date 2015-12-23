@@ -480,9 +480,8 @@ struct traversal
             return traverse_error_none;
         }
 
-        typename boost::range_size<Turns>::type i = 0;
-
-        while (current_iit != iit)
+        std::size_t const max_iterations = 2 + 2 * m_turns.size();
+        for (std::size_t i = 0; i <= max_iterations; i++)
         {
             // We assume clockwise polygons only, non self-intersecting, closed.
             // However, the input might be different, and checking validity
@@ -494,10 +493,13 @@ struct traversal
             // will continue with the next one.
 
             // Below three reasons to stop.
-            travel_to_next_turn(current_it,
+            if (! travel_to_next_turn(current_it,
                 ring,
                 *current_iit, current_seg_id,
-                robust_policy);
+                robust_policy))
+            {
+                return traverse_error_no_next_ip;
+            }
 
             if (! select_next_ip(*current_it,
                         start_turn_index,
@@ -506,27 +508,24 @@ struct traversal
             {
                 return traverse_error_dead_end;
             }
-            else
-            {
-                if (current_iit->visited.visited())
-                {
-                    return traverse_error_visit_again;
-                }
 
-                set_visited(*current_it, *current_iit);
-                visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
+            if (current_iit->visited.visited())
+            {
+                return traverse_error_visit_again;
             }
 
-            if (i++ > 2 + 2 * m_turns.size())
+            set_visited(*current_it, *current_iit);
+            visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
+
+            if (current_iit == iit)
             {
-                return traverse_error_endless_loop;
+                the_op.visited.set_finished();
+                visitor.visit_traverse(m_turns, *current_it, the_op, "Finish");
+                return traverse_error_none;
             }
         }
 
-        the_op.visited.set_finished();
-        visitor.visit_traverse(m_turns, *current_it, the_op, "Finish");
-
-        return traverse_error_none;
+        return traverse_error_endless_loop;
     }
 
 private :
