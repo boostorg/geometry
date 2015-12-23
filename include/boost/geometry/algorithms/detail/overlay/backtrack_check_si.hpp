@@ -61,6 +61,30 @@ struct backtrack_state
 };
 
 
+enum traverse_error_type
+{
+    traverse_error_none,
+    traverse_error_no_next_ip,
+    traverse_error_dead_end_at_start,
+    traverse_error_dead_end,
+    traverse_error_visit_again,
+    traverse_error_endless_loop
+};
+
+inline std::string traverse_error_string(traverse_error_type error)
+{
+    switch (error)
+    {
+        case traverse_error_no_next_ip: return "No next IP";
+        case traverse_error_dead_end_at_start: return "Dead end at start";
+        case traverse_error_dead_end: return "Dead end";
+        case traverse_error_visit_again: return "Visit again";
+        case traverse_error_endless_loop: return "Endless loop";
+    }
+    return "";
+}
+
+
 template
 <
     typename Geometry1,
@@ -84,7 +108,7 @@ public :
                 Turns& turns,
                 typename boost::range_value<Turns>::type const& turn,
                 Operation& operation,
-                std::string const& reason,
+                traverse_error_type traverse_error,
                 Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 RobustPolicy const& robust_policy,
@@ -92,7 +116,7 @@ public :
                 Visitor& visitor
                 )
     {
-        visitor.visit_traverse_reject(turns, turn, operation, reason);
+        visitor.visit_traverse_reject(turns, turn, operation, traverse_error);
 
         state.m_good = false;
 

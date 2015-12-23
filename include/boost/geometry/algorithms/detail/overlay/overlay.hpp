@@ -63,17 +63,17 @@ namespace detail { namespace overlay
 struct overlay_null_visitor
 {
     template <typename Turns>
-    void visit_turns(int phase, Turns const& turns) {}
+    void visit_turns(int , Turns const& ) {}
 
     template <typename Clusters, typename Turns>
     void visit_clusters(Clusters const& , Turns const& ) {}
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    void visit_traverse(Turns const& , Turn const& , Operation const& , const std::string& )
     {}
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    void visit_traverse_reject(Turns const& , Turn const& , Operation const& , traverse_error_type )
     {}
 };
 

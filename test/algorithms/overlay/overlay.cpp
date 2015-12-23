@@ -108,10 +108,11 @@ struct map_visitor
     }
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
+    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op,
+                               bg::detail::overlay::traverse_error_type error)
     {
         std::string style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
-        stream(turns, turn, op, header, style);
+        stream(turns, turn, op, bg::detail::overlay::traverse_error_string(error), style);
     }
 
     template <typename Turns, typename Turn, typename Operation>
