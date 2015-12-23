@@ -433,24 +433,24 @@ struct traversal
         typename RobustPolicy,
         typename Visitor
     >
-    inline traverse_error_type traverse(Ring& ring, turn_type const& the_turn,
-            turn_operation_type& the_op,
-            turn_iterator it, turn_operation_iterator_type iit,
+    inline traverse_error_type traverse(Ring& ring, turn_type const& start_turn,
             signed_size_type start_turn_index,
+            turn_operation_type& start_op,
+            turn_iterator start_it, turn_operation_iterator_type start_op_it,
             RobustPolicy const& robust_policy,
             Visitor& visitor)
     {
         detail::overlay::append_no_dups_or_spikes(ring,
-            the_turn.point, robust_policy);
+            start_turn.point, robust_policy);
 
         // Copy iterators, can be reassigned below
-        turn_iterator current_it = it;
-        turn_operation_iterator_type current_iit = iit;
+        turn_iterator current_it = start_it;
+        turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
         if (! travel_to_next_turn(current_it,
                     ring,
-                    the_op, current_seg_id,
+                    start_op, current_seg_id,
                     robust_policy))
         {
             return traverse_error_no_next_ip;
@@ -459,23 +459,23 @@ struct traversal
         if (! select_next_ip(*current_it,
                         start_turn_index,
                         current_seg_id,
-                        current_iit))
+                        current_op_it))
         {
             return traverse_error_dead_end_at_start;
         }
 
         // Register the start
-        the_op.visited.set_started();
-        visitor.visit_traverse(m_turns, the_turn, the_op, "Start");
+        start_op.visited.set_started();
+        visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
 
         // Register the first visit
-        set_visited(*current_it, *current_iit);
-        visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
+        set_visited(*current_it, *current_op_it);
+        visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
 
-        if (current_it == it)
+        if (current_it == start_it)
         {
-            the_op.visited.set_finished();
-            visitor.visit_traverse(m_turns, *current_it, the_op, "Early finish");
+            start_op.visited.set_finished();
+            visitor.visit_traverse(m_turns, *current_it, start_op, "Early finish");
 
             return traverse_error_none;
         }
@@ -495,7 +495,7 @@ struct traversal
             // Below three reasons to stop.
             if (! travel_to_next_turn(current_it,
                 ring,
-                *current_iit, current_seg_id,
+                *current_op_it, current_seg_id,
                 robust_policy))
             {
                 return traverse_error_no_next_ip;
@@ -504,25 +504,26 @@ struct traversal
             if (! select_next_ip(*current_it,
                         start_turn_index,
                         current_seg_id,
-                        current_iit))
+                        current_op_it))
             {
                 return traverse_error_dead_end;
             }
 
-            if (current_iit->visited.visited())
+            if (current_op_it->visited.visited())
             {
                 return traverse_error_visit_again;
             }
 
-            set_visited(*current_it, *current_iit);
-            visitor.visit_traverse(m_turns, *current_it, *current_iit, "Visit");
+            set_visited(*current_it, *current_op_it);
+            visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
 
-            if (current_iit == iit)
+            if (current_op_it == start_op_it)
             {
-                the_op.visited.set_finished();
-                visitor.visit_traverse(m_turns, *current_it, the_op, "Finish");
+                start_op.visited.set_finished();
+                visitor.visit_traverse(m_turns, *current_it, start_op, "Finish");
                 return traverse_error_none;
             }
+
         }
 
         return traverse_error_endless_loop;
@@ -603,27 +604,28 @@ public :
                 state.good() && it != boost::end(turns);
                 ++it, ++start_turn_index)
             {
-                turn_type& the_turn = *it;
+                turn_type& start_turn = *it;
                 // Skip discarded ones
-                if (! (the_turn.discarded || ! the_turn.selectable_start || the_turn.blocked()))
+                if (! (start_turn.discarded || ! start_turn.selectable_start || start_turn.blocked()))
                 {
-                    for (turn_operation_iterator_type iit = boost::begin(the_turn.operations);
-                        state.good() && iit != boost::end(the_turn.operations);
+                    for (turn_operation_iterator_type iit = boost::begin(start_turn.operations);
+                        state.good() && iit != boost::end(start_turn.operations);
                         ++iit)
                     {
-                        op_type& the_op = *iit;
+                        op_type& start_op = *iit;
 
-                        if (the_op.visited.none()
-                            && ! the_op.visited.rejected()
-                            && (the_op.operation == OpType
-                                || the_op.operation == detail::overlay::operation_continue)
+                        if (start_op.visited.none()
+                            && ! start_op.visited.rejected()
+                            && (start_op.operation == OpType
+                                || start_op.operation == detail::overlay::operation_continue)
                             )
                         {
                             ring_type ring;
                             traverse_error_type traverse_error
-                                    = trav.traverse(ring, the_turn, the_op,
-                                                    it, iit, start_turn_index,
-                                                    robust_policy, visitor);
+                                = trav.traverse(ring,
+                                        start_turn, start_turn_index,
+                                        start_op, it, iit,
+                                        robust_policy, visitor);
 
                             if (traverse_error == traverse_error_none)
                             {
@@ -640,7 +642,7 @@ public :
                             {
                                 Backtrack::apply(
                                     finalized_ring_size,
-                                    rings, ring, turns, the_turn, the_op,
+                                    rings, ring, turns, start_turn, start_op,
                                     traverse_error,
                                     geometry1, geometry2, robust_policy, state, visitor);
                             }
