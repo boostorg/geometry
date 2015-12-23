@@ -311,6 +311,27 @@ struct traversal
         return true;
     }
 
+    template <typename Turns>
+    static inline void finalize_visit_info(Turns& turns)
+    {
+        typedef typename boost::range_value<Turns>::type tp_type;
+
+        for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+            it != boost::end(turns);
+            ++it)
+        {
+            for (typename boost::range_iterator
+                <
+                    typename tp_type::container_type
+                >::type op_it = boost::begin(it->operations);
+                op_it != boost::end(it->operations);
+                ++op_it)
+            {
+                op_it->visited.finalize();
+            }
+        }
+    }
 };
 
 
@@ -469,7 +490,7 @@ public :
                             geometry::closure<ring_type>::value
                         >::value;
 
-        std::size_t size_at_start = boost::size(rings);
+        std::size_t finalized_ring_size = boost::size(rings);
 
         typename Backtrack::state_type state;
         do
@@ -516,7 +537,7 @@ public :
                                         robust_policy))
                             {
                                 Backtrack::apply(
-                                    size_at_start,
+                                    finalized_ring_size,
                                     rings, current_output, turns, *current_it, *current_iit,
                                     "No next IP",
                                     geometry1, geometry2, robust_policy, state, visitor);
@@ -530,7 +551,7 @@ public :
                                             current_iit))
                             {
                                 Backtrack::apply(
-                                    size_at_start,
+                                    finalized_ring_size,
                                     rings, current_output, turns, the_turn, the_op,
                                     "Dead end at start",
                                     geometry1, geometry2, robust_policy, state, visitor);
@@ -554,9 +575,11 @@ public :
                                 the_op.visited.set_finished();
                                 detail::overlay::debug_traverse(*current_it, the_op, "->Finished early");
                                 visitor.visit_traverse(turns, *current_it, the_op, "E");
+                                trav::finalize_visit_info(turns);
 
                                 clean_closing_dups_and_spikes(current_output, robust_policy);
                                 rings.push_back(current_output);
+                                finalized_ring_size++;
                                 continue; // continue current for loop
                             }
 
@@ -591,7 +614,7 @@ public :
                                     // Should not occur in self-intersecting polygons without spikes
                                     // Might occur in polygons with spikes
                                     Backtrack::apply(
-                                        size_at_start,
+                                        finalized_ring_size,
                                         rings,  current_output, turns, the_turn, the_op,
                                         "Dead end",
                                         geometry1, geometry2, robust_policy, state, visitor);
@@ -603,7 +626,7 @@ public :
                                         // It visits a visited node again, without passing the start node.
                                         // This makes it suspicious for endless loops
                                         Backtrack::apply(
-                                            size_at_start,
+                                            finalized_ring_size,
                                             rings,  current_output, turns, the_turn, the_op,
                                             "Visit again",
                                             geometry1, geometry2, robust_policy, state, visitor);
@@ -623,7 +646,7 @@ public :
                                     // than turn points.
                                     // Turn points marked as "ii" can be visited twice.
                                     Backtrack::apply(
-                                        size_at_start,
+                                        finalized_ring_size,
                                         rings,  current_output, turns, the_turn, the_op,
                                         "Endless loop",
                                         geometry1, geometry2, robust_policy, state, visitor);
@@ -635,10 +658,13 @@ public :
                                 the_op.visited.set_finished();
                                 detail::overlay::debug_traverse(*current_it, the_op, "->Finished");
                                 visitor.visit_traverse(turns, *current_it, the_op, "F");
+                                trav::finalize_visit_info(turns);
+
                                 if (geometry::num_points(current_output) >= min_num_points)
                                 {
                                     clean_closing_dups_and_spikes(current_output, robust_policy);
                                     rings.push_back(current_output);
+                                    finalized_ring_size++;
                                 }
                             }
                         }

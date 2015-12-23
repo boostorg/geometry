@@ -28,11 +28,13 @@ private :
 
     int m_visit_code;
     bool m_rejected;
+    bool m_final;
 
 public:
     inline visit_info()
         : m_visit_code(0)
         , m_rejected(false)
+        , m_final(false)
     {}
 
     inline void set_visited() { m_visit_code = VISITED; }
@@ -52,9 +54,17 @@ public:
 
     inline void clear()
     {
-        if (! rejected())
+        if (! m_rejected && ! m_final)
         {
             m_visit_code = NONE;
+        }
+    }
+
+    inline void finalize()
+    {
+        if (visited() || started() || finished() )
+        {
+            m_final = true;
         }
     }
 
