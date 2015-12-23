@@ -107,21 +107,22 @@ template
 <
     bool Reverse1,
     bool Reverse2,
+    operation_type OperationType,
     typename Geometry1,
     typename Geometry2,
     typename Turns,
-    typename Clusters,
-    typename SideCompare
+    typename Clusters
 >
 struct traversal
 {
+    typedef typename side_compare<OperationType>::type side_compare_type;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
     typedef typename geometry::point_type<Geometry1>::type point_type;
     typedef sort_by_side::side_sorter
         <
             Reverse1, Reverse2,
-            point_type, SideCompare
+            point_type, side_compare_type
         > sbs_type;
 
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -131,6 +132,99 @@ struct traversal
         , m_turns(turns)
         , m_clusters(clusters)
     {}
+
+
+    inline bool select_source(signed_size_type source1,
+                              signed_size_type source2)
+    {
+        return (OperationType == operation_intersection && source1 != source2)
+            || (OperationType == operation_union && source1 == source2)
+            ;
+    }
+
+
+    template <typename Iterator>
+    inline bool select_next_ip(turn_type& turn,
+                signed_size_type start_turn_index,
+                segment_identifier const& seg_id,
+                Iterator& selected)
+    {
+        if (turn.discarded)
+        {
+            return false;
+        }
+
+        bool has_tp = false;
+
+        typename turn_operation_type::comparable_distance_type
+                max_remaining_distance = 0;
+
+        selected = boost::end(turn.operations);
+        for (Iterator it = boost::begin(turn.operations);
+            it != boost::end(turn.operations);
+            ++it)
+        {
+            turn_operation_type const& op = *it;
+            if (op.visited.started())
+            {
+                selected = it;
+                //std::cout << " RETURN";
+                return true;
+            }
+
+            // In some cases there are two alternatives.
+            // For "ii", take the other one (alternate)
+            //           UNLESS the other one is already visited
+            // For "uu", take the same one (see above);
+            // For "cc", take either one, but if there is a starting one,
+            //           take that one.
+            if (   (op.operation == operation_continue
+                    && (! has_tp || op.visited.started()
+                        )
+                    )
+                || (op.operation == OperationType
+                    && ! op.visited.finished()
+                    && (! has_tp
+                        || select_source(op.seg_id.source_index, seg_id.source_index)
+                        )
+                    )
+                )
+            {
+                if (op.operation == operation_continue)
+                {
+                    max_remaining_distance = op.remaining_distance;
+                }
+                selected = it;
+                debug_traverse(turn, op, " Candidate");
+                has_tp = true;
+            }
+
+            if (op.operation == operation_continue && has_tp)
+            {
+                if (op.enriched.next_ip_index == start_turn_index
+                    || op.enriched.travels_to_ip_index == start_turn_index)
+                {
+                    selected = it;
+                    debug_traverse(turn, op, " Candidate override (start)");
+                }
+                else if (op.remaining_distance > max_remaining_distance)
+                {
+                    max_remaining_distance = op.remaining_distance;
+                    selected = it;
+                    debug_traverse(turn, op, " Candidate override (remaining)");
+                }
+            }
+        }
+
+        if (has_tp)
+        {
+           debug_traverse(turn, *selected, "  Accepted");
+        }
+
+
+        return has_tp;
+    }
+
 
     inline signed_size_type traverse_cluster(sbs_type const& sbs,
                 std::size_t index) const
@@ -338,108 +432,6 @@ private :
 };
 
 
-inline bool select_source(operation_type operation,
-                          signed_size_type source1,
-                          signed_size_type source2)
-{
-    return (operation == operation_intersection && source1 != source2)
-        || (operation == operation_union && source1 == source2)
-        ;
-}
-
-
-template
-<
-    typename Turn,
-    typename Iterator
->
-inline bool select_next_ip(operation_type operation,
-            Turn& turn,
-            signed_size_type start_turn_index,
-            segment_identifier const& seg_id,
-            Iterator& selected)
-{
-    if (turn.discarded)
-    {
-        return false;
-    }
-
-    bool has_tp = false;
-
-    typedef typename std::iterator_traits
-    <
-        Iterator
-    >::value_type operation_type;
-
-    typename operation_type::comparable_distance_type
-            max_remaining_distance = 0;
-
-    selected = boost::end(turn.operations);
-    for (Iterator it = boost::begin(turn.operations);
-        it != boost::end(turn.operations);
-        ++it)
-    {
-        if (it->visited.started())
-        {
-            selected = it;
-            //std::cout << " RETURN";
-            return true;
-        }
-
-        // In some cases there are two alternatives.
-        // For "ii", take the other one (alternate)
-        //           UNLESS the other one is already visited
-        // For "uu", take the same one (see above);
-        // For "cc", take either one, but if there is a starting one,
-        //           take that one.
-        if (   (it->operation == operation_continue
-                && (! has_tp || it->visited.started()
-                    )
-                )
-            || (it->operation == operation
-                && ! it->visited.finished()
-                && (! has_tp
-                    || select_source(operation,
-                            it->seg_id.source_index, seg_id.source_index)
-                    )
-                )
-            )
-        {
-            if (it->operation == operation_continue)
-            {
-                max_remaining_distance = it->remaining_distance;
-            }
-            selected = it;
-            debug_traverse(turn, *it, " Candidate");
-            has_tp = true;
-        }
-
-        if (it->operation == operation_continue && has_tp)
-        {
-            if (it->enriched.next_ip_index == start_turn_index
-                || it->enriched.travels_to_ip_index == start_turn_index)
-            {
-                selected = it;
-                debug_traverse(turn, *it, " Candidate override (start)");
-            }
-            else if (it->remaining_distance > max_remaining_distance)
-            {
-                max_remaining_distance = it->remaining_distance;
-                selected = it;
-                debug_traverse(turn, *it, " Candidate override (remaining)");
-            }
-        }
-    }
-
-    if (has_tp)
-    {
-       debug_traverse(turn, *selected, "  Accepted");
-    }
-
-
-    return has_tp;
-}
-
 
 /*!
     \brief Traverses through intersection points / geometries
@@ -482,10 +474,9 @@ public :
 
         traversal
             <
-                Reverse1, Reverse2,
+                Reverse1, Reverse2, OpType,
                 Geometry1, Geometry2,
-                Turns, Clusters,
-                typename side_compare<OpType>::type
+                Turns, Clusters
             > trav(geometry1, geometry2, turns, clusters);
 
         std::size_t const min_num_points
@@ -545,9 +536,7 @@ public :
                                     geometry1, geometry2, robust_policy, state, visitor);
                             }
 
-                            if (! detail::overlay::select_next_ip(
-                                            OpType,
-                                            *current_it,
+                            if (! trav.select_next_ip(*current_it,
                                             start_turn_index,
                                             current_seg_id,
                                             current_iit))
@@ -604,9 +593,7 @@ public :
                                     *current_iit, current_seg_id,
                                     robust_policy);
 
-                                if (! detail::overlay::select_next_ip(
-                                            OpType,
-                                            *current_it,
+                                if (! trav.select_next_ip(*current_it,
                                             start_turn_index,
                                             current_seg_id,
                                             current_iit))
