@@ -118,6 +118,13 @@ struct traversal
     typedef typename side_compare<OperationType>::type side_compare_type;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
+
+    typedef typename boost::range_iterator<Turns>::type turn_iterator;
+    typedef typename boost::range_iterator
+        <
+            typename turn_type::container_type
+        >::type turn_operation_iterator_type;
+
     typedef typename geometry::point_type<Geometry1>::type point_type;
     typedef sort_by_side::side_sorter
         <
@@ -143,11 +150,10 @@ struct traversal
     }
 
 
-    template <typename Iterator>
     inline bool select_next_ip(turn_type& turn,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
-                Iterator& selected)
+                turn_operation_iterator_type& selected)
     {
         if (turn.discarded)
         {
@@ -160,7 +166,7 @@ struct traversal
                 max_remaining_distance = 0;
 
         selected = boost::end(turn.operations);
-        for (Iterator it = boost::begin(turn.operations);
+        for (turn_operation_iterator_type it = boost::begin(turn.operations);
             it != boost::end(turn.operations);
             ++it)
         {
@@ -350,56 +356,55 @@ struct traversal
     template
     <
         typename Ring,
-        typename IntersectionInfo,
         typename RobustPolicy
     >
-    inline bool travel_to_next_turn(typename boost::range_iterator<Turns>::type& ip,
+    inline bool travel_to_next_turn(turn_iterator& it,
                 Ring& current_ring,
-                IntersectionInfo& info,
+                turn_operation_type& op,
                 segment_identifier& seg_id,
                 RobustPolicy const& robust_policy)
     {
         // If there is no next IP on this segment
-        if (info.enriched.next_ip_index < 0)
+        if (op.enriched.next_ip_index < 0)
         {
-            if (info.enriched.travels_to_vertex_index < 0
-                || info.enriched.travels_to_ip_index < 0)
+            if (op.enriched.travels_to_vertex_index < 0
+                || op.enriched.travels_to_ip_index < 0)
             {
                 return false;
             }
 
-            BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_vertex_index >= 0);
-            BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_ip_index >= 0);
+            BOOST_GEOMETRY_ASSERT(op.enriched.travels_to_vertex_index >= 0);
+            BOOST_GEOMETRY_ASSERT(op.enriched.travels_to_ip_index >= 0);
 
-            if (info.seg_id.source_index == 0)
+            if (op.seg_id.source_index == 0)
             {
-                geometry::copy_segments<Reverse1>(m_geometry1, info.seg_id,
-                        info.enriched.travels_to_vertex_index,
+                geometry::copy_segments<Reverse1>(m_geometry1, op.seg_id,
+                        op.enriched.travels_to_vertex_index,
                         robust_policy,
                         current_ring);
             }
             else
             {
-                geometry::copy_segments<Reverse2>(m_geometry2, info.seg_id,
-                        info.enriched.travels_to_vertex_index,
+                geometry::copy_segments<Reverse2>(m_geometry2, op.seg_id,
+                        op.enriched.travels_to_vertex_index,
                         robust_policy,
                         current_ring);
             }
-            seg_id = info.seg_id;
-            ip = boost::begin(m_turns) + info.enriched.travels_to_ip_index;
+            seg_id = op.seg_id;
+            it = boost::begin(m_turns) + op.enriched.travels_to_ip_index;
         }
         else
         {
-            ip = boost::begin(m_turns) + info.enriched.next_ip_index;
-            seg_id = info.seg_id;
+            it = boost::begin(m_turns) + op.enriched.next_ip_index;
+            seg_id = op.seg_id;
         }
 
-        detail::overlay::append_no_dups_or_spikes(current_ring, ip->point,
+        detail::overlay::append_no_dups_or_spikes(current_ring, it->point,
             robust_policy);
 
-        if (ip->cluster_id >= 0)
+        if (it->cluster_id >= 0)
         {
-            select_turn_from_cluster(ip, info);
+            select_turn_from_cluster(it, op);
         }
 
         return true;
@@ -427,8 +432,6 @@ struct traversal
     template
     <
         typename Ring,
-        typename turn_iterator,
-        typename turn_operation_iterator_type,
         typename RobustPolicy,
         typename Visitor
     >
@@ -482,7 +485,7 @@ struct traversal
 
         typename boost::range_size<Turns>::type i = 0;
 
-        while (current_iit != iit) // && state.good
+        while (current_iit != iit)
         {
             // We assume clockwise polygons only, non self-intersecting, closed.
             // However, the input might be different, and checking validity
