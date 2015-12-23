@@ -107,22 +107,40 @@ template
 <
     bool Reverse1,
     bool Reverse2,
+    typename Geometry1,
+    typename Geometry2,
+    typename Turns,
+    typename Clusters,
     typename SideCompare
 >
 struct traversal
 {
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
+    typedef typename geometry::point_type<Geometry1>::type point_type;
+    typedef sort_by_side::side_sorter
+        <
+            Reverse1, Reverse2,
+            point_type, SideCompare
+        > sbs_type;
 
-    template <typename Turns, typename SortBySide>
-    static inline signed_size_type traverse_cluster(Turns& turns,
-        SortBySide const& sbs, std::size_t index)
+    inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
+            Turns& turns, Clusters const& clusters)
+        : m_geometry1(geometry1)
+        , m_geometry2(geometry2)
+        , m_turns(turns)
+        , m_clusters(clusters)
+    {}
+
+    inline signed_size_type traverse_cluster(sbs_type const& sbs,
+                std::size_t index) const
     {
         typedef typename boost::range_value<Turns>::type turn_type;
-        typename SortBySide::rp const& ranked_point = sbs.m_ranked_points[index];
+        typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[index];
         std::size_t result = ranked_point.turn_index;
 
-
-        turn_type& ranked_turn = turns[ranked_point.turn_index];
-        typename turn_type::turn_operation_type& ranked_op
+        turn_type& ranked_turn = m_turns[ranked_point.turn_index];
+        turn_operation_type& ranked_op
                 = ranked_turn.operations[ranked_point.op_index];
 
         signed_size_type next_turn_index = ranked_op.enriched.next_ip_index;
@@ -141,7 +159,7 @@ struct traversal
              i < sbs.m_ranked_points.size();
              i++)
         {
-            const typename SortBySide::rp& next = sbs.m_ranked_points[i];
+            const typename sbs_type::rp& next = sbs.m_ranked_points[i];
             if (next.main_rank != ranked_point.main_rank)
             {
                 return result;
@@ -155,58 +173,46 @@ struct traversal
 
                 // If there are more consecutively in same cluster, move
                 // to next one
-                return traverse_cluster(turns, sbs, i);
+                return traverse_cluster(sbs, i);
             }
         }
         return result;
     }
 
 
-    template
-    <
-        typename Geometry1,
-        typename Geometry2,
-        typename Clusters,
-        typename Turns,
-        typename Operation
-    >
-    static inline void select_turn_from_cluster(Geometry1 const& geometry1, Geometry2 const& geometry2,
-                Clusters const& clusters, Turns& turns,
+    inline void select_turn_from_cluster(
                 typename boost::range_iterator<Turns>::type& turn_it,
-                Operation const& op)
+                turn_operation_type const& op) const
     {
-        typedef typename boost::range_value<Turns>::type turn_type;
         turn_type const& turn = *turn_it;
         if (turn.cluster_id < 0)
         {
             return;
         }
-        typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
-        if (mit == clusters.end())
+        typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
+        if (mit == m_clusters.end())
         {
             return;
         }
 
         std::set<signed_size_type> const& ids = mit->second;
 
-        typedef typename geometry::point_type<Geometry1>::type point_type;
-        typedef sort_by_side::side_sorter<Reverse1, Reverse2, point_type, SideCompare> sbs_type;
         sbs_type sbs;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
-            turn_type const& cturn = turns[turn_index];
+            turn_type const& cturn = m_turns[turn_index];
             for (int i = 0; i < 2; i++)
             {
-                Operation const& cop = cturn.operations[i];
+                turn_operation_type const& cop = cturn.operations[i];
 
                 // TODO: source_index is NOT a good criterium
                 bool is_subject = &cturn == &turn
                                && op.seg_id.source_index == cop.seg_id.source_index;
 
-                sbs.add(cop, turn_index, i, geometry1, geometry2, is_subject);
+                sbs.add(cop, turn_index, i, m_geometry1, m_geometry2, is_subject);
             }
         }
         sbs.apply(turn.point);
@@ -214,7 +220,7 @@ struct traversal
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
-            turn_type& ranked_turn = turns[ranked_point.turn_index];
+            turn_type& ranked_turn = m_turns[ranked_point.turn_index];
 
             if (ranked_point.main_rank == 0 && ranked_point.index != sort_by_side::index_from)
             {
@@ -232,10 +238,10 @@ struct traversal
                 }
 
                 // Use this turn, or, in a cluster, traverse through it
-                signed_size_type turn_index = traverse_cluster(turns, sbs, i);
+                signed_size_type turn_index = traverse_cluster(sbs, i);
                 if (turn_index != -1)
                 {
-                    turn_it = turns.begin() + turn_index;
+                    turn_it = m_turns.begin() + turn_index;
                     return;
                 }
             }
@@ -249,18 +255,12 @@ struct traversal
 
     template
     <
-        typename GeometryOut,
-        typename G1,
-        typename G2,
-        typename Clusters,
-        typename Turns,
+        typename Ring,
         typename IntersectionInfo,
         typename RobustPolicy
     >
-    static inline bool assign_next_ip(G1 const& g1, G2 const& g2,
-                Clusters const& clusters, Turns& turns,
-                typename boost::range_iterator<Turns>::type& ip,
-                GeometryOut& current_output,
+    inline bool travel_to_next_turn(typename boost::range_iterator<Turns>::type& ip,
+                Ring& current_ring,
                 IntersectionInfo& info,
                 segment_identifier& seg_id,
                 RobustPolicy const& robust_policy)
@@ -279,51 +279,48 @@ struct traversal
 
             if (info.seg_id.source_index == 0)
             {
-                geometry::copy_segments<Reverse1>(g1, info.seg_id,
+                geometry::copy_segments<Reverse1>(m_geometry1, info.seg_id,
                         info.enriched.travels_to_vertex_index,
                         robust_policy,
-                        current_output);
+                        current_ring);
             }
             else
             {
-                geometry::copy_segments<Reverse2>(g2, info.seg_id,
+                geometry::copy_segments<Reverse2>(m_geometry2, info.seg_id,
                         info.enriched.travels_to_vertex_index,
                         robust_policy,
-                        current_output);
+                        current_ring);
             }
             seg_id = info.seg_id;
-            ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
+            ip = boost::begin(m_turns) + info.enriched.travels_to_ip_index;
         }
         else
         {
-            ip = boost::begin(turns) + info.enriched.next_ip_index;
+            ip = boost::begin(m_turns) + info.enriched.next_ip_index;
             seg_id = info.seg_id;
         }
 
-        detail::overlay::append_no_dups_or_spikes(current_output, ip->point,
+        detail::overlay::append_no_dups_or_spikes(current_ring, ip->point,
             robust_policy);
 
         if (ip->cluster_id >= 0)
         {
-            select_turn_from_cluster(g1, g2, clusters, turns, ip, info);
+            select_turn_from_cluster(ip, info);
         }
 
         return true;
     }
 
-    template <typename Turns>
-    static inline void finalize_visit_info(Turns& turns)
+    inline void finalize_visit_info()
     {
-        typedef typename boost::range_value<Turns>::type tp_type;
-
         for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(turns);
-            it != boost::end(turns);
+            it = boost::begin(m_turns);
+            it != boost::end(m_turns);
             ++it)
         {
             for (typename boost::range_iterator
                 <
-                    typename tp_type::container_type
+                    typename turn_type::container_type
                 >::type op_it = boost::begin(it->operations);
                 op_it != boost::end(it->operations);
                 ++op_it)
@@ -332,6 +329,12 @@ struct traversal
             }
         }
     }
+
+private :
+    Geometry1 const& m_geometry1;
+    Geometry2 const& m_geometry2;
+    Turns& m_turns;
+    Clusters const& m_clusters;
 };
 
 
@@ -477,12 +480,13 @@ public :
             >::type turn_operation_iterator_type;
         typedef typename turn_type::turn_operation_type op_type;
 
-        typedef traversal
+        traversal
             <
-                Reverse1,
-                Reverse2,
+                Reverse1, Reverse2,
+                Geometry1, Geometry2,
+                Turns, Clusters,
                 typename side_compare<OpType>::type
-            > trav;
+            > trav(geometry1, geometry2, turns, clusters);
 
         std::size_t const min_num_points
                 = core_detail::closure::minimum_ring_size
@@ -529,10 +533,8 @@ public :
                             turn_operation_iterator_type current_iit = iit;
                             segment_identifier current_seg_id;
 
-                            if (! trav::assign_next_ip(
-                                        geometry1, geometry2,
-                                        clusters, turns,
-                                        current_it, current_output,
+                            if (! trav.travel_to_next_turn(current_it,
+                                        current_output,
                                         the_op, current_seg_id,
                                         robust_policy))
                             {
@@ -575,7 +577,7 @@ public :
                                 the_op.visited.set_finished();
                                 detail::overlay::debug_traverse(*current_it, the_op, "->Finished early");
                                 visitor.visit_traverse(turns, *current_it, the_op, "E");
-                                trav::finalize_visit_info(turns);
+                                trav.finalize_visit_info();
 
                                 clean_closing_dups_and_spikes(current_output, robust_policy);
                                 rings.push_back(current_output);
@@ -597,9 +599,8 @@ public :
                                 // will continue with the next one.
 
                                 // Below three reasons to stop.
-                                trav::assign_next_ip(
-                                    geometry1, geometry2,
-                                    clusters, turns, current_it, current_output,
+                                trav.travel_to_next_turn(current_it,
+                                    current_output,
                                     *current_iit, current_seg_id,
                                     robust_policy);
 
@@ -658,7 +659,7 @@ public :
                                 the_op.visited.set_finished();
                                 detail::overlay::debug_traverse(*current_it, the_op, "->Finished");
                                 visitor.visit_traverse(turns, *current_it, the_op, "F");
-                                trav::finalize_visit_info(turns);
+                                trav.finalize_visit_info();
 
                                 if (geometry::num_points(current_output) >= min_num_points)
                                 {
