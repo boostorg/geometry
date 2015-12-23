@@ -99,7 +99,11 @@ struct map_visitor
     void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
     {
         // Uncomment for more detailed debug info in SVG on traversal
-        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
+        std::string style
+                = header == "V" ? "fill:rgb(80,80,80)" : "fill:rgb(0,0,0)";
+
+        style += ";font-family:Arial;font-size:8px";
+
         stream(turns, turn, op, header, style);
     }
 
