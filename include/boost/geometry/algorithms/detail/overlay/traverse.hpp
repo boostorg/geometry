@@ -65,17 +65,17 @@ inline void debug_traverse(Turn const& , Operation, const char*)
 #endif
 
 
-template <typename Info, typename Turn>
-inline void set_visited_for_continue(Info& info, Turn const& turn)
+template <typename Turn, typename Operation>
+inline void set_visited_for_continue(Turn& turn, Operation const& op)
 {
     // On "continue", set "visited" for ALL directions
-    if (turn.operation == detail::overlay::operation_continue)
+    if (op.operation == detail::overlay::operation_continue)
     {
         for (typename boost::range_iterator
             <
-                typename Info::container_type
-            >::type it = boost::begin(info.operations);
-            it != boost::end(info.operations);
+                typename Turn::container_type
+            >::type it = boost::begin(turn.operations);
+            it != boost::end(turn.operations);
             ++it)
         {
             if (it->visited.none())
