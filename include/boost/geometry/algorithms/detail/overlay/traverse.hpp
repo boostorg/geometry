@@ -90,7 +90,9 @@ template
     typename Geometry1,
     typename Geometry2,
     typename Turns,
-    typename Clusters
+    typename Clusters,
+    typename RobustPolicy,
+    typename Visitor
 >
 struct traversal
 {
@@ -112,11 +114,14 @@ struct traversal
         > sbs_type;
 
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            Turns& turns, Clusters const& clusters)
+            Turns& turns, Clusters const& clusters,
+            RobustPolicy const& robust_policy, Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
+        , m_robust_policy(robust_policy)
+        , m_visitor(visitor)
     {}
 
 
@@ -246,6 +251,7 @@ struct traversal
             if (next.turn_index == next_turn_index)
             {
                 set_visited(ranked_turn, ranked_op);
+                m_visitor.visit_traverse(m_turns, ranked_turn, ranked_op, "Cluster skip");
 
                 result = next.turn_index;
 
@@ -331,16 +337,11 @@ struct traversal
         }
     }
 
-    template
-    <
-        typename Ring,
-        typename RobustPolicy
-    >
+    template <typename Ring>
     inline bool travel_to_next_turn(turn_iterator& it,
                 Ring& current_ring,
                 turn_operation_type& op,
-                segment_identifier& seg_id,
-                RobustPolicy const& robust_policy)
+                segment_identifier& seg_id)
     {
         // If there is no next IP on this segment
         if (op.enriched.next_ip_index < 0)
@@ -358,14 +359,14 @@ struct traversal
             {
                 geometry::copy_segments<Reverse1>(m_geometry1, op.seg_id,
                         op.enriched.travels_to_vertex_index,
-                        robust_policy,
+                        m_robust_policy,
                         current_ring);
             }
             else
             {
                 geometry::copy_segments<Reverse2>(m_geometry2, op.seg_id,
                         op.enriched.travels_to_vertex_index,
-                        robust_policy,
+                        m_robust_policy,
                         current_ring);
             }
             seg_id = op.seg_id;
@@ -378,7 +379,7 @@ struct traversal
         }
 
         detail::overlay::append_no_dups_or_spikes(current_ring, it->point,
-            robust_policy);
+            m_robust_policy);
 
         if (it->cluster_id >= 0)
         {
@@ -427,31 +428,22 @@ struct traversal
     }
 
 
-    template
-    <
-        typename Ring,
-        typename RobustPolicy,
-        typename Visitor
-    >
+    template <typename Ring>
     inline traverse_error_type traverse(Ring& ring, turn_type const& start_turn,
             signed_size_type start_turn_index,
             turn_operation_type& start_op,
-            turn_iterator start_it, turn_operation_iterator_type start_op_it,
-            RobustPolicy const& robust_policy,
-            Visitor& visitor)
+            turn_iterator start_it, turn_operation_iterator_type start_op_it)
     {
         detail::overlay::append_no_dups_or_spikes(ring,
-            start_turn.point, robust_policy);
+            start_turn.point, m_robust_policy);
 
         // Copy iterators, can be reassigned below
         turn_iterator current_it = start_it;
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
-        if (! travel_to_next_turn(current_it,
-                    ring,
-                    start_op, current_seg_id,
-                    robust_policy))
+        if (! travel_to_next_turn(current_it, ring,
+                    start_op, current_seg_id))
         {
             return traverse_error_no_next_ip;
         }
@@ -466,17 +458,16 @@ struct traversal
 
         // Register the start
         start_op.visited.set_started();
-        visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
+        m_visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
 
         // Register the first visit
         set_visited(*current_it, *current_op_it);
-        visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
+        m_visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
 
         if (current_it == start_it)
         {
             start_op.visited.set_finished();
-            visitor.visit_traverse(m_turns, *current_it, start_op, "Early finish");
-
+            m_visitor.visit_traverse(m_turns, *current_it, start_op, "Early finish");
             return traverse_error_none;
         }
 
@@ -493,10 +484,8 @@ struct traversal
             // will continue with the next one.
 
             // Below three reasons to stop.
-            if (! travel_to_next_turn(current_it,
-                ring,
-                *current_op_it, current_seg_id,
-                robust_policy))
+            if (! travel_to_next_turn(current_it, ring,
+                *current_op_it, current_seg_id))
             {
                 return traverse_error_no_next_ip;
             }
@@ -515,12 +504,12 @@ struct traversal
             }
 
             set_visited(*current_it, *current_op_it);
-            visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
+            m_visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
 
             if (current_op_it == start_op_it)
             {
                 start_op.visited.set_finished();
-                visitor.visit_traverse(m_turns, *current_it, start_op, "Finish");
+                m_visitor.visit_traverse(m_turns, *current_it, start_op, "Finish");
                 return traverse_error_none;
             }
 
@@ -534,6 +523,8 @@ private :
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters const& m_clusters;
+    RobustPolicy const& m_robust_policy;
+    Visitor& m_visitor;
 };
 
 
@@ -581,8 +572,10 @@ public :
             <
                 Reverse1, Reverse2, OpType,
                 Geometry1, Geometry2,
-                Turns, Clusters
-            > trav(geometry1, geometry2, turns, clusters);
+                Turns, Clusters,
+                RobustPolicy, Visitor
+            > trav(geometry1, geometry2, turns, clusters,
+                   robust_policy, visitor);
 
         std::size_t const min_num_points
                 = core_detail::closure::minimum_ring_size
@@ -624,8 +617,7 @@ public :
                             traverse_error_type traverse_error
                                 = trav.traverse(ring,
                                         start_turn, start_turn_index,
-                                        start_op, it, iit,
-                                        robust_policy, visitor);
+                                        start_op, it, iit);
 
                             if (traverse_error == traverse_error_none)
                             {
