@@ -24,6 +24,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
@@ -99,39 +100,62 @@ inline void enrich_assign(Container& operations,
             operation_type ,
             Geometry1 const& , Geometry2 const& ,
             Strategy const& )
+
 {
+    typedef typename boost::range_value<TurnPoints>::type turn_type;
     typedef typename IndexType::type operations_type;
-    typedef typename boost::range_iterator<Container const>::type iterator_type;
+    typedef typename boost::range_iterator<Container>::type iterator_type;
 
 
     if (operations.size() > 0)
     {
         // Assign travel-to-vertex/ip index for each turning point.
-        // Because IP's are circular, PREV starts at the very last one,
-        // being assigned from the first one.
-        // "next ip on same segment" should not be considered circular.
-        bool first = true;
-        iterator_type it = boost::begin(operations);
-        for (iterator_type prev = it + (boost::size(operations) - 1);
-             it != boost::end(operations);
-             prev = it++)
+        // Iterator "next" is circular
+
+        geometry::ever_circling_range_iterator<Container const> next(operations);
+        ++next;
+
+        for (iterator_type it = boost::begin(operations);
+             it != boost::end(operations); ++it)
         {
-            operations_type& prev_op
-                    = turn_points[prev->turn_index].operations[prev->operation_index];
-            operations_type& op
-                    = turn_points[it->turn_index].operations[it->operation_index];
+            turn_type& turn = turn_points[it->turn_index];
+            operations_type& op = turn.operations[it->operation_index];
 
-            prev_op.enriched.travels_to_ip_index
-                    = static_cast<signed_size_type>(it->turn_index);
-            prev_op.enriched.travels_to_vertex_index
-                    = it->subject->seg_id.segment_index;
-
-            if (! first
-                && prev_op.seg_id.segment_index == op.seg_id.segment_index)
+            // Normal behaviour: next should point at next turn:
+            if (it->turn_index == next->turn_index)
             {
-                prev_op.enriched.next_ip_index = static_cast<signed_size_type>(it->turn_index);
+                ++next;
             }
-            first = false;
+
+            // Cluster behaviour: next should point after cluster:
+            while (turn.cluster_id != -1
+                   && turn.cluster_id == turn_points[next->turn_index].cluster_id
+                   && it->turn_index != next->turn_index)
+            {
+                ++next;
+            }
+
+            if (it->turn_index == next->turn_index)
+            {
+                std::cout << "Only one turn" << std::endl;
+            }
+
+            turn_type const& next_turn = turn_points[next->turn_index];
+            operations_type const& next_op = next_turn.operations[next->operation_index];
+
+            op.enriched.travels_to_ip_index
+                    = static_cast<signed_size_type>(next->turn_index);
+            op.enriched.travels_to_vertex_index
+                    = next->subject->seg_id.segment_index;
+
+            if (op.seg_id.segment_index == next_op.seg_id.segment_index
+                    && op.fraction < next_op.fraction)
+            {
+                // Next turn is located further on same segment
+                // assign next_ip_index
+                // (this is one not circular therefore fraction is considered)
+                op.enriched.next_ip_index = static_cast<signed_size_type>(next->turn_index);
+            }
         }
     }
 

@@ -394,6 +394,13 @@ void test_all()
             4.75
         );
 
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_recursive_boxes_11_intersection",
+            case_recursive_boxes_11[0], case_recursive_boxes_11[1],
+            1.0
+        );
+
 //    std::cout
 //        << "    \""
 //        << bg::inverse<multi_polygon>(case_65_multi[0], 1.0)

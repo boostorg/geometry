@@ -215,56 +215,6 @@ struct traversal
         return has_tp;
     }
 
-
-    inline signed_size_type traverse_cluster(sbs_type const& sbs,
-                std::size_t index)
-    {
-        typedef typename boost::range_value<Turns>::type turn_type;
-        typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[index];
-        std::size_t result = ranked_point.turn_index;
-
-        turn_type& ranked_turn = m_turns[ranked_point.turn_index];
-        turn_operation_type& ranked_op
-                = ranked_turn.operations[ranked_point.op_index];
-
-        signed_size_type next_turn_index = ranked_op.enriched.next_ip_index;
-        if (next_turn_index == -1)
-        {
-            next_turn_index = ranked_op.enriched.travels_to_ip_index;
-        }
-        if (next_turn_index == -1)
-        {
-            // Turn found but dead end, do not use this turn. Can happen if,
-            // for example, in intersection ux is not filtered out
-            return -1;
-        }
-
-        for (std::size_t i = index + 1;
-             i < sbs.m_ranked_points.size();
-             i++)
-        {
-            const typename sbs_type::rp& next = sbs.m_ranked_points[i];
-            if (next.main_rank != ranked_point.main_rank)
-            {
-                return result;
-            }
-            if (next.turn_index == next_turn_index)
-            {
-                set_visited(ranked_turn, ranked_op);
-                m_visitor.visit_traverse(m_turns, ranked_turn, ranked_op, "Cluster skip");
-
-                result = next.turn_index;
-
-                // If there are more consecutively in same cluster, move
-                // to next one
-                return traverse_cluster(sbs, i);
-            }
-        }
-        return result;
-    }
-
-
-    inline void select_turn_from_cluster(
                 typename boost::range_iterator<Turns>::type& turn_it,
                 turn_operation_type const& op)
     {
@@ -321,8 +271,9 @@ struct traversal
                     return;
                 }
 
-                // Use this turn, or, in a cluster, traverse through it
-                signed_size_type turn_index = traverse_cluster(sbs, i);
+                // Use this turn (if also part of a cluster, it will point to
+                // next turn outside cluster)
+                signed_size_type const turn_index = ranked_point.turn_index;
                 if (turn_index != -1)
                 {
                     turn_it = m_turns.begin() + turn_index;
