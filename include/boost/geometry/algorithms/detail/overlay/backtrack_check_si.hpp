@@ -64,6 +64,7 @@ struct backtrack_state
 enum traverse_error_type
 {
     traverse_error_none,
+    traverse_error_no_next_ip_at_start,
     traverse_error_no_next_ip,
     traverse_error_dead_end_at_start,
     traverse_error_dead_end,
@@ -75,11 +76,14 @@ inline std::string traverse_error_string(traverse_error_type error)
 {
     switch (error)
     {
-        case traverse_error_no_next_ip: return "No next IP";
-        case traverse_error_dead_end_at_start: return "Dead end at start";
-        case traverse_error_dead_end: return "Dead end";
-        case traverse_error_visit_again: return "Visit again";
-        case traverse_error_endless_loop: return "Endless loop";
+        case traverse_error_none : return "";
+        case traverse_error_no_next_ip_at_start : return "No next IP at start";
+        case traverse_error_no_next_ip : return "No next IP";
+        case traverse_error_dead_end_at_start : return "Dead end at start";
+        case traverse_error_dead_end : return "Dead end";
+        case traverse_error_visit_again : return "Visit again";
+        case traverse_error_endless_loop : return "Endless loop";
+        default : return "";
     }
     return "";
 }

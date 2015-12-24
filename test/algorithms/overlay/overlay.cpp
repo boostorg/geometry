@@ -387,6 +387,12 @@ void test_all()
             9.0
         );
 
+    test_overlay<multi_polygon, bg::overlay_union>
+        (
+            "case_101_multi_union",
+            case_101_multi[0], case_101_multi[1],
+            22.25
+        );
     test_overlay<multi_polygon, bg::overlay_intersection>
         (
             "case_101_multi_intersection",

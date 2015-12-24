@@ -215,19 +215,16 @@ struct traversal
         return has_tp;
     }
 
+    inline bool select_turn_from_cluster(
                 typename boost::range_iterator<Turns>::type& turn_it,
-                turn_operation_type const& op)
+                turn_operation_type const& op,
+                bool first)
     {
         turn_type const& turn = *turn_it;
-        if (turn.cluster_id < 0)
-        {
-            return;
-        }
+        BOOST_ASSERT(turn.cluster_id >= 0);
+
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
-        if (mit == m_clusters.end())
-        {
-            return;
-        }
+        BOOST_ASSERT(mit != m_clusters.end());
 
         std::set<signed_size_type> const& ids = mit->second;
 
@@ -258,8 +255,9 @@ struct traversal
 
             if (ranked_point.main_rank == 0 && ranked_point.index != sort_by_side::index_from)
             {
-                // There are outgoing arcs, quit
-                return;
+                // There are outgoing arcs, quit. For the very first turn,
+                // this is not a valid starting point
+                return !first;
             }
 
             if (ranked_point.main_rank == 1
@@ -268,7 +266,7 @@ struct traversal
                 if (ranked_turn.discarded)
                 {
                     // Might be collocated u/u turn
-                    return;
+                    return false;
                 }
 
                 // Use this turn (if also part of a cluster, it will point to
@@ -277,22 +275,24 @@ struct traversal
                 if (turn_index != -1)
                 {
                     turn_it = m_turns.begin() + turn_index;
-                    return;
+                    return true;
                 }
             }
             if (ranked_point.main_rank >= 1)
             {
                 // Nothing found, don't change
-                return;
+                return false;
             }
         }
+        return false;
     }
 
     template <typename Ring>
     inline bool travel_to_next_turn(turn_iterator& it,
                 Ring& current_ring,
                 turn_operation_type& op,
-                segment_identifier& seg_id)
+                segment_identifier& seg_id,
+                bool first)
     {
         // If there is no next IP on this segment
         if (op.enriched.next_ip_index < 0)
@@ -329,13 +329,16 @@ struct traversal
             seg_id = op.seg_id;
         }
 
-        detail::overlay::append_no_dups_or_spikes(current_ring, it->point,
-            m_robust_policy);
-
         if (it->cluster_id >= 0)
         {
-            select_turn_from_cluster(it, op);
+            if (! select_turn_from_cluster(it, op, first))
+            {
+                return false;
+            }
         }
+
+        detail::overlay::append_no_dups_or_spikes(current_ring, it->point,
+            m_robust_policy);
 
         return true;
     }
@@ -393,10 +396,13 @@ struct traversal
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
+
         if (! travel_to_next_turn(current_it, ring,
-                    start_op, current_seg_id))
+                    start_op, current_seg_id, true))
         {
-            return traverse_error_no_next_ip;
+            // This is not necessarily a problem, it happens for clustered turns
+            // which are "build in" or otherwise point inwards
+            return traverse_error_no_next_ip_at_start;
         }
 
         if (! select_next_ip(*current_it,
@@ -436,7 +442,7 @@ struct traversal
 
             // Below three reasons to stop.
             if (! travel_to_next_turn(current_it, ring,
-                *current_op_it, current_seg_id))
+                *current_op_it, current_seg_id, false))
             {
                 return traverse_error_no_next_ip;
             }
