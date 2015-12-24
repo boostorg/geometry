@@ -167,6 +167,28 @@ public :
             return consider_relative_order(left, right);
         }
 
+        bool const left_both_xx = left_turn.both(operation_blocked);
+        bool const right_both_xx = right_turn.both(operation_blocked);
+        if (left_both_xx && ! right_both_xx)
+        {
+            return true;
+        }
+        if (! left_both_xx && right_both_xx)
+        {
+            return false;
+        }
+
+        bool const left_both_uu = left_turn.both(operation_union);
+        bool const right_both_uu = right_turn.both(operation_union);
+        if (left_both_uu && ! right_both_uu)
+        {
+            return true;
+        }
+        if (! left_both_uu && right_both_uu)
+        {
+            return false;
+        }
+
         return default_order(left, right);
     }
 };

@@ -277,7 +277,7 @@ struct traversal
                 if (ranked_turn.discarded)
                 {
                     // Might be collocated u/u turn
-                    return false;
+                    continue;
                 }
 
                 // Use this turn (if also part of a cluster, it will point to

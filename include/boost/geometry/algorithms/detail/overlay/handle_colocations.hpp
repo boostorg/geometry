@@ -231,8 +231,6 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
         turn_type& ref_turn = turn_points[ref_toi.turn_index];
         turn_operation_type const& ref_op
                 = ref_turn.operations[ref_toi.op_index];
-        turn_operation_type const& ref_other_op
-                = ref_turn.operations[1 - ref_toi.op_index];
 
         turn_operation_index const& toi = *vit;
         turn_type& turn = turn_points[toi.turn_index];
@@ -242,6 +240,9 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
 
         if (ref_op.fraction == op.fraction)
         {
+            turn_operation_type const& ref_other_op
+                    = ref_turn.operations[1 - ref_toi.op_index];
+            turn_operation_type const& other_op = turn.operations[1 - toi.op_index];
 
             signed_size_type id = cluster_id;
             if (! ref_added)
@@ -268,6 +269,19 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
             {
                 turn.discarded = true;
                 turn.colocated = true;
+            }
+            if (ref_turn.both(operation_union)
+                    && ! turn.both(operation_union))
+            {
+                if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
+                        && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index)
+                {
+std::cout << " Colocated with uu cid=" << id << std::endl;
+                    // It is colocated with a uu turn on the same ring. This
+                    // can happen with invalid polygons, and should be discarded
+                    turn.discarded = true;
+                    turn.colocated = true;
+                }
             }
 
         }
