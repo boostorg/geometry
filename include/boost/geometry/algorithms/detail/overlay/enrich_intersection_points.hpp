@@ -228,7 +228,6 @@ inline void create_map(TurnPoints const& turn_points,
             // We should NOT skip blocked operations here
             // because they can be relevant for "the other side"
             // NOT if (op_it->operation != operation_blocked)
-
             ring_identifier ring_id
                 (
                     op_it->seg_id.source_index,
@@ -295,32 +294,9 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-#if 0
-    // Iterate through turns and discard uu
-    for (typename boost::range_iterator<TurnPoints>::type
-            it = boost::begin(turn_points);
-         it != boost::end(turn_points);
-         ++it)
-    {
-        if (it->both(detail::overlay::operation_union))
-        {
-            // Discard  (necessary for a.o. #76). With uu, at all points there
-            // is the risk that rings are being traversed twice or more.
-            // Without uu, all rings having only uu will be untouched
-            // and gathered by assemble
-            it->discarded = true;
-        }
-        else if (it->both(detail::overlay::operation_none))
-        {
-            it->discarded = true;
-        }
-    }
-#endif
-
     detail::overlay::handle_colocations(turn_points, clusters);
 
-#if 1
-    // Iterate through turns and discard uu
+    // Iterate through turns and discard uu/none (after handling colocations)
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -328,10 +304,6 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     {
         if (it->both(detail::overlay::operation_union))
         {
-            // Discard  (necessary for a.o. #76). With uu, at all points there
-            // is the risk that rings are being traversed twice or more.
-            // Without uu, all rings having only uu will be untouched
-            // and gathered by assemble
             it->discarded = true;
         }
         else if (it->both(detail::overlay::operation_none))
@@ -339,7 +311,6 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             it->discarded = true;
         }
     }
-#endif
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
@@ -347,7 +318,6 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
 
     detail::overlay::create_map<indexed_turn_operation>(turn_points,
             for_operation,  mapped_vector);
-
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich

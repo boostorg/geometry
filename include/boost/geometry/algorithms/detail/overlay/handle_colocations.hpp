@@ -464,7 +464,6 @@ inline void handle_colocations(Turns& turns, Clusters& clusters)
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
     remove_clusters(turns, clusters);
 
-
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
     for (typename map_type::const_iterator it = map.begin();
