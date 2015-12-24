@@ -217,8 +217,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(
                 typename boost::range_iterator<Turns>::type& turn_it,
-                turn_operation_type const& op,
-                bool first)
+                turn_operation_type const& op)
     {
         turn_type const& turn = *turn_it;
         BOOST_ASSERT(turn.cluster_id >= 0);
@@ -261,13 +260,12 @@ struct traversal
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
-            turn_type& ranked_turn = m_turns[ranked_point.turn_index];
 
             if (ranked_point.main_rank == 0 && ranked_point.index != sort_by_side::index_from)
             {
-                // There are outgoing arcs, quit. For the very first turn,
-                // this is not a valid starting point
-                return !first;
+                // There are outgoing arcs, not a good cluster to start or
+                // to continue
+                return false;
             }
 
             if (ranked_point.main_rank == 1
@@ -275,6 +273,7 @@ struct traversal
                     && (ranked_point.operation == OperationType
                         || ranked_point.operation == operation_continue))
             {
+                turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
                 if (ranked_turn.discarded)
                 {
                     // Might be collocated u/u turn
@@ -303,8 +302,7 @@ struct traversal
     inline bool travel_to_next_turn(turn_iterator& it,
                 Ring& current_ring,
                 turn_operation_type& op,
-                segment_identifier& seg_id,
-                bool first)
+                segment_identifier& seg_id)
     {
         // If there is no next IP on this segment
         if (op.enriched.next_ip_index < 0)
@@ -343,7 +341,7 @@ struct traversal
 
         if (it->cluster_id >= 0)
         {
-            if (! select_turn_from_cluster(it, op, first))
+            if (! select_turn_from_cluster(it, op))
             {
                 return false;
             }
@@ -410,7 +408,7 @@ struct traversal
 
 
         if (! travel_to_next_turn(current_it, ring,
-                    start_op, current_seg_id, true))
+                    start_op, current_seg_id))
         {
             // This is not necessarily a problem, it happens for clustered turns
             // which are "build in" or otherwise point inwards
@@ -454,7 +452,7 @@ struct traversal
 
             // Below three reasons to stop.
             if (! travel_to_next_turn(current_it, ring,
-                *current_op_it, current_seg_id, false))
+                *current_op_it, current_seg_id))
             {
                 return traverse_error_no_next_ip;
             }
