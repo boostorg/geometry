@@ -229,6 +229,7 @@ struct traversal
         std::set<signed_size_type> const& ids = mit->second;
 
         sbs_type sbs;
+        bool has_subject = false;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -240,11 +241,20 @@ struct traversal
                 turn_operation_type const& cop = cturn.operations[i];
 
                 // TODO: source_index is NOT a good criterium
-                bool is_subject = &cturn == &turn
+                bool const is_subject = &cturn == &turn
                                && op.seg_id.source_index == cop.seg_id.source_index;
+                if (is_subject)
+                {
+                    has_subject = true;
+                }
 
                 sbs.add(cop, turn_index, i, m_geometry1, m_geometry2, is_subject);
             }
+        }
+        if (! has_subject)
+        {
+            std::cout << "WARNING: no subject" << std::endl;
+            return false;
         }
         sbs.apply(turn.point);
 
