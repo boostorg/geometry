@@ -170,16 +170,16 @@ inline void enrich_assign(Container& operations,
                 .operations[it->operation_index];
 
             std::cout << it->turn_index
-                << " meth: " << method_char(turn_points[it->turn_index].method)
-                << " seg: " << op.seg_id
-                << " dst: " << op.fraction // needs define
-                << " op: " << operation_char(turn_points[it->turn_index].operations[0].operation)
+                << " cl=" << turn_points[it->turn_index].cluster_id
+                << " meth=" << method_char(turn_points[it->turn_index].method)
+                << " seg=" << op.seg_id
+                << " dst=" << op.fraction // needs define
+                << " op=" << operation_char(turn_points[it->turn_index].operations[0].operation)
                 << operation_char(turn_points[it->turn_index].operations[1].operation)
-                << " dsc: " << (turn_points[it->turn_index].discarded ? "T" : "F")
-                << " ->vtx " << op.enriched.travels_to_vertex_index
-                << " ->ip " << op.enriched.travels_to_ip_index
-                << " ->nxt ip " << op.enriched.next_ip_index
-                //<< " vis: " << visited_char(op.visited)
+                << " (" << operation_char(op.operation) << ")"
+                << " nxt=" << op.enriched.next_ip_index
+                << " / " << op.enriched.travels_to_ip_index
+                << " [vx " << op.enriched.travels_to_vertex_index << "]"
                 << std::endl;
                 ;
         }

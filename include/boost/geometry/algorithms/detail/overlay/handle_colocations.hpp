@@ -280,7 +280,10 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
                         && other_op.operation != operation_blocked
                         && turn.method != method_collinear)
                 {
-std::cout << " Colocated with uu cid=" << id << std::endl;
+std::cout << " Colocated with uu cid=" << id << " "
+          << " op=" << int(op.operation) << "/" << int(other_op.operation)
+             << " method=" << int(turn.method)
+          << std::endl;
                     // It is colocated with a uu turn on the same ring. This
                     // can happen with invalid polygons, and should be discarded
                     turn.discarded = true;
