@@ -271,7 +271,9 @@ struct traversal
             }
 
             if (ranked_point.main_rank == 1
-                    && ranked_point.index == sort_by_side::index_to)
+                    && ranked_point.index == sort_by_side::index_to
+                    && (ranked_point.operation == OperationType
+                        || ranked_point.operation == operation_continue))
             {
                 if (ranked_turn.discarded)
                 {
@@ -288,7 +290,7 @@ struct traversal
                     return true;
                 }
             }
-            if (ranked_point.main_rank >= 1)
+            if (ranked_point.main_rank > 1)
             {
                 // Nothing found, don't change
                 return false;
