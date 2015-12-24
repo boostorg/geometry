@@ -273,9 +273,12 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
             if (ref_turn.both(operation_union)
                     && ! turn.both(operation_union))
             {
+                // TODO: last two conditions are to make current tests succeeds,
+                // provide reasonings for this, or other solution
                 if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
                         && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index
-                        && other_op.operation != operation_blocked)
+                        && other_op.operation != operation_blocked
+                        && turn.method != method_collinear)
                 {
 std::cout << " Colocated with uu cid=" << id << std::endl;
                     // It is colocated with a uu turn on the same ring. This
