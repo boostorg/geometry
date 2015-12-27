@@ -415,6 +415,10 @@ struct traversal
             return traverse_error_no_next_ip_at_start;
         }
 
+        // Register the start
+        start_op.visited.set_started();
+        m_visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
+
         if (! select_next_ip(*current_it,
                         start_turn_index,
                         current_seg_id,
@@ -422,10 +426,6 @@ struct traversal
         {
             return traverse_error_dead_end_at_start;
         }
-
-        // Register the start
-        start_op.visited.set_started();
-        m_visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
 
         // Register the first visit
         set_visited(*current_it, *current_op_it);

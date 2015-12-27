@@ -415,6 +415,13 @@ void test_all()
             case_recursive_boxes_4[0], case_recursive_boxes_4[1],
             96.75
         );
+
+    test_overlay<multi_polygon, bg::overlay_intersection>
+        (
+            "case_58_multi_b6_intersection",
+            case_58_multi[6], case_58_multi[2],
+            13.25
+        );
             "case_recursive_boxes_12_union",
             case_recursive_boxes_12[0], case_recursive_boxes_12[1],
             6.0
