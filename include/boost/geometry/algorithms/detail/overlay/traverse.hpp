@@ -134,7 +134,7 @@ struct traversal
     }
 
 
-    inline bool select_next_ip(turn_type& turn,
+    inline bool select_operation(turn_type& turn,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
                 turn_operation_iterator_type& selected)
@@ -144,7 +144,7 @@ struct traversal
             return false;
         }
 
-        bool has_tp = false;
+        bool result = false;
 
         typename turn_operation_type::comparable_distance_type
                 max_remaining_distance = 0;
@@ -169,12 +169,12 @@ struct traversal
             // For "cc", take either one, but if there is a starting one,
             //           take that one.
             if (   (op.operation == operation_continue
-                    && (! has_tp || op.visited.started()
+                    && (! result || op.visited.started()
                         )
                     )
                 || (op.operation == OperationType
                     && ! op.visited.finished()
-                    && (! has_tp
+                    && (! result
                         || select_source(op.seg_id.source_index, seg_id.source_index)
                         )
                     )
@@ -186,10 +186,10 @@ struct traversal
                 }
                 selected = it;
                 debug_traverse(turn, op, " Candidate");
-                has_tp = true;
+                result = true;
             }
 
-            if (op.operation == operation_continue && has_tp)
+            if (op.operation == operation_continue && result)
             {
                 if (op.enriched.next_ip_index == start_turn_index
                     || op.enriched.travels_to_ip_index == start_turn_index)
@@ -206,13 +206,13 @@ struct traversal
             }
         }
 
-        if (has_tp)
+        if (result)
         {
            debug_traverse(turn, *selected, "  Accepted");
         }
 
 
-        return has_tp;
+        return result;
     }
 
     inline bool select_turn_from_cluster(
@@ -406,7 +406,6 @@ struct traversal
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
-
         if (! travel_to_next_turn(current_it, ring,
                     start_op, current_seg_id))
         {
@@ -419,7 +418,7 @@ struct traversal
         start_op.visited.set_started();
         m_visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
 
-        if (! select_next_ip(*current_it,
+        if (! select_operation(*current_it,
                         start_turn_index,
                         current_seg_id,
                         current_op_it))
@@ -457,7 +456,7 @@ struct traversal
                 return traverse_error_no_next_ip;
             }
 
-            if (! select_next_ip(*current_it,
+            if (! select_operation(*current_it,
                         start_turn_index,
                         current_seg_id,
                         current_op_it))
@@ -560,52 +559,57 @@ public :
             signed_size_type start_turn_index = 0;
 
             // Iterate through all unvisited points
-            for (turn_iterator it = boost::begin(turns);
-                state.good() && it != boost::end(turns);
-                ++it, ++start_turn_index)
+            for (turn_iterator turn_it = boost::begin(turns);
+                state.good() && turn_it != boost::end(turns);
+                ++turn_it, ++start_turn_index)
             {
-                turn_type& start_turn = *it;
+                turn_type& start_turn = *turn_it;
+
                 // Skip discarded ones
-                if (! (start_turn.discarded || ! start_turn.selectable_start || start_turn.blocked()))
+                if (start_turn.discarded
+                    || ! start_turn.selectable_start
+                    || start_turn.blocked())
                 {
-                    for (turn_operation_iterator_type iit = boost::begin(start_turn.operations);
-                        state.good() && iit != boost::end(start_turn.operations);
-                        ++iit)
+                    continue;
+                }
+
+                for (turn_operation_iterator_type op_it = boost::begin(start_turn.operations);
+                    state.good() && op_it != boost::end(start_turn.operations);
+                    ++op_it)
+                {
+                    op_type& start_op = *op_it;
+
+                    if (!start_op.visited.none()
+                        || start_op.visited.rejected()
+                        || !(start_op.operation == OpType
+                            || start_op.operation == detail::overlay::operation_continue))
                     {
-                        op_type& start_op = *iit;
+                        continue;
+                    }
 
-                        if (start_op.visited.none()
-                            && ! start_op.visited.rejected()
-                            && (start_op.operation == OpType
-                                || start_op.operation == detail::overlay::operation_continue)
-                            )
+                    ring_type ring;
+                    traverse_error_type traverse_error = trav.traverse(ring,
+                                    start_turn, start_turn_index,
+                                    start_op, turn_it, op_it);
+
+                    if (traverse_error == traverse_error_none)
+                    {
+                        if (geometry::num_points(ring) >= min_num_points)
                         {
-                            ring_type ring;
-                            traverse_error_type traverse_error
-                                = trav.traverse(ring,
-                                        start_turn, start_turn_index,
-                                        start_op, it, iit);
+                            clean_closing_dups_and_spikes(ring, robust_policy);
+                            rings.push_back(ring);
 
-                            if (traverse_error == traverse_error_none)
-                            {
-                                if (geometry::num_points(ring) >= min_num_points)
-                                {
-                                    clean_closing_dups_and_spikes(ring, robust_policy);
-                                    rings.push_back(ring);
-
-                                    trav.finalize_visit_info();
-                                    finalized_ring_size++;
-                                }
-                            }
-                            else
-                            {
-                                Backtrack::apply(
-                                    finalized_ring_size,
-                                    rings, ring, turns, start_turn, start_op,
-                                    traverse_error,
-                                    geometry1, geometry2, robust_policy, state, visitor);
-                            }
+                            trav.finalize_visit_info();
+                            finalized_ring_size++;
                         }
+                    }
+                    else
+                    {
+                        Backtrack::apply(
+                            finalized_ring_size,
+                            rings, ring, turns, start_turn, start_op,
+                            traverse_error,
+                            geometry1, geometry2, robust_policy, state, visitor);
                     }
                 }
             }
