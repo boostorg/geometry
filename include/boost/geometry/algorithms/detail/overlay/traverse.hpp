@@ -298,58 +298,95 @@ struct traversal
     }
 
     template <typename Ring>
-    inline bool travel_to_next_turn(turn_iterator& it,
+    inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
+                turn_iterator& turn_it,
+                turn_operation_iterator_type& op_it,
+                segment_identifier& seg_id,
                 Ring& current_ring,
-                turn_operation_type const& op,
-                segment_identifier& seg_id)
+                bool is_start)
     {
+        turn_type& previous_turn = *turn_it;
+        turn_operation_type& previous_op = *op_it;
+
         // If there is no next IP on this segment
-        if (op.enriched.next_ip_index < 0)
+        if (previous_op.enriched.next_ip_index < 0)
         {
-            if (op.enriched.travels_to_vertex_index < 0
-                || op.enriched.travels_to_ip_index < 0)
+            if (previous_op.enriched.travels_to_vertex_index < 0
+                || previous_op.enriched.travels_to_ip_index < 0)
             {
-                return false;
+                return is_start
+                        ? traverse_error_no_next_ip_at_start
+                        : traverse_error_no_next_ip;
             }
 
-            BOOST_GEOMETRY_ASSERT(op.enriched.travels_to_vertex_index >= 0);
-            BOOST_GEOMETRY_ASSERT(op.enriched.travels_to_ip_index >= 0);
+            BOOST_GEOMETRY_ASSERT(previous_op.enriched.travels_to_vertex_index >= 0);
+            BOOST_GEOMETRY_ASSERT(previous_op.enriched.travels_to_ip_index >= 0);
 
-            if (op.seg_id.source_index == 0)
+            if (previous_op.seg_id.source_index == 0)
             {
-                geometry::copy_segments<Reverse1>(m_geometry1, op.seg_id,
-                        op.enriched.travels_to_vertex_index,
+                geometry::copy_segments<Reverse1>(m_geometry1, previous_op.seg_id,
+                        previous_op.enriched.travels_to_vertex_index,
                         m_robust_policy,
                         current_ring);
             }
             else
             {
-                geometry::copy_segments<Reverse2>(m_geometry2, op.seg_id,
-                        op.enriched.travels_to_vertex_index,
+                geometry::copy_segments<Reverse2>(m_geometry2, previous_op.seg_id,
+                        previous_op.enriched.travels_to_vertex_index,
                         m_robust_policy,
                         current_ring);
             }
-            seg_id = op.seg_id;
-            it = boost::begin(m_turns) + op.enriched.travels_to_ip_index;
+            seg_id = previous_op.seg_id;
+            turn_it = boost::begin(m_turns) + previous_op.enriched.travels_to_ip_index;
         }
         else
         {
-            it = boost::begin(m_turns) + op.enriched.next_ip_index;
-            seg_id = op.seg_id;
+            turn_it = boost::begin(m_turns) + previous_op.enriched.next_ip_index;
+            seg_id = previous_op.seg_id;
         }
 
-        if (it->cluster_id >= 0)
+        if (turn_it->cluster_id >= 0)
         {
-            if (! select_turn_from_cluster(it, op))
+            if (! select_turn_from_cluster(turn_it, previous_op))
             {
-                return false;
+                return is_start
+                    ? traverse_error_no_next_ip_at_start
+                    : traverse_error_no_next_ip;
             }
         }
 
-        detail::overlay::append_no_dups_or_spikes(current_ring, it->point,
+        detail::overlay::append_no_dups_or_spikes(current_ring, turn_it->point,
             m_robust_policy);
 
-        return true;
+
+        if (is_start)
+        {
+            // Register the start
+            previous_op.visited.set_started();
+            m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
+        }
+
+        if (! select_operation(*turn_it,
+                        start_turn_index,
+                        seg_id,
+                        op_it))
+        {
+            return is_start
+                ? traverse_error_dead_end_at_start
+                : traverse_error_dead_end;
+        }
+
+        turn_operation_type& op = *op_it;
+        if (op.visited.visited())
+        {
+            return traverse_error_visit_again;
+        }
+
+        // Register the visit
+        set_visited(*turn_it, op);
+        m_visitor.visit_traverse(m_turns, *turn_it, op, "Visit");
+
+        return traverse_error_none;
     }
 
     inline void finalize_visit_info()
@@ -405,32 +442,15 @@ struct traversal
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
+        traverse_error_type error = travel_to_next_turn(start_turn_index,
+                    current_it, current_op_it, current_seg_id,
+                    ring, true);
 
-        if (! travel_to_next_turn(current_it, ring,
-                    start_op, current_seg_id))
+        if (error != traverse_error_none)
         {
             // This is not necessarily a problem, it happens for clustered turns
             // which are "build in" or otherwise point inwards
-            return traverse_error_no_next_ip_at_start;
-        }
-
-        // Register the start
-        start_op.visited.set_started();
-        m_visitor.visit_traverse(m_turns, start_turn, start_op, "Start");
-
-        if (! select_operation(*current_it,
-                        start_turn_index,
-                        current_seg_id,
-                        current_op_it))
-        {
-            return traverse_error_dead_end_at_start;
-        }
-
-        // Register the first visit
-        {
-            turn_operation_type& current_op = *current_op_it;
-            set_visited(*current_it, current_op);
-            m_visitor.visit_traverse(m_turns, *current_it, current_op, "Visit");
+            return error;
         }
 
         if (current_it == start_it)
@@ -453,34 +473,19 @@ struct traversal
             // will continue with the next one.
 
             // Below three reasons to stop.
-            if (! travel_to_next_turn(current_it, ring,
-                *current_op_it, current_seg_id))
-            {
-                return traverse_error_no_next_ip;
-            }
+            error = travel_to_next_turn(start_turn_index,
+                    current_it, current_op_it, current_seg_id,
+                    ring, false);
 
-            if (! select_operation(*current_it,
-                        start_turn_index,
-                        current_seg_id,
-                        current_op_it))
+            if (error != traverse_error_none)
             {
-                return traverse_error_dead_end;
+                return error;
             }
-
-            turn_type& current_turn = *current_it;
-            turn_operation_type& current_op = *current_op_it;
-            if (current_op.visited.visited())
-            {
-                return traverse_error_visit_again;
-            }
-
-            set_visited(current_turn, current_op);
-            m_visitor.visit_traverse(m_turns, current_turn, current_op, "Visit");
 
             if (current_op_it == start_op_it)
             {
                 start_op.visited.set_finished();
-                m_visitor.visit_traverse(m_turns, current_turn, start_op, "Finish");
+                m_visitor.visit_traverse(m_turns, start_turn, start_op, "Finish");
                 return traverse_error_none;
             }
         }
