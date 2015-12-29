@@ -552,68 +552,64 @@ public :
         std::size_t finalized_ring_size = boost::size(rings);
 
         typename Backtrack::state_type state;
-        do
+
+        signed_size_type start_turn_index = 0;
+
+        // Iterate through all unvisited points
+        for (turn_iterator turn_it = boost::begin(turns);
+            turn_it != boost::end(turns);
+            ++turn_it, ++start_turn_index)
         {
-            state.reset();
+            turn_type& start_turn = *turn_it;
 
-            signed_size_type start_turn_index = 0;
-
-            // Iterate through all unvisited points
-            for (turn_iterator turn_it = boost::begin(turns);
-                state.good() && turn_it != boost::end(turns);
-                ++turn_it, ++start_turn_index)
+            // Skip discarded ones
+            if (start_turn.discarded
+                || ! start_turn.selectable_start
+                || start_turn.blocked())
             {
-                turn_type& start_turn = *turn_it;
+                continue;
+            }
 
-                // Skip discarded ones
-                if (start_turn.discarded
-                    || ! start_turn.selectable_start
-                    || start_turn.blocked())
+            for (turn_operation_iterator_type op_it = boost::begin(start_turn.operations);
+                op_it != boost::end(start_turn.operations);
+                ++op_it)
+            {
+                op_type& start_op = *op_it;
+
+                if (!start_op.visited.none()
+                    || start_op.visited.rejected()
+                    || !(start_op.operation == OpType
+                        || start_op.operation == detail::overlay::operation_continue))
                 {
                     continue;
                 }
 
-                for (turn_operation_iterator_type op_it = boost::begin(start_turn.operations);
-                    state.good() && op_it != boost::end(start_turn.operations);
-                    ++op_it)
+                ring_type ring;
+                traverse_error_type traverse_error = trav.traverse(ring,
+                                start_turn, start_turn_index,
+                                start_op, turn_it, op_it);
+
+                if (traverse_error == traverse_error_none)
                 {
-                    op_type& start_op = *op_it;
-
-                    if (!start_op.visited.none()
-                        || start_op.visited.rejected()
-                        || !(start_op.operation == OpType
-                            || start_op.operation == detail::overlay::operation_continue))
+                    if (geometry::num_points(ring) >= min_num_points)
                     {
-                        continue;
-                    }
+                        clean_closing_dups_and_spikes(ring, robust_policy);
+                        rings.push_back(ring);
 
-                    ring_type ring;
-                    traverse_error_type traverse_error = trav.traverse(ring,
-                                    start_turn, start_turn_index,
-                                    start_op, turn_it, op_it);
-
-                    if (traverse_error == traverse_error_none)
-                    {
-                        if (geometry::num_points(ring) >= min_num_points)
-                        {
-                            clean_closing_dups_and_spikes(ring, robust_policy);
-                            rings.push_back(ring);
-
-                            trav.finalize_visit_info();
-                            finalized_ring_size++;
-                        }
-                    }
-                    else
-                    {
-                        Backtrack::apply(
-                            finalized_ring_size,
-                            rings, ring, turns, start_turn, start_op,
-                            traverse_error,
-                            geometry1, geometry2, robust_policy, state, visitor);
+                        trav.finalize_visit_info();
+                        finalized_ring_size++;
                     }
                 }
+                else
+                {
+                    Backtrack::apply(
+                        finalized_ring_size,
+                        rings, ring, turns, start_turn, start_op,
+                        traverse_error,
+                        geometry1, geometry2, robust_policy, state, visitor);
+                }
             }
-        } while (! state.good());
+        }
     }
 };
 
