@@ -211,7 +211,6 @@ struct traversal
            debug_traverse(turn, *selected, "  Accepted");
         }
 
-
         return result;
     }
 
@@ -301,7 +300,7 @@ struct traversal
     template <typename Ring>
     inline bool travel_to_next_turn(turn_iterator& it,
                 Ring& current_ring,
-                turn_operation_type& op,
+                turn_operation_type const& op,
                 segment_identifier& seg_id)
     {
         // If there is no next IP on this segment
@@ -406,6 +405,7 @@ struct traversal
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
+
         if (! travel_to_next_turn(current_it, ring,
                     start_op, current_seg_id))
         {
@@ -427,8 +427,11 @@ struct traversal
         }
 
         // Register the first visit
-        set_visited(*current_it, *current_op_it);
-        m_visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
+        {
+            turn_operation_type& current_op = *current_op_it;
+            set_visited(*current_it, current_op);
+            m_visitor.visit_traverse(m_turns, *current_it, current_op, "Visit");
+        }
 
         if (current_it == start_it)
         {
@@ -464,21 +467,22 @@ struct traversal
                 return traverse_error_dead_end;
             }
 
-            if (current_op_it->visited.visited())
+            turn_type& current_turn = *current_it;
+            turn_operation_type& current_op = *current_op_it;
+            if (current_op.visited.visited())
             {
                 return traverse_error_visit_again;
             }
 
-            set_visited(*current_it, *current_op_it);
-            m_visitor.visit_traverse(m_turns, *current_it, *current_op_it, "Visit");
+            set_visited(current_turn, current_op);
+            m_visitor.visit_traverse(m_turns, current_turn, current_op, "Visit");
 
             if (current_op_it == start_op_it)
             {
                 start_op.visited.set_finished();
-                m_visitor.visit_traverse(m_turns, *current_it, start_op, "Finish");
+                m_visitor.visit_traverse(m_turns, current_turn, start_op, "Finish");
                 return traverse_error_none;
             }
-
         }
 
         return traverse_error_endless_loop;
