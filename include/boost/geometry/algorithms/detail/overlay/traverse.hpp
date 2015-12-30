@@ -214,8 +214,8 @@ struct traversal
         return result;
     }
 
-    inline bool select_turn_from_cluster(
-                typename boost::range_iterator<Turns>::type& turn_it,
+    inline bool select_turn_from_cluster(turn_iterator& turn_it,
+                turn_operation_iterator_type& op_it,
                 turn_operation_type const& op)
     {
         turn_type const& turn = *turn_it;
@@ -273,6 +273,7 @@ struct traversal
                         || ranked_point.operation == operation_continue))
             {
                 turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+
                 if (ranked_turn.discarded)
                 {
                     // Might be collocated u/u turn
@@ -284,7 +285,23 @@ struct traversal
                 signed_size_type const turn_index = ranked_point.turn_index;
                 if (turn_index != -1)
                 {
+                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+
                     turn_it = m_turns.begin() + turn_index;
+
+                    if (ranked_turn.both(operation_intersection)
+                        && ranked_op.visited.finalized())
+                    {
+                        // For a ii turn, even though one operation might be selected,
+                        // it should take the other one if the first one is used in a completed ring
+                        op_it = turn_it->operations.begin() + (1 - ranked_point.op_index);
+                    }
+                    else
+                    {
+                        // Normal behaviour
+                        op_it = turn_it->operations.begin() + ranked_point.op_index;
+                    }
+
                     return true;
                 }
             }
@@ -305,6 +322,8 @@ struct traversal
                 Ring& current_ring,
                 bool is_start)
     {
+        turn_operation_iterator_type previous_op_it = op_it;
+        turn_iterator previous_turn_it = turn_it;
         turn_type& previous_turn = *turn_it;
         turn_operation_type& previous_op = *op_it;
 
@@ -345,13 +364,19 @@ struct traversal
             seg_id = previous_op.seg_id;
         }
 
-        if (turn_it->cluster_id >= 0)
+        bool const has_cluster = turn_it->cluster_id >= 0;
+        if (has_cluster)
         {
-            if (! select_turn_from_cluster(turn_it, previous_op))
+            if (! select_turn_from_cluster(turn_it, op_it, previous_op))
             {
                 return is_start
                     ? traverse_error_no_next_ip_at_start
                     : traverse_error_no_next_ip;
+            }
+
+            if (is_start && turn_it == previous_turn_it)
+            {
+                op_it = previous_op_it;
             }
         }
 
@@ -366,14 +391,17 @@ struct traversal
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
-        if (! select_operation(*turn_it,
-                        start_turn_index,
-                        seg_id,
-                        op_it))
+        if (! has_cluster)
         {
-            return is_start
-                ? traverse_error_dead_end_at_start
-                : traverse_error_dead_end;
+            if (! select_operation(*turn_it,
+                            start_turn_index,
+                            seg_id,
+                            op_it))
+            {
+                return is_start
+                    ? traverse_error_dead_end_at_start
+                    : traverse_error_dead_end;
+            }
         }
 
         turn_operation_type& op = *op_it;
@@ -585,9 +613,9 @@ public :
             {
                 op_type& start_op = *op_it;
 
-                if (!start_op.visited.none()
+                if (! start_op.visited.none()
                     || start_op.visited.rejected()
-                    || !(start_op.operation == OpType
+                    || ! (start_op.operation == OpType
                         || start_op.operation == detail::overlay::operation_continue))
                 {
                     continue;

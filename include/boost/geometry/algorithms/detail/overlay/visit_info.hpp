@@ -51,6 +51,7 @@ public:
     inline bool started() const { return m_visit_code == STARTED; }
     inline bool finished() const { return m_visit_code == FINISHED; }
     inline bool rejected() const { return m_rejected; }
+    inline bool finalized() const { return m_final; }
 
     inline void clear()
     {

@@ -122,11 +122,14 @@ static std::string case_71_multi[2] =
     "MULTIPOLYGON(((0 2,0 3,3 3,3 2,0 2)))"
 };
 
-static std::string case_72_multi[2] =
+static std::string case_72_multi[3] =
 {
     // cluster with ii, done by both traverse and assemble
     "MULTIPOLYGON(((0 3,4 4,3 0,3 3,0 3)),((3 3,2 1,1 2,3 3)))",
-    "MULTIPOLYGON(((0 0,1 4,3 3,4 1,0 0)))"
+    "MULTIPOLYGON(((0 0,1 4,3 3,4 1,0 0)))",
+
+    // Inverse version of a
+    "MULTIPOLYGON(((-1 -1,-1 5,5 5,5 -1,-1 -1),(0 3,3 3,3 0,4 4,0 3),(3 3,1 2,2 1,3 3)))"
 };
 
 static std::string case_73_multi[2] =
