@@ -151,50 +151,32 @@ inline void add_cluster_id(Operation const& op,
     cluster_per_segment[seg_frac] = id;
 }
 
-// Returns -1 when not added (e.g. uu)
 template <typename Turn, typename ClusterPerSegment>
 inline signed_size_type add_turn_to_cluster(Turn const& turn,
-        ClusterPerSegment& cluster_per_segment, signed_size_type& cluster_id,
-        bool new_cluster)
+        ClusterPerSegment& cluster_per_segment, signed_size_type& cluster_id)
 {
     signed_size_type cid0 = get_cluster_id(turn.operations[0], cluster_per_segment);
     signed_size_type cid1 = get_cluster_id(turn.operations[1], cluster_per_segment);
 
     if (cid0 == -1 && cid1 == -1)
     {
-        if (new_cluster)
-        {
-            ++cluster_id;
-        }
+        ++cluster_id;
         add_cluster_id(turn.operations[0], cluster_per_segment, cluster_id);
         add_cluster_id(turn.operations[1], cluster_per_segment, cluster_id);
         return cluster_id;
     }
     else if (cid0 == -1 && cid1 != -1)
     {
-        if (! new_cluster && cid1 != cluster_id)
-        {
-            std::cout << "  TODO: merge" << std::endl;
-        }
         add_cluster_id(turn.operations[0], cluster_per_segment, cid1);
         return cid1;
     }
     else if (cid0 != -1 && cid1 == -1)
     {
-        if (! new_cluster && cid0 != cluster_id)
-        {
-            std::cout << "  TODO: merge" << std::endl;
-        }
         add_cluster_id(turn.operations[1], cluster_per_segment, cid0);
         return cid0;
     }
     else if (cid0 == cid1)
     {
-        if (! new_cluster && cid0 != cluster_id)
-        {
-            std::cout << "  TODO: merge" << std::endl;
-        }
-
         // Both already added to same cluster, no action
         return cid0;
     }
@@ -224,7 +206,7 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
     std::vector<turn_operation_index>::const_iterator vit = vec.begin();
 
     turn_operation_index ref_toi = *vit;
-    bool ref_added = false;
+    signed_size_type ref_id = -1;
 
     for (++vit; vit != vec.end(); ++vit)
     {
@@ -244,22 +226,24 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
                     = ref_turn.operations[1 - ref_toi.op_index];
             turn_operation_type const& other_op = turn.operations[1 - toi.op_index];
 
-            signed_size_type id = cluster_id;
-            if (! ref_added)
+            if (ref_id == -1)
             {
-                id = add_turn_to_cluster(ref_turn, cluster_per_segment, cluster_id, true);
-                ref_added = true;
+                ref_id = add_turn_to_cluster(ref_turn, cluster_per_segment, cluster_id);
             }
+            BOOST_ASSERT(ref_id != -1);
 
-            if (id != -1)
+            // ref_turn (both operations) are already added to cluster,
+            // so also "op" is already added to cluster,
+            // We only need to add other_op
+            signed_size_type id = get_cluster_id(other_op, cluster_per_segment);
+            if (id != -1 && id != ref_id)
             {
-                // TODO: because ref_op.seg_id == op.seg_id, the " op"  does not need to be added again,
-                // and not checked, -> becomes a bit simpler
-                add_turn_to_cluster(turn, cluster_per_segment, id, false);
             }
-            else
+            else if (id == -1)
             {
-                add_turn_to_cluster(turn, cluster_per_segment, cluster_id, true);
+                // Add to same cluster
+                add_cluster_id(other_op, cluster_per_segment, ref_id);
+                id = ref_id;
             }
 
             // In case of colocated xx turns, all other turns may NOT be
@@ -297,7 +281,7 @@ std::cout << " Colocated with uu cid=" << id << " "
             // Not on same fraction on this segment
             // assign for next
             ref_toi = toi;
-            ref_added = false;
+            ref_id = -1;
         }
     }
 }
@@ -453,13 +437,12 @@ inline void handle_colocations(Turns& turns, Clusters& clusters)
     for (typename map_type::const_iterator it = map.begin();
          it != map.end(); ++it)
     {
-        if (it->second.size() > 1)
+        if (it->second.size() > 1u)
         {
             handle_colocation_cluster(turns, cluster_id,
                 cluster_per_segment, it->second);
         }
     }
-
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
     remove_clusters(turns, clusters);
