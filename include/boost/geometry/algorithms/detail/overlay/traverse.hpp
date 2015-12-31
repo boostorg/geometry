@@ -15,6 +15,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -255,6 +256,8 @@ struct traversal
         }
         sbs.apply(turn.point);
 
+
+        bool result = false;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
@@ -263,6 +266,13 @@ struct traversal
             {
                 // There are outgoing arcs, not a good cluster to start or
                 // to continue
+                return false;
+            }
+
+            if (ranked_point.main_rank == 1
+                    && ranked_point.index == sort_by_side::index_to
+                    && ranked_point.operation == operation_blocked)
+            {
                 return false;
             }
 
@@ -281,36 +291,32 @@ struct traversal
 
                 // Use this turn (if also part of a cluster, it will point to
                 // next turn outside cluster)
-                signed_size_type const turn_index = ranked_point.turn_index;
-                if (turn_index != -1)
+                turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+
+                turn_it = m_turns.begin() + ranked_point.turn_index;
+
+                if (ranked_turn.both(operation_intersection)
+                    && ranked_op.visited.finalized())
                 {
-                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
-
-                    turn_it = m_turns.begin() + turn_index;
-
-                    if (ranked_turn.both(operation_intersection)
-                        && ranked_op.visited.finalized())
-                    {
-                        // For a ii turn, even though one operation might be selected,
-                        // it should take the other one if the first one is used in a completed ring
-                        op_it = turn_it->operations.begin() + (1 - ranked_point.op_index);
-                    }
-                    else
-                    {
-                        // Normal behaviour
-                        op_it = turn_it->operations.begin() + ranked_point.op_index;
-                    }
-
-                    return true;
+                    // For a ii turn, even though one operation might be selected,
+                    // it should take the other one if the first one is used in a completed ring
+                    op_it = turn_it->operations.begin() + (1 - ranked_point.op_index);
                 }
+                else
+                {
+                    // Normal behaviour
+                    op_it = turn_it->operations.begin() + ranked_point.op_index;
+                }
+
+                result = true;
+                // Don't return yet, maybe there is a blocked
             }
             if (ranked_point.main_rank > 1)
             {
-                // Nothing found, don't change
-                return false;
+                return result;
             }
         }
-        return false;
+        return result;
     }
 
     template <typename Ring>
