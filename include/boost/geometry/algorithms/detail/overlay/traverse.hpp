@@ -158,7 +158,6 @@ struct traversal
             if (op.visited.started())
             {
                 selected = it;
-                //std::cout << " RETURN";
                 return true;
             }
 
