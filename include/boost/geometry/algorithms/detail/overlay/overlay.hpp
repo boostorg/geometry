@@ -247,10 +247,6 @@ std::cout << "get turns" << std::endl;
                   ? geometry::detail::overlay::operation_union
                   : geometry::detail::overlay::operation_intersection;
 
-        typedef std::greater<int> less;
-
-
-
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
