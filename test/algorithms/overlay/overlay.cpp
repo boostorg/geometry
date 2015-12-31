@@ -434,6 +434,13 @@ void test_all()
             case_recursive_boxes_12[0], case_recursive_boxes_12[1],
             6.0
         );
+    test_overlay<multi_polygon, bg::overlay_union>
+        (
+            "case_recursive_boxes_13_union",
+            case_recursive_boxes_13[0], case_recursive_boxes_13[1],
+            10.25
+        );
+
 
 //    std::cout
 //        << "    \""

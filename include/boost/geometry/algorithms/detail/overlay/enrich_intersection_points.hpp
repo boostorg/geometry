@@ -127,10 +127,12 @@ inline void enrich_assign(Container& operations,
                 ++next;
             }
 
-            // Cluster behaviour: next should point after cluster:
+            // Cluster behaviour: next should point after cluster, unless
+            // their seg_ids are not the same
             while (turn.cluster_id != -1
+                   && it->turn_index != next->turn_index
                    && turn.cluster_id == turn_points[next->turn_index].cluster_id
-                   && it->turn_index != next->turn_index)
+                   && op.seg_id == turn_points[next->turn_index].operations[next->operation_index].seg_id)
             {
                 ++next;
             }
