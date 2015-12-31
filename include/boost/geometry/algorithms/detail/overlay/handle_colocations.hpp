@@ -382,7 +382,7 @@ inline void assign_cluster_to_turns(Turns& turns,
     {
         turn_type& turn = *it;
 
-        if (turn.both(operation_union))
+        if (turn.both(operation_union) || turn.discarded)
         {
             // They are processed (to create proper map) but will not be added
             // This might leave a cluster with only 1 turn, which will be fixed
