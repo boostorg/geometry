@@ -137,11 +137,6 @@ inline void enrich_assign(Container& operations,
                 ++next;
             }
 
-            if (it->turn_index == next->turn_index)
-            {
-                std::cout << "Only one turn" << std::endl;
-            }
-
             turn_type const& next_turn = turn_points[next->turn_index];
             operations_type const& next_op = next_turn.operations[next->operation_index];
 
