@@ -294,7 +294,8 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    detail::overlay::handle_colocations(turn_points, clusters);
+    detail::overlay::handle_colocations<Reverse1, Reverse2>(turn_points,
+            clusters, geometry1, geometry2);
 
     // Iterate through turns and discard uu/none (after handling colocations)
     for (typename boost::range_iterator<TurnPoints>::type

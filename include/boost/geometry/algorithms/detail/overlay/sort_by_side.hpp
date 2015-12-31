@@ -39,7 +39,7 @@ struct ranked_point
     {}
 
     ranked_point(const Point& p, signed_size_type ti, signed_size_type oi,
-                 index_type i, operation_type op)
+                 index_type i, operation_type op, segment_identifier sid)
         : point(p)
         , rank(0)
         , main_rank(0)
@@ -47,6 +47,7 @@ struct ranked_point
         , op_index(oi)
         , index(i)
         , operation(op)
+        , seg_id(sid)
     {}
 
     Point point;
@@ -56,6 +57,7 @@ struct ranked_point
     signed_size_type op_index;
     index_type index;
     operation_type operation;
+    segment_identifier seg_id;
 };
 
 struct less_by_turn_index
@@ -191,8 +193,8 @@ struct side_sorter
                 op.seg_id, point1, point2, point3);
         Point const& point_to = op.fraction.is_one() ? point3 : point2;
 
-        m_ranked_points.push_back(rp(point1, turn_index, op_index, index_from, op.operation));
-        m_ranked_points.push_back(rp(point_to, turn_index, op_index, index_to, op.operation));
+        m_ranked_points.push_back(rp(point1, turn_index, op_index, index_from, op.operation, op.seg_id));
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index, index_to, op.operation, op.seg_id));
 
         if (is_subject)
         {
