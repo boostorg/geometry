@@ -134,6 +134,13 @@ struct traversal
             ;
     }
 
+    inline
+    signed_size_type get_next_turn_index(turn_operation_type const& op) const
+    {
+        return op.enriched.next_ip_index == -1
+                ? op.enriched.travels_to_ip_index
+                : op.enriched.next_ip_index;
+    }
 
     inline bool select_operation(turn_type& turn,
                 signed_size_type start_turn_index,
@@ -162,6 +169,8 @@ struct traversal
                 return true;
             }
 
+            signed_size_type const next_turn_index = get_next_turn_index(op);
+
             // In some cases there are two alternatives.
             // For "ii", take the other one (alternate)
             //           UNLESS the other one is already visited
@@ -169,9 +178,7 @@ struct traversal
             // For "cc", take either one, but if there is a starting one,
             //           take that one.
             if (   (op.operation == operation_continue
-                    && (! result || op.visited.started()
-                        )
-                    )
+                    && ! result)
                 || (op.operation == OperationType
                     && ! op.visited.finished()
                     && (! result
@@ -191,8 +198,7 @@ struct traversal
 
             if (op.operation == operation_continue && result)
             {
-                if (op.enriched.next_ip_index == start_turn_index
-                    || op.enriched.travels_to_ip_index == start_turn_index)
+                if (next_turn_index == start_turn_index)
                 {
                     selected = it;
                     debug_traverse(turn, op, " Candidate override (start)");
@@ -342,9 +348,6 @@ struct traversal
                         ? traverse_error_no_next_ip_at_start
                         : traverse_error_no_next_ip;
             }
-
-            BOOST_GEOMETRY_ASSERT(previous_op.enriched.travels_to_vertex_index >= 0);
-            BOOST_GEOMETRY_ASSERT(previous_op.enriched.travels_to_ip_index >= 0);
 
             if (previous_op.seg_id.source_index == 0)
             {
