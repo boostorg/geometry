@@ -142,6 +142,22 @@ struct traversal
                 : op.enriched.next_ip_index;
     }
 
+    inline bool traverse_possible(signed_size_type turn_index) const
+    {
+        if (turn_index == -1)
+        {
+            return false;
+        }
+
+        turn_type const& turn = m_turns[turn_index];
+
+        // It is not a dead end if there is an operation to continue, or of
+        // there is a cluster (assuming for now we can get out of the cluster)
+        return turn.cluster_id >= 0
+            || turn.has(OperationType)
+            || turn.has(operation_continue);
+    }
+
     inline bool select_operation(turn_type& turn,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
@@ -176,8 +192,9 @@ struct traversal
             //           UNLESS the other one is already visited
             // For "uu", take the same one (see above);
             // For "cc", take either one, but if there is a starting one,
-            //           take that one.
+            //           take that one. If next is dead end, skip that one.
             if (   (op.operation == operation_continue
+                    && traverse_possible(next_turn_index)
                     && ! result)
                 || (op.operation == OperationType
                     && ! op.visited.finished()
