@@ -338,7 +338,7 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
             if (ref_turn.both(operation_blocked))
             {
                 turn.discarded = true;
-                turn.colocated = true;
+                // We can either set or not set colocated because it is not effective on blocked turns
             }
 
             if (ref_turn.both(operation_union)

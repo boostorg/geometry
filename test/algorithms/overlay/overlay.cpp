@@ -235,17 +235,17 @@ struct map_visitor
         bool lab2 = label_operation(turn, 1, out);
 
         std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
-        if (turn.discarded)
+        if (turn.colocated)
+        {
+            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+        }
+        else if (turn.discarded)
         {
             style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
         }
         else if (turn.cluster_id != -1)
         {
             style =  "fill:rgb(0,0,255);font-family:Arial;font-size:8px";
-        }
-        else if (turn.colocated)
-        {
-            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
         }
         else if (! lab1 || ! lab2)
         {

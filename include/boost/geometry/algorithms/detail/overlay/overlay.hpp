@@ -91,14 +91,12 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
          ++it)
     {
         typename boost::range_value<TurnPoints>::type const& turn_info = *it;
-        bool skip = turn_info.discarded
-            && ! turn_info.any_blocked()
-            && ! turn_info.both(operation_intersection)
-            ;
 
-        if (turn_info.colocated)
+        if (turn_info.discarded
+            && ! turn_info.any_blocked()
+            && ! turn_info.colocated)
         {
-            skip = true;
+            continue;
         }
 
         for (typename boost::range_iterator<container_type const>::type
@@ -106,17 +104,13 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
             op_it != boost::end(turn_info.operations);
             ++op_it)
         {
-            ring_identifier ring_id
+            ring_identifier const ring_id
                 (
                     op_it->seg_id.source_index,
                     op_it->seg_id.multi_index,
                     op_it->seg_id.ring_index
                 );
-
-            if (! skip)
-            {
-                turn_info_map[ring_id].has_normal_turn = true;
-            }
+            turn_info_map[ring_id].has_normal_turn = true;
         }
     }
 }
