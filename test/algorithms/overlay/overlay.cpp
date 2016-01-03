@@ -43,6 +43,7 @@ struct map_visitor
     map_visitor(Mapper& mapper)
         : m_mapper(mapper)
         , m_traverse_seq(0)
+        , m_do_output(true)
     {}
 
     template <typename Turns>
@@ -64,6 +65,35 @@ struct map_visitor
             }
             index++;
         }
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    std::string stream_turn_index(Turns const& turns, Turn const& turn, Operation const& op)
+    {
+        std::ostringstream out;
+
+        if (turn.cluster_id >= 0)
+        {
+            out << "cl=" << turn.cluster_id << " ";
+        }
+
+        // Because turn index is unknown here, and still useful for debugging,
+        std::size_t index = 0;
+        for (typename Turns::const_iterator it = turns.begin();
+           it != turns.end(); ++it, ++index)
+        {
+          Turn const& t = *it;
+          if (&t == &turn)
+          {
+              out << index;
+              break;
+          }
+        }
+
+        if (&op == &turn.operations[0]) { out << "[0]"; }
+        if (&op == &turn.operations[1]) { out << "[1]"; }
+        out << " " << bg::visited_char(op.visited);
+        return out.str();
     }
 
     template <typename Clusters, typename Turns>
@@ -98,12 +128,24 @@ struct map_visitor
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
     {
+        typedef typename boost::range_value<Turns>::type turn_type;
+
+        if (! m_do_output)
+        {
+            return;
+        }
+
+        std::cout << "Visit turn " << stream_turn_index(turns, turn, op)
+                  << " " << bg::operation_char(turn.operations[0].operation)
+                    << bg::operation_char(turn.operations[1].operation)
+                << " (" << bg::operation_char(op.operation) << ")"
+                << " "  << header << std::endl;
 
         // Uncomment for more detailed debug info in SVG on traversal
         std::string style
                 = header == "Visit" ? "fill:rgb(80,80,80)" : "fill:rgb(0,0,0)";
 
-        style += ";font-family:Arial;font-size:8px";
+        style += ";font-family:Arial;font-size:6px";
 
         stream(turns, turn, op, header.substr(0, 1), style);
     }
@@ -112,30 +154,41 @@ struct map_visitor
     void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op,
                                bg::detail::overlay::traverse_error_type error)
     {
-        std::string style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+        if (! m_do_output)
+        {
+            return;
+        }
+        std::cout << "Reject turn " << stream_turn_index(turns, turn, op)
+                  << bg::operation_char(turn.operations[0].operation)
+                    << bg::operation_char(turn.operations[1].operation)
+                << " (" << bg::operation_char(op.operation) << ")"
+                << " "  << bg::detail::overlay::traverse_error_string(error) << std::endl;
+        //return;
+
+        std::string style =  "fill:rgb(255,0,0);font-family:Arial;font-size:7px";
         stream(turns, turn, op, bg::detail::overlay::traverse_error_string(error), style);
+
+        m_do_output = false;
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_select_turn_from_cluster(Turns const& turns, Turn const& turn, Operation const& op)
+    {
+        std::cout << "Visit turn from cluster " << stream_turn_index(turns, turn, op)
+                  << " " << bg::operation_char(turn.operations[0].operation)
+                    << bg::operation_char(turn.operations[1].operation)
+                << " (" << bg::operation_char(op.operation) << ")"
+                << std::endl;
+        return;
     }
 
     template <typename Turns, typename Turn, typename Operation>
     void stream(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header, const std::string& style)
     {
-        // Because turn index is unknown here, and still useful for debugging,
-        // walk through turns to get it (turns is a deque, there is no .data() )
-        std::size_t index = 0;
-        for (typename Turns::const_iterator it = turns.begin();
-             it != turns.end(); ++it, ++index)
-        {
-            Turn const& t = *it;
-            if (&t == &turn)
-            {
-                break;
-            }
-        }
         std::ostringstream out;
-        out << m_traverse_seq++ << " " << header << " " << index;
+        out << m_traverse_seq++ << " " << header
+            << " " << stream_turn_index(turns, turn, op);
 
-        if (&op == &turn.operations[0]) { out << "[0]"; }
-        if (&op == &turn.operations[1]) { out << "[1]"; }
         out << " " << bg::visited_char(op.visited);
 
         add_text(turn, out.str(), style);
@@ -227,6 +280,8 @@ struct map_visitor
     Mapper& m_mapper;
     std::map<std::pair<int, int>, int> m_offsets;
     int m_traverse_seq;
+    bool m_do_output;
+
 };
 #endif
 
