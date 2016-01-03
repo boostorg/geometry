@@ -342,14 +342,23 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
             }
 
             if (ref_turn.both(operation_union)
-                && ! turn.both(operation_union)
-                && other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
-                && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index
-                && discard_colocated_uu<Reverse1, Reverse2>(id,
-                    turn_points, ref_toi, toi, geometry1, geometry2))
+                && ! turn.both(operation_union))
             {
-                turn.discarded = true;
-                turn.colocated = true;
+                if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
+                    && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index
+                    && discard_colocated_uu<Reverse1, Reverse2>(id,
+                        turn_points, ref_toi, toi, geometry1, geometry2))
+                {
+                    turn.discarded = true;
+                    turn.colocated = true;
+                }
+                if (turn.both(operation_continue))
+                {
+                    turn.discarded = true;
+                    turn.colocated = true;
+                }
+
+
             }
         }
         else
@@ -382,9 +391,9 @@ inline void assign_cluster_to_turns(Turns& turns,
     {
         turn_type& turn = *it;
 
-        if (turn.both(operation_union) || turn.discarded)
+        if (turn.discarded)
         {
-            // They are processed (to create proper map) but will not be added
+            // They were processed (to create proper map) but will not be added
             // This might leave a cluster with only 1 turn, which will be fixed
             // afterwards
             continue;

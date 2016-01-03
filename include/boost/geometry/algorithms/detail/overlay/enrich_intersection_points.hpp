@@ -294,7 +294,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     detail::overlay::handle_colocations<Reverse1, Reverse2>(turn_points,
             clusters, geometry1, geometry2);
 
-    // Iterate through turns and discard uu/none (after handling colocations)
+    // Iterate through turns and possibly discard turns (after handling colocations)
     for (typename boost::range_iterator<TurnPoints>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -302,22 +302,17 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     {
         if (it->both(detail::overlay::operation_union))
         {
-#ifdef BOOST_GEOMETRY_HANDLE_TOUCH
             if (for_operation == detail::overlay::operation_union)
             {
                 // Set switch_source to false, it might be turned to true later
                 it->switch_source = false;
-
-                // Never start with a u/u turn
-                it->selectable_start = false;
             }
             else
-#endif
             {
                 it->discarded = true;
             }
         }
-        else if (it->both(detail::overlay::operation_none))
+        if (it->both(detail::overlay::operation_none))
         {
             it->discarded = true;
         }

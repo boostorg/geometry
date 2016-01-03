@@ -91,13 +91,12 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
          ++it)
     {
         typename boost::range_value<TurnPoints>::type const& turn_info = *it;
-        bool both_uu = turn_info.both(operation_union);
-        bool skip = (turn_info.discarded || both_uu)
+        bool skip = turn_info.discarded
             && ! turn_info.any_blocked()
             && ! turn_info.both(operation_intersection)
             ;
 
-        if (! both_uu && turn_info.colocated)
+        if (turn_info.colocated)
         {
             skip = true;
         }
@@ -117,10 +116,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
             if (! skip)
             {
                 turn_info_map[ring_id].has_normal_turn = true;
-            }
-            else if (both_uu)
-            {
-                turn_info_map[ring_id].has_uu_turn = true;
             }
         }
     }
@@ -263,13 +258,14 @@ std::cout << "enrich" << std::endl;
         visitor.visit_clusters(clusters, turn_points);
 
 
-#ifdef BOOST_GEOMETRY_HANDLE_TOUCH
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "handle_touch" << std::endl;
-#endif
+        if (op_type == geometry::detail::overlay::operation_union)
+        {
+            #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+            std::cout << "handle_touch" << std::endl;
+            #endif
 
-        handle_touch(op_type, turn_points);
-#endif
+            handle_touch(op_type, turn_points);
+        }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
