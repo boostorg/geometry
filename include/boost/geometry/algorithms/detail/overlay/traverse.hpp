@@ -126,12 +126,20 @@ struct traversal
     {}
 
 
-    inline bool select_source(signed_size_type source1,
+    inline bool select_source(signed_size_type turn_index,
+                              signed_size_type source1,
                               signed_size_type source2)
     {
-        return (OperationType == operation_intersection && source1 != source2)
-            || (OperationType == operation_union && source1 == source2)
-            ;
+        if (OperationType == operation_intersection)
+        {
+            // Always switch sources
+            return source1 != source2;
+        }
+        else if (OperationType == operation_union)
+        {
+            return m_turns[turn_index].switch_source ? source1 != source2 : source1 == source2;
+        }
+        return false;
     }
 
     inline
@@ -199,7 +207,7 @@ struct traversal
                 || (op.operation == OperationType
                     && ! op.visited.finished()
                     && (! result
-                        || select_source(op.seg_id.source_index, seg_id.source_index)
+                        || select_source(next_turn_index, op.seg_id.source_index, seg_id.source_index)
                         )
                     )
                 )

@@ -103,7 +103,7 @@ struct turn_info
     bool discarded;
     bool selectable_start; // Can be used as starting-turn in traverse
     bool colocated;
-
+    bool switch_source; // For u/u turns which can either switch or not
 
     Container operations;
 
@@ -113,6 +113,7 @@ struct turn_info
         , discarded(false)
         , selectable_start(true)
         , colocated(false)
+        , switch_source(false)
     {}
 
     inline bool both(operation_type type) const

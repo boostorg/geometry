@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_touch.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -261,6 +262,14 @@ std::cout << "enrich" << std::endl;
 
         visitor.visit_clusters(clusters, turn_points);
 
+
+#ifdef BOOST_GEOMETRY_HANDLE_TOUCH
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "handle_touch" << std::endl;
+#endif
+
+        handle_touch(op_type, turn_points);
+#endif
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;

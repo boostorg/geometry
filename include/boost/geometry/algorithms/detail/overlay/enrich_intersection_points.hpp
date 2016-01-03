@@ -302,7 +302,20 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     {
         if (it->both(detail::overlay::operation_union))
         {
-            it->discarded = true;
+#ifdef BOOST_GEOMETRY_HANDLE_TOUCH
+            if (for_operation == detail::overlay::operation_union)
+            {
+                // Set switch_source to false, it might be turned to true later
+                it->switch_source = false;
+
+                // Never start with a u/u turn
+                it->selectable_start = false;
+            }
+            else
+#endif
+            {
+                it->discarded = true;
+            }
         }
         else if (it->both(detail::overlay::operation_none))
         {
