@@ -351,12 +351,6 @@ struct traversal
             {
                 turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
 
-                if (ranked_turn.discarded)
-                {
-                    // Might be collocated u/u turn
-                    continue;
-                }
-
                 // Use this turn (if also part of a cluster, it will point to
                 // next turn outside cluster)
                 turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
