@@ -217,7 +217,13 @@ private :
                                  signed_size_type to_turn_index,
                                  std::size_t iteration = 0)
     {
-        if (iteration >= boost::size(turns))
+        if (turn.cluster_id >= 0)
+        {
+            // Clustered turns are yet not supported
+            return false;
+        }
+
+        if (iteration >= boost::size(turns) || iteration > 10)
         {
             m_visitor.print("Too much iterations");
             // Defensive check to avoid infinite recursion
