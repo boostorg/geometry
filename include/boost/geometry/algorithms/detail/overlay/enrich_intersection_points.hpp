@@ -225,7 +225,7 @@ inline void create_map(TurnPoints const& turn_points,
             // We should NOT skip blocked operations here
             // because they can be relevant for "the other side"
             // NOT if (op_it->operation != operation_blocked)
-            ring_identifier ring_id
+            ring_identifier const ring_id
                 (
                     op_it->seg_id.source_index,
                     op_it->seg_id.multi_index,
@@ -333,7 +333,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     mapped_vector_type mapped_vector;
 
     detail::overlay::create_map<indexed_turn_operation>(turn_points,
-            for_operation,  mapped_vector);
+            for_operation, mapped_vector);
 
     if (has_colocations)
     {

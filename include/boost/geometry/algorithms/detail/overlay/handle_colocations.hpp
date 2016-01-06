@@ -67,7 +67,7 @@ struct turn_operation_index
     {}
 
     signed_size_type turn_index;
-    signed_size_type op_index; // basically only 0,1
+    signed_size_type op_index; // only 0,1
 };
 
 
