@@ -522,9 +522,16 @@ static std::string case_recursive_boxes_17[2] =
 
 static std::string case_recursive_boxes_18[2] =
 {
-    // Very simple case having two colocated uu turns
+    // Simple case having two colocated uu turns
     "MULTIPOLYGON(((2 1,3 0,2 0,2 1)),((2 1,1 1,1 2,2 1)))",
     "MULTIPOLYGON(((2 2,2 3,3 3,3 2,2 1,2 2)))"
+};
+
+static std::string case_recursive_boxes_19[2] =
+{
+    // Simple case having two colocated uu and ux turns
+    "MULTIPOLYGON(((1 4,2 3,1 3,1 4)),((1 4,0 4,0 5,1 4)))",
+    "MULTIPOLYGON(((3 4,1 4,2 5,3 4)),((1 4,1 3,0 3,1 4)))"
 };
 
 static std::string pie_21_7_21_0_3[2] =

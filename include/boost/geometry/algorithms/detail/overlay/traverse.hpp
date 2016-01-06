@@ -259,16 +259,21 @@ struct traversal
 
         sbs_type sbs;
         bool has_subject = false;
-        bool only_uu = true;
+        bool only_uu_or_ux = true;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
             turn_type const& cturn = m_turns[turn_index];
-            if (only_uu && ! cturn.both(operation_union))
+            if (only_uu_or_ux)
             {
-                only_uu = false;
+                if (! (cturn.both(operation_union)
+                        || (cturn.has(operation_union) && cturn.has(operation_blocked))))
+                {
+                    // not a u-turn and not a ux turn
+                    only_uu_or_ux = false;
+                }
             }
             for (int i = 0; i < 2; i++)
             {
@@ -292,12 +297,13 @@ struct traversal
         }
         sbs.apply(turn.point);
 
-        if (only_uu)
+        if (only_uu_or_ux)
         {
             sbs.reverse();
         }
 
         bool result = false;
+        std::size_t target_main_rank = 1;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
@@ -309,14 +315,21 @@ struct traversal
                 return false;
             }
 
-            if (ranked_point.main_rank == 1
+            if (ranked_point.main_rank == target_main_rank
                     && ranked_point.index == sort_by_side::index_to
                     && ranked_point.operation == operation_blocked)
             {
+                if (only_uu_or_ux)
+                {
+                    // Turns are reversed and ux is allowed, now aim for
+                    // the next main_rank
+                    target_main_rank++;
+                    continue;
+                }
                 return false;
             }
 
-            if (ranked_point.main_rank == 1
+            if (ranked_point.main_rank == target_main_rank
                     && ranked_point.index == sort_by_side::index_to
                     && (ranked_point.operation == OperationType
                         || ranked_point.operation == operation_continue))
@@ -351,7 +364,7 @@ struct traversal
                 result = true;
                 // Don't return yet, maybe there is a blocked
             }
-            if (ranked_point.main_rank > 1)
+            if (ranked_point.main_rank > target_main_rank)
             {
                 return result;
             }
