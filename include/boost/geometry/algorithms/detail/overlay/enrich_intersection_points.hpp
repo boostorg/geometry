@@ -291,8 +291,18 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
-    detail::overlay::handle_colocations<Reverse1, Reverse2>(turn_points,
-            clusters, geometry1, geometry2);
+    // Holds counts of discarded and colocated cc turns, per ring
+    typedef std::map
+        <
+            ring_identifier,
+            std::size_t
+        > count_per_ring_type;
+
+    count_per_ring_type colocated_cc_map;
+
+    bool const has_colocations
+        = detail::overlay::handle_colocations<Reverse1, Reverse2>(turn_points,
+        clusters, colocated_cc_map, geometry1, geometry2);
 
     // Iterate through turns and possibly discard turns (after handling colocations)
     for (typename boost::range_iterator<TurnPoints>::type
@@ -324,6 +334,19 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
 
     detail::overlay::create_map<indexed_turn_operation>(turn_points,
             for_operation,  mapped_vector);
+
+    if (has_colocations)
+    {
+        for (typename mapped_vector_type::iterator mit
+            = mapped_vector.begin();
+            mit != mapped_vector.end();
+            ++mit)
+        {
+            detail::overlay::discard_lonely_uu_turns(mit->second, turn_points,
+                mapped_vector, colocated_cc_map);
+        }
+    }
+
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich
