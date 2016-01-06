@@ -286,26 +286,14 @@ inline void enrich_intersection_points(Turns& turns,
 
     bool const has_colocations
         = detail::overlay::handle_colocations<Reverse1, Reverse2>(turns,
-        clusters, colocated_cc_map, geometry1, geometry2);
+        clusters, colocated_cc_map, for_operation, geometry1, geometry2);
 
-    // Iterate through turns and possibly discard turns (after handling colocations)
+    // Discard none turns, if any
     for (typename boost::range_iterator<Turns>::type
             it = boost::begin(turns);
          it != boost::end(turns);
          ++it)
     {
-        if (it->both(detail::overlay::operation_union))
-        {
-            if (for_operation == detail::overlay::operation_union)
-            {
-                // Set switch_source to false, it might be turned to true later
-                it->switch_source = false;
-            }
-            else
-            {
-                it->discarded = true;
-            }
-        }
         if (it->both(detail::overlay::operation_none))
         {
             it->discarded = true;

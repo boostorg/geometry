@@ -285,6 +285,7 @@ inline void handle_colocation_cluster(Turns& turns,
         ClusterPerSegment& cluster_per_segment,
         ColocatedCcMap& colocated_cc_map,
         Operations const& operations,
+        operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
@@ -343,7 +344,8 @@ inline void handle_colocation_cluster(Turns& turns,
                 // We can either set or not set colocated because it is not effective on blocked turns
             }
 
-            if (ref_turn.both(operation_union)
+            if (for_operation == operation_union
+                && ref_turn.both(operation_union)
                 && ! turn.both(operation_union))
             {
                 if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
@@ -475,7 +477,7 @@ template
     typename Geometry2
 >
 inline bool handle_colocations(Turns& turns, Clusters& clusters,
-        ColocatedCcMap& colocated_cc_map,
+        ColocatedCcMap& colocated_cc_map, operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef std::map
@@ -545,7 +547,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
         if (it->second.size() > 1u)
         {
             handle_colocation_cluster<Reverse1, Reverse2>(turns, cluster_id,
-                cluster_per_segment, colocated_cc_map, it->second, geometry1, geometry2);
+                cluster_per_segment, colocated_cc_map, it->second,
+                for_operation, geometry1, geometry2);
         }
     }
 
