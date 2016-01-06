@@ -259,12 +259,17 @@ struct traversal
 
         sbs_type sbs;
         bool has_subject = false;
+        bool only_uu = true;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
             turn_type const& cturn = m_turns[turn_index];
+            if (only_uu && ! cturn.both(operation_union))
+            {
+                only_uu = false;
+            }
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type const& cop = cturn.operations[i];
@@ -287,6 +292,10 @@ struct traversal
         }
         sbs.apply(turn.point);
 
+        if (only_uu)
+        {
+            sbs.reverse();
+        }
 
         bool result = false;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)

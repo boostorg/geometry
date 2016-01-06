@@ -234,10 +234,51 @@ struct side_sorter
 //        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_by_turn_index());
     }
 
+    void reverse()
+    {
+        if (m_ranked_points.empty())
+        {
+            return;
+        }
+
+        int const last = 1 + m_ranked_points.back().main_rank;
+
+        // Move iterator after main_rank==0
+        bool has_first = false;
+        typename container_type::iterator it = m_ranked_points.begin() + 1;
+        for (; it != m_ranked_points.end() && it->main_rank == 0; ++it)
+        {
+            has_first = true;
+        }
+
+        int index = 0;
+        if (has_first)
+        {
+            // Reverse first part (having main_rank == 0), if any,
+            // but skip the very first row
+            std::reverse(m_ranked_points.begin() + 1, it);
+            for (typename container_type::iterator fit = m_ranked_points.begin();
+                 fit != it; ++fit, ++index)
+            {
+                BOOST_ASSERT(fit->main_rank == 0);
+                fit->rank = index;
+            }
+        }
+
+        // Reverse the rest (main rank > 0)
+        std::reverse(it, m_ranked_points.end());
+        for (; it != m_ranked_points.end(); ++it, ++index)
+        {
+            BOOST_ASSERT(it->main_rank > 0);
+            it->rank = index;
+            it->main_rank = last - it->main_rank;
+        }
+    }
 
 //protected :
 
-    std::vector<ranked_point<Point> > m_ranked_points;
+    typedef std::vector<ranked_point<Point> > container_type;
+    container_type m_ranked_points;
     Point m_from;
 };
 
