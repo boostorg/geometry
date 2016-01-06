@@ -63,6 +63,14 @@ namespace detail { namespace overlay
 //! Default visitor for overlay, doing nothing
 struct overlay_null_visitor
 {
+    void print(char const* ) {}
+
+    template <typename Turns>
+    void print(char const* , Turns const& , int) {}
+
+    template <typename Turns>
+    void print(char const* , Turns const& , int , int ) {}
+
     template <typename Turns>
     void visit_turns(int , Turns const& ) {}
 
@@ -70,7 +78,7 @@ struct overlay_null_visitor
     void visit_clusters(Clusters const& , Turns const& ) {}
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& , Turn const& , Operation const& , const std::string& )
+    void visit_traverse(Turns const& , Turn const& , Operation const& , char const*)
     {}
 
     template <typename Turns, typename Turn, typename Operation>
@@ -257,7 +265,7 @@ std::cout << "enrich" << std::endl;
             std::cout << "handle_touch" << std::endl;
             #endif
 
-            handle_touch(op_type, turns);
+            handle_touch(op_type, turns, visitor);
         }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE

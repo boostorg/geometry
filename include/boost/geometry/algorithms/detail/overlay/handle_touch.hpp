@@ -27,7 +27,7 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Turns>
+template <typename Turns, typename Visitor>
 class handle_touch_uu
 {
 private :
@@ -41,8 +41,12 @@ private :
         >::type operation_const_iterator;
 
 public :
-    static inline void apply(detail::overlay::operation_type operation,
-                Turns& turns)
+
+    handle_touch_uu(Visitor& visitor)
+        : m_visitor(visitor)
+    {}
+
+    inline void apply(detail::overlay::operation_type operation, Turns& turns)
     {
         if (! has_uu(turns))
         {
@@ -51,38 +55,35 @@ public :
         }
 
         // Iterate through all u/u points
-        int index = 0;
+        int turn_index = 0;
         for (turn_iterator it = boost::begin(turns);
              it != boost::end(turns);
-             ++it, ++index)
+             ++it, ++turn_index)
         {
             turn_type& turn = *it;
-            if (turn.both(operation_union))
+            if (! turn.both(operation_union))
             {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " * handle_touch uu: " << index << std::endl;
-#endif
+                continue;
+            }
 
-                bool const traverse = turn_should_be_traversed(turns, turn, index);
-                bool const start = traverse
-                                   && turn_should_be_startable(turns, turn, index);
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " * handle_touch " << index << " result: "
-                          << std::boolalpha
-                          << traverse << " " << start
-                          << std::endl;
-#endif
+            m_visitor.print("handle_touch uu:", turns, turn_index);
 
-                if (traverse)
+            bool const traverse = turn_should_be_traversed(turns, turn, turn_index);
+            bool const start = traverse
+                               && turn_should_be_startable(turns, turn, turn_index);
+            m_visitor.print("handle_touch, ready ", turns, turn_index);
+//                          << std::boolalpha
+//                          << traverse << " " << start
+
+            if (traverse)
+            {
+                // Indicate the sources should switch here to create
+                // separate rings (outer ring / inner ring)
+                turn.switch_source = true;
+
+                if (start)
                 {
-                    // Indicate the sources should switch here to create
-                    // separate rings (outer ring / inner ring)
-                    turn.switch_source = true;
-
-                    if (start)
-                    {
-                        turn.selectable_start = true;
-                    }
+                    turn.selectable_start = true;
                 }
             }
         }
@@ -177,87 +178,78 @@ private :
                               original_turn_index, iteration + 1);
     }
 
-    static inline
-    bool turn_should_be_traversed(const Turns& turns,
+    inline bool turn_should_be_traversed(const Turns& turns,
                                   const turn_type& uu_turn,
-                                  signed_size_type uu_index)
+                                  signed_size_type uu_turn_index)
     {
-        return turn_should_be_traversed(turns, uu_turn, uu_index, 0)
-            || turn_should_be_traversed(turns, uu_turn, uu_index, 1);
+        return turn_should_be_traversed(turns, uu_turn, uu_turn_index, 0)
+            || turn_should_be_traversed(turns, uu_turn, uu_turn_index, 1);
     }
 
-    static inline
-    bool turn_should_be_traversed(const Turns& turns,
+    inline bool turn_should_be_traversed(const Turns& turns,
                                   const turn_type& uu_turn,
-                                  signed_size_type uu_index,
-                                  int operation_index)
+                                  signed_size_type uu_turn_index,
+                                  int uu_operation_index)
     {
         // Suppose this is a u/u turn between P and Q
         // Examine all other turns on P and check if Q can be reached
         // Use one of the operations and check if you can reach the other
-        signed_size_type const index
-            = uu_turn.operations[operation_index].enriched.travels_to_ip_index;
-        if (! in_range(turns, index))
+        signed_size_type const to_turn_index
+            = uu_turn.operations[uu_operation_index].enriched.travels_to_ip_index;
+        if (! in_range(turns, to_turn_index))
         {
             return false;
         }
 
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " Examine: " << index << std::endl;
-#endif
+        m_visitor.print("Examine:", turns, to_turn_index);
         ring_identifier const other_ring_id
-            = ring_id_from_op(uu_turn, 1 - operation_index);
+            = ring_id_from_op(uu_turn, 1 - uu_operation_index);
 
-        return can_reach(turns, turns[index], operation_index,
-                         other_ring_id, uu_index, index);
+        return can_reach(turns, turns[to_turn_index], uu_operation_index,
+                         other_ring_id, uu_turn_index, to_turn_index);
     }
 
-    static inline bool can_reach(const Turns& turns,
+    inline bool can_reach(const Turns& turns,
                                  const turn_type& turn,
-                                 signed_size_type operation_index,
+                                 signed_size_type uu_operation_index,
                                  const ring_identifier& target_ring_id,
-                                 signed_size_type uu_index,
-                                 signed_size_type original_turn_index,
+                                 signed_size_type uu_turn_index,
+                                 signed_size_type to_turn_index,
                                  std::size_t iteration = 0)
     {
         if (iteration >= boost::size(turns))
         {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-        std::cout << "   Too much iterations" << std::endl;
-#endif
+            m_visitor.print("Too much iterations");
             // Defensive check to avoid infinite recursion
             return false;
         }
 
-        if (operation_index != -1 && turn.both(operation_union))
+        if (uu_operation_index != -1 && turn.both(operation_union))
         {
             // If we end up in a u/u turn, check the way how, for this operation
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-        std::cout << "   Via u/u " << std::endl;
-#endif
-            return can_reach_via(turns, operation_index,
-                                 turn.operations[operation_index],
+            m_visitor.print("Via u/u");
+            return can_reach_via(turns, uu_operation_index,
+                                 turn.operations[uu_operation_index],
                                  target_ring_id,
-                                 uu_index, original_turn_index, iteration);
+                                 uu_turn_index, to_turn_index, iteration);
         }
         else
         {
             // Check if specified ring can be reached via one of both operations
             return can_reach_via(turns, 0, turn.operations[0], target_ring_id,
-                                 uu_index, original_turn_index, iteration)
+                                 uu_turn_index, to_turn_index, iteration)
                 || can_reach_via(turns, 1, turn.operations[1], target_ring_id,
-                                 uu_index, original_turn_index, iteration);
+                                 uu_turn_index, to_turn_index, iteration);
         }
     }
 
     template <typename Operation>
-    static inline
-    bool can_reach_via(const Turns& turns,
+    inline bool can_reach_via(const Turns& turns,
             signed_size_type operation_index,
             const Operation& operation,
             const ring_identifier& target_ring_id,
-            signed_size_type uu_index,
-            signed_size_type original_turn_index,
+            signed_size_type uu_turn_index,
+            signed_size_type to_turn_index,
             std::size_t iteration = 0)
     {
         if (operation.operation != operation_union
@@ -267,20 +259,16 @@ private :
         }
 
         signed_size_type const index = operation.enriched.travels_to_ip_index;
-        if (index == original_turn_index)
+        if (index == to_turn_index)
         {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-            std::cout << " Dead end at "  << index << std::endl;
-#endif
+            m_visitor.print("Dead end at", turns, index);
             // Completely traveled, the target is not found
             return false;
         }
-        if (index == uu_index)
+        if (index == uu_turn_index)
         {
             // End up where trial was started
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-            std::cout << " Travel comlete at " << index << std::endl;
-#endif
+            m_visitor.print("Travel complete at ", turns, index);
             return false;
         }
 
@@ -289,9 +277,7 @@ private :
             return false;
         }
 
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-        std::cout << "   Now to " << index << " " << operation_index << std::endl;
-#endif
+        m_visitor.print("Now to", turns, index, operation_index);
         const turn_type& new_turn = turns[index];
 
         if (new_turn.both(operation_union))
@@ -299,9 +285,7 @@ private :
             ring_identifier const ring_id = ring_id_from_op(new_turn, operation_index);
             if (ring_id == target_ring_id)
             {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " Found (at u/u)!" << std::endl;
-#endif
+                m_visitor.print("Found (at u/u)!");
                 return true;
             }
         }
@@ -311,24 +295,26 @@ private :
             ring_identifier const ring_id2 = ring_id_from_op(new_turn, 1);
             if (ring_id1 == target_ring_id || ring_id2 == target_ring_id)
             {
-#ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TOUCH
-                std::cout << " Found!" << std::endl;
-#endif
+                m_visitor.print("Found!");
                 return true;
             }
         }
 
         // Recursively check this turn
         return can_reach(turns, new_turn, operation_index, target_ring_id,
-                         uu_index, original_turn_index, iteration + 1);
+                         uu_turn_index, to_turn_index, iteration + 1);
     }
+
+private :
+    Visitor m_visitor;
 };
 
-template <typename Turns>
+template <typename Turns, typename Visitor>
 inline void handle_touch(detail::overlay::operation_type operation,
-                         Turns& turns)
+                         Turns& turns, Visitor& visitor)
 {
-    handle_touch_uu<Turns>::apply(operation, turns);
+    handle_touch_uu<Turns, Visitor> handler(visitor);
+    handler.apply(operation, turns);
 }
 
 }} // namespace detail::overlay
