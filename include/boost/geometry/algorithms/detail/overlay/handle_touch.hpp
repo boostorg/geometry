@@ -205,11 +205,12 @@ private :
         ring_identifier const other_ring_id
             = ring_id_from_op(uu_turn, 1 - uu_operation_index);
 
-        return can_reach(turns, turns[to_turn_index], uu_operation_index,
+        bool complete = false;
+        return can_reach(complete, turns, turns[to_turn_index], uu_operation_index,
                          other_ring_id, uu_turn_index, to_turn_index);
     }
 
-    inline bool can_reach(const Turns& turns,
+    inline bool can_reach(bool& complete, const Turns& turns,
                                  const turn_type& turn,
                                  signed_size_type uu_operation_index,
                                  const ring_identifier& target_ring_id,
@@ -217,13 +218,18 @@ private :
                                  signed_size_type to_turn_index,
                                  std::size_t iteration = 0)
     {
+        if (complete)
+        {
+            return false;
+        }
+
         if (turn.cluster_id >= 0)
         {
             // Clustered turns are yet not supported
             return false;
         }
 
-        if (iteration >= boost::size(turns) || iteration > 10)
+        if (iteration >= boost::size(turns))
         {
             m_visitor.print("Too much iterations");
             // Defensive check to avoid infinite recursion
@@ -234,7 +240,7 @@ private :
         {
             // If we end up in a u/u turn, check the way how, for this operation
             m_visitor.print("Via u/u");
-            return can_reach_via(turns, uu_operation_index,
+            return can_reach_via(complete, turns, uu_operation_index,
                                  turn.operations[uu_operation_index],
                                  target_ring_id,
                                  uu_turn_index, to_turn_index, iteration);
@@ -242,15 +248,15 @@ private :
         else
         {
             // Check if specified ring can be reached via one of both operations
-            return can_reach_via(turns, 0, turn.operations[0], target_ring_id,
+            return can_reach_via(complete, turns, 0, turn.operations[0], target_ring_id,
                                  uu_turn_index, to_turn_index, iteration)
-                || can_reach_via(turns, 1, turn.operations[1], target_ring_id,
+                || can_reach_via(complete, turns, 1, turn.operations[1], target_ring_id,
                                  uu_turn_index, to_turn_index, iteration);
         }
     }
 
     template <typename Operation>
-    inline bool can_reach_via(const Turns& turns,
+    inline bool can_reach_via(bool& complete, const Turns& turns,
             signed_size_type operation_index,
             const Operation& operation,
             const ring_identifier& target_ring_id,
@@ -274,7 +280,8 @@ private :
         if (index == uu_turn_index)
         {
             // End up where trial was started
-            m_visitor.print("Travel complete at ", turns, index);
+            m_visitor.print("Travel complete at", turns, index);
+            complete = true;
             return false;
         }
 
@@ -307,7 +314,7 @@ private :
         }
 
         // Recursively check this turn
-        return can_reach(turns, new_turn, operation_index, target_ring_id,
+        return can_reach(complete, turns, new_turn, operation_index, target_ring_id,
                          uu_turn_index, to_turn_index, iteration + 1);
     }
 
