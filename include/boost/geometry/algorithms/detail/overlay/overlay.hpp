@@ -78,19 +78,18 @@ struct overlay_null_visitor
     {}
 };
 
-template <typename TurnPoints, typename TurnInfoMap>
-inline void get_ring_turn_info(TurnInfoMap& turn_info_map,
-        TurnPoints const& turn_points)
+template <typename Turns, typename TurnInfoMap>
+inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
 {
-    typedef typename boost::range_value<TurnPoints>::type turn_point_type;
-    typedef typename turn_point_type::container_type container_type;
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::container_type container_type;
 
-    for (typename boost::range_iterator<TurnPoints const>::type
-            it = boost::begin(turn_points);
-         it != boost::end(turn_points);
+    for (typename boost::range_iterator<Turns const>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
          ++it)
     {
-        typename boost::range_value<TurnPoints>::type const& turn_info = *it;
+        typename boost::range_value<Turns>::type const& turn_info = *it;
 
         if (turn_info.discarded
             && ! turn_info.any_blocked()
@@ -202,7 +201,7 @@ struct overlay
             point_type,
             typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
         > turn_info;
-        typedef std::deque<turn_info> container_type;
+        typedef std::deque<turn_info> turn_container_type;
 
         typedef std::deque
             <
@@ -218,7 +217,7 @@ struct overlay
 
         cluster_type clusters;
 
-        container_type turn_points;
+        turn_container_type turns;
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
@@ -228,9 +227,9 @@ std::cout << "get turns" << std::endl;
             <
                 Reverse1, Reverse2,
                 detail::overlay::assign_null_policy
-            >(geometry1, geometry2, robust_policy, turn_points, policy);
+            >(geometry1, geometry2, robust_policy, turns, policy);
 
-        visitor.visit_turns(1, turn_points);
+        visitor.visit_turns(1, turns);
 
         static const operation_type op_type
                 = OverlayType == overlay_union
@@ -241,15 +240,15 @@ std::cout << "get turns" << std::endl;
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turn_points,
+        geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
                 clusters, op_type,
                     geometry1, geometry2,
                     robust_policy,
                     side_strategy);
 
-        visitor.visit_turns(2, turn_points);
+        visitor.visit_turns(2, turns);
 
-        visitor.visit_clusters(clusters, turn_points);
+        visitor.visit_clusters(clusters, turns);
 
 
         if (op_type == geometry::detail::overlay::operation_union)
@@ -258,7 +257,7 @@ std::cout << "enrich" << std::endl;
             std::cout << "handle_touch" << std::endl;
             #endif
 
-            handle_touch(op_type, turn_points);
+            handle_touch(op_type, turns);
         }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -272,13 +271,13 @@ std::cout << "traverse" << std::endl;
                 (
                     geometry1, geometry2,
                     robust_policy,
-                    turn_points, rings,
+                    turns, rings,
                     clusters,
                     visitor
                 );
 
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
-        get_ring_turn_info(turn_info_per_ring, turn_points);
+        get_ring_turn_info(turn_info_per_ring, turns);
 
         typedef ring_properties
         <

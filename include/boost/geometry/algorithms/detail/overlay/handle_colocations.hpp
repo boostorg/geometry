@@ -71,18 +71,18 @@ struct turn_operation_index
 };
 
 
-template <typename TurnPoints>
+template <typename Turns>
 struct less_by_fraction_and_type
 {
-    inline less_by_fraction_and_type(TurnPoints const& turn_points)
-        : m_turns(turn_points)
+    inline less_by_fraction_and_type(Turns const& turns)
+        : m_turns(turns)
     {
     }
 
     inline bool operator()(turn_operation_index const& left,
                            turn_operation_index const& right) const
     {
-        typedef typename boost::range_value<TurnPoints>::type turn_type;
+        typedef typename boost::range_value<Turns>::type turn_type;
         typedef typename turn_type::turn_operation_type turn_operation_type;
 
         turn_type const& left_turn = m_turns[left.turn_index];
@@ -133,7 +133,7 @@ struct less_by_fraction_and_type
     }
 
 private:
-    TurnPoints const& m_turns;
+    Turns const& m_turns;
 };
 
 template <typename Operation, typename ClusterPerSegment>
@@ -273,37 +273,37 @@ inline bool discard_colocated_uu(signed_size_type cluster_id,
 template
 <
     bool Reverse1, bool Reverse2,
-    typename TurnPoints,
+    typename Turns,
     typename ClusterPerSegment,
     typename ColocatedCcMap,
-    typename OperationVector,
+    typename Operations,
     typename Geometry1,
     typename Geometry2
 >
-inline void handle_colocation_cluster(TurnPoints& turn_points,
+inline void handle_colocation_cluster(Turns& turns,
         signed_size_type& cluster_id,
         ClusterPerSegment& cluster_per_segment,
         ColocatedCcMap& colocated_cc_map,
-        OperationVector const& vec,
+        Operations const& operations,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    typedef typename boost::range_value<TurnPoints>::type turn_type;
+    typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
     typedef typename ClusterPerSegment::key_type segment_fraction_type;
 
-    std::vector<turn_operation_index>::const_iterator vit = vec.begin();
+    std::vector<turn_operation_index>::const_iterator vit = operations.begin();
 
     turn_operation_index ref_toi = *vit;
     signed_size_type ref_id = -1;
 
-    for (++vit; vit != vec.end(); ++vit)
+    for (++vit; vit != operations.end(); ++vit)
     {
-        turn_type& ref_turn = turn_points[ref_toi.turn_index];
+        turn_type& ref_turn = turns[ref_toi.turn_index];
         turn_operation_type const& ref_op
                 = ref_turn.operations[ref_toi.op_index];
 
         turn_operation_index const& toi = *vit;
-        turn_type& turn = turn_points[toi.turn_index];
+        turn_type& turn = turns[toi.turn_index];
         turn_operation_type const& op = turn.operations[toi.op_index];
 
         BOOST_ASSERT(ref_op.seg_id == op.seg_id);
@@ -349,7 +349,7 @@ inline void handle_colocation_cluster(TurnPoints& turn_points,
                 if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
                     && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index
                     && discard_colocated_uu<Reverse1, Reverse2>(id,
-                        turn_points, ref_toi, toi, geometry1, geometry2))
+                        turns, ref_toi, toi, geometry1, geometry2))
                 {
                     turn.discarded = true;
                     turn.colocated = true;
@@ -562,16 +562,16 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
              = it->second.begin(); vit != it->second.end(); ++vit)
         {
             turn_operation_index const& toi = *vit;
-            std::cout << geometry::wkt(turn_points[toi.turn_index].point)
+            std::cout << geometry::wkt(turns[toi.turn_index].point)
                 << std::boolalpha
-                << " discarded=" << turn_points[toi.turn_index].discarded
-                << " colocated=" << turn_points[toi.turn_index].colocated
-                << " " << operation_char(turn_points[toi.turn_index].operations[0].operation)
-                << " "  << turn_points[toi.turn_index].operations[0].seg_id
-                << " "  << turn_points[toi.turn_index].operations[0].fraction
-                << " // " << operation_char(turn_points[toi.turn_index].operations[1].operation)
-                << " "  << turn_points[toi.turn_index].operations[1].seg_id
-                << " "  << turn_points[toi.turn_index].operations[1].fraction
+                << " discarded=" << turns[toi.turn_index].discarded
+                << " colocated=" << turns[toi.turn_index].colocated
+                << " " << operation_char(turns[toi.turn_index].operations[0].operation)
+                << " "  << turns[toi.turn_index].operations[0].seg_id
+                << " "  << turns[toi.turn_index].operations[0].fraction
+                << " // " << operation_char(turns[toi.turn_index].operations[1].operation)
+                << " "  << turns[toi.turn_index].operations[1].seg_id
+                << " "  << turns[toi.turn_index].operations[1].fraction
                 << std::endl;
         }
     }

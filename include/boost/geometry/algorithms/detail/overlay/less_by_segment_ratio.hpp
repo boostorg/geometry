@@ -56,7 +56,7 @@ struct indexed_turn_operation
 
 template
 <
-    typename TurnPoints,
+    typename Turns,
     typename Indexed,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,
@@ -64,12 +64,12 @@ template
 >
 struct less_by_segment_ratio
 {
-    inline less_by_segment_ratio(TurnPoints const& turn_points
+    inline less_by_segment_ratio(Turns const& turns
             , operation_type for_operation
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
             , RobustPolicy const& robust_policy)
-        : m_turn_points(turn_points)
+        : m_turns(turns)
         , m_for_operation(for_operation)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
@@ -79,7 +79,7 @@ struct less_by_segment_ratio
 
 private :
 
-    TurnPoints const& m_turn_points;
+    Turns const& m_turns;
     operation_type m_for_operation;
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
@@ -155,9 +155,9 @@ public :
         }
 
 
-        typedef typename boost::range_value<TurnPoints>::type turn_type;
-        turn_type const& left_turn = m_turn_points[left.turn_index];
-        turn_type const& right_turn = m_turn_points[right.turn_index];
+        typedef typename boost::range_value<Turns>::type turn_type;
+        turn_type const& left_turn = m_turns[left.turn_index];
+        turn_type const& right_turn = m_turns[right.turn_index];
 
         // First check "real" intersection (crosses)
         // -> distance zero due to precision, solve it by sorting
