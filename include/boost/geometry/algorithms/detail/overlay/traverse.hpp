@@ -259,7 +259,9 @@ struct traversal
 
         sbs_type sbs;
         bool has_subject = false;
-        bool only_uu_or_ux = true;
+
+        // Check if there are only uu/ux turns (for union)
+        bool only_uu_or_ux = OperationType == operation_union;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -302,9 +304,24 @@ struct traversal
             sbs.reverse();
         }
 
+        if (only_uu_or_ux)
+        {
+            std::size_t index = sbs.first_open_index();
+            if (index < sbs.m_ranked_points.size())
+            {
+                const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[index];
+                turn_it = m_turns.begin() + ranked_point.turn_index;
+                op_it = turn_it->operations.begin() + ranked_point.op_index;
+                return true;
+            }
+
+            return false;
+        }
+
+        // Normal intersection or non-reversed union
+        // (TODO: move this to sbs too)
+        const std::size_t target_main_rank = 1;
         bool result = false;
-        bool has_outgoing = false;
-        std::size_t target_main_rank = 1;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
@@ -316,31 +333,9 @@ struct traversal
                 return false;
             }
 
-            if (only_uu_or_ux
-                && ranked_point.main_rank > target_main_rank
-                && ! has_outgoing)
-            {
-                // Turns are reversed, until now there are no outgoing arcs
-                // (though this might be one), if halfway another arc did arrive
-                // aim for next main_rank
-                target_main_rank++;
-            }
-
-            if (ranked_point.index == sort_by_side::index_to)
-            {
-                has_outgoing = true;
-            }
-
             if (ranked_point.main_rank == target_main_rank
                     && ranked_point.operation == operation_blocked)
             {
-                if (only_uu_or_ux)
-                {
-                    // Turns are reversed and ux is allowed, now aim for
-                    // the next main_rank
-                    target_main_rank++;
-                    continue;
-                }
                 return false;
             }
 
@@ -375,11 +370,6 @@ struct traversal
             }
             if (ranked_point.main_rank > target_main_rank)
             {
-                if (only_uu_or_ux && ! has_outgoing && ! result)
-                {
-                    target_main_rank++;
-                    continue;
-                }
                 return result;
             }
         }

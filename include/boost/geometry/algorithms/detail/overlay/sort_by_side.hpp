@@ -229,9 +229,64 @@ struct side_sorter
             m_ranked_points[i].rank = i;
             m_ranked_points[i].main_rank = colinear_rank;
         }
+    }
 
-        // Sort back in original order
-//        std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_by_turn_index());
+    // Returns first index which is outgoing, and all incoming arcs are balanced
+    // by outgoing arcs
+    std::size_t first_open_index()
+    {
+        // map source index to state
+        typedef std::map<int, int> map_type;
+        map_type state;
+        bool free = false;
+        std::size_t result = m_ranked_points.size();
+        std::size_t last_main_rank = 0;
+
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            const rp& ranked = m_ranked_points[i];
+
+            if (free && ranked.main_rank > last_main_rank)
+            {
+                return result;
+            }
+            free = false;
+
+            if (ranked.index == index_from)
+            {
+                state[ranked.seg_id.source_index]++;
+            }
+            else
+            {
+                state[ranked.seg_id.source_index]--;
+            }
+
+            if (ranked.index == index_to)
+            {
+                int sum = 0;
+                for (map_type::const_iterator it = state.begin();
+                     it != state.end(); ++it)
+                {
+                    sum += it->second;
+                }
+
+                if (sum == 0)
+                {
+                    // It is open. If next is a new main rank,
+                    // then this is the result
+                    free = true;
+                    result = i;
+                    last_main_rank = ranked.main_rank;
+                }
+            }
+        }
+
+        if (free)
+        {
+            return result;
+        }
+
+        return m_ranked_points.size();
     }
 
     void reverse()
@@ -277,7 +332,7 @@ struct side_sorter
 
 //protected :
 
-    typedef std::vector<ranked_point<Point> > container_type;
+    typedef std::vector<rp> container_type;
     container_type m_ranked_points;
     Point m_from;
 };
