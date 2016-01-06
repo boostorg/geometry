@@ -169,7 +169,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("33",
                 case_33[0], case_33[1], 2, 0, 8, 4.5);
     test_one<Polygon, Polygon, Polygon>("36",
-                case_36[0], case_36[1], 1, 0, 10, 14.375);
+                case_36[0], case_36[1], 1, 1, 10, 14.375);
     test_one<Polygon, Polygon, Polygon>("40",
                 case_40[0], case_40[1], 2, 0, 18, 11);
 
