@@ -303,6 +303,7 @@ struct traversal
         }
 
         bool result = false;
+        bool has_outgoing = false;
         std::size_t target_main_rank = 1;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
@@ -315,8 +316,22 @@ struct traversal
                 return false;
             }
 
+            if (only_uu_or_ux
+                && ranked_point.main_rank > target_main_rank
+                && ! has_outgoing)
+            {
+                // Turns are reversed, until now there are no outgoing arcs
+                // (though this might be one), if halfway another arc did arrive
+                // aim for next main_rank
+                target_main_rank++;
+            }
+
+            if (ranked_point.index == sort_by_side::index_to)
+            {
+                has_outgoing = true;
+            }
+
             if (ranked_point.main_rank == target_main_rank
-                    && ranked_point.index == sort_by_side::index_to
                     && ranked_point.operation == operation_blocked)
             {
                 if (only_uu_or_ux)
@@ -366,6 +381,11 @@ struct traversal
             }
             if (ranked_point.main_rank > target_main_rank)
             {
+                if (only_uu_or_ux && ! has_outgoing && ! result)
+                {
+                    target_main_rank++;
+                    continue;
+                }
                 return result;
             }
         }
