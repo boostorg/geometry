@@ -183,6 +183,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_22",
         case_recursive_boxes_22[0], case_recursive_boxes_22[1],
             2, 0, -1, 3.25);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_23",
+        case_recursive_boxes_23[0], case_recursive_boxes_23[1],
+            1, 0, -1, 1.75);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

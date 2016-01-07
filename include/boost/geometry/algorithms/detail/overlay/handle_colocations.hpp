@@ -344,8 +344,7 @@ inline void handle_colocation_cluster(Turns& turns,
                 // We can either set or not set colocated because it is not effective on blocked turns
             }
 
-            if (for_operation == operation_union
-                && ref_turn.both(operation_union)
+            if (ref_turn.both(operation_union)
                 && ! turn.both(operation_union))
             {
                 if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
@@ -356,7 +355,9 @@ inline void handle_colocation_cluster(Turns& turns,
                     turn.discarded = true;
                     turn.colocated = true;
                 }
-                if (turn.both(operation_continue))
+
+                if (for_operation == operation_union
+                        && turn.both(operation_continue))
                 {
                     turn.discarded = true;
                     turn.colocated = true;

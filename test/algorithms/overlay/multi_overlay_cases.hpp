@@ -556,6 +556,14 @@ static std::string case_recursive_boxes_22[2] =
     "MULTIPOLYGON(((1 2,0 2,0 3,1 2)),((1 2,2 3,2 1,1 1,1 2)))"
 };
 
+static std::string case_recursive_boxes_23[2] =
+{
+    // [0] is invalid, [1] is valid
+    // Requires discarding turns with uu for intersection/difference too
+    "MULTIPOLYGON(((4.5 3.5,5 4,5 3,4 3,5 2,4 2,4 4,4.5 3.5)))",
+    "MULTIPOLYGON(((4 3,5 4,5 3,4 3)),((3 3,3 4,4 3,3 3)))"
+};
+
 static std::string pie_21_7_21_0_3[2] =
 {
     "MULTIPOLYGON(((2500 2500,2500 3875,2855 3828,3187 3690,3472 3472,3690 3187,3828 2855,3875 2500,3828 2144,3690 1812,3472 1527,3187 1309,2855 1171,2499 1125,2144 1171,1812 1309,1527 1527,1309 1812,1171 2144,1125 2499,1171 2855,1309 3187,2500 2500)))",
