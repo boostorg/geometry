@@ -167,7 +167,7 @@ void test_areal()
             1, 1, -1, 22.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_17",
         case_recursive_boxes_17[0], case_recursive_boxes_17[1],
-            3, 2, -1, 21.0);
+            4, 1, -1, 21.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_18",
         case_recursive_boxes_18[0], case_recursive_boxes_18[1],
             3, 0, -1, 2.5);
@@ -185,7 +185,10 @@ void test_areal()
             2, 0, -1, 3.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_23",
         case_recursive_boxes_23[0], case_recursive_boxes_23[1],
-            1, 0, -1, 1.75);
+            2, 0, -1, 1.75);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_24",
+        case_recursive_boxes_24[0], case_recursive_boxes_24[1],
+            5, 0, -1, 5.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

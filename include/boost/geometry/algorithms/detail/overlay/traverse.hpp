@@ -260,22 +260,18 @@ struct traversal
         sbs_type sbs;
         bool has_subject = false;
 
-        // Check if there are only uu/ux turns (for union)
-        bool only_uu_or_ux = OperationType == operation_union;
+        // Check if it is a combination with uu
+        bool uu_combi = false;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
             turn_type const& cturn = m_turns[turn_index];
-            if (only_uu_or_ux)
+            if (OperationType == operation_union
+                && cturn.both(operation_union))
             {
-                if (! (cturn.both(operation_union)
-                        || (cturn.has(operation_union) && cturn.has(operation_blocked))))
-                {
-                    // not a u-turn and not a ux turn
-                    only_uu_or_ux = false;
-                }
+                uu_combi = true;
             }
             for (int i = 0; i < 2; i++)
             {
@@ -299,12 +295,12 @@ struct traversal
         }
         sbs.apply(turn.point);
 
-        if (only_uu_or_ux)
+        if (uu_combi)
         {
             sbs.reverse();
         }
 
-        if (only_uu_or_ux)
+        if (uu_combi)
         {
             std::size_t index = sbs.first_open_index();
             if (index < sbs.m_ranked_points.size())
