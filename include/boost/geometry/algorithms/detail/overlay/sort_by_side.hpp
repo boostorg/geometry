@@ -390,7 +390,7 @@ private :
                     }
                     else
                     {
-                        j = m_ranked_points.size();
+                        j = m_ranked_points.size() - 1;
                     }
                 }
             }
