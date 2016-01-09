@@ -80,12 +80,10 @@ public :
                 // Indicate the sources should switch here to create
                 // separate rings (outer ring / inner ring)
                 turn.switch_source = true;
-
-                if (start)
-                {
-                    turn.selectable_start = true;
-                }
             }
+            // TODO: this is often not correct, fix this
+            turn.operations[0].enriched.startable = start;
+            turn.operations[1].enriched.startable = start;
         }
     }
 
@@ -167,7 +165,7 @@ private :
 
         const turn_type& new_turn = turns[index];
 
-        if (new_turn.selectable_start)
+        if (new_turn.operations[0].enriched.startable)
         {
             // Already selectable - no need to select u/u turn too
             return false;

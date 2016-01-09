@@ -488,7 +488,8 @@ struct buffered_piece_collection
                 // Within can have in rare cases a rounding issue. We don't discard this
                 // point, so it can be used to continue started rings in traversal. But
                 // will never start a new ring from this type of points.
-                it->selectable_start = false;
+                it->operations[0].enriched.startable = false;
+                it->operations[1].enriched.startable = false;
             }
 #endif
         }

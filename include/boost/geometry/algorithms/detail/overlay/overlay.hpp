@@ -259,6 +259,8 @@ std::cout << "enrich" << std::endl;
         visitor.visit_clusters(clusters, turns);
 
 
+#if 0
+        // TODO: does not work always correctly, move to traverse and fix
         if (op_type == geometry::detail::overlay::operation_union)
         {
             #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -267,6 +269,7 @@ std::cout << "enrich" << std::endl;
 
             handle_touch(op_type, turns, visitor);
         }
+#endif
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;

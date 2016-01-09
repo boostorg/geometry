@@ -34,6 +34,7 @@ struct ranked_point
         , turn_index(-1)
         , op_index(-1)
         , index(index_unknown)
+        , right_hand_side_count(0)
         , operation(operation_none)
     {}
 
@@ -44,6 +45,7 @@ struct ranked_point
         , turn_index(ti)
         , op_index(oi)
         , index(i)
+        , right_hand_side_count(0)
         , operation(op)
         , seg_id(sid)
     {}
@@ -53,6 +55,7 @@ struct ranked_point
     signed_size_type turn_index;
     signed_size_type op_index;
     index_type index;
+    int right_hand_side_count;
     operation_type operation;
     segment_identifier seg_id;
 };
@@ -285,6 +288,35 @@ struct side_sorter
         return m_ranked_points.size();
     }
 
+
+    void find_open()
+    {
+        bool handled[2] = {false, false};
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            const rp& ranked = m_ranked_points[i];
+            signed_size_type const& src = ranked.seg_id.source_index;
+            if (ranked.index != index_from)
+            {
+                continue;
+            }
+
+            if (src == 0 || src == 1)
+            {
+                if (! handled[src])
+                {
+                    find_polygons_for_source(src, i);
+                    handled[src] = true;
+                }
+            }
+            else
+            {
+                std::cout << " TODO: using set" << std::endl;
+                return;
+            }
+        }
+    }
+
     void reverse()
     {
         if (m_ranked_points.empty())
@@ -328,6 +360,62 @@ struct side_sorter
     typedef std::vector<rp> container_type;
     container_type m_ranked_points;
     Point m_from;
+
+private :
+    void find_polygons_for_source(signed_size_type source_index,
+                std::size_t start_index)
+    {
+        int state = 1; // 'closed', because start_index is "from", arrives at the turn
+        std::size_t last_rank = 0;
+        for (std::size_t i = start_index + 1; ; i++)
+        {
+            if (i >= m_ranked_points.size())
+            {
+                i = 0;
+            }
+
+            rp& ranked = m_ranked_points[i];
+
+            if (ranked.main_rank != last_rank && state > 0)
+            {
+                // Close items from previous rank
+                std::size_t j = i == 0 ? m_ranked_points.size() - 1 : i - 1;
+                while (m_ranked_points[j].main_rank == last_rank
+                       && j != start_index)
+                {
+                    m_ranked_points[j].right_hand_side_count++;
+                    if (j > 0)
+                    {
+                        j--;
+                    }
+                    else
+                    {
+                        j = m_ranked_points.size();
+                    }
+                }
+            }
+            last_rank = ranked.main_rank;
+
+            if (ranked.seg_id.source_index != source_index)
+            {
+                continue;
+            }
+
+            if (i == start_index)
+            {
+                // At starting point (which is 'closed' again)
+                ranked.right_hand_side_count++;
+                return;
+            }
+
+            switch (ranked.index)
+            {
+                case index_from : state++; break;
+                case index_to : state--; break;
+                default : break;
+            }
+        }
+    }
 };
 
 

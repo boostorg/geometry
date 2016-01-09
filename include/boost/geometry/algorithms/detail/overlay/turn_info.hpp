@@ -101,7 +101,6 @@ struct turn_info
     method_type method;
     int cluster_id;
     bool discarded;
-    bool selectable_start; // Can be used as starting-turn in traverse
     bool colocated;
     bool switch_source; // For u/u turns which can either switch or not
 
@@ -111,7 +110,6 @@ struct turn_info
         : method(method_none)
         , cluster_id(-1)
         , discarded(false)
-        , selectable_start(true)
         , colocated(false)
         , switch_source(false)
     {}

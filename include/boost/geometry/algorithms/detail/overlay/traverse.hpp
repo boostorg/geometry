@@ -656,7 +656,6 @@ public :
 
             // Skip discarded ones
             if (start_turn.discarded
-                || ! start_turn.selectable_start
                 || start_turn.blocked())
             {
                 continue;
@@ -669,6 +668,7 @@ public :
                 op_type& start_op = *op_it;
 
                 if (! start_op.visited.none()
+                    || ! start_op.enriched.startable
                     || start_op.visited.rejected()
                     || ! (start_op.operation == OpType
                         || start_op.operation == detail::overlay::operation_continue))

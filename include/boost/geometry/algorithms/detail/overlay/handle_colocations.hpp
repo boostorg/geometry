@@ -662,6 +662,87 @@ inline void discard_lonely_uu_turns(Operations& operations, Turns& turns,
 }
 
 
+template
+<
+    bool Reverse1, bool Reverse2,
+    typename Turns,
+    typename Clusters,
+    typename Geometry1,
+    typename Geometry2
+>
+inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
+        operation_type for_operation,
+        Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::point_type point_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
+
+    // Define sorter, sorting counter-clockwise such that polygons are on the
+    // right side
+    typedef sort_by_side::side_sorter
+        <
+            Reverse1, Reverse2, point_type, std::less<int>
+        > sbs_type;
+
+    for (typename Clusters::iterator mit = clusters.begin();
+         mit != clusters.end(); ++mit)
+    {
+        sbs_type sbs;
+
+        std::set<signed_size_type> const& ids = mit->second;
+        point_type turn_point; // should be all the same for all turns in cluster
+
+        bool first = true;
+        for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+             sit != ids.end(); ++sit)
+        {
+            signed_size_type turn_index = *sit;
+            turn_type const& turn = turns[turn_index];
+            if (first)
+            {
+                turn_point = turn.point;
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type const& op = turn.operations[i];
+                sbs.add(op, turn_index, i, geometry1, geometry2, first);
+                first = false;
+            }
+        }
+        sbs.apply(turn_point);
+
+        sbs.find_open();
+
+        // Unset the startable flag for all 'closed' spaces
+        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+        {
+            const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
+            bool startable = true;
+            if (for_operation == operation_union
+                    && ranked_point.index == sort_by_side::index_to
+                    && ranked_point.right_hand_side_count != 0)
+            {
+                startable = false;
+            }
+            else if (for_operation == operation_intersection
+                    && ranked_point.index == sort_by_side::index_from
+                    && ranked_point.right_hand_side_count != 2)
+            {
+                startable = false;
+            }
+
+            if (! startable)
+            {
+                turn_type& turn = turns[ranked_point.turn_index];
+                turn_operation_type& op = turn.operations[ranked_point.op_index];
+                op.enriched.startable = false;
+            }
+        }
+    }
+}
+
+
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
 

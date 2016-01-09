@@ -32,6 +32,7 @@ struct enrichment_info
         : travels_to_vertex_index(-1)
         , travels_to_ip_index(-1)
         , next_ip_index(-1)
+        , startable(true)
     {}
 
     // vertex to which is free travel after this IP,
@@ -44,6 +45,8 @@ struct enrichment_info
 
     // index of next IP on this segment, -1 if there is no one
     signed_size_type next_ip_index;
+
+    bool startable; // Can be used to start in traverse
 };
 
 

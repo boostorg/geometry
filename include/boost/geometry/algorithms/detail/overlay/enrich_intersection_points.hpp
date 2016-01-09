@@ -336,6 +336,12 @@ inline void enrich_intersection_points(Turns& turns,
         detail::overlay::enrich_assign(mit->second, turns);
     }
 
+    if (has_colocations)
+    {
+        detail::overlay::assign_startable_in_clusters<Reverse1, Reverse2>(
+                clusters, turns, for_operation, geometry1, geometry2);
+    }
+
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     //detail::overlay::check_graph(turns, for_operation);
 #endif
