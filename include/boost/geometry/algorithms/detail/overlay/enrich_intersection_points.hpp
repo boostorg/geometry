@@ -170,7 +170,9 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
 
 template <typename Turns, typename MappedVector>
-inline void create_map(Turns const& turns, MappedVector& mapped_vector)
+inline void create_map(Turns const& turns,
+        detail::overlay::operation_type for_operation,
+        MappedVector& mapped_vector)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::container_type container_type;
@@ -184,10 +186,20 @@ inline void create_map(Turns const& turns, MappedVector& mapped_vector)
          ++it, ++index)
     {
         // Add all (non discarded) operations on this ring
-        // All blocked operations are also necessary (to block potential paths)
+        // Blocked operations or uu on clusters (for intersection)
+        // should be included, to block potential paths in clusters
         turn_type const& turn = *it;
         if (turn.discarded)
         {
+            continue;
+        }
+
+        if (for_operation == operation_intersection
+            && turn.cluster_id == -1
+            && turn.both(operation_union))
+        {
+            // Only include uu turns if part of cluster (to block potential paths),
+            // otherwise they can block possibly viable paths
             continue;
         }
 
@@ -292,7 +304,7 @@ inline void enrich_intersection_points(Turns& turns,
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
 
-    detail::overlay::create_map(turns, mapped_vector);
+    detail::overlay::create_map(turns, for_operation, mapped_vector);
 
     if (has_colocations)
     {
