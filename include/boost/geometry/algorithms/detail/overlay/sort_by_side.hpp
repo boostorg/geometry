@@ -30,8 +30,7 @@ template <typename Point>
 struct ranked_point
 {
     ranked_point()
-        : rank(0)
-        , main_rank(0)
+        : main_rank(0)
         , turn_index(-1)
         , op_index(-1)
         , index(index_unknown)
@@ -41,7 +40,6 @@ struct ranked_point
     ranked_point(const Point& p, signed_size_type ti, signed_size_type oi,
                  index_type i, operation_type op, segment_identifier sid)
         : point(p)
-        , rank(0)
         , main_rank(0)
         , turn_index(ti)
         , op_index(oi)
@@ -51,7 +49,6 @@ struct ranked_point
     {}
 
     Point point;
-    std::size_t rank;
     std::size_t main_rank;
     signed_size_type turn_index;
     signed_size_type op_index;
@@ -226,7 +223,6 @@ struct side_sorter
                 colinear_rank++;
             }
 
-            m_ranked_points[i].rank = i;
             m_ranked_points[i].main_rank = colinear_rank;
         }
     }
@@ -306,26 +302,23 @@ struct side_sorter
             has_first = true;
         }
 
-        int index = 0;
         if (has_first)
         {
             // Reverse first part (having main_rank == 0), if any,
             // but skip the very first row
             std::reverse(m_ranked_points.begin() + 1, it);
             for (typename container_type::iterator fit = m_ranked_points.begin();
-                 fit != it; ++fit, ++index)
+                 fit != it; ++fit)
             {
                 BOOST_ASSERT(fit->main_rank == 0);
-                fit->rank = index;
             }
         }
 
         // Reverse the rest (main rank > 0)
         std::reverse(it, m_ranked_points.end());
-        for (; it != m_ranked_points.end(); ++it, ++index)
+        for (; it != m_ranked_points.end(); ++it)
         {
             BOOST_ASSERT(it->main_rank > 0);
-            it->rank = index;
             it->main_rank = last - it->main_rank;
         }
     }
