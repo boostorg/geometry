@@ -268,6 +268,11 @@ struct traversal
         {
             signed_size_type turn_index = *sit;
             turn_type const& cturn = m_turns[turn_index];
+            if (cturn.discarded)
+            {
+                // Defensive check, discarded turns should not be in cluster
+                continue;
+            }
             if (OperationType == operation_union
                 && cturn.both(operation_union))
             {

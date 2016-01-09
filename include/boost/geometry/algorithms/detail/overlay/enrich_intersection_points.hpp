@@ -314,7 +314,7 @@ inline void enrich_intersection_points(Turns& turns,
             ++mit)
         {
             detail::overlay::discard_lonely_uu_turns(mit->second, turns,
-                mapped_vector, colocated_cc_map);
+                mapped_vector, clusters, colocated_cc_map);
         }
     }
 

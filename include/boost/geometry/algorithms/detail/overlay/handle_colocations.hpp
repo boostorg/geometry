@@ -607,10 +607,12 @@ template
     typename Operations,
     typename Turns,
     typename Map,
+    typename Clusters,
     typename ColocatedCcMap
 >
 inline void discard_lonely_uu_turns(Operations& operations, Turns& turns,
-                Map& map, ColocatedCcMap const& colocated_cc_map)
+                Map& map, Clusters& clusters,
+                ColocatedCcMap const& colocated_cc_map)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
@@ -646,6 +648,16 @@ inline void discard_lonely_uu_turns(Operations& operations, Turns& turns,
     // should be discarded, otherwise it will be traveled twice
 
     turn.discarded = true;
+    if (turn.cluster_id >= 0)
+    {
+        // Remove from cluster
+        typename Clusters::iterator it = clusters.find(turn.cluster_id);
+        if (it != clusters.end())
+        {
+            it->second.erase(turn_index);
+        }
+        turn.cluster_id = -1;
+    }
     operations.clear();
 
     // Remove the turn from all other mapped items too
