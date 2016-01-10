@@ -109,7 +109,6 @@ struct map_visitor
 
         if (&op == &turn.operations[0]) { out << "[0]"; }
         if (&op == &turn.operations[1]) { out << "[1]"; }
-        out << " " << bg::visited_char(op.visited);
         return out.str();
     }
 
