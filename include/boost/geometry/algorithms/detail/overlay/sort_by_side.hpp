@@ -34,7 +34,7 @@ struct ranked_point
         , turn_index(-1)
         , op_index(-1)
         , index(index_unknown)
-        , right_hand_side_count(0)
+        , polygon_count(0)
         , operation(operation_none)
     {}
 
@@ -45,7 +45,7 @@ struct ranked_point
         , turn_index(ti)
         , op_index(oi)
         , index(i)
-        , right_hand_side_count(0)
+        , polygon_count(0)
         , operation(op)
         , seg_id(sid)
     {}
@@ -55,7 +55,7 @@ struct ranked_point
     signed_size_type turn_index;
     signed_size_type op_index;
     index_type index;
-    int right_hand_side_count;
+    std::size_t polygon_count;
     operation_type operation;
     segment_identifier seg_id;
 };
@@ -362,58 +362,89 @@ struct side_sorter
     Point m_from;
 
 private :
+
+
+    std::size_t move(std::size_t index)
+    {
+        int const n = m_ranked_points.size();
+        int result = index + 1;
+        if (result >= n)
+        {
+            result = 0;
+        }
+        else if (result < 0)
+        {
+            result = n - 1;
+        }
+        return result;
+    }
+
+    std::size_t move(signed_size_type source_index, std::size_t index)
+    {
+        std::size_t result = move(index);
+        while (m_ranked_points[result].seg_id.source_index != source_index)
+        {
+            result = move(result);
+        }
+        return result;
+    }
+
     void find_polygons_for_source(signed_size_type source_index,
                 std::size_t start_index)
     {
         int state = 1; // 'closed', because start_index is "from", arrives at the turn
-        std::size_t last_rank = 0;
-        for (std::size_t i = start_index + 1; ; i++)
+        std::size_t last_from_index = start_index;
+        std::size_t last_from_rank = m_ranked_points[start_index].main_rank;
+        std::size_t previous_rank = m_ranked_points[start_index].main_rank;
+
+        for (std::size_t index = move(source_index, start_index);
+             ;
+             index = move(source_index, index))
         {
-            if (i >= m_ranked_points.size())
-            {
-                i = 0;
-            }
+            rp& ranked = m_ranked_points[index];
 
-            rp& ranked = m_ranked_points[i];
-
-            if (ranked.main_rank != last_rank && state > 0)
+            if (ranked.main_rank != previous_rank && state == 0)
             {
-                // Close items from previous rank
-                std::size_t j = i == 0 ? m_ranked_points.size() - 1 : i - 1;
-                while (m_ranked_points[j].main_rank == last_rank
-                       && j != start_index)
+                // Assign polygon counter if rank differs from same source
+
+                // Move back to assign, until but not including last from_rank
+                // This assigns to both sources
+                bool stop_at_next_rank = false;
+                for (std::size_t j = last_from_index; ; j = move(j))
                 {
-                    m_ranked_points[j].right_hand_side_count++;
-                    if (j > 0)
+                    rp& previous = m_ranked_points[j];
+
+                    if (stop_at_next_rank && previous.main_rank != previous_rank)
                     {
-                        j--;
+                        break;
                     }
-                    else
+                    if (previous.main_rank == previous_rank)
                     {
-                        j = m_ranked_points.size() - 1;
+                        stop_at_next_rank = true;
                     }
+
+                    previous.polygon_count++;
                 }
             }
-            last_rank = ranked.main_rank;
 
-            if (ranked.seg_id.source_index != source_index)
+            if (index == start_index)
             {
-                continue;
-            }
-
-            if (i == start_index)
-            {
-                // At starting point (which is 'closed' again)
-                ranked.right_hand_side_count++;
                 return;
             }
 
-            switch (ranked.index)
+            if (ranked.index == index_from)
             {
-                case index_from : state++; break;
-                case index_to : state--; break;
-                default : break;
+                last_from_rank = ranked.main_rank;
+                // Actually next line is wrong, it should only do this the first time, but it makes no difference because from is not checked later
+                last_from_index = index;
+                state++;
             }
+            else if (ranked.index == index_to)
+            {
+                state--;
+            }
+
+            previous_rank = ranked.main_rank;
         }
     }
 };

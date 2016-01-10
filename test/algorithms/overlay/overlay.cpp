@@ -235,6 +235,11 @@ struct map_visitor
                 }
             }
         }
+        if (! turn.operations[index].enriched.startable)
+        {
+            os << "$";
+        }
+
         return result;
     }
 
@@ -250,6 +255,10 @@ struct map_visitor
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
+        if (turn.switch_source)
+        {
+            out << "#";
+        }
 
         std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
         if (turn.colocated)

@@ -726,22 +726,18 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
 
         sbs.find_open();
 
+        std::size_t const target_polygon_count =
+                for_operation == operation_union ? 1 : 2;
+
         // Unset the startable flag for all 'closed' spaces
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
             bool startable = true;
-            if (for_operation == operation_union
-                    && ranked_point.index == sort_by_side::index_to
-                    && ranked_point.right_hand_side_count != 0)
+            if (ranked_point.index == sort_by_side::index_to
+                    && ranked_point.polygon_count != target_polygon_count)
             {
-                startable = false;
-            }
-            else if (for_operation == operation_intersection
-                    && ranked_point.index == sort_by_side::index_from
-                    && ranked_point.right_hand_side_count != 2)
-            {
-                startable = false;
+                 startable = false;
             }
 
             if (! startable)
@@ -751,6 +747,14 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
                 op.enriched.startable = false;
             }
         }
+
+    #ifdef BOOST_GEOMETRY_DEBUG_SVG_LESS_BY_SEGMENT_RATIO
+        {
+            std::ostringstream out;
+            out << "inspect_cl" << mit->first;
+            debug::sorted_side_map(out.str(), sbs, turn_point, geometry1, geometry2);
+        }
+    #endif
     }
 }
 
