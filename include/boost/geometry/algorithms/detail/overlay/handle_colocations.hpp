@@ -356,6 +356,7 @@ inline void handle_colocation_cluster(Turns& turns,
                     turn.colocated = true;
                 }
 
+#if 0
                 if (for_operation == operation_union
                         && turn.both(operation_continue))
                 {
@@ -376,6 +377,7 @@ inline void handle_colocation_cluster(Turns& turns,
                                other_op.seg_id.ring_index)
                         ]++;
                 }
+#endif
             }
         }
         else
@@ -601,7 +603,7 @@ struct is_turn_index
     std::size_t m_index;
 };
 
-
+#if 0
 template
 <
     typename Operations,
@@ -672,7 +674,7 @@ inline void discard_lonely_uu_turns(Operations& operations, Turns& turns,
             );
     }
 }
-
+#endif
 
 template
 <
@@ -726,24 +728,22 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
 
         sbs.find_open();
 
-        std::size_t const target_polygon_count =
-                for_operation == operation_union ? 1 : 2;
-
         // Unset the startable flag for all 'closed' spaces
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
-            const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
-            bool startable = true;
-            if (ranked_point.index == sort_by_side::index_to
-                    && ranked_point.polygon_count != target_polygon_count)
+            const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
+            if (ranked.index != sort_by_side::index_to)
             {
-                 startable = false;
+                continue;
             }
 
-            if (! startable)
+            if ((for_operation == operation_union
+                    && ranked.left_count != 0)
+             || (for_operation == operation_intersection
+                    && ranked.right_count != 2))
             {
-                turn_type& turn = turns[ranked_point.turn_index];
-                turn_operation_type& op = turn.operations[ranked_point.op_index];
+                turn_type& turn = turns[ranked.turn_index];
+                turn_operation_type& op = turn.operations[ranked.op_index];
                 op.enriched.startable = false;
             }
         }

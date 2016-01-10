@@ -306,6 +306,7 @@ inline void enrich_intersection_points(Turns& turns,
 
     detail::overlay::create_map(turns, for_operation, mapped_vector);
 
+#if 0
     if (has_colocations)
     {
         for (typename mapped_vector_type::iterator mit
@@ -317,7 +318,7 @@ inline void enrich_intersection_points(Turns& turns,
                 mapped_vector, clusters, colocated_cc_map);
         }
     }
-
+#endif
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich

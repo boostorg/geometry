@@ -34,7 +34,8 @@ struct ranked_point
         , turn_index(-1)
         , op_index(-1)
         , index(index_unknown)
-        , polygon_count(0)
+        , left_count(0)
+        , right_count(0)
         , operation(operation_none)
     {}
 
@@ -45,7 +46,8 @@ struct ranked_point
         , turn_index(ti)
         , op_index(oi)
         , index(i)
-        , polygon_count(0)
+        , left_count(0)
+        , right_count(0)
         , operation(op)
         , seg_id(sid)
     {}
@@ -55,7 +57,8 @@ struct ranked_point
     signed_size_type turn_index;
     signed_size_type op_index;
     index_type index;
-    std::size_t polygon_count;
+    std::size_t left_count;
+    std::size_t right_count;
     operation_type operation;
     segment_identifier seg_id;
 };
@@ -389,11 +392,37 @@ private :
         return result;
     }
 
+    void assign_ranks(std::size_t min_rank, std::size_t max_rank, int side_index)
+    {
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            rp& ranked = m_ranked_points[i];
+            // Suppose there are 8 ranks, if min=4,max=6: assign 4,5,6
+            // if min=5,max=2: assign from 5,6,7,1,2
+            bool const in_range
+                = max_rank >= min_rank
+                ? ranked.main_rank >= min_rank && ranked.main_rank <= max_rank
+                : ranked.main_rank >= min_rank || ranked.main_rank <= max_rank
+                ;
+
+            if (in_range)
+            {
+                if (side_index == 1)
+                {
+                    ranked.left_count++;
+                }
+                else if (side_index == 2)
+                {
+                    ranked.right_count++;
+                }
+            }
+        }
+    }
+
     void find_polygons_for_source(signed_size_type source_index,
                 std::size_t start_index)
     {
         int state = 1; // 'closed', because start_index is "from", arrives at the turn
-        std::size_t last_from_index = start_index;
         std::size_t last_from_rank = m_ranked_points[start_index].main_rank;
         std::size_t previous_rank = m_ranked_points[start_index].main_rank;
 
@@ -405,26 +434,8 @@ private :
 
             if (ranked.main_rank != previous_rank && state == 0)
             {
-                // Assign polygon counter if rank differs from same source
-
-                // Move back to assign, until but not including last from_rank
-                // This assigns to both sources
-                bool stop_at_next_rank = false;
-                for (std::size_t j = last_from_index; ; j = move(j))
-                {
-                    rp& previous = m_ranked_points[j];
-
-                    if (stop_at_next_rank && previous.main_rank != previous_rank)
-                    {
-                        break;
-                    }
-                    if (previous.main_rank == previous_rank)
-                    {
-                        stop_at_next_rank = true;
-                    }
-
-                    previous.polygon_count++;
-                }
+                assign_ranks(last_from_rank, previous_rank - 1, 1);
+                assign_ranks(last_from_rank + 1, previous_rank, 2);
             }
 
             if (index == start_index)
@@ -435,8 +446,6 @@ private :
             if (ranked.index == index_from)
             {
                 last_from_rank = ranked.main_rank;
-                // Actually next line is wrong, it should only do this the first time, but it makes no difference because from is not checked later
-                last_from_index = index;
                 state++;
             }
             else if (ranked.index == index_to)
