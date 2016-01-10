@@ -275,7 +275,6 @@ template
     bool Reverse1, bool Reverse2,
     typename Turns,
     typename ClusterPerSegment,
-    typename ColocatedCcMap,
     typename Operations,
     typename Geometry1,
     typename Geometry2
@@ -283,9 +282,7 @@ template
 inline void handle_colocation_cluster(Turns& turns,
         signed_size_type& cluster_id,
         ClusterPerSegment& cluster_per_segment,
-        ColocatedCcMap& colocated_cc_map,
         Operations const& operations,
-        operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
@@ -355,29 +352,6 @@ inline void handle_colocation_cluster(Turns& turns,
                     turn.discarded = true;
                     turn.colocated = true;
                 }
-
-#if 0
-                if (for_operation == operation_union
-                        && turn.both(operation_continue))
-                {
-                    turn.discarded = true;
-                    turn.colocated = true;
-
-                    // Register this to find 'lonely colocated uu turns'
-                    colocated_cc_map
-                        [
-                           ring_identifier(op.seg_id.source_index,
-                               op.seg_id.multi_index,
-                               op.seg_id.ring_index)
-                        ]++;
-                    colocated_cc_map
-                        [
-                           ring_identifier(other_op.seg_id.source_index,
-                               other_op.seg_id.multi_index,
-                               other_op.seg_id.ring_index)
-                        ]++;
-                }
-#endif
             }
         }
         else
@@ -475,12 +449,10 @@ template
     bool Reverse1, bool Reverse2,
     typename Turns,
     typename Clusters,
-    typename ColocatedCcMap,
     typename Geometry1,
     typename Geometry2
 >
 inline bool handle_colocations(Turns& turns, Clusters& clusters,
-        ColocatedCcMap& colocated_cc_map, operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef std::map
@@ -550,8 +522,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
         if (it->second.size() > 1u)
         {
             handle_colocation_cluster<Reverse1, Reverse2>(turns, cluster_id,
-                cluster_per_segment, colocated_cc_map, it->second,
-                for_operation, geometry1, geometry2);
+                cluster_per_segment, it->second,
+                geometry1, geometry2);
         }
     }
 
@@ -603,78 +575,6 @@ struct is_turn_index
     std::size_t m_index;
 };
 
-#if 0
-template
-<
-    typename Operations,
-    typename Turns,
-    typename Map,
-    typename Clusters,
-    typename ColocatedCcMap
->
-inline void discard_lonely_uu_turns(Operations& operations, Turns& turns,
-                Map& map, Clusters& clusters,
-                ColocatedCcMap const& colocated_cc_map)
-{
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type op_type;
-
-    if (operations.size() != 1)
-    {
-        return;
-    }
-
-    signed_size_type turn_index = operations.front().turn_index;
-
-    turn_type& turn = turns[turn_index];
-    if (! turn.both(operation_union))
-    {
-        return;
-    }
-
-    op_type const& op = turn.operations[operations.front().operation_index];
-    ring_identifier const ring_id
-        (
-            op.seg_id.source_index,
-            op.seg_id.multi_index,
-            op.seg_id.ring_index
-        );
-
-    if (colocated_cc_map.find(ring_id) == colocated_cc_map.end())
-    {
-        return;
-    }
-
-    // This uu-turn, only active turn on this ring,
-    // and has discarded colocated cc turns on the same ring too. Therefore it
-    // should be discarded, otherwise it will be traveled twice
-
-    turn.discarded = true;
-    if (turn.cluster_id >= 0)
-    {
-        // Remove from cluster
-        typename Clusters::iterator it = clusters.find(turn.cluster_id);
-        if (it != clusters.end())
-        {
-            it->second.erase(turn_index);
-        }
-        turn.cluster_id = -1;
-    }
-    operations.clear();
-
-    // Remove the turn from all other mapped items too
-    is_turn_index const predicate(turn_index);
-    for (typename Map::iterator it = map.begin(); it != map.end(); ++it)
-    {
-        Operations& ops = it->second;
-        ops.erase
-            (
-                std::remove_if(boost::begin(ops), boost::end(ops), predicate),
-                boost::end(ops)
-            );
-    }
-}
-#endif
 
 template
 <
