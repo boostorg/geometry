@@ -602,9 +602,13 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
     for (typename Clusters::iterator mit = clusters.begin();
          mit != clusters.end(); ++mit)
     {
-        sbs_type sbs;
-
         std::set<signed_size_type> const& ids = mit->second;
+        if (ids.empty())
+        {
+            continue;
+        }
+
+        sbs_type sbs;
         point_type turn_point; // should be all the same for all turns in cluster
 
         bool first = true;
