@@ -550,6 +550,12 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
+            turn_type& turn = turns[ranked.turn_index];
+            turn_operation_type& op = turn.operations[ranked.op_index];
+
+            op.enriched.count_left = ranked.left_count;
+            op.enriched.count_right = ranked.right_count;
+
             if (ranked.index != sort_by_side::index_to)
             {
                 continue;
@@ -560,8 +566,6 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
              || (for_operation == operation_intersection
                     && ranked.right_count != 2))
             {
-                turn_type& turn = turns[ranked.turn_index];
-                turn_operation_type& op = turn.operations[ranked.op_index];
                 op.enriched.startable = false;
             }
         }

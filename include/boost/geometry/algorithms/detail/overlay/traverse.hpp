@@ -326,11 +326,6 @@ struct traversal
             return false;
         }
 
-        if (! has_operation && OperationType == operation_intersection)
-        {
-            sbs.find_open();
-        }
-
         // Normal intersection or non-reversed union
         // (TODO: move this to sbs too)
         const std::size_t target_main_rank = 1;
@@ -352,35 +347,27 @@ struct traversal
                 return false;
             }
 
+            turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+
             bool allow = ranked_point.operation == OperationType
                          || ranked_point.operation == operation_continue;
 
             if (! allow
                 && !result
-                && OperationType == operation_intersection
-                && ranked_point.right_count == 2
-                && ! has_operation)
+                && ranked_op.enriched.count_right == 2
+                && OperationType == operation_intersection)
             {
-                // In some cases it is necessary for intersection to continue
-                // through a cluster with only uu and cc turns (because uu turns
-                // are not blocked anymore). For example an intersection of
-                // equal multi-polygons, both having a uu turn
-                turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-                if (ranked_turn.both(operation_union))
-                {
-                    allow = true;
-                }
+                // TODO: this will be the generic solution for both union/intersection
+                allow = true;
             }
 
             if (ranked_point.main_rank == target_main_rank
                     && ranked_point.index == sort_by_side::index_to
                     && allow)
             {
-                turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-
                 // Use this turn (if also part of a cluster, it will point to
                 // next turn outside cluster)
-                turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
 
                 turn_it = m_turns.begin() + ranked_point.turn_index;
 
