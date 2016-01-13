@@ -258,10 +258,10 @@ struct traversal
         std::set<signed_size_type> const& ids = mit->second;
 
         sbs_type sbs;
-        bool has_subject = false;
 
-        // Check if it is a combination with uu
-        bool uu_combi = false;
+        bool has_subject = false;
+        bool has_uu = false;
+        bool has_operation = false;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -273,11 +273,17 @@ struct traversal
                 // Defensive check, discarded turns should not be in cluster
                 continue;
             }
-            if (OperationType == operation_union
-                && cturn.both(operation_union))
+
+            if (cturn.both(operation_union))
             {
-                uu_combi = true;
+                has_uu = true;
             }
+
+            if (cturn.has(OperationType))
+            {
+                has_operation = true;
+            }
+
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type const& cop = cturn.operations[i];
@@ -300,12 +306,13 @@ struct traversal
         }
         sbs.apply(turn.point);
 
-        if (uu_combi)
+        if (has_uu && OperationType == operation_union)
         {
             sbs.reverse();
         }
 
-        if (uu_combi)
+
+        if (has_uu && OperationType == operation_union)
         {
             std::size_t index = sbs.first_open_index();
             if (index < sbs.m_ranked_points.size())
@@ -317,6 +324,11 @@ struct traversal
             }
 
             return false;
+        }
+
+        if (! has_operation && OperationType == operation_intersection)
+        {
+            sbs.find_open();
         }
 
         // Normal intersection or non-reversed union
@@ -340,10 +352,29 @@ struct traversal
                 return false;
             }
 
+            bool allow = ranked_point.operation == OperationType
+                         || ranked_point.operation == operation_continue;
+
+            if (! allow
+                && !result
+                && OperationType == operation_intersection
+                && ranked_point.right_count == 2
+                && ! has_operation)
+            {
+                // In some cases it is necessary for intersection to continue
+                // through a cluster with only uu and cc turns (because uu turns
+                // are not blocked anymore). For example an intersection of
+                // equal multi-polygons, both having a uu turn
+                turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+                if (ranked_turn.both(operation_union))
+                {
+                    allow = true;
+                }
+            }
+
             if (ranked_point.main_rank == target_main_rank
                     && ranked_point.index == sort_by_side::index_to
-                    && (ranked_point.operation == OperationType
-                        || ranked_point.operation == operation_continue))
+                    && allow)
             {
                 turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
 
