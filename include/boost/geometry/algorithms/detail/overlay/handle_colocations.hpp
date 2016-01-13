@@ -199,77 +199,6 @@ inline signed_size_type add_turn_to_cluster(Turn const& turn,
     return cid0;
 }
 
-/// Discards turn colocated with a uu turn, where both turns are on the same
-/// rings and one is (most probably) invalid
-template
-<
-    bool Reverse1, bool Reverse2,
-    typename Turns,
-    typename Geometry1,
-    typename Geometry2
->
-inline bool discard_colocated_uu(signed_size_type cluster_id,
-        Turns const& turns,
-        turn_operation_index const& ref_toi,
-        turn_operation_index const& toi,
-        Geometry1 const& geometry1, Geometry2 const& geometry2)
-{
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename geometry::point_type<Geometry1>::type point_type;
-
-    // Order counter clockwise to get the most right turn
-    typedef sort_by_side::side_sorter
-        <
-            Reverse1, Reverse2, point_type, std::less<int>
-        > sbs_type;
-
-    sbs_type sbs;
-
-    turn_type const& ref_turn = turns[ref_toi.turn_index];
-    turn_type const& turn = turns[toi.turn_index];
-
-    // Add operations, the first is the "subject" (so sorting done from there)
-    BOOST_ASSERT(ref_turn.both(operation_union));
-    sbs.add(ref_turn.operations[ref_toi.op_index],
-            ref_toi.turn_index, ref_toi.op_index,
-            geometry1, geometry2, true);
-    sbs.add(ref_turn.operations[1 - ref_toi.op_index],
-            ref_toi.turn_index, 1 - ref_toi.op_index,
-            geometry1, geometry2, false);
-
-    // Skip toi.op_index because ref_toi and toi have the same operation
-    BOOST_ASSERT(ref_turn.operations[ref_toi.op_index].seg_id
-            == turn.operations[toi.op_index].seg_id);
-
-    sbs.add(turn.operations[1 - toi.op_index],
-            toi.turn_index, 1 - toi.op_index,
-            geometry1, geometry2, false);
-
-    sbs.apply(ref_turn.point);
-
-    // Inspect points, the first right turn has main_rank==1
-    // If this is still from the same source, with no others in between, it
-    // should be discarded
-    signed_size_type const source_index
-            = ref_turn.operations[ref_toi.op_index].seg_id.source_index;
-    for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
-    {
-        const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
-        if (ranked_point.main_rank > 1)
-        {
-            break;
-        }
-        if (ranked_point.seg_id.source_index != source_index)
-        {
-            // Other sources in between or collinear with it, don't discard
-            return false;
-        }
-    }
-
-    // Discard this turn
-    return true;
-}
-
 template
 <
     bool Reverse1, bool Reverse2,
@@ -308,8 +237,6 @@ inline void handle_colocation_cluster(Turns& turns,
 
         if (ref_op.fraction == op.fraction)
         {
-            turn_operation_type const& ref_other_op
-                    = ref_turn.operations[1 - ref_toi.op_index];
             turn_operation_type const& other_op = turn.operations[1 - toi.op_index];
 
             if (ref_id == -1)
@@ -339,19 +266,6 @@ inline void handle_colocation_cluster(Turns& turns,
             {
                 turn.discarded = true;
                 // We can either set or not set colocated because it is not effective on blocked turns
-            }
-
-            if (ref_turn.both(operation_union)
-                && ! turn.both(operation_union))
-            {
-                if (other_op.seg_id.multi_index == ref_other_op.seg_id.multi_index
-                    && other_op.seg_id.ring_index == ref_other_op.seg_id.ring_index
-                    && discard_colocated_uu<Reverse1, Reverse2>(id,
-                        turns, ref_toi, toi, geometry1, geometry2))
-                {
-                    turn.discarded = true;
-                    turn.colocated = true;
-                }
             }
         }
         else

@@ -601,8 +601,16 @@ static std::string case_recursive_boxes_28[2] =
 
 static std::string case_recursive_boxes_29[2] =
 {
+    // Requires not discarding colocated cc turns
     "MULTIPOLYGON(((2 3,2 4,1 4,2 5,4 5,4 4,3 4,3 3,2 3)),((3 3,4 3,4 1,5 1,5 0,3 0,3 2,2 2,3 3)),((1 2,0 2,0 3,1 3,1 2)),((1 1,0 1,1 2,2 2,2 1,1 1)),((2 1,2 0,1 0,2 1)))",
     "MULTIPOLYGON(((0 4,0 5,1 4,0 4)),((2 3,2 4,4 4,4 3,2 3)),((2 2,1 2,1 3,2 3,2 2)),((1 2,0 2,0 3,1 3,0.5 2.5,1 2)),((1 0,0 0,1 1,4 1,4 0,1 0)),((4 0,5 1,5 0,4 0)))"
+};
+
+static std::string case_recursive_boxes_30[2] =
+{
+    // Requires not discarding turns colocated with uu/invalid polygons (now not necessary anymore because of startable)
+    "MULTIPOLYGON(((2 2,2 3,4 3,4 4,4.5 3.5,5 4,5 0,3 0,3 1,4 1,4 2,2 2)),((1 5,3 5,4 4,0 4,0 5,1 5)))",
+    "MULTIPOLYGON(((2 1,2 3,1 3,1 4,2 5,2 4,3 4,3 5,5 5,5 4,4 4,3.5 3.5,4 3,4 4,5 3,4.5 2.5,5 2,5 0,4 0,4 2,3 2,3 3,2.5 2.5,4 1,3 1,3 0,1 0,2 1)))"
 };
 
 static std::string pie_21_7_21_0_3[2] =
