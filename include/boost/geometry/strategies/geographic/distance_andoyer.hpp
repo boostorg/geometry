@@ -132,13 +132,21 @@ private :
         CT const c2 = 2;
         CT const c3 = 3;
 
-        if (geometry::math::equals(S, c0) || geometry::math::equals(C, c0))
+        if (geometry::math::equals(S, c0))
         {
             return c0;
         }
 
         CT const radius_a = CT(get_radius<0>(m_spheroid));
         CT const flattening = geometry::detail::flattening<CT>(m_spheroid);
+
+        if (geometry::math::equals(C, c0))
+        {
+          CT const omega = asin(S);
+          CT const D = c2 * omega * radius_a;
+          CT const H2 = c1 / (c2 * S);
+          return D * (c1 + flattening * (-H2 * cosF2 * sinG2));
+        }
 
         CT const omega = atan(math::sqrt(S / C));
         CT const r3 = c3 * math::sqrt(S * C) / omega; // not sure if this is r or greek nu
