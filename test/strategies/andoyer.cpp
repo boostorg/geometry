@@ -52,6 +52,17 @@ double to_deg(double rad)
     return 180.0 * rad / bg::math::pi<double>();
 }
 
+double normlized_deg(double deg)
+{
+    double const pi = bg::math::pi<double>();
+    if (deg > 180)
+        return deg - 360;
+    else if (deg < -180)
+        return deg + 360;
+    else
+        return deg;
+}
+
 
 template <typename P1, typename P2>
 void test_distance(double lon1, double lat1, double lon2, double lat2, double expected_km)
@@ -76,8 +87,6 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
     typedef typename bg::strategy::distance
         ::services::return_type<andoyer_type, P1, P2>::type return_type;
 
-    andoyer_inverse_type andoyer_inverse;
-
     P1 p1;
     P2 p2;
 
@@ -86,7 +95,7 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
 
     return_type d_strategy = andoyer.apply(p1, p2);
     return_type d_function = bg::distance(p1, p2, andoyer);
-    return_type d_formula = andoyer_inverse.apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).distance;
+    return_type d_formula = andoyer_inverse_type::apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).distance;
 
     BOOST_CHECK_CLOSE(d_strategy / 1000.0, expected_km, 0.001);
     BOOST_CHECK_CLOSE(d_function / 1000.0, expected_km, 0.001);
@@ -107,10 +116,23 @@ void test_azimuth(double lon1, double lat1,
     typedef bg::srs::spheroid<rtype> stype;
     typedef bg::detail::andoyer_inverse<rtype, false, true> andoyer_inverse_type;
 
-    andoyer_inverse_type andoyer_inverse;
-    rtype a_formula = andoyer_inverse.apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).azimuth;
+    rtype a_formula = andoyer_inverse_type::apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).azimuth;
 
-    BOOST_CHECK_CLOSE(to_deg(a_formula), expected_azimuth_deg, 0.001);
+    rtype azimuth_deg = to_deg(a_formula);
+
+    if (bg::math::equals(azimuth_deg, -180.0))
+        azimuth_deg = 180.0;
+    if (bg::math::equals(expected_azimuth_deg, -180.0))
+        expected_azimuth_deg = 180.0;
+
+    if (bg::math::equals(expected_azimuth_deg, 0.0))
+    {
+        BOOST_CHECK(bg::math::equals(azimuth_deg, expected_azimuth_deg));
+    }
+    else
+    {
+        BOOST_CHECK_CLOSE(azimuth_deg, expected_azimuth_deg, 0.001);
+    }
 }
 
 template <typename P1, typename P2>
@@ -128,6 +150,13 @@ void test_distazi_symm(double lon1, double lat1, double lon2, double lat2, doubl
     test_distazi<P1, P2>(-lon1, lat1, -lon2, lat2, expected_km, -expected_azimuth_deg);
     test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, 180 - expected_azimuth_deg);
     test_distazi<P1, P2>(-lon1, -lat1, -lon2, -lat2, expected_km, -180 + expected_azimuth_deg);
+}
+
+template <typename P1, typename P2>
+void test_distazi_symmNS(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+{
+    test_distazi<P1, P2>(lon1, lat1, lon2, lat2, expected_km, expected_azimuth_deg);
+    test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, 180 - expected_azimuth_deg);
 }
 
 
@@ -183,54 +212,61 @@ void test_all()
                          make_deg(134, 27, 50.05));
 
 #ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-    // edge cases
-    test_distazi<P1, P2>(0, -90, 0,  90, 20003.9, 0.0);
-    // should azimuth be 180 here?
-    test_distazi<P1, P2>(0,  90, 0, -90, 20003.9, 180.0);
-
     // ok? in those cases shorter path would pass through a pole
     // but 90 or -90 would be consistent with distance?
     test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
     test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
-
-    test_distazi<P1, P2>(-45, -45,  135,  45, 20020.7, 0.0);
-    test_distazi<P1, P2>( 45, -45, -135,  45, 20020.7, 0.0);
-    test_distazi<P1, P2>(-45,  45,  135, -45, 20020.7, 180.0);
-    // azimuth could be -180 or 180
-    test_distazi<P1, P2>( 45,  45, -135, -45, 20020.7, -180.0);
+    test_distazi<P1, P2>(-90, 0, 90, 0, 20037.5, 0.0);
+    test_distazi<P1, P2>(90, 0, -90, 0, 20037.5, 0.0);
 #endif
 
-    test_distazi_symm<P1, P2>(-10.0, -10.0, 135, 45, 14892.1, 34.1802);
-    test_distazi_symm<P1, P2>(-30.0, -30.0, 135, 45, 17890.7, 33.7002);
-    test_distazi_symm<P1, P2>(-40.0, -40.0, 135, 45, 19319.7, 33.4801);
-    test_distazi_symm<P1, P2>(-41.0, -41.0, 135, 45, 19459.1, 33.2408);
-    test_distazi_symm<P1, P2>(-42.0, -42.0, 135, 45, 19597.8, 32.7844);
-    test_distazi_symm<P1, P2>(-43.0, -43.0, 135, 45, 19735.8, 31.7784);
-    test_distazi_symm<P1, P2>(-44.0, -44.0, 135, 45, 19873.0, 28.5588);
-    test_distazi_symm<P1, P2>(-44.1, -44.1, 135, 45, 19886.7, 27.8304);
-    test_distazi_symm<P1, P2>(-44.2, -44.2, 135, 45, 19900.4, 26.9173);
-    test_distazi_symm<P1, P2>(-44.3, -44.3, 135, 45, 19914.1, 25.7401);
-    test_distazi_symm<P1, P2>(-44.4, -44.4, 135, 45, 19927.7, 24.1668);
-    test_distazi_symm<P1, P2>(-44.5, -44.5, 135, 45, 19941.4, 21.9599);
-    test_distazi_symm<P1, P2>(-44.6, -44.6, 135, 45, 19955.0, 18.6438);
-    test_distazi_symm<P1, P2>(-44.7, -44.7, 135, 45, 19968.6, 13.1096);
-    test_distazi_symm<P1, P2>(-44.8, -44.8, 135, 45, 19982.3, 2.0300);
-    test_distazi_symm<P1, P2>(-44.9, -44.9, 135, 45, 19995.9, 0.0);
-    test_distazi_symm<P1, P2>(-44.95, -44.95, 135, 45, 20002.7, 0.0);
-    test_distazi_symm<P1, P2>(-44.99, -44.99, 135, 45, 20008.1, 0.0);
-    test_distazi_symm<P1, P2>(-44.999, -44.999, 135, 45, 20009.4, 0.0);
-
-    // (-1, 1) (44, 46) (89, 91) ...
-    for (double l = -1 ; l < 360 ; l += 45)
+    // 0, 45, 90 ...
+    for (int i = 0 ; i < 360 ; i += 45)
     {
-        double l1 = l <= 180 ? l : l - 360;
-        double ll = l + 2;
-        double l2 = ll <= 180 ? ll : ll - 360;
+        // 0 45 90 ...
+        double l = normlized_deg(i);
+        // -1 44 89 ...
+        double l1 = normlized_deg(i - 1);
+        // 1 46 91 ...
+        double l2 = normlized_deg(i + 1);
 
-        test_distazi<P1, P2>(l1, -1, l2,  1, 313.7956,  45.1964);
-        test_distazi<P1, P2>(l1,  1, l2, -1, 313.7956,  134.8035);
-        test_distazi<P1, P2>(l2, -1, l1,  1, 313.7956, -45.1964);
-        test_distazi<P1, P2>(l2,  1, l1, -1, 313.7956, -134.8035);
+        // near equator
+        test_distazi_symm<P1, P2>(l1, -1, l2, 1, 313.7956, 45.1964);
+
+        // near poles
+        test_distazi_symmNS<P1, P2>(l, -89.5, l, 89.5, 19892.2, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.6, l, 89.6, 19914.6, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.7, l, 89.7, 19936.9, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.8, l, 89.8, 19959.2, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.9, l, 89.9, 19981.6, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.99, l, 89.99, 20001.7, 0.0);
+        test_distazi_symmNS<P1, P2>(l, -89.999, l, 89.999, 20003.7, 0.0);
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        test_distazi_symmNS<P1, P2>(l, -90, l, 90, 20003.9, 0.0);
+#endif
+
+        test_distazi_symm<P1, P2>(normlized_deg(l-10.0), -10.0, normlized_deg(l+135), 45, 14892.1, 34.1802);
+        test_distazi_symm<P1, P2>(normlized_deg(l-30.0), -30.0, normlized_deg(l+135), 45, 17890.7, 33.7002);
+        test_distazi_symm<P1, P2>(normlized_deg(l-40.0), -40.0, normlized_deg(l+135), 45, 19319.7, 33.4801);
+        test_distazi_symm<P1, P2>(normlized_deg(l-41.0), -41.0, normlized_deg(l+135), 45, 19459.1, 33.2408);
+        test_distazi_symm<P1, P2>(normlized_deg(l-42.0), -42.0, normlized_deg(l+135), 45, 19597.8, 32.7844);
+        test_distazi_symm<P1, P2>(normlized_deg(l-43.0), -43.0, normlized_deg(l+135), 45, 19735.8, 31.7784);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.0), -44.0, normlized_deg(l+135), 45, 19873.0, 28.5588);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.1), -44.1, normlized_deg(l+135), 45, 19886.7, 27.8304);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.2), -44.2, normlized_deg(l+135), 45, 19900.4, 26.9173);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.3), -44.3, normlized_deg(l+135), 45, 19914.1, 25.7401);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.4), -44.4, normlized_deg(l+135), 45, 19927.7, 24.1668);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.5), -44.5, normlized_deg(l+135), 45, 19941.4, 21.9599);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.6), -44.6, normlized_deg(l+135), 45, 19955.0, 18.6438);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.7), -44.7, normlized_deg(l+135), 45, 19968.6, 13.1096);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.8), -44.8, normlized_deg(l+135), 45, 19982.3, 2.0300);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.9), -44.9, normlized_deg(l+135), 45, 19995.9, 0.0);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.95), -44.95, normlized_deg(l+135), 45, 20002.7, 0.0);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.99), -44.99, normlized_deg(l+135), 45, 20008.1, 0.0);
+        test_distazi_symm<P1, P2>(normlized_deg(l-44.999), -44.999, normlized_deg(l+135), 45, 20009.4, 0.0);
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20020.7, 0.0);
+#endif
     }
 
     /* SQL Server gives:
