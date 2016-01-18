@@ -50,6 +50,7 @@ struct andoyer_inverse
                                     Spheroid const& spheroid)
     {
         CT const c0 = CT(0);
+        CT const c1 = CT(1);
         CT const pi = math::pi<CT>();
 
         result_type result;
@@ -73,10 +74,16 @@ struct andoyer_inverse
         // H,G,T = infinity if cos_d = 1 or cos_d = -1
         // lat1 == +-90 && lat2 == +-90
         // lat1 == lat2 && lon1 == lon2
-        CT const cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
+        CT cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
+        // on some platforms cos_d may be outside valid range
+        if (cos_d < -c1)
+            cos_d = -c1;
+        else if (cos_d > c1)
+            cos_d = c1;
+
         CT const d = acos(cos_d); // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
-
+        
         CT const f = detail::flattening<CT>(spheroid);
 
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
@@ -85,8 +92,8 @@ struct andoyer_inverse
             CT const L = math::sqr(sin_lat1+sin_lat2);
             CT const three_sin_d = CT(3) * sin_d;
 
-            CT const one_minus_cos_d = CT(1) - cos_d;
-            CT const one_plus_cos_d = CT(1) + cos_d;
+            CT const one_minus_cos_d = c1 - cos_d;
+            CT const one_plus_cos_d = c1 + cos_d;
             // cos_d = 1 or cos_d = -1 means that the points are antipodal
 
             CT const H = math::equals(one_minus_cos_d, c0) ?
@@ -118,15 +125,12 @@ struct andoyer_inverse
                 if (lat1 <= lat2)
                     result.azimuth = c0;
                 else
-                {
-                    if (lon1 <= lon2)
-                        result.azimuth = pi;
-                    else
-                        result.azimuth = -pi;
-                }
+                    result.azimuth = pi;
             }
             else
             {
+                CT const c2 = CT(2);
+
                 CT A = c0;
                 CT U = c0;
                 if ( ! math::equals(cos_lat2, c0) )
@@ -134,8 +138,8 @@ struct andoyer_inverse
                     CT const tan_lat2 = sin_lat2/cos_lat2;
                     CT const M = cos_lat1*tan_lat2-sin_lat1*cos_dlon;
                     A = atan2(sin_dlon, M);
-                    CT const sin_2A = sin(CT(2)*A);
-                    U = (f/CT(2))*math::sqr(cos_lat1)*sin_2A;
+                    CT const sin_2A = sin(c2*A);
+                    U = (f/ c2)*math::sqr(cos_lat1)*sin_2A;
                 }
 
                 CT V = c0;
@@ -144,8 +148,8 @@ struct andoyer_inverse
                     CT const tan_lat1 = sin_lat1/cos_lat1;
                     CT const N = cos_lat2*tan_lat1-sin_lat2*cos_dlon;
                     CT const B = atan2(sin_dlon, N);
-                    CT const sin_2B = sin(CT(2)*B);
-                    V = (f/CT(2))*math::sqr(cos_lat2)*sin_2B;
+                    CT const sin_2B = sin(c2*B);
+                    V = (f/ c2)*math::sqr(cos_lat2)*sin_2B;
                 }
 
                 CT const T = d / sin_d;
