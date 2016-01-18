@@ -1,12 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2016 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2016 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2016 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -37,6 +37,22 @@
 
 
 
+double make_deg(double deg, double min, double sec)
+{
+    return deg + min / 60.0 + sec / 3600.0;
+}
+
+double to_rad(double deg)
+{
+    return bg::math::pi<double>() * deg / 180.0;
+}
+
+double to_deg(double rad)
+{
+    return 180.0 * rad / bg::math::pi<double>();
+}
+
+
 template <typename P1, typename P2>
 void test_distance(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
@@ -49,6 +65,7 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
     typedef bg::srs::spheroid<rtype> stype;
 
     typedef bg::strategy::distance::andoyer<stype> andoyer_type;
+    typedef bg::detail::andoyer_inverse<rtype, true, false> andoyer_inverse_type;
 
     BOOST_CONCEPT_ASSERT
         ( 
@@ -59,15 +76,60 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
     typedef typename bg::strategy::distance
         ::services::return_type<andoyer_type, P1, P2>::type return_type;
 
+    andoyer_inverse_type andoyer_inverse;
+
     P1 p1;
     P2 p2;
 
     bg::assign_values(p1, lon1, lat1);
     bg::assign_values(p2, lon2, lat2);
 
-    BOOST_CHECK_CLOSE(andoyer.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
-    BOOST_CHECK_CLOSE(bg::distance(p1, p2, andoyer), return_type(1000.0 * expected_km), 0.001);
+    return_type d_strategy = andoyer.apply(p1, p2);
+    return_type d_function = bg::distance(p1, p2, andoyer);
+    return_type d_formula = andoyer_inverse.apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).distance;
+
+    BOOST_CHECK_CLOSE(d_strategy / 1000.0, expected_km, 0.001);
+    BOOST_CHECK_CLOSE(d_function / 1000.0, expected_km, 0.001);
+    BOOST_CHECK_CLOSE(d_formula / 1000.0, expected_km, 0.001);
 }
+
+template <typename PS, typename P>
+void test_azimuth(double lon1, double lat1,
+                  double lon2, double lat2,
+                  double expected_azimuth_deg)
+{
+    // Set radius type, but for integer coordinates we want to have floating point radius type
+    typedef typename bg::promote_floating_point
+        <
+            typename bg::coordinate_type<PS>::type
+        >::type rtype;
+
+    typedef bg::srs::spheroid<rtype> stype;
+    typedef bg::detail::andoyer_inverse<rtype, false, true> andoyer_inverse_type;
+
+    andoyer_inverse_type andoyer_inverse;
+    rtype a_formula = andoyer_inverse.apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).azimuth;
+
+    BOOST_CHECK_CLOSE(to_deg(a_formula), expected_azimuth_deg, 0.001);
+}
+
+template <typename P1, typename P2>
+void test_distazi(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+{
+    test_distance<P1, P2>(lon1, lat1, lon2, lat2, expected_km);
+    test_azimuth<P1, P2>(lon1, lat1, lon2, lat2, expected_azimuth_deg);
+}
+
+// requires SW->NE
+template <typename P1, typename P2>
+void test_distazi_symm(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+{
+    test_distazi<P1, P2>(lon1, lat1, lon2, lat2, expected_km, expected_azimuth_deg);
+    test_distazi<P1, P2>(-lon1, lat1, -lon2, lat2, expected_km, -expected_azimuth_deg);
+    test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, 180 - expected_azimuth_deg);
+    test_distazi<P1, P2>(-lon1, -lat1, -lon2, -lat2, expected_km, -180 + expected_azimuth_deg);
+}
+
 
 template <typename PS, typename P>
 void test_side(double lon1, double lat1,
@@ -102,9 +164,74 @@ void test_side(double lon1, double lat1,
 template <typename P1, typename P2>
 void test_all()
 {
-    test_distance<P1, P2>(0, 90, 1, 80, 1116.814237); // polar
-    test_distance<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
-    test_distance<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
+    // polar
+    test_distazi<P1, P2>(0, 90, 1, 80,
+                         1116.814237, 179);
+    // no point difference
+    test_distazi<P1, P2>(4, 52, 4, 52,
+                         0.0, 0.0);
+    // normal case
+    test_distazi<P1, P2>(4, 52, 3, 40,
+                         1336.039890, -176.3086);
+    test_distazi<P1, P2>(3, 52, 4, 40,
+                         1336.039890, 176.3086);
+
+    test_distazi<P1, P2>(make_deg(17, 19, 43.28),
+                         make_deg(40, 30, 31.151),
+                         18, 40,
+                         80.323245,
+                         make_deg(134, 27, 50.05));
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // edge cases
+    test_distazi<P1, P2>(0, -90, 0,  90, 20003.9, 0.0);
+    // should azimuth be 180 here?
+    test_distazi<P1, P2>(0,  90, 0, -90, 20003.9, 180.0);
+
+    // ok? in those cases shorter path would pass through a pole
+    // but 90 or -90 would be consistent with distance?
+    test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
+    test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
+
+    test_distazi<P1, P2>(-45, -45,  135,  45, 20020.7, 0.0);
+    test_distazi<P1, P2>( 45, -45, -135,  45, 20020.7, 0.0);
+    test_distazi<P1, P2>(-45,  45,  135, -45, 20020.7, 180.0);
+    // azimuth could be -180 or 180
+    test_distazi<P1, P2>( 45,  45, -135, -45, 20020.7, -180.0);
+#endif
+
+    test_distazi_symm<P1, P2>(-10.0, -10.0, 135, 45, 14892.1, 34.1802);
+    test_distazi_symm<P1, P2>(-30.0, -30.0, 135, 45, 17890.7, 33.7002);
+    test_distazi_symm<P1, P2>(-40.0, -40.0, 135, 45, 19319.7, 33.4801);
+    test_distazi_symm<P1, P2>(-41.0, -41.0, 135, 45, 19459.1, 33.2408);
+    test_distazi_symm<P1, P2>(-42.0, -42.0, 135, 45, 19597.8, 32.7844);
+    test_distazi_symm<P1, P2>(-43.0, -43.0, 135, 45, 19735.8, 31.7784);
+    test_distazi_symm<P1, P2>(-44.0, -44.0, 135, 45, 19873.0, 28.5588);
+    test_distazi_symm<P1, P2>(-44.1, -44.1, 135, 45, 19886.7, 27.8304);
+    test_distazi_symm<P1, P2>(-44.2, -44.2, 135, 45, 19900.4, 26.9173);
+    test_distazi_symm<P1, P2>(-44.3, -44.3, 135, 45, 19914.1, 25.7401);
+    test_distazi_symm<P1, P2>(-44.4, -44.4, 135, 45, 19927.7, 24.1668);
+    test_distazi_symm<P1, P2>(-44.5, -44.5, 135, 45, 19941.4, 21.9599);
+    test_distazi_symm<P1, P2>(-44.6, -44.6, 135, 45, 19955.0, 18.6438);
+    test_distazi_symm<P1, P2>(-44.7, -44.7, 135, 45, 19968.6, 13.1096);
+    test_distazi_symm<P1, P2>(-44.8, -44.8, 135, 45, 19982.3, 2.0300);
+    test_distazi_symm<P1, P2>(-44.9, -44.9, 135, 45, 19995.9, 0.0);
+    test_distazi_symm<P1, P2>(-44.95, -44.95, 135, 45, 20002.7, 0.0);
+    test_distazi_symm<P1, P2>(-44.99, -44.99, 135, 45, 20008.1, 0.0);
+    test_distazi_symm<P1, P2>(-44.999, -44.999, 135, 45, 20009.4, 0.0);
+
+    // (-1, 1) (44, 46) (89, 91) ...
+    for (double l = -1 ; l < 360 ; l += 45)
+    {
+        double l1 = l <= 180 ? l : l - 360;
+        double ll = l + 2;
+        double l2 = ll <= 180 ? ll : ll - 360;
+
+        test_distazi<P1, P2>(l1, -1, l2,  1, 313.7956,  45.1964);
+        test_distazi<P1, P2>(l1,  1, l2, -1, 313.7956,  134.8035);
+        test_distazi<P1, P2>(l2, -1, l1,  1, 313.7956, -45.1964);
+        test_distazi<P1, P2>(l2,  1, l1, -1, 313.7956, -134.8035);
+    }
 
     /* SQL Server gives:
         1116.82586908528, 0, 1336.02721932545
@@ -114,6 +241,7 @@ SELECT 0.001 * geography::STGeomFromText('POINT(0 90)', 4326).STDistance(geograp
 union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(4 52)', 4326))
 union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(3 40)', 4326))
      */
+
 
     test_side<P1, P2>(0, 0, 0, 1, 0, 2, 0);
     test_side<P1, P2>(0, 0, 0, 1, 0, -2, 0);
@@ -139,8 +267,8 @@ int test_main(int, char* [])
 {
     //test_all<float[2]>();
     //test_all<double[2]>();
-    test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
+    //test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
+    //test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
