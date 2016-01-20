@@ -395,8 +395,41 @@ struct traversal
         return result;
     }
 
+    inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
+                turn_type const& start_turn,
+                turn_operation_type const& start_op,
+                int start_op_index)
+    {
+        turn_operation_type const& other_op
+                = start_turn.operations[1 - start_op_index];
+        if (start_op.seg_id.source_index != other_op.seg_id.source_index)
+        {
+            // Not a buffer/self-turn
+            return;
+        }
+
+        bool const correct
+                = other_op.enriched.travels_to_vertex_index < to_vertex_index;
+
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
+        // It travels to itself, can happen. If this is a buffer, it should
+        // not travel to its travels_to_vertex_index but to the other operation
+        std::cout << " WARNING: self-buffer "
+                  << " correct=" << correct
+                  << " from=" << to_vertex_index
+                  << " to=" << other_op.enriched.travels_to_vertex_index
+                  << std::endl;
+#endif
+
+        if (correct)
+        {
+            to_vertex_index = other_op.enriched.travels_to_vertex_index;
+        }
+    }
+
     template <typename Ring>
     inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
+                int start_op_index,
                 turn_iterator& turn_it,
                 turn_operation_iterator_type& op_it,
                 segment_identifier& seg_id,
@@ -419,19 +452,26 @@ struct traversal
                         : traverse_error_no_next_ip;
             }
 
+            signed_size_type to_vertex_index = previous_op.enriched.travels_to_vertex_index;
+
+            if (is_start &&
+                    previous_op.enriched.travels_to_ip_index == start_turn_index)
+            {
+                change_index_for_self_turn(to_vertex_index, previous_turn,
+                    previous_op, start_op_index);
+            }
+
             if (previous_op.seg_id.source_index == 0)
             {
-                geometry::copy_segments<Reverse1>(m_geometry1, previous_op.seg_id,
-                        previous_op.enriched.travels_to_vertex_index,
-                        m_robust_policy,
-                        current_ring);
+                geometry::copy_segments<Reverse1>(m_geometry1,
+                        previous_op.seg_id, to_vertex_index,
+                        m_robust_policy, current_ring);
             }
             else
             {
-                geometry::copy_segments<Reverse2>(m_geometry2, previous_op.seg_id,
-                        previous_op.enriched.travels_to_vertex_index,
-                        m_robust_policy,
-                        current_ring);
+                geometry::copy_segments<Reverse2>(m_geometry2,
+                        previous_op.seg_id, to_vertex_index,
+                        m_robust_policy, current_ring);
             }
             seg_id = previous_op.seg_id;
             turn_it = boost::begin(m_turns) + previous_op.enriched.travels_to_ip_index;
@@ -535,20 +575,24 @@ struct traversal
 
 
     template <typename Ring>
-    inline traverse_error_type traverse(Ring& ring, turn_type const& start_turn,
-            signed_size_type start_turn_index,
-            turn_operation_type& start_op,
-            turn_iterator start_it, turn_operation_iterator_type start_op_it)
+    inline traverse_error_type traverse(Ring& ring, turn_iterator start_it,
+            signed_size_type start_turn_index, int start_op_index)
     {
-        detail::overlay::append_no_dups_or_spikes(ring,
-            start_turn.point, m_robust_policy);
-
         // Copy iterators, can be reassigned below
+        turn_type const& start_turn = *start_it;
+        turn_operation_iterator_type start_op_it
+                = start_it->operations.begin() + start_op_index;
+        turn_operation_type& start_op = *start_op_it;
+
+        detail::overlay::append_no_dups_or_spikes(ring, start_turn.point,
+            m_robust_policy);
+
         turn_iterator current_it = start_it;
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
 
         traverse_error_type error = travel_to_next_turn(start_turn_index,
+                    start_op_index,
                     current_it, current_op_it, current_seg_id,
                     ring, true);
 
@@ -579,7 +623,7 @@ struct traversal
             // will continue with the next one.
 
             // Below three reasons to stop.
-            error = travel_to_next_turn(start_turn_index,
+            error = travel_to_next_turn(start_turn_index, start_op_index,
                     current_it, current_op_it, current_seg_id,
                     ring, false);
 
@@ -588,7 +632,7 @@ struct traversal
                 return error;
             }
 
-            if (current_op_it == start_op_it)
+            if (current_it == start_it && current_op_it == start_op_it)
             {
                 start_op.visited.set_finished();
                 m_visitor.visit_traverse(m_turns, start_turn, start_op, "Finish");
@@ -668,14 +712,14 @@ public :
 
         typename Backtrack::state_type state;
 
-        signed_size_type start_turn_index = 0;
+        signed_size_type turn_index = 0;
 
         // Iterate through all unvisited points
         for (turn_iterator turn_it = boost::begin(turns);
             turn_it != boost::end(turns);
-            ++turn_it, ++start_turn_index)
+            ++turn_it, ++turn_index)
         {
-            turn_type& start_turn = *turn_it;
+            turn_type const& start_turn = *turn_it;
 
             // Skip discarded ones
             if (start_turn.discarded
@@ -684,11 +728,9 @@ public :
                 continue;
             }
 
-            for (turn_operation_iterator_type op_it = boost::begin(start_turn.operations);
-                op_it != boost::end(start_turn.operations);
-                ++op_it)
+            for (int op_index = 0; op_index < 2; op_index++)
             {
-                op_type& start_op = *op_it;
+                op_type const& start_op = start_turn.operations[op_index];
 
                 if (! start_op.visited.none()
                     || ! start_op.enriched.startable
@@ -701,8 +743,7 @@ public :
 
                 ring_type ring;
                 traverse_error_type traverse_error = trav.traverse(ring,
-                                start_turn, start_turn_index,
-                                start_op, turn_it, op_it);
+                                turn_it, turn_index, op_index);
 
                 if (traverse_error == traverse_error_none)
                 {
@@ -719,7 +760,8 @@ public :
                 {
                     Backtrack::apply(
                         finalized_ring_size,
-                        rings, ring, turns, start_turn, start_op,
+                        rings, ring, turns, start_turn,
+                        turns[turn_index].operations[op_index],
                         traverse_error,
                         geometry1, geometry2, robust_policy, state, visitor);
                 }
