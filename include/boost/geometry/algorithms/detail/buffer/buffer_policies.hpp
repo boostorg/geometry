@@ -60,7 +60,7 @@ public :
                 Turns& turns,
                 typename boost::range_value<Turns>::type const& turn,
                 Operation& operation,
-                std::string const& /*reason*/,
+                detail::overlay::traverse_error_type traverse_error,
                 Geometry const& ,
                 Geometry const& ,
                 RobustPolicy const& ,
@@ -73,7 +73,7 @@ extern int g_backtrack_warning_count;
 g_backtrack_warning_count++;
 #endif
 //std::cout << "!";
-//std::cout << "WARNING " << reason << std::endl;
+//std::cout << "WARNING " << traverse_error_string(traverse_error) << std::endl;
 
         state.m_good = false;
 

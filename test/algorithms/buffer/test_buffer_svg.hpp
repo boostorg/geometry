@@ -134,11 +134,6 @@ private :
                 default:
                     ; // to avoid "enumeration value not handled" warning
             }
-            if (!it->selectable_start)
-            {
-                fill = "fill:rgb(255,192,0);";
-                color = 'o'; // orange
-            }
             if (it->blocked())
             {
                 fill = "fill:rgb(128,128,128);";
