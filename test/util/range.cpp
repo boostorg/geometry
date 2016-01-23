@@ -108,6 +108,12 @@ void test_all()
         BOOST_CHECK(bgr::at(v, i) == i);
     }
 
+    {
+        std::vector<T> w;
+        std::copy(v.begin(), v.end(), bgr::back_inserter(w));
+        BOOST_CHECK(v.size() == w.size() && std::equal(v.begin(), v.end(), w.begin()));
+    }
+
     BOOST_CHECK(bgr::front(v) == 0);
     BOOST_CHECK(bgr::back(v) == 19);
 
