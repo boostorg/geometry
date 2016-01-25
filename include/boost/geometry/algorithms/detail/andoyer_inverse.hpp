@@ -165,7 +165,7 @@ struct andoyer_inverse
                 {
                     if (dA >= c0) // A altered towards 0
                     {
-                        if (result.azimuth < c0)
+                        if ((result.azimuth) < c0)
                             result.azimuth = c0;
                     }
                     else // dA < 0, A altered towards pi
@@ -184,7 +184,7 @@ struct andoyer_inverse
                     else // dA > 0, A altered towards -pi
                     {
                         CT const minus_pi = -pi;
-                        if (result.azimuth < minus_pi)
+                        if ((result.azimuth) < minus_pi)
                             result.azimuth = minus_pi;
                     }
                 }
