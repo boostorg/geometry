@@ -196,29 +196,29 @@ void test_all()
     // polar
     test_distazi<P1, P2>(0, 90, 1, 80,
                          1116.814237, 179);
+    
     // no point difference
     test_distazi<P1, P2>(4, 52, 4, 52,
                          0.0, 0.0);
-    // normal case
+
+    // normal cases
     test_distazi<P1, P2>(4, 52, 3, 40,
                          1336.039890, -176.3086);
     test_distazi<P1, P2>(3, 52, 4, 40,
                          1336.039890, 176.3086);
-
     test_distazi<P1, P2>(make_deg(17, 19, 43.28),
                          make_deg(40, 30, 31.151),
                          18, 40,
                          80.323245,
                          make_deg(134, 27, 50.05));
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // antipodal
     // ok? in those cases shorter path would pass through a pole
     // but 90 or -90 would be consistent with distance?
     test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
     test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
     test_distazi<P1, P2>(-90, 0, 90, 0, 20037.5, 0.0);
     test_distazi<P1, P2>(90, 0, -90, 0, 20037.5, 0.0);
-#endif
 
     // 0, 45, 90 ...
     for (int i = 0 ; i < 360 ; i += 45)
@@ -241,9 +241,8 @@ void test_all()
         test_distazi_symmNS<P1, P2>(l, -89.9, l, 89.9, 19981.6, 0.0);
         test_distazi_symmNS<P1, P2>(l, -89.99, l, 89.99, 20001.7, 0.0);
         test_distazi_symmNS<P1, P2>(l, -89.999, l, 89.999, 20003.7, 0.0);
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        // antipodal
         test_distazi_symmNS<P1, P2>(l, -90, l, 90, 20003.9, 0.0);
-#endif
 
         test_distazi_symm<P1, P2>(normlized_deg(l-10.0), -10.0, normlized_deg(l+135), 45, 14892.1, 34.1802);
         test_distazi_symm<P1, P2>(normlized_deg(l-30.0), -30.0, normlized_deg(l+135), 45, 17890.7, 33.7002);
@@ -260,13 +259,13 @@ void test_all()
         test_distazi_symm<P1, P2>(normlized_deg(l-44.6), -44.6, normlized_deg(l+135), 45, 19955.0, 18.6438);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.7), -44.7, normlized_deg(l+135), 45, 19968.6, 13.1096);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.8), -44.8, normlized_deg(l+135), 45, 19982.3, 2.0300);
+        // nearly antipodal
         test_distazi_symm<P1, P2>(normlized_deg(l-44.9), -44.9, normlized_deg(l+135), 45, 19995.9, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.95), -44.95, normlized_deg(l+135), 45, 20002.7, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.99), -44.99, normlized_deg(l+135), 45, 20008.1, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.999), -44.999, normlized_deg(l+135), 45, 20009.4, 0.0);
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        // antipodal
         test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20020.7, 0.0);
-#endif
     }
 
     /* SQL Server gives:
