@@ -1346,7 +1346,7 @@ struct buffered_piece_collection
             > traverser;
 
         traversed_rings.clear();
-        detail::overlay::overlay_null_visitor visitor;
+        buffer_overlay_visitor visitor;
         traverser::apply(offsetted_rings, offsetted_rings,
                         m_robust_policy, m_turns, traversed_rings,
                         m_clusters, visitor);

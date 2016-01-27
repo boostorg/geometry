@@ -89,6 +89,41 @@ g_backtrack_warning_count++;
     }
 };
 
+struct buffer_overlay_visitor
+{
+public :
+    void print(char const* header)
+    {
+    }
+
+    template <typename Turns>
+    void print(char const* header, Turns const& turns, int turn_index)
+    {
+    }
+
+    template <typename Turns>
+    void print(char const* header, Turns const& turns, int turn_index, int op_index)
+    {
+    }
+
+    template <typename Turns>
+    void visit_turns(int , Turns const& ) {}
+
+    template <typename Clusters, typename Turns>
+    void visit_clusters(Clusters const& , Turns const& ) {}
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const char* header)
+    {
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
+            detail::overlay::traverse_error_type )
+    {}
+};
+
+
 // Should follow traversal-turn-concept (enrichment, visit structure)
 // and adds index in piece vector to find it back
 template <typename Point, typename SegmentRatio>
