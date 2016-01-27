@@ -291,32 +291,58 @@ struct side_sorter
         return m_ranked_points.size();
     }
 
-
-    void find_open()
+    template <signed_size_type segment_identifier::*Member, typename Map>
+    void find_open_generic(Map& handled)
     {
-        bool handled[2] = {false, false};
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
             const rp& ranked = m_ranked_points[i];
-            signed_size_type const& src = ranked.seg_id.source_index;
             if (ranked.index != index_from)
             {
                 continue;
             }
 
-            if (src == 0 || src == 1)
+            signed_size_type const& index = ranked.seg_id.*Member;
+            if (! handled[index])
             {
-                if (! handled[src])
-                {
-                    find_polygons_for_source(src, i);
-                    handled[src] = true;
-                }
+                find_polygons_for_source<Member>(index, i);
+                handled[index] = true;
             }
-            else
+        }
+    }
+
+    void find_open()
+    {
+        // TODO: we might pass Buffer as overlay_type, instead on the fly below
+        bool one_source = true;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            const rp& ranked = m_ranked_points[i];
+            signed_size_type const& src = ranked.seg_id.source_index;
+            if (src != 0)
             {
-                std::cout << " TODO: using set" << std::endl;
-                return;
+                one_source = false;
+                break;
             }
+        }
+
+        if (one_source)
+        {
+            // by multi index
+            std::map<signed_size_type, bool> handled;
+            find_open_generic
+                <
+                    &segment_identifier::multi_index
+                >(handled);
+        }
+        else
+        {
+            // by source (there should only source 0,1) TODO assert this
+            bool handled[2] = {false, false};
+            find_open_generic
+                <
+                    &segment_identifier::source_index
+                >(handled);
         }
     }
 
@@ -382,10 +408,12 @@ private :
         return result;
     }
 
-    std::size_t move(signed_size_type source_index, std::size_t index)
+    //! member is pointer to member (source_index or multi_index)
+    template <signed_size_type segment_identifier::*Member>
+    std::size_t move(signed_size_type member_index, std::size_t index)
     {
         std::size_t result = move(index);
-        while (m_ranked_points[result].seg_id.source_index != source_index)
+        while (m_ranked_points[result].seg_id.*Member != member_index)
         {
             result = move(result);
         }
@@ -419,16 +447,17 @@ private :
         }
     }
 
-    void find_polygons_for_source(signed_size_type source_index,
+    template <signed_size_type segment_identifier::*Member>
+    void find_polygons_for_source(signed_size_type the_index,
                 std::size_t start_index)
     {
         int state = 1; // 'closed', because start_index is "from", arrives at the turn
         std::size_t last_from_rank = m_ranked_points[start_index].main_rank;
         std::size_t previous_rank = m_ranked_points[start_index].main_rank;
 
-        for (std::size_t index = move(source_index, start_index);
+        for (std::size_t index = move<Member>(the_index, start_index);
              ;
-             index = move(source_index, index))
+             index = move<Member>(the_index, index))
         {
             rp& ranked = m_ranked_points[index];
 
