@@ -176,7 +176,7 @@ struct traversal
                 max_remaining_distance = 0;
 
         selected_op_index = -1;
-        for (int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
             if (op.visited.started())
@@ -238,8 +238,7 @@ struct traversal
     }
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
-                int& op_index,
-                turn_operation_type const& op)
+            int& op_index, point_type const& point)
     {
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
@@ -250,8 +249,8 @@ struct traversal
         std::set<signed_size_type> const& ids = mit->second;
 
         sbs_type sbs;
+        sbs.set_origin(point);
 
-        bool has_subject = false;
         bool has_uu = false;
         bool has_operation = false;
 
@@ -278,22 +277,9 @@ struct traversal
 
             for (int i = 0; i < 2; i++)
             {
-                bool const is_subject
-                    = cluster_turn_index == turn_index && op_index == i;
-
-                if (is_subject)
-                {
-                    has_subject = true;
-                }
-
                 sbs.add(cluster_turn.operations[i], cluster_turn_index, i,
-                        m_geometry1, m_geometry2, is_subject);
+                        m_geometry1, m_geometry2, false);
             }
-        }
-        if (! has_subject)
-        {
-            std::cout << "WARNING: no subject" << std::endl;
-            return false;
         }
         sbs.apply(turn.point);
 
@@ -477,7 +463,7 @@ struct traversal
         bool const has_cluster = m_turns[turn_index].cluster_id >= 0;
         if (has_cluster)
         {
-            if (! select_turn_from_cluster(turn_index, op_index, previous_op))
+            if (! select_turn_from_cluster(turn_index, op_index, current_ring.back()))
             {
                 return is_start
                     ? traverse_error_no_next_ip_at_start

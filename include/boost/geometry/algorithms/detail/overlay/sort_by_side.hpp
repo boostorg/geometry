@@ -184,12 +184,16 @@ struct side_sorter
 {
     typedef ranked_point<Point> rp;
 
+    inline void set_origin(Point const& origin)
+    {
+        m_origin = origin;
+    }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
     void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            bool is_subject = false)
+            bool is_origin)
     {
         Point point1, point2, point3;
         geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
@@ -199,9 +203,9 @@ struct side_sorter
         m_ranked_points.push_back(rp(point1, turn_index, op_index, index_from, op.operation, op.seg_id));
         m_ranked_points.push_back(rp(point_to, turn_index, op_index, index_to, op.operation, op.seg_id));
 
-        if (is_subject)
+        if (is_origin)
         {
-            m_from = point1;
+            m_origin = point1;
         }
     }
 
@@ -214,8 +218,8 @@ struct side_sorter
         //    to give colinear points
 
         // Sort by side and assign rank
-        less_by_side<Point, less_by_index, Compare> less_unique(m_from, turn_point);
-        less_by_side<Point, less_false, Compare> less_non_unique(m_from, turn_point);
+        less_by_side<Point, less_by_index, Compare> less_unique(m_origin, turn_point);
+        less_by_side<Point, less_false, Compare> less_non_unique(m_origin, turn_point);
 
         std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_unique);
 
@@ -388,7 +392,7 @@ struct side_sorter
 
     typedef std::vector<rp> container_type;
     container_type m_ranked_points;
-    Point m_from;
+    Point m_origin;
 
 private :
 
