@@ -1,15 +1,16 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2015 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2015 Bruno Lalande, Paris, France.
-  Copyright (c) 2009-2015 Mateusz Loskot <mateusz@loskot.net>, London, UK
-  Copyright (c) 2011-2015 Adam Wulkiewicz
+  Copyright (c) 2009-2016 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2016 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2016 Mateusz Loskot <mateusz@loskot.net>, London, UK.
+  Copyright (c) 2011-2016 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015.
-  Modifications copyright (c) 2015, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015, 2016.
+  Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,6 +18,20 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.61]
+[/=================]
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/11637 11637] Unused parameter warning.
+* [@https://svn.boost.org/trac/boost/ticket/11917 11917] Andoyer distance strategy returns 0 for antipodal points (default geographic distance).
+* [@https://svn.boost.org/trac/boost/ticket/11928 11928] Improvement of the accuracy of surveyor area strategy.
+
+[*Bugfixes]
+
+* Fix wrong result of intersects/disjoints for Segment and Box when Segment is parallel to Box's face.
 
 [/=================]
 [heading Boost 1.60]
