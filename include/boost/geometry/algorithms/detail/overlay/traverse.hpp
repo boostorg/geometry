@@ -101,12 +101,6 @@ struct traversal
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
-    typedef typename boost::range_iterator<Turns>::type turn_iterator;
-    typedef typename boost::range_iterator
-        <
-            typename turn_type::container_type
-        >::type turn_operation_iterator_type;
-
     typedef typename geometry::point_type<Geometry1>::type point_type;
     typedef sort_by_side::side_sorter
         <
@@ -243,11 +237,11 @@ struct traversal
         return result;
     }
 
-    inline bool select_turn_from_cluster(turn_iterator& turn_it,
-                turn_operation_iterator_type& op_it,
+    inline bool select_turn_from_cluster(signed_size_type& turn_index,
+                int& op_index,
                 turn_operation_type const& op)
     {
-        turn_type const& turn = *turn_it;
+        turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
 
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
@@ -264,37 +258,36 @@ struct traversal
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
-            signed_size_type turn_index = *sit;
-            turn_type const& cturn = m_turns[turn_index];
-            if (cturn.discarded)
+            signed_size_type cluster_turn_index = *sit;
+            turn_type const& cluster_turn = m_turns[cluster_turn_index];
+            if (cluster_turn.discarded)
             {
                 // Defensive check, discarded turns should not be in cluster
                 continue;
             }
 
-            if (cturn.both(operation_union))
+            if (cluster_turn.both(operation_union))
             {
                 has_uu = true;
             }
 
-            if (cturn.has(OperationType))
+            if (cluster_turn.has(OperationType))
             {
                 has_operation = true;
             }
 
             for (int i = 0; i < 2; i++)
             {
-                turn_operation_type const& cop = cturn.operations[i];
+                bool const is_subject
+                    = cluster_turn_index == turn_index && op_index == i;
 
-                // TODO: source_index is NOT a good criterium
-                bool const is_subject = &cturn == &turn
-                               && op.seg_id.source_index == cop.seg_id.source_index;
                 if (is_subject)
                 {
                     has_subject = true;
                 }
 
-                sbs.add(cop, turn_index, i, m_geometry1, m_geometry2, is_subject);
+                sbs.add(cluster_turn.operations[i], cluster_turn_index, i,
+                        m_geometry1, m_geometry2, is_subject);
             }
         }
         if (! has_subject)
@@ -316,8 +309,8 @@ struct traversal
             if (index < sbs.m_ranked_points.size())
             {
                 const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[index];
-                turn_it = m_turns.begin() + ranked_point.turn_index;
-                op_it = turn_it->operations.begin() + ranked_point.op_index;
+                turn_index = ranked_point.turn_index;
+                op_index = ranked_point.op_index;
                 return true;
             }
 
@@ -367,19 +360,19 @@ struct traversal
                 // Use this turn (if also part of a cluster, it will point to
                 // next turn outside cluster)
 
-                turn_it = m_turns.begin() + ranked_point.turn_index;
+                turn_index = ranked_point.turn_index;
 
                 if (ranked_turn.both(operation_intersection)
                     && ranked_op.visited.finalized())
                 {
                     // For a ii turn, even though one operation might be selected,
                     // it should take the other one if the first one is used in a completed ring
-                    op_it = turn_it->operations.begin() + (1 - ranked_point.op_index);
+                    op_index = 1 - ranked_point.op_index;
                 }
                 else
                 {
                     // Normal behaviour
-                    op_it = turn_it->operations.begin() + ranked_point.op_index;
+                    op_index = ranked_point.op_index;
                 }
 
                 result = true;
@@ -428,16 +421,16 @@ struct traversal
     template <typename Ring>
     inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
                 int start_op_index,
-                turn_iterator& turn_it,
-                turn_operation_iterator_type& op_it,
+                signed_size_type& turn_index,
+                int& op_index,
                 segment_identifier& seg_id,
                 Ring& current_ring,
                 bool is_start)
     {
-        turn_operation_iterator_type previous_op_it = op_it;
-        turn_iterator previous_turn_it = turn_it;
-        turn_type& previous_turn = *turn_it;
-        turn_operation_type& previous_op = *op_it;
+        int const previous_op_index = op_index;
+        signed_size_type const previous_turn_index = turn_index;
+        turn_type& previous_turn = m_turns[turn_index];
+        turn_operation_type& previous_op = previous_turn.operations[op_index];
 
         // If there is no next IP on this segment
         if (previous_op.enriched.next_ip_index < 0)
@@ -472,33 +465,34 @@ struct traversal
                         m_robust_policy, current_ring);
             }
             seg_id = previous_op.seg_id;
-            turn_it = boost::begin(m_turns) + previous_op.enriched.travels_to_ip_index;
+            turn_index = previous_op.enriched.travels_to_ip_index;
         }
         else
         {
-            turn_it = boost::begin(m_turns) + previous_op.enriched.next_ip_index;
+            turn_index = previous_op.enriched.next_ip_index;
             seg_id = previous_op.seg_id;
         }
 
-        bool const has_cluster = turn_it->cluster_id >= 0;
+        // turn_index is not yet finally selected, can change for clusters
+        bool const has_cluster = m_turns[turn_index].cluster_id >= 0;
         if (has_cluster)
         {
-            if (! select_turn_from_cluster(turn_it, op_it, previous_op))
+            if (! select_turn_from_cluster(turn_index, op_index, previous_op))
             {
                 return is_start
                     ? traverse_error_no_next_ip_at_start
                     : traverse_error_no_next_ip;
             }
 
-            if (is_start && turn_it == previous_turn_it)
+            if (is_start && turn_index == previous_turn_index)
             {
-                op_it = previous_op_it;
+                op_index = previous_op_index;
             }
         }
 
-        detail::overlay::append_no_dups_or_spikes(current_ring, turn_it->point,
+        turn_type& current_turn = m_turns[turn_index];
+        detail::overlay::append_no_dups_or_spikes(current_ring, current_turn.point,
             m_robust_policy);
-
 
         if (is_start)
         {
@@ -507,10 +501,8 @@ struct traversal
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
-        turn_type& current_turn = *turn_it;
         if (! has_cluster)
         {
-            int op_index = -1;
             if (! select_operation(current_turn,
                             start_turn_index,
                             seg_id,
@@ -520,10 +512,9 @@ struct traversal
                     ? traverse_error_dead_end_at_start
                     : traverse_error_dead_end;
             }
-            op_it = current_turn.operations.begin() + op_index;
         }
 
-        turn_operation_type& op = *op_it;
+        turn_operation_type& op = current_turn.operations[op_index];
         if (op.visited.visited())
         {
             return traverse_error_visit_again;
@@ -543,34 +534,32 @@ struct traversal
             it != boost::end(m_turns);
             ++it)
         {
-            for (typename boost::range_iterator
-                <
-                    typename turn_type::container_type
-                >::type op_it = boost::begin(it->operations);
-                op_it != boost::end(it->operations);
-                ++op_it)
+            turn_type& turn = *it;
+            for (int i = 0; i < 2; i++)
             {
-                op_it->visited.finalize();
+                turn_operation_type& op = turn.operations[i];
+                op.visited.finalize();
             }
         }
     }
 
     inline void set_visited(turn_type& turn, turn_operation_type& op)
     {
-        op.visited.set_visited();
-
         // On "continue", set "visited" for ALL directions in this turn
         if (op.operation == detail::overlay::operation_continue)
         {
-            for (turn_operation_iterator_type it = boost::begin(turn.operations);
-                it != boost::end(turn.operations);
-                ++it)
+            for (int i = 0; i < 2; i++)
             {
-                if (it->visited.none())
+                turn_operation_type& op = turn.operations[i];
+                if (op.visited.none())
                 {
-                    it->visited.set_visited();
+                    op.visited.set_visited();
                 }
             }
+        }
+        else
+        {
+            op.visited.set_visited();
         }
     }
 
@@ -579,23 +568,19 @@ struct traversal
     inline traverse_error_type traverse(Ring& ring,
             signed_size_type start_turn_index, int start_op_index)
     {
-        // Copy iterators, can be reassigned below
         turn_type const& start_turn = m_turns[start_turn_index];
-        turn_operation_iterator_type start_op_it
-                = m_turns[start_turn_index].operations.begin() + start_op_index;
-        turn_operation_type& start_op = *start_op_it;
+        turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
 
         detail::overlay::append_no_dups_or_spikes(ring, start_turn.point,
             m_robust_policy);
 
-        turn_iterator const start_it = m_turns.begin() + start_turn_index;
-        turn_iterator current_it = start_it;
-        turn_operation_iterator_type current_op_it = start_op_it;
+        signed_size_type current_turn_index = start_turn_index;
+        int current_op_index = start_op_index;
         segment_identifier current_seg_id;
 
         traverse_error_type error = travel_to_next_turn(start_turn_index,
                     start_op_index,
-                    current_it, current_op_it, current_seg_id,
+                    current_turn_index, current_op_index, current_seg_id,
                     ring, true);
 
         if (error != traverse_error_none)
@@ -605,10 +590,10 @@ struct traversal
             return error;
         }
 
-        if (current_it == start_it)
+        if (current_turn_index == start_turn_index)
         {
             start_op.visited.set_finished();
-            m_visitor.visit_traverse(m_turns, *current_it, start_op, "Early finish");
+            m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish");
             return traverse_error_none;
         }
 
@@ -626,7 +611,7 @@ struct traversal
 
             // Below three reasons to stop.
             error = travel_to_next_turn(start_turn_index, start_op_index,
-                    current_it, current_op_it, current_seg_id,
+                    current_turn_index, current_op_index, current_seg_id,
                     ring, false);
 
             if (error != traverse_error_none)
@@ -634,7 +619,8 @@ struct traversal
                 return error;
             }
 
-            if (current_it == start_it && current_op_it == start_op_it)
+            if (current_turn_index == start_turn_index
+                    && current_op_index == start_op_index)
             {
                 start_op.visited.set_finished();
                 m_visitor.visit_traverse(m_turns, start_turn, start_op, "Finish");
@@ -687,12 +673,7 @@ public :
                 Visitor& visitor)
     {
         typedef typename boost::range_value<Rings>::type ring_type;
-        typedef typename boost::range_iterator<Turns>::type turn_iterator;
         typedef typename boost::range_value<Turns>::type turn_type;
-        typedef typename boost::range_iterator
-            <
-                typename turn_type::container_type
-            >::type turn_operation_iterator_type;
         typedef typename turn_type::turn_operation_type op_type;
 
         traversal
