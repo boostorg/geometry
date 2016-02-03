@@ -169,7 +169,7 @@ struct traversal
     inline bool select_operation(turn_type& turn,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
-                turn_operation_iterator_type& selected)
+                int& selected_op_index)
     {
         if (turn.discarded)
         {
@@ -181,15 +181,13 @@ struct traversal
         typename turn_operation_type::comparable_distance_type
                 max_remaining_distance = 0;
 
-        selected = boost::end(turn.operations);
-        for (turn_operation_iterator_type it = boost::begin(turn.operations);
-            it != boost::end(turn.operations);
-            ++it)
+        selected_op_index = -1;
+        for (int i = 0; i < 2; ++i)
         {
-            turn_operation_type const& op = *it;
+            turn_operation_type const& op = turn.operations[i];
             if (op.visited.started())
             {
-                selected = it;
+                selected_op_index = i;
                 return true;
             }
 
@@ -216,7 +214,7 @@ struct traversal
                 {
                     max_remaining_distance = op.remaining_distance;
                 }
-                selected = it;
+                selected_op_index = i;
                 debug_traverse(turn, op, " Candidate");
                 result = true;
             }
@@ -225,13 +223,13 @@ struct traversal
             {
                 if (next_turn_index == start_turn_index)
                 {
-                    selected = it;
+                    selected_op_index = i;
                     debug_traverse(turn, op, " Candidate override (start)");
                 }
                 else if (op.remaining_distance > max_remaining_distance)
                 {
                     max_remaining_distance = op.remaining_distance;
-                    selected = it;
+                    selected_op_index = i;
                     debug_traverse(turn, op, " Candidate override (remaining)");
                 }
             }
@@ -239,7 +237,7 @@ struct traversal
 
         if (result)
         {
-           debug_traverse(turn, *selected, "  Accepted");
+           debug_traverse(turn, turn.operations[selected_op_index], "  Accepted");
         }
 
         return result;
@@ -509,17 +507,20 @@ struct traversal
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
+        turn_type& current_turn = *turn_it;
         if (! has_cluster)
         {
-            if (! select_operation(*turn_it,
+            int op_index = -1;
+            if (! select_operation(current_turn,
                             start_turn_index,
                             seg_id,
-                            op_it))
+                            op_index))
             {
                 return is_start
                     ? traverse_error_dead_end_at_start
                     : traverse_error_dead_end;
             }
+            op_it = current_turn.operations.begin() + op_index;
         }
 
         turn_operation_type& op = *op_it;
@@ -529,8 +530,8 @@ struct traversal
         }
 
         // Register the visit
-        set_visited(*turn_it, op);
-        m_visitor.visit_traverse(m_turns, *turn_it, op, "Visit");
+        set_visited(current_turn, op);
+        m_visitor.visit_traverse(m_turns, current_turn, op, "Visit");
 
         return traverse_error_none;
     }
@@ -575,18 +576,19 @@ struct traversal
 
 
     template <typename Ring>
-    inline traverse_error_type traverse(Ring& ring, turn_iterator start_it,
+    inline traverse_error_type traverse(Ring& ring,
             signed_size_type start_turn_index, int start_op_index)
     {
         // Copy iterators, can be reassigned below
-        turn_type const& start_turn = *start_it;
+        turn_type const& start_turn = m_turns[start_turn_index];
         turn_operation_iterator_type start_op_it
-                = start_it->operations.begin() + start_op_index;
+                = m_turns[start_turn_index].operations.begin() + start_op_index;
         turn_operation_type& start_op = *start_op_it;
 
         detail::overlay::append_no_dups_or_spikes(ring, start_turn.point,
             m_robust_policy);
 
+        turn_iterator const start_it = m_turns.begin() + start_turn_index;
         turn_iterator current_it = start_it;
         turn_operation_iterator_type current_op_it = start_op_it;
         segment_identifier current_seg_id;
@@ -712,14 +714,10 @@ public :
 
         typename Backtrack::state_type state;
 
-        signed_size_type turn_index = 0;
-
         // Iterate through all unvisited points
-        for (turn_iterator turn_it = boost::begin(turns);
-            turn_it != boost::end(turns);
-            ++turn_it, ++turn_index)
+        for (std::size_t turn_index = 0; turn_index < turns.size(); ++turn_index)
         {
-            turn_type const& start_turn = *turn_it;
+            turn_type const& start_turn = turns[turn_index];
 
             // Skip discarded ones
             if (start_turn.discarded
@@ -743,7 +741,7 @@ public :
 
                 ring_type ring;
                 traverse_error_type traverse_error = trav.traverse(ring,
-                                turn_it, turn_index, op_index);
+                                turn_index, op_index);
 
                 if (traverse_error == traverse_error_none)
                 {
