@@ -252,9 +252,15 @@ struct rescale_policy_type
         false
 #else
         boost::is_floating_point
-        <
-            typename geometry::coordinate_type<Point>::type
-        >::type::value
+            <
+                typename geometry::coordinate_type<Point>::type
+            >::type::value
+        &&
+        boost::is_same
+            <
+                typename geometry::coordinate_system<Point>::type,
+                geometry::cs::cartesian
+            >::value
 #endif
     >
 {
