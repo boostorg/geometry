@@ -66,9 +66,9 @@ struct svg_box
         typedef typename coordinate_type<Box>::type ct;
         ct x = geometry::get<geometry::min_corner, 0>(box);
         ct y = geometry::get<geometry::min_corner, 1>(box);
-        ct width = max BOOST_PREVENT_MACRO_SUBSTITUTION(1,
+        ct width = max BOOST_PREVENT_MACRO_SUBSTITUTION (ct(1),
                     geometry::get<geometry::max_corner, 0>(box) - x);
-        ct height = max BOOST_PREVENT_MACRO_SUBSTITUTION (1,
+        ct height = max BOOST_PREVENT_MACRO_SUBSTITUTION (ct(1),
                     geometry::get<geometry::max_corner, 1>(box) - y);
 
         os << "<rect x=\"" << x << "\" y=\"" << y
