@@ -246,6 +246,14 @@ struct traversal
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
 
+#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE_BUFFER
+        std::cout << "Select Cluster "
+                  << turn.cluster_id
+                 << " from " << turn_index
+                 << "[" << op_index << "]"
+                  << std::boolalpha << std::endl;
+#endif
+
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
 
@@ -253,9 +261,6 @@ struct traversal
 
         sbs_type sbs;
         sbs.set_origin(point);
-
-        bool has_uu = false;
-        bool has_operation = false;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -268,16 +273,6 @@ struct traversal
                 continue;
             }
 
-            if (cluster_turn.both(operation_union))
-            {
-                has_uu = true;
-            }
-
-            if (cluster_turn.has(OperationType))
-            {
-                has_operation = true;
-            }
-
             for (int i = 0; i < 2; i++)
             {
                 sbs.add(cluster_turn.operations[i], cluster_turn_index, i,
@@ -286,7 +281,33 @@ struct traversal
         }
         sbs.apply(turn.point);
 
-        if (has_uu && is_union)
+        int open_count = 0;
+        if (is_union)
+        {
+            // Check how many open spaces there are.
+            // TODO: might be moved to sbs itself, though it also uses turns
+
+            std::size_t last_rank = 0;
+            for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+            {
+                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+
+                if (ranked_point.main_rank > last_rank
+                    && ranked_point.index == sort_by_side::index_to)
+                {
+                    turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+                    if (ranked_op.enriched.count_left == 0
+                         && ranked_op.enriched.count_right > 0)
+                    {
+                        open_count++;
+                        last_rank = ranked_point.main_rank;
+                    }
+                }
+            }
+        }
+
+        if (open_count > 1)
         {
             sbs.reverse();
 
