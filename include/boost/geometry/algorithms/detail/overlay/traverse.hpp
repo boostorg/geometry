@@ -240,6 +240,9 @@ struct traversal
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, point_type const& point)
     {
+        bool const is_union = OperationType == operation_union;
+        bool const is_intersection = OperationType == operation_intersection;
+
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
 
@@ -283,93 +286,58 @@ struct traversal
         }
         sbs.apply(turn.point);
 
-        if (has_uu && OperationType == operation_union)
+        if (has_uu && is_union)
         {
             sbs.reverse();
-        }
 
-
-        if (has_uu && OperationType == operation_union)
-        {
             std::size_t index = sbs.first_open_index();
             if (index < sbs.m_ranked_points.size())
             {
-                const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[index];
+                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[index];
                 turn_index = ranked_point.turn_index;
                 op_index = ranked_point.op_index;
                 return true;
             }
-
             return false;
         }
 
-        // Normal intersection or non-reversed union
-        // (TODO: move this to sbs too)
-        const std::size_t target_main_rank = 1;
-        bool result = false;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
-            const typename sbs_type::rp& ranked_point = sbs.m_ranked_points[i];
-
-            if (ranked_point.main_rank == 0 && ranked_point.index != sort_by_side::index_from)
-            {
-                // There are outgoing arcs, not a good cluster to start or
-                // to continue
-                return false;
-            }
-
-            if (ranked_point.main_rank == target_main_rank
-                    && ranked_point.operation == operation_blocked)
-            {
-                return false;
-            }
+            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
 
             turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
             turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
-
-            bool allow = ranked_point.operation == OperationType
-                         || ranked_point.operation == operation_continue;
-
-            if (! allow
-                && !result
-                && ranked_op.enriched.count_right == 2
-                && OperationType == operation_intersection)
+            if (ranked_point.main_rank > 0
+                && ranked_point.index == sort_by_side::index_to)
             {
-                // TODO: this will be the generic solution for both union/intersection
-                allow = true;
-            }
-
-            if (ranked_point.main_rank == target_main_rank
-                    && ranked_point.index == sort_by_side::index_to
-                    && allow)
-            {
-                // Use this turn (if also part of a cluster, it will point to
-                // next turn outside cluster)
-
-                turn_index = ranked_point.turn_index;
-
-                if (ranked_turn.both(operation_intersection)
-                    && ranked_op.visited.finalized())
+                if ((is_union
+                     && ranked_op.enriched.count_left == 0
+                     && ranked_op.enriched.count_right > 0)
+                || (is_intersection
+                     && ranked_op.enriched.count_right == 2))
                 {
-                    // For a ii turn, even though one operation might be selected,
-                    // it should take the other one if the first one is used in a completed ring
-                    op_index = 1 - ranked_point.op_index;
+                    turn_index = ranked_point.turn_index;
+                    op_index = ranked_point.op_index;
+
+                    if (is_intersection
+                        && ranked_turn.both(operation_intersection)
+                        && ranked_op.visited.finalized())
+                    {
+                        // Override:
+                        // For a ii turn, even though one operation might be selected,
+                        // it should take the other one if the first one is used in a completed ring
+                        op_index = 1 - ranked_point.op_index;
+                    }
+
+                    return true;
                 }
                 else
                 {
-                    // Normal behaviour
-                    op_index = ranked_point.op_index;
+                    return false;
                 }
-
-                result = true;
-                // Don't return yet, maybe there is a blocked
-            }
-            if (ranked_point.main_rank > target_main_rank)
-            {
-                return result;
             }
         }
-        return result;
+        return false;
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
