@@ -328,8 +328,9 @@ struct traversal
 
             turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
             turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
-            if (ranked_point.main_rank > 0
-                && ranked_point.index == sort_by_side::index_to)
+            if (ranked_point.index == sort_by_side::index_to
+                && (ranked_point.main_rank > 0
+                    || ranked_turn.both(operation_continue)))
             {
                 if ((is_union
                      && ranked_op.enriched.count_left == 0
