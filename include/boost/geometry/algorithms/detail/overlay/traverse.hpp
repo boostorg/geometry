@@ -121,17 +121,35 @@ struct traversal
 
 
     inline bool select_source(signed_size_type turn_index,
-                              signed_size_type source1,
-                              signed_size_type source2)
+                              segment_identifier const& seg_id1,
+                              segment_identifier const& seg_id2)
     {
         if (OperationType == operation_intersection)
         {
-            // Always switch sources
-            return source1 != source2;
+            // For intersections always switch sources
+            return seg_id1.source_index != seg_id2.source_index;
         }
         else if (OperationType == operation_union)
         {
-            return m_turns[turn_index].switch_source ? source1 != source2 : source1 == source2;
+            // For uu, only switch sources if indicated
+            turn_type const& turn = m_turns[turn_index];
+
+            // TODO: pass this information
+            bool const is_buffer
+                    = turn.operations[0].seg_id.source_index
+                      == turn.operations[1].seg_id.source_index;
+
+            if (is_buffer)
+            {
+                // Buffer does not use source_index (always 0)
+                return turn.switch_source
+                        ? seg_id1.multi_index != seg_id2.multi_index
+                        : seg_id1.multi_index == seg_id2.multi_index;
+            }
+
+            return turn.switch_source
+                    ? seg_id1.source_index != seg_id2.source_index
+                    : seg_id1.source_index == seg_id2.source_index;
         }
         return false;
     }
@@ -199,7 +217,7 @@ struct traversal
                 || (op.operation == OperationType
                     && ! op.visited.finished()
                     && (! result
-                        || select_source(next_turn_index, op.seg_id.source_index, seg_id.source_index)
+                        || select_source(next_turn_index, op.seg_id, seg_id)
                         )
                     )
                 )

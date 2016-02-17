@@ -1223,7 +1223,7 @@ struct buffered_piece_collection
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_discarded_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_discarded_intersections = true;
             }
-            else if (! it->both(detail::overlay::operation_union))
+            else
             {
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_accepted_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_accepted_intersections = true;
