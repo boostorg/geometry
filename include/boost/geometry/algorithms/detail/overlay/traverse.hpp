@@ -256,7 +256,8 @@ struct traversal
     }
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
-            int& op_index, point_type const& point)
+            int& op_index, signed_size_type start_turn_index,
+            point_type const& point)
     {
         bool const is_union = OperationType == operation_union;
         bool const is_intersection = OperationType == operation_intersection;
@@ -340,9 +341,16 @@ struct traversal
             return false;
         }
 
+
+        std::size_t selected_rank = 0;
+        bool result = false;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+            if (result && ranked_point.main_rank > selected_rank)
+            {
+                return result;
+            }
 
             turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
             turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
@@ -356,6 +364,12 @@ struct traversal
                 || (is_intersection
                      && ranked_op.enriched.count_right == 2))
                 {
+                    if (result && ranked_point.turn_index != start_turn_index)
+                    {
+                        // Don't override - only override if arrive at start
+                        continue;
+                    }
+
                     turn_index = ranked_point.turn_index;
                     op_index = ranked_point.op_index;
 
@@ -369,15 +383,16 @@ struct traversal
                         op_index = 1 - ranked_point.op_index;
                     }
 
-                    return true;
+                    result = true;
+                    selected_rank = ranked_point.main_rank;
                 }
                 else
                 {
-                    return false;
+                    return result;
                 }
             }
         }
-        return false;
+        return result;
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -471,7 +486,9 @@ struct traversal
         bool const has_cluster = m_turns[turn_index].cluster_id >= 0;
         if (has_cluster)
         {
-            if (! select_turn_from_cluster(turn_index, op_index, current_ring.back()))
+
+            if (! select_turn_from_cluster(turn_index, op_index,
+                    start_turn_index, current_ring.back()))
             {
                 return is_start
                     ? traverse_error_no_next_ip_at_start
