@@ -54,7 +54,6 @@ double to_deg(double rad)
 
 double normlized_deg(double deg)
 {
-    double const pi = bg::math::pi<double>();
     if (deg > 180)
         return deg - 360;
     else if (deg < -180)
