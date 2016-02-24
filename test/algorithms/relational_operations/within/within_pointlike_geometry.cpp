@@ -155,6 +155,33 @@ void test_spherical()
     BOOST_CHECK_EQUAL(bg::within(Point(7, 52.5), triangle), true);
     BOOST_CHECK_EQUAL(bg::within(Point(8.0, 51.5), triangle), false);
     BOOST_CHECK_EQUAL(bg::within(Point(6.0, 51.0), triangle), false);
+
+    {
+        bg::model::polygon<Point> poly_n;
+        bg::read_wkt("POLYGON((10 50,30 50,30 40,10 40, 10 50))", poly_n);
+        Point pt_n1(20, 50.00001);
+        Point pt_n2(20, 40.00001);
+        typedef bg::strategy::side::spherical_side_formula<> ssf;
+        BOOST_CHECK_EQUAL(ssf::apply(poly_n.outer()[0], poly_n.outer()[1], pt_n1), -1); // right of segment
+        BOOST_CHECK_EQUAL(ssf::apply(poly_n.outer()[2], poly_n.outer()[3], pt_n2), 1); // left of segment
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        BOOST_CHECK_EQUAL(bg::within(pt_n1, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::within(pt_n2, poly_n), false);
+#endif
+    }
+    {
+        bg::model::polygon<Point> poly_s;
+        bg::read_wkt("POLYGON((10 -40,30 -40,30 -50,10 -50, 10 -40))", poly_s);
+        Point pt_s1(20, -40.00001);
+        Point pt_s2(20, -50.00001);
+        typedef bg::strategy::side::spherical_side_formula<> ssf;
+        BOOST_CHECK_EQUAL(ssf::apply(poly_s.outer()[0], poly_s.outer()[1], pt_s1), 1); // left of segment
+        BOOST_CHECK_EQUAL(ssf::apply(poly_s.outer()[2], poly_s.outer()[3], pt_s2), -1); // right of segment
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        BOOST_CHECK_EQUAL(bg::within(pt_s1, poly_s), false);
+        BOOST_CHECK_EQUAL(bg::within(pt_s2, poly_s), true);
+#endif
+    }
 }
 
 void test_large_integers()
