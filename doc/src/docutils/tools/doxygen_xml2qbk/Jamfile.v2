@@ -19,7 +19,7 @@ RAPIDXML ?= contrib/rapidxml-1.13 ;
 
 local DIST_DIR = [ option.get distdir ] ;
 DIST_DIR ?= [ path.join $(BOOST_ROOT) dist ] ;
-DIST_DIR = [ path.root $(DIST_DIR) [ path.pwd ] ] ;
+DIST_DIR = [ path.root [ path.make $(DIST_DIR) ] [ path.pwd ] ] ;
 local DIST_BIN = [ path.join $(DIST_DIR) bin ] ;
 
 project doxygen_xml2qbk
