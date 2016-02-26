@@ -354,6 +354,14 @@ struct traversal
 
             turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
             turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+
+            if (result && ranked_op.visited.finalized())
+            {
+                // One of the arcs in the same direction as the selected result
+                // is already traversed.
+                return false;
+            }
+
             if (ranked_point.index == sort_by_side::index_to
                 && (ranked_point.main_rank > 0
                     || ranked_turn.both(operation_continue)))
