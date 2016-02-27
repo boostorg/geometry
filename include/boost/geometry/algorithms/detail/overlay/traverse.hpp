@@ -255,12 +255,79 @@ struct traversal
         return result;
     }
 
+    inline bool select_from_cluster(signed_size_type& turn_index,
+        int& op_index, signed_size_type start_turn_index,
+        sbs_type const& sbs)
+    {
+        bool const is_union = OperationType == operation_union;
+        bool const is_intersection = OperationType == operation_intersection;
+
+        std::size_t selected_rank = 0;
+        bool result = false;
+        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+        {
+            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+            if (result && ranked_point.main_rank > selected_rank)
+            {
+                return result;
+            }
+
+            turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+
+            if (result && ranked_op.visited.finalized())
+            {
+                // One of the arcs in the same direction as the selected result
+                // is already traversed.
+                return false;
+            }
+
+            if (ranked_point.index == sort_by_side::index_to
+                && (ranked_point.main_rank > 0
+                    || ranked_turn.both(operation_continue)))
+            {
+                if ((is_union
+                     && ranked_op.enriched.count_left == 0
+                     && ranked_op.enriched.count_right > 0)
+                || (is_intersection
+                     && ranked_op.enriched.count_right == 2))
+                {
+                    if (result && ranked_point.turn_index != start_turn_index)
+                    {
+                        // Don't override - only override if arrive at start
+                        continue;
+                    }
+
+                    turn_index = ranked_point.turn_index;
+                    op_index = ranked_point.op_index;
+
+                    if (is_intersection
+                        && ranked_turn.both(operation_intersection)
+                        && ranked_op.visited.finalized())
+                    {
+                        // Override:
+                        // For a ii turn, even though one operation might be selected,
+                        // it should take the other one if the first one is used in a completed ring
+                        op_index = 1 - ranked_point.op_index;
+                    }
+
+                    result = true;
+                    selected_rank = ranked_point.main_rank;
+                }
+                else
+                {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, signed_size_type start_turn_index,
             point_type const& point)
     {
         bool const is_union = OperationType == operation_union;
-        bool const is_intersection = OperationType == operation_intersection;
 
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
@@ -342,65 +409,7 @@ struct traversal
         }
 
 
-        std::size_t selected_rank = 0;
-        bool result = false;
-        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
-        {
-            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-            if (result && ranked_point.main_rank > selected_rank)
-            {
-                return result;
-            }
-
-            turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
-
-            if (result && ranked_op.visited.finalized())
-            {
-                // One of the arcs in the same direction as the selected result
-                // is already traversed.
-                return false;
-            }
-
-            if (ranked_point.index == sort_by_side::index_to
-                && (ranked_point.main_rank > 0
-                    || ranked_turn.both(operation_continue)))
-            {
-                if ((is_union
-                     && ranked_op.enriched.count_left == 0
-                     && ranked_op.enriched.count_right > 0)
-                || (is_intersection
-                     && ranked_op.enriched.count_right == 2))
-                {
-                    if (result && ranked_point.turn_index != start_turn_index)
-                    {
-                        // Don't override - only override if arrive at start
-                        continue;
-                    }
-
-                    turn_index = ranked_point.turn_index;
-                    op_index = ranked_point.op_index;
-
-                    if (is_intersection
-                        && ranked_turn.both(operation_intersection)
-                        && ranked_op.visited.finalized())
-                    {
-                        // Override:
-                        // For a ii turn, even though one operation might be selected,
-                        // it should take the other one if the first one is used in a completed ring
-                        op_index = 1 - ranked_point.op_index;
-                    }
-
-                    result = true;
-                    selected_rank = ranked_point.main_rank;
-                }
-                else
-                {
-                    return result;
-                }
-            }
-        }
-        return result;
+        return select_from_cluster(turn_index, op_index, start_turn_index, sbs);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
