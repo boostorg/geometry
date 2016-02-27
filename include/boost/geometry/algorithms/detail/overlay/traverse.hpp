@@ -257,7 +257,7 @@ struct traversal
 
     inline bool select_from_cluster(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
-        sbs_type const& sbs)
+        sbs_type const& sbs, bool allow_pass_rank)
     {
         bool const is_union = OperationType == operation_union;
         bool const is_intersection = OperationType == operation_intersection;
@@ -314,7 +314,7 @@ struct traversal
                     result = true;
                     selected_rank = ranked_point.main_rank;
                 }
-                else
+                else if (! allow_pass_rank)
                 {
                     return result;
                 }
@@ -396,20 +396,10 @@ struct traversal
         if (open_count > 1)
         {
             sbs.reverse();
-
-            std::size_t index = sbs.first_open_index();
-            if (index < sbs.m_ranked_points.size())
-            {
-                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[index];
-                turn_index = ranked_point.turn_index;
-                op_index = ranked_point.op_index;
-                return true;
-            }
-            return false;
+            return select_from_cluster(turn_index, op_index, start_turn_index, sbs, true);
         }
 
-
-        return select_from_cluster(turn_index, op_index, start_turn_index, sbs);
+        return select_from_cluster(turn_index, op_index, start_turn_index, sbs, false);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
