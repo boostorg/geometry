@@ -533,7 +533,7 @@ struct traversal
         }
 
         turn_operation_type& op = current_turn.operations[op_index];
-        if (op.visited.visited())
+        if (op.visited.finalized() || op.visited.visited())
         {
             return traverse_error_visit_again;
         }
