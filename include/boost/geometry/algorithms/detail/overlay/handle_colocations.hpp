@@ -553,13 +553,13 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
             turn_type& turn = turns[ranked.turn_index];
             turn_operation_type& op = turn.operations[ranked.op_index];
 
-            op.enriched.count_left = ranked.left_count;
-            op.enriched.count_right = ranked.right_count;
-
             if (ranked.index != sort_by_side::index_to)
             {
                 continue;
             }
+
+            op.enriched.count_left = ranked.left_count;
+            op.enriched.count_right = ranked.right_count;
 
             if ((for_operation == operation_union
                     && ranked.left_count != 0)
