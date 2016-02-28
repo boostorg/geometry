@@ -62,9 +62,11 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
         case_58_multi[0], case_58_multi[3],
         2, 0, 21, 19.83333333);
+
+    // (#holes should be 3)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
         case_58_multi[1], case_58_multi[2],
-        1, 3, 17, 48.333333);
+        1, 1, 17, 48.333333);
 
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
@@ -185,7 +187,7 @@ void test_areal()
             2, 0, -1, 3.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_23",
         case_recursive_boxes_23[0], case_recursive_boxes_23[1],
-            2, 0, -1, 1.75);
+            3, 0, -1, 1.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_24",
         case_recursive_boxes_24[0], case_recursive_boxes_24[1],
             5, 0, -1, 5.0);
