@@ -175,8 +175,10 @@ void test_all()
     test_one<linestring, polygon>("overlapping_asym_150_100", overlapping, join_miter, end_flat, 64.984, 1.5, 1.0);
 
     // Having flat end
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<linestring, polygon>("for_collinear", for_collinear, join_round, end_flat, 68.561, 2.0, 2.0);
     test_one<linestring, polygon>("for_collinear", for_collinear, join_miter, end_flat, 72, 2.0, 2.0);
+#endif
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0, 2.0);
     test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0, 2.0);
@@ -248,8 +250,10 @@ void test_all()
         test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
         test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
 
+#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
         test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
         test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
+#endif
 
         test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
         test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);

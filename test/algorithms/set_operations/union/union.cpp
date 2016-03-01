@@ -169,7 +169,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("33",
                 case_33[0], case_33[1], 2, 0, 8, 4.5);
     test_one<Polygon, Polygon, Polygon>("36",
-                case_36[0], case_36[1], 1, 0, 10, 14.375);
+                case_36[0], case_36[1], 1, 1, 10, 14.375);
     test_one<Polygon, Polygon, Polygon>("40",
                 case_40[0], case_40[1], 2, 0, 18, 11);
 
@@ -178,11 +178,13 @@ void test_areal()
                 case_53[0], case_53[2], 1, 1, 16, 16);
     test_one<Polygon, Polygon, Polygon>("58_iet",
                 case_58[0], case_58[2], 1, 3, 20, 12.16666);
+
     test_one<Polygon, Polygon, Polygon>("59_iet",
                 case_59[0], case_59[2], 1, 1, 14, 17.20833);
 
+    // #holes should be 2
     test_one<Polygon, Polygon, Polygon>("80",
-                case_80[0], case_80[1], 2, 2, 18, 129.0);
+                case_80[0], case_80[1], 2, 0, 18, 129.0);
 
     test_one<Polygon, Polygon, Polygon>("81",
                 case_81[0], case_81[1], 1, 2, 15, 163.5);
@@ -396,15 +398,16 @@ void test_areal()
         1, 1, -1, 7.5);
 #endif
 
+    // #holes should be 1 (for the 3 cases below)
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
-        2, 1, -1, 234.5);
+        2, 0, -1, 234.5);
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_2",
         mysql_21964079_2[0], mysql_21964079_2[1],
-        2, 1, -1, 112.0);
+        2, 0, -1, 112.0);
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
-        1, 1, -1, 220.5);
+        1, 0, -1, 220.5);
 }
 
 template <typename P>

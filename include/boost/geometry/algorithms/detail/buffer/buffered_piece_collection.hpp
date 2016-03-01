@@ -286,6 +286,15 @@ struct buffered_piece_collection
     typedef geometry::sections<robust_box_type, 2> sections_type;
     sections_type monotonic_sections;
 
+    // Define the clusters, mapping cluster_id -> turns
+    typedef std::map
+        <
+            signed_size_type,
+            std::set<signed_size_type>
+        > cluster_type;
+
+    cluster_type m_clusters;
+
 
     RobustPolicy const& m_robust_policy;
 
@@ -479,7 +488,8 @@ struct buffered_piece_collection
                 // Within can have in rare cases a rounding issue. We don't discard this
                 // point, so it can be used to continue started rings in traversal. But
                 // will never start a new ring from this type of points.
-                it->selectable_start = false;
+                it->operations[0].enriched.startable = false;
+                it->operations[1].enriched.startable = false;
             }
 #endif
         }
@@ -1196,7 +1206,7 @@ struct buffered_piece_collection
         >::type side_strategy_type;
 
         enrich_intersection_points<false, false, overlay_union>(m_turns,
-                    detail::overlay::operation_union,
+                    m_clusters, detail::overlay::operation_union,
                     offsetted_rings, offsetted_rings,
                     m_robust_policy, side_strategy_type());
     }
@@ -1213,7 +1223,7 @@ struct buffered_piece_collection
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_discarded_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_discarded_intersections = true;
             }
-            else if (! it->both(detail::overlay::operation_union))
+            else
             {
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_accepted_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_accepted_intersections = true;
@@ -1331,13 +1341,15 @@ struct buffered_piece_collection
                 false, false,
                 buffered_ring_collection<buffered_ring<Ring> >,
                 buffered_ring_collection<buffered_ring<Ring > >,
+                detail::overlay::operation_union,
                 backtrack_for_buffer
             > traverser;
 
         traversed_rings.clear();
+        buffer_overlay_visitor visitor;
         traverser::apply(offsetted_rings, offsetted_rings,
-                        detail::overlay::operation_union,
-                        m_robust_policy, m_turns, traversed_rings);
+                        m_robust_policy, m_turns, traversed_rings,
+                        m_clusters, visitor);
     }
 
     inline void reverse()
