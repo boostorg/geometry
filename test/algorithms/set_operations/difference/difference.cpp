@@ -497,7 +497,6 @@ void test_specific()
         1, 4, 6731652.0,
         settings);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     {
         ut_settings settings;
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
@@ -512,7 +511,6 @@ void test_specific()
             2, -1, 2537992.5 + 294963.5,
             settings);
     }
-#endif
 }
 
 

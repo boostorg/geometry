@@ -321,21 +321,17 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, Polygon, Polygon>("case_58_iet",
         case_58[0], case_58[2],
         2, -1, 1.0 / 3.0);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("case_80",
         case_80[0], case_80[1],
         0, -1, 0.0);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, Polygon, Polygon>("case_81",
         case_81[0], case_81[1],
         0, -1, 0.0);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
@@ -732,7 +728,6 @@ void test_pointer_version()
 template <typename P>
 void test_exception()
 {
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     typedef bg::model::polygon<P> polygon;
 
     try
@@ -749,7 +744,6 @@ void test_exception()
         return;
     }
     BOOST_CHECK_MESSAGE(false, "No exception thrown");
-#endif
 }
 
 template <typename Point>

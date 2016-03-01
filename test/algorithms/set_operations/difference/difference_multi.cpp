@@ -183,14 +183,12 @@ void test_areal()
             3, 15, 3.0,
             5, 33, 7.0);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     // Areas and #clips by POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
             24, -1, 21.5,
             25, -1, 22.5,
             37, -1, 44.0);
-#endif
 
     // 4, input is not valid
 
@@ -218,13 +216,11 @@ void test_areal()
             4, -1, 5.75,
             4, -1, 8.25);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_9",
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
             3, -1, 1.5,
             4, -1, 2.5,
             6, -1, 4.0);
-#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],
