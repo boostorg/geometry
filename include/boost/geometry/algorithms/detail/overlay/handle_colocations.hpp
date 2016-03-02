@@ -570,13 +570,6 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
             }
         }
 
-    #ifdef BOOST_GEOMETRY_DEBUG_SVG_LESS_BY_SEGMENT_RATIO
-        {
-            std::ostringstream out;
-            out << "inspect_cl" << mit->first;
-            debug::sorted_side_map(out.str(), sbs, turn_point, geometry1, geometry2);
-        }
-    #endif
     }
 }
 
