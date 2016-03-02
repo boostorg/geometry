@@ -47,6 +47,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -143,7 +144,7 @@ struct test_traverse
             << " " << id
             << (ccw ? "_ccw" : "")
             << " " << string_from_type<typename bg::coordinate_type<G1>::type>::name()
-            << "("  << operation(Direction) << ")" << std::endl;
+            << "("  << OverlayType << ")" << std::endl;
 
         //std::cout << bg::area(g1) << " " << bg::area(g2) << std::endl;
 #endif
@@ -181,11 +182,13 @@ struct test_traverse
         typedef std::vector<ring_type> out_vector;
         out_vector v;
 
+        bg::detail::overlay::overlay_null_visitor visitor;
+
         bg::detail::overlay::traverse
             <
                 Reverse1, Reverse2,
                 G1, G2
-            >::apply(g1, g2, op, rescale_policy, turns, v);
+            >::apply(g1, g2, op, rescale_policy, turns, v, visitor);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
@@ -221,7 +224,7 @@ struct test_traverse
             mapper.add(g1);
             mapper.add(g2);
 
-            // Input shapes in green/blue
+            // Input shapes in green (src=0) / blue (src=1)
             mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
                     "stroke:rgb(153,204,0);stroke-width:3");
             mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
@@ -262,14 +265,14 @@ struct test_traverse
                             );
                 std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
 
-                if (turn.discarded)
+                if (turn.colocated)
+                {
+                    style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+                }
+                else if (turn.discarded)
                 {
                     style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
                     lineheight = 6;
-                }
-                else if (turn.colocated)
-                {
-                    style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
                 }
 
                 //if (! turn.is_discarded() && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
