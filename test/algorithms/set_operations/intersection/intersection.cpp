@@ -243,13 +243,10 @@ void test_areal()
         ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
         1, 4, 3.77106, 0.001);
 
-#if 0
-    // TODO: fix this testcase, it should give 0 but instead it gives one of the input polygons
     // Mailed to the Boost.Geometry list on 2014/03/21 by 7415963@gmail.com
     test_one<Polygon, Polygon, Polygon>("ggl_list_20140321_7415963",
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, 0.1);
-#endif
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
@@ -344,12 +341,10 @@ void test_areal()
         mysql_21964465[0], mysql_21964465[1],
         0, -1, 0.0);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, Polygon, Polygon>("mysql_21965285_b_inv",
         mysql_21965285_b_inv[0],
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
-#endif
 
     return;
 
@@ -830,7 +825,9 @@ int test_main(int, char* [])
 
 #endif
 
-    test_exception<bg::model::d2::point_xy<double> >();
+    // Commented, because exception is now disabled:
+    // test_exception<bg::model::d2::point_xy<double> >();
+
     test_pointer_version();
 #if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
