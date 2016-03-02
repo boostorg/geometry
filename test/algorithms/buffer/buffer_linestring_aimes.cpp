@@ -479,14 +479,6 @@ void test_aimes()
         double aimes_width = static_cast<double>(width) / 1000000.0;
         for (int i = 0; i < n; i++)
         {
-#ifndef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
-            if (i == 167)
-            {
-                // Currently failing (cluster approach), should be fixed
-                continue;
-            }
-#endif
-
             std::ostringstream name;
             try
             {

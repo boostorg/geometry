@@ -415,14 +415,34 @@ struct traversal
             return;
         }
 
+        // It travels to itself, can happen. If this is a buffer, it can
+        // sometimes travel to itself in the following configuration:
+        //
+        // +---->--+
+        // |       |
+        // |   +---*----+ *: one turn, with segment index 2/7
+        // |   |   |    |
+        // |   +---C    | C: closing point (start/end)
+        // |            |
+        // +------------+
+        //
+        // If it starts on segment 2 and travels to itself on segment 2, that
+        // should be corrected to 7 because that is the shortest path
+        //
+        // Also a uu turn (touching with another buffered ring) might have this
+        // apparent configuration, but there it should
+        // always travel the whole ring
+
         bool const correct
-                = other_op.enriched.travels_to_vertex_index < to_vertex_index;
+                = ! start_turn.both(operation_union)
+                  && start_op.seg_id.segment_index == to_vertex_index;
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
-        // It travels to itself, can happen. If this is a buffer, it should
-        // not travel to its travels_to_vertex_index but to the other operation
         std::cout << " WARNING: self-buffer "
                   << " correct=" << correct
+                  << " turn=" << operation_char(start_turn.operations[0].operation)
+                  << operation_char(start_turn.operations[1].operation)
+                  << " start=" << start_op.seg_id.segment_index
                   << " from=" << to_vertex_index
                   << " to=" << other_op.enriched.travels_to_vertex_index
                   << std::endl;

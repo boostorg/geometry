@@ -250,10 +250,8 @@ void test_all()
         test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
         test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
         test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
         test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
-#endif
 
         test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
         test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
