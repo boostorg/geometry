@@ -100,7 +100,7 @@ class backtrack_check_self_intersections
     {
         bool m_checked;
         inline state()
-            : m_checked()
+            : m_checked(true)
         {}
     };
 public :
