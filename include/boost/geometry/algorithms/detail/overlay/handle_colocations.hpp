@@ -216,7 +216,6 @@ inline void handle_colocation_cluster(Turns& turns,
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
-    typedef typename ClusterPerSegment::key_type segment_fraction_type;
 
     std::vector<turn_operation_index>::const_iterator vit = operations.begin();
 
