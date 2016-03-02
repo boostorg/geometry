@@ -278,7 +278,7 @@ struct side_sorter
             std::map<signed_size_type, bool> handled;
             find_open_generic
                 <
-                    &segment_identifier::multi_index
+                    &segment_identifier::piece_index
                 >(handled);
         }
         else

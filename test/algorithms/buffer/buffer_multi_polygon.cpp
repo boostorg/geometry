@@ -355,9 +355,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
     test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 
-#ifdef BOOST_GEOMETRY_TEST_FAIL_TANGENCIES
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_round, end_flat, 31.4186, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_miter, end_flat, 34, 1.0);
