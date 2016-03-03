@@ -104,7 +104,6 @@ struct winding_side_equal
                             int count)
     {
         typedef typename coordinate_type<PointOfSegment>::type scoord_t;
-        typedef typename coordinate_system<PointOfSegment>::type scs_t;
 
         if (math::equals(get<1>(point), get<1>(se)))
             return 0;
@@ -118,12 +117,10 @@ struct winding_side_equal
         scoord_t ss20 = get<0>(se);
         if (count > 0)
         {
-            // TODO: should it be normalized?
             ss20 += winding_small_angle<PointOfSegment>::apply();
         }
         else
         {
-            // TODO: should it be normalized?
             ss20 -= winding_small_angle<PointOfSegment>::apply();
         }
         winding_normalize_lon<PointOfSegment>::apply(ss20);
@@ -174,6 +171,9 @@ struct winding_check_touch
                             bool& eq1,
                             bool& eq2)
     {
+        calc_t const pi = constants::half_period();
+        calc_t const pi2 = pi / calc_t(2);
+
         calc_t const px = get<0>(point);
         calc_t const s1x = get<0>(seg1);
         calc_t const s2x = get<0>(seg2);
@@ -181,65 +181,51 @@ struct winding_check_touch
         calc_t const s1y = get<1>(seg1);
         calc_t const s2y = get<1>(seg2);
 
-        eq1 = math::equals(s1x, px);
-        eq2 = math::equals(s2x, px);
+        // NOTE: lat in {-90, 90} and arbitrary lon
+        //  it doesn't matter what lon it is if it's a pole
+        //  so e.g. if one of the segment endpoints is a pole
+        //  then only the other lon matters
+        
+        bool eq1_strict = math::equals(s1x, px);
+        bool eq2_strict = math::equals(s2x, px);
 
+        eq1 = eq1_strict // lon strictly equal to s1
+           || math::equals(s1y, pi2) || math::equals(s1y, -pi2); // s1 is pole
+        eq2 = eq2_strict // lon strictly equal to s2
+           || math::equals(s2y, pi2) || math::equals(s2y, -pi2); // s2 is pole
+        
+        // segment overlapping pole
         calc_t s1x_anti = s1x + constants::half_period();
         winding_normalize_lon<Point, calc_t>::apply(s1x_anti);
         bool antipodal = math::equals(s2x, s1x_anti);
         if (antipodal)
         {
             eq1 = eq2 = eq1 || eq2;
-        }
 
-        // lat in {-90, 90} and arbitrary lon
-        //  it doesn't matter what lon it is if it's a pole
-        //  so e.g. if one of the segment endpoints is a pole
-        //  then only the other lon matters
-        calc_t pi2 = constants::half_period() / calc_t(2);
-        if (math::equals(s1y, pi2) || math::equals(s1y, -pi2))
-        {
-            eq1 = antipodal = true;
-        }
-        if (math::equals(s2y, pi2) || math::equals(s2y, -pi2))
-        {
-            eq2 = antipodal = true;
-        }
-        if (math::equals(py, pi2) || math::equals(py, -pi2))
-        {
-            if (antipodal)
+            // segment overlapping pole and point is pole
+            if (math::equals(py, pi2) || math::equals(py, -pi2))
             {
                 eq1 = eq2 = true;
             }
         }
-
+        
         // Both equal p -> segment vertical
         // The only thing which has to be done is check if point is ON segment
         if (eq1 && eq2)
         {
-            // p's lat between segment endpoints' lats
-            if ((s1y <= py && s2y >= py) || (s2y <= py && s1y >= py))
+            // segment endpoints on the same sides of the globe
+            if (! antipodal
+                // p's lat between segment endpoints' lats
+                ? (s1y <= py && s2y >= py) || (s2y <= py && s1y >= py)
+                // going through north or south pole?
+                : (pi - s1y - s2y <= pi
+                    ? (eq1_strict && s1y <= py) || (eq2_strict && s2y <= py) // north
+                        || math::equals(py, pi2) // point on north pole
+                    : (eq1_strict && s1y >= py) || (eq2_strict && s2y >= py)) // south
+                        || math::equals(py, -pi2) // point on south pole
+                )
             {
                 state.m_touches = true;
-            }
-            // segment endpoints on the opposite sides of the globe
-            else if (antipodal)
-            {
-                calc_t dnorth = constants::half_period() - s1y - s2y;
-                if (dnorth <= constants::half_period()) // north
-                {
-                    if (s1y <= py && s2y <= py)
-                    {
-                        state.m_touches = true;
-                    }
-                }
-                else // south
-                {
-                    if (s1y >= py && s2y >= py)
-                    {
-                        state.m_touches = true;
-                    }
-                }
             }
             return true;
         }
@@ -307,6 +293,12 @@ struct winding_calculate_count
     {
         // Probably could be optimized by avoiding normalization for some comparisons
         // e.g. s1 > p could be calculated from p > s1
+
+        // If both segment endpoints were poles below checks wouldn't be enough
+        // but this means that either both are the same or that they are N/S poles
+        // and therefore the segment is not valid.
+        // If needed (eq1 && eq2 ? 0) could be returned
+
         return
               eq1 ? (greater(s2, p) ?  1 : -1)      // Point on level s1, E/W depending on s2
             : eq2 ? (greater(s1, p) ? -1 :  1)      // idem
