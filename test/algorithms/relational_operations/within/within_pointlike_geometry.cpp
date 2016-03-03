@@ -3,14 +3,13 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_within.hpp"
 
@@ -102,6 +101,11 @@ void test_p_a()
         "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0),(2 2,4 2,4 4,2 4,2 2)),((5 5,5 9,9 9,9 5,5 5)))", true);
     test_geometry<P, mpoly>("POINT(6 6)",
         "MULTIPOLYGON(((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1)),((5 5,5 9,9 9,9 5,5 5)))", true);
+
+    test_geometry<P, poly>("POINT(6 4)",
+                           "POLYGON((0 5, 5 0, 6 1, 5 2, 8 4, 5 6, 6 7, 5 8, 6 9, 5 10, 0 5))", true);
+    test_geometry<P, poly>("POINT(4 6)",
+                           "POLYGON((5 0, 0 5, 1 6, 2 5, 4 8, 6 5, 7 6, 8 5, 9 6, 10 5, 5 0))", true);
 }
 
 template <typename P>
@@ -156,6 +160,7 @@ void test_spherical()
     BOOST_CHECK_EQUAL(bg::within(Point(8.0, 51.5), triangle), false);
     BOOST_CHECK_EQUAL(bg::within(Point(6.0, 51.0), triangle), false);
 
+    // northern hemisphere
     {
         bg::model::polygon<Point> poly_n;
         bg::read_wkt("POLYGON((10 50,30 50,30 40,10 40, 10 50))", poly_n);
@@ -164,11 +169,10 @@ void test_spherical()
         typedef bg::strategy::side::spherical_side_formula<> ssf;
         BOOST_CHECK_EQUAL(ssf::apply(poly_n.outer()[0], poly_n.outer()[1], pt_n1), -1); // right of segment
         BOOST_CHECK_EQUAL(ssf::apply(poly_n.outer()[2], poly_n.outer()[3], pt_n2), 1); // left of segment
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
         BOOST_CHECK_EQUAL(bg::within(pt_n1, poly_n), true);
         BOOST_CHECK_EQUAL(bg::within(pt_n2, poly_n), false);
-#endif
     }
+    // southern hemisphere
     {
         bg::model::polygon<Point> poly_s;
         bg::read_wkt("POLYGON((10 -40,30 -40,30 -50,10 -50, 10 -40))", poly_s);
@@ -177,11 +181,42 @@ void test_spherical()
         typedef bg::strategy::side::spherical_side_formula<> ssf;
         BOOST_CHECK_EQUAL(ssf::apply(poly_s.outer()[0], poly_s.outer()[1], pt_s1), 1); // left of segment
         BOOST_CHECK_EQUAL(ssf::apply(poly_s.outer()[2], poly_s.outer()[3], pt_s2), -1); // right of segment
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
         BOOST_CHECK_EQUAL(bg::within(pt_s1, poly_s), false);
         BOOST_CHECK_EQUAL(bg::within(pt_s2, poly_s), true);
-#endif
     }
+    // crossing antimeridian, northern hemisphere
+    {
+        bg::model::polygon<Point> poly_n;
+        bg::read_wkt("POLYGON((170 50,-170 50,-170 40,170 40, 170 50))", poly_n);
+        Point pt_n11(180, 50.00001);
+        Point pt_n12(-180, 50.00001);
+        Point pt_n13(179, 50.00001);
+        Point pt_n14(-179, 50.00001);
+        Point pt_n21(180, 40.00001);
+        Point pt_n22(-180, 40.00001);
+        Point pt_n23(179, 40.00001);
+        Point pt_n24(-179, 40.00001);
+        BOOST_CHECK_EQUAL(bg::within(pt_n11, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::within(pt_n12, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::within(pt_n13, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::within(pt_n14, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::within(pt_n21, poly_n), false);
+        BOOST_CHECK_EQUAL(bg::within(pt_n22, poly_n), false);
+        BOOST_CHECK_EQUAL(bg::within(pt_n23, poly_n), false);
+        BOOST_CHECK_EQUAL(bg::within(pt_n24, poly_n), false);
+    }
+    // segment going through pole
+    // Move to covered_by tests
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    {
+        bg::model::polygon<Point> poly_n;
+        bg::read_wkt("POLYGON((-90 80,90 80,90 70,-90 70, -90 80))", poly_n);
+        Point pt_n1(-90, 85);
+        Point pt_n2(90, 85);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_n1, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_n2, poly_n), true);
+    }
+#endif
 }
 
 void test_large_integers()
