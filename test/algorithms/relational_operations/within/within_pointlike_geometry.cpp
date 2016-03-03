@@ -205,18 +205,34 @@ void test_spherical()
         BOOST_CHECK_EQUAL(bg::within(pt_n23, poly_n), false);
         BOOST_CHECK_EQUAL(bg::within(pt_n24, poly_n), false);
     }
+
     // segment going through pole
-    // Move to covered_by tests
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // TODO: Move to covered_by tests
     {
         bg::model::polygon<Point> poly_n;
         bg::read_wkt("POLYGON((-90 80,90 80,90 70,-90 70, -90 80))", poly_n);
+        // Points on segment
         Point pt_n1(-90, 85);
         Point pt_n2(90, 85);
         BOOST_CHECK_EQUAL(bg::covered_by(pt_n1, poly_n), true);
         BOOST_CHECK_EQUAL(bg::covered_by(pt_n2, poly_n), true);
+        // Points on pole
+        Point pt_np1(90, 90);
+        Point pt_np2(0, 90);
+        Point pt_np3(45, 90);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_np1, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_np2, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_np3, poly_n), true);
     }
-#endif
+    // Segment endpoints on pole with arbitrary longitudes
+    {
+        bg::model::polygon<Point> poly_n;
+        bg::read_wkt("POLYGON((45 90,45 80,0 80,45 90))", poly_n);
+        Point pt_n1(0, 85);
+        Point pt_n2(45, 85);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_n1, poly_n), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(pt_n2, poly_n), true);
+    }
 }
 
 void test_large_integers()
