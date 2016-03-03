@@ -153,6 +153,138 @@ struct winding_side_equal<cartesian_tag>
 };
 
 
+template <typename Point,
+          typename CalculationType,
+          typename CSTag = typename cs_tag<Point>::type>
+struct winding_check_touch
+{
+    typedef CalculationType calc_t;
+    typedef typename coordinate_system<Point>::type cs_t;
+    typedef math::detail::constants_on_spheroid
+        <
+            CalculationType,
+            typename cs_t::units
+        > constants;
+
+    template <typename PointOfSegment, typename State>
+    static inline int apply(Point const& point,
+                            PointOfSegment const& seg1,
+                            PointOfSegment const& seg2,
+                            State& state,
+                            bool& eq1,
+                            bool& eq2)
+    {
+        calc_t const px = get<0>(point);
+        calc_t const s1x = get<0>(seg1);
+        calc_t const s2x = get<0>(seg2);
+        calc_t const py = get<1>(point);
+        calc_t const s1y = get<1>(seg1);
+        calc_t const s2y = get<1>(seg2);
+
+        eq1 = math::equals(s1x, px);
+        eq2 = math::equals(s2x, px);
+
+        calc_t s1x_anti = s1x + constants::half_period();
+        winding_normalize_lon<Point, calc_t>::apply(s1x_anti);
+        bool antipodal = math::equals(s2x, s1x_anti);
+        if (antipodal)
+        {
+            eq1 = eq2 = eq1 || eq2;
+        }
+
+        // lat in {-90, 90} and arbitrary lon
+        //  it doesn't matter what lon it is if it's a pole
+        //  so e.g. if one of the segment endpoints is a pole
+        //  then only the other lon matters
+        calc_t pi2 = constants::half_period() / calc_t(2);
+        if (math::equals(s1y, pi2) || math::equals(s1y, -pi2))
+        {
+            eq1 = antipodal = true;
+        }
+        if (math::equals(s2y, pi2) || math::equals(s2y, -pi2))
+        {
+            eq2 = antipodal = true;
+        }
+        if (math::equals(py, pi2) || math::equals(py, -pi2))
+        {
+            if (antipodal)
+            {
+                eq1 = eq2 = true;
+            }
+        }
+
+        // Both equal p -> segment vertical
+        // The only thing which has to be done is check if point is ON segment
+        if (eq1 && eq2)
+        {
+            // p's lat between segment endpoints' lats
+            if ((s1y <= py && s2y >= py) || (s2y <= py && s1y >= py))
+            {
+                state.m_touches = true;
+            }
+            // segment endpoints on the opposite sides of the globe
+            else if (antipodal)
+            {
+                calc_t dnorth = constants::half_period() - s1y - s2y;
+                if (dnorth <= constants::half_period()) // north
+                {
+                    if (s1y <= py && s2y <= py)
+                    {
+                        state.m_touches = true;
+                    }
+                }
+                else // south
+                {
+                    if (s1y >= py && s2y >= py)
+                    {
+                        state.m_touches = true;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+};
+// The optimization for cartesian
+template <typename Point, typename CalculationType>
+struct winding_check_touch<Point, CalculationType, cartesian_tag>
+{
+    typedef CalculationType calc_t;
+
+    template <typename PointOfSegment, typename State>
+    static inline bool apply(Point const& point,
+                             PointOfSegment const& seg1,
+                             PointOfSegment const& seg2,
+                             State& state,
+                             bool& eq1,
+                             bool& eq2)
+    {
+        calc_t const px = get<0>(point);
+        calc_t const s1x = get<0>(seg1);
+        calc_t const s2x = get<0>(seg2);
+
+        eq1 = math::equals(s1x, px);
+        eq2 = math::equals(s2x, px);
+
+        // Both equal p -> segment vertical
+        // The only thing which has to be done is check if point is ON segment
+        if (eq1 && eq2)
+        {
+            calc_t const py = get<1>(point);
+            calc_t const s1y = get<1>(seg1);
+            calc_t const s2y = get<1>(seg2);
+            if ((s1y <= py && s2y >= py) || (s2y <= py && s1y >= py))
+            {
+                state.m_touches = true;
+            }
+            return true;
+        }
+        return false;
+    }
+};
+
+
 // Called if point is not aligned with a vertical segment
 template <typename Point,
           typename CalculationType,
@@ -255,6 +387,9 @@ class winding
     public :
         friend class winding;
 
+        template <typename P, typename CT, typename CST>
+        friend struct winding_check_touch;
+
         inline counter()
             : m_count(0)
             , m_touches(false)
@@ -263,43 +398,19 @@ class winding
     };
 
 
-    // This function may give wrong results if a segment is going through a pole
-    static inline int check_touch(Point const& point,
-                PointOfSegment const& seg1, PointOfSegment const& seg2,
-                counter& state)
-    {
-        calculation_type const p = get<1>(point);
-        calculation_type const s1 = get<1>(seg1);
-        calculation_type const s2 = get<1>(seg2);
-        if ((s1 <= p && s2 >= p) || (s2 <= p && s1 >= p))
-        {
-            state.m_touches = true;
-        }
-        return 0;
-    }
-
-
     static inline int check_segment(Point const& point,
                 PointOfSegment const& seg1, PointOfSegment const& seg2,
                 counter& state, bool& eq1, bool& eq2)
     {
+        if (winding_check_touch<Point, calculation_type>
+                ::apply(point, seg1, seg2, state, eq1, eq2))
+        {
+            return 0;
+        }
+
         calculation_type const p = get<0>(point);
         calculation_type const s1 = get<0>(seg1);
         calculation_type const s2 = get<0>(seg2);
-
-        // Check if one of segment endpoints is at the same level of point
-        // TODO: For segment going through pole and point touching it
-        //       eq1 or eq2 will be true, but not both
-        eq1 = math::equals(s1, p);
-        eq2 = math::equals(s2, p);
-
-        if (eq1 && eq2)
-        {
-            // Both equal p -> segment vertical
-            // The only thing which has to be done is check if point is ON segment
-            return check_touch(point, seg1, seg2, state);
-        }
-
         return winding_calculate_count<Point, calculation_type>
                     ::apply(p, s1, s2, eq1, eq2);
     }
