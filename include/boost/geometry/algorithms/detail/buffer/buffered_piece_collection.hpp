@@ -2,6 +2,10 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -255,8 +259,11 @@ struct buffered_piece_collection
         {
             geometry::envelope(m_ring, m_box);
 
-            // create monotonic sections in y-dimension
-            typedef boost::mpl::vector_c<std::size_t, 1> dimensions;
+            // create monotonic sections in x-dimension
+            // The dimension is critical because the direction is later used
+            // in the optimization for within checks using winding strategy
+            // and this strategy is scanning in x direction.
+            typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
             geometry::sectionalize<false, dimensions>(m_ring,
                     detail::no_rescale_policy(), m_sections);
         }
