@@ -133,9 +133,6 @@ public:
     matrix_handler()
     {}
 
-    matrix_handler(Matrix const&)
-    {}
-
     result_type const& result() const
     {
         return m_matrix;
@@ -603,10 +600,6 @@ public:
     typedef bool result_type;
 
     bool interrupt;
-
-    inline mask_handler()
-        : interrupt(false)
-    {}
 
     inline explicit mask_handler(Mask const& m)
         : interrupt(false)
