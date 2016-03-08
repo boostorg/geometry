@@ -34,21 +34,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace within
 {
 
-template <typename Point,
-          typename CalculationType = typename coordinate_type<Point>::type>
-struct winding_normalize_lon
-{
-    typedef typename coordinate_system<Point>::type cs_t;
-
-    static inline void apply(CalculationType & lon)
-    {
-        // TODO: get rid of the dummy parameter
-        CalculationType lat = 0;
-        math::normalize_spheroidal_coordinates
-            <typename cs_t::units, CalculationType>(lon, lat);
-    }
-};
-
 // 1 deg or pi/180 rad
 template <typename Point,
           typename CalculationType = typename coordinate_type<Point>::type>
@@ -104,6 +89,7 @@ struct winding_side_equal
                             int count)
     {
         typedef typename coordinate_type<PointOfSegment>::type scoord_t;
+        typedef typename coordinate_system<PointOfSegment>::type::units units_t;
 
         if (math::equals(get<1>(point), get<1>(se)))
             return 0;
@@ -123,7 +109,7 @@ struct winding_side_equal
         {
             ss20 -= winding_small_angle<PointOfSegment>::apply();
         }
-        winding_normalize_lon<PointOfSegment>::apply(ss20);
+        math::normalize_longitude<units_t>(ss20);
         set<0>(ss2, ss20);
 
         // Check the side using this vertical segment
@@ -156,12 +142,8 @@ template <typename Point,
 struct winding_check_touch
 {
     typedef CalculationType calc_t;
-    typedef typename coordinate_system<Point>::type cs_t;
-    typedef math::detail::constants_on_spheroid
-        <
-            CalculationType,
-            typename cs_t::units
-        > constants;
+    typedef typename coordinate_system<Point>::type::units units_t;
+    typedef math::detail::constants_on_spheroid<CalculationType, units_t> constants;
 
     template <typename PointOfSegment, typename State>
     static inline int apply(Point const& point,
@@ -196,7 +178,7 @@ struct winding_check_touch
         
         // segment overlapping pole
         calc_t s1x_anti = s1x + constants::half_period();
-        winding_normalize_lon<Point, calc_t>::apply(s1x_anti);
+        math::normalize_longitude<units_t, calc_t>(s1x_anti);
         bool antipodal = math::equals(s2x, s1x_anti);
         if (antipodal)
         {
@@ -278,12 +260,12 @@ template <typename Point,
 struct winding_calculate_count
 {
     typedef CalculationType calc_t;
-    typedef typename coordinate_system<Point>::type cs_t;
+    typedef typename coordinate_system<Point>::type::units units_t;
 
     static inline bool greater(calc_t const& l, calc_t const& r)
     {
         calc_t diff = l - r;
-        winding_normalize_lon<Point, calc_t>::apply(diff);
+        math::normalize_longitude<units_t, calc_t>(diff);
         return diff > calc_t(0);
     }
 
