@@ -65,9 +65,27 @@ struct box_covered_by_range
 };
 
 
-// spherical_equatorial_tag and spherical_polar_tag is casted to spherical_tag
-template <typename Geometry>
-struct box_within_range<Geometry, 0, spherical_tag>
+struct box_within_longitude_check
+{
+    template <typename CalcT>
+    static inline bool apply(CalcT const& diff_ed)
+    {
+        return diff_ed > CalcT(0);
+    }
+};
+
+struct box_covered_by_longitude_check
+{
+    template <typename CalcT>
+    static inline bool apply(CalcT const&)
+    {
+        return true;
+    }
+};
+
+template <typename Geometry,
+          typename InteriorCheck>
+struct box_longitude_range
 {
     template <typename BoxContainedValue, typename BoxContainingValue>
     static inline bool apply(BoxContainedValue const& bed_min,
@@ -86,68 +104,40 @@ struct box_within_range<Geometry, 0, spherical_tag>
         // min <= max <=> diff >= 0
         calc_t const diff_ed = bed_max - bed_min;
         calc_t const diff_ing = bing_max - bing_min;
-        // if containing is smaller it cannot contain
-        // or interiors doesn't overlap (no interior in contained)
-        if (diff_ing < diff_ed || diff_ed == 0)
-            return false;
-
+        
         // if containing covers the whole globe it contains all
-        if (!math::smaller(diff_ing, constants::period())) // >= period
+        if (diff_ing >= constants::period())
+        {
             return true;
+        }
+
+        // if containing is smaller it cannot contain
+        // and check interior (within vs covered_by)
+        if (diff_ing < diff_ed || ! InteriorCheck::apply(diff_ed))
+        {
+            return false;
+        }
 
         // calculate positive longitude translation with bing_min as origin
-        calc_t const c0 = 0;
-        calc_t diff_min = bed_min - bing_min;
-        math::normalize_longitude<units_t, calc_t>(diff_min);
-        if (diff_min < c0) // [-180, 180] -> [0, 360]
-            diff_min += constants::period();
+        calc_t const diff_min = math::longitude_distance_unsigned<units_t>(bing_min, bed_min);
 
+        // max of contained translated into the containing origin must be lesser than max of containing
         return bing_min + diff_min + diff_ed <= bing_max;
     }
 };
+
+
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
+template <typename Geometry>
+struct box_within_range<Geometry, 0, spherical_tag>
+    : box_longitude_range<Geometry, box_within_longitude_check>
+{};
 
 
 template <typename Geometry>
 struct box_covered_by_range<Geometry, 0, spherical_tag>
-{
-    template <typename BoxContainedValue, typename BoxContainingValue>
-    static inline bool apply(BoxContainedValue const& bed_min,
-                             BoxContainedValue const& bed_max,
-                             BoxContainingValue const& bing_min,
-                             BoxContainingValue const& bing_max)
-    {
-        typedef typename select_most_precise
-            <
-                BoxContainedValue,
-                BoxContainingValue
-            >::type calc_t;
-        typedef typename coordinate_system<Geometry>::type::units units_t;
-        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
-
-        // min <= max <=> diff >= 0
-        calc_t const diff_ed = bed_max - bed_min;
-        calc_t const diff_ing = bing_max - bing_min;
-        // if containing is smaller it cannot contain
-        if (diff_ing < diff_ed)
-            return false;
-
-        // if containing covers the whole globe it contains all
-        if (!math::smaller(diff_ing, constants::period())) // >= period
-            return true;
-
-        // calculate positive longitude translation with bing_min as origin
-        calc_t const c0 = 0;
-        calc_t diff_min = bed_min - bing_min;
-        math::normalize_longitude<units_t, calc_t>(diff_min);
-        if (diff_min < c0) // [-180, 180] -> [0, 360]
-            diff_min += constants::period();
-
-        return bing_min + diff_min + diff_ed <= bing_max;
-    }
-};
-
-
-// geographic_tag is casted to spherical_tag
+    : box_longitude_range<Geometry, box_covered_by_longitude_check>
+{};
 
 
 template
@@ -240,6 +230,7 @@ struct default_strategy
     typedef within::box_in_box<BoxContained, BoxContaining> type;
 };
 
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
@@ -252,7 +243,6 @@ struct default_strategy
     typedef within::box_in_box<BoxContained, BoxContaining> type;
 };
 
-// geographic_tag is casted to spherical_tag
 
 }} // namespace within::services
 
@@ -275,6 +265,7 @@ struct default_strategy
                 > type;
 };
 
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
@@ -291,7 +282,6 @@ struct default_strategy
                 > type;
 };
 
-// geographic_tag is casted to spherical_tag
 
 }} // namespace covered_by::services
 

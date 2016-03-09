@@ -56,40 +56,32 @@ struct covered_by_range
 };
 
 
-template <typename Geometry>
-struct within_range<Geometry, 0, spherical_tag>
+// NOTE: the result would be the same if instead of structs defined below
+// the above xxx_range were used with the following arguments:
+// (min_value + diff_min, min_value, max_value)
+struct within_longitude_range
 {
-    template <typename Value1, typename Value2>
-    static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
+    template <typename CalcT>
+    static inline bool apply(CalcT const& diff_min, CalcT const& min_value, CalcT const& max_value)
     {
-        typedef typename select_most_precise
-            <
-                Value1, Value2
-            >::type calc_t;
-        typedef typename coordinate_system<Geometry>::type::units units_t;
-        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
-
-        // min <= max <=> diff >= 0
-        calc_t const diff_ing = max_value - min_value;
-
-        // if containing covers the whole globe it contains all
-        if (!math::smaller(diff_ing, constants::period())) // >= period
-            return true;
-
-        // calculate positive longitude translation with bing_min as origin
-        calc_t const c0 = 0;
-        calc_t diff_min = value - min_value;
-        math::normalize_longitude<units_t, calc_t>(diff_min);
-        if (diff_min < c0) // [-180, 180] -> [0, 360]
-            diff_min += constants::period();
-
+        CalcT const c0 = 0;
         return diff_min > c0 && min_value + diff_min < max_value;
     }
 };
 
+struct covered_by_longitude_range
+{
+    template <typename CalcT>
+    static inline bool apply(CalcT const& diff_min, CalcT const& min_value, CalcT const& max_value)
+    {
+        return min_value + diff_min <= max_value;
+    }
+};
 
-template <typename Geometry>
-struct covered_by_range<Geometry, 0, spherical_tag>
+
+template <typename Geometry,
+          typename ResultCheck>
+struct longitude_range
 {
     template <typename Value1, typename Value2>
     static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
@@ -105,21 +97,30 @@ struct covered_by_range<Geometry, 0, spherical_tag>
         calc_t const diff_ing = max_value - min_value;
 
         // if containing covers the whole globe it contains all
-        if (!math::smaller(diff_ing, constants::period())) // >= period
+        if (diff_ing >= constants::period())
+        {
             return true;
+        }
 
         // calculate positive longitude translation with min_value as origin
-        calc_t const c0 = 0;
-        calc_t diff_min = value - min_value;
-        math::normalize_longitude<units_t, calc_t>(diff_min);
-        if (diff_min < c0) // [-180, 180] -> [0, 360]
-            diff_min += constants::period();
+        calc_t const diff_min = math::longitude_distance_unsigned<units_t, calc_t>(min_value, value);
 
-        return min_value + diff_min <= max_value;
+        return ResultCheck::template apply<calc_t>(diff_min, min_value, max_value);
     }
 };
 
-// geographic_tag is casted to spherical_tag
+
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
+template <typename Geometry>
+struct within_range<Geometry, 0, spherical_tag>
+    : longitude_range<Geometry, within_longitude_range>
+{};
+
+
+template <typename Geometry>
+struct covered_by_range<Geometry, 0, spherical_tag>
+    : longitude_range<Geometry, covered_by_longitude_range>
+{};
 
 
 template
@@ -211,6 +212,7 @@ struct default_strategy
     typedef within::point_in_box<Point, Box> type;
 };
 
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
 template <typename Point, typename Box>
 struct default_strategy
     <
@@ -222,8 +224,6 @@ struct default_strategy
 {
     typedef within::point_in_box<Point, Box> type;
 };
-
-// geographic_tag is casted to spherical_tag
 
 
 }} // namespace within::services
@@ -249,6 +249,7 @@ struct default_strategy
                 > type;
 };
 
+// spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
 template <typename Point, typename Box>
 struct default_strategy
     <
@@ -264,8 +265,6 @@ struct default_strategy
                     within::covered_by_range
                 > type;
 };
-
-// geographic_tag is casted to spherical_tag
 
 
 }} // namespace covered_by::services
