@@ -236,6 +236,52 @@ inline void normalize_longitude(CoordinateType& longitude)
 }
 
 
+/*!
+\brief Short utility to calculate difference between two longitudes
+       normalized in range (-180, 180].
+\tparam Units The units of the coordindate system in the spheroid
+\tparam CoordinateType The type of the coordinates
+\param longitude1 Longitude 1
+\param longitude2 Longitude 2
+\ingroup utility
+*/
+template <typename Units, typename CoordinateType>
+inline CoordinateType longitude_distance_signed(CoordinateType const& longitude1,
+                                                CoordinateType const& longitude2)
+{
+    CoordinateType diff = longitude2 - longitude1;
+    math::normalize_longitude<Units, CoordinateType>(diff);
+    return diff;
+}
+
+
+/*!
+\brief Short utility to calculate difference between two longitudes
+       normalized in range [0, 360).
+\tparam Units The units of the coordindate system in the spheroid
+\tparam CoordinateType The type of the coordinates
+\param longitude1 Longitude 1
+\param longitude2 Longitude 2
+\ingroup utility
+*/
+template <typename Units, typename CoordinateType>
+inline CoordinateType longitude_distance_unsigned(CoordinateType const& longitude1,
+                                                  CoordinateType const& longitude2)
+{
+    typedef math::detail::constants_on_spheroid
+        <
+            CoordinateType, Units
+        > constants;
+
+    CoordinateType const c0 = 0;
+    CoordinateType diff = longitude_distance_signed<Units>(longitude1, longitude2);
+    if (diff < c0) // (-180, 180] -> [0, 360)
+    {
+        diff += constants::period();
+    }
+    return diff;
+}
+
 } // namespace math
 
 
