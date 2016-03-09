@@ -104,16 +104,10 @@ struct box_box<Box1, Box2, 0, DimensionCount, spherical_tag>
         calc_t const diff2 = b2_max - b2_min;
 
         // check the intersection if neither box cover the whole globe
-        if (math::smaller(diff1, constants::period())
-         && math::smaller(diff2, constants::period()) ) // < period
+        if (diff1 < constants::period() && diff2 < constants::period())
         {
             // calculate positive longitude translation with b1_min as origin
-            calc_t const c0 = 0;
-            calc_t diff_min = b2_min - b1_min;
-            math::normalize_longitude<units_t, calc_t>(diff_min);
-            if (diff_min < c0) // [-180, 180] -> [0, 360]
-                diff_min += constants::period();
-        
+            calc_t const diff_min = math::longitude_distance_unsigned<units_t>(b1_min, b2_min);
             calc_t const b2_min_transl = b1_min + diff_min; // always right of b1_min
 
             if (b2_min_transl > b1_max                                // b2_min right of b1_max
