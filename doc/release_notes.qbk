@@ -23,6 +23,10 @@
 [heading Boost 1.61]
 [/=================]
 
+[*Improvements]
+
+* Overlay: handle_tangencies replaced by clusters, fixing many cases with colocated turns
+
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/11637 11637] Unused parameter warning.
