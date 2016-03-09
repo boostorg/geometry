@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -84,8 +84,8 @@ struct box_within_range<Geometry, 0, spherical_tag>
         typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
 
         // min <= max <=> diff >= 0
-        calc_t diff_ed = bed_max - bed_min;
-        calc_t diff_ing = bing_max - bing_min;
+        calc_t const diff_ed = bed_max - bed_min;
+        calc_t const diff_ing = bing_max - bing_min;
         // if containing is smaller it cannot contain
         // or interiors doesn't overlap (no interior in contained)
         if (diff_ing < diff_ed || diff_ed == 0)
@@ -125,8 +125,8 @@ struct box_covered_by_range<Geometry, 0, spherical_tag>
         typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
 
         // min <= max <=> diff >= 0
-        calc_t diff_ed = bed_max - bed_min;
-        calc_t diff_ing = bing_max - bing_min;
+        calc_t const diff_ed = bed_max - bed_min;
+        calc_t const diff_ing = bing_max - bing_min;
         // if containing is smaller it cannot contain
         if (diff_ing < diff_ed)
             return false;
@@ -147,16 +147,7 @@ struct box_covered_by_range<Geometry, 0, spherical_tag>
 };
 
 
-template <typename Geometry>
-struct box_within_range<Geometry, 0, geographic_tag>
-    : box_within_range<Geometry, 0, spherical_tag>
-{};
-
-
-template <typename Geometry>
-struct box_covered_by_range<Geometry, 0, geographic_tag>
-    : box_covered_by_range<Geometry, 0, spherical_tag>
-{};
+// geographic_tag is casted to spherical_tag
 
 
 template
@@ -261,18 +252,7 @@ struct default_strategy
     typedef within::box_in_box<BoxContained, BoxContaining> type;
 };
 
-template <typename BoxContained, typename BoxContaining>
-struct default_strategy
-    <
-        box_tag, box_tag,
-        box_tag, areal_tag,
-        geographic_tag, geographic_tag,
-        BoxContained, BoxContaining
-    >
-{
-    typedef within::box_in_box<BoxContained, BoxContaining> type;
-};
-
+// geographic_tag is casted to spherical_tag
 
 }} // namespace within::services
 
@@ -311,21 +291,7 @@ struct default_strategy
                 > type;
 };
 
-template <typename BoxContained, typename BoxContaining>
-struct default_strategy
-    <
-        box_tag, box_tag,
-        box_tag, areal_tag,
-        geographic_tag, geographic_tag,
-        BoxContained, BoxContaining
-    >
-{
-    typedef within::box_in_box
-                <
-                    BoxContained, BoxContaining,
-                    within::box_covered_by_range
-                > type;
-};
+// geographic_tag is casted to spherical_tag
 
 }} // namespace covered_by::services
 
