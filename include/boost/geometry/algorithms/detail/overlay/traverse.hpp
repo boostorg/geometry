@@ -325,6 +325,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, signed_size_type start_turn_index,
+            int start_op_index, bool is_start,
             point_type const& point)
     {
         bool const is_union = OperationType == operation_union;
@@ -348,6 +349,9 @@ struct traversal
         sbs_type sbs;
         sbs.set_origin(point);
 
+        bool at_start = false;
+        bool has_finished = false;
+
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
@@ -359,12 +363,30 @@ struct traversal
                 continue;
             }
 
+            if (! is_start && ! is_union && cluster_turn_index == start_turn_index)
+            {
+                at_start = true;
+            }
+
             for (int i = 0; i < 2; i++)
             {
                 sbs.add(cluster_turn.operations[i], cluster_turn_index, i,
                         m_geometry1, m_geometry2, false);
+
+                if (cluster_turn.operations[i].visited.finished())
+                {
+                    has_finished = true;
+                }
             }
         }
+
+        if (at_start && has_finished)
+        {
+            turn_index = start_turn_index;
+            op_index = start_op_index;
+            return true;
+        }
+
         sbs.apply(turn.point);
 
         int open_count = 0;
@@ -515,7 +537,7 @@ struct traversal
         {
 
             if (! select_turn_from_cluster(turn_index, op_index,
-                    start_turn_index, current_ring.back()))
+                    start_turn_index, start_op_index, is_start, current_ring.back()))
             {
                 return is_start
                     ? traverse_error_no_next_ip_at_start
