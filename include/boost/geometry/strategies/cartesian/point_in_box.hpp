@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,6 +24,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -33,6 +34,7 @@ namespace within
 {
 
 
+template <typename Geometry, std::size_t Dimension, typename CSTag>
 struct within_range
 {
     template <typename Value1, typename Value2>
@@ -43,6 +45,7 @@ struct within_range
 };
 
 
+template <typename Geometry, std::size_t Dimension, typename CSTag>
 struct covered_by_range
 {
     template <typename Value1, typename Value2>
@@ -53,9 +56,75 @@ struct covered_by_range
 };
 
 
+template <typename Geometry>
+struct within_range<Geometry, 0, spherical_tag>
+{
+    template <typename Value1, typename Value2>
+    static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
+    {
+        typedef typename select_most_precise
+            <
+                Value1, Value2
+            >::type calc_t;
+        typedef typename coordinate_system<Geometry>::type::units units_t;
+        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+
+        // min <= max <=> diff >= 0
+        calc_t const diff_ing = max_value - min_value;
+
+        // if containing covers the whole globe it contains all
+        if (!math::smaller(diff_ing, constants::period())) // >= period
+            return true;
+
+        // calculate positive longitude translation with bing_min as origin
+        calc_t const c0 = 0;
+        calc_t diff_min = value - min_value;
+        math::normalize_longitude<units_t, calc_t>(diff_min);
+        if (diff_min < c0) // [-180, 180] -> [0, 360]
+            diff_min += constants::period();
+
+        return diff_min > c0 && min_value + diff_min < max_value;
+    }
+};
+
+
+template <typename Geometry>
+struct covered_by_range<Geometry, 0, spherical_tag>
+{
+    template <typename Value1, typename Value2>
+    static inline bool apply(Value1 const& value, Value2 const& min_value, Value2 const& max_value)
+    {
+        typedef typename select_most_precise
+            <
+                Value1, Value2
+            >::type calc_t;
+        typedef typename coordinate_system<Geometry>::type::units units_t;
+        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+
+        // min <= max <=> diff >= 0
+        calc_t const diff_ing = max_value - min_value;
+
+        // if containing covers the whole globe it contains all
+        if (!math::smaller(diff_ing, constants::period())) // >= period
+            return true;
+
+        // calculate positive longitude translation with min_value as origin
+        calc_t const c0 = 0;
+        calc_t diff_min = value - min_value;
+        math::normalize_longitude<units_t, calc_t>(diff_min);
+        if (diff_min < c0) // [-180, 180] -> [0, 360]
+            diff_min += constants::period();
+
+        return min_value + diff_min <= max_value;
+    }
+};
+
+// geographic_tag is casted to spherical_tag
+
+
 template
 <
-    typename SubStrategy,
+    template <typename, std::size_t, typename> class SubStrategy,
     typename Point,
     typename Box,
     std::size_t Dimension,
@@ -65,7 +134,9 @@ struct relate_point_box_loop
 {
     static inline bool apply(Point const& point, Box const& box)
     {
-        if (! SubStrategy::apply(get<Dimension>(point),
+        typedef typename tag_cast<typename cs_tag<Point>::type, spherical_tag>::type cs_tag_t;
+
+        if (! SubStrategy<Point, Dimension, cs_tag_t>::apply(get<Dimension>(point),
                     get<min_corner, Dimension>(box),
                     get<max_corner, Dimension>(box))
             )
@@ -85,7 +156,7 @@ struct relate_point_box_loop
 
 template
 <
-    typename SubStrategy,
+    template <typename, std::size_t, typename> class SubStrategy,
     typename Point,
     typename Box,
     std::size_t DimensionCount
@@ -103,7 +174,7 @@ template
 <
     typename Point,
     typename Box,
-    typename SubStrategy = within_range
+    template <typename, std::size_t, typename> class SubStrategy = within_range
 >
 struct point_in_box
 {
@@ -140,6 +211,20 @@ struct default_strategy
     typedef within::point_in_box<Point, Box> type;
 };
 
+template <typename Point, typename Box>
+struct default_strategy
+    <
+        point_tag, box_tag,
+        point_tag, areal_tag,
+        spherical_tag, spherical_tag,
+        Point, Box
+    >
+{
+    typedef within::point_in_box<Point, Box> type;
+};
+
+// geographic_tag is casted to spherical_tag
+
 
 }} // namespace within::services
 
@@ -163,6 +248,24 @@ struct default_strategy
                     within::covered_by_range
                 > type;
 };
+
+template <typename Point, typename Box>
+struct default_strategy
+    <
+        point_tag, box_tag,
+        point_tag, areal_tag,
+        spherical_tag, spherical_tag,
+        Point, Box
+    >
+{
+    typedef within::point_in_box
+                <
+                    Point, Box,
+                    within::covered_by_range
+                > type;
+};
+
+// geographic_tag is casted to spherical_tag
 
 
 }} // namespace covered_by::services
