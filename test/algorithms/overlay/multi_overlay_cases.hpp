@@ -636,9 +636,23 @@ static std::string case_recursive_boxes_33[2] =
 
 static std::string case_recursive_boxes_34[2] =
 {
-    // Requires detecting start turn at cluster and use that to finish it
+    // Requires detecting finished arcs during cluster traversal
     "MULTIPOLYGON(((2 0,0 0,0 5,2 5,2 4,3 5,5 5,5 0,2 0)))",
     "MULTIPOLYGON(((3 3,2 3,2 2,3 2,3 1,2 0,1 0,2 1,1 1,1 0,0 0,0 5,1 4,1 5,4 5,3 4,3.5 3.5,4 4,4 5,5 4,5 1,4 1,4 3,3 3)),((3 1,4 1,3 0,3 1)))"
+};
+
+static std::string case_recursive_boxes_35[2] =
+{
+    // Requires detecting finished arcs during cluster traversal
+    "MULTIPOLYGON(((3 1,2 1,3 0,0 0,0 2,1 2,1 3,0 2,0 5,4 5,4 4,5 4,5 1,4 1,5 0,3 0,3 1),(2.5 1.5,3 2,2 2,2.5 1.5),(2 4,1 4,2 3,2 4)))",
+    "MULTIPOLYGON(((2 2,1.5 1.5,2 1,1 1,1 0,0 0,0 5,3 5,2.5 4.5,3 4,3 5,5 5,5 0,1 0,2 1,2 2),(3 2,3 3,2.5 2.5,3 2),(2 3,2 4,1 4,1 3,2 3)))"
+};
+
+static std::string case_recursive_boxes_36[2] =
+{
+    // Requires increasing target rank while skipping finished arcs to avoid duplicate output
+    "MULTIPOLYGON(((5 3,4 3,4 4,5 3)),((5 2,4 2,5 3,5 2)),((5 2,5 1,4 1,5 2)))",
+    "MULTIPOLYGON(((4 2,4 3,5 3,5 2,4 2)),((4 2,4 1,3 1,3 2,4 2)))"
 };
 
 static std::string pie_21_7_21_0_3[2] =
