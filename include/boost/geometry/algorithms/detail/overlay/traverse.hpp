@@ -283,7 +283,7 @@ struct traversal
                 return false;
             }
 
-            if (! is_union && ranked_op.visited.finalized())
+            if (! allow_pass_rank && ranked_op.visited.finalized())
             {
                 // Skip this one, go to next
                 min_rank = ranked_point.main_rank;
