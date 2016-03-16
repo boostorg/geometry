@@ -407,13 +407,14 @@ struct traversal
             }
         }
 
+        bool allow = false;
         if (open_count > 1)
         {
             sbs.reverse();
-            return select_from_cluster(turn_index, op_index, start_turn_index, sbs, true);
+            allow = true;
         }
 
-        return select_from_cluster(turn_index, op_index, start_turn_index, sbs, false);
+        return select_from_cluster(turn_index, op_index, start_turn_index, sbs, allow);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
