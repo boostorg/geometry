@@ -333,14 +333,6 @@ struct traversal
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);
 
-#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE_BUFFER
-        std::cout << "Select Cluster "
-                  << turn.cluster_id
-                 << " from " << turn_index
-                 << "[" << op_index << "]"
-                  << std::boolalpha << std::endl;
-#endif
-
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
 
