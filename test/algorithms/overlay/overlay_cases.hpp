@@ -963,17 +963,10 @@ static std::string ticket_11121[2] =
         "POLYGON((-7901 -1485,-7901 529,-7901 529,15802 544,15802 -1485,-7901 -1485))"
     };
 
-
 static std::string ticket_11725[2] =
     {
         "POLYGON((0 0, 0 1, 3 1, 3 0, 0 0))",
         "POLYGON((0 1, 0 3, 3 3, 3 1, 2 2, 1 2 , 1 1, 0 1))"
-    };
-
-static std::string ticket_11725_2[2] =
-    {
-        "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))",
-        "POLYGON((3 1, 1 1, 1 2, 2 2, 3 1))",
     };
 
 // Integer, ccw, open

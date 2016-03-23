@@ -350,6 +350,9 @@ void test_areal()
             1, 0, 10, 2424.3449);
 #endif
 
+    test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
+            1, 1, 10, 7.5);
+
     test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
             1, 0, -1, 3461.3203125);
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
@@ -428,12 +431,6 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 1, 217, 36.752837);
-
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    test_one<Polygon, Polygon, Polygon>("ticket_11725",
-        ticket_11725[0], ticket_11725[1],
-        1, 1, -1, 7.5);
-#endif
 
     // #holes should be 1 (for the 3 cases below)
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
