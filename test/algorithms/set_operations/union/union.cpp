@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2016 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2016 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2016 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -188,6 +188,45 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("81",
                 case_81[0], case_81[1], 1, 2, 15, 163.5);
+
+    test_one<Polygon, Polygon, Polygon>("82",
+                case_82[0], case_82[1], 1, 1, 21, 19.75);
+
+    test_one<Polygon, Polygon, Polygon>("83",
+                case_83[0], case_83[1], 1, 0, 7, 20.0);
+
+    test_one<Polygon, Polygon, Polygon>("90",
+                case_90[0], case_90[1], 1, 1, 17, 221.3688);
+
+    test_one<Polygon, Polygon, Polygon>("91",
+                case_91[0], case_91[1], 1, 0, 9, 147.5);
+
+    test_one<Polygon, Polygon, Polygon>("92",
+                case_92[0], case_92[1], 2, 0, 9, 175.0);
+
+    // Should have 0 holes
+    test_one<Polygon, Polygon, Polygon>("93",
+                case_93[0], case_93[1], 1, 1, 12, 172.9167);
+
+    test_one<Polygon, Polygon, Polygon>("94",
+                case_94[0], case_94[1], 2, 0, 12, 170.0);
+
+    // Has 2 separate but touching interior rings, which is OK
+    test_one<Polygon, Polygon, Polygon>("95",
+                case_95[0], case_95[1], 1, 2, 15, 1320.0);
+
+    // Should have 0 holes
+    test_one<Polygon, Polygon, Polygon>("96",
+                case_96[0], case_96[1], 1, 1, 10, 1500.0);
+
+    test_one<Polygon, Polygon, Polygon>("97",
+                case_97[0], case_97[1], 1, 0, 10, 286.799);
+
+    test_one<Polygon, Polygon, Polygon>("98",
+                case_98[0], case_98[1], 1, 1, 14, 653.067);
+
+    test_one<Polygon, Polygon, Polygon>("99",
+                case_99[0], case_99[1], 1, 0, 5, 1600.0);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
