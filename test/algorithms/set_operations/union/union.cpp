@@ -350,6 +350,9 @@ void test_areal()
             1, 0, 10, 2424.3449);
 #endif
 
+    test_one<Polygon, Polygon, Polygon>("ticket_10866", ticket_10866[0], ticket_10866[1],
+            1, 0, 14, 332760303.5);
+
     test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
             1, 1, 10, 7.5);
 
