@@ -111,6 +111,25 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_105_multi",
         case_105_multi[0], case_105_multi[1],
         1, 0, 5, 25);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_106_multi",
+        case_106_multi[0], case_106_multi[1],
+        1, 0, 12, 25);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
+        case_107_multi[0], case_107_multi[1],
+        1, 0, 15, 6.75);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+        case_108_multi[0], case_108_multi[1],
+        1, 0, 20, 22.75);
+
+    // Should have 2 holes
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
+        case_109_multi[0], case_109_multi[1],
+        1, 1, 14, 1400);
+
+    // Should have 9 holes, they are all separate and touching
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
+       case_110_multi[0], case_110_multi[1],
+       1, 1, 37, 1250);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
