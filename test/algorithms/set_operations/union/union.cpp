@@ -196,26 +196,24 @@ void test_areal()
                 case_83[0], case_83[1], 1, 0, 7, 20.0);
 
     test_one<Polygon, Polygon, Polygon>("90",
-                case_90[0], case_90[1], 1, 1, 17, 221.3688);
+                case_90[0], case_90[1], 1, 2, 17, 221.3688);
 
     test_one<Polygon, Polygon, Polygon>("91",
-                case_91[0], case_91[1], 1, 0, 9, 147.5);
+                case_91[0], case_91[1], 1, 1, 9, 147.5);
 
     test_one<Polygon, Polygon, Polygon>("92",
                 case_92[0], case_92[1], 2, 0, 9, 175.0);
 
-    // Should have 0 holes
     test_one<Polygon, Polygon, Polygon>("93",
-                case_93[0], case_93[1], 1, 1, 12, 172.9167);
+                case_93[0], case_93[1], 1, 2, 12, 172.9167);
 
     test_one<Polygon, Polygon, Polygon>("94",
                 case_94[0], case_94[1], 2, 0, 12, 170.0);
 
-    // Has 2 separate but touching interior rings, which is OK
+    // Has two separate but touching interior rings
     test_one<Polygon, Polygon, Polygon>("95",
                 case_95[0], case_95[1], 1, 2, 15, 1320.0);
 
-    // Should have 0 holes
     test_one<Polygon, Polygon, Polygon>("96",
                 case_96[0], case_96[1], 1, 1, 10, 1500.0);
 
@@ -429,7 +427,7 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                1, 0, 217, 36.752837);
+                1, 1, 217, 36.752837);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, Polygon, Polygon>("ticket_11725",

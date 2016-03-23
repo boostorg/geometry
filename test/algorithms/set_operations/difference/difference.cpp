@@ -296,7 +296,7 @@ void test_all()
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
         2, -1, 8960.49049,
-        2, -1, 71495.3331 + 8960.49049);
+        1, -1, 71495.3331 + 8960.49049);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
@@ -508,7 +508,7 @@ void test_specific()
             ticket_11676[0], ticket_11676[1],
             1, 18, 2537992.5,
             2, 11, 294963.5,
-            2, -1, 2537992.5 + 294963.5,
+            1, -1, 2537992.5 + 294963.5,
             settings);
     }
 }

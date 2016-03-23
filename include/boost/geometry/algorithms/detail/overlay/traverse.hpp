@@ -118,6 +118,9 @@ struct traversal
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
+        , m_has_uu(false)
+        , m_has_only_uu(true)
+        , m_switch_at_uu(true)
     {}
 
 
@@ -148,7 +151,10 @@ struct traversal
                         : seg_id1.multi_index == seg_id2.multi_index;
             }
 
-            return turn.switch_source
+            // Temporarily use m_switch_at_uu, which does not solve all cases,
+            // but the majority of the more simple cases, making the interior
+            // rings valid
+            return m_switch_at_uu // turn.switch_source
                     ? seg_id1.source_index != seg_id2.source_index
                     : seg_id1.source_index == seg_id2.source_index;
         }
@@ -725,18 +731,52 @@ struct traversal
 
     template <typename Rings>
     void iterate(Rings& rings, std::size_t& finalized_ring_size,
-                 typename Backtrack::state_type& state)
+                 typename Backtrack::state_type& state,
+                 int pass)
     {
+        if (pass == 1)
+        {
+            if (OperationType == operation_intersection)
+            {
+                // Second pass currently only used for uu
+                return;
+            }
+            if (! m_has_uu)
+            {
+                // There is no uu found in first pass
+                return;
+            }
+            if (m_has_only_uu)
+            {
+                m_switch_at_uu = false;
+            }
+        }
+
         // Iterate through all unvisited points
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
             turn_type const& start_turn = m_turns[turn_index];
 
-            // Skip discarded ones
-            if (start_turn.discarded
-                || start_turn.blocked())
+            if (start_turn.discarded || start_turn.blocked())
             {
+                // Skip discarded and blocked turns
                 continue;
+            }
+            if (OperationType == operation_union)
+            {
+                if (start_turn.both(operation_union))
+                {
+                    // Start with a uu-turn only in the second pass
+                    m_has_uu = true;
+                    if (pass == 0)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    m_has_only_uu = false;
+                }
             }
 
             for (int op_index = 0; op_index < 2; op_index++)
@@ -754,8 +794,12 @@ private :
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-};
 
+    // Next members are only used for operation union
+    bool m_has_uu;
+    bool m_has_only_uu;
+    bool m_switch_at_uu;
+};
 
 
 /*!
@@ -802,7 +846,10 @@ public :
 
         typename Backtrack::state_type state;
 
-        trav.iterate(rings, finalized_ring_size, state);
+        for (int pass = 0; pass < 2; pass++)
+        {
+            trav.iterate(rings, finalized_ring_size, state, pass);
+        }
     }
 };
 
