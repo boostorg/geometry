@@ -23,23 +23,32 @@
 [heading Boost 1.61]
 [/=================]
 
+[*Additional functionality]
+
+* Support within and covered_by for Box/Box in spherical and geographic coordinate systems.
+
 [*Improvements]
 
 * Overlay: handle_tangencies replaced by clusters, fixing many cases with colocated turns
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10866 10866] union_ doesn't work in 1.56 and 1.57.
+* [@https://svn.boost.org/trac/boost/ticket/11576 11576] Intersection gives wrong results.
 * [@https://svn.boost.org/trac/boost/ticket/11637 11637] Unused parameter warning.
 * [@https://svn.boost.org/trac/boost/ticket/11917 11917] Andoyer distance strategy returns 0 for antipodal points (default geographic distance).
 * [@https://svn.boost.org/trac/boost/ticket/11928 11928] Improvement of the accuracy of surveyor area strategy.
 * [@https://svn.boost.org/trac/boost/ticket/11966 11966] Compilation error in svg() for box and non-int coordinate type.
 * [@https://svn.boost.org/trac/boost/ticket/11789 11789] Assertion failure or invalid result of set operations for spherical_equatorial coordinate system.
+* [@https://svn.boost.org/trac/boost/ticket/11987 11987] rtree::remove() not compiling for geographic CS.
 * [@https://svn.boost.org/trac/boost/ticket/12000 12000] Uninitialized reference in (unused) constructor of relate's mask_handler.
 
 [*Bugfixes]
 
-* Fix wrong result of intersects/disjoints for Segment and Box when Segment is parallel to Box's face.
-* Fix relation operations of Point/Areal in edge cases for non-cartesian coordinate systems.
+* Fix intersects and disjoints for Segment/Box in cartesian coordinate system when Segment is parallel to Box's face.
+* Fix relation operations for Point/Areal in spherical and geographic coordinate systems for edge cases.
+* Fix intersect and disjoint for Point/Box and Box/Box in spherical and geographic coordinate systems for some cases.
+* Fix within and covered_by for Point/Box in spherical and geographic coordinate systems for some cases.
 
 [/=================]
 [heading Boost 1.60]

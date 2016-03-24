@@ -398,10 +398,7 @@ void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
     typedef bg::model::polygon<point_type> polygon;
-    typedef bg::model::multi_polygon
-        <
-            bg::model::polygon<point_type>
-        > multi_polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     test_overlay<multi_polygon, bg::overlay_union>
         (
