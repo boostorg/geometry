@@ -33,6 +33,8 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10866 10866] union_ doesn't work in 1.56 and 1.57.
+* [@https://svn.boost.org/trac/boost/ticket/11576 11576] Intersection gives wrong results.
 * [@https://svn.boost.org/trac/boost/ticket/11637 11637] Unused parameter warning.
 * [@https://svn.boost.org/trac/boost/ticket/11917 11917] Andoyer distance strategy returns 0 for antipodal points (default geographic distance).
 * [@https://svn.boost.org/trac/boost/ticket/11928 11928] Improvement of the accuracy of surveyor area strategy.
