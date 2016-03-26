@@ -40,17 +40,14 @@
 namespace boost { namespace geometry
 {
 
-
 namespace strategy { namespace intersection
 {
-
 
 template <typename Policy, typename CalculationType = void>
 struct relate_spherical_segments
 {
     typedef typename Policy::return_type return_type;
 
-    
     // TODO: Move to SSF implementation
 
     template <typename Point3d, typename PointSph>
@@ -73,7 +70,7 @@ struct relate_spherical_segments
     template <typename PointSph, typename Point3d>
     static inline PointSph cart3d_to_sph(Point3d const& point_3d)
     {
-        typedef typename coordinate_type<PointSph>::type calc_t;
+        typedef typename coordinate_type<Point3d>::type calc_t;
 
         PointSph res;
 
@@ -83,7 +80,8 @@ struct relate_spherical_segments
 
         set_from_radian<0>(res, atan2(y, x));
         set_from_radian<1>(res, asin(z)); // assuming r is 1
-        return res;
+
+        return geometry::detail::return_normalized<PointSph>(res);
     }
 
     // -1 right
@@ -99,7 +97,6 @@ struct relate_spherical_segments
             : d > c0 ? 1
             : -1; // d < 0
     }
-
 
     template <typename CoordinateType, typename SegmentRatio, typename Vector3d>
     struct segment_intersection_info
@@ -135,17 +132,55 @@ struct relate_spherical_segments
         SegmentRatio robust_rb;
     };
 
-    template <typename Vec3d, typename CalcT>
-    static inline bool calculate_ip_data_exact(Vec3d const& a1v, // in
+    template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
+    static inline bool calculate_endpoint_data(Point1 const& a1, Point1 const& a2,
+                                               Point2 const& b1, Point2 const& b2,
+                                               Vec3d const& a1v, // in
                                                Vec3d const& a2v, // in
                                                Vec3d const& norm1, // in
                                                Vec3d const& i1, // in
                                                CalcT& dist_a1_a2, CalcT& dist_a1_i1) // out
     {
+        return calculate_xxx_data<Vec3d const>(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1);
+    }
+
+    template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
+    static inline bool calculate_ip_data_exact(Point1 const& a1, Point1 const& a2,
+                                               Point2 const& b1, Point2 const& b2,
+                                               Vec3d const& a1v, // in
+                                               Vec3d const& a2v, // in
+                                               Vec3d const& norm1, // in
+                                               Vec3d & i1, // in, out
+                                               CalcT& dist_a1_a2, CalcT& dist_a1_i1) // out
+    {
+        return calculate_xxx_data<Vec3d>(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1);
+    }
+
+    template <typename T>
+    static inline void assign_if_nonconst(T & l, T const& r)
+    {
+        l = r;
+    }
+
+    template <typename T>
+    static inline void assign_if_nonconst(T const&, T const&)
+    {}
+
+    template <typename Vec3dIP, typename Point1, typename Point2, typename Vec3d, typename CalcT>
+    static inline bool calculate_xxx_data(Point1 const& a1, Point1 const& a2,
+                                          Point2 const& b1, Point2 const& b2,
+                                          Vec3d const& a1v, // in
+                                          Vec3d const& a2v, // in
+                                          Vec3d const& norm1, // in
+                                          Vec3dIP & i1, // in, out
+                                          CalcT& dist_a1_a2, CalcT& dist_a1_i1) // out
+    {
         CalcT const c0 = 0;
         CalcT const c1 = 1;
         CalcT const c2 = 2;
         CalcT const c4 = 4;
+        CalcT const eps = std::numeric_limits<CalcT>::epsilon();
+        CalcT const small_number = eps * 10000;
             
         CalcT cos_a1_a2 = dot_product(a1v, a2v);
         dist_a1_a2 = -cos_a1_a2 + c1; // [1, -1] -> [0, 2] representing [0, pi]
@@ -157,23 +192,49 @@ struct relate_spherical_segments
         if (dist_a1_i1 <= -c2) // <= -pi
             dist_a1_i1 += c4; // += 2pi
 
-        return segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
+        if (segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment())
+            return true;
+        
+        using geometry::detail::equals::equals_point_point;
+        if (math::abs(dist_a1_i1) <= small_number
+            && (equals_point_point(a1, b1) || equals_point_point(a1, b2)))
+        {
+            assign_if_nonconst(i1, a1v);
+            dist_a1_i1 = 0;
+            return true;
+        }
+
+        if (math::abs(dist_a1_a2 - dist_a1_i1) <= small_number
+            && (equals_point_point(a2, b1) || equals_point_point(a2, b2)))
+        {
+            assign_if_nonconst(i1, a2v);
+            dist_a1_i1 = dist_a1_a2;
+            return true;
+        }
+
+        return false;
     }
 
-    template <typename Vec3d, typename CalcT>
-    static inline bool calculate_ip_data(Vec3d const& a1v, // in
+    template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
+    static inline bool calculate_ip_data(Point1 const& a1, Point1 const& a2,
+                                         Point2 const& b1, Point2 const& b2,
+                                         Vec3d const& a1v, // in
                                          Vec3d const& a2v, // in
                                          Vec3d const& norm1, // in
                                          Vec3d & i1, // in-out
                                          CalcT& dist_a1_a2, CalcT& dist_a1_i1) // out
     {
+        //CalcT const c0 = 0;
         CalcT const c1 = 1;
         CalcT const c2 = 2;
         CalcT const c4 = 4;
+        CalcT const eps = std::numeric_limits<CalcT>::epsilon();
+        CalcT const small_number = eps * 10000;
 
-        if (calculate_ip_data_exact(a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1))
+        if (calculate_ip_data_exact(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1))
             return true;
 
+        // check the ip on the other side of the sphere
         CalcT dist_a1_i2 = dist_a1_i1 - c2; // dist_a1_i2 = dist_a1_i1 - pi;
         if (dist_a1_i2 <= -c2)          // <= -pi
             dist_a1_i2 += c4;           // += 2pi;
@@ -185,17 +246,36 @@ struct relate_spherical_segments
             return true;
         }
 
+        using geometry::detail::equals::equals_point_point;
+        if (math::abs(dist_a1_i2) <= small_number
+            && (equals_point_point(a1, b1) || equals_point_point(a1, b2)))
+        {
+            i1 = a1v;
+            dist_a1_i1 = 0;
+            return true;
+        }
+
+        if (math::abs(dist_a1_a2 - dist_a1_i2) <= small_number
+            && (equals_point_point(a2, b1) || equals_point_point(a2, b2)))
+        {
+            i1 = a2v;
+            dist_a1_i1 = dist_a1_a2;
+            return true;
+        }
+
         // neither intersection is between endpoints
         return false;
     }
 
-    template <typename CalcT, typename Segment, typename Vec3d>
+    template <typename CalcT, typename Segment, typename Point1, typename Point2, typename Vec3d>
     static inline return_type collinear_one_degenerted(Segment const& segment, bool degenerated_a,
+                                                       Point1 const& a1, Point1 const& a2,
+                                                       Point2 const& b1, Point2 const& b2,
                                                        Vec3d const& v1, Vec3d const& v2, Vec3d const& norm,
                                                        Vec3d const& vother)
     {
         CalcT dist_1_2, dist_1_o;
-        return ! calculate_ip_data_exact(v1, v2, norm, vother, dist_1_2, dist_1_o)
+        return ! calculate_endpoint_data(a1, a2, b1, b2, v1, v2, norm, vother, dist_1_2, dist_1_o)
                 ? Policy::disjoint()
                 : Policy::one_degenerate(segment, segment_ratio<CalcT>(dist_1_o, dist_1_2), degenerated_a);
     }
@@ -218,6 +298,7 @@ struct relate_spherical_segments
         detail::assign_point_from_index<0>(b, b1);
         detail::assign_point_from_index<1>(b, b2);
 
+        // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;
         bool a_is_point = equals_point_point(a1, a2);
         bool b_is_point = equals_point_point(b1, b2);
@@ -238,10 +319,10 @@ struct relate_spherical_segments
 
         typedef model::point<calc_t, 3, cs::cartesian> vec3d_t;
 
-        vec3d_t a1v = sph_to_cart3d<vec3d_t>(a1);
-        vec3d_t a2v = sph_to_cart3d<vec3d_t>(a2);
-        vec3d_t b1v = sph_to_cart3d<vec3d_t>(b1);
-        vec3d_t b2v = sph_to_cart3d<vec3d_t>(b2);
+        vec3d_t const a1v = sph_to_cart3d<vec3d_t>(a1);
+        vec3d_t const a2v = sph_to_cart3d<vec3d_t>(a2);
+        vec3d_t const b1v = sph_to_cart3d<vec3d_t>(b1);
+        vec3d_t const b2v = sph_to_cart3d<vec3d_t>(b2);
         
         vec3d_t norm1 = cross_product(a1v, a2v);
         vec3d_t norm2 = cross_product(b1v, b2v);
@@ -266,8 +347,8 @@ struct relate_spherical_segments
 
         bool collinear = sides.collinear();
 
-        calc_t len1 = math::sqrt(dot_product(norm1, norm1));
-        calc_t len2 = math::sqrt(dot_product(norm2, norm2));
+        calc_t const len1 = math::sqrt(dot_product(norm1, norm1));
+        calc_t const len2 = math::sqrt(dot_product(norm2, norm2));
 
         // point or opposite sides of a sphere, assume point
         if (math::equals(len1, c0))
@@ -331,12 +412,12 @@ struct relate_spherical_segments
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<calc_t>(a, true, b1v, b2v, norm2, a1v);
+                return collinear_one_degenerted<calc_t>(a, true, b1, b2, a1, a2, b1v, b2v, norm2, a1v);
             }
             else if (b_is_point)
             {
                 // b2 used to be consistent with (degenerated) checks above (is it needed?)
-                return collinear_one_degenerted<calc_t>(b, false, a1v, a2v, norm1, b1v);
+                return collinear_one_degenerted<calc_t>(b, false, a1, a2, b1, b2, a1v, a2v, norm1, b1v);
             }
             else
             {
@@ -345,16 +426,16 @@ struct relate_spherical_segments
                 // use shorter segment
                 if (len1 <= len2)
                 {
-                    calculate_ip_data_exact(a1v, a2v, norm1, b1v, dist_a1_a2, dist_a1_b1);
-                    calculate_ip_data_exact(a1v, a2v, norm1, b2v, dist_a1_a2, dist_a1_b2);
+                    calculate_endpoint_data(a1, a2, b1, b2, a1v, a2v, norm1, b1v, dist_a1_a2, dist_a1_b1);
+                    calculate_endpoint_data(a1, a2, b1, b2, a1v, a2v, norm1, b2v, dist_a1_a2, dist_a1_b2);
                     dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
                     dist_b1_a1 = -dist_a1_b1;
                     dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
                 }
                 else
                 {
-                    calculate_ip_data_exact(b1v, b2v, norm2, a1v, dist_b1_b2, dist_b1_a1);
-                    calculate_ip_data_exact(b1v, b2v, norm2, a2v, dist_b1_b2, dist_b1_a2);
+                    calculate_endpoint_data(b1, b2, a1, a2, b1v, b2v, norm2, a1v, dist_b1_b2, dist_b1_a1);
+                    calculate_endpoint_data(b1, b2, a1, a2, b1v, b2v, norm2, a2v, dist_b1_b2, dist_b1_a2);
                     dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
                     dist_a1_b1 = -dist_b1_a1;
                     dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
@@ -372,24 +453,24 @@ struct relate_spherical_segments
 
                 if (a1_wrt_b == 1)
                 {
-                    ra_from.assign(0, 1);
-                    rb_from.assign(0, 1);
+                    ra_from.assign(0, dist_b1_b2);
+                    rb_from.assign(0, dist_a1_a2);
                 }
                 else if (a1_wrt_b == 3)
                 {
-                    ra_from.assign(1, 1);
-                    rb_to.assign(0, 1);
+                    ra_from.assign(dist_b1_b2, dist_b1_b2);
+                    rb_to.assign(0, dist_a1_a2);
                 }
 
                 if (a2_wrt_b == 1)
                 {
-                    ra_to.assign(0, 1);
-                    rb_from.assign(1, 1);
+                    ra_to.assign(0, dist_b1_b2);
+                    rb_from.assign(dist_a1_a2, dist_a1_a2);
                 }
                 else if (a2_wrt_b == 3)
                 {
-                    ra_to.assign(1, 1);
-                    rb_to.assign(1, 1);
+                    ra_to.assign(dist_b1_b2, dist_b1_b2);
+                    rb_to.assign(dist_a1_a2, dist_a1_a2);
                 }
 
                 if ((a1_wrt_b < 1 && a2_wrt_b < 1) || (a1_wrt_b > 3 && a2_wrt_b > 3))
@@ -417,8 +498,8 @@ struct relate_spherical_segments
             divide_value(i1, len); // normalize i1
 
             calc_t dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1;
-            if (calculate_ip_data(a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1)
-                && calculate_ip_data_exact(b1v, b2v, norm2, i1, dist_b1_b2, dist_b1_i1))
+            if (calculate_ip_data(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1)
+                && calculate_ip_data_exact(b1, b2, a1, a2, b1v, b2v, norm2, i1, dist_b1_b2, dist_b1_i1))
             {
                 // intersects
                 segment_intersection_info
