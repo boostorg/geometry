@@ -275,7 +275,7 @@ void test_areal()
         1, 0, 9, 2663736.07038);
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11984",
         ticket_11984[0], ticket_11984[1],
-        1, 3, 134, 60071.08077);
+        1, 2, 134, 60071.08077);
 }
 
 // Test cases (generic)
