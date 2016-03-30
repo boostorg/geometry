@@ -186,6 +186,7 @@ struct traversal
     }
 
     inline bool select_operation(turn_type& turn,
+                 signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
                 int& selected_op_index)
@@ -224,7 +225,7 @@ struct traversal
                 || (op.operation == OperationType
                     && ! op.visited.finished()
                     && (! result
-                        || select_source(next_turn_index, op.seg_id, seg_id)
+                        || select_source(turn_index, op.seg_id, seg_id)
                         )
                     )
                 )
@@ -550,7 +551,7 @@ struct traversal
 
         if (! has_cluster)
         {
-            if (! select_operation(current_turn,
+            if (! select_operation(current_turn, turn_index,
                             start_turn_index,
                             seg_id,
                             op_index))
