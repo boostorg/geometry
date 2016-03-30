@@ -32,6 +32,9 @@ void test_areal()
 {
     typedef typename bg::coordinate_type<Polygon>::type ct;
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 0, 13, 11.526367);
@@ -184,7 +187,8 @@ void test_areal()
 
     // #holes should be 2
     test_one<Polygon, Polygon, Polygon>("80",
-                case_80[0], case_80[1], 2, 0, 18, 129.0);
+                case_80[0], case_80[1], 2, 0, 18, 129.0,
+                ignore_validity);
 
     test_one<Polygon, Polygon, Polygon>("81",
                 case_81[0], case_81[1], 1, 2, 15, 163.5);
@@ -357,7 +361,8 @@ void test_areal()
             1, 1, 10, 7.5);
 
     test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
-            1, 0, -1, 3461.3203125);
+            1, 0, -1, 3461.3203125,
+            ignore_validity);
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             1, 0, -1, 350.55102539);
     test_one<Polygon, Polygon, Polygon>("geos_3", geos_3[0], geos_3[1],
@@ -438,13 +443,16 @@ void test_areal()
     // #holes should be 1 (for the 3 cases below)
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
-        2, 0, -1, 234.5);
+        2, 0, -1, 234.5,
+        ignore_validity);
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_2",
         mysql_21964079_2[0], mysql_21964079_2[1],
-        2, 0, -1, 112.0);
+        2, 0, -1, 112.0,
+        ignore_validity);
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
-        1, 0, -1, 220.5);
+        1, 0, -1, 220.5,
+        ignore_validity);
 }
 
 template <typename P>

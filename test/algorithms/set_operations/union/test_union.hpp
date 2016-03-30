@@ -50,7 +50,7 @@ struct ut_settings
 
     ut_settings()
         : percentage(0.001)
-        , test_validity(false)
+        , test_validity(true)
     {}
 
 };
