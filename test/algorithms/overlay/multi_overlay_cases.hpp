@@ -400,6 +400,99 @@ static std::string case_110_multi[2] =
         "MULTIPOLYGON(((15 10,10 15,10 17,15 10)),((15 10,10 20,10 22,15 10)),((15 10,10 25,10 27,15 10)),((25 10,30 17,30 15,25 10)),((25 10,30 22,30 20,25 10)),((25 10,30 27,30 25,25 10)),((18 10,20 30,19 10,18 10)),((21 10,20 30,22 10,21 10)))"
     };
 
+
+// Cases 111 to 122 are for testing uu-cases, validity, touch, interior rings
+static std::string case_111_multi[2] =
+{
+    "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)))",
+    "MULTIPOLYGON(((4 4,2 6,4 8,6 6,4 4)))"
+};
+
+static std::string case_112_multi[2] =
+{
+    "MULTIPOLYGON(((0 0,0 2,2 4,4 2,6 4,8 2,8 0,0 0)))",
+    "MULTIPOLYGON(((0 8,8 8,8 6,6 4,4 6,2 4,0 6,0 8)))"
+};
+
+// Provided by Menelaos (1)
+static std::string case_113_multi[2] =
+{
+    "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
+    "MULTIPOLYGON(((10 0,15 5,15 0,10 0)),((10 5,10 10,15 10,15 5,10 5)))"
+};
+
+// Provided by Menelaos (2)
+static std::string case_114_multi[2] =
+{
+    "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((15 5,15 10,20 10,20 5,15 5)))",
+    "MULTIPOLYGON(((10 0,15 5,20 5,20 0,10 0)),((10 5,10 10,15 10,15 5,10 5)))"
+};
+
+// Mailed by Barend
+static std::string case_115_multi[2] =
+{
+    "MULTIPOLYGON(((4 0,2 2,4 4,6 2,4 0)),((4 6,6 8,8 6,6 4,4 6)))",
+    "MULTIPOLYGON(((4 4,2 6,4 8,6 6,4 4)),((4 2,7 6,8 3,4 2)))"
+};
+
+// Formerly referred to as a
+// Should result in 1 polygon with 2 holes
+// "POLYGON((4 9,4 10,6 10,6 12,8 12,8 11,10 11,10 9,11 9,11 2,3 2,3 9,4 9),(6 10,6 8,7 8,7 10,6 10),(6 8,5 8,5 3,9 3,9 7,8 7,8 6,6 6,6 8))"
+static std::string case_116_multi[2] =
+{
+    "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
+    "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)),((9 9,11 9,11 2,3 2,3 9,5 9,5 3,9 3,9 9)))"
+};
+
+// Formerly referred to as b
+// Should result in 2 polygons
+// "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 8,7 10,6 10,6 12,8 12,8 11,10 11,10 7,8 7,8 6,6 6,6 8,7 8)))"
+static std::string case_117_multi[2] =
+{
+    "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((7 7,7 11,10 11,10 7,7 7)))",
+    "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)))"
+};
+
+// Formerly referred to as c
+// Shoud result in 3 polygons:
+// "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((8 8,8 10,10 10,10 8,8 8)),((7 12,7 13,13 13,13 5,7 5,7 6,6 6,6 8,8 8,8 7,11 7,11 11,8 11,8 10,6 10,6 12,7 12)))"
+static std::string case_118_multi[2] =
+{
+    "MULTIPOLYGON(((4 8,4 10,6 10,6 8,4 8)),((8 8,8 10,10 10,10 8,8 8)),((7 11,7 13,13 13,13 5,7 5,7 7,11 7,11 11,7 11)))",
+    "MULTIPOLYGON(((6 6,6 8,8 8,8 6,6 6)),((6 10,6 12,8 12,8 10,6 10)))"
+};
+
+// Formerly referred to as d
+// Should result in 2 polygons:
+// "MULTIPOLYGON(((2 4,2 6,3 6,3 7,7 7,7 6,8 6,8 4,6 4,6 5,4 5,4 4,2 4)),((1 0,1 2,0 2,0 4,2 4,2 3,8 3,8 4,10 4,10 2,9 2,9 0,1 0)))"
+static std::string case_119_multi[2] =
+{
+    "MULTIPOLYGON(((2 4,2 6,4 6,4 4,2 4)),((6 4,6 6,8 6,8 4,6 4)),((1 0,1 3,9 3,9 0,1 0)))",
+    "MULTIPOLYGON(((0 2,0 4,2 4,2 2,0 2)),((8 2,8 4,10 4,10 2,8 2)),((3 5,3 7,7 7,7 5,3 5)))"
+};
+
+// With a c/c turn
+static std::string case_120_multi[2] =
+{
+    "MULTIPOLYGON(((6 4,6 9,9 9,9 6,11 6,11 4,6 4)),((10 7,10 10,12 10,12 7,10 7)))",
+    "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((6 10,8 12,10 10,8 8,6 10)))"
+};
+
+// With c/c turns in both involved polygons
+static std::string case_121_multi[2] =
+{
+    "MULTIPOLYGON(((7 4,7 8,9 8,9 6,11 6,11 4,7 4)),((10 7,10 10,12 10,12 7,10 7)))",
+    "MULTIPOLYGON(((10 5,10 8,12 8,12 5,10 5)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
+};
+
+// Same but here c/c not directly involved in the turns itself
+// (This one breaks if continue is not checked in handle_touch)
+static std::string case_122_multi[2] =
+{
+    "MULTIPOLYGON(((10 8,10 10,12 10,12 8,10 8)),((10 4,10 7,12 7,12 4,10 4)),((7 5,7 8,9 8,9 5,7 5)))",
+    "MULTIPOLYGON(((7 3,7 6,9 6,9 5,11 5,11 3,7 3)),((10 6,10 9,12 9,12 6,10 6)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
+};
+
 static std::string case_recursive_boxes_1[2] =
 {
     // == 70
