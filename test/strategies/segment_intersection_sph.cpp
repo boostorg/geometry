@@ -25,16 +25,24 @@
 
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 
-template <typename P1, typename P2>
-bool equals_pp(P1 const& p1, P2 const& p2)
+template <typename P1, typename P2, typename T>
+bool equals_relaxed(P1 const& p1, P2 const& p2, T const& eps_scale)
 {
     typedef typename bg::select_coordinate_type<P1, P2>::type calc_t;
+    calc_t c1 = 1;
     calc_t p10 = bg::get<0>(p1);
     calc_t p11 = bg::get<1>(p1);
     calc_t p20 = bg::get<0>(p2);
     calc_t p21 = bg::get<1>(p2);
-    calc_t relaxed_eps = std::numeric_limits<calc_t>::epsilon() * 100000;
-    return bg::math::abs(p10 - p20) <= relaxed_eps && bg::math::abs(p11 - p21) <= relaxed_eps;
+    calc_t relaxed_eps = std::numeric_limits<calc_t>::epsilon()
+        * bg::math::detail::greatest(c1, bg::math::abs(p10), bg::math::abs(p11), bg::math::abs(p20), bg::math::abs(p21))
+        * eps_scale;
+    calc_t diff0 = p10 - p20;
+    // needed e.g. for -179.999999 - 180.0
+    if (diff0 < -180)
+        diff0 += 360;
+    return bg::math::abs(diff0) <= relaxed_eps
+        && bg::math::abs(p11 - p21) <= relaxed_eps;
 }
 
 template <typename S1, typename S2, typename P>
@@ -69,19 +77,26 @@ void test_spherical_strategy_one(S1 const& s1, S2 const& s2, char m, std::size_t
                         "IP count: " << res_count << " different than expected: " << expected_count
                             << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
 
+    // The EPS is scaled because during the conversion various angles may be not converted
+    // to cartesian 3d the same way which results in a different intersection point
+    // For more information read the info in spherical intersection strategy file.
+
+    int eps_scale = res_method != 'i' ? 1 : 1000;
+
     if (res_count > 0 && expected_count > 0)
     {
         P const& res_i0 = boost::get<0>(res).intersections[0];
-        BOOST_CHECK_MESSAGE(equals_pp(res_i0, ip0),
+        BOOST_CHECK_MESSAGE(equals_relaxed(res_i0, ip0, eps_scale),
+                            //"IP0: " << std::setprecision(16) << std::fixed << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
                             "IP0: " << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
-                                << " for " << bg::wkt(s1) << " and " << bg::wkt(s1));
+                                << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
     }
     if (res_count > 1 && expected_count > 1)
     {
         P const& res_i1 = boost::get<0>(res).intersections[1];
-        BOOST_CHECK_MESSAGE(equals_pp(res_i1, ip1),
+        BOOST_CHECK_MESSAGE(equals_relaxed(res_i1, ip1, eps_scale),
                             "IP1: " << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
-                                << " for " << bg::wkt(s1) << " and " << bg::wkt(s1));
+                                << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
     }
 }
 
@@ -103,7 +118,7 @@ void test_spherical_strategy(S1 const& s1, S2 const& s2, char m, std::size_t exp
     P ip1t = ip1;
 
     double t = 0;
-    for (int i = 0; i < 4; ++i, t += 90.0)
+    for (int i = 0; i < 4; ++i, t += 90)
     {
         bg::set<0, 0>(s1t, translated(bg::get<0, 0>(s1), t));
         bg::set<1, 0>(s1t, translated(bg::get<1, 0>(s1), t));
@@ -151,7 +166,7 @@ void test_spherical()
     typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > point_t;
     typedef bg::model::segment<point_t> segment_t;
 
-    // crossing
+    // crossing   X
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(-45 45, 45 -45)", 'i', 1, "POINT(0 0)");
     test_spherical_strategy<segment_t, point_t>(
@@ -160,7 +175,7 @@ void test_spherical()
         "SEGMENT(45 45, -45 -45)", "SEGMENT(-45 45, 45 -45)", 'i', 1, "POINT(0 0)");
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(45 45, -45 -45)", "SEGMENT(45 -45, -45 45)", 'i', 1, "POINT(0 0)");
-    // crossing
+    // crossing   X
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 1, 1 -1)", 'i', 1, "POINT(0 0)");
     test_spherical_strategy<segment_t, point_t>(
@@ -170,117 +185,212 @@ void test_spherical()
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(1 1, -1 -1)", "SEGMENT(1 -1, -1 1)", 'i', 1, "POINT(0 0)");
 
-    // collinear, equal
+    // equal
+    //   //
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(-45 -45, 45 45)", 'e', 2, "POINT(-45 -45)", "POINT(45 45)");
-    // collinear, equal, opposite
+    //   //
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(45 45, -45 -45)", 'e', 2, "POINT(-45 -45)", "POINT(45 45)");
 
-    // starting outside
-    // great circles crossing
+    // starting outside s1
+    //    /
+    //   |
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, -1 -1)", 'a', 1, "POINT(-1 -1)"); // touching at the end of S2
-    // great circles crossing
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, -1 -1)", 'a', 1, "POINT(-1 -1)");
+    //   /
+    //  /|
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 0 0)", 'm', 1, "POINT(0 0)"); // touching at the end of S2
-    // great circles crossing
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 0 0)", 'm', 1, "POINT(0 0)");
+    //   /|
+    //  / |
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 1 1)", 't', 1, "POINT(1 1)"); // touching at the end of S2
-    // great circles crossing
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 1 1)", 't', 1, "POINT(1 1)");
+    //   |/
+    //  /|
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 2 2)", 'i', 1, "POINT(0 0)"); // intersecting in the middle of both
-    // similar to above, all collinear
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, 2 2)", 'i', 1, "POINT(0 0)");
+    //       ------
+    // ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-2 0, -1 0)", 'a', 1, "POINT(-1 0)");
+    //    ------
+    // ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-2 0, 0 0)", 'c', 2, "POINT(-1 0)", "POINT(0 0)");
+    //    ------
+    // ---------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-2 0, 1 0)", 'c', 2, "POINT(-1 0)", "POINT(1 0)");
+    //    ------
+    // ------------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-2 0, 2 0)", 'c', 2, "POINT(-1 0)", "POINT(1 0)");
 
-    // starting at p1
-    // collinear
+    // starting at s1
+    //  /
+    // //
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 -1, 0 0)", 'c', 2, "POINT(-1 -1)", "POINT(0 0)");
-    // collinear
+    //  //
+    // //
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 -1, 1 1)", 'e', 2, "POINT(-1 -1)", "POINT(1 1)");
-    // great circles crossing
+    // | /
+    // |/
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 -1, 2 2)", 'f', 1, "POINT(-1 -1)"); // touching at the beginning of S2
-    // similar to above, all collinear
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 -1, 2 2)", 'f', 1, "POINT(-1 -1)");
+    // ------
+    // ---
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-1 0, 0 0)", 'c', 2, "POINT(-1 0)", "POINT(0 0)");
+    // ------
+    // ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-1 0, 1 0)", 'e', 2, "POINT(-1 0)", "POINT(1 0)");
+    // ------
+    // ---------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-1 0, 2 0)", 'c', 2, "POINT(-1 0)", "POINT(1 0)");
     
     // starting inside
-    // collinear
+    //   //
+    //  /
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(0 0, 1 1)", 'c', 2, "POINT(0 0)", "POINT(1 1)");
-    // great circles crossing
+    //   |/
+    //   /
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(0 0, 2 2)", 's', 1, "POINT(0 0)"); // touching at the beginning of S2
-    // similar to above, all collinear
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(0 0, 2 2)", 's', 1, "POINT(0 0)");
+    // ------
+    //    ---
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(0 0, 1 0)", 'c', 2, "POINT(0 0)", "POINT(1 0)");
+    // ------
+    //    ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(0 0, 2 0)", 'c', 2, "POINT(0 0)", "POINT(1 0)");
     
     // starting at p2
-    // crossing
+    //    |
+    //   /
     test_spherical_strategy<segment_t, point_t>(
-        "SEGMENT(-1 -1, 1 1)", "SEGMENT(1 1, 2 2)", 'a', 1, "POINT(1 1)"); // touching at the beginning of S2
-    // similar to above, collinear
+        "SEGMENT(-1 -1, 1 1)", "SEGMENT(1 1, 2 2)", 'a', 1, "POINT(1 1)");
+    // ------
+    //       ---
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(1 0, 2 0)", 'a', 1, "POINT(1 0)");
 
-    // great circles crossing, disjoint
+    // disjoint, crossing
+    //     /
+    //  |
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-3 -3, -2 -2)", 'd', 0);
+    //     |
+    //  /
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(2 2, 3 3)", 'd', 0);
-    // similar to above, collinear
+    // disjoint, collinear
+    //          ------
+    // ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-3 0, -2 0)", 'd', 0);
+    // ------
+    //           ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(2 0, 3 0)", 'd', 0);
 
-    // crossing, disjoint
+    // degenerated
+    //    /
+    // *
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-2 -2, -2 -2)", 'd', 0);
-    // collinear, degenerated
+    //    /
+    //   *
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(-1 -1, -1 -1)", '0', 1, "POINT(-1 -1)");
-    // collinear, degenerated
+    //    /
+    //   *
+    //  /
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(0 0, 0 0)", '0', 1, "POINT(0 0)");
-    // collinear, degenerated
+    //    *
+    //   /
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(1 1, 1 1)", '0', 1, "POINT(1 1)");
-    // crossing, disjoint
+    //       *
+    //   /
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 -1, 1 1)", "SEGMENT(2 2, 2 2)", 'd', 0);
     // similar to above, collinear
+    // *   ------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-2 0, -2 0)", 'd', 0);
+    //    *------
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(-1 0, -1 0)", '0', 1, "POINT(-1 0)");
+    //    ---*---
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(0 0, 0 0)", '0', 1, "POINT(0 0)");
+    //    ------*
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(1 0, 1 0)", '0', 1, "POINT(1 0)");
+    //    ------   *
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 0, 1 0)", "SEGMENT(2 0, 2 0)", 'd', 0);
+
+    // Northern hemisphere
+    // ---   ------
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-3 50, -2 50)", 'd', 0);
+    //    ------
+    // ---
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-2 50, -1 50)", 'a', 1, "POINT(-1 50)");
+    //  \/
+    //  /\                   (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-2 50, 0 50)", 'i', 1, "POINT(-0.5 50.0032229484023)");
+    //  ________
+    // /   _____\            (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-2 50, 1 50)", 't', 1, "POINT(1 50)");
+    //  _________
+    // /  _____  \           (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-2 50, 2 50)", 'd', 0);
+    //  ______
+    // /___   \              (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-1 50, 0 50)", 'f', 1, "POINT(-1 50)");
+    // ------
+    // ------
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-1 50, 1 50)", 'e', 2, "POINT(-1 50)", "POINT(1 50)");
+    //  ________
+    // /_____   \            (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(-1 50, 2 50)", 'f', 1, "POINT(-1 50)");
+    //  ______
+    // /   ___\              (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(0 50, 1 50)", 't', 1, "POINT(1 50)");
+    //  \/
+    //  /\                   (avoid multi-line comment)
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(0 50, 2 50)", 'i', 1, "POINT(0.5 50.0032229484023)");
+    // ------
+    //       ---
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(1 50, 2 50)", 'a', 1, "POINT(1 50)");
+    // ------   ---
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(-1 50, 1 50)", "SEGMENT(2 50, 3 50)", 'd', 0);
 }
 
 int test_main(int, char* [])
 {
-    test_spherical<float>();
+    //test_spherical<float>();
     test_spherical<double>();
 
     return 0;
