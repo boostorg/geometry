@@ -19,11 +19,17 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/config.hpp>
+#include <boost/core/addressof.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/empty.hpp>
+#include <boost/range/difference_type.hpp>
+#include <boost/range/iterator.hpp>
+#include <boost/range/rbegin.hpp>
+#include <boost/range/reference.hpp>
 #include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
 #include <boost/geometry/core/assert.hpp>

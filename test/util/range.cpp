@@ -14,6 +14,9 @@
 
 #include <iterator>
 #include <vector>
+
+#include <boost/range/iterator_range.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 namespace bgt {

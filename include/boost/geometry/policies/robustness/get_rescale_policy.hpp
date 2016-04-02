@@ -20,8 +20,9 @@
 
 #include <cstddef>
 
-#include <boost/type_traits.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_floating_point.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
