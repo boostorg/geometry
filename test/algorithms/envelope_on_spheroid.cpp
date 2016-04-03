@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -40,6 +41,8 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
+
+#include <boost/geometry/index/detail/algorithms/is_valid.hpp>
 
 #include "test_envelope_expand_on_spheroid.hpp"
 
@@ -144,6 +147,15 @@ private:
         check_message(box_equals<Box>::apply(detected, expected, tolerance),
                       case_id, units_str,
                       geometry, expected, detected);
+
+        // if valid box is expected, check the validity
+        if (lon_min <= lon_max && lat_min <= lat_max && height_min <= height_max)
+        {
+            BOOST_CHECK_MESSAGE(bg::index::detail::is_valid(detected),
+                                "Case ID: " << case_id << ", "
+                             << "MBR units: " << units_str << "; "
+                             << "Invalid Box: " << bg::dsv(detected));
+        }
     }
 
 public:
@@ -508,9 +520,9 @@ BOOST_AUTO_TEST_CASE( envelope_point_with_height )
 BOOST_AUTO_TEST_CASE( envelope_segment )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
-    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
-    typedef bg::model::segment<point_type> G;
-    typedef bg::model::box<point_type> B;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
     tester::apply("s01",
@@ -659,6 +671,30 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
     tester::apply("s99",
                   from_wkt<G>("SEGMENT(10 90,20 -90)"),
                   0, -90, 0, 90);
+
+    // https://svn.boost.org/trac/boost/ticket/12106
+    tester::apply("s100_ticket_12106",
+                  G(P(11.488323611111111, 53.687086666666673), P(11.488324166666667, 53.687086666666673)),
+                  11.488323611111111, 53.687086666666673, 11.488324166666667, 53.687086666666673);
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double heps = eps / 2;
+
+    tester::apply("s101",
+                  G(P(1, 1), P(1-heps, 1-heps)),
+                  1-heps, 1-heps, 1, 1);
+    tester::apply("s102",
+                  G(P(1, 1), P(1, 1-heps)),
+                  1, 1-heps, 1, 1);
+    tester::apply("s103",
+                  G(P(1, 1), P(1-heps, 1)),
+                  1-heps, 1, 1, 1);
+    tester::apply("s104",
+                  G(P(2, 1), P(1, 1-heps)),
+                  1, 1-heps, 2, 1.000038070652770505);
+    tester::apply("s105",
+                  G(P(1, 2), P(1-heps, 1)),
+                  1-heps, 1, 1, 2);
 }
 
 
