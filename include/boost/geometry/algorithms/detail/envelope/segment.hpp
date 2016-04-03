@@ -4,10 +4,11 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -92,7 +93,7 @@ private:
                                 CalculationType& a1,
                                 CalculationType& a2)
     {
-        BOOST_GEOMETRY_ASSERT(math::smaller(lon1, lon2));
+        BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
 
         CalculationType dlon = lon2 - lon1;
         CalculationType sin_dlon = sin(dlon);
@@ -138,7 +139,7 @@ private:
     static inline bool crosses_antimeridian(CoordinateType const& lon1,
                                             CoordinateType const& lon2)
     {
-        return math::larger(math::abs(lon1 - lon2), math::pi<CoordinateType>());
+        return math::abs(lon1 - lon2) > math::pi<CoordinateType>();
     }
 
     template <typename CalculationType>
@@ -158,19 +159,17 @@ private:
                                            CalculationType const& a2)
     {
         // coordinates are assumed to be in radians
-        BOOST_GEOMETRY_ASSERT(! math::larger(lon1, lon2));
+        BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
+
+        if (lat1 > lat2)
+        {
+            std::swap(lat1, lat2);
+        }
 
         if (math::equals(a1, a2))
         {
-            // the segment must lie on the equator; nothing to do
-            BOOST_GEOMETRY_ASSERT(math::equals(lat1, CalculationType(0)));
-            BOOST_GEOMETRY_ASSERT(math::equals(lat2, CalculationType(0)));
+            // the segment must lie on the equator or is very short
             return;
-        }
-
-        if (math::larger(lat1, lat2))
-        {
-            std::swap(lat1, lat2);
         }
 
         if (contains_pi_half(a1, a2))
@@ -181,7 +180,7 @@ private:
                 // update using min latitude
                 CalculationType lat_min = -max_latitude(a1, lat1);
 
-                if (math::larger(lat1, lat_min))
+                if (lat1 > lat_min)
                 {
                     lat1 = lat_min;
                 }
@@ -191,7 +190,7 @@ private:
                 // update using max latitude
                 CalculationType lat_max = max_latitude(a1, lat1);
 
-                if (math::smaller(lat2, lat_max))
+                if (lat2 < lat_max)
                 {
                     lat2 = lat_max;
                 }
@@ -214,9 +213,9 @@ private:
         {
             // both points are poles; nothing more to do:
             // longitudes are already normalized to 0
-            BOOST_GEOMETRY_ASSERT(lon1 == CalculationType(0)
-                         &&
-                         lon2 == CalculationType(0));
+            // but just in case
+            lon1 = 0;
+            lon2 = 0;
         }
         else if (is_pole1 && !is_pole2)
         {
@@ -233,10 +232,10 @@ private:
             lon2 = lon1;
         }
 
-        if (math::equals(lon1, lon2))
+        if (lon1 == lon2)
         {
             // segment lies on a meridian
-            if (math::larger(lat1, lat2))
+            if (lat1 > lat2)
             {
                 std::swap(lat1, lat2);
             }
@@ -245,7 +244,7 @@ private:
 
         BOOST_GEOMETRY_ASSERT(!is_pole1 && !is_pole2);
 
-        if (math::larger(lon1, lon2))
+        if (lon1 > lon2)
         {
             swap(lon1, lat1, lon2, lat2);
         }
