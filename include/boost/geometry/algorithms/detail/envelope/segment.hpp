@@ -85,6 +85,7 @@ class compute_mbr_of_segment
 private:
     // computes the azimuths of the segment with endpoints (lon1, lat1)
     // and (lon2, lat2)
+    // radians
     template <typename CalculationType>
     static inline void azimuths(CalculationType const& lon1,
                                 CalculationType const& lat1,
@@ -109,8 +110,9 @@ private:
         a2 = atan2(-sin_dlon * cos_lat1,
                    cos_lat2 * sin_lat1 - sin_lat2 * cos_lat1 * cos_dlon);
         a2 += math::pi<CalculationType>();
-   }
+    }
 
+    // degrees or radians
     template <typename CalculationType>
     static inline void swap(CalculationType& lon1,
                             CalculationType& lat1,
@@ -121,6 +123,7 @@ private:
         std::swap(lat1, lat2);
     }
 
+    // radians
     template <typename CalculationType>
     static inline bool contains_pi_half(CalculationType const& a1,
                                         CalculationType const& a2)
@@ -135,13 +138,20 @@ private:
             : (a1 > pi_half && pi_half > a2);
     }
 
-    template <typename CoordinateType>
+    // radians or degrees
+    template <typename Units, typename CoordinateType>
     static inline bool crosses_antimeridian(CoordinateType const& lon1,
                                             CoordinateType const& lon2)
     {
-        return math::abs(lon1 - lon2) > math::pi<CoordinateType>();
+        typedef math::detail::constants_on_spheroid
+            <
+                CoordinateType, Units
+            > constants;
+
+        return math::abs(lon1 - lon2) > constants::half_period(); // > pi
     }
 
+    // radians
     template <typename CalculationType>
     static inline CalculationType max_latitude(CalculationType const& azimuth,
                                                CalculationType const& latitude)
@@ -150,20 +160,28 @@ private:
         return acos( math::abs(cos(latitude) * sin(azimuth)) );
     }
 
-    template <typename CalculationType>
+    // degrees or radians
+    template <typename Units, typename CalculationType>
     static inline void compute_box_corners(CalculationType& lon1,
                                            CalculationType& lat1,
                                            CalculationType& lon2,
-                                           CalculationType& lat2,
-                                           CalculationType const& a1,
-                                           CalculationType const& a2)
+                                           CalculationType& lat2)
     {
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
 
+        CalculationType lon1_rad = math::as_radian<Units>(lon1);
+        CalculationType lat1_rad = math::as_radian<Units>(lat1);
+        CalculationType lon2_rad = math::as_radian<Units>(lon2);
+        CalculationType lat2_rad = math::as_radian<Units>(lat2);
+
+        CalculationType a1 = 0, a2 = 0;
+        azimuths(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
+
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);
+            std::swap(lat1_rad, lat2_rad);
         }
 
         if (math::equals(a1, a2))
@@ -174,11 +192,12 @@ private:
 
         if (contains_pi_half(a1, a2))
         {
-            CalculationType mid_lat = lat1 + lat2;
+            CalculationType const mid_lat = lat1 + lat2;
             if (mid_lat < 0)
             {
                 // update using min latitude
-                CalculationType lat_min = -max_latitude(a1, lat1);
+                CalculationType const lat_min_rad = -max_latitude(a1, lat1_rad);
+                CalculationType const lat_min = math::from_radian<Units>(lat_min_rad);
 
                 if (lat1 > lat_min)
                 {
@@ -188,7 +207,8 @@ private:
             else if (mid_lat > 0)
             {
                 // update using max latitude
-                CalculationType lat_max = max_latitude(a1, lat1);
+                CalculationType const lat_max_rad = max_latitude(a1, lat1_rad);
+                CalculationType const lat_max = math::from_radian<Units>(lat_max_rad);
 
                 if (lat2 < lat_max)
                 {
@@ -198,16 +218,19 @@ private:
         }
     }
 
-    template <typename CalculationType>
+    template <typename Units, typename CalculationType>
     static inline void apply(CalculationType& lon1,
                              CalculationType& lat1,
                              CalculationType& lon2,
                              CalculationType& lat2)
     {
-        CalculationType const half_pi = math::half_pi<CalculationType>();
+        typedef math::detail::constants_on_spheroid
+            <
+                CalculationType, Units
+            > constants;
 
-        bool is_pole1 = math::equals(math::abs(lat1), half_pi);
-        bool is_pole2 = math::equals(math::abs(lat2), half_pi);
+        bool is_pole1 = math::equals(math::abs(lat1), constants::max_latitude());
+        bool is_pole2 = math::equals(math::abs(lat2), constants::max_latitude());
 
         if (is_pole1 && is_pole2)
         {
@@ -249,20 +272,17 @@ private:
             swap(lon1, lat1, lon2, lat2);
         }
 
-        if (crosses_antimeridian(lon1, lon2))
+        if (crosses_antimeridian<Units>(lon1, lon2))
         {
-            lon1 += math::two_pi<CalculationType>();
+            lon1 += constants::period();
             swap(lon1, lat1, lon2, lat2);
         }
 
-        CalculationType a1 = 0, a2 = 0;
-        azimuths(lon1, lat1, lon2, lat2, a1, a2);
-
-        compute_box_corners(lon1, lat1, lon2, lat2, a1, a2);
+        compute_box_corners<Units>(lon1, lat1, lon2, lat2);
     }
 
 public:
-    template <typename CalculationType, typename Box>
+    template <typename Units, typename CalculationType, typename Box>
     static inline void apply(CalculationType lon1,
                              CalculationType lat1,
                              CalculationType lon2,
@@ -273,12 +293,12 @@ public:
 
         typedef typename helper_geometry
             <
-                Box, box_coordinate_type, radian
+                Box, box_coordinate_type, Units
             >::type helper_box_type;
 
         helper_box_type radian_mbr;
 
-        apply(lon1, lat1, lon2, lat2);
+        apply<Units>(lon1, lat1, lon2, lat2);
 
         geometry::set
             <
@@ -315,11 +335,14 @@ struct envelope_segment_on_sphere
         Point p1_normalized = detail::return_normalized<Point>(p1);
         Point p2_normalized = detail::return_normalized<Point>(p2);
 
-        compute_mbr_of_segment::apply(geometry::get_as_radian<0>(p1_normalized),
-                                      geometry::get_as_radian<1>(p1_normalized),
-                                      geometry::get_as_radian<0>(p2_normalized),
-                                      geometry::get_as_radian<1>(p2_normalized),
-                                      mbr);
+        typedef typename coordinate_system<Point>::type::units units_type;
+
+        compute_mbr_of_segment::template apply<units_type>(
+                    geometry::get<0>(p1_normalized),
+                    geometry::get<1>(p1_normalized),
+                    geometry::get<0>(p2_normalized),
+                    geometry::get<1>(p2_normalized),
+                    mbr);
 
         // now compute the envelope range for coordinates of
         // dimension 2 and higher
