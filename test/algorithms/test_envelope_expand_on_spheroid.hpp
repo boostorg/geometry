@@ -138,10 +138,15 @@ struct box_equals
     {
         equals_with_tolerance equals(tol);
 
-        return equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
-            && equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-            && equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
-            && equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2));
+        // check latitude with tolerance when necessary
+        return bg::get<0, 0>(box1) == bg::get<0, 0>(box2)
+            && (bg::get<0, 1>(box1) < 0
+                ? equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
+                : bg::get<0, 1>(box1) == bg::get<0, 1>(box2))
+            && bg::get<1, 0>(box1) == bg::get<1, 0>(box2)
+            && (bg::get<1, 1>(box1) > 0
+                ? equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2))
+                : bg::get<1, 1>(box1) == bg::get<1, 1>(box2));
     }
 };
 
@@ -153,8 +158,8 @@ struct box_equals<Box1, Box2, 3>
         equals_with_tolerance equals(tol);
 
         return box_equals<Box1, Box2, 2>::apply(box1, box2, tol)
-            && equals(bg::get<0, 2>(box1), bg::get<0, 2>(box2))
-            && equals(bg::get<1, 2>(box1), bg::get<1, 2>(box2));
+            && bg::get<0, 2>(box1) == bg::get<0, 2>(box2)
+            && bg::get<1, 2>(box1) == bg::get<1, 2>(box2);
     }
 };
 
