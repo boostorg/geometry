@@ -93,7 +93,8 @@ template
     typename Turns,
     typename Clusters,
     typename RobustPolicy,
-    typename Visitor
+    typename Visitor,
+    typename Backtrack
 >
 struct traversal
 {
@@ -117,6 +118,9 @@ struct traversal
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
+        , m_has_uu(false)
+        , m_has_only_uu(true)
+        , m_switch_at_uu(true)
     {}
 
 
@@ -147,7 +151,10 @@ struct traversal
                         : seg_id1.multi_index == seg_id2.multi_index;
             }
 
-            return turn.switch_source
+            // Temporarily use m_switch_at_uu, which does not solve all cases,
+            // but the majority of the more simple cases, making the interior
+            // rings valid
+            return m_switch_at_uu // turn.switch_source
                     ? seg_id1.source_index != seg_id2.source_index
                     : seg_id1.source_index == seg_id2.source_index;
         }
@@ -671,6 +678,115 @@ struct traversal
         return traverse_error_endless_loop;
     }
 
+    template <typename Rings>
+    void traverse_with_operation(turn_type const& start_turn,
+            std::size_t turn_index, int op_index,
+            Rings& rings, std::size_t& finalized_ring_size,
+            typename Backtrack::state_type& state)
+    {
+        typedef typename boost::range_value<Rings>::type ring_type;
+
+        turn_operation_type const& start_op = start_turn.operations[op_index];
+
+        if (! start_op.visited.none()
+            || ! start_op.enriched.startable
+            || start_op.visited.rejected()
+            || ! (start_op.operation == OperationType
+                || start_op.operation == detail::overlay::operation_continue))
+        {
+            return;
+        }
+
+        ring_type ring;
+        traverse_error_type traverse_error = traverse(ring, turn_index, op_index);
+
+        if (traverse_error == traverse_error_none)
+        {
+            std::size_t const min_num_points
+                    = core_detail::closure::minimum_ring_size
+                            <
+                                geometry::closure<ring_type>::value
+                            >::value;
+
+            if (geometry::num_points(ring) >= min_num_points)
+            {
+                clean_closing_dups_and_spikes(ring, m_robust_policy);
+                rings.push_back(ring);
+
+                finalize_visit_info();
+                finalized_ring_size++;
+            }
+        }
+        else
+        {
+            Backtrack::apply(
+                finalized_ring_size,
+                rings, ring, m_turns, start_turn,
+                m_turns[turn_index].operations[op_index],
+                traverse_error,
+                m_geometry1, m_geometry2, m_robust_policy,
+                state, m_visitor);
+        }
+    }
+
+    template <typename Rings>
+    void iterate(Rings& rings, std::size_t& finalized_ring_size,
+                 typename Backtrack::state_type& state,
+                 int pass)
+    {
+        if (pass == 1)
+        {
+            if (OperationType == operation_intersection)
+            {
+                // Second pass currently only used for uu
+                return;
+            }
+            if (! m_has_uu)
+            {
+                // There is no uu found in first pass
+                return;
+            }
+            if (m_has_only_uu)
+            {
+                m_switch_at_uu = false;
+            }
+        }
+
+        // Iterate through all unvisited points
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type const& start_turn = m_turns[turn_index];
+
+            if (start_turn.discarded || start_turn.blocked())
+            {
+                // Skip discarded and blocked turns
+                continue;
+            }
+            if (OperationType == operation_union)
+            {
+                if (start_turn.both(operation_union))
+                {
+                    // Start with a uu-turn only in the second pass
+                    m_has_uu = true;
+                    if (pass == 0)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    m_has_only_uu = false;
+                }
+            }
+
+            for (int op_index = 0; op_index < 2; op_index++)
+            {
+                traverse_with_operation(start_turn, turn_index, op_index,
+                        rings, finalized_ring_size, state);
+            }
+        }
+    }
+
 private :
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
@@ -678,8 +794,12 @@ private :
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-};
 
+    // Next members are only used for operation union
+    bool m_has_uu;
+    bool m_has_only_uu;
+    bool m_switch_at_uu;
+};
 
 
 /*!
@@ -691,7 +811,7 @@ template
     bool Reverse1, bool Reverse2,
     typename Geometry1,
     typename Geometry2,
-    operation_type OpType,
+    operation_type OperationType,
     typename Backtrack = backtrack_check_self_intersections<Geometry1, Geometry2>
 >
 class traverse
@@ -712,79 +832,23 @@ public :
                 Clusters const& clusters,
                 Visitor& visitor)
     {
-        typedef typename boost::range_value<Rings>::type ring_type;
-        typedef typename boost::range_value<Turns>::type turn_type;
-        typedef typename turn_type::turn_operation_type op_type;
-
         traversal
             <
-                Reverse1, Reverse2, OpType,
+                Reverse1, Reverse2, OperationType,
                 Geometry1, Geometry2,
                 Turns, Clusters,
-                RobustPolicy, Visitor
+                RobustPolicy, Visitor,
+                Backtrack
             > trav(geometry1, geometry2, turns, clusters,
                    robust_policy, visitor);
-
-        std::size_t const min_num_points
-                = core_detail::closure::minimum_ring_size
-                        <
-                            geometry::closure<ring_type>::value
-                        >::value;
 
         std::size_t finalized_ring_size = boost::size(rings);
 
         typename Backtrack::state_type state;
 
-        // Iterate through all unvisited points
-        for (std::size_t turn_index = 0; turn_index < turns.size(); ++turn_index)
+        for (int pass = 0; pass < 2; pass++)
         {
-            turn_type const& start_turn = turns[turn_index];
-
-            // Skip discarded ones
-            if (start_turn.discarded
-                || start_turn.blocked())
-            {
-                continue;
-            }
-
-            for (int op_index = 0; op_index < 2; op_index++)
-            {
-                op_type const& start_op = start_turn.operations[op_index];
-
-                if (! start_op.visited.none()
-                    || ! start_op.enriched.startable
-                    || start_op.visited.rejected()
-                    || ! (start_op.operation == OpType
-                        || start_op.operation == detail::overlay::operation_continue))
-                {
-                    continue;
-                }
-
-                ring_type ring;
-                traverse_error_type traverse_error = trav.traverse(ring,
-                                turn_index, op_index);
-
-                if (traverse_error == traverse_error_none)
-                {
-                    if (geometry::num_points(ring) >= min_num_points)
-                    {
-                        clean_closing_dups_and_spikes(ring, robust_policy);
-                        rings.push_back(ring);
-
-                        trav.finalize_visit_info();
-                        finalized_ring_size++;
-                    }
-                }
-                else
-                {
-                    Backtrack::apply(
-                        finalized_ring_size,
-                        rings, ring, turns, start_turn,
-                        turns[turn_index].operations[op_index],
-                        traverse_error,
-                        geometry1, geometry2, robust_policy, state, visitor);
-                }
-            }
+            trav.iterate(rings, finalized_ring_size, state, pass);
         }
     }
 };
