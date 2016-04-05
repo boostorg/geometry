@@ -593,7 +593,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.63659983704828, 181, 30);
+                  2, -87.63659983704832, 181, 30);
 
     // very long segment
     tester::apply("s10",
@@ -719,9 +719,9 @@ BOOST_AUTO_TEST_CASE( envelope_segment_with_height )
 template <typename CoordinateSystem>
 void test_envelope_multipoint()
 {
-    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
-    typedef bg::model::multi_point<point_type> G;
-    typedef bg::model::box<point_type> B;
+    typedef bg::model::point<double, 2, CoordinateSystem> P;
+    typedef bg::model::multi_point<P> G;
+    typedef bg::model::box<P> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty multipoint
@@ -850,6 +850,15 @@ void test_envelope_multipoint()
                   from_wkt<G>("MULTIPOINT(170 135,20 25,40 40)"),
                   -10, 25, 40, 45);
 #endif
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double heps = eps / 2;
+    {
+        G mp;
+        mp.push_back(P(1, 1));
+        mp.push_back(P(1-heps, 1-heps));
+        tester::apply("mp20", mp, 1-heps, 1-heps, 1, 1);
+    }
 }
 
 BOOST_AUTO_TEST_CASE( envelope_multipoint )
@@ -893,9 +902,9 @@ template <typename CoordinateSystem>
 void test_envelope_box()
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
-    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
-    typedef bg::model::box<point_type> G;
-    typedef bg::model::box<point_type> B;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::box<P> G;
+    typedef bg::model::box<P> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
     tester::apply("b01",
@@ -1075,6 +1084,11 @@ void test_envelope_box()
     tester::apply("b99",
                   from_wkt<G>("BOX(10 -90,20 -90)"),
                   0, -90, 0, -90);
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double heps = eps / 2;
+
+    tester::apply("b100", G(P(1-heps, 1-heps), P(1, 1)), 1-heps, 1-heps, 1, 1);
 }
 
 BOOST_AUTO_TEST_CASE( envelope_box )
@@ -1116,9 +1130,9 @@ BOOST_AUTO_TEST_CASE( envelope_box_with_height )
 BOOST_AUTO_TEST_CASE( envelope_linestring )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
-    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
-    typedef bg::model::linestring<point_type> G;
-    typedef bg::model::box<point_type> B;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::linestring<P> G;
+    typedef bg::model::box<P> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
     // empty linestring
@@ -1225,6 +1239,25 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
     tester::apply("l10c",
                   from_wkt<G>("LINESTRING(-170 0,160 0)"),
                   160, 0, 190, 0);
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double heps = eps / 2;
+
+    {
+        G l;
+        l.push_back(P(1, 1));
+        l.push_back(P(1-heps, 1-heps));
+        tester::apply("l11", l, 1-heps, 1-heps, 1, 1);
+    }
+
+    {
+        G l;
+        l.push_back(P(0, 0));
+        l.push_back(P(1-heps, 1-heps));
+        l.push_back(P(0, 0));
+        l.push_back(P(1, 1));
+        tester::apply("l12", l, 0, 0, 1, 1);
+    }
 }
 
 
