@@ -252,6 +252,10 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],
         1, 4, 1.7791170511070893e-14);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_1",
+        mysql_1[0], mysql_1[1],
+        2, 11, 9.80505786783);
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
@@ -320,7 +324,6 @@ void test_areal_linear()
 template <typename P>
 void test_all()
 {
-    //typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
@@ -343,6 +346,7 @@ void test_all()
     typedef bg::model::multi_polygon<polygon_open_ccw> multi_polygon_open_ccw;
     test_areal<ring_open_ccw, polygon_open_ccw, multi_polygon_open_ccw>();
 
+    typedef bg::model::box<P> box;
     test_areal_clip<polygon, multi_polygon, box>();
     test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 
