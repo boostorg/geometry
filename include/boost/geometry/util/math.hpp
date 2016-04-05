@@ -32,6 +32,8 @@
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_integral.hpp>
 
+#include <boost/geometry/core/cs.hpp>
+
 #include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
