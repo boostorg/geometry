@@ -226,72 +226,103 @@ struct traversal
             || turn.has(operation_continue);
     }
 
-    inline bool select_operation(turn_type& turn,
-                 signed_size_type turn_index,
+    inline
+    bool select_cc_operation(turn_type const& turn,
                 signed_size_type start_turn_index,
-                segment_identifier const& seg_id,
                 int& selected_op_index) const
     {
+        // For "cc", take either one, but if there is a starting one,
+        //           take that one. If next is dead end, skip that one.
+
         bool result = false;
 
         typename turn_operation_type::comparable_distance_type
                 max_remaining_distance = 0;
 
-        selected_op_index = -1;
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
 
-            if (op.operation == operation_continue)
+            signed_size_type const next_turn_index = get_next_turn_index(op);
+
+            if (! result && traverse_possible(next_turn_index))
             {
-                // For "cc", take either one, but if there is a starting one,
-                //           take that one. If next is dead end, skip that one.
+                max_remaining_distance = op.remaining_distance;
+                selected_op_index = i;
+                debug_traverse(turn, op, " Candidate");
+                result = true;
+            }
 
-                signed_size_type const next_turn_index = get_next_turn_index(op);
-
-                if (! result && traverse_possible(next_turn_index))
+            if (result)
+            {
+                if (next_turn_index == start_turn_index)
+                {
+                    selected_op_index = i;
+                    debug_traverse(turn, op, " Candidate cc override (start)");
+                }
+                else if (op.remaining_distance > max_remaining_distance)
                 {
                     max_remaining_distance = op.remaining_distance;
                     selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate");
-                    result = true;
-                }
-
-                if (result)
-                {
-                    if (next_turn_index == start_turn_index)
-                    {
-                        selected_op_index = i;
-                        debug_traverse(turn, op, " Candidate override (start)");
-                    }
-                    else if (op.remaining_distance > max_remaining_distance)
-                    {
-                        max_remaining_distance = op.remaining_distance;
-                        selected_op_index = i;
-                        debug_traverse(turn, op, " Candidate override (remaining)");
-                    }
-                }
-            }
-            else
-            {
-                // For "ii", take the other one (alternate)
-                //           UNLESS the other one is already visited
-                // For "uu", take the same one (see above);
-                if (op.operation == OperationType
-                    && ! op.visited.finished()
-                    && (! result || select_source(turn_index, op.seg_id, seg_id))
-                        )
-                {
-                    selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate");
-                    result = true;
+                    debug_traverse(turn, op, " Candidate cc override (remaining)");
                 }
             }
         }
 
+        return result;
+    }
+
+    inline
+    bool select_noncc_operation(turn_type const& turn,
+                signed_size_type turn_index,
+                segment_identifier const& seg_id,
+                int& selected_op_index) const
+    {
+        // For "ii", take the other one (alternate)
+        //           UNLESS the other one is already visited
+        // For "uu", take the same one (see above);
+
+        bool result = false;
+
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& op = turn.operations[i];
+
+            if (op.operation == OperationType
+                && ! op.visited.finished()
+                && (! result || select_source(turn_index, op.seg_id, seg_id)))
+            {
+                selected_op_index = i;
+                debug_traverse(turn, op, " Candidate");
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
+    inline
+    bool select_operation(const turn_type& turn,
+                signed_size_type turn_index,
+                signed_size_type start_turn_index,
+                segment_identifier const& seg_id,
+                int& selected_op_index) const
+    {
+        bool result = false;
+        selected_op_index = -1;
+        if (turn.both(operation_continue))
+        {
+            result = select_cc_operation(turn, start_turn_index,
+                                         selected_op_index);
+        }
+        else
+        {
+            result = select_noncc_operation(turn, turn_index,
+                                            seg_id, selected_op_index);
+        }
         if (result)
         {
-           debug_traverse(turn, turn.operations[selected_op_index], "  Accepted");
+           debug_traverse(turn, turn.operations[selected_op_index], " Accepted");
         }
 
         return result;
