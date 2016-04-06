@@ -376,9 +376,11 @@ void test_areal()
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, if_typed<ct, double>(18, 23), 4.60853);
+                1, 0, if_typed<ct, double>(18, 23), 4.60853,
+                ignore_validity);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, if_typed<ct, double>(18, 23), 4.60853);
+                1, 0, if_typed<ct, double>(18, 23), 4.60853,
+                ignore_validity);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
