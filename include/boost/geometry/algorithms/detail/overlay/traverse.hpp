@@ -159,6 +159,12 @@ struct traversal
         }
     }
 
+    inline bool is_visited(turn_type const& turn, turn_operation_type const& op,
+                           signed_size_type turn_index, int op_index) const
+    {
+        return op.visited.visited();
+    }
+
     inline bool select_source(signed_size_type turn_index,
                               segment_identifier const& seg_id1,
                               segment_identifier const& seg_id2)
@@ -598,7 +604,8 @@ struct traversal
         }
 
         turn_operation_type& op = current_turn.operations[op_index];
-        if (op.visited.finalized() || op.visited.visited())
+        if (op.visited.finalized()
+            || is_visited(current_turn, op, turn_index, op_index))
         {
             return traverse_error_visit_again;
         }
