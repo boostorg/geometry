@@ -305,7 +305,7 @@ struct traversal
     bool select_operation(const turn_type& turn,
                 signed_size_type turn_index,
                 signed_size_type start_turn_index,
-                segment_identifier const& seg_id,
+                segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
     {
         bool result = false;
@@ -318,7 +318,7 @@ struct traversal
         else
         {
             result = select_noncc_operation(turn, turn_index,
-                                            seg_id, selected_op_index);
+                                            previous_seg_id, selected_op_index);
         }
         if (result)
         {
@@ -554,7 +554,7 @@ struct traversal
     }
 
     bool select_turn(signed_size_type& turn_index,
-            segment_identifier& seg_id,
+            segment_identifier& previous_seg_id,
             signed_size_type& to_vertex_index,
             signed_size_type start_turn_index,
             int start_op_index,
@@ -581,13 +581,13 @@ struct traversal
                     previous_op, start_op_index);
             }
 
-            seg_id = previous_op.seg_id;
             turn_index = previous_op.enriched.travels_to_ip_index;
+            previous_seg_id = previous_op.seg_id;
         }
         else
         {
             turn_index = previous_op.enriched.next_ip_index;
-            seg_id = previous_op.seg_id;
+            previous_seg_id = previous_op.seg_id;
         }
         return true;
     }
@@ -597,7 +597,6 @@ struct traversal
                 int start_op_index,
                 signed_size_type& turn_index,
                 int& op_index,
-                segment_identifier& seg_id,
                 Ring& current_ring,
                 bool is_start)
     {
@@ -605,9 +604,10 @@ struct traversal
         signed_size_type const previous_turn_index = turn_index;
         turn_type& previous_turn = m_turns[turn_index];
         turn_operation_type& previous_op = previous_turn.operations[op_index];
+        segment_identifier previous_seg_id;
 
         signed_size_type to_vertex_index = -1;
-        if (! select_turn(turn_index, seg_id, to_vertex_index,
+        if (! select_turn(turn_index, previous_seg_id, to_vertex_index,
                           start_turn_index, start_op_index,
                           previous_turn, previous_op, is_start))
         {
@@ -677,7 +677,7 @@ struct traversal
 
                 if (! select_operation(current_turn, turn_index,
                                 start_turn_index,
-                                seg_id,
+                                previous_seg_id,
                                 op_index))
                 {
                     return dead_end_result;
@@ -721,11 +721,10 @@ struct traversal
 
         signed_size_type current_turn_index = start_turn_index;
         int current_op_index = start_op_index;
-        segment_identifier current_seg_id;
 
         traverse_error_type error = travel_to_next_turn(start_turn_index,
                     start_op_index,
-                    current_turn_index, current_op_index, current_seg_id,
+                    current_turn_index, current_op_index,
                     ring, true);
 
         if (error != traverse_error_none)
@@ -756,7 +755,7 @@ struct traversal
 
             // Below three reasons to stop.
             error = travel_to_next_turn(start_turn_index, start_op_index,
-                    current_turn_index, current_op_index, current_seg_id,
+                    current_turn_index, current_op_index,
                     ring, false);
 
             if (error != traverse_error_none)
