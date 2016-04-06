@@ -354,7 +354,7 @@ struct traversal
 
     inline bool select_from_cluster(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
-        sbs_type const& sbs, bool allow_pass_rank)
+        sbs_type const& sbs, bool allow_pass_rank) const
     {
         bool const is_union = OperationType == operation_union;
         bool const is_intersection = OperationType == operation_intersection;
@@ -430,7 +430,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, signed_size_type start_turn_index,
-            point_type const& point)
+            point_type const& point) const
     {
         bool const is_union = OperationType == operation_union;
 
@@ -504,7 +504,7 @@ struct traversal
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
                 turn_type const& start_turn,
                 turn_operation_type const& start_op,
-                int start_op_index)
+                int start_op_index) const
     {
         turn_operation_type const& other_op
                 = start_turn.operations[1 - start_op_index];
