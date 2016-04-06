@@ -553,6 +553,45 @@ struct traversal
         }
     }
 
+    bool select_turn(signed_size_type& turn_index,
+            segment_identifier& seg_id,
+            signed_size_type& to_vertex_index,
+            signed_size_type start_turn_index,
+            int start_op_index,
+            turn_type const& previous_turn,
+            turn_operation_type const& previous_op,
+            bool is_start) const
+    {
+        to_vertex_index = -1;
+        // If there is no next IP on this segment
+        if (previous_op.enriched.next_ip_index < 0)
+        {
+            if (previous_op.enriched.travels_to_vertex_index < 0
+                || previous_op.enriched.travels_to_ip_index < 0)
+            {
+                return false;
+            }
+
+            to_vertex_index = previous_op.enriched.travels_to_vertex_index;
+
+            if (is_start &&
+                    previous_op.enriched.travels_to_ip_index == start_turn_index)
+            {
+                change_index_for_self_turn(to_vertex_index, previous_turn,
+                    previous_op, start_op_index);
+            }
+
+            seg_id = previous_op.seg_id;
+            turn_index = previous_op.enriched.travels_to_ip_index;
+        }
+        else
+        {
+            turn_index = previous_op.enriched.next_ip_index;
+            seg_id = previous_op.seg_id;
+        }
+        return true;
+    }
+
     template <typename Ring>
     inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
                 int start_op_index,
@@ -567,26 +606,17 @@ struct traversal
         turn_type& previous_turn = m_turns[turn_index];
         turn_operation_type& previous_op = previous_turn.operations[op_index];
 
-        // If there is no next IP on this segment
-        if (previous_op.enriched.next_ip_index < 0)
+        signed_size_type to_vertex_index = -1;
+        if (! select_turn(turn_index, seg_id, to_vertex_index,
+                          start_turn_index, start_op_index,
+                          previous_turn, previous_op, is_start))
         {
-            if (previous_op.enriched.travels_to_vertex_index < 0
-                || previous_op.enriched.travels_to_ip_index < 0)
-            {
-                return is_start
-                        ? traverse_error_no_next_ip_at_start
-                        : traverse_error_no_next_ip;
-            }
-
-            signed_size_type to_vertex_index = previous_op.enriched.travels_to_vertex_index;
-
-            if (is_start &&
-                    previous_op.enriched.travels_to_ip_index == start_turn_index)
-            {
-                change_index_for_self_turn(to_vertex_index, previous_turn,
-                    previous_op, start_op_index);
-            }
-
+            return is_start
+                    ? traverse_error_no_next_ip_at_start
+                    : traverse_error_no_next_ip;
+        }
+        if (to_vertex_index >= 0)
+        {
             if (previous_op.seg_id.source_index == 0)
             {
                 geometry::copy_segments<Reverse1>(m_geometry1,
@@ -599,13 +629,6 @@ struct traversal
                         previous_op.seg_id, to_vertex_index,
                         m_robust_policy, current_ring);
             }
-            seg_id = previous_op.seg_id;
-            turn_index = previous_op.enriched.travels_to_ip_index;
-        }
-        else
-        {
-            turn_index = previous_op.enriched.next_ip_index;
-            seg_id = previous_op.seg_id;
         }
 
         if (m_turns[turn_index].discarded)
