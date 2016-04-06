@@ -123,6 +123,41 @@ struct traversal
         , m_switch_at_uu(true)
     {}
 
+    inline void finalize_visit_info()
+    {
+        for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it)
+        {
+            turn_type& turn = *it;
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+                op.visited.finalize();
+            }
+        }
+    }
+
+    inline void set_visited(turn_type& turn, turn_operation_type& op)
+    {
+        // On "continue", set "visited" for ALL directions in this turn
+        if (op.operation == detail::overlay::operation_continue)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+                if (op.visited.none())
+                {
+                    op.visited.set_visited();
+                }
+            }
+        }
+        else
+        {
+            op.visited.set_visited();
+        }
+    }
 
     inline bool select_source(signed_size_type turn_index,
                               segment_identifier const& seg_id1,
@@ -574,43 +609,6 @@ struct traversal
 
         return traverse_error_none;
     }
-
-    inline void finalize_visit_info()
-    {
-        for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(m_turns);
-            it != boost::end(m_turns);
-            ++it)
-        {
-            turn_type& turn = *it;
-            for (int i = 0; i < 2; i++)
-            {
-                turn_operation_type& op = turn.operations[i];
-                op.visited.finalize();
-            }
-        }
-    }
-
-    inline void set_visited(turn_type& turn, turn_operation_type& op)
-    {
-        // On "continue", set "visited" for ALL directions in this turn
-        if (op.operation == detail::overlay::operation_continue)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                turn_operation_type& op = turn.operations[i];
-                if (op.visited.none())
-                {
-                    op.visited.set_visited();
-                }
-            }
-        }
-        else
-        {
-            op.visited.set_visited();
-        }
-    }
-
 
     template <typename Ring>
     inline traverse_error_type traverse(Ring& ring,
