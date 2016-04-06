@@ -118,10 +118,18 @@ struct traversal
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
+        , m_is_buffer(false)
         , m_has_uu(false)
         , m_has_only_uu(true)
         , m_switch_at_uu(true)
-    {}
+    {
+        if (! m_turns.empty())
+        {
+            m_is_buffer
+                = m_turns.back().operations[0].seg_id.source_index
+                    == m_turns.back().operations[1].seg_id.source_index;
+        }
+    }
 
     inline void finalize_visit_info()
     {
@@ -179,12 +187,7 @@ struct traversal
             // For uu, only switch sources if indicated
             turn_type const& turn = m_turns[turn_index];
 
-            // TODO: pass this information
-            bool const is_buffer
-                    = turn.operations[0].seg_id.source_index
-                      == turn.operations[1].seg_id.source_index;
-
-            if (is_buffer)
+            if (m_is_buffer)
             {
                 // Buffer does not use source_index (always 0)
                 return turn.switch_source
@@ -430,7 +433,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, signed_size_type start_turn_index,
-            point_type const& point) const
+            segment_identifier const& previous_seg_id) const
     {
         bool const is_union = OperationType == operation_union;
 
@@ -443,7 +446,8 @@ struct traversal
         std::set<signed_size_type> const& ids = mit->second;
 
         sbs_type sbs;
-        sbs.set_origin(point);
+
+        bool has_origin = false;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -458,9 +462,34 @@ struct traversal
 
             for (int i = 0; i < 2; i++)
             {
-                sbs.add(cluster_turn.operations[i], cluster_turn_index, i,
-                        m_geometry1, m_geometry2, false);
+                turn_operation_type const& op = cluster_turn.operations[i];
+                bool is_origin = false;
+                if (cluster_turn_index == turn_index)
+                {
+                    // Check if this is the origin
+                    if (m_is_buffer)
+                    {
+                        is_origin = op.seg_id.multi_index == previous_seg_id.multi_index;
+                    }
+                    else
+                    {
+                        is_origin = op.seg_id.source_index
+                                    == previous_seg_id.source_index;
+                    }
+                    if (is_origin)
+                    {
+                        has_origin = true;
+                    }
+                }
+
+                sbs.add(op, cluster_turn_index, i, m_geometry1, m_geometry2,
+                        is_origin);
             }
+        }
+
+        if (! has_origin)
+        {
+            return false;
         }
 
         sbs.apply(turn.point);
@@ -506,9 +535,7 @@ struct traversal
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        turn_operation_type const& other_op
-                = start_turn.operations[1 - start_op_index];
-        if (start_op.seg_id.source_index != other_op.seg_id.source_index)
+        if (! m_is_buffer)
         {
             // Not a buffer/self-turn
             return;
@@ -531,6 +558,9 @@ struct traversal
         // Also a uu turn (touching with another buffered ring) might have this
         // apparent configuration, but there it should
         // always travel the whole ring
+
+        turn_operation_type const& other_op
+                = start_turn.operations[1 - start_op_index];
 
         bool const correct
                 = ! start_turn.both(operation_union)
@@ -653,7 +683,7 @@ struct traversal
         if (m_turns[turn_index].cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index,
-                    start_turn_index, current_ring.back()))
+                    start_turn_index, previous_seg_id))
             {
                 return dead_end_result;
             }
@@ -891,6 +921,9 @@ private :
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
+
+    // TODO: pass this information
+    bool m_is_buffer;
 
     // Next members are only used for operation union
     bool m_has_uu;
