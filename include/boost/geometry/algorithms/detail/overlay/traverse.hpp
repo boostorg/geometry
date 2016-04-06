@@ -252,46 +252,49 @@ struct traversal
                 return true;
             }
 
-            signed_size_type const next_turn_index = get_next_turn_index(op);
-
-            // In some cases there are two alternatives.
-            // For "ii", take the other one (alternate)
-            //           UNLESS the other one is already visited
-            // For "uu", take the same one (see above);
-            // For "cc", take either one, but if there is a starting one,
-            //           take that one. If next is dead end, skip that one.
-            if (   (op.operation == operation_continue
-                    && traverse_possible(next_turn_index)
-                    && ! result)
-                || (op.operation == OperationType
-                    && ! op.visited.finished()
-                    && (! result
-                        || select_source(turn_index, op.seg_id, seg_id)
-                        )
-                    )
-                )
+            if (op.operation == operation_continue)
             {
-                if (op.operation == operation_continue)
+                // For "cc", take either one, but if there is a starting one,
+                //           take that one. If next is dead end, skip that one.
+
+                signed_size_type const next_turn_index = get_next_turn_index(op);
+
+                if (! result && traverse_possible(next_turn_index))
                 {
                     max_remaining_distance = op.remaining_distance;
+                    selected_op_index = i;
+                    debug_traverse(turn, op, " Candidate");
+                    result = true;
                 }
-                selected_op_index = i;
-                debug_traverse(turn, op, " Candidate");
-                result = true;
+
+                if (result)
+                {
+                    if (next_turn_index == start_turn_index)
+                    {
+                        selected_op_index = i;
+                        debug_traverse(turn, op, " Candidate override (start)");
+                    }
+                    else if (op.remaining_distance > max_remaining_distance)
+                    {
+                        max_remaining_distance = op.remaining_distance;
+                        selected_op_index = i;
+                        debug_traverse(turn, op, " Candidate override (remaining)");
+                    }
+                }
             }
-
-            if (op.operation == operation_continue && result)
+            else
             {
-                if (next_turn_index == start_turn_index)
+                // For "ii", take the other one (alternate)
+                //           UNLESS the other one is already visited
+                // For "uu", take the same one (see above);
+                if (op.operation == OperationType
+                    && ! op.visited.finished()
+                    && (! result || select_source(turn_index, op.seg_id, seg_id))
+                        )
                 {
                     selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate override (start)");
-                }
-                else if (op.remaining_distance > max_remaining_distance)
-                {
-                    max_remaining_distance = op.remaining_distance;
-                    selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate override (remaining)");
+                    debug_traverse(turn, op, " Candidate");
+                    result = true;
                 }
             }
         }
