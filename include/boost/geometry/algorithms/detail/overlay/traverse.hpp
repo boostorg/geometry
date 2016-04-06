@@ -596,11 +596,22 @@ struct traversal
             seg_id = previous_op.seg_id;
         }
 
-        // turn_index is not yet finally selected, can change for clusters
-        bool const has_cluster = m_turns[turn_index].cluster_id >= 0;
-        if (has_cluster)
+        if (m_turns[turn_index].discarded)
         {
+            return is_start
+                ? traverse_error_dead_end_at_start
+                : traverse_error_dead_end;
+        }
 
+        if (is_start)
+        {
+            // Register the start
+            previous_op.visited.set_started();
+            m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
+        }
+
+        if (m_turns[turn_index].cluster_id >= 0)
+        {
             if (! select_turn_from_cluster(turn_index, op_index,
                     start_turn_index, current_ring.back()))
             {
@@ -614,27 +625,9 @@ struct traversal
                 op_index = previous_op_index;
             }
         }
-
-        turn_type& current_turn = m_turns[turn_index];
-        detail::overlay::append_no_dups_or_spikes(current_ring, current_turn.point,
-            m_robust_policy);
-
-        if (is_start)
+        else
         {
-            // Register the start
-            previous_op.visited.set_started();
-            m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
-        }
-
-        if (! has_cluster)
-        {
-            if (current_turn.discarded)
-            {
-                return is_start
-                    ? traverse_error_dead_end_at_start
-                    : traverse_error_dead_end;
-            }
-
+            turn_type const& current_turn = m_turns[turn_index];
 
             op_index = starting_operation_index(current_turn);
             if (op_index == -1)
@@ -651,12 +644,22 @@ struct traversal
             }
         }
 
-        turn_operation_type& op = current_turn.operations[op_index];
-        if (op.visited.finalized()
-            || is_visited(current_turn, op, turn_index, op_index))
         {
-            return traverse_error_visit_again;
+            // Check operation (TODO: this might be redundant or should be catched before)
+            const turn_type& current_turn = m_turns[turn_index];
+            const turn_operation_type& op = current_turn.operations[op_index];
+            if (op.visited.finalized()
+                || is_visited(current_turn, op, turn_index, op_index))
+            {
+                return traverse_error_visit_again;
+            }
         }
+
+        // Update registration and append point
+        turn_type& current_turn = m_turns[turn_index];
+        turn_operation_type& op = current_turn.operations[op_index];
+        detail::overlay::append_no_dups_or_spikes(current_ring, current_turn.point,
+            m_robust_policy);
 
         // Register the visit
         set_visited(current_turn, op);
