@@ -339,6 +339,12 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11984",
         ticket_11984[0], ticket_11984[1],
         1, 2, 134, 60071.08077);
+
+#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_1",
+        mysql_1[0], mysql_1[1],
+        1, 1, 19, 99.19494);
+#endif
 }
 
 // Test cases (generic)

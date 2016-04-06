@@ -892,4 +892,10 @@ static std::string mysql_21965285_b[2] =
         "MULTIPOLYGON(((1 1, 3 0, 19 -8, -4 -3, 1 1)),((3 0, -2 7, -3 16, 1 19, 8 12, 3 0)))"
     };
 
+static std::string mysql_1[2] =
+    {
+        "MULTIPOLYGON(((4 5,12 11,-12 -3,4 5)))",
+        "MULTIPOLYGON(((5 4,-14 0,1 0,5 4)),((1 6,13 0,10 12,1 6)))"
+    };
+
 #endif // BOOST_GEOMETRY_TEST_MULTI_OVERLAY_CASES_HPP
