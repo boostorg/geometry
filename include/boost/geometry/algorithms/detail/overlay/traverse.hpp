@@ -167,7 +167,7 @@ struct traversal
 
     inline bool select_source(signed_size_type turn_index,
                               segment_identifier const& seg_id1,
-                              segment_identifier const& seg_id2)
+                              segment_identifier const& seg_id2) const
     {
         if (OperationType == operation_intersection)
         {
@@ -230,13 +230,8 @@ struct traversal
                  signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& seg_id,
-                int& selected_op_index)
+                int& selected_op_index) const
     {
-        if (turn.discarded)
-        {
-            return false;
-        }
-
         bool result = false;
 
         typename turn_operation_type::comparable_distance_type
@@ -246,11 +241,6 @@ struct traversal
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
-            if (op.visited.started())
-            {
-                selected_op_index = i;
-                return true;
-            }
 
             if (op.operation == operation_continue)
             {
@@ -305,6 +295,18 @@ struct traversal
         }
 
         return result;
+    }
+
+    inline int starting_operation_index(const turn_type& turn) const
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (turn.operations[i].visited.started())
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     inline bool select_from_cluster(signed_size_type& turn_index,
@@ -595,14 +597,26 @@ struct traversal
 
         if (! has_cluster)
         {
-            if (! select_operation(current_turn, turn_index,
-                            start_turn_index,
-                            seg_id,
-                            op_index))
+            if (current_turn.discarded)
             {
                 return is_start
                     ? traverse_error_dead_end_at_start
                     : traverse_error_dead_end;
+            }
+
+
+            op_index = starting_operation_index(current_turn);
+            if (op_index == -1)
+            {
+                if (! select_operation(current_turn, turn_index,
+                                start_turn_index,
+                                seg_id,
+                                op_index))
+                {
+                    return is_start
+                        ? traverse_error_dead_end_at_start
+                        : traverse_error_dead_end;
+                }
             }
         }
 
