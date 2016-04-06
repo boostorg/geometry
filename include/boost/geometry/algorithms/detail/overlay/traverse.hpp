@@ -340,6 +340,18 @@ struct traversal
         return -1;
     }
 
+    inline bool both_finished(const turn_type& turn) const
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (! turn.operations[i].visited.finished())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     inline bool select_from_cluster(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
         sbs_type const& sbs, bool allow_pass_rank)
@@ -610,14 +622,17 @@ struct traversal
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
+        const traverse_error_type dead_end_result
+                = is_start
+                ? traverse_error_no_next_ip_at_start
+                : traverse_error_no_next_ip;
+
         if (m_turns[turn_index].cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index,
                     start_turn_index, current_ring.back()))
             {
-                return is_start
-                    ? traverse_error_no_next_ip_at_start
-                    : traverse_error_no_next_ip;
+                return dead_end_result;
             }
 
             if (is_start && turn_index == previous_turn_index)
@@ -632,14 +647,17 @@ struct traversal
             op_index = starting_operation_index(current_turn);
             if (op_index == -1)
             {
+                if (both_finished(current_turn))
+                {
+                    return dead_end_result;
+                }
+
                 if (! select_operation(current_turn, turn_index,
                                 start_turn_index,
                                 seg_id,
                                 op_index))
                 {
-                    return is_start
-                        ? traverse_error_dead_end_at_start
-                        : traverse_error_dead_end;
+                    return dead_end_result;
                 }
             }
         }
