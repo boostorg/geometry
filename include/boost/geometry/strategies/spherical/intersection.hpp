@@ -56,11 +56,12 @@ namespace strategy { namespace intersection
 // During the conversion degrees must first be converted to radians and then radians
 // are passed into trigonometric functions. The error may have several causes:
 // 1. Radians cannot represent exactly the same angles as degrees.
-// 2. Greater/different longitudes are passed into sin() for x, corresponding to cos() for y,
+// 2. Different longitudes are passed into sin() for x, corresponding to cos() for y,
 //    and for different angle the error of the result may be different.
 // 3. These non-corresponding cartesian coordinates are used in calculation,
 //    e.g. multiplied several times in cross and dot products.
-// If this was a problem this strategy could e.g. normalize coordinates before the conversion using the source units,
+// If it was a problem this strategy could e.g. "normalize" longitudes before the conversion using the source units
+// by rotating the globe around Z axis, so moving longitudes always the same way towards the origin,
 // assuming this could help which is not clear.
 // For now, intersection points near the endpoints are checked explicitly if needed (if the IP is near the endpoint)
 // to generate precise result for them. Only the crossing (i) case may suffer from lower precision.
@@ -320,7 +321,7 @@ struct relate_spherical_segments
 
             vec3d_t i1;
             calc_t dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1;
-            if (calculate_ip_data(a1, a2, b1, b2, a1v, a2v, b1v, b2v, norm1, norm2,
+            if (calculate_ip_data(a1, a2, b1, b2, a1v, a2v, b1v, b2v, norm1, norm2, sides,
                                   i1, dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1))
             {
                 // intersects
@@ -371,11 +372,20 @@ private:
         calculate_dists(a1, a2, b1, b2, a1v, a2v, norm1, b1v_or_b2v, dist_a1_a2, dist_a1_i1);
 
         // if i1 is close to a1 and b1 or b2 is equal to a1
-        return calculate_endpoint<Vec3d const>(dist_a1_i1, a1, b1, b2, a1v, CalcT(0), b1v_or_b2v, dist_a1_i1)
-            //   or i1 is close to a2 and b1 or b2 is equal to a2
-            || calculate_endpoint<Vec3d const>(dist_a1_a2 - dist_a1_i1, a2, b1, b2, a2v, dist_a1_a2, b1v_or_b2v, dist_a1_i1)
-            //   or i1 is on b
-            || segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
+        if (is_endpoint_equal(dist_a1_i1, a1, b1, b2))
+        {
+            dist_a1_i1 = 0;
+            return true;
+        }
+        // or i1 is close to a2 and b1 or b2 is equal to a2
+        else if (is_endpoint_equal(dist_a1_a2 - dist_a1_i1, a2, b1, b2))
+        {
+            dist_a1_i1 = dist_a1_a2;
+            return true;
+        }
+
+        // or i1 is on b
+        return segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
     }
 
     template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
@@ -384,6 +394,7 @@ private:
                                          Vec3d const& a1v, Vec3d const& a2v, // in
                                          Vec3d const& b1v, Vec3d const& b2v, // in
                                          Vec3d const& norm1, Vec3d const& norm2, // in
+                                         side_info const& sides, // in
                                          Vec3d & i1, // in-out
                                          CalcT& dist_a1_a2, CalcT& dist_a1_i1, // out
                                          CalcT& dist_b1_b2, CalcT& dist_b1_i1) // out
@@ -397,41 +408,118 @@ private:
         //       if the normals were not normalized and their dot product
         //       not checked before this function is called the length
         //       should be checked here (math::equals(len, c0))
-        CalcT len = math::sqrt(dot_product(i1, i1));
+        CalcT const len = math::sqrt(dot_product(i1, i1));
         divide_value(i1, len); // normalize i1
 
         calculate_dists(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1);
         
-        bool is_found = calculate_near(dist_a1_i1, norm2, a1v, c0, i1, dist_a1_i1)
-                     || calculate_near(dist_a1_a2 - dist_a1_i1, norm2, a2v, dist_a1_a2, i1, dist_a1_i1)
-                     || segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
-
-        if (! is_found)
+        // choose the opposite side of the globe if the distance is shorter
         {
-            // check the ip on the other side of the sphere
-            CalcT dist_a1_i2 = dist_of_i2(dist_a1_i1);
-
-            is_found = calculate_near(dist_a1_i2, norm2, a1v, c0, i1, dist_a1_i1)
-                    || calculate_near(dist_a1_a2 - dist_a1_i2, norm2, a2v, dist_a1_a2, i1, dist_a1_i1);
-
-            if (! is_found
-                && (is_found = segment_ratio<CalcT>(dist_a1_i2, dist_a1_a2).on_segment()))
+            CalcT const d = abs_distance(dist_a1_a2, dist_a1_i1);
+            if (d > 0)
             {
-                dist_a1_i1 = dist_a1_i2;
-                multiply_value(i1, -c1); // the opposite intersection
+                CalcT const dist_a1_i2 = dist_of_i2(dist_a1_i1);
+                CalcT const d2 = abs_distance(dist_a1_a2, dist_a1_i2);
+                if (d2 < d)
+                {
+                    dist_a1_i1 = dist_a1_i2;
+                    multiply_value(i1, -c1); // the opposite intersection
+                }
             }
         }
 
-        if (! is_found)
+        bool is_on_a = false, is_near_a1 = false, is_near_a2 = false;
+        if (! is_potentially_crossing(dist_a1_a2, dist_a1_i1, is_on_a, is_near_a1, is_near_a2))
         {
             return false;
         }
 
         calculate_dists(b1, b2, a1, a2, b1v, b2v, norm2, i1, dist_b1_b2, dist_b1_i1);
 
-        return calculate_near(dist_b1_i1, norm1, b1v, c0, i1, dist_b1_i1)
-            || calculate_near(dist_b1_b2 - dist_b1_i1, norm1, b2v, dist_b1_b2, i1, dist_b1_i1)
-            || segment_ratio<CalcT>(dist_b1_i1, dist_b1_b2).on_segment();
+        bool is_on_b = false, is_near_b1 = false, is_near_b2 = false;
+        if (! is_potentially_crossing(dist_b1_b2, dist_b1_i1, is_on_b, is_near_b1, is_near_b2))
+        {
+            return false;
+        }
+
+        // reassign the IP if some endpoints overlap
+        using geometry::detail::equals::equals_point_point;
+        if (is_near_a1)
+        {
+            if (is_near_b1 && equals_point_point(a1, b1))
+            {
+                dist_a1_i1 = 0;
+                dist_b1_i1 = 0;
+                i1 = a1v;
+                return true;
+            }
+            
+            if (is_near_b2 && equals_point_point(a1, b2))
+            {
+                dist_a1_i1 = 0;
+                dist_b1_i1 = dist_b1_b2;
+                i1 = a1v;
+                return true;
+            }
+        }
+
+        if (is_near_a2)
+        {
+            if (is_near_b1 && equals_point_point(a2, b1))
+            {
+                dist_a1_i1 = dist_a1_a2;
+                dist_b1_i1 = 0;
+                i1 = a2v;
+                return true;
+            }
+
+            if (is_near_b2 && equals_point_point(a2, b2))
+            {
+                dist_a1_i1 = dist_a1_a2;
+                dist_b1_i1 = dist_b1_b2;
+                i1 = a2v;
+                return true;
+            }
+        }
+
+        // at this point we know that the endpoints doesn't overlap
+        // reassign IP and distance if the IP is on a segment and one of
+        //   the endpoints of the other segment lies on the former segment
+        if (is_on_a)
+        {
+            if (is_near_b1 && sides.template get<1, 0>() == 0) // b1 wrt a
+            {
+                dist_b1_i1 = 0;
+                i1 = b1v;
+                return true;
+            }
+
+            if (is_near_b2 && sides.template get<1, 1>() == 0) // b2 wrt a
+            {
+                dist_b1_i1 = dist_b1_b2;
+                i1 = b2v;
+                return true;
+            }
+        }
+
+        if (is_on_b)
+        {
+            if (is_near_a1 && sides.template get<0, 0>() == 0) // a1 wrt b
+            {
+                dist_a1_i1 = 0;
+                i1 = a1v;
+                return true;
+            }
+
+            if (is_near_a2 && sides.template get<0, 1>() == 0) // a2 wrt b
+            {
+                dist_a1_i1 = dist_a1_a2;
+                i1 = a2v;
+                return true;
+            }
+        }
+
+        return is_on_a && is_on_b;
     }
 
     template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
@@ -478,38 +566,33 @@ private:
         return dist_a1_i2;
     }
 
-    template <typename CalcT, typename Vec3d>
-    static inline bool calculate_near(CalcT const& dist,
-                                      Vec3d const& normb,
-                                      Vec3d const& aiv, CalcT const& src_dist,
-                                      Vec3d& i1, CalcT& dst_dist)
+    template <typename CalcT>
+    static inline CalcT abs_distance(CalcT const& dist_a1_a2, CalcT const& dist_a1_i1)
     {
-        CalcT const c0 = 0;
-        if (is_near(dist) && math::equals(dot_product(normb, aiv), c0))
-        {
-            i1 = aiv;
-            dst_dist = src_dist;
-            return true;
-        }
-            
-        return false;
+        if (dist_a1_i1 < CalcT(0))
+            return -dist_a1_i1;
+        else if (dist_a1_i1 > dist_a1_a2)
+            return dist_a1_i1 - dist_a1_a2;
+        else
+            return CalcT(0);
     }
 
-    template <typename Vec3dIP, typename CalcT, typename P1, typename P2, typename Vec3d>
-    static inline bool calculate_endpoint(CalcT const& dist,
-                                          P1 const& ai, P2 const& b1, P2 const& b2,
-                                          Vec3d const& src_i1, CalcT const& src_dist,
-                                          Vec3dIP & dst_i1, CalcT& dst_dist)
+    template <typename CalcT>
+    static inline bool is_potentially_crossing(CalcT const& dist_a1_a2, CalcT const& dist_a1_i1, // in
+                                               bool& is_on_a, bool& is_near_a1, bool& is_near_a2) // out
+    {
+        is_on_a = segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
+        is_near_a1 = is_near(dist_a1_i1);
+        is_near_a2 = is_near(dist_a1_a2 - dist_a1_i1);
+        return is_on_a || is_near_a1 || is_near_a2;
+    }
+
+    template <typename CalcT, typename P1, typename P2>
+    static inline bool is_endpoint_equal(CalcT const& dist,
+                                         P1 const& ai, P2 const& b1, P2 const& b2)
     {
         using geometry::detail::equals::equals_point_point;
-        if (is_near(dist) && (equals_point_point(ai, b1) || equals_point_point(ai, b2)))
-        {
-            assign_if_nonconst(dst_i1, src_i1);
-            dst_dist = src_dist;
-            return true;
-        }
-            
-        return false;
+        return is_near(dist) && (equals_point_point(ai, b1) || equals_point_point(ai, b2));
     }
 
     template <typename CalcT>
@@ -518,16 +601,6 @@ private:
         CalcT const small_number = boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001;
         return math::abs(dist) <= small_number;
     }
-
-    template <typename T>
-    static inline void assign_if_nonconst(T & l, T const& r)
-    {
-        l = r;
-    }
-
-    template <typename T>
-    static inline void assign_if_nonconst(T const&, T const&)
-    {}
 
     template <typename ProjCoord1, typename ProjCoord2>
     static inline int position_value(ProjCoord1 const& ca1,
