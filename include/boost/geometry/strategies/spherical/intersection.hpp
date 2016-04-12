@@ -15,6 +15,7 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -32,6 +33,7 @@
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -399,9 +401,6 @@ private:
                                          CalcT& dist_a1_a2, CalcT& dist_a1_i1, // out
                                          CalcT& dist_b1_b2, CalcT& dist_b1_i1) // out
     {
-        CalcT const c0 = 0;
-        CalcT const c1 = 1;
-
         // great circles intersections
         i1 = cross_product(norm1, norm2);
         // NOTE: the length should be greater than 0 at this point
@@ -416,14 +415,14 @@ private:
         // choose the opposite side of the globe if the distance is shorter
         {
             CalcT const d = abs_distance(dist_a1_a2, dist_a1_i1);
-            if (d > 0)
+            if (d > CalcT(0))
             {
                 CalcT const dist_a1_i2 = dist_of_i2(dist_a1_i1);
                 CalcT const d2 = abs_distance(dist_a1_a2, dist_a1_i2);
                 if (d2 < d)
                 {
                     dist_a1_i1 = dist_a1_i2;
-                    multiply_value(i1, -c1); // the opposite intersection
+                    multiply_value(i1, CalcT(-1)); // the opposite intersection
                 }
             }
         }
@@ -620,6 +619,32 @@ private:
                 : 2 );
     }
 };
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+/*template <typename Policy, typename CalculationType>
+struct default_strategy<spherical_polar_tag, Policy, CalculationType>
+{
+    typedef relate_spherical_segments<Policy, CalculationType> type;
+};*/
+
+template <typename Policy, typename CalculationType>
+struct default_strategy<spherical_equatorial_tag, Policy, CalculationType>
+{
+    typedef relate_spherical_segments<Policy, CalculationType> type;
+};
+
+template <typename Policy, typename CalculationType>
+struct default_strategy<geographic_tag, Policy, CalculationType>
+{
+    typedef relate_spherical_segments<Policy, CalculationType> type;
+};
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::intersection

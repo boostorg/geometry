@@ -37,6 +37,7 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
@@ -533,6 +534,20 @@ private:
                 : 2 );
     }
 };
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename Policy, typename CalculationType>
+struct default_strategy<cartesian_tag, Policy, CalculationType>
+{
+    typedef relate_cartesian_segments<Policy, CalculationType> type;
+};
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::intersection

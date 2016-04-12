@@ -278,7 +278,7 @@ class range_split_rings
     typedef typename geometry::ring_type<Range>::type ring_type;
 
 
-    typedef typename strategy_intersection
+    typedef typename intersection_strategies
         <
             typename cs_tag<point_type>::type,
             point_type,

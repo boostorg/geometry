@@ -201,7 +201,7 @@ class intersection_info
 {
     typedef intersection_info_base<Point1, Point2, RobustPolicy> base;
 
-    typedef typename strategy_intersection
+    typedef typename intersection_strategies
         <
             typename cs_tag<TurnPoint>::type,
             Point1,
@@ -298,7 +298,7 @@ private:
     {
         typedef model::referring_segment<Point const> seg;
 
-        typedef strategy_intersection
+        typedef intersection_strategies
             <
                 typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
             > si;
