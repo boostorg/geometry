@@ -149,7 +149,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     if (! settings.debug)
     {
         // Check _inserter behaviour with stratey
-        typedef bg::strategy_intersection
+        typedef bg::intersection_strategies
             <
                 typename bg::cs_tag<point_type>::type,
                 G1,
