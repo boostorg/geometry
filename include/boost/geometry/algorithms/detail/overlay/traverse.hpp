@@ -12,7 +12,7 @@
 #include <cstddef>
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traversal_ring_creator.hpp>
 
 
 namespace boost { namespace geometry
@@ -53,7 +53,7 @@ public :
                 Clusters const& clusters,
                 Visitor& visitor)
     {
-        traversal
+        traversal_ring_creator
             <
                 Reverse1, Reverse2, OperationType,
                 Geometry1, Geometry2,
