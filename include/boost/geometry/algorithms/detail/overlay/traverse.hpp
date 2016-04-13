@@ -622,6 +622,51 @@ struct traversal
         return true;
     }
 
+    bool select_turn(signed_size_type start_turn_index,
+                     signed_size_type& turn_index,
+                     int& op_index,
+                     int previous_op_index,
+                     signed_size_type previous_turn_index,
+                     segment_identifier const& previous_seg_id,
+                     bool is_start)
+    {
+        if (m_turns[turn_index].cluster_id >= 0)
+        {
+            if (! select_turn_from_cluster(turn_index, op_index,
+                    start_turn_index, previous_seg_id))
+            {
+                return false;
+            }
+
+            if (is_start && turn_index == previous_turn_index)
+            {
+                op_index = previous_op_index;
+            }
+        }
+        else
+        {
+            turn_type const& current_turn = m_turns[turn_index];
+
+            op_index = starting_operation_index(current_turn);
+            if (op_index == -1)
+            {
+                if (both_finished(current_turn))
+                {
+                    return false;
+                }
+
+                if (! select_operation(current_turn, turn_index,
+                                start_turn_index,
+                                previous_seg_id,
+                                op_index))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     template <typename Ring>
     inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
                 int start_op_index,
@@ -675,44 +720,13 @@ struct traversal
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
-        const traverse_error_type dead_end_result
-                = is_start
+        if (! select_turn(start_turn_index, turn_index, op_index,
+                previous_op_index, previous_turn_index, previous_seg_id,
+                is_start))
+        {
+            return is_start
                 ? traverse_error_no_next_ip_at_start
                 : traverse_error_no_next_ip;
-
-        if (m_turns[turn_index].cluster_id >= 0)
-        {
-            if (! select_turn_from_cluster(turn_index, op_index,
-                    start_turn_index, previous_seg_id))
-            {
-                return dead_end_result;
-            }
-
-            if (is_start && turn_index == previous_turn_index)
-            {
-                op_index = previous_op_index;
-            }
-        }
-        else
-        {
-            turn_type const& current_turn = m_turns[turn_index];
-
-            op_index = starting_operation_index(current_turn);
-            if (op_index == -1)
-            {
-                if (both_finished(current_turn))
-                {
-                    return dead_end_result;
-                }
-
-                if (! select_operation(current_turn, turn_index,
-                                start_turn_index,
-                                previous_seg_id,
-                                op_index))
-                {
-                    return dead_end_result;
-                }
-            }
         }
 
         {
