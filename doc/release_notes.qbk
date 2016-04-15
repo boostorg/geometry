@@ -45,6 +45,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/11984 11984] union_() generates self-intersecting polygon
 * [@https://svn.boost.org/trac/boost/ticket/11987 11987] rtree::remove() not compiling for geographic CS.
 * [@https://svn.boost.org/trac/boost/ticket/12000 12000] Uninitialized reference in (unused) constructor of relate's mask_handler.
+* [@https://svn.boost.org/trac/boost/ticket/12106 12106] Invalid assertion failure in envelope() for non-cartesian very short segments.
 
 [*Bugfixes]
 

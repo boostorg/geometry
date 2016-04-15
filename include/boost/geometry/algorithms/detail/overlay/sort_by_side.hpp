@@ -339,24 +339,15 @@ struct side_sorter
 private :
 
 
-    std::size_t move(std::size_t index)
+    std::size_t move(std::size_t index) const
     {
-        int const n = m_ranked_points.size();
-        int result = index + 1;
-        if (result >= n)
-        {
-            result = 0;
-        }
-        else if (result < 0)
-        {
-            result = n - 1;
-        }
-        return result;
+        std::size_t const result = index + 1;
+        return result >= m_ranked_points.size() ? 0 : result;
     }
 
     //! member is pointer to member (source_index or multi_index)
     template <signed_size_type segment_identifier::*Member>
-    std::size_t move(signed_size_type member_index, std::size_t index)
+    std::size_t move(signed_size_type member_index, std::size_t index) const
     {
         std::size_t result = move(index);
         while (m_ranked_points[result].seg_id.*Member != member_index)
