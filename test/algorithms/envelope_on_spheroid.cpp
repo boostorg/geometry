@@ -527,6 +527,8 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
     typedef bg::model::box<P> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
+    double const eps = std::numeric_limits<double>::epsilon();
+
     tester::apply("s01",
                   from_wkt<G>("SEGMENT(10 10,40 40)"),
                   10, 10, 40, 40);
@@ -591,7 +593,8 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 
     tester::apply("s09",
                   from_wkt<G>("SEGMENT(1 -45,179 30)"),
-                  1, -85.28884376852972, 179, 30);
+                  1, -85.28884376852969, 179, 30,
+                  3 * eps);
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
@@ -601,7 +604,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
                   -179, -88.07047433509489, 0, 30,
-                  2.0 * std::numeric_limits<double>::epsilon());
+                  2.0 * eps);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
@@ -679,8 +682,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
                   G(P(11.488323611111111, 53.687086666666673), P(11.488324166666667, 53.687086666666673)),
                   11.488323611111111, 53.687086666666673, 11.488324166666667, 53.687086666666673);
 
-    double eps = std::numeric_limits<double>::epsilon();
-    double heps = eps / 2;
+    double const heps = eps / 2;
 
     tester::apply("s101",
                   G(P(1, 1), P(1-heps, 1-heps)),
