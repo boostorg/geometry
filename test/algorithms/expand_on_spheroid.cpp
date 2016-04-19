@@ -106,6 +106,9 @@ private:
                << "geometry: ";
 
         write_geometry<Geometry>::apply(stream, geometry);
+
+        stream << std::setprecision(17);
+
         stream << "; " << "expected: " << bg::dsv(expected1);
 
         if (expected_are_different)
@@ -712,7 +715,7 @@ BOOST_AUTO_TEST_CASE( expand_segment_with_height )
     tester::apply("sh01",
                   from_wkt<B>("BOX(20 20 100,50 50 1000)"),
                   from_wkt<G>("SEGMENT(10 10 150,40 40 500)"),
-                  10, 10, 100, 50, 50, 1000);
+                  10, 10, 100, 50, 50, 1001);
 
     tester::apply("sh02",
                   from_wkt<B>("BOX(20 20 100,50 50 1000)"),

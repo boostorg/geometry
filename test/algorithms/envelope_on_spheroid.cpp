@@ -106,6 +106,8 @@ private:
 
         write_geometry<Geometry>::apply(stream, geometry);
 
+        stream << std::setprecision(17);
+
         stream << "; " << "expected: " << bg::dsv(expected)
                << ", " << "detected: " << bg::dsv(detected);
 
