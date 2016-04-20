@@ -1,23 +1,23 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2015-2016 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_HANDLE_TOUCH_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_HANDLE_TOUCH_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSAL_SWITCH_DETECTOR_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSAL_SWITCH_DETECTOR_HPP
 
 #include <cstddef>
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
-#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-
+#include <boost/geometry/algorithms/detail/overlay/traversal.hpp>
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -27,310 +27,306 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Turns, typename Visitor>
-class handle_touch_uu
+template
+<
+    bool Reverse1,
+    bool Reverse2,
+    operation_type OperationType,
+    typename Geometry1,
+    typename Geometry2,
+    typename Turns,
+    typename Clusters,
+    typename RobustPolicy,
+    typename Visitor
+>
+struct traversal_switch_detector
 {
-private :
+    typedef traversal<Reverse1, Reverse2, OperationType,
+           Geometry1, Geometry2, Turns, Clusters, RobustPolicy, Visitor>
+        traversal_type;
+
     typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename boost::range_iterator<Turns>::type turn_iterator;
-    typedef typename boost::range_iterator<Turns const>::type turn_const_iterator;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
 
-    typedef typename boost::range_iterator
-        <
-            typename turn_type::container_type const
-        >::type operation_const_iterator;
-
-public :
-
-    handle_touch_uu(Visitor& visitor)
-        : m_visitor(visitor)
-    {}
-
-    inline void apply(detail::overlay::operation_type operation, Turns& turns)
+    inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
+            Turns& turns, Clusters const& clusters,
+            RobustPolicy const& robust_policy, Visitor& visitor)
+        : m_trav(geometry1, geometry2, turns, clusters, robust_policy,visitor)
+        , m_geometry1(geometry1)
+        , m_geometry2(geometry2)
+        , m_turns(turns)
+        , m_clusters(clusters)
+        , m_robust_policy(robust_policy)
+        , m_visitor(visitor)
     {
-        if (! has_uu(turns))
+
+    }
+
+    inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
+                int start_op_index,
+                signed_size_type& turn_index,
+                int& op_index,
+                bool is_start)
+    {
+        int const previous_op_index = op_index;
+        signed_size_type const previous_turn_index = turn_index;
+        turn_type& previous_turn = m_turns[turn_index];
+        turn_operation_type& previous_op = previous_turn.operations[op_index];
+        segment_identifier previous_seg_id;
+
+        signed_size_type to_vertex_index = -1;
+        if (! m_trav.select_turn(turn_index, previous_seg_id, to_vertex_index,
+                          start_turn_index, start_op_index,
+                          previous_turn, previous_op, is_start))
         {
-            // Performance - if there is no u/u at all, nothing to be done
+            return is_start
+                    ? traverse_error_no_next_ip_at_start
+                    : traverse_error_no_next_ip;
+        }
+
+        if (m_turns[turn_index].discarded)
+        {
+            return is_start
+                ? traverse_error_dead_end_at_start
+                : traverse_error_dead_end;
+        }
+
+        if (is_start)
+        {
+            // Register the start
+            previous_op.visited.set_started();
+            m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
+        }
+
+        if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
+                previous_op_index, previous_turn_index, previous_seg_id,
+                is_start))
+        {
+            return is_start
+                ? traverse_error_no_next_ip_at_start
+                : traverse_error_no_next_ip;
+        }
+
+        {
+            // Check operation (TODO: this might be redundant or should be catched before)
+            const turn_type& current_turn = m_turns[turn_index];
+            const turn_operation_type& op = current_turn.operations[op_index];
+            if (op.visited.finalized()
+                || m_trav.is_visited(current_turn, op, turn_index, op_index))
+            {
+                return traverse_error_visit_again;
+            }
+        }
+
+        // Update registration and append point
+        turn_type& current_turn = m_turns[turn_index];
+        turn_operation_type& op = current_turn.operations[op_index];
+
+        // Register the visit
+        m_trav.set_visited(current_turn, op);
+        m_visitor.visit_traverse(m_turns, current_turn, op, "Visit");
+
+        return traverse_error_none;
+    }
+
+    inline traverse_error_type traverse(bool& do_switch, signed_size_type start_turn_index, int start_op_index)
+    {
+        turn_type& start_turn = m_turns[start_turn_index];
+        turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
+
+        signed_size_type current_turn_index = start_turn_index;
+        int current_op_index = start_op_index;
+
+        traverse_error_type error = travel_to_next_turn(start_turn_index,
+                    start_op_index,
+                    current_turn_index, current_op_index,
+                    true);
+
+        if (error != traverse_error_none)
+        {
+            // This is not necessarily a problem, it happens for clustered turns
+            // which are "build in" or otherwise point inwards
+            return error;
+        }
+
+        // SWITCH
+        {
+            turn_type const& turn = m_turns[current_turn_index];
+            if (turn.both(operation_union))
+            {
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "FOUND OTHER UU TURN RIGHT AFTER START "
+                          << current_turn_index
+                          << "  started at " << start_turn_index
+                          << std::endl;
+#endif
+                return traverse_error_none;
+            }
+        } // SWITCH
+
+        if (current_turn_index == start_turn_index)
+        {
+            start_op.visited.set_finished();
+
+            m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish SWITCH");
+            return traverse_error_none;
+        }
+
+        std::size_t const max_iterations = 2 + 2 * m_turns.size();
+        for (std::size_t i = 0; i <= max_iterations; i++)
+        {
+            // We assume clockwise polygons only, non self-intersecting, closed.
+            // However, the input might be different, and checking validity
+            // is up to the library user.
+
+            // Therefore we make here some sanity checks. If the input
+            // violates the assumptions, the output polygon will not be correct
+            // but the routine will stop and output the current polygon, and
+            // will continue with the next one.
+
+            // Below three reasons to stop.
+            error = travel_to_next_turn(start_turn_index, start_op_index,
+                    current_turn_index, current_op_index,
+                    false);
+
+            if (error != traverse_error_none)
+            {
+                return error;
+            }
+
+            // SWITCH
+            {
+                turn_type const& turn = m_turns[current_turn_index];
+                if (turn.both(operation_union))
+                {
+                    if (current_turn_index == start_turn_index)
+                    {
+                        // Found the origin again without uu turns in between
+                        do_switch = true;
+                    }
+                    // Return, it does not need to be finished
+                    return traverse_error_none;
+                }
+            } // SWITCH
+
+            if (current_turn_index == start_turn_index
+                    && current_op_index == start_op_index)
+            {
+                start_op.visited.set_finished();
+                m_visitor.visit_traverse(m_turns, start_turn, start_op, "Finish SWITCH");
+                return traverse_error_none;
+            }
+        }
+
+        return traverse_error_endless_loop;
+    }
+
+    void traverse_with_operation(bool& do_switch, turn_type const& start_turn,
+            std::size_t turn_index, int op_index)
+    {
+        turn_operation_type const& start_op = start_turn.operations[op_index];
+
+        if (! start_op.visited.none()
+            || ! start_op.enriched.startable
+            || start_op.visited.rejected()
+            || ! (start_op.operation == OperationType
+                || start_op.operation == detail::overlay::operation_continue))
+        {
             return;
         }
 
-        // Iterate through all u/u points
-        int turn_index = 0;
-        for (turn_iterator it = boost::begin(turns);
-             it != boost::end(turns);
-             ++it, ++turn_index)
+        traverse_error_type traverse_error = traverse(do_switch, turn_index, op_index);
+
+        if (traverse_error != traverse_error_none)
         {
-            turn_type& turn = *it;
-            if (! turn.both(operation_union))
+            // Reject this as a starting point
+            m_turns[turn_index].operations[op_index].visited.set_rejected();
+
+            // And clear all visit info
+            clear_visit_info(m_turns);
+        }
+    }
+
+    void reset_uu_turn(turn_type& turn)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            turn.operations[i].visited.reset();
+        }
+    }
+
+    void iterate()
+    {
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+        std::cout << "SWITCH BEGIN ITERATION" << std::endl;
+#endif
+
+        // Iterate through all unvisited points
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type& start_turn = m_turns[turn_index];
+
+            if (start_turn.discarded || start_turn.blocked())
             {
+                // Skip discarded and blocked turns
+                continue;
+            }
+            if (! start_turn.both(operation_union))
+            {
+                // For switch-iteration, only start with union
                 continue;
             }
 
-            m_visitor.print("handle_touch uu:", turns, turn_index);
 
-            bool const traverse = turn_should_be_traversed(turns, turn, turn_index);
-            bool const start = traverse
-                               && turn_should_be_startable(turns, turn, turn_index);
-            m_visitor.print("handle_touch, ready ", turns, turn_index);
-//                          << std::boolalpha
-//                          << traverse << " " << start
-
-            if (traverse)
+            bool do_switch[2] = {0};
+            for (int op_index = 0; op_index < 2; op_index++)
             {
-                // Indicate the sources should switch here to create
-                // separate rings (outer ring / inner ring)
-                turn.switch_source = true;
+                reset_uu_turn(start_turn);
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "SWITCH EXAMINE " << turn_index << "[" << op_index << "]" << std::endl;
+#endif
+                traverse_with_operation(do_switch[op_index], start_turn,
+                                        turn_index, op_index);
             }
-            // TODO: this is often not correct, fix this
-            turn.operations[0].enriched.startable = start;
-            turn.operations[1].enriched.startable = start;
+            start_turn.switch_source = do_switch[0] || do_switch[1];
+
+            // Because it was unknown before if traversal per operation should switch, visit-info should be cleared
+            reset_uu_turn(start_turn);
         }
-    }
 
-private :
 
-    // Generic utility to be moved somewhere else
-    static inline
-    ring_identifier ring_id_from_seg_id(const segment_identifier& seg_id)
-    {
-        return ring_identifier(seg_id.source_index,
-                               seg_id.multi_index,
-                               seg_id.ring_index);
-    }
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+        std::cout << "SWITCH END ITERATION" << std::endl;
 
-    static inline
-    ring_identifier ring_id_from_op(const turn_type& turn,
-                                    int operation_index)
-    {
-        return ring_id_from_seg_id(turn.operations[operation_index].seg_id);
-    }
-
-    static inline bool in_range(const Turns& turns, signed_size_type index)
-    {
-        signed_size_type const turns_size =
-                static_cast<signed_size_type>(boost::size(turns));
-        return index >= 0 && index < turns_size;
-    }
-
-    static inline bool has_uu(const Turns& turns)
-    {
-        for (turn_const_iterator it = boost::begin(turns);
-            it != boost::end(turns);
-            ++it)
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
-            const turn_type& turn = *it;
-            if (turn.both(operation_union))
+            turn_type const& start_turn = m_turns[turn_index];
+
+            if (start_turn.both(operation_union))
             {
-                return true;
+                std::cout << "SWITCH RESULT "
+                             << turn_index << " -> "
+                          << start_turn.switch_source << std::endl;
             }
         }
-        return false;
-    }
-
-    static inline
-    bool turn_should_be_startable(const Turns& turns,
-                                  const turn_type& uu_turn,
-                                  signed_size_type uu_turn_index)
-    {
-        return turn_startable(turns, uu_turn, 0, uu_turn_index)
-            || turn_startable(turns, uu_turn, 1, uu_turn_index);
+#endif
 
     }
 
-    static inline
-    bool turn_startable(const Turns& turns,
-                        const turn_type& uu_turn,
-                        std::size_t op_index,
-                        signed_size_type original_turn_index,
-                        std::size_t iteration = 0)
-    {
-        if (iteration >= boost::size(turns))
-        {
-            // Defensive check to avoid infinite recursion
-            return false;
-        }
+private:
+    traversal_type m_trav;
 
-        signed_size_type const index
-                = uu_turn.operations[op_index].enriched.travels_to_ip_index;
-        if (index == original_turn_index)
-        {
-            // Completely traveled, having u/u only, via this op_index
-            return true;
-        }
-
-        if (! in_range(turns, index))
-        {
-            return false;
-        }
-
-        const turn_type& new_turn = turns[index];
-
-        if (new_turn.operations[0].enriched.startable)
-        {
-            // Already selectable - no need to select u/u turn too
-            return false;
-        }
-
-        // If this u/u turn is traversed normally (without skipping), sources are switched
-        return turn_startable(turns, new_turn, 1 - op_index,
-                              original_turn_index, iteration + 1);
-    }
-
-    inline bool turn_should_be_traversed(const Turns& turns,
-                                  const turn_type& uu_turn,
-                                  signed_size_type uu_turn_index)
-    {
-        return turn_should_be_traversed(turns, uu_turn, uu_turn_index, 0)
-            || turn_should_be_traversed(turns, uu_turn, uu_turn_index, 1);
-    }
-
-    inline bool turn_should_be_traversed(const Turns& turns,
-                                  const turn_type& uu_turn,
-                                  signed_size_type uu_turn_index,
-                                  int uu_operation_index)
-    {
-        // Suppose this is a u/u turn between P and Q
-        // Examine all other turns on P and check if Q can be reached
-        // Use one of the operations and check if you can reach the other
-        signed_size_type const to_turn_index
-            = uu_turn.operations[uu_operation_index].enriched.travels_to_ip_index;
-        if (! in_range(turns, to_turn_index))
-        {
-            return false;
-        }
-
-        m_visitor.print("Examine:", turns, to_turn_index);
-        ring_identifier const other_ring_id
-            = ring_id_from_op(uu_turn, 1 - uu_operation_index);
-
-        bool complete = false;
-        return can_reach(complete, turns, turns[to_turn_index], uu_operation_index,
-                         other_ring_id, uu_turn_index, to_turn_index);
-    }
-
-    inline bool can_reach(bool& complete, const Turns& turns,
-                                 const turn_type& turn,
-                                 signed_size_type uu_operation_index,
-                                 const ring_identifier& target_ring_id,
-                                 signed_size_type uu_turn_index,
-                                 signed_size_type to_turn_index,
-                                 std::size_t iteration = 0)
-    {
-        if (complete)
-        {
-            return false;
-        }
-
-        if (turn.cluster_id >= 0)
-        {
-            // Clustered turns are yet not supported
-            return false;
-        }
-
-        if (iteration >= boost::size(turns))
-        {
-            m_visitor.print("Too much iterations");
-            // Defensive check to avoid infinite recursion
-            return false;
-        }
-
-        if (uu_operation_index != -1 && turn.both(operation_union))
-        {
-            // If we end up in a u/u turn, check the way how, for this operation
-            m_visitor.print("Via u/u");
-            return can_reach_via(complete, turns, uu_operation_index,
-                                 turn.operations[uu_operation_index],
-                                 target_ring_id,
-                                 uu_turn_index, to_turn_index, iteration);
-        }
-        else
-        {
-            // Check if specified ring can be reached via one of both operations
-            return can_reach_via(complete, turns, 0, turn.operations[0], target_ring_id,
-                                 uu_turn_index, to_turn_index, iteration)
-                || can_reach_via(complete, turns, 1, turn.operations[1], target_ring_id,
-                                 uu_turn_index, to_turn_index, iteration);
-        }
-    }
-
-    template <typename Operation>
-    inline bool can_reach_via(bool& complete, const Turns& turns,
-            signed_size_type operation_index,
-            const Operation& operation,
-            const ring_identifier& target_ring_id,
-            signed_size_type uu_turn_index,
-            signed_size_type to_turn_index,
-            std::size_t iteration = 0)
-    {
-        if (operation.operation != operation_union
-            && operation.operation != operation_continue)
-        {
-            return false;
-        }
-
-        signed_size_type const index = operation.enriched.travels_to_ip_index;
-        if (index == to_turn_index)
-        {
-            m_visitor.print("Dead end at", turns, index);
-            // Completely traveled, the target is not found
-            return false;
-        }
-        if (index == uu_turn_index)
-        {
-            // End up where trial was started
-            m_visitor.print("Travel complete at", turns, index);
-            complete = true;
-            return false;
-        }
-
-        if (! in_range(turns, index))
-        {
-            return false;
-        }
-
-        m_visitor.print("Now to", turns, index, operation_index);
-        const turn_type& new_turn = turns[index];
-
-        if (new_turn.both(operation_union))
-        {
-            ring_identifier const ring_id = ring_id_from_op(new_turn, operation_index);
-            if (ring_id == target_ring_id)
-            {
-                m_visitor.print("Found (at u/u)!");
-                return true;
-            }
-        }
-        else
-        {
-            ring_identifier const ring_id1 = ring_id_from_op(new_turn, 0);
-            ring_identifier const ring_id2 = ring_id_from_op(new_turn, 1);
-            if (ring_id1 == target_ring_id || ring_id2 == target_ring_id)
-            {
-                m_visitor.print("Found!");
-                return true;
-            }
-        }
-
-        // Recursively check this turn
-        return can_reach(complete, turns, new_turn, operation_index, target_ring_id,
-                         uu_turn_index, to_turn_index, iteration + 1);
-    }
-
-private :
-    Visitor m_visitor;
+    Geometry1 const& m_geometry1;
+    Geometry2 const& m_geometry2;
+    Turns& m_turns;
+    Clusters const& m_clusters;
+    RobustPolicy const& m_robust_policy;
+    Visitor& m_visitor;
 };
-
-template <typename Turns, typename Visitor>
-inline void handle_touch(detail::overlay::operation_type operation,
-                         Turns& turns, Visitor& visitor)
-{
-    handle_touch_uu<Turns, Visitor> handler(visitor);
-    handler.apply(operation, turns);
-}
 
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_HANDLE_TOUCH_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSAL_SWITCH_DETECTOR_HPP

@@ -153,7 +153,7 @@ void test_areal()
         case_101_multi[0], case_101_multi[1],
             5, 23, 4.75,
             5, 40, 12.75,
-            4, 48, 4.75 + 12.75);
+            5, 48, 4.75 + 12.75);
 
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
@@ -175,7 +175,7 @@ void test_areal()
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
             10, 75, 26.0,
             11, 77, 24.0,
-             3, 98, 50.0);
+             4, 98, 50.0);
 
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
@@ -188,7 +188,7 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
             24, -1, 21.5,
             25, -1, 22.5,
-            18, -1, 44.0);
+            36, -1, 44.0);
 
     // 4, input is not valid
 
@@ -196,7 +196,7 @@ void test_areal()
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
             15, -1, 22.0, // #clips should be 16
             11, -1, 27.0, // #clips should be 12
-             7, -1, 49.0);
+             8, -1, 49.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
@@ -220,7 +220,7 @@ void test_areal()
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
             3, -1, 1.5,
             4, -1, 2.5,
-            4, -1, 4.0);
+            5, -1, 4.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],
@@ -232,7 +232,7 @@ void test_areal()
         case_recursive_boxes_11[0], case_recursive_boxes_11[1],
             3, -1, 2.5,
             3, -1, 4.5,
-            2, -1, 7.0);
+            3, -1, 7.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],

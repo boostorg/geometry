@@ -13,6 +13,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_ring_creator.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traversal_switch_detector.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,6 +38,25 @@ template
 >
 class traverse
 {
+
+    template <typename Turns>
+    static void reset_visits(Turns& turns)
+    {
+        typedef typename boost::range_value<Turns>::type tp_type;
+
+        for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+            it != boost::end(turns);
+            ++it)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                it->operations[i].visited.reset();
+            }
+        }
+    }
+
+
 public :
     template
     <
@@ -53,6 +73,18 @@ public :
                 Clusters const& clusters,
                 Visitor& visitor)
     {
+        traversal_switch_detector
+            <
+                Reverse1, Reverse2, OperationType,
+                Geometry1, Geometry2,
+                Turns, Clusters,
+                RobustPolicy, Visitor
+            > switch_detector(geometry1, geometry2, turns, clusters,
+                   robust_policy, visitor);
+
+        switch_detector.iterate();
+        reset_visits(turns);
+
         traversal_ring_creator
             <
                 Reverse1, Reverse2, OperationType,

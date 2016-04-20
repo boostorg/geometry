@@ -62,7 +62,6 @@ struct traversal_ring_creator
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
         , m_has_uu(false)
-        , m_has_only_uu(true)
     {
 
     }
@@ -287,10 +286,6 @@ struct traversal_ring_creator
                 // There is no uu found in first pass
                 return;
             }
-            if (m_has_only_uu)
-            {
-                m_trav.set_switch_at_uu(false);
-            }
         }
 
         // Iterate through all unvisited points
@@ -314,10 +309,6 @@ struct traversal_ring_creator
                         continue;
                     }
                 }
-                else
-                {
-                    m_has_only_uu = false;
-                }
             }
 
             for (int op_index = 0; op_index < 2; op_index++)
@@ -338,9 +329,8 @@ private:
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
 
-    // Next members are only used for operation union
+    // Next member is only used for operation union
     bool m_has_uu;
-    bool m_has_only_uu;
 
 };
 

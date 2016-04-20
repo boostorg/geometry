@@ -112,7 +112,6 @@ struct traversal
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
         , m_is_buffer(false)
-        , m_switch_at_uu(true)
     {
         if (! m_turns.empty())
         {
@@ -136,11 +135,6 @@ struct traversal
                 op.visited.finalize();
             }
         }
-    }
-
-    void set_switch_at_uu(bool value)
-    {
-        m_switch_at_uu = value;
     }
 
     inline void set_visited(turn_type& turn, turn_operation_type& op)
@@ -191,10 +185,17 @@ struct traversal
                         : seg_id1.multi_index == seg_id2.multi_index;
             }
 
-            // Temporarily use m_switch_at_uu, which does not solve all cases,
-            // but the majority of the more simple cases, making the interior
-            // rings valid
-            return m_switch_at_uu // turn.switch_source
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+            if (turn.switch_source == 1)
+            {
+                std::cout << "Switch source at " << turn_index << std::endl;
+            }
+            else
+            {
+                std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
+            }
+#endif
+            return turn.switch_source
                     ? seg_id1.source_index != seg_id2.source_index
                     : seg_id1.source_index == seg_id2.source_index;
         }
@@ -673,9 +674,6 @@ private :
 
     // TODO: pass this information
     bool m_is_buffer;
-
-    // Next members are only used for operation union
-    bool m_switch_at_uu;
 };
 
 
