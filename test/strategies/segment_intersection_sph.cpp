@@ -87,15 +87,14 @@ void test_spherical_strategy_one(S1 const& s1, S2 const& s2, char m, std::size_t
     {
         P const& res_i0 = boost::get<0>(res).intersections[0];
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i0, ip0, eps_scale),
-                            //"IP0: " << std::setprecision(16) << std::fixed << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
-                            "IP0: " << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
+                            "IP0: " << std::setprecision(16) << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
     }
     if (res_count > 1 && expected_count > 1)
     {
         P const& res_i1 = boost::get<0>(res).intersections[1];
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i1, ip1, eps_scale),
-                            "IP1: " << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
+                            "IP1: " << std::setprecision(16) << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
     }
 }
@@ -386,6 +385,22 @@ void test_spherical()
     // ------   ---
     test_spherical_strategy<segment_t, point_t>(
         "SEGMENT(-1 50, 1 50)", "SEGMENT(2 50, 3 50)", 'd', 0);
+
+    // ___|
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(0 0, 1 0)", "SEGMENT(1 0, 1 1)", 'a', 1, "POINT(1 0)");
+    // ___|
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(1 0, 1 1)", "SEGMENT(0 0, 1 0)", 'a', 1, "POINT(1 0)");
+
+    //   |/
+    //  /|
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(10 -1, 20 1)", "SEGMENT(12.5 -1, 12.5 1)", 'i', 1, "POINT(12.5 -0.50051443471392)");
+    //   |/
+    //  /|
+    test_spherical_strategy<segment_t, point_t>(
+        "SEGMENT(10 -1, 20 1)", "SEGMENT(17.5 -1, 17.5 1)", 'i', 1, "POINT(17.5 0.50051443471392)");
 }
 
 int test_main(int, char* [])
