@@ -113,11 +113,9 @@ struct relate_spherical_segments
 
     // Relate segments a and b
     template <typename Segment1, typename Segment2, typename RobustPolicy>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b, RobustPolicy const&)
+    static inline return_type apply(Segment1 const& a, Segment2 const& b,
+                                    RobustPolicy const& robust_policy)
     {
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
-
         typedef typename point_type<Segment1>::type point1_t;
         typedef typename point_type<Segment2>::type point2_t;
         point1_t a1, a2;
@@ -128,6 +126,18 @@ struct relate_spherical_segments
         detail::assign_point_from_index<1>(a, a2);
         detail::assign_point_from_index<0>(b, b1);
         detail::assign_point_from_index<1>(b, b2);
+
+        return apply(a, b, robust_policy, a1, a2, b1, b2);
+    }
+
+    // Relate segments a and b
+    template <typename Segment1, typename Segment2, typename RobustPolicy, typename Point1, typename Point2>
+    static inline return_type apply(Segment1 const& a, Segment2 const& b,
+                                    RobustPolicy const&,
+                                    Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
+    {
+        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
+        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
 
         // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;
@@ -146,7 +156,7 @@ struct relate_spherical_segments
             <Segment1, Segment2, CalculationType>::type calc_t;
 
         calc_t const c0 = 0;
-        calc_t const c1 = 0;
+        calc_t const c1 = 1;
 
         typedef model::point<calc_t, 3, cs::cartesian> vec3d_t;
 
@@ -597,7 +607,7 @@ private:
     template <typename CalcT>
     static inline bool is_near(CalcT const& dist)
     {
-        CalcT const small_number = boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001;
+        CalcT const small_number = CalcT(boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
         return math::abs(dist) <= small_number;
     }
 
