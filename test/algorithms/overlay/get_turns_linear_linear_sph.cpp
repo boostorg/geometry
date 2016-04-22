@@ -1,12 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-
-// This file was modified by Oracle on 2014, 2015, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// Copyright (c) 2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -77,9 +72,13 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
                           "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
                           expected("tuu==")("ecc==")("mii++")("muu==")("mii++")("muu==")("mii++"));
-    
-    test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1,3 2)", "LINESTRING(4 5,3 2,1 0,0 0)", "mix+=", "txi=+", "ecc==");
-    test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)", "LINESTRING(-1 0,1 0,2 1,3 2)", "mxi=+", "tix+=", "ecc==");
+
+    test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
+                          "LINESTRING(4 5,3 2,1 0,0 0)",
+                          "mix+=", "txi=+", "ecc==");
+    test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)",
+                          "LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
+                          "mxi=+", "tix+=", "ecc==");
     
     test_geometry<ls, ls>("LINESTRING(30 0,20 0,1 1,-1 -1)", "LINESTRING(0 -1,0 0,1 -1,20 0,25 0)", "mix+=", "tui=+", "muu++");
     test_geometry<ls, ls>("LINESTRING(0 -1,0 0,1 -1,20 0,25 0)", "LINESTRING(30 0,20 0,1 1,-1 -1)", "mxi=+", "tiu+=", "muu++");
