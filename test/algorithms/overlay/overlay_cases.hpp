@@ -3,10 +3,11 @@
 //
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -40,6 +41,10 @@ static std::string case_2[2] = {
 static std::string case_3[2] = {
         "POLYGON((1 2,2 4,4 3,3 1,1 2))",
         "POLYGON((1 1,1 4,4 4,4 1,1 1))" };
+
+static std::string case_3_sph[2] = {
+    "POLYGON((1 2,2 4.0012148518458881,4 3,3 1.0002046405995848,1 2))",
+    "POLYGON((1 1,1 4,4 4,4 1,1 1))" };
 
 
 static std::string case_4[2] = {
