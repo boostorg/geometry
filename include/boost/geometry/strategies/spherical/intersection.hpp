@@ -381,7 +381,7 @@ private:
                                                 CalcT& dist_a1_a2, CalcT& dist_a1_i1) // out
     {
         // calculate dist_a1_a2 and dist_a1_i1
-        calculate_dists(a1, a2, b1, b2, a1v, a2v, norm1, b1v_or_b2v, dist_a1_a2, dist_a1_i1);
+        calculate_dists(a1v, a2v, norm1, b1v_or_b2v, dist_a1_a2, dist_a1_i1);
 
         // if i1 is close to a1 and b1 or b2 is equal to a1
         if (is_endpoint_equal(dist_a1_i1, a1, b1, b2))
@@ -420,7 +420,7 @@ private:
         CalcT const len = math::sqrt(dot_product(i1, i1));
         divide_value(i1, len); // normalize i1
 
-        calculate_dists(a1, a2, b1, b2, a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1);
+        calculate_dists(a1v, a2v, norm1, i1, dist_a1_a2, dist_a1_i1);
         
         // choose the opposite side of the globe if the distance is shorter
         {
@@ -443,7 +443,7 @@ private:
             return false;
         }
 
-        calculate_dists(b1, b2, a1, a2, b1v, b2v, norm2, i1, dist_b1_b2, dist_b1_i1);
+        calculate_dists(b1v, b2v, norm2, i1, dist_b1_b2, dist_b1_i1);
 
         bool is_on_b = false, is_near_b1 = false, is_near_b2 = false;
         if (! is_potentially_crossing(dist_b1_b2, dist_b1_i1, is_on_b, is_near_b1, is_near_b2))
@@ -531,10 +531,8 @@ private:
         return is_on_a && is_on_b;
     }
 
-    template <typename Point1, typename Point2, typename Vec3d, typename CalcT>
-    static inline void calculate_dists(Point1 const& a1, Point1 const& a2,
-                                       Point2 const& b1, Point2 const& b2,
-                                       Vec3d const& a1v, // in
+    template <typename Vec3d, typename CalcT>
+    static inline void calculate_dists(Vec3d const& a1v, // in
                                        Vec3d const& a2v, // in
                                        Vec3d const& norm1, // in
                                        Vec3d const& i1, // in
