@@ -106,6 +106,7 @@ struct get_turn_info_linear_areal
                         // Swap p/q
                         side_calculator
                             <
+                                typename inters_info::cs_tag,
                                 typename inters_info::robust_point2_type,
                                 typename inters_info::robust_point1_type
                             > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
@@ -752,6 +753,7 @@ struct get_turn_info_linear_areal
                 {
                     side_calculator
                         <
+                            typename IntersectionInfo::cs_tag,
                             typename IntersectionInfo::robust_point1_type,
                             typename IntersectionInfo::robust_point2_type,
                             typename IntersectionInfo::robust_point2_type
@@ -770,6 +772,7 @@ struct get_turn_info_linear_areal
                 {
                     side_calculator
                         <
+                            typename IntersectionInfo::cs_tag,
                             typename IntersectionInfo::robust_point1_type,
                             typename IntersectionInfo::robust_point2_type,
                             typename IntersectionInfo::robust_point2_type,
@@ -826,6 +829,7 @@ struct get_turn_info_linear_areal
             {
                 side_calculator
                     <
+                        typename IntersectionInfo::cs_tag,
                         typename IntersectionInfo::robust_point1_type,
                         typename IntersectionInfo::robust_point2_type,
                         typename IntersectionInfo::robust_point2_type
