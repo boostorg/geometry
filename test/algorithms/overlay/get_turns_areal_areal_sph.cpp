@@ -30,11 +30,8 @@ void test_all()
     test_geometry<poly, poly>(case_2[0], case_2[1],
                               expected("iui")("iiu")("iui")("iiu")("iui")("iiu")("iui")("iiu"));
 
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING
     test_geometry<poly, poly>(case_3_sph[0], case_3_sph[1],
                               expected("miu")("miu")("miu")("miu"));
-#endif
-
 }
 
 int test_main(int, char* [])
