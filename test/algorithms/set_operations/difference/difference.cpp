@@ -49,6 +49,9 @@ void test_all()
 
     typedef typename bg::coordinate_type<P>::type ct;
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
@@ -189,7 +192,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("case_80",
         case_80[0], case_80[1],
         1, 9, 44.5,
-        1, 10, 84.5);
+        1, 10, 84.5,
+        ignore_validity);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Fails, holes are not subtracted
@@ -274,11 +278,19 @@ void test_all()
 #endif
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<polygon, polygon, polygon>("geos_2",
-        geos_2[0], geos_2[1],
-        1, -1, 138.6923828,
-        1, -1, 211.859375,
-        tolerance(0.01)); // MSVC 14 expects 138.69214 and 211.85913
+    {
+        // MSVC 14 expects 138.69214 and 211.85913: increase percentage
+
+        ut_settings settings;
+        settings.percentage = 0.01;
+        settings.test_validity = false;
+
+        test_one<polygon, polygon, polygon>("geos_2",
+            geos_2[0], geos_2[1],
+            1, -1, 138.6923828,
+            1, -1, 211.859375,
+            settings);
+    }
 
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
@@ -296,7 +308,8 @@ void test_all()
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
         2, -1, 8960.49049,
-        1, -1, 71495.3331 + 8960.49049);
+        1, -1, 71495.3331 + 8960.49049,
+        ignore_validity);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
@@ -468,7 +481,8 @@ void test_all()
         mysql_21965285[0], mysql_21965285[1],
         1, -1, 92.0,
         1, -1, 14.0,
-        1, -1, 92.0 + 14.0);
+        1, -1, 92.0 + 14.0,
+        ignore_validity);
 }
 
 
@@ -478,30 +492,25 @@ void test_specific()
 {
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
 
-    ut_settings settings;
-    settings.test_validity = true;
-
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
         1, 4, 385,
-        1, 16, 3371540 + 385,
-        settings);
+        1, 16, 3371540 + 385);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
         1, 6, 1510434,
-        0, 0, 0,
-        settings);
+        0, 0, 0);
 
     test_one<polygon, polygon, polygon>("ticket_11121",
         ticket_11121[0], ticket_11121[1],
         2, 8, 489763.5,
-        1, 4, 6731652.0,
-        settings);
+        1, 4, 6731652.0);
 
     {
         ut_settings settings;
+        settings.test_validity = false;
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
         settings.test_validity = true;
 #endif
