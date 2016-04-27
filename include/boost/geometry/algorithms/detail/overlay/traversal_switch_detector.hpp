@@ -75,8 +75,8 @@ struct traversal_switch_detector
         segment_identifier previous_seg_id;
 
         signed_size_type to_vertex_index = -1;
-        if (! m_trav.select_turn(turn_index, previous_seg_id, to_vertex_index,
-                          start_turn_index, start_op_index,
+        if (! m_trav.select_turn_from_enriched(turn_index, previous_seg_id,
+                          to_vertex_index, start_turn_index, start_op_index,
                           previous_turn, previous_op, is_start))
         {
             return is_start

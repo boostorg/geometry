@@ -580,7 +580,7 @@ struct traversal
         }
     }
 
-    bool select_turn(signed_size_type& turn_index,
+    bool select_turn_from_enriched(signed_size_type& turn_index,
             segment_identifier& previous_seg_id,
             signed_size_type& to_vertex_index,
             signed_size_type start_turn_index,
@@ -590,9 +590,10 @@ struct traversal
             bool is_start) const
     {
         to_vertex_index = -1;
-        // If there is no next IP on this segment
+
         if (previous_op.enriched.next_ip_index < 0)
         {
+            // There is no next IP on this segment
             if (previous_op.enriched.travels_to_vertex_index < 0
                 || previous_op.enriched.travels_to_ip_index < 0)
             {
@@ -613,6 +614,7 @@ struct traversal
         }
         else
         {
+            // Take the next IP on this segment
             turn_index = previous_op.enriched.next_ip_index;
             previous_seg_id = previous_op.seg_id;
         }
