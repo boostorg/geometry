@@ -124,8 +124,9 @@ void test_areal()
         case_107_multi[1], case_107_multi[2],
         3, 13, 3.0);
 
-    // TODO, area is wrong! Should be 7.5
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
+    // Caused by rescaling. One intersection is missing.
+    // If rescaling is turned off it works correctly
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
         case_108_multi[0], case_108_multi[1],
         5, 33, 7.5);

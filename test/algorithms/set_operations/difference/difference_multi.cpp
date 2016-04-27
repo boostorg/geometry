@@ -98,9 +98,8 @@ void test_areal()
     {
         ut_settings settings;
 
+#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         settings.sym_difference = false;
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        settings.sym_difference = true;
 #endif
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
