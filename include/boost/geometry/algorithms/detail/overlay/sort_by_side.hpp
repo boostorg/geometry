@@ -330,6 +330,35 @@ struct side_sorter
         }
     }
 
+    //! Check how many open spaces there are
+    template <typename Turns>
+    std::size_t open_count(Turns const& turns) const
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        typedef typename turn_type::turn_operation_type turn_operation_type;
+
+        std::size_t result = 0;
+        std::size_t last_rank = 0;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            rp const& ranked_point = m_ranked_points[i];
+
+            if (ranked_point.main_rank > last_rank
+                && ranked_point.index == sort_by_side::index_to)
+            {
+                turn_type const& ranked_turn = turns[ranked_point.turn_index];
+                turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+                if (ranked_op.enriched.count_left == 0
+                     && ranked_op.enriched.count_right > 0)
+                {
+                    result++;
+                    last_rank = ranked_point.main_rank;
+                }
+            }
+        }
+        return result;
+    }
+
 //protected :
 
     typedef std::vector<rp> container_type;

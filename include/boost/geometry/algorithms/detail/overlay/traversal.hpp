@@ -493,30 +493,10 @@ struct traversal
 
         sbs.apply(turn.point);
 
-        int open_count = 0;
+        std::size_t open_count = 0;
         if (is_union) //  && ! cinfo.switch_source)
         {
-            // Check how many open spaces there are.
-            // TODO: might be moved to sbs itself, though it also uses turns
-
-            std::size_t last_rank = 0;
-            for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
-            {
-                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-
-                if (ranked_point.main_rank > last_rank
-                    && ranked_point.index == sort_by_side::index_to)
-                {
-                    turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
-                    if (ranked_op.enriched.count_left == 0
-                         && ranked_op.enriched.count_right > 0)
-                    {
-                        open_count++;
-                        last_rank = ranked_point.main_rank;
-                    }
-                }
-            }
+            open_count = sbs.open_count(m_turns);
         }
 
         is_touching = open_count > 1;
