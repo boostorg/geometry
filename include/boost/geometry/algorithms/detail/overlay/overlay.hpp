@@ -23,6 +23,7 @@
 #include <boost/mpl/assert.hpp>
 
 
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -219,10 +220,8 @@ struct overlay
         typedef std::map
             <
                 signed_size_type,
-                std::set<signed_size_type>
+                cluster_info
             > cluster_type;
-
-        cluster_type clusters;
 
         turn_container_type turns;
 
@@ -247,6 +246,8 @@ std::cout << "get turns" << std::endl;
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
+        cluster_type clusters;
+
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
                 clusters, op_type,
                     geometry1, geometry2,

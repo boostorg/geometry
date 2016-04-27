@@ -441,7 +441,7 @@ struct traversal
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
 
-        std::set<signed_size_type> const& ids = mit->second;
+        std::set<signed_size_type> const& ids = mit->second.turn_indices;
 
         sbs_type sbs;
 

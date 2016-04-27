@@ -318,7 +318,7 @@ inline void assign_cluster_to_turns(Turns& turns,
                     std::cout << " CONFLICT " << std::endl;
                 }
                 turn.cluster_id = it->second;
-                clusters[turn.cluster_id].insert(turn_index);
+                clusters[turn.cluster_id].turn_indices.insert(turn_index);
             }
         }
     }
@@ -339,7 +339,8 @@ inline void remove_clusters(Turns& turns, Clusters& clusters)
         typename Clusters::iterator current_it = it;
         ++it;
 
-        std::set<signed_size_type> const& turn_indices = current_it->second;
+        std::set<signed_size_type> const& turn_indices
+                = current_it->second.turn_indices;
         if (turn_indices.size() == 1)
         {
             signed_size_type turn_index = *turn_indices.begin();
@@ -515,7 +516,7 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
     for (typename Clusters::iterator mit = clusters.begin();
          mit != clusters.end(); ++mit)
     {
-        std::set<signed_size_type> const& ids = mit->second;
+        std::set<signed_size_type> const& ids = mit->second.turn_indices;
         if (ids.empty())
         {
             continue;
