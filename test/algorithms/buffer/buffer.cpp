@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -18,6 +22,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/buffer.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
@@ -41,12 +46,13 @@ void test_all()
     box_type b2;
     bg::buffer(b1, b2, coordinate_type(2));
 
+    box_type expected(P(-2, -2), P(4, 4));
+    BOOST_CHECK(bg::equals(b2, expected));
+
     boost::variant<box_type> v(b1);
     bg::buffer(v, b2, coordinate_type(2));
 
-    // TODO: Check if buffer is correct
-    // using bg::equals to compare boxes
-    // (TODO: implement that)
+    BOOST_CHECK(bg::equals(b2, expected));
 }
 
 int test_main(int, char* [])

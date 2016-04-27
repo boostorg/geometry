@@ -19,7 +19,7 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
-#include <algorithms/test_envelope.hpp>
+#include "test_envelope.hpp"
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
