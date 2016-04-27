@@ -70,7 +70,7 @@ public :
                 Geometry2 const& geometry2,
                 RobustPolicy const& robust_policy,
                 Turns& turns, Rings& rings,
-                Clusters const& clusters,
+                Clusters& clusters,
                 Visitor& visitor)
     {
         traversal_switch_detector

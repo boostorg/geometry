@@ -49,7 +49,7 @@ struct traversal_switch_detector
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
     inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            Turns& turns, Clusters const& clusters,
+            Turns& turns, Clusters& clusters,
             RobustPolicy const& robust_policy, Visitor& visitor)
         : m_trav(geometry1, geometry2, turns, clusters, robust_policy,visitor)
         , m_geometry1(geometry1)
@@ -292,6 +292,16 @@ struct traversal_switch_detector
                                         turn_index, op_index);
             }
             start_turn.switch_source = do_switch[0] || do_switch[1];
+            if (start_turn.cluster_id >= 0)
+            {
+                typename Clusters::iterator mit
+                        = m_clusters.find(start_turn.cluster_id);
+                if (mit != m_clusters.end())
+                {
+                    cluster_info& cinfo = mit->second;
+                    cinfo.switch_source = start_turn.switch_source;
+                }
+            }
 
             // Because it was unknown before if traversal per operation should switch, visit-info should be cleared
             reset_uu_turn(start_turn);
@@ -322,7 +332,7 @@ private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns& m_turns;
-    Clusters const& m_clusters;
+    Clusters& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
 };

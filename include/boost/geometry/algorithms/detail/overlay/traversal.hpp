@@ -441,7 +441,8 @@ struct traversal
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
 
-        std::set<signed_size_type> const& ids = mit->second.turn_indices;
+        cluster_info const& cinfo = mit->second;
+        std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
         sbs_type sbs;
 
@@ -493,7 +494,7 @@ struct traversal
         sbs.apply(turn.point);
 
         int open_count = 0;
-        if (is_union)
+        if (is_union) //  && ! cinfo.switch_source)
         {
             // Check how many open spaces there are.
             // TODO: might be moved to sbs itself, though it also uses turns
