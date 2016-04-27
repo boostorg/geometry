@@ -84,7 +84,6 @@ void test_areal()
         case_72_multi[0], case_72_multi[1],
             3, 13, 1.65, 3, 17, 6.15, ignore_validity);
 
-    // 77_b, fixed by sorting colocated ix/ix turns like ux/ux
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
             6, 31, 7.0,
@@ -95,6 +94,22 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
+
+    {
+        ut_settings settings;
+
+        settings.sym_difference = false;
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        settings.sym_difference = true;
+#endif
+
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+            case_108_multi[0], case_108_multi[1],
+                32, 7, 5.5,
+                28, 4, 9.75,
+                45, 7, 15.25,
+                settings);
+    }
 
     // Ticket on GGL list 2011/10/25
     // to mix polygon/multipolygon in call to difference

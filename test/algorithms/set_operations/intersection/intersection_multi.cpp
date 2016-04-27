@@ -123,6 +123,13 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi_inv_b",
         case_107_multi[1], case_107_multi[2],
         3, 13, 3.0);
+
+    // TODO, area is wrong! Should be 7.5
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+        case_108_multi[0], case_108_multi[1],
+        5, 33, 7.5);
+#endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         10, 97, 47.0);
