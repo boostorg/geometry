@@ -28,8 +28,12 @@ struct cluster_info
 
     bool switch_source; // For clusters with a touch, conform turn_info uu
 
+    //! Number of open spaces (e.g. 2 for touch)
+    std::size_t open_count;
+
     inline cluster_info()
         : switch_source(false)
+        , open_count(0)
     {}
 };
 

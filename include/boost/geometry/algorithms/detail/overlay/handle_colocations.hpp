@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/range.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -498,7 +499,7 @@ template
     typename Geometry1,
     typename Geometry2
 >
-inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
+inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
@@ -516,7 +517,8 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
     for (typename Clusters::iterator mit = clusters.begin();
          mit != clusters.end(); ++mit)
     {
-        std::set<signed_size_type> const& ids = mit->second.turn_indices;
+        cluster_info& cinfo = mit->second;
+        std::set<signed_size_type> const& ids = cinfo.turn_indices;
         if (ids.empty())
         {
             continue;
@@ -570,6 +572,7 @@ inline void assign_startable_in_clusters(Clusters& clusters, Turns& turns,
             }
         }
 
+        cinfo.open_count = sbs.open_count(turns);
     }
 }
 

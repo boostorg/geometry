@@ -493,13 +493,8 @@ struct traversal
 
         sbs.apply(turn.point);
 
-        std::size_t open_count = 0;
-        if (is_union) //  && ! cinfo.switch_source)
-        {
-            open_count = sbs.open_count(m_turns);
-        }
-
-        is_touching = open_count > 1;
+        // TODO: use also cinfo.switch_source
+        is_touching = is_union && cinfo.open_count > 1;
         if (is_touching)
         {
             sbs.reverse();
