@@ -331,6 +331,19 @@ void test_areal()
         ticket_11984[0], ticket_11984[1],
         1, 2, 134, 60071.08077);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12118",
+        ticket_12118[0], ticket_12118[1],
+        1, 0, 27, 2221.38713,
+        ignore_validity);
+
+#if defined(BOOST_GEOMETRY_ENABLE_FAILING_TESTS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // No output if rescaling is done
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12125",
+        ticket_12125[0], ticket_12125[1],
+        1, 0, -1, 575.831180350007);
+#endif
+
+
 #ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_1",
         mysql_1[0], mysql_1[1],
