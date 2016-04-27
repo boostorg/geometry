@@ -188,7 +188,7 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
             24, -1, 21.5,
             25, -1, 22.5,
-            36, -1, 44.0);
+            37, -1, 44.0);
 
     // 4, input is not valid
 
@@ -202,7 +202,7 @@ void test_areal()
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
             6, -1, 3.5,
             3, -1, 1.5,
-            7, -1, 5.0);
+            8, -1, 5.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -220,7 +220,7 @@ void test_areal()
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
             3, -1, 1.5,
             4, -1, 2.5,
-            5, -1, 4.0);
+            6, -1, 4.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],

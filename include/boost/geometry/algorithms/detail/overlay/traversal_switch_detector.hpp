@@ -66,6 +66,7 @@ struct traversal_switch_detector
                 int start_op_index,
                 signed_size_type& turn_index,
                 int& op_index,
+                bool& is_touching,
                 bool is_start)
     {
         int const previous_op_index = op_index;
@@ -99,6 +100,7 @@ struct traversal_switch_detector
         }
 
         if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
+                is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
                 is_start))
         {
@@ -137,9 +139,10 @@ struct traversal_switch_detector
         signed_size_type current_turn_index = start_turn_index;
         int current_op_index = start_op_index;
 
+        bool is_touching = false;
         traverse_error_type error = travel_to_next_turn(start_turn_index,
                     start_op_index,
-                    current_turn_index, current_op_index,
+                    current_turn_index, current_op_index, is_touching,
                     true);
 
         if (error != traverse_error_none)
@@ -152,7 +155,7 @@ struct traversal_switch_detector
         // SWITCH
         {
             turn_type const& turn = m_turns[current_turn_index];
-            if (turn.both(operation_union))
+            if (is_touching || turn.both(operation_union))
             {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
                 std::cout << "FOUND OTHER UU TURN RIGHT AFTER START "
@@ -186,7 +189,7 @@ struct traversal_switch_detector
 
             // Below three reasons to stop.
             error = travel_to_next_turn(start_turn_index, start_op_index,
-                    current_turn_index, current_op_index,
+                    current_turn_index, current_op_index, is_touching,
                     false);
 
             if (error != traverse_error_none)
@@ -197,7 +200,7 @@ struct traversal_switch_detector
             // SWITCH
             {
                 turn_type const& turn = m_turns[current_turn_index];
-                if (turn.both(operation_union))
+                if (is_touching || turn.both(operation_union))
                 {
                     if (current_turn_index == start_turn_index)
                     {

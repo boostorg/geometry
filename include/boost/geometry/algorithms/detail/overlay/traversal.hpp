@@ -354,7 +354,7 @@ struct traversal
 
     inline bool select_from_cluster(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
-        sbs_type const& sbs, bool allow_pass_rank) const
+        sbs_type const& sbs, bool is_touching) const
     {
         bool const is_union = OperationType == operation_union;
         bool const is_intersection = OperationType == operation_intersection;
@@ -380,7 +380,7 @@ struct traversal
                 return false;
             }
 
-            if (! allow_pass_rank && ranked_op.visited.finalized())
+            if (! is_touching && ranked_op.visited.finalized())
             {
                 // Skip this one, go to next
                 min_rank = ranked_point.main_rank;
@@ -419,7 +419,7 @@ struct traversal
                     result = true;
                     selected_rank = ranked_point.main_rank;
                 }
-                else if (! allow_pass_rank)
+                else if (! is_touching)
                 {
                     return result;
                 }
@@ -429,7 +429,8 @@ struct traversal
     }
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
-            int& op_index, signed_size_type start_turn_index,
+            int& op_index, bool& is_touching,
+            signed_size_type start_turn_index,
             segment_identifier const& previous_seg_id) const
     {
         bool const is_union = OperationType == operation_union;
@@ -517,14 +518,14 @@ struct traversal
             }
         }
 
-        bool allow = false;
-        if (open_count > 1)
+        is_touching = open_count > 1;
+        if (is_touching)
         {
             sbs.reverse();
-            allow = true;
         }
 
-        return select_from_cluster(turn_index, op_index, start_turn_index, sbs, allow);
+        return select_from_cluster(turn_index, op_index, start_turn_index, sbs,
+                                   is_touching);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -624,6 +625,7 @@ struct traversal
     bool select_turn(signed_size_type start_turn_index,
                      signed_size_type& turn_index,
                      int& op_index,
+                     bool& is_touching,
                      int previous_op_index,
                      signed_size_type previous_turn_index,
                      segment_identifier const& previous_seg_id,
@@ -631,7 +633,7 @@ struct traversal
     {
         if (m_turns[turn_index].cluster_id >= 0)
         {
-            if (! select_turn_from_cluster(turn_index, op_index,
+            if (! select_turn_from_cluster(turn_index, op_index, is_touching,
                     start_turn_index, previous_seg_id))
             {
                 return false;
