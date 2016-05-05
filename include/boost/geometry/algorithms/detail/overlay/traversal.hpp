@@ -493,8 +493,23 @@ struct traversal
 
         sbs.apply(turn.point);
 
-        // TODO: use also cinfo.switch_source
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         is_touching = is_union && cinfo.open_count > 1;
+        if (is_touching)
+        {
+            if (cinfo.switch_source)
+            {
+                is_touching = false;
+                std::cout << "CLUSTER: SWITCH SOURCES at " << turn_index << std::endl;
+            }
+            else
+            {
+                std::cout << "CLUSTER: CONTINUE at " << turn_index << std::endl;
+            }
+        }
+#else
+        is_touching = is_union && cinfo.open_count > 1 && ! cinfo.switch_source;
+#endif
         if (is_touching)
         {
             sbs.reverse();

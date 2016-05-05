@@ -196,11 +196,9 @@ void test_areal()
         3, 2, 110, 70.0,
         ignore_validity);
 
-    // TODO: fix self touching interior ring (should get 3 interior rings)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        1, 2, 25, 24.0,
-        ignore_validity);
+        1, 3, 25, 24.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -333,8 +331,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12118",
         ticket_12118[0], ticket_12118[1],
-        1, 0, 27, 2221.38713,
-        ignore_validity);
+        1, 1, 27, 2221.38713);
 
 #if defined(BOOST_GEOMETRY_ENABLE_FAILING_TESTS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // No output if rescaling is done

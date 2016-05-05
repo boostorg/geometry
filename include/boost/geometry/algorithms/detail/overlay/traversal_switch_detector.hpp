@@ -205,6 +205,12 @@ struct traversal_switch_detector
                     if (current_turn_index == start_turn_index)
                     {
                         // Found the origin again without uu turns in between
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "FOUND ORIGIN AGAIN "
+                          << current_turn_index
+                          << "  started at " << start_turn_index
+                          << std::endl;
+#endif
                         do_switch = true;
                     }
                     // Return, it does not need to be finished
@@ -291,9 +297,9 @@ struct traversal_switch_detector
                 traverse_with_operation(do_switch[op_index], start_turn,
                                         turn_index, op_index);
             }
-            start_turn.switch_source = do_switch[0] || do_switch[1];
             if (start_turn.cluster_id >= 0)
             {
+                start_turn.switch_source = do_switch[0] && do_switch[1];
                 typename Clusters::iterator mit
                         = m_clusters.find(start_turn.cluster_id);
                 if (mit != m_clusters.end())
@@ -301,6 +307,10 @@ struct traversal_switch_detector
                     cluster_info& cinfo = mit->second;
                     cinfo.switch_source = start_turn.switch_source;
                 }
+            }
+            else
+            {
+                start_turn.switch_source = do_switch[0] || do_switch[1];
             }
 
             // Because it was unknown before if traversal per operation should switch, visit-info should be cleared
