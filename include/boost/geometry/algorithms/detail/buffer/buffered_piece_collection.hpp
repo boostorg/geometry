@@ -35,6 +35,7 @@
 
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_original_visitor.hpp>
@@ -297,7 +298,7 @@ struct buffered_piece_collection
     typedef std::map
         <
             signed_size_type,
-            std::set<signed_size_type>
+            detail::overlay::cluster_info
         > cluster_type;
 
     cluster_type m_clusters;
