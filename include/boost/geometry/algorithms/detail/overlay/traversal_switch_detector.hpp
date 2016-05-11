@@ -131,7 +131,8 @@ struct traversal_switch_detector
         return traverse_error_none;
     }
 
-    inline traverse_error_type traverse(bool& do_switch, signed_size_type start_turn_index, int start_op_index)
+    inline traverse_error_type traverse(bool& do_switch, bool& dont_switch,
+                signed_size_type start_turn_index, int start_op_index)
     {
         turn_type& start_turn = m_turns[start_turn_index];
         turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
@@ -155,12 +156,23 @@ struct traversal_switch_detector
         // SWITCH
         {
             turn_type const& turn = m_turns[current_turn_index];
-            if (is_touching || turn.both(operation_union))
+            bool same_cluster = start_turn.cluster_id >= 0 && turn.cluster_id == start_turn.cluster_id;
+            if (is_touching
+                    || turn.both(operation_union)
+                    || same_cluster)
             {
+                if (same_cluster || start_turn_index == current_turn_index)
+                {
+                    dont_switch = true;
+                }
+
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "FOUND OTHER UU TURN RIGHT AFTER START "
+                std::cout << "FOUND "
+                          << (same_cluster || start_turn_index == current_turn_index ? "SAME" : " OTHER")
+                          << (same_cluster ? " CLUSTER" : " UU-TURN")
+                          << " RIGHT AFTER START turn="
                           << current_turn_index
-                          << "  started at " << start_turn_index
+                          << "  start=" << start_turn_index
                           << std::endl;
 #endif
                 return traverse_error_none;
@@ -213,6 +225,19 @@ struct traversal_switch_detector
 #endif
                         do_switch = true;
                     }
+                    if (start_turn.cluster_id >= 0 && start_turn.cluster_id == turn.cluster_id)
+                    {
+                        // Found the origin-cluster again without uu turns in between
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "FOUND ORIGIN-CLUSTER AGAIN "
+                          << current_turn_index << " cl:" << turn.cluster_id
+                          << "  started at " << start_turn_index << " cl:" << start_turn.cluster_id
+                          << std::endl;
+#endif
+                        do_switch = true;
+                    }
+
+
                     // Return, it does not need to be finished
                     return traverse_error_none;
                 }
@@ -230,8 +255,8 @@ struct traversal_switch_detector
         return traverse_error_endless_loop;
     }
 
-    void traverse_with_operation(bool& do_switch, turn_type const& start_turn,
-            std::size_t turn_index, int op_index)
+    void traverse_with_operation(bool& do_switch, bool& dont_switch,
+            turn_type const& start_turn, std::size_t turn_index, int op_index)
     {
         turn_operation_type const& start_op = start_turn.operations[op_index];
 
@@ -244,7 +269,8 @@ struct traversal_switch_detector
             return;
         }
 
-        traverse_error_type traverse_error = traverse(do_switch, turn_index, op_index);
+        traverse_error_type traverse_error = traverse(do_switch, dont_switch,
+            turn_index, op_index);
 
         if (traverse_error != traverse_error_none)
         {
@@ -264,57 +290,113 @@ struct traversal_switch_detector
         }
     }
 
+    void reset_visits()
+    {
+        typedef typename boost::range_value<Turns>::type tp_type;
+
+        for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                it->operations[i].visited.reset();
+            }
+        }
+    }
+
+
     void iterate()
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "SWITCH BEGIN ITERATION" << std::endl;
 #endif
-
-        // Iterate through all unvisited points
-        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        // Iterate through all clusters
+        for (typename Clusters::iterator it = m_clusters.begin(); it != m_clusters.end(); ++it)
         {
-            turn_type& start_turn = m_turns[turn_index];
-
-            if (start_turn.discarded || start_turn.blocked())
+            cluster_info& cinfo = it->second;
+            if (cinfo.open_count <= 1)
             {
-                // Skip discarded and blocked turns
-                continue;
-            }
-            if (! start_turn.both(operation_union))
-            {
-                // For switch-iteration, only start with union
+                // Not a touching cluster
                 continue;
             }
 
+            std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
-            bool do_switch[2] = {0};
-            for (int op_index = 0; op_index < 2; op_index++)
-            {
-                reset_uu_turn(start_turn);
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "SWITCH EXAMINE " << turn_index << "[" << op_index << "]" << std::endl;
+                std::cout << "SWITCH EXAMINE CLUSTER " << it->first << std::endl;
 #endif
-                traverse_with_operation(do_switch[op_index], start_turn,
-                                        turn_index, op_index);
-            }
-            if (start_turn.cluster_id >= 0)
+
+            bool cl_do_switch = false;
+            bool cl_dont_switch = false;
+            for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+                 sit != ids.end(); ++sit)
             {
-                start_turn.switch_source = do_switch[0] && do_switch[1];
-                typename Clusters::iterator mit
-                        = m_clusters.find(start_turn.cluster_id);
-                if (mit != m_clusters.end())
+                signed_size_type turn_index = *sit;
+                turn_type& turn = m_turns[turn_index];
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "- EXAMINE CLUSTER-TURN " << turn_index << std::endl;
+#endif
+
+                bool do_switch[2] = {0};
+                bool dont_switch[2] = {0};
+                for (int oi = 0; oi < 2; oi++)
                 {
-                    cluster_info& cinfo = mit->second;
-                    cinfo.switch_source = start_turn.switch_source;
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "  - EXAMINE CLUSTER-TURN-OP " << turn_index << "[" << oi << "]" << std::endl;
+#endif
+                    traverse_with_operation(do_switch[oi], dont_switch[oi],
+                                            turn, turn_index, oi);
+                    reset_visits();
+                }
+                if (dont_switch[0] || dont_switch[1])
+                {
+                    cl_dont_switch = true;
+                }
+                if (do_switch[0] || do_switch[1])
+                {
+                    cl_do_switch = true;
                 }
             }
-            else
+            cinfo.switch_source = ! cl_dont_switch && cl_do_switch;
+        }
+
+        // Iterate through all uu turns (non-clustered)
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type& turn = m_turns[turn_index];
+
+            if (turn.discarded
+                    || turn.blocked()
+                    || turn.cluster_id >= 0
+                    || ! turn.both(operation_union))
             {
-                start_turn.switch_source = do_switch[0] || do_switch[1];
+                // Skip discarded, blocked, non-uu and clustered turns
+                continue;
             }
 
+            // Turn is uu-only and not clustered
+
+            bool do_switch[2] = {0};
+            bool dont_switch[2] = {0};
+            for (int oi = 0; oi < 2; oi++)
+            {
+                reset_uu_turn(turn);
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "SWITCH EXAMINE " << turn_index
+                          << "[" << oi << "]"
+                             << " " << turn.operations[oi].seg_id
+                             << " // " << turn.operations[1 - oi].seg_id
+                          << std::endl;
+#endif
+                traverse_with_operation(do_switch[oi], dont_switch[oi],
+                                        turn, turn_index, oi);
+            }
+            turn.switch_source = do_switch[0] || do_switch[1];
+
             // Because it was unknown before if traversal per operation should switch, visit-info should be cleared
-            reset_uu_turn(start_turn);
+            reset_uu_turn(turn);
         }
 
 
@@ -323,13 +405,23 @@ struct traversal_switch_detector
 
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
-            turn_type const& start_turn = m_turns[turn_index];
+            turn_type const& turn = m_turns[turn_index];
 
-            if (start_turn.both(operation_union))
+            if (turn.both(operation_union) && turn.cluster_id < 0)
             {
-                std::cout << "SWITCH RESULT "
+                std::cout << "UU SWITCH RESULT "
                              << turn_index << " -> "
-                          << start_turn.switch_source << std::endl;
+                          << turn.switch_source << std::endl;
+            }
+        }
+
+        for (typename Clusters::const_iterator it = m_clusters.begin(); it != m_clusters.end(); ++it)
+        {
+            cluster_info const& cinfo = it->second;
+            if (cinfo.open_count > 1)
+            {
+                std::cout << "CL SWITCH RESULT " << it->first
+                             << " -> " << cinfo.switch_source << std::endl;
             }
         }
 #endif

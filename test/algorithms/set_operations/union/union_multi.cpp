@@ -35,6 +35,9 @@ void test_areal()
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
 
+    ut_settings ignore_validity2;
+    ignore_validity2.test_validity = false;
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
@@ -66,11 +69,9 @@ void test_areal()
         case_58_multi[0], case_58_multi[3],
         2, 0, 21, 19.83333333);
 
-    // (#holes should be 3)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
         case_58_multi[1], case_58_multi[2],
-        1, 1, 17, 48.333333,
-        ignore_validity);
+        1, 3, 17, 48.333333);
 
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
@@ -90,7 +91,8 @@ void test_areal()
         3, 0, 15, 4.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_66_multi",
         case_66_multi[0], case_66_multi[1],
-        3, 0, 23, 7.0);
+        2, 0, 23, 7.0, // #clips should be 3
+        ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
         1, 0, 13, 10.65);
@@ -105,7 +107,7 @@ void test_areal()
         1, 0, 13, 6);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
-        1, 0, 32, 22.25,
+        1, 2, 32, 22.25,
         ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_103_multi",
         case_103_multi[0], case_103_multi[1],
@@ -124,8 +126,7 @@ void test_areal()
         1, 0, 15, 6.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
         case_108_multi[0], case_108_multi[1],
-        1, 0, 20, 22.75,
-        ignore_validity);
+        1, 1, 20, 22.75);
 
     // Should have 2 holes
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
@@ -136,7 +137,7 @@ void test_areal()
     // Should have 9 holes, they are all separate and touching
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
        case_110_multi[0], case_110_multi[1],
-       1, 1, 37, 1250,
+       1, 9, 45, 1250,
        ignore_validity);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_111_multi",
@@ -184,16 +185,15 @@ void test_areal()
         1, 0, 14, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        17, 0, 159, 56.5,
+        15, 3, 159, 56.5,
         ignore_validity); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        1, 1, 42, 96.75,
-        ignore_validity);
+        1, 2, 42, 96.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-        3, 2, 110, 70.0,
+        2, 9, 115, 70.0,
         ignore_validity);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
@@ -226,18 +226,18 @@ void test_areal()
             3, 0, -1, 10.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14",
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
-            5, 0, -1, 4.5);
+            3, 0, -1, 4.5, // #clips should be 5
+            ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],
             3, 0, -1, 6.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_16",
         case_recursive_boxes_16[0], case_recursive_boxes_16[1],
-            1, 1, -1, 22.0,
+            1, 2, -1, 22.0,
             ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_17",
         case_recursive_boxes_17[0], case_recursive_boxes_17[1],
-            5, 1, -1, 21.0,
-            ignore_validity);
+            5, 2, -1, 21.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_18",
         case_recursive_boxes_18[0], case_recursive_boxes_18[1],
             3, 0, -1, 2.5);
@@ -246,7 +246,8 @@ void test_areal()
             3, 0, -1, 2.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_20",
         case_recursive_boxes_20[0], case_recursive_boxes_20[1],
-            2, 0, -1, 2.0);
+            1, 0, -1, 2.0, // #clips should be 2
+            ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_21",
         case_recursive_boxes_21[0], case_recursive_boxes_21[1],
             1, 0, -1, 2.5);
@@ -267,28 +268,29 @@ void test_areal()
             3, 0, -1, 6.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_27",
         case_recursive_boxes_27[0], case_recursive_boxes_27[1],
-            4, 0, -1, 4.5);
+            3, 0, -1, 4.5, // #clips should be 4
+            ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_28",
         case_recursive_boxes_28[0], case_recursive_boxes_28[1],
-            2, 0, -1, 6.5);
+            1, 0, -1, 6.5,
+            ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_29",
         case_recursive_boxes_29[0], case_recursive_boxes_29[1],
-            2, 0, -1, 15.5,
+            2, 1, -1, 15.5,
             ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_30",
         case_recursive_boxes_30[0], case_recursive_boxes_30[1],
-            1, 2, -1, 17.5,
-            ignore_validity);
+            1, 3, -1, 17.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_31",
         case_recursive_boxes_31[0], case_recursive_boxes_31[1],
-            3, 0, -1, 5.0);
+            1, 0, -1, 5.0,
+            ignore_validity2);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_32",
         case_recursive_boxes_32[0], case_recursive_boxes_32[1],
             2, 0, -1, 5.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_33",
         case_recursive_boxes_33[0], case_recursive_boxes_33[1],
-            1, 0, -1, 11.0,
-            ignore_validity);
+            1, 1, -1, 11.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_34",
         case_recursive_boxes_34[0], case_recursive_boxes_34[1],
             1, 0, -1, 25.0);
