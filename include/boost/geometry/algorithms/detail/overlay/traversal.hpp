@@ -365,13 +365,13 @@ struct traversal
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-            if (result && ranked_point.main_rank > selected_rank)
+            if (result && ranked_point.rank > selected_rank)
             {
                 return result;
             }
 
             turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.op_index];
+            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
 
             if (result && ranked_op.visited.finalized())
             {
@@ -383,12 +383,12 @@ struct traversal
             if (! is_touching && ranked_op.visited.finalized())
             {
                 // Skip this one, go to next
-                min_rank = ranked_point.main_rank;
+                min_rank = ranked_point.rank;
                 continue;
             }
 
-            if (ranked_point.index == sort_by_side::index_to
-                && (ranked_point.main_rank > min_rank
+            if (ranked_point.direction == sort_by_side::dir_to
+                && (ranked_point.rank > min_rank
                     || ranked_turn.both(operation_continue)))
             {
                 if ((is_union
@@ -404,7 +404,7 @@ struct traversal
                     }
 
                     turn_index = ranked_point.turn_index;
-                    op_index = ranked_point.op_index;
+                    op_index = ranked_point.operation_index;
 
                     if (is_intersection
                         && ranked_turn.both(operation_intersection)
@@ -413,11 +413,11 @@ struct traversal
                         // Override:
                         // For a ii turn, even though one operation might be selected,
                         // it should take the other one if the first one is used in a completed ring
-                        op_index = 1 - ranked_point.op_index;
+                        op_index = 1 - ranked_point.operation_index;
                     }
 
                     result = true;
-                    selected_rank = ranked_point.main_rank;
+                    selected_rank = ranked_point.rank;
                 }
                 else if (! is_touching)
                 {

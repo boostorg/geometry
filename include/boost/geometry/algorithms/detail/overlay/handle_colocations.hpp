@@ -553,9 +553,9 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
             turn_type& turn = turns[ranked.turn_index];
-            turn_operation_type& op = turn.operations[ranked.op_index];
+            turn_operation_type& op = turn.operations[ranked.operation_index];
 
-            if (ranked.index != sort_by_side::index_to)
+            if (ranked.direction != sort_by_side::dir_to)
             {
                 continue;
             }
