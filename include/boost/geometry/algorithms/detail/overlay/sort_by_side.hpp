@@ -43,6 +43,7 @@ struct ranked_point
                  direction_type d, operation_type op, segment_identifier sid)
         : point(p)
         , rank(0)
+        , zone(-1)
         , turn_index(ti)
         , operation_index(oi)
         , direction(d)
@@ -54,6 +55,7 @@ struct ranked_point
 
     Point point;
     std::size_t rank;
+    signed_size_type zone; // index of closed zone, in uu turn there would be 2 zones
     signed_size_type turn_index;
     signed_size_type operation_index;
     direction_type direction;
@@ -290,6 +292,8 @@ struct side_sorter
                     &segment_identifier::source_index
                 >(handled);
         }
+
+        assign_zones();
     }
 
     void reverse()
@@ -451,6 +455,78 @@ private :
             previous_rank = ranked.rank;
         }
     }
+
+    //! Find closed zones and assign it
+    void assign_zones()
+    {
+        // Find a starting point (the first rank after an outgoing rank
+        // with no polygons on the left side)
+        std::size_t start_rank = m_ranked_points.size() + 1;
+        std::size_t start_index = 0;
+        std::size_t max_rank = 0;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            rp const& ranked_point = m_ranked_points[i];
+            if (ranked_point.rank > max_rank)
+            {
+                max_rank = ranked_point.rank;
+            }
+            if (ranked_point.direction == sort_by_side::dir_to
+                 && ranked_point.count_left == 0
+                 && ranked_point.count_right > 0)
+            {
+                start_rank = ranked_point.rank + 1;
+            }
+            if (ranked_point.rank == start_rank && start_index == 0)
+            {
+                start_index = i;
+            }
+        }
+
+        // Assign the zones
+        std::size_t const undefined_rank = max_rank + 1;
+        std::size_t zone_id = 0;
+        std::size_t last_rank = 0;
+        std::size_t rank_at_next_zone = undefined_rank;
+        std::size_t index = start_index;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            rp& ranked_point = m_ranked_points[index];
+
+            // Implement cyclic behavior
+            index++;
+            if (index == m_ranked_points.size())
+            {
+                index = 0;
+            }
+
+            if (ranked_point.rank != last_rank)
+            {
+                if (ranked_point.rank == rank_at_next_zone)
+                {
+                    zone_id++;
+                    rank_at_next_zone = undefined_rank;
+                }
+
+                if (ranked_point.direction == sort_by_side::dir_to
+                     && ranked_point.count_left == 0
+                     && ranked_point.count_right > 0)
+                {
+                    rank_at_next_zone = ranked_point.rank + 1;
+                    if (rank_at_next_zone > max_rank)
+                    {
+                        rank_at_next_zone = 0;
+                    }
+                }
+
+                last_rank = ranked_point.rank;
+            }
+
+            ranked_point.zone = zone_id;
+        }
+    }
+
+
 };
 
 

@@ -35,6 +35,7 @@ struct enrichment_info
         , startable(true)
         , count_left(0)
         , count_right(0)
+        , zone(0)
     {}
 
     // vertex to which is free travel after this IP,
@@ -53,6 +54,7 @@ struct enrichment_info
     // Counts if polygons left/right of this operation
     std::size_t count_left;
     std::size_t count_right;
+    std::size_t zone; // open zone, in cluster
 };
 
 

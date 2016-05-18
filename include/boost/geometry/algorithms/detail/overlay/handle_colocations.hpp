@@ -548,7 +548,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         sbs.find_open();
 
-        // Unset the startable flag for all 'closed' spaces
+        // Unset the startable flag for all 'closed' zones
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
@@ -562,6 +562,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
             op.enriched.count_left = ranked.count_left;
             op.enriched.count_right = ranked.count_right;
+            op.enriched.zone = ranked.zone;
 
             if ((for_operation == operation_union
                     && ranked.count_left != 0)
