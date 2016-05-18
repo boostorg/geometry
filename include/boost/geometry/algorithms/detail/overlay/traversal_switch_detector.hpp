@@ -131,11 +131,13 @@ struct traversal_switch_detector
         return traverse_error_none;
     }
 
-    inline traverse_error_type traverse(bool& do_switch, bool& dont_switch,
+    inline traverse_error_type traverse(bool& do_switch, bool& dont_switch, bool& touch_other_ring,
                 signed_size_type start_turn_index, int start_op_index)
     {
         turn_type& start_turn = m_turns[start_turn_index];
         turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
+        segment_identifier const& start_other_seg_id =
+                m_turns[start_turn_index].operations[1 - start_op_index].seg_id;
 
         signed_size_type current_turn_index = start_turn_index;
         int current_op_index = start_op_index;
@@ -216,31 +218,56 @@ struct traversal_switch_detector
                 {
                     if (current_turn_index == start_turn_index)
                     {
-                        // Found the origin again without uu turns in between
+                        // Found the origin again
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
                 std::cout << "FOUND ORIGIN AGAIN "
                           << current_turn_index
                           << "  started at " << start_turn_index
+                          << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
                           << std::endl;
 #endif
-                        do_switch = true;
+                        do_switch = touch_other_ring;
                     }
                     if (start_turn.cluster_id >= 0 && start_turn.cluster_id == turn.cluster_id)
                     {
-                        // Found the origin-cluster again without uu turns in between
+                        // Found the origin-cluster again
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
                 std::cout << "FOUND ORIGIN-CLUSTER AGAIN "
                           << current_turn_index << " cl:" << turn.cluster_id
                           << "  started at " << start_turn_index << " cl:" << start_turn.cluster_id
+                          << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
                           << std::endl;
 #endif
-                        do_switch = true;
+                        do_switch = touch_other_ring;
                     }
-
 
                     // Return, it does not need to be finished
                     return traverse_error_none;
                 }
+
+                segment_identifier const& oseg_id
+                        = turn.operations[1 - start_op_index].seg_id;
+                if (start_other_seg_id.multi_index == oseg_id.multi_index
+                        && start_other_seg_id.ring_index == oseg_id.ring_index)
+                {
+                    touch_other_ring = true;
+                    // Basically we can also return here
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "  other ring encountered "
+                          << " start: " << start_other_seg_id
+                          << " " << turn.operations[0].seg_id
+                          << " // " << turn.operations[1].seg_id
+                          << std::endl;
+#endif
+                }
+
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                std::cout << "  TURN visited "
+                          << " " << turn.operations[0].seg_id
+                          << " // " << turn.operations[1].seg_id
+                          << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
+                          << std::endl;
+#endif
             } // SWITCH
 
             if (current_turn_index == start_turn_index
@@ -255,7 +282,7 @@ struct traversal_switch_detector
         return traverse_error_endless_loop;
     }
 
-    void traverse_with_operation(bool& do_switch, bool& dont_switch,
+    void traverse_with_operation(bool& do_switch, bool& dont_switch, bool& touch_other_ring,
             turn_type const& start_turn, std::size_t turn_index, int op_index)
     {
         turn_operation_type const& start_op = start_turn.operations[op_index];
@@ -269,7 +296,7 @@ struct traversal_switch_detector
             return;
         }
 
-        traverse_error_type traverse_error = traverse(do_switch, dont_switch,
+        traverse_error_type traverse_error = traverse(do_switch, dont_switch, touch_other_ring,
             turn_index, op_index);
 
         if (traverse_error != traverse_error_none)
@@ -335,6 +362,17 @@ struct traversal_switch_detector
             {
                 signed_size_type turn_index = *sit;
                 turn_type& turn = m_turns[turn_index];
+
+                if (turn.both(operation_continue))
+                {
+                    // For cc-turns, happening when two rings continue together,
+                    // don't examine: we will always find the other ring again
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+                    std::cout << "- SKIP cc CLUSTER-TURN " << turn_index << std::endl;
+#endif
+                    continue;
+                }
+
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
                 std::cout << "- EXAMINE CLUSTER-TURN " << turn_index << std::endl;
 #endif
@@ -344,9 +382,13 @@ struct traversal_switch_detector
                 for (int oi = 0; oi < 2; oi++)
                 {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "  - EXAMINE CLUSTER-TURN-OP " << turn_index << "[" << oi << "]" << std::endl;
+                std::cout << "  - EXAMINE CLUSTER-TURN-OP " << turn_index << "[" << oi << "]"
+                          << " " << turn.operations[oi].seg_id
+                          << " // " << turn.operations[1 - oi].seg_id
+                          << std::endl;
 #endif
-                    traverse_with_operation(do_switch[oi], dont_switch[oi],
+                    bool touch_other_ring = false;
+                    traverse_with_operation(do_switch[oi], dont_switch[oi], touch_other_ring,
                                             turn, turn_index, oi);
                     reset_visits();
                 }
@@ -390,7 +432,8 @@ struct traversal_switch_detector
                              << " // " << turn.operations[1 - oi].seg_id
                           << std::endl;
 #endif
-                traverse_with_operation(do_switch[oi], dont_switch[oi],
+                bool touch_other_ring = false;
+                traverse_with_operation(do_switch[oi], dont_switch[oi], touch_other_ring,
                                         turn, turn_index, oi);
             }
             turn.switch_source = do_switch[0] || do_switch[1];
