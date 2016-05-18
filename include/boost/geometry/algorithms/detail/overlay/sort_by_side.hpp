@@ -34,8 +34,8 @@ struct ranked_point
         , turn_index(-1)
         , operation_index(-1)
         , direction(dir_unknown)
-        , left_count(0)
-        , right_count(0)
+        , count_left(0)
+        , count_right(0)
         , operation(operation_none)
     {}
 
@@ -46,8 +46,8 @@ struct ranked_point
         , turn_index(ti)
         , operation_index(oi)
         , direction(d)
-        , left_count(0)
-        , right_count(0)
+        , count_left(0)
+        , count_right(0)
         , operation(op)
         , seg_id(sid)
     {}
@@ -57,8 +57,8 @@ struct ranked_point
     signed_size_type turn_index;
     signed_size_type operation_index;
     direction_type direction;
-    std::size_t left_count;
-    std::size_t right_count;
+    std::size_t count_left;
+    std::size_t count_right;
     operation_type operation;
     segment_identifier seg_id;
 };
@@ -403,11 +403,11 @@ private :
             {
                 if (side_index == 1)
                 {
-                    ranked.left_count++;
+                    ranked.count_left++;
                 }
                 else if (side_index == 2)
                 {
-                    ranked.right_count++;
+                    ranked.count_right++;
                 }
             }
         }

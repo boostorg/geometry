@@ -560,13 +560,13 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
                 continue;
             }
 
-            op.enriched.count_left = ranked.left_count;
-            op.enriched.count_right = ranked.right_count;
+            op.enriched.count_left = ranked.count_left;
+            op.enriched.count_right = ranked.count_right;
 
             if ((for_operation == operation_union
-                    && ranked.left_count != 0)
+                    && ranked.count_left != 0)
              || (for_operation == operation_intersection
-                    && ranked.right_count != 2))
+                    && ranked.count_right != 2))
             {
                 op.enriched.startable = false;
             }
