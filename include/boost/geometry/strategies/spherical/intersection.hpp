@@ -73,6 +73,8 @@ struct relate_spherical_segments
 {
     typedef typename Policy::return_type return_type;
 
+    enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
+
     template <typename CoordinateType, typename SegmentRatio, typename Vector3d>
     struct segment_intersection_info
     {
@@ -91,24 +93,47 @@ struct relate_spherical_segments
             return robust_rb.denominator();
         }
 
-        template <typename Point, typename Segment>
-        void assign_a(Point& point, Segment const& ) const
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_a(Point& point, Segment1 const& a, Segment2 const& b) const
         {
-            // TODO: assign the rest of coordinates
-            using namespace formula;
-            point = formula::cart3d_to_sph<Point>(intersection_point);
+            assign(point, a, b);
         }
-        template <typename Point, typename Segment>
-        void assign_b(Point& point, Segment const& ) const
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_b(Point& point, Segment1 const& a, Segment2 const& b) const
         {
-            // TODO: assign the rest of coordinates
-            using namespace formula;
-            point = cart3d_to_sph<Point>(intersection_point);
+            assign(point, a, b);
+        }
+
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign(Point& point, Segment1 const& a, Segment2 const& b) const
+        {
+            if (ip_flag == ipi_inters)
+            {
+                // TODO: assign the rest of coordinates
+                point = formula::cart3d_to_sph<Point>(intersection_point);
+            }
+            else if (ip_flag == ipi_at_a1)
+            {
+                detail::assign_point_from_index<0>(a, point);
+            }
+            else if (ip_flag == ipi_at_a2)
+            {
+                detail::assign_point_from_index<1>(a, point);
+            }
+            else if (ip_flag == ipi_at_b1)
+            {
+                detail::assign_point_from_index<0>(b, point);
+            }
+            else // ip_flag == ipi_at_b2
+            {
+                detail::assign_point_from_index<1>(b, point);
+            }
         }
 
         Vector3d intersection_point;
         SegmentRatio robust_ra;
         SegmentRatio robust_rb;
+        intersection_point_flag ip_flag;
     };
 
     // Relate segments a and b
@@ -332,9 +357,10 @@ struct relate_spherical_segments
             }
 
             vec3d_t i1;
+            intersection_point_flag ip_flag;
             calc_t dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1;
             if (calculate_ip_data(a1, a2, b1, b2, a1v, a2v, b1v, b2v, norm1, norm2, sides,
-                                  i1, dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1))
+                                  i1, dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1, ip_flag))
             {
                 // intersects
                 segment_intersection_info
@@ -347,6 +373,7 @@ struct relate_spherical_segments
                 sinfo.robust_ra.assign(dist_a1_i1, dist_a1_a2);
                 sinfo.robust_rb.assign(dist_b1_i1, dist_b1_b2);
                 sinfo.intersection_point = i1;
+                sinfo.ip_flag = ip_flag;
 
                 return Policy::segments_crosses(sides, sinfo, a, b);
             }
@@ -409,7 +436,8 @@ private:
                                          side_info const& sides, // in
                                          Vec3d & i1, // in-out
                                          CalcT& dist_a1_a2, CalcT& dist_a1_i1, // out
-                                         CalcT& dist_b1_b2, CalcT& dist_b1_i1) // out
+                                         CalcT& dist_b1_b2, CalcT& dist_b1_i1, // out
+                                         intersection_point_flag& ip_flag)     // out
     {
         // great circles intersections
         i1 = cross_product(norm1, norm2);
@@ -459,7 +487,8 @@ private:
             {
                 dist_a1_i1 = 0;
                 dist_b1_i1 = 0;
-                i1 = a1v;
+                //i1 = a1v;
+                ip_flag = ipi_at_a1;
                 return true;
             }
             
@@ -467,7 +496,8 @@ private:
             {
                 dist_a1_i1 = 0;
                 dist_b1_i1 = dist_b1_b2;
-                i1 = a1v;
+                //i1 = a1v;
+                ip_flag = ipi_at_a1;
                 return true;
             }
         }
@@ -478,7 +508,8 @@ private:
             {
                 dist_a1_i1 = dist_a1_a2;
                 dist_b1_i1 = 0;
-                i1 = a2v;
+                //i1 = a2v;
+                ip_flag = ipi_at_a2;
                 return true;
             }
 
@@ -486,7 +517,8 @@ private:
             {
                 dist_a1_i1 = dist_a1_a2;
                 dist_b1_i1 = dist_b1_b2;
-                i1 = a2v;
+                //i1 = a2v;
+                ip_flag = ipi_at_a2;
                 return true;
             }
         }
@@ -499,14 +531,16 @@ private:
             if (is_near_b1 && sides.template get<1, 0>() == 0) // b1 wrt a
             {
                 dist_b1_i1 = 0;
-                i1 = b1v;
+                //i1 = b1v;
+                ip_flag = ipi_at_b1;
                 return true;
             }
 
             if (is_near_b2 && sides.template get<1, 1>() == 0) // b2 wrt a
             {
                 dist_b1_i1 = dist_b1_b2;
-                i1 = b2v;
+                //i1 = b2v;
+                ip_flag = ipi_at_b2;
                 return true;
             }
         }
@@ -516,17 +550,21 @@ private:
             if (is_near_a1 && sides.template get<0, 0>() == 0) // a1 wrt b
             {
                 dist_a1_i1 = 0;
-                i1 = a1v;
+                //i1 = a1v;
+                ip_flag = ipi_at_a1;
                 return true;
             }
 
             if (is_near_a2 && sides.template get<0, 1>() == 0) // a2 wrt b
             {
                 dist_a1_i1 = dist_a1_a2;
-                i1 = a2v;
+                //i1 = a2v;
+                ip_flag = ipi_at_a2;
                 return true;
             }
         }
+
+        ip_flag = ipi_inters;
 
         return is_on_a && is_on_b;
     }

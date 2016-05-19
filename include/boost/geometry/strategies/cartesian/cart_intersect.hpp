@@ -83,15 +83,15 @@ struct relate_cartesian_segments
             return dx_b * dx_b + dy_b * dy_b;
         }
 
-        template <typename Point, typename Segment>
-        void assign_a(Point& point, Segment const& segment) const
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_a(Point& point, Segment1 const& a, Segment2 const& ) const
         {
-            assign(point, segment, dx_a, dy_a, robust_ra);
+            assign(point, a, dx_a, dy_a, robust_ra);
         }
-        template <typename Point, typename Segment>
-        void assign_b(Point& point, Segment const& segment) const
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_b(Point& point, Segment1 const& , Segment2 const& b) const
         {
-            assign(point, segment, dx_b, dy_b, robust_rb);
+            assign(point, b, dx_b, dy_b, robust_rb);
         }
 
         template <typename Point, typename Segment>

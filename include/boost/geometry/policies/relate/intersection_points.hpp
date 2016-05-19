@@ -81,11 +81,11 @@ struct segments_intersection_points
 
         if (use_a)
         {
-            sinfo.assign_a(result.intersections[0], s1);
+            sinfo.assign_a(result.intersections[0], s1, s2);
         }
         else
         {
-            sinfo.assign_b(result.intersections[0], s2);
+            sinfo.assign_b(result.intersections[0], s1, s2);
         }
 
         result.fractions[0].assign(sinfo);
