@@ -9,6 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithms/test_length.hpp>
+#include <algorithms/length/linestring_cases.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -18,60 +19,29 @@
 #include <test_geometries/wrapped_boost_array.hpp>
 
 template <typename P>
-struct geo_strategies{
-    // Set radius type, but for integer coordinates we want to have floating point radius type
+struct geo_strategies
+{
+    // Set radius type, but for integer coordinates we want to have floating
+    // point radius type
     typedef typename bg::promote_floating_point
     <
     typename bg::coordinate_type<P>::type
     >::type rtype;
 
     typedef bg::srs::spheroid<rtype> stype;
-
     typedef bg::strategy::distance::andoyer<stype> andoyer_type;
-
-    BOOST_CONCEPT_ASSERT
-        (
-            (bg::concept::PointDistanceStrategy<andoyer_type, P, P>)
-        );
-
     typedef bg::strategy::distance::thomas<stype> thomas_type;
-
-    BOOST_CONCEPT_ASSERT
-        (
-            (bg::concept::PointDistanceStrategy<thomas_type, P, P>)
-        );
-
     typedef bg::strategy::distance::vincenty<stype> vincenty_type;
-
-    BOOST_CONCEPT_ASSERT
-        (
-            (bg::concept::PointDistanceStrategy<vincenty_type, P, P>)
-        );
-
-    //typedef typename bg::strategy::distance::services::default_strategy
-    //<
-    //    bg::point_tag, bg::point_tag, P
-    //>::type default_strategy_type;
-
 };
-
-std::vector<std::string > Ls_data_gen()
-{
-   std::string arr[] = {"LINESTRING(0 90,1 80,1 70)",
-                        "LINESTRING(0 90,1 80,1 80,1 80,1 70,1 70)",
-                        "LINESTRING(0 90,1 80,1 79,1 78,1 77,1 76,1 75,1 74,1 73,1 72,1 71,1 70)"};
-   std::vector<std::string> Ls_data (arr, arr + sizeof(arr) / sizeof(arr[0]));
-   return Ls_data;
-}
 
 template <typename P>
 void test_default() //this should use andoyer strategy
 {
-    std::vector<std::string > Ls_data = Ls_data_gen();
-
-    for(size_t i=0; i<2; ++i)
-        test_geometry<bg::model::linestring<P> >(Ls_data[i], 1116814.237 + 1116152.605);
-
+    for(std::size_t i = 0; i < 2; ++i)
+    {
+        test_geometry<bg::model::linestring<P> >(Ls_data_geo[i],
+                                                 1116814.237 + 1116152.605);
+    }
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0);
     test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 0);
@@ -80,14 +50,16 @@ void test_default() //this should use andoyer strategy
 template <typename P, typename N, typename Strategy>
 void test_with_strategy(N exp_length, Strategy strategy)
 {
-    std::vector<std::string > Ls_data = Ls_data_gen();
-
-    for(size_t i=0; i<2; ++i)
-        test_geometry<bg::model::linestring<P> >(Ls_data[i], exp_length, strategy);
-
+    for(std::size_t i = 0; i < 2; ++i)
+    {
+        test_geometry<bg::model::linestring<P> >(Ls_data_geo[i],
+                                                 exp_length,
+                                                 strategy);
+    }
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0, strategy);
-    test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 0, strategy);
+    test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 0,
+                                          strategy);
 }
 
 template <typename P>
@@ -124,20 +96,25 @@ template <typename P>
 void test_empty_input()
 {
     test_empty_input(bg::model::linestring<P>());
+    test_empty_input(bg::model::multi_linestring<P>());
 }
 
 int test_main(int, char* [])
 {
     // Works only for double(?!)
-    //test_all<bg::model::d2::point_xy<int, bg::cs::geographic<bg::degree> > >();
-    //test_all<bg::model::d2::point_xy<float, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::d2::point_xy<double , bg::cs::geographic<bg::degree> > >();
+    //test_all<bg::model::d2::point_xy<int,
+    //                              bg::cs::geographic<bg::degree> > >();
+    //test_all<bg::model::d2::point_xy<float,
+    //                              bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::d2::point_xy<double,
+                                  bg::cs::geographic<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-    //test_empty_input<bg::model::d2::point_xy<int> >();
+    //test_empty_input<bg::model::d2::point_xy<double,
+    //                              bg::cs::geographic<bg::degree> > >();
 
     return 0;
 }

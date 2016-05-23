@@ -44,7 +44,7 @@ template <typename Geometry, typename Strategy>
 void test_length(Geometry const& geometry, long double expected_length, Strategy strategy)
 {
     typename bg::default_length_result<Geometry>::type
-        length = bg::length(geometry,strategy);
+        length = bg::length(geometry, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -52,7 +52,7 @@ void test_length(Geometry const& geometry, long double expected_length, Strategy
         << std::endl
         << typeid(typename bg::default_length_result<Geometry>::type).name()
         << std::endl
-        << "length : " << bg::length(geometry,strategy)
+        << "length : " << bg::length(geometry, strategy)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -63,7 +63,6 @@ void test_length(Geometry const& geometry, long double expected_length, Strategy
 template <typename Geometry>
 void test_geometry(std::string const& wkt, double expected_length)
 {
-    //typedef typename default_strategy<Geometry>::strategy_type strategy_type;
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     test_length(geometry, expected_length);
