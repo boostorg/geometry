@@ -14,10 +14,10 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-overlaps
+test-suite boost-geometry-algorithms-covered_by
     :
-    [ run overlaps.cpp       : : : : algorithms_overlaps ]
-    [ run overlaps_areal.cpp : : : : algorithms_overlaps_areal ]
-    [ run overlaps_box.cpp   : : : : algorithms_overlaps_box ]
+    [ run covered_by.cpp         : : : : algorithms_covered_by ]
+    [ run covered_by_multi.cpp   : : : : algorithms_covered_by_multi ]
+    [ run covered_by_sph.cpp     : : : : algorithms_covered_by_sph ]
+    [ run covered_by_sph_geo.cpp : : : : algorithms_covered_by_sph_geo ]
     ;
-

@@ -277,6 +277,7 @@ void test_multi_linestring_polygon()
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
     typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
     typedef typename bg::coordinate_type<P>::type coord_t;
 
     test_geometry<mls, poly>("MULTILINESTRING((11 11, 20 20),(5 7, 4 1))",
@@ -307,7 +308,7 @@ void test_multi_linestring_polygon()
                              "101000212");
 
     // extended
-    test_geometry<mls, poly>("MULTILINESTRING((15 15,6 6),(4 14,6 15.986412732589057))",
+    test_geometry<mls, ring>("MULTILINESTRING((15 15,6 6),(4 14,6 15.986412732589057))",
                              "POLYGON((5 5,5 15,15 15,15 5,5 5))",
                              "101000212");
 

@@ -14,10 +14,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-overlaps
+test-suite boost-geometry-algorithms-equals
     :
-    [ run overlaps.cpp       : : : : algorithms_overlaps ]
-    [ run overlaps_areal.cpp : : : : algorithms_overlaps_areal ]
-    [ run overlaps_box.cpp   : : : : algorithms_overlaps_box ]
+    [ run equals.cpp             : : : : algorithms_equals ]
+    [ run equals_multi.cpp       : : : : algorithms_equals_multi ]
+    [ run equals_on_spheroid.cpp : : : : algorithms_equals_on_spheroid ]
     ;
-
