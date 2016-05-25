@@ -20,7 +20,6 @@ test-suite boost-geometry-algorithms
     [ run area.cpp                     : : : : algorithms_area ]
     [ run area_multi.cpp               : : : : algorithms_area_multi ]
     [ run assign.cpp                   : : : : algorithms_assign ]
-    [ run buffer.cpp                   : : : : algorithms_buffer ]
     [ run centroid.cpp                 : : : : algorithms_centroid ]
     [ run centroid_multi.cpp           : : : : algorithms_centroid_multi ]
     [ run comparable_distance.cpp      : : : : algorithms_comparable_distance ]
@@ -67,5 +66,6 @@ build-project detail ;
 build-project distance ;
 build-project envelope_expand ;
 build-project overlay ;
+build-project perimeter ;
 build-project relational_operations ;
 build-project set_operations ;
