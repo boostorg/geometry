@@ -9,7 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithms/test_perimeter.hpp>
-#include <algorithms/perimeter/polygon_cases.hpp>
+#include <algorithms/perimeter/perimeter_polygon_cases.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -21,7 +21,7 @@ struct geo_strategies
     // point radius type
     typedef typename bg::promote_floating_point
     <
-    typename bg::coordinate_type<P>::type
+        typename bg::coordinate_type<P>::type
     >::type rtype;
 
     typedef bg::srs::spheroid<rtype> stype;
@@ -33,7 +33,7 @@ struct geo_strategies
 template <typename P>
 void test_default() //this should use andoyer strategy
 {
-    for(std::size_t i = 0; i < Poly_data_geo.size(); ++i)
+    for (std::size_t i = 0; i < Poly_data_geo.size(); ++i)
     {
         test_geometry<bg::model::polygon<P> >(Poly_data_geo[i],
                                               1116814.237 + 1116152.605);
@@ -52,7 +52,7 @@ void test_default() //this should use andoyer strategy
 template <typename P, typename N, typename Strategy>
 void test_with_strategy(N exp_length, Strategy strategy)
 {
-    for(std::size_t i = 0; i < Poly_data_geo.size(); ++i)
+    for (std::size_t i = 0; i < Poly_data_geo.size(); ++i)
     {
         test_geometry<bg::model::polygon<P> >(Poly_data_geo[i],
                                               exp_length,

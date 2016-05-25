@@ -9,7 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithms/test_perimeter.hpp>
-#include <algorithms/perimeter/polygon_cases.hpp>
+#include <algorithms/perimeter/perimeter_polygon_cases.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -19,7 +19,7 @@ void test_all_default() //test the default strategy
 {
     double const pi = boost::math::constants::pi<double>();
 
-    for(std::size_t i = 0; i < Poly_data_sph.size(); ++i)
+    for (std::size_t i = 0; i < Poly_data_sph.size(); ++i)
     {
         test_geometry<bg::model::polygon<P> >(Poly_data_sph[i], 2 * pi);
     }
@@ -40,7 +40,7 @@ void test_all_haversine(double const mean_radius)
     double const pi = boost::math::constants::pi<double>();
     bg::strategy::distance::haversine<double> haversine_strategy(mean_radius);
 
-    for(std::size_t i = 0; i < Poly_data_sph.size(); ++i)
+    for (std::size_t i = 0; i < Poly_data_sph.size(); ++i)
     {
         test_geometry<bg::model::polygon<P> >(Poly_data_sph[i],
                                               2 * pi * mean_radius,
