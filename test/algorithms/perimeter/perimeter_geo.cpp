@@ -33,15 +33,15 @@ struct geo_strategies
 template <typename P>
 void test_default() //this should use andoyer strategy
 {
-    for (std::size_t i = 0; i < Poly_data_geo.size(); ++i)
+    for (std::size_t i = 0; i <= 2; ++i)
     {
-        test_geometry<bg::model::polygon<P> >(Poly_data_geo[i],
+        test_geometry<bg::model::polygon<P> >(poly_data_geo[i],
                                               1116814.237 + 1116152.605);
     }
 
     // Multipolygon
     test_geometry<bg::model::multi_polygon<bg::model::polygon<P> > >
-                                            (Multipoly_data[0], 60078934.0425);
+                                            (multipoly_data[0], 60078934.0425);
 
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0);
@@ -52,9 +52,9 @@ void test_default() //this should use andoyer strategy
 template <typename P, typename N, typename Strategy>
 void test_with_strategy(N exp_length, Strategy strategy)
 {
-    for (std::size_t i = 0; i < Poly_data_geo.size(); ++i)
+    for (std::size_t i = 0; i <= 2; ++i)
     {
-        test_geometry<bg::model::polygon<P> >(Poly_data_geo[i],
+        test_geometry<bg::model::polygon<P> >(poly_data_geo[i],
                                               exp_length,
                                               strategy);
     }

@@ -19,14 +19,14 @@ void test_all_default() //test the default strategy
 {
     double const pi = boost::math::constants::pi<double>();
 
-    for (std::size_t i = 0; i < Poly_data_sph.size(); ++i)
+    for (std::size_t i = 0; i <= 2; ++i)
     {
-        test_geometry<bg::model::polygon<P> >(Poly_data_sph[i], 2 * pi);
+        test_geometry<bg::model::polygon<P> >(poly_data_sph[i], 2 * pi);
     }
 
     // Multipolygon
     test_geometry<bg::model::multi_polygon<bg::model::polygon<P> > >
-                                            (Multipoly_data[0], 3 * pi);
+                                            (multipoly_data[0], 3 * pi);
 
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0);
@@ -40,16 +40,16 @@ void test_all_haversine(double const mean_radius)
     double const pi = boost::math::constants::pi<double>();
     bg::strategy::distance::haversine<double> haversine_strategy(mean_radius);
 
-    for (std::size_t i = 0; i < Poly_data_sph.size(); ++i)
+    for (std::size_t i = 0; i <= 2; ++i)
     {
-        test_geometry<bg::model::polygon<P> >(Poly_data_sph[i],
+        test_geometry<bg::model::polygon<P> >(poly_data_sph[i],
                                               2 * pi * mean_radius,
                                               haversine_strategy);
     }
 
     // Multipolygon
     test_geometry<bg::model::multi_polygon<bg::model::polygon<P> > >
-                                            (Multipoly_data[0],
+                                            (multipoly_data[0],
                                              3 * pi * mean_radius,
                                              haversine_strategy);
 
