@@ -21,5 +21,6 @@ test-suite boost-geometry-algorithms-intersects
     [ run intersects_multi.cpp        : : : : algorithms_intersects_multi ]
     [ run intersects_self.cpp         : : : : algorithms_intersects_self ]
     [ run intersects_sph_geo.cpp      : : : : algorithms_intersects_sph_geo ]
+    [ run intersects_sph.cpp          : : : : algorithms_intersects_sph ]
     ;
 

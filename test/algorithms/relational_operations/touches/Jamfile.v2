@@ -20,4 +20,5 @@ test-suite boost-geometry-algorithms-touches
     [ run touches_box.cpp   : : : : algorithms_touches_box ]
     [ run touches_multi.cpp : : : : algorithms_touches_multi ]
     [ run touches_self.cpp  : : : : algorithms_touches_self ]
+    [ run touches_sph.cpp   : : : : algorithms_touches_sph ]
     ;

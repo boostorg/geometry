@@ -17,4 +17,5 @@
 test-suite boost-geometry-algorithms-crosses
     :
     [ run crosses.cpp            : : : : algorithms_crosses ]
+    [ run crosses_sph.cpp        : : : : algorithms_crosses_sph ]
     ;
