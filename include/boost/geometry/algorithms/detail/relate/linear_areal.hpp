@@ -1416,10 +1416,14 @@ struct linear_areal
 template <typename Geometry1, typename Geometry2>
 struct areal_linear
 {
+    typedef linear_areal<Geometry2, Geometry1, true> linear_areal_type;
+
+    static const bool interruption_enabled = linear_areal_type::interruption_enabled;
+
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
-        linear_areal<Geometry2, Geometry1, true>::apply(geometry2, geometry1, result);
+        linear_areal_type::apply(geometry2, geometry1, result);
     }
 };
 
