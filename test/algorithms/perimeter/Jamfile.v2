@@ -1,0 +1,16 @@
+# Boost.Geometry (aka GGL, Generic Geometry Library)
+#
+# Copyright (c) 2016 Oracle and/or its affiliates.
+#
+# Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-algorithms-perimeter
+    :
+    [ run perimeter.cpp                  : : : : perimeter ]
+    [ run perimeter_geo.cpp              : : : : perimeter_geo ]
+    [ run perimeter_sph.cpp              : : : : perimeter_sph ]
+    ;

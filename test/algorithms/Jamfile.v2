@@ -66,5 +66,6 @@ build-project distance ;
 build-project envelope_expand ;
 build-project length ;
 build-project overlay ;
+build-project perimeter ;
 build-project relational_operations ;
 build-project set_operations ;
