@@ -212,7 +212,7 @@ inline void handle_colocation_cluster(Turns& turns,
         signed_size_type& cluster_id,
         ClusterPerSegment& cluster_per_segment,
         Operations const& operations,
-        Geometry1 const& geometry1, Geometry2 const& geometry2)
+        Geometry1 const& /*geometry1*/, Geometry2 const& /*geometry2*/)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;

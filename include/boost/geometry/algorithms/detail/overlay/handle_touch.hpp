@@ -46,7 +46,7 @@ public :
         : m_visitor(visitor)
     {}
 
-    inline void apply(detail::overlay::operation_type operation, Turns& turns)
+    inline void apply(detail::overlay::operation_type /*operation*/, Turns& turns)
     {
         if (! has_uu(turns))
         {
