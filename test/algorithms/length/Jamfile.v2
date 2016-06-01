@@ -10,8 +10,8 @@
 
 test-suite boost-geometry-algorithms-length
     :
-    [ run length.cpp                     : : : : length ]
-    [ run length_multi.cpp               : : : : length_multi ]
-    [ run length_sph.cpp                 : : : : length_sph ]
-    [ run length_geo.cpp                 : : : : length_geo ]
+    [ run length.cpp                     : : : : algorithms_length ]
+    [ run length_multi.cpp               : : : : algorithms_length_multi ]
+    [ run length_sph.cpp                 : : : : algorithms_length_sph ]
+    [ run length_geo.cpp                 : : : : algorithms_length_geo ]
     ;
