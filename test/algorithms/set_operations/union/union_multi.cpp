@@ -274,7 +274,7 @@ void test_areal()
             ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_30",
         case_recursive_boxes_30[0], case_recursive_boxes_30[1],
-            1, 2, -1, 17.5);
+            1, 3, -1, 17.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_31",
         case_recursive_boxes_31[0], case_recursive_boxes_31[1],
             3, 0, -1, 5.0);
