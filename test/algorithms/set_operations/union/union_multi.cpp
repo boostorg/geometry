@@ -103,8 +103,7 @@ void test_areal()
         1, 0, 13, 6);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
-        1, 2, 32, 22.25,
-        ignore_validity);
+        1, 3, 35, 22.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_103_multi",
         case_103_multi[0], case_103_multi[1],
         1, 0, 7, 25);
@@ -222,6 +221,19 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14",
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
+
+    // Invalid versions of 12/13/14
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_12_invalid",
+        case_recursive_boxes_12_invalid[0], case_recursive_boxes_12_invalid[1],
+            6, 0, -1, 6.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
+        case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
+            3, 0, -1, 10.25);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
+        case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
+            5, 0, -1, 4.5);
+
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],
             3, 0, -1, 6.0);
