@@ -55,6 +55,20 @@ struct ut_settings
 
 };
 
+#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
+template <typename Geometry>
+inline void check_input_validity(std::string const& caseid, int case_index,
+                Geometry const& geometry)
+{
+    std::string message;
+    if (!bg::is_valid(geometry, message))
+    {
+        std::cout << caseid << " Input ["
+                  << case_index << "] not valid" << std::endl
+                  << "   ("  << message << ")" << std::endl;
+    }
+}
+#endif
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
@@ -71,6 +85,11 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     std::cout << "*** UNION " << caseid << std::endl;
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
+    check_input_validity(caseid, 0, g1);
+    check_input_validity(caseid, 1, g2);
 #endif
 
     bg::union_(g1, g2, clip);
