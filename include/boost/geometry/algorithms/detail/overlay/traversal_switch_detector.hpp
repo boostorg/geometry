@@ -170,6 +170,7 @@ struct traversal_switch_detector
 #endif
                 do_switch = touch_other_ring;
             }
+
             if (start_turn.cluster_id >= 0 && start_turn.cluster_id == turn.cluster_id)
             {
                 // Found the origin-cluster again
@@ -203,7 +204,7 @@ struct traversal_switch_detector
         if (touch_other)
         {
             touch_other_ring = true;
-            // Basically we can also return here
+            // We cannot yet return here
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "  other ring encountered "
                   << " start: " << start_other_seg_id
