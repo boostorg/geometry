@@ -35,9 +35,6 @@ void test_areal()
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
 
-    ut_settings ignore_validity2;
-    ignore_validity2.test_validity = false;
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
