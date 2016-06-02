@@ -161,8 +161,13 @@ struct equals_by_collection
                 double
             >::type calculation_type;
 
-        typedef std::vector<collected_vector<calculation_type> > v;
-        v c1, c2;
+        typedef geometry::collected_vector
+            <
+                calculation_type,
+                Geometry1
+            > collected_vector;
+
+        std::vector<collected_vector> c1, c2;
 
         geometry::collect_vectors(c1, geometry1);
         geometry::collect_vectors(c2, geometry2);
