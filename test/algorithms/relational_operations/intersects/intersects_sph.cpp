@@ -32,6 +32,8 @@ void test_polygon_polygon()
                               true);
     test_geometry<poly, poly>(case_3_sph[0], case_3_sph[1],
                               true);
+    test_geometry<poly, poly>(case_3_2_sph[0], case_3_2_sph[1],
+                              true);
     test_geometry<poly, poly>(case_4[0], case_4[1],
                               true);
     test_geometry<poly, poly>(case_5[0], case_5[1],

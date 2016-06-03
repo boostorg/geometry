@@ -34,11 +34,8 @@ void test_polygon_polygon()
                               false);
     test_geometry<poly, poly>(case_3_sph[0], case_3_sph[1],
                               false);
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING
-    test_geometry<poly, poly>("POLYGON((1 1,1 2,1 4,2 4.0012148518458881,4 4, 4 3,4 1,3.0001521347633209 1.0003046174216719,1 1))",
-                              "POLYGON((1 1,1 4,4 4,4 1,1 1))",
+    test_geometry<poly, poly>(case_3_2_sph[0], case_3_2_sph[1],
                               true);
-#endif
     test_geometry<poly, poly>(case_4[0], case_4[1],
                               false);
     test_geometry<poly, poly>(case_5[0], case_5[1],

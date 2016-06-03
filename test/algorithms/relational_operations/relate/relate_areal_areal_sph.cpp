@@ -33,6 +33,8 @@ void test_polygon_polygon()
                               "212101212");
     test_geometry<poly, poly>(case_3_sph[0], case_3_sph[1],
                               "2FF10F212");
+    test_geometry<poly, poly>(case_3_2_sph[0], case_3_2_sph[1],
+                              "2FFF1FFF2");
     test_geometry<poly, poly>(case_4[0], case_4[1],
                               "212101212");
     test_geometry<poly, poly>(case_5[0], case_5[1],
