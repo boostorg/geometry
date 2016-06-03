@@ -264,7 +264,7 @@ struct relate_spherical_segments
         //       are calculated, but just in case check the normals.
         //       Have in mind that SSF side strategy doesn't check this.
         // collinear if normals are equal or opposite: cos(a) in {-1, 1}
-        if (math::equals(math::abs(dot_n1n2), c1))
+        if (!collinear && math::equals(math::abs(dot_n1n2), c1))
         {
             collinear = true;
             sides.set<0>(0, 0);
