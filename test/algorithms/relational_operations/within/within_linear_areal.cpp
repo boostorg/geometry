@@ -3,14 +3,14 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_within.hpp"
 
@@ -20,13 +20,13 @@
 #include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
-template <typename P>
+template <typename P1, typename P2>
 void test_l_a()
 {
-    typedef bg::model::linestring<P> ls;
+    typedef bg::model::linestring<P1> ls;
     typedef bg::model::multi_linestring<ls> mls;
-    typedef bg::model::polygon<P> poly;
-    typedef bg::model::ring<P> ring;
+    typedef bg::model::polygon<P2> poly;
+    typedef bg::model::ring<P2> ring;
     typedef bg::model::multi_polygon<poly> mpoly;
 
     // B,I
@@ -100,16 +100,23 @@ void test_l_a()
                               false);
 }
 
+template <typename P1, typename P2>
+void test_all()
+{
+    test_l_a<P1, P2>();
+}
+
 template <typename P>
 void test_all()
 {
-    test_l_a<P>();
+    test_l_a<P, P>();
 }
 
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<double>, bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
 #if defined(HAVE_TTMATH)
