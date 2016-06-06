@@ -212,6 +212,30 @@ void test_multi_linestring_multi_linestring()
                             true);
 }
 
+template <typename P>
+void test_point_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    
+    // https://svn.boost.org/trac/boost/ticket/9162
+    test_geometry<P, poly>("POINT(0 90)",
+                           "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
+                           true);
+    test_geometry<P, poly>("POINT(-120 21)",
+                           "POLYGON((30 0,30 30,90 30, 90 0, 30 0))",
+                           false);
+    // extended
+    test_geometry<P, poly>("POINT(0 -90)",
+                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+                           true);
+    test_geometry<P, poly>("POINT(0 89)",
+                           "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
+                           true);
+    test_geometry<P, poly>("POINT(-180 89)",
+                           "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
+                           true);
+}
+
 
 template <typename P>
 void test_all()
@@ -228,6 +252,8 @@ void test_all()
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
     test_multi_linestring_multi_linestring<P>();
+
+    test_point_polygon<P>();
 }
 
 
