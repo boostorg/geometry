@@ -33,6 +33,7 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/9162 9162] Invalid result of relation operations for non-cartesian Point/Areal.
 * [@https://svn.boost.org/trac/boost/ticket/10866 10866] union_ doesn't work in 1.56 and 1.57.
 * [@https://svn.boost.org/trac/boost/ticket/11018 11018] Invalid geometry intersection
 * [@https://svn.boost.org/trac/boost/ticket/11576 11576] Intersection gives wrong results.
