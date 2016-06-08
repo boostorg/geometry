@@ -305,6 +305,11 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_37",
         case_recursive_boxes_37[0], case_recursive_boxes_37[1],
             2, 1, -1, 7.75);
+    // Should have one interior
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_38",
+        case_recursive_boxes_38[0], case_recursive_boxes_38[1],
+            2, 0, -1, 14.0,
+            ignore_validity);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
