@@ -308,8 +308,7 @@ void test_all()
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
         2, -1, 8960.49049,
-        1, -1, 71495.3331 + 8960.49049,
-        ignore_validity);
+        2, -1, 71495.3331 + 8960.49049);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
