@@ -13,9 +13,10 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 
@@ -26,6 +27,11 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+// Generic function (is this used somewhere else too?)
+inline ring_identifier ring_id_by_seg_id(segment_identifier const& seg_id)
+{
+    return ring_identifier(seg_id.source_index, seg_id.multi_index, seg_id.ring_index);
+}
 
 template
 <
@@ -41,392 +47,122 @@ template
 >
 struct traversal_switch_detector
 {
-    typedef traversal<Reverse1, Reverse2, OperationType,
-           Geometry1, Geometry2, Turns, Clusters, RobustPolicy, Visitor>
-        traversal_type;
-
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
     inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters& clusters,
             RobustPolicy const& robust_policy, Visitor& visitor)
-        : m_trav(geometry1, geometry2, turns, clusters, robust_policy,visitor)
-        , m_geometry1(geometry1)
+        : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
+        , m_region_id(0)
     {
 
     }
 
-    inline traverse_error_type travel_to_next_turn(signed_size_type start_turn_index,
-                int start_op_index,
-                signed_size_type& turn_index,
-                int& op_index,
-                bool& is_touching,
-                bool is_start)
+    static inline bool connects_same_zone(turn_type const& turn)
     {
-        int const previous_op_index = op_index;
-        signed_size_type const previous_turn_index = turn_index;
-        turn_type& previous_turn = m_turns[turn_index];
-        turn_operation_type& previous_op = previous_turn.operations[op_index];
-        segment_identifier previous_seg_id;
-
-        signed_size_type to_vertex_index = -1;
-        if (! m_trav.select_turn_from_enriched(turn_index, previous_seg_id,
-                          to_vertex_index, start_turn_index, start_op_index,
-                          previous_turn, previous_op, is_start))
+        if (turn.cluster_id == -1)
         {
-            return is_start
-                    ? traverse_error_no_next_ip_at_start
-                    : traverse_error_no_next_ip;
+            // If it is a uu-turn (non clustered), it is never same zone
+            return ! turn.both(operation_union);
         }
 
-        if (m_turns[turn_index].discarded)
-        {
-            return is_start
-                ? traverse_error_dead_end_at_start
-                : traverse_error_dead_end;
-        }
-
-        if (is_start)
-        {
-            // Register the start
-            previous_op.visited.set_started();
-            m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
-        }
-
-        if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
-                is_touching,
-                previous_op_index, previous_turn_index, previous_seg_id,
-                is_start))
-        {
-            return is_start
-                ? traverse_error_no_next_ip_at_start
-                : traverse_error_no_next_ip;
-        }
-
-        {
-            // Check operation (TODO: this might be redundant or should be catched before)
-            const turn_type& current_turn = m_turns[turn_index];
-            const turn_operation_type& op = current_turn.operations[op_index];
-            if (op.visited.finalized()
-                || m_trav.is_visited(current_turn, op, turn_index, op_index))
-            {
-                return traverse_error_visit_again;
-            }
-        }
-
-        // Update registration and append point
-        turn_type& current_turn = m_turns[turn_index];
-        turn_operation_type& op = current_turn.operations[op_index];
-
-        // Register the visit
-        m_trav.set_visited(current_turn, op);
-        m_visitor.visit_traverse(m_turns, current_turn, op, "Visit");
-
-        return traverse_error_none;
+        // It is a cluster, check zones of both operations
+        return turn.operations[0].enriched.zone
+                == turn.operations[1].enriched.zone;
     }
 
-    inline bool contains_ring(std::set<segment_identifier> const& ids,
-                              segment_identifier const& id) const
+    inline int get_region_id(turn_operation_type const& op) const
     {
-        for (std::set<segment_identifier>::const_iterator it = ids.begin();
-             it != ids.end(); ++it)
-        {
-            if (id.source_index == it->source_index
-                    && id.multi_index == it->multi_index)
-            {
-                return true;
-            }
-        }
-        return false;
+        std::map<ring_identifier, int>::const_iterator it
+                    = m_regions.find(ring_id_by_seg_id(op.seg_id));
+        return it == m_regions.end() ? -1 : it->second;
     }
 
-    inline bool detect_traverse_switch(bool& do_switch,
-            bool& touch_other_ring,
-            std::set<segment_identifier> const& seg_ids,
-            signed_size_type start_turn_index, int start_op_index,
-            bool is_touching, signed_size_type current_turn_index)
+    void create_region(ring_identifier const& ring_id, std::set<int> const& ring_turn_indices, int region_id = -1)
     {
-        turn_type const& start_turn = m_turns[start_turn_index];
-        segment_identifier const& start_other_seg_id =
-                m_turns[start_turn_index].operations[1 - start_op_index].seg_id;
-        turn_type const& turn = m_turns[current_turn_index];
-        if (is_touching || turn.both(operation_union))
+        std::map<ring_identifier, int>::const_iterator it = m_regions.find(ring_id);
+        if (it != m_regions.end())
         {
-            if (current_turn_index == start_turn_index)
-            {
-                // Found the origin again
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "FOUND ORIGIN AGAIN "
-                  << current_turn_index
-                  << "  started at " << start_turn_index
-                  << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
-                  << std::endl;
-#endif
-                do_switch = touch_other_ring;
-            }
-
-            if (start_turn.cluster_id >= 0 && start_turn.cluster_id == turn.cluster_id)
-            {
-                // Found the origin-cluster again
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "FOUND ORIGIN-CLUSTER AGAIN "
-                  << current_turn_index << " cl:" << turn.cluster_id
-                  << "  started at " << start_turn_index << " cl:" << start_turn.cluster_id
-                  << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
-                  << std::endl;
-#endif
-                do_switch = touch_other_ring;
-            }
-
-            // Return, it does not need to be finished
-            return true;
-        }
-
-        bool touch_other = false;
-        if (seg_ids.empty())
-        {
-            segment_identifier const& oseg_id
-                    = turn.operations[1 - start_op_index].seg_id;
-            touch_other = start_other_seg_id.multi_index == oseg_id.multi_index
-                          && start_other_seg_id.ring_index == oseg_id.ring_index;
-        }
-        else
-        {
-            touch_other = contains_ring(seg_ids, turn.operations[1 - start_op_index].seg_id);
-        }
-
-        if (touch_other)
-        {
-            touch_other_ring = true;
-            // We cannot yet return here
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "  other ring encountered "
-                  << " start: " << start_other_seg_id
-                  << " " << turn.operations[0].seg_id
-                  << " // " << turn.operations[1].seg_id
-                  << std::endl;
-#endif
-        }
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "  TURN visited "
-                  << " " << turn.operations[0].seg_id
-                  << " // " << turn.operations[1].seg_id
-                  << " " << (touch_other_ring ? " OTHER RING ENCOUNTERED" : "")
-                  << std::endl;
-#endif
-        return false;
-    }
-
-    inline traverse_error_type traverse(bool& do_switch, bool& dont_switch, bool& touch_other_ring,
-                std::set<segment_identifier> const& seg_ids,
-                signed_size_type start_turn_index, int start_op_index)
-    {
-        turn_type& start_turn = m_turns[start_turn_index];
-        turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
-
-        signed_size_type current_turn_index = start_turn_index;
-        int current_op_index = start_op_index;
-
-        bool is_touching = false;
-        traverse_error_type error = travel_to_next_turn(start_turn_index,
-                    start_op_index,
-                    current_turn_index, current_op_index, is_touching,
-                    true);
-
-        if (error != traverse_error_none)
-        {
-            // This is not necessarily a problem, it happens for clustered turns
-            // which are "build in" or otherwise point inwards
-            return error;
-        }
-
-        // SWITCH
-        {
-            turn_type const& turn = m_turns[current_turn_index];
-            bool same_cluster = start_turn.cluster_id >= 0 && turn.cluster_id == start_turn.cluster_id;
-            if (is_touching
-                    || turn.both(operation_union)
-                    || same_cluster)
-            {
-                if (same_cluster || start_turn_index == current_turn_index)
-                {
-                    dont_switch = true;
-                }
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "FOUND "
-                          << (same_cluster || start_turn_index == current_turn_index ? "SAME" : " OTHER")
-                          << (same_cluster ? " CLUSTER" : " UU-TURN")
-                          << " RIGHT AFTER START turn="
-                          << current_turn_index
-                          << "  start=" << start_turn_index
-                          << std::endl;
-#endif
-                return traverse_error_none;
-            }
-        } // SWITCH
-
-        if (detect_traverse_switch(do_switch, touch_other_ring, seg_ids,
-                               start_turn_index, start_op_index,
-                               is_touching, current_turn_index))
-        {
-            return traverse_error_none;
-        }
-
-        if (current_turn_index == start_turn_index)
-        {
-            start_op.visited.set_finished();
-
-            m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish SWITCH");
-            return traverse_error_none;
-        }
-
-        std::size_t const max_iterations = 2 + 2 * m_turns.size();
-        for (std::size_t i = 0; i <= max_iterations; i++)
-        {
-            // We assume clockwise polygons only, non self-intersecting, closed.
-            // However, the input might be different, and checking validity
-            // is up to the library user.
-
-            // Therefore we make here some sanity checks. If the input
-            // violates the assumptions, the output polygon will not be correct
-            // but the routine will stop and output the current polygon, and
-            // will continue with the next one.
-
-            // Below three reasons to stop.
-            error = travel_to_next_turn(start_turn_index, start_op_index,
-                    current_turn_index, current_op_index, is_touching,
-                    false);
-
-            if (error != traverse_error_none)
-            {
-                return error;
-            }
-
-            if (detect_traverse_switch(do_switch, touch_other_ring, seg_ids,
-                                   start_turn_index, start_op_index,
-                                   is_touching, current_turn_index))
-            {
-                return traverse_error_none;
-            }
-
-            if (current_turn_index == start_turn_index
-                    && current_op_index == start_op_index)
-            {
-                start_op.visited.set_finished();
-                m_visitor.visit_traverse(m_turns, start_turn, start_op, "Finish SWITCH");
-                return traverse_error_none;
-            }
-        }
-
-        return traverse_error_endless_loop;
-    }
-
-    void traverse_with_operation(bool& do_switch, bool& dont_switch, bool& touch_other_ring,
-            turn_type const& start_turn,
-            std::set<segment_identifier> const& seg_ids,
-            std::size_t turn_index, int op_index)
-    {
-        turn_operation_type const& start_op = start_turn.operations[op_index];
-
-        if (! start_op.visited.none()
-            || ! start_op.enriched.startable
-            || start_op.visited.rejected()
-            || ! (start_op.operation == OperationType
-                || start_op.operation == detail::overlay::operation_continue))
-        {
+            // The ring is already gathered in a region, quit
             return;
         }
-
-        traverse_error_type traverse_error = traverse(do_switch, dont_switch, touch_other_ring,
-            seg_ids, turn_index, op_index);
-
-        if (traverse_error != traverse_error_none)
+        if (region_id == -1)
         {
-            // Reject this as a starting point
-            m_turns[turn_index].operations[op_index].visited.set_rejected();
-
-            // And clear all visit info
-            clear_visit_info(m_turns);
+            region_id = m_region_id++;
         }
-    }
 
-    void reset_uu_turn(turn_type& turn)
-    {
-        for (int i = 0; i < 2; i++)
+        // Assign this ring to specified region
+        m_regions[ring_id] = region_id;
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+        std::cout << " ADD " << ring_id << "  TO REGION " << region_id << std::endl;
+#endif
+
+        // Find connecting rings, recursively
+        for (std::set<int>::const_iterator sit = ring_turn_indices.begin(); sit != ring_turn_indices.end(); ++sit)
         {
-            turn.operations[i].visited.reset();
-        }
-    }
-
-    void reset_visits()
-    {
-        typedef typename boost::range_value<Turns>::type tp_type;
-
-        for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(m_turns);
-            it != boost::end(m_turns);
-            ++it)
-        {
-            for (int i = 0; i < 2; i++)
+            int const turn_index = *sit;
+            turn_type const& turn = m_turns[turn_index];
+            if (! connects_same_zone(turn))
             {
-                it->operations[i].visited.reset();
-            }
-        }
-    }
-
-    // Create a set of ids from the *other* zone of an turn operation
-    void create_set(std::set<segment_identifier>& seg_ids,
-                    cluster_info const& cinfo,
-                    signed_size_type start_turn_index,
-                    turn_operation_type const& op)
-    {
-        std::set<signed_size_type> const& ids = cinfo.turn_indices;
-
-        for (std::set<signed_size_type>::const_iterator it = ids.begin();
-             it != ids.end(); ++it)
-        {
-            signed_size_type turn_index = *it;
-            if (turn_index == start_turn_index)
-            {
+                // This is a non clustered uu-turn, or a cluster connecting different 'zones'
                 continue;
             }
-            turn_type const& turn = m_turns[turn_index];
-            for (int oi = 0; oi < 2; oi++)
+
+            // This turn connects two rings (interior connected), create the
+            // same region
+            for (int op_index = 0; op_index < 2; op_index++)
             {
-                if (turn.operations[oi].enriched.zone != op.enriched.zone)
+                turn_operation_type const& op = turn.operations[op_index];
+                ring_identifier connected_ring_id = ring_id_by_seg_id(op.seg_id);
+                if (connected_ring_id != ring_id)
                 {
-                    seg_ids.insert(turn.operations[oi].seg_id);
+                    std::map<ring_identifier, std::set<int> >::const_iterator it = m_turns_per_ring.find(connected_ring_id);
+                    if (it != m_turns_per_ring.end())
+                    {
+                        create_region(connected_ring_id, it->second, region_id);
+                    }
                 }
             }
         }
     }
 
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-    std::string debug_string(std::set<segment_identifier> const& ids)
-    {
-        std::ostringstream out;
-        for (std::set<segment_identifier>::const_iterator it = ids.begin();
-             it != ids.end(); ++it)
-        {
-            out << " " << *it;
-        }
-        return out.str();
-    }
-#endif
 
     void iterate()
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "SWITCH BEGIN ITERATION" << std::endl;
 #endif
+
+        // Collect turns per ring
+        m_turns_per_ring.clear();
+        m_regions.clear();
+        m_region_id = 1;
+
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type const& turn = m_turns[turn_index];
+
+            for (int op_index = 0; op_index < 2; op_index++)
+            {
+                turn_operation_type const& op = turn.operations[op_index];
+                m_turns_per_ring[ring_id_by_seg_id(op.seg_id)].insert(turn_index);
+            }
+        }
+
+        // All rings having turns are in the map. Now iterate them
+        for (std::map<ring_identifier, std::set<int> >::const_iterator it
+             = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
+        {
+            create_region(it->first, it->second);
+        }
+
+        // Now that all regions are filled, assign switch_source property
         // Iterate through all clusters
         for (typename Clusters::iterator it = m_clusters.begin(); it != m_clusters.end(); ++it)
         {
@@ -437,63 +173,28 @@ struct traversal_switch_detector
                 continue;
             }
 
+            // A touching cluster, gather regions
+            std::set<int> regions;
+
             std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
                 std::cout << "SWITCH EXAMINE CLUSTER " << it->first << std::endl;
 #endif
 
-            bool cl_do_switch = false;
-            bool cl_dont_switch = false;
             for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
                  sit != ids.end(); ++sit)
             {
                 signed_size_type turn_index = *sit;
-                turn_type& turn = m_turns[turn_index];
-
-                if (turn.both(operation_continue))
-                {
-                    // For cc-turns, happening when two rings continue together,
-                    // don't examine: we will always find the other ring again
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                    std::cout << "- SKIP cc CLUSTER-TURN " << turn_index << std::endl;
-#endif
-                    continue;
-                }
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "- EXAMINE CLUSTER-TURN " << turn_index << std::endl;
-#endif
-
-                bool do_switch[2] = {0};
-                bool dont_switch[2] = {0};
+                turn_type const& turn = m_turns[turn_index];
                 for (int oi = 0; oi < 2; oi++)
                 {
-                    std::set<segment_identifier> other_zone_seg_ids;
-                    create_set(other_zone_seg_ids, cinfo, turn_index, turn.operations[oi]);
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "  - EXAMINE CLUSTER-TURN-OP " << turn_index << "[" << oi << "]"
-                          << " " << turn.operations[oi].seg_id
-                          << " // " << turn.operations[1 - oi].seg_id
-                          << " oz.segids:"  << debug_string(other_zone_seg_ids)
-                          << std::endl;
-#endif
-                    bool touch_other_ring = false;
-                    traverse_with_operation(do_switch[oi], dont_switch[oi], touch_other_ring,
-                                            turn, other_zone_seg_ids, turn_index, oi);
-                    reset_visits();
-                }
-                if (dont_switch[0] || dont_switch[1])
-                {
-                    cl_dont_switch = true;
-                }
-                if (do_switch[0] || do_switch[1])
-                {
-                    cl_do_switch = true;
+                    int const region = get_region_id(turn.operations[oi]);
+                    regions.insert(region);
                 }
             }
-            cinfo.switch_source = ! cl_dont_switch && cl_do_switch;
+            // Switch source if this cluster connects the same region
+            cinfo.switch_source = regions.size() == 1;
         }
 
         // Iterate through all uu turns (non-clustered)
@@ -510,30 +211,11 @@ struct traversal_switch_detector
                 continue;
             }
 
-            // Turn is uu-only and not clustered
+            int const region0 = get_region_id(turn.operations[0]);
+            int const region1 = get_region_id(turn.operations[1]);
 
-            bool do_switch[2] = {0};
-            bool dont_switch[2] = {0};
-            for (int oi = 0; oi < 2; oi++)
-            {
-                reset_uu_turn(turn);
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "SWITCH EXAMINE " << turn_index
-                          << "[" << oi << "]"
-                             << " " << turn.operations[oi].seg_id
-                             << " // " << turn.operations[1 - oi].seg_id
-                          << std::endl;
-#endif
-                bool touch_other_ring = false;
-                std::set<segment_identifier> other_seg_ids;
-                other_seg_ids.insert(turn.operations[1 - oi].seg_id);
-                traverse_with_operation(do_switch[oi], dont_switch[oi], touch_other_ring,
-                                        turn, other_seg_ids, turn_index, oi);
-            }
-            turn.switch_source = do_switch[0] || do_switch[1];
-
-            // Because it was unknown before if traversal per operation should switch, visit-info should be cleared
-            reset_uu_turn(turn);
+            // Switch sources for same region
+            turn.switch_source = region0 == region1;
         }
 
 
@@ -566,7 +248,6 @@ struct traversal_switch_detector
     }
 
 private:
-    traversal_type m_trav;
 
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
@@ -574,6 +255,11 @@ private:
     Clusters& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
+
+    std::map<ring_identifier, int> m_regions;
+    std::map<ring_identifier, std::set<int> > m_turns_per_ring;
+    int m_region_id;
+
 };
 
 }} // namespace detail::overlay

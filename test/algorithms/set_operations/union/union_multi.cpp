@@ -179,15 +179,14 @@ void test_areal()
         1, 0, 14, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        17, 3, 162, 56.5,
-        ignore_validity); // Area from SQL Server
+        17, 6, 166, 56.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         1, 2, 42, 96.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-        3, 8, 115, 70.0,
+        3, 9, 115, 70.0,
         ignore_validity);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
@@ -239,8 +238,7 @@ void test_areal()
             3, 0, -1, 6.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_16",
         case_recursive_boxes_16[0], case_recursive_boxes_16[1],
-            1, 2, -1, 22.0,
-            ignore_validity);
+            1, 4, -1, 22.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_17",
         case_recursive_boxes_17[0], case_recursive_boxes_17[1],
             5, 2, -1, 21.0);
@@ -279,8 +277,7 @@ void test_areal()
             2, 0, -1, 6.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_29",
         case_recursive_boxes_29[0], case_recursive_boxes_29[1],
-            2, 0, -1, 15.5,
-            ignore_validity);
+            2, 2, -1, 15.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_30",
         case_recursive_boxes_30[0], case_recursive_boxes_30[1],
             1, 3, -1, 17.5);
@@ -305,11 +302,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_37",
         case_recursive_boxes_37[0], case_recursive_boxes_37[1],
             2, 1, -1, 7.75);
-    // Should have one interior
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_38",
         case_recursive_boxes_38[0], case_recursive_boxes_38[1],
-            2, 0, -1, 14.0,
-            ignore_validity);
+            2, 1, -1, 14.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
