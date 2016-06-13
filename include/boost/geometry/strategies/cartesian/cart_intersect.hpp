@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -108,16 +108,17 @@ struct relate_cartesian_segments
     }
 
     // The main entry-routine, calculating intersections of segments a / b
-    template <typename Segment1, typename Segment2, typename RobustPolicy, typename RobustPoint>
+    // NOTE: Robust* types may be the same as Segments' point types
+    template <typename Segment1, typename Segment2,
+              typename RobustPolicy,
+              typename RobustPoint1, typename RobustPoint2>
     static inline return_type apply(Segment1 const& a, Segment2 const& b,
-            RobustPolicy const& robust_policy,
-            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
-            RobustPoint const& robust_b1, RobustPoint const& robust_b2)
+            RobustPolicy const& /*robust_policy*/,
+            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
     {
         BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
-
-        boost::ignore_unused_variable_warning(robust_policy);
 
         using geometry::detail::equals::equals_point_point;
         bool const a_is_point = equals_point_point(robust_a1, robust_a2);
@@ -162,9 +163,10 @@ struct relate_cartesian_segments
                 coordinate_type, double
             >::type promoted_type;
 
-        typedef typename geometry::coordinate_type
+        typedef typename select_most_precise
             <
-                RobustPoint
+                typename geometry::coordinate_type<RobustPoint1>::type,
+                typename geometry::coordinate_type<RobustPoint2>::type
             >::type robust_coordinate_type;
 
         typedef typename segment_ratio_type
@@ -300,12 +302,13 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustPoint
+        typename RobustPoint1,
+        typename RobustPoint2
     >
     static inline return_type relate_collinear(Segment1 const& a,
             Segment2 const& b,
-            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
-            RobustPoint const& robust_b1, RobustPoint const& robust_b2,
+            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
             bool a_is_point, bool b_is_point)
     {
         if (a_is_point)
@@ -335,12 +338,13 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustType
+        typename RobustType1,
+        typename RobustType2
     >
     static inline return_type relate_collinear(Segment1 const& a
             , Segment2 const& b
-            , RobustType oa_1, RobustType oa_2
-            , RobustType ob_1, RobustType ob_2
+            , RobustType1 oa_1, RobustType1 oa_2
+            , RobustType2 ob_1, RobustType2 ob_2
             )
     {
         // Calculate the ratios where a starts in b, b starts in a
@@ -373,8 +377,8 @@ private:
         // b2 is located w.r.t. a at ratio: (5-2)/5=3/5 (on a)
         // a1 is located w.r.t. b at ratio: (2-8)/-3=6/3 (after b ends)
         // a2 is located w.r.t. b at ratio: (7-8)/-3=1/3 (on b)
-        RobustType const length_a = oa_2 - oa_1; // no abs, see above
-        RobustType const length_b = ob_2 - ob_1;
+        RobustType1 const length_a = oa_2 - oa_1; // no abs, see above
+        RobustType2 const length_b = ob_2 - ob_1;
 
         RatioType ra_from(oa_1 - ob_1, length_b);
         RatioType ra_to(oa_2 - ob_1, length_b);
@@ -435,12 +439,13 @@ private:
     <
         typename RatioType,
         typename DegenerateSegment,
-        typename RobustType
+        typename RobustType1,
+        typename RobustType2
     >
     static inline return_type relate_one_degenerate(
             DegenerateSegment const& degenerate_segment
-            , RobustType d
-            , RobustType s1, RobustType s2
+            , RobustType1 d
+            , RobustType2 s1, RobustType2 s2
             , bool a_degenerate
             )
     {
