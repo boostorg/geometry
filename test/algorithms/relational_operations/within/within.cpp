@@ -21,22 +21,29 @@
 #include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
-template <typename P>
-void test_all()
+template <typename P1, typename P2>
+void test_point_box()
 {
-    typedef bg::model::box<P> box_type;
+    typedef bg::model::box<P1> box_type1;
+    typedef bg::model::box<P2> box_type2;
 
-    test_geometry<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", true);
-    test_geometry<P, box_type>("POINT(0 0)", "BOX(0 0,2 2)", false);
-    test_geometry<P, box_type>("POINT(2 2)", "BOX(0 0,2 2)", false);
-    test_geometry<P, box_type>("POINT(0 1)", "BOX(0 0,2 2)", false);
-    test_geometry<P, box_type>("POINT(1 0)", "BOX(0 0,2 2)", false);
+    test_geometry<P1, box_type2>("POINT(1 1)", "BOX(0 0,2 2)", true);
+    test_geometry<P1, box_type2>("POINT(0 0)", "BOX(0 0,2 2)", false);
+    test_geometry<P1, box_type2>("POINT(2 2)", "BOX(0 0,2 2)", false);
+    test_geometry<P1, box_type2>("POINT(0 1)", "BOX(0 0,2 2)", false);
+    test_geometry<P1, box_type2>("POINT(1 0)", "BOX(0 0,2 2)", false);
 
-    test_geometry<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
-    test_geometry<box_type, box_type>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
+    test_geometry<P1, box_type2>("POINT(3 3)", "BOX(1 1,4 4)", true);
+    test_geometry<P2, box_type1>("POINT(3 3)", "BOX(0 0,5 5)", true);
 
-    test_geometry<box_type, box_type>("BOX(1 1,3 3)", "BOX(0 0,3 3)", true);
-    test_geometry<box_type, box_type>("BOX(3 1,3 3)", "BOX(0 0,3 3)", false);
+    test_geometry<box_type1, box_type2>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
+    test_geometry<box_type1, box_type2>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
+
+    test_geometry<box_type1, box_type2>("BOX(1 1,3 3)", "BOX(0 0,3 3)", true);
+    test_geometry<box_type1, box_type2>("BOX(3 1,3 3)", "BOX(0 0,3 3)", false);
+
+    test_geometry<box_type1, box_type2>("BOX(1 1,4 4)", "BOX(0 0,5 5)", true);
+    test_geometry<box_type2, box_type1>("BOX(0 0,5 5)", "BOX(1 1,4 4)", false);
 
     /*
     test_within_code<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", 1);
@@ -54,7 +61,7 @@ void test_all()
     */
 }
 
-void test_3d()
+void test_point_box_3d()
 {
     typedef boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian> point_type;
     typedef boost::geometry::model::box<point_type> box_type;
@@ -70,50 +77,26 @@ void test_3d()
 }
 
 template <typename P1, typename P2>
-void test_mixed_of()
+void test_point_poly()
 {
-    typedef boost::geometry::model::polygon<P1> polygon_type1;
-    typedef boost::geometry::model::polygon<P2> polygon_type2;
-    typedef boost::geometry::model::box<P1> box_type1;
-    typedef boost::geometry::model::box<P2> box_type2;
+    typedef boost::geometry::model::polygon<P1> poly1;
+    typedef boost::geometry::model::polygon<P2> poly2;
 
-    polygon_type1 poly1;
-    polygon_type2 poly2;
-    boost::geometry::read_wkt("POLYGON((0 0,0 5,5 5,5 0,0 0))", poly1);
-    boost::geometry::read_wkt("POLYGON((0 0,0 5,5 5,5 0,0 0))", poly2);
-
-    box_type1 box1(P1(1, 1), P1(4, 4));
-    box_type2 box2(P2(0, 0), P2(5, 5));
-    P1 p1(3, 3);
-    P2 p2(3, 3);
-
-    BOOST_CHECK_EQUAL(bg::within(p1, poly2), true);
-    BOOST_CHECK_EQUAL(bg::within(p2, poly1), true);
-    BOOST_CHECK_EQUAL(bg::within(p2, box1), true);
-    BOOST_CHECK_EQUAL(bg::within(p1, box2), true);
-    BOOST_CHECK_EQUAL(bg::within(box1, box2), true);
-    BOOST_CHECK_EQUAL(bg::within(box2, box1), false);
+    test_geometry<P1, poly2>("POINT(3 3)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<P2, poly1>("POINT(3 3)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
 }
 
-
-void test_mixed()
+template <typename P1, typename P2>
+void test_all()
 {
-    // Mixing point types and coordinate types
-    test_mixed_of
-        <
-            boost::geometry::model::d2::point_xy<double>,
-            boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>
-        >();
-    test_mixed_of
-        <
-            boost::geometry::model::d2::point_xy<float>,
-            boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>
-        >();
-    test_mixed_of
-        <
-            boost::geometry::model::d2::point_xy<int>,
-            boost::geometry::model::d2::point_xy<double>
-        >();
+    test_point_box<P1, P2>();
+    test_point_poly<P1, P2>();
+}
+
+template <typename P>
+void test_all()
+{
+    test_all<P, P>();
 }
 
 void test_strategy()
@@ -145,11 +128,19 @@ void test_strategy()
 
 int test_main( int , char* [] )
 {
-    test_all<bg::model::d2::point_xy<int> >();
-    test_all<bg::model::d2::point_xy<double> >();
+    typedef boost::geometry::model::d2::point_xy<double> xyd;
+    typedef boost::geometry::model::d2::point_xy<float> xyf;
+    typedef boost::geometry::model::d2::point_xy<int> xyi;
+    typedef boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian> p2d;
+    
+    test_all<xyd, p2d>();
+    test_all<xyf, p2d>();
+    test_all<xyi, xyd>();
 
-    test_mixed();
-    test_3d();
+    test_all<xyi>();
+    test_all<xyd>();
+
+    test_point_box_3d();
     test_strategy();
 
 
