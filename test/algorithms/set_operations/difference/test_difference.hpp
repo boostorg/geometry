@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/remove_spikes.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -117,7 +118,7 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
 
 template <typename OutputType, typename G1, typename G2>
 std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
-        int expected_count, int expected_point_count,
+        int expected_count, int expected_rings_count, int expected_point_count,
         double expected_area,
         bool sym,
         ut_settings const& settings)
@@ -214,6 +215,17 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
                 );
     }
 
+    if (expected_rings_count >= 0)
+    {
+        int nrings = expected_count + bg::num_interior_rings(result);
+        BOOST_CHECK_MESSAGE(nrings == expected_rings_count,
+                "difference: " << caseid
+                << " #rings expected: " << expected_rings_count
+                << " detected: " << nrings
+                << " type: " << (type_for_assert_message<G1, G2>())
+                );
+    }
+
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
 #endif
 
@@ -221,11 +233,96 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     return return_string.str();
 }
 
+template <typename OutputType, typename G1, typename G2>
+std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
+        int expected_count, int expected_point_count,
+        double expected_area,
+        bool sym,
+        ut_settings const& settings)
+{
+    return test_difference<OutputType>(caseid, g1, g2,
+        expected_count, -1, expected_point_count, expected_area,
+        sym, settings);
+}
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 static int counter = 0;
 #endif
 
+
+template <typename OutputType, typename G1, typename G2>
+std::string test_one(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        int expected_count1,
+        int expected_rings_count1,
+        int expected_point_count1,
+        double expected_area1,
+        int expected_count2,
+        int expected_rings_count2,
+        int expected_point_count2,
+        double expected_area2,
+        int expected_count_s,
+        int expected_rings_count_s,
+        int expected_point_count_s,
+        double expected_area_s,
+        ut_settings const& settings = ut_settings())
+{
+    G1 g1;
+    bg::read_wkt(wkt1, g1);
+
+    G2 g2;
+    bg::read_wkt(wkt2, g2);
+
+    bg::correct(g1);
+    bg::correct(g2);
+
+    std::string result = test_difference<OutputType>(caseid + "_a", g1, g2,
+        expected_count1, expected_rings_count1, expected_point_count1,
+        expected_area1, false, settings);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+    return result;
+#endif
+
+    test_difference<OutputType>(caseid + "_b", g2, g1,
+        expected_count2, expected_rings_count2, expected_point_count2,
+        expected_area2, false, settings);
+
+    if (settings.sym_difference)
+    {
+        test_difference<OutputType>(caseid + "_s", g1, g2,
+            expected_count_s,
+            expected_rings_count_s,
+            expected_point_count_s,
+            expected_area_s,
+            true, settings);
+    }
+    return result;
+}
+
+template <typename OutputType, typename G1, typename G2>
+std::string test_one(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        int expected_count1,
+        int expected_rings_count1,
+        int expected_point_count1,
+        double expected_area1,
+        int expected_count2,
+        int expected_rings_count2,
+        int expected_point_count2,
+        double expected_area2,
+        ut_settings const& settings = ut_settings())
+{
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count1, expected_rings_count1, expected_point_count1, expected_area1,
+        expected_count2, expected_rings_count2, expected_point_count2, expected_area2,
+        expected_count1 + expected_count2,
+        expected_rings_count1 + expected_rings_count2,
+        expected_point_count1 >= 0 && expected_point_count2 >= 0
+            ? (expected_point_count1 + expected_point_count2) : -1,
+        expected_area1 + expected_area2,
+        settings);
+}
 
 template <typename OutputType, typename G1, typename G2>
 std::string test_one(std::string const& caseid,
@@ -241,36 +338,11 @@ std::string test_one(std::string const& caseid,
         double expected_area_s,
         ut_settings const& settings = ut_settings())
 {
-    G1 g1;
-    bg::read_wkt(wkt1, g1);
-
-    G2 g2;
-    bg::read_wkt(wkt2, g2);
-
-    bg::correct(g1);
-    bg::correct(g2);
-
-    std::string result = test_difference<OutputType>(caseid + "_a", g1, g2,
-        expected_count1, expected_point_count1,
-        expected_area1, false, settings);
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-    return result;
-#endif
-
-    test_difference<OutputType>(caseid + "_b", g2, g1,
-        expected_count2, expected_point_count2,
-        expected_area2, false, settings);
-
-    if (settings.sym_difference)
-    {
-        test_difference<OutputType>(caseid + "_s", g1, g2,
-            expected_count_s,
-            expected_point_count_s,
-            expected_area_s,
-            true, settings);
-    }
-    return result;
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count1, -1, expected_point_count1, expected_area1,
+        expected_count2, -1, expected_point_count2, expected_area2,
+        expected_count_s, -1, expected_point_count_s, expected_area_s,
+        settings);
 }
 
 template <typename OutputType, typename G1, typename G2>

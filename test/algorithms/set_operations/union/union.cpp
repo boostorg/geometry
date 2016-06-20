@@ -435,16 +435,29 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 1, 217, 36.752837);
 
-    // #holes should be 1 (for the 3 cases below)
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
-        2, 0, -1, 234.5);
+        2, 1, -1, 234.5);
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_2",
         mysql_21964079_2[0], mysql_21964079_2[1],
-        2, 0, -1, 112.0);
+        2, 1, -1, 112.0);
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
-        1, 0, -1, 220.5);
+        1, 1, -1, 220.5);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_1",
+        mysql_23023665_1[0], mysql_23023665_1[1],
+        2, 1, -1, 92.0 + 142.5);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_2",
+        mysql_23023665_2[0], mysql_23023665_2[1],
+        2, 1, -1, 96.0 + 16.0);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_3",
+        mysql_23023665_3[0], mysql_23023665_3[1],
+        2, 1, -1, 225.0 + 66.0);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_4",
+        mysql_23023665_4[0], mysql_23023665_4[1],
+        1, 1, -1, 1.5 + 219.0);
+#endif
 }
 
 template <typename P>

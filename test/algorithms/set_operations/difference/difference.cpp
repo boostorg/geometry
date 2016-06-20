@@ -462,13 +462,35 @@ void test_all()
     test_one<polygon, polygon, polygon>("mysql_21977775",
         mysql_21977775[0], mysql_21977775[1],
         2, -1, 160.856568913, 2, -1, 92.3565689126);
-#endif
 
+    // also mysql_23023665
     test_one<polygon, polygon, polygon>("mysql_21965285",
         mysql_21965285[0], mysql_21965285[1],
-        1, -1, 92.0,
-        1, -1, 14.0,
-        1, -1, 92.0 + 14.0);
+        1, 2, -1, 92.0,
+        1, 1, -1, 14.0,
+        1, 2, -1, 92.0 + 14.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_1",
+        mysql_23023665_1[0], mysql_23023665_1[1],
+        1, 2, -1, 92.0,
+        1, 1, -1, 142.5);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_2",
+        mysql_23023665_2[0], mysql_23023665_2[1],
+        1, 2, -1, 96.0,
+        1, 1, -1, 16.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_3",
+        mysql_23023665_3[0], mysql_23023665_3[1],
+        1, 2, -1, 225.0,
+        1, 1, -1, 66.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_4",
+        mysql_23023665_4[0], mysql_23023665_4[1],
+        1, 1, -1, 1.5,
+        1, 2, -1, 219.0,
+        1, 2, -1, 1.5 + 219.0);
+#endif
 }
 
 
