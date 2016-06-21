@@ -276,7 +276,7 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    typedef strategy_intersection
+    typedef intersection_strategies
         <
             typename cs_tag<GeometryOut>::type,
             Geometry1,

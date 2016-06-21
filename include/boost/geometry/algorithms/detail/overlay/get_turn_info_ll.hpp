@@ -101,6 +101,7 @@ struct get_turn_info_linear_linear
                         // Swap p/q
                         side_calculator
                             <
+                                typename inters_info::cs_tag,
                                 typename inters_info::robust_point2_type,
                                 typename inters_info::robust_point1_type
                             > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),

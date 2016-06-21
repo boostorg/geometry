@@ -123,7 +123,7 @@ struct intersection
             = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
                                                                 geometry2);
         
-        typedef strategy_intersection
+        typedef intersection_strategies
         <
             typename cs_tag<Geometry1>::type,
             Geometry1,

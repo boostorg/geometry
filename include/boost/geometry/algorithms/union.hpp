@@ -214,7 +214,7 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
             Geometry2
         >::type rescale_policy_type;
 
-    typedef strategy_intersection
+    typedef intersection_strategies
         <
             typename cs_tag<GeometryOut>::type,
             Geometry1,

@@ -4,6 +4,10 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -64,6 +68,14 @@ void test_geometry(std::string const& caseid,
     check_geometry(boost::variant<Geometry1>(geometry1), geometry2, caseid, wkt1, wkt2, expected);
     check_geometry(geometry1, boost::variant<Geometry2>(geometry2), caseid, wkt1, wkt2, expected);
     check_geometry(boost::variant<Geometry1>(geometry1), boost::variant<Geometry2>(geometry2), caseid, wkt1, wkt2, expected);
+}
+
+template <typename Geometry1, typename Geometry2>
+void test_geometry(std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
+{
+    test_geometry<Geometry1, Geometry2>("", wkt1, wkt2, expected);
 }
 
 #endif
