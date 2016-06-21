@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -490,6 +489,21 @@ void test_all()
         1, 1, -1, 1.5,
         1, 2, -1, 219.0,
         1, 2, -1, 1.5 + 219.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_5",
+        mysql_23023665_5[0], mysql_23023665_5[1],
+        2, 2, -1, 165.23735,
+        2, 2, -1, 105.73735);
+#endif
+    test_one<polygon, polygon, polygon>("mysql_23023665_6",
+        mysql_23023665_6[0], mysql_23023665_6[1],
+        2, 2, -1, 105.68756,
+        3, 3, -1, 10.18756);
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<polygon, polygon, polygon>("mysql_23023665_13",
+        mysql_23023665_13[0], mysql_23023665_13[1],
+        3, 3, -1, 99.74526,
+        3, 3, -1, 37.74526);
 #endif
 }
 

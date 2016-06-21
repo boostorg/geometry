@@ -3,10 +3,10 @@
 //
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -1054,5 +1054,35 @@ static std::string mysql_23023665_4[2] =
         "POLYGON((7 0,10 -3,7 1,7 0))",
         "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))"
     };
+
+static std::string mysql_23023665_5[2] =
+    {
+        "POLYGON((8 6,5 7,-1 4,-8 -7,0 -17,8 6),(3 6,5 5,0 -2,3 6))",
+        "POLYGON((3 5,-17 11,-8 -3,3 5))"
+    };
+
+static std::string mysql_23023665_6[2] =
+    {
+        "POLYGON((6 7,18 14, -8 1, 0 0, 18 -8, 6 7), (6 0, -4 3, 5 3, 6 0))",
+        "POLYGON((2 3,-3 5,-10 -1,2 3))"
+    };
+
+static std::string mysql_23023665_10[2] =
+    {
+        "POLYGON((0 5, -6 -17, 12 17, 0 5),(4 6, 5 5, 0 1, 4 6))",
+        "POLYGON((3 9, -15 -5, 13 -11, 3 9))"
+    };
+
+static std::string mysql_23023665_11[2] =
+    {
+        "POLYGON((5 6,-15 -13,1 -8,5 6))",
+        "POLYGON((0 8,-19 6,18 -17,20 8,11 17,0 8),(3 2,3 -1,1 0,3 2),(1 3,4 4,0 -1,1 3))"
+    };
+
+static std::string mysql_23023665_13[2] =
+{
+    "POLYGON((6 7,18 14,-8 1,0 0,18 -8,6 7),(6 0,-4 3,5 3,6 0))",
+    "POLYGON((0 7,-5 6,11 -13,0 7))"
+};
 
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP
