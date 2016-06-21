@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -278,9 +282,15 @@ void test_areal()
         1, 2, 134, 60071.08077);
 
 #ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_1",
-        mysql_1[0], mysql_1[1],
-        1, 1, 19, 99.19494);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
+        mysql_23023665_7[0], mysql_23023665_7[1],
+        1, 1, -1, 99.19494);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_8",
+        mysql_23023665_8[0], mysql_23023665_8[1],
+        1, 2, -1, 1400.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
+        mysql_23023665_9[0], mysql_23023665_9[1],
+        1, 9, -1, 1250.0);
 #endif
 }
 

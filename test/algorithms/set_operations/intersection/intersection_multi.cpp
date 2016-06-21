@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -104,10 +108,10 @@ void test_areal()
         3, 16, 6.15);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
-        5, 33, 9);
+        5, 33, 9.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
-        1, 0, 22); // In "get_turns" using partitioning, #points went from 17 to 16
+        1, 0, 22.0); // In "get_turns" using partitioning, #points went from 17 to 16
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
         4, 22, 4.75);
@@ -253,9 +257,15 @@ void test_areal()
         ticket_11018[0], ticket_11018[1],
         1, 4, 1.7791170511070893e-14);
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_1",
-        mysql_1[0], mysql_1[1],
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
+        mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_12",
+        mysql_23023665_12[0], mysql_23023665_12[1],
+        2, -1, 11.812440191387557);
+#endif
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
@@ -274,24 +284,24 @@ void test_linear()
     typedef typename bg::point_type<MultiLineString>::type point;
     test_one<point, MultiLineString, MultiLineString>("case_multi_ml_ml_1",
         "MULTILINESTRING((0 0,1 1))", "MULTILINESTRING((0 1,1 0))",
-        1, 1, 0);
+        1, 1, 0.0);
     test_one<point, MultiLineString, MultiLineString>("case_multi_ml_ml_2",
         "MULTILINESTRING((0 0,1 1),(0.5 0,1.5 1))", "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))",
-        4, 4, 0);
+        4, 4, 0.0);
 
     test_one<point, LineString, MultiLineString>("case_multi_l_ml",
         "LINESTRING(0 0,1 1)", "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))",
-        2, 2, 0);
+        2, 2, 0.0);
     test_one<point, MultiLineString, LineString>("case_multi_ml_l",
         "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))", "LINESTRING(0 0,1 1)",
-        2, 2, 0);
+        2, 2, 0.0);
 
     test_one<LineString, MultiLineString, Box>("case_multi_ml_b",
         "MULTILINESTRING((0 0,3 3)(1 0,4 3))", "POLYGON((1 1,3 2))",
-        2, 4, 2 * std::sqrt(2.0));
+        2, 4, 2.0 * std::sqrt(2.0));
     test_one<LineString, Box, MultiLineString>("case_multi_b_ml",
         "POLYGON((1 1,3 2))", "MULTILINESTRING((0 0,3 3)(1 0,4 3))",
-        2, 4, 2 * std::sqrt(2.0));
+        2, 4, 2.0 * std::sqrt(2.0));
 }
 
 template <typename P>

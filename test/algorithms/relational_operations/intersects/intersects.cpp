@@ -191,9 +191,6 @@ void test_point_polygon()
 template <typename P1, typename P2>
 void test_all()
 {
-    typedef bg::model::polygon<P2> polygon;
-    typedef bg::model::ring<P2> ring;
-
     test_intersects_point_segment<P1, P2>();
     test_intersects_point_linestring<P1, P2>();
     test_intersects_polygon_polygon<P1, P2>();

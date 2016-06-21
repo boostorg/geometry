@@ -5,9 +5,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -147,7 +146,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
-        1, 20, 81 - 2 * 3 * 3 - 3 * 7);
+        1, 20, 81.0 - 2.0 * 3.0 * 3.0 - 3.0 * 7.0);
 
     test_one<Polygon, Polygon, Polygon>("only_hole_intersections1",
         only_hole_intersections[0], only_hole_intersections[1],
@@ -158,7 +157,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("fitting",
         fitting[0], fitting[1],
-        0, 0, 0);
+        0, 0, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("crossed",
         crossed[0], crossed[1],
@@ -258,11 +257,11 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.635930e-08, 0.01);
+                1, 4, 3.635930e-08, ut_settings(0.01));
 #endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
-                1, 4, 4.34355e-05, 0.01);
+                1, 4, 4.34355e-05, ut_settings(0.01));
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
@@ -349,6 +348,20 @@ void test_areal()
         mysql_21965285_b_inv[0],
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
+        mysql_23023665_6[0], mysql_23023665_6[1],
+        2, -1, 11.812440191387557);
+
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
+        mysql_23023665_10[0], mysql_23023665_10[1],
+        1, 1, -1, 54.701340543162523);
+
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
+        mysql_23023665_11[0], mysql_23023665_11[1],
+        1, 1, -1, 35.933385462482065);
+#endif
 
     return;
 
@@ -658,23 +671,23 @@ void test_all()
     test_one<linestring, linestring, box>("llbi", "LINESTRING(3 3,7 7)", clip, 1, 2, sqrt(2.0 * 4.0 * 4.0));
 
     // Completely outside
-    test_one<linestring, linestring, box>("llbo", "LINESTRING(9 9,10 10)", clip, 0, 0, 0);
+    test_one<linestring, linestring, box>("llbo", "LINESTRING(9 9,10 10)", clip, 0, 0, 0.0);
 
     // Touching with point (-> output linestring with ONE point)
     //std::cout << "Note: the output line is degenerate! Might be removed!" << std::endl;
     test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0);
 
     // Along border
-    test_one<linestring, linestring, box>("llb_along", "LINESTRING(2 2,2 8)", clip, 1, 2, 6);
+    test_one<linestring, linestring, box>("llb_along", "LINESTRING(2 2,2 8)", clip, 1, 2, 6.0);
 
     // Outputting two lines (because of 3-4-5 constructions (0.3,0.4,0.5)
     // which occur 4 times, the length is expected to be 2.0)
-    test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4 * 0.5);
+    test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4.0 * 0.5);
 
     // linear
-    test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
-    test_one<P, segment, segment>("ssp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
-    test_one<P, linestring, linestring>("llp2", "LINESTRING(0 0,1 1)", "LINESTRING(0 0,2 2)", 2, 2, 0);
+    test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0.0);
+    test_one<P, segment, segment>("ssp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0.0);
+    test_one<P, linestring, linestring>("llp2", "LINESTRING(0 0,1 1)", "LINESTRING(0 0,2 2)", 2, 2, 0.0);
 
     // polygons outputing points
     //test_one<P, polygon, polygon>("ppp1", simplex_normal[0], simplex_normal[1], 1, 7, 5.47363293);

@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -462,13 +461,50 @@ void test_all()
     test_one<polygon, polygon, polygon>("mysql_21977775",
         mysql_21977775[0], mysql_21977775[1],
         2, -1, 160.856568913, 2, -1, 92.3565689126);
-#endif
 
+    // also mysql_23023665
     test_one<polygon, polygon, polygon>("mysql_21965285",
         mysql_21965285[0], mysql_21965285[1],
-        1, -1, 92.0,
-        1, -1, 14.0,
-        1, -1, 92.0 + 14.0);
+        1, 2, -1, 92.0,
+        1, 1, -1, 14.0,
+        1, 2, -1, 92.0 + 14.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_1",
+        mysql_23023665_1[0], mysql_23023665_1[1],
+        1, 2, -1, 92.0,
+        1, 1, -1, 142.5);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_2",
+        mysql_23023665_2[0], mysql_23023665_2[1],
+        1, 2, -1, 96.0,
+        1, 1, -1, 16.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_3",
+        mysql_23023665_3[0], mysql_23023665_3[1],
+        1, 2, -1, 225.0,
+        1, 1, -1, 66.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_4",
+        mysql_23023665_4[0], mysql_23023665_4[1],
+        1, 1, -1, 1.5,
+        1, 2, -1, 219.0,
+        1, 2, -1, 1.5 + 219.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_5",
+        mysql_23023665_5[0], mysql_23023665_5[1],
+        2, 2, -1, 165.23735,
+        2, 2, -1, 105.73735);
+#endif
+    test_one<polygon, polygon, polygon>("mysql_23023665_6",
+        mysql_23023665_6[0], mysql_23023665_6[1],
+        2, 2, -1, 105.68756,
+        3, 3, -1, 10.18756);
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<polygon, polygon, polygon>("mysql_23023665_13",
+        mysql_23023665_13[0], mysql_23023665_13[1],
+        3, 3, -1, 99.74526,
+        3, 3, -1, 37.74526);
+#endif
 }
 
 
