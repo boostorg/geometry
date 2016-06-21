@@ -27,7 +27,7 @@ void test_one()
     rtree.insert(Pt(4, 3));
     rtree.insert(Pt(0, 3));
 
-    for (Rtree::const_iterator it = rtree.begin() ; it != rtree.end() ; ++it)
+    for (typename Rtree::const_iterator it = rtree.begin() ; it != rtree.end() ; ++it)
     {
         std::vector<Pt> result;
         rtree.query(bgi::contains(*it), std::back_inserter(result));
