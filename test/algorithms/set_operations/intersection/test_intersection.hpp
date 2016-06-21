@@ -40,6 +40,7 @@
 #endif
 
 #include <geometry_test_common.hpp>
+#include "../setop_output_type.hpp"
 
 struct ut_settings
 {
@@ -55,21 +56,22 @@ struct ut_settings
 
 };
 
-template <typename G1, typename G2, typename OutputType>
+template <typename G1, typename G2, typename IntersectionOutput>
 typename bg::default_area_result<G1>::type
 check_result(
-    std::vector<OutputType> const& intersection_output,
+    IntersectionOutput const& intersection_output,
     std::string const& caseid,
     std::size_t expected_count, std::size_t expected_holes_count,
     int expected_point_count, double expected_length_or_area,
     ut_settings const& settings)
 {
+    typedef typename boost::range_value<IntersectionOutput>::type OutputType;
     bool const is_line = bg::geometry_id<OutputType>::type::value == 2;
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
     std::size_t nholes = 0;
-    for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+    for (typename IntersectionOutput::const_iterator it = intersection_output.begin();
             it != intersection_output.end();
             ++it)
     {
@@ -168,6 +170,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     }
 
     typedef typename bg::point_type<G1>::type point_type;
+    typedef typename setop_output_type<OutputType>::type result_type;
 
     if (! settings.debug)
     {
@@ -181,14 +184,14 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
                 typename bg::rescale_policy_type<point_type>::type,
                 CalculationType
             > strategy;
-        std::vector<OutputType> clip;
+        result_type clip;
         bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
     }
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
 
     // Check normal behaviour
-    std::vector<OutputType> intersection_output;
+    result_type intersection_output;
     bg::intersection(g1, g2, intersection_output);
 
     check_result<G1, G2>(intersection_output, caseid, expected_count,
@@ -255,7 +258,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
                     "stroke:rgb(51,51,153);stroke-width:3");
 
-        for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+        for (typename result_type::const_iterator it = intersection_output.begin();
                 it != intersection_output.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
@@ -364,7 +367,7 @@ void test_point_output(std::string const& wkt1, std::string const& wkt2, unsigne
     bg::read_wkt(wkt2, g2);
     bg::correct(g2);
 
-    std::vector<typename bg::point_type<Geometry1>::type> points;
+    bg::model::multi_point<typename bg::point_type<Geometry1>::type> points;
     bg::intersection(g1, g2, points);
     BOOST_CHECK_EQUAL(points.size(), expected_count);
 }
