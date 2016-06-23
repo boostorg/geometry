@@ -43,7 +43,7 @@
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
-#include <boost/geometry/io/svg/write_svg.hpp>
+#include <boost/geometry/io/svg/write.hpp>
 
 // Helper geometries (all points are transformed to integer-points)
 #include <boost/geometry/geometries/geometries.hpp>
@@ -191,6 +191,68 @@ struct svg_map<multi_tag, Multi>
 };
 
 
+template <typename Geometry>
+struct devarianted_svg_map
+{
+    template <typename TransformStrategy>
+    static inline void apply(std::ostream& stream,
+                             std::string const& style,
+                             int size,
+                             Geometry const& geometry,
+                             TransformStrategy const& strategy)
+    {
+        svg_map
+            <
+                typename tag_cast
+                    <
+                        typename tag<Geometry>::type,
+                        multi_tag
+                    >::type,
+                typename boost::remove_const<Geometry>::type
+            >::apply(stream, style, size, geometry, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_svg_map<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename TransformStrategy>
+    struct visitor: static_visitor<void>
+    {
+        std::ostream& m_os;
+        std::string const& m_style;
+        int m_size;
+        TransformStrategy const& m_strategy;
+
+        visitor(std::ostream& os,
+                std::string const& style,
+                int size,
+                TransformStrategy const& strategy)
+            : m_os(os)
+            , m_style(style)
+            , m_size(size)
+            , m_strategy(strategy)
+        {}
+
+        template <typename Geometry>
+        inline void operator()(Geometry const& geometry) const
+        {
+            devarianted_svg_map<Geometry>::apply(m_os, m_style, m_size, geometry, m_strategy);
+        }
+    };
+
+    template <typename TransformStrategy>
+    static inline void apply(std::ostream& stream,
+                             std::string const& style,
+                             int size,
+                             variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+                             TransformStrategy const& strategy)
+    {
+        boost::apply_visitor(visitor<TransformStrategy>(stream, style, size, strategy), geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif
 
@@ -200,15 +262,8 @@ inline void svg_map(std::ostream& stream,
             std::string const& style, int size,
             Geometry const& geometry, TransformStrategy const& strategy)
 {
-    dispatch::svg_map
-        <
-            typename tag_cast
-                <
-                    typename tag<Geometry>::type,
-                    multi_tag
-                >::type,
-            typename boost::remove_const<Geometry>::type
-        >::apply(stream, style, size, geometry, strategy);
+    dispatch::devarianted_svg_map<Geometry>::apply(stream, style, size,
+                                                   geometry, strategy);
 }
 
 
