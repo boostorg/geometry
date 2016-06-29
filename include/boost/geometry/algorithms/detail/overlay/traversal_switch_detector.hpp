@@ -50,6 +50,9 @@ struct traversal_switch_detector
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
+    // For convenience
+    typedef std::set<signed_size_type>::const_iterator set_iterator;
+
     inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters& clusters,
             RobustPolicy const& robust_policy, Visitor& visitor)
@@ -104,7 +107,8 @@ struct traversal_switch_detector
 #endif
 
         // Find connecting rings, recursively
-        for (std::set<int>::const_iterator sit = ring_turn_indices.begin(); sit != ring_turn_indices.end(); ++sit)
+        for (set_iterator sit = ring_turn_indices.begin();
+             sit != ring_turn_indices.end(); ++sit)
         {
             int const turn_index = *sit;
             turn_type const& turn = m_turns[turn_index];
@@ -122,16 +126,20 @@ struct traversal_switch_detector
                 ring_identifier connected_ring_id = ring_id_by_seg_id(op.seg_id);
                 if (connected_ring_id != ring_id)
                 {
-                    std::map<ring_identifier, std::set<int> >::const_iterator it = m_turns_per_ring.find(connected_ring_id);
-                    if (it != m_turns_per_ring.end())
-                    {
-                        create_region(connected_ring_id, it->second, region_id);
-                    }
+                    propagate_region(connected_ring_id, region_id);
                 }
             }
         }
     }
 
+    void propagate_region(ring_identifier const& ring_id, int region_id)
+    {
+        std::map<ring_identifier, std::set<int> >::const_iterator it = m_turns_per_ring.find(ring_id);
+        if (it != m_turns_per_ring.end())
+        {
+            create_region(ring_id, it->second, region_id);
+        }
+    }
 
     void iterate()
     {
@@ -182,8 +190,7 @@ struct traversal_switch_detector
                 std::cout << "SWITCH EXAMINE CLUSTER " << it->first << std::endl;
 #endif
 
-            for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
-                 sit != ids.end(); ++sit)
+            for (set_iterator sit = ids.begin(); sit != ids.end(); ++sit)
             {
                 signed_size_type turn_index = *sit;
                 turn_type const& turn = m_turns[turn_index];
@@ -257,7 +264,7 @@ private:
     Visitor& m_visitor;
 
     std::map<ring_identifier, int> m_regions;
-    std::map<ring_identifier, std::set<int> > m_turns_per_ring;
+    std::map<ring_identifier, std::set<signed_size_type> > m_turns_per_ring;
     int m_region_id;
 
 };
