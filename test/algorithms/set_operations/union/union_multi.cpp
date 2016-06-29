@@ -124,6 +124,9 @@ void test_areal()
         1, 1, 20, 22.75);
 
     // Should have 2 holes
+    // To make it valid, it is necessary to calculate and use self turns
+    // for each input. Now the two holes are connected because a turn is missing
+    // there.
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
         case_109_multi[0], case_109_multi[1],
         1, 1, 14, 1400,
@@ -184,6 +187,11 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         1, 2, 42, 96.75);
+
+    // Should have 10 holes.
+    // For making #5 valid, it is necessary to calculate and use self turns
+    // for each input. Now one hole is connected to another hole because a turn
+    // missing there.
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
         case_recursive_boxes_5[0], case_recursive_boxes_5[1],
         3, 9, 115, 70.0,
