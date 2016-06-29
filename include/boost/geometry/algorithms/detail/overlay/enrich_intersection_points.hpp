@@ -66,7 +66,7 @@ inline void enrich_sort(Operations& operations,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
-            Strategy const& strategy)
+            Strategy const& /*strategy*/)
 {
     std::sort(boost::begin(operations),
             boost::end(operations),

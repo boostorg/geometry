@@ -366,7 +366,7 @@ void test_overlay(std::string const& caseid,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef bg::strategy_intersection
+    typedef bg::intersection_strategies
     <
         typename bg::cs_tag<Geometry>::type,
         Geometry,

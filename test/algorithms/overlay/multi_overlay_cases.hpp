@@ -2,6 +2,11 @@
 // Unit Test
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -927,10 +932,32 @@ static std::string mysql_21965285_b[2] =
         "MULTIPOLYGON(((1 1, 3 0, 19 -8, -4 -3, 1 1)),((3 0, -2 7, -3 16, 1 19, 8 12, 3 0)))"
     };
 
-static std::string mysql_1[2] =
+// formerly mysql_1
+static std::string mysql_23023665_7[2] =
     {
         "MULTIPOLYGON(((4 5,12 11,-12 -3,4 5)))",
         "MULTIPOLYGON(((5 4,-14 0,1 0,5 4)),((1 6,13 0,10 12,1 6)))"
+    };
+
+static std::string mysql_23023665_8[2] =
+    {
+        "MULTIPOLYGON(((0 0,0 40,40 40,40 0,0 0),(10 10,30 10,30 30,10 30,10 10)))",
+        "MULTIPOLYGON(((10 10,10 20,20 10,10 10)),((20 10,30 20,30 10,20 10)),((10 20,10 30,20 20,10 20)),((20 20,30 30,30 20,20 20)))"
+    };
+
+static std::string mysql_23023665_9[2] =
+    {
+        "MULTIPOLYGON(((0 0, 0 40, 40 40, 40 0, 0 0),(10 10, 30 10, 30 30, 10 30, 10 10)))",
+        "MULTIPOLYGON(((15 10, 10 15, 10 17, 15 10)),((15 10, 10 20, 10 22, 15 10)),"
+                     "((15 10, 10 25, 10 27, 15 10)),((25 10, 30 17, 30 15, 25 10)),"
+                     "((25 10, 30 22, 30 20, 25 10)),((25 10, 30 27, 30 25, 25 10)),"
+                     "((18 10, 20 30, 19 10, 18 10)),((21 10, 20 30, 22 10, 21 10)))"
+    };
+
+static std::string mysql_23023665_12[2] =
+    {
+        "MULTIPOLYGON(((6 7,18 14,-8 1,0 0,18 -8,6 7),(6 0,-4 3,5 3,6 0)))",
+        "MULTIPOLYGON(((2 3,-3 5,-10 -1,2 3)))"
     };
 
 #endif // BOOST_GEOMETRY_TEST_MULTI_OVERLAY_CASES_HPP

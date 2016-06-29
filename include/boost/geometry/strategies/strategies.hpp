@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -29,6 +29,7 @@
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
+#include <boost/geometry/strategies/intersection_strategies.hpp> // for backward compatibility
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -61,6 +62,7 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
+#include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>

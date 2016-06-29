@@ -373,7 +373,7 @@ struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
 
 // A/L
 template <typename Linear, typename Areal, typename Tag1, typename Tag2>
-struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
+struct touches<Areal, Linear, Tag1, Tag2, areal_tag, linear_tag, false>
     : detail::relate::relate_impl
     <
         detail::de9im::static_mask_touches_type,

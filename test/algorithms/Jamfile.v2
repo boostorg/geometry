@@ -7,6 +7,7 @@
 # This file was modified by Oracle on 2014, 2015, 2016.
 # Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
 #
+# Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
@@ -36,8 +37,6 @@ test-suite boost-geometry-algorithms
     [ run is_simple.cpp                : : : : algorithms_is_simple ]
     [ run is_valid.cpp                 : : : : algorithms_is_valid ]
     [ run is_valid_failure.cpp         : : : : algorithms_is_valid_failure ]
-    [ run length.cpp                   : : : : algorithms_length ]
-    [ run length_multi.cpp             : : : : algorithms_length_multi ]
     [ run make.cpp                     : : : : algorithms_make ]
     [ run maximum_gap.cpp              : : : : algorithms_maximum_gap ]
     [ run num_geometries.cpp           : : : : algorithms_num_geometries ]
@@ -65,6 +64,8 @@ build-project buffer ;
 build-project detail ;
 build-project distance ;
 build-project envelope_expand ;
+build-project length ;
 build-project overlay ;
+build-project perimeter ;
 build-project relational_operations ;
 build-project set_operations ;
