@@ -360,6 +360,13 @@ inline void discard_ie_turn(Turn& turn, IdSet& ids, signed_size_type id)
     ids.insert(id);
 }
 
+template <bool Reverse>
+inline bool is_interior(segment_identifier const& seg_id)
+{
+    return Reverse ? seg_id.ring_index == -1 : seg_id.ring_index >= 0;
+}
+
+template <bool Reverse0, bool Reverse1>
 inline bool is_ie_turn(segment_identifier const& ext_seg_0,
                        segment_identifier const& ext_seg_1,
                        segment_identifier const& int_seg_0,
@@ -367,11 +374,12 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 {
     // Compares two segment identifiers from two turns (external / internal)
 
-    // Both are from same polygon (multi_index), one is exterior (-1),
-    // the other is interior (>= 0), and the other turn handles the same ring
+    // From first turn [0], both are from same polygon (multi_index),
+    // one is exterior (-1), the other is interior (>= 0),
+    // and the second turn [1] handles the same ring
     return ext_seg_0.multi_index == int_seg_0.multi_index
-            && ext_seg_0.ring_index == -1
-            && int_seg_0.ring_index >= 0
+            && ! is_interior<Reverse0>(ext_seg_0)
+            && is_interior<Reverse0>(int_seg_0)
             && ext_seg_1.multi_index == int_seg_1.multi_index
             && ext_seg_1.ring_index == int_seg_1.ring_index;
 
@@ -380,11 +388,21 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 
 template
 <
+    bool Reverse0, bool Reverse1,
     typename Turns,
     typename Clusters
 >
 inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 {
+    if (Reverse0 || Reverse1)
+    {
+        // For difference, one of the rings is reversed, the interpretation
+        // of internal rings is different. However, somehow the implementation
+        // does not work yet. Without it, there are no problems found.
+        // TODO
+        return;
+    }
+
     typedef std::set<signed_size_type>::const_iterator set_iterator;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
@@ -406,9 +424,11 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             segment_identifier const& seg_0 = turn.operations[0].seg_id;
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
 
+
             if (turn.both(operation_intersection))
             {
-                if (seg_0.ring_index >= 0 && seg_1.ring_index >= 0)
+                if (   is_interior<Reverse0>(seg_0)
+                    && is_interior<Reverse1>(seg_1))
                 {
                     // ii touch with, two interior rings
                     discard_ie_turn(turn, ids_to_remove, *it);
@@ -435,14 +455,15 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
                 segment_identifier const& int_seg_0 = int_turn.operations[0].seg_id;
                 segment_identifier const& int_seg_1 = int_turn.operations[1].seg_id;
 
-                if (int_seg_0.ring_index == -1 && int_seg_1.ring_index == -1)
+                if (   ! is_interior<Reverse0>(int_seg_0)
+                    && ! is_interior<Reverse1>(int_seg_1))
                 {
                     // Not an interior ring
                     continue;
                 }
 
-                if (   is_ie_turn(seg_0, seg_1, int_seg_0, int_seg_1)
-                    || is_ie_turn(seg_1, seg_0, int_seg_1, int_seg_0))
+                if (   is_ie_turn<Reverse0, Reverse1>(seg_0, seg_1, int_seg_0, int_seg_1)
+                    || is_ie_turn<Reverse1, Reverse0>(seg_1, seg_0, int_seg_1, int_seg_0))
                 {
                     discard_ie_turn(int_turn, ids_to_remove, *int_it);
                 }
@@ -550,7 +571,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     }
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
-    discard_interior_exterior_turns(turns, clusters);
+    discard_interior_exterior_turns<Reverse1, Reverse2>(turns, clusters);
     remove_clusters(turns, clusters);
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
