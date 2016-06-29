@@ -350,6 +350,7 @@ struct side_sorter
             if (ranked_point.rank > last_rank
                 && ranked_point.direction == sort_by_side::dir_to)
             {
+                // TODO: take count-left / count_right from rank itself
                 turn_type const& ranked_turn = turns[ranked_point.turn_index];
                 turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
                 if (ranked_op.enriched.count_left == 0
