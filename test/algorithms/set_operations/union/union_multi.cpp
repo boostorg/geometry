@@ -39,6 +39,9 @@ void test_areal()
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
 
+    // Some output is only invalid for CCW
+    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
@@ -229,6 +232,7 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13",
         case_recursive_boxes_13[0], case_recursive_boxes_13[1],
             3, 0, -1, 10.25);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14",
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
@@ -237,9 +241,22 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_12_invalid",
         case_recursive_boxes_12_invalid[0], case_recursive_boxes_12_invalid[1],
             6, 0, -1, 6.0);
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
-        case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
-            3, 0, -1, 10.25);
+
+    if (! ccw)
+    {
+        // Handling this invalid input delivers invalid results for CCW
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
+            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
+                3, 0, -1, 10.25);
+    }
+    else
+    {
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
+            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
+                2, 0, -1, 10.25,
+                ignore_validity);
+    }
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
         case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
             5, 0, -1, 4.5);
