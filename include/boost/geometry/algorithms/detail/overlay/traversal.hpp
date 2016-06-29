@@ -113,14 +113,7 @@ struct traversal
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
-        , m_is_buffer(false)
     {
-        if (! m_turns.empty())
-        {
-            m_is_buffer
-                = m_turns.back().operations[0].seg_id.source_index
-                    == m_turns.back().operations[1].seg_id.source_index;
-        }
     }
 
     inline void finalize_visit_info()
@@ -179,7 +172,7 @@ struct traversal
             // For uu, only switch sources if indicated
             turn_type const& turn = m_turns[turn_index];
 
-            if (m_is_buffer)
+            if (OverlayType == overlay_buffer)
             {
                 // Buffer does not use source_index (always 0)
                 return turn.switch_source
@@ -468,7 +461,7 @@ struct traversal
                 if (cluster_turn_index == turn_index)
                 {
                     // Check if this is the origin
-                    if (m_is_buffer)
+                    if (OverlayType == overlay_buffer)
                     {
                         is_origin = op.seg_id.multi_index == previous_seg_id.multi_index;
                     }
@@ -526,9 +519,8 @@ struct traversal
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        if (! m_is_buffer)
+        if (OverlayType != overlay_buffer)
         {
-            // Not a buffer/self-turn
             return;
         }
 
@@ -668,9 +660,6 @@ private :
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-
-    // TODO: pass this information
-    bool m_is_buffer;
 };
 
 
