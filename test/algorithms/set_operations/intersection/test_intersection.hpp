@@ -48,9 +48,9 @@ struct ut_settings
     bool test_validity;
     bool debug;
 
-    explicit ut_settings(double p = 0.0001)
+    explicit ut_settings(double p = 0.0001, bool tv = true)
         : percentage(p)
-        , test_validity(false)
+        , test_validity(tv)
         , debug(false)
     {}
 

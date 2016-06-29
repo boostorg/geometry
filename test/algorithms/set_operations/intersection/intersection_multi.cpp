@@ -37,6 +37,9 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         2, 12, 6.42);
@@ -105,13 +108,15 @@ void test_areal()
         3, 14, 2.85);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi_inv_b",
         case_72_multi[1], case_72_multi[2],
-        3, 16, 6.15);
+        3, 16, 6.15,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
         5, 33, 9.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
-        1, 0, 22.0); // In "get_turns" using partitioning, #points went from 17 to 16
+        1, 16, 22.0,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
         4, 22, 4.75);
@@ -120,7 +125,8 @@ void test_areal()
         3, 26, 19.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi_inv_b",
         case_102_multi[1], case_102_multi[2],
-        6, 25, 3.75);
+        3, 25, 3.75,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         2, 10, 1.5);
@@ -137,17 +143,20 @@ void test_areal()
 #endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-        10, 97, 47.0);
+        8, 97, 47.0,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-        1, 47, 90.0); // Area from SQL Server
+        1, 50, 90.0, // Area from SQL Server
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        13, 157, 67.0); // Area from SQL Server
+        8, 174, 67.0, // Area from SQL Server
+        ignore_validity);
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
@@ -188,7 +197,7 @@ void test_areal()
         9, 43, 10.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_17",
         case_recursive_boxes_17[0], case_recursive_boxes_17[1],
-        6, -1, 7.75);
+        7, -1, 7.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_18",
         case_recursive_boxes_18[0], case_recursive_boxes_18[1],
         0, 0, 0.0);
@@ -239,10 +248,12 @@ void test_areal()
         3, 0, 2.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_34",
         case_recursive_boxes_34[0], case_recursive_boxes_34[1],
-        2, 0, 17.25);
+        2, 0, 17.25,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_35",
         case_recursive_boxes_35[0], case_recursive_boxes_35[1],
-        2, 0, 20.0);
+        1, 0, 20.0,
+        ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_36",
         case_recursive_boxes_36[0], case_recursive_boxes_36[1],
         1, 0, 0.5);

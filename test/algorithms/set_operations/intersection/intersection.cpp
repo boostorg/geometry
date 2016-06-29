@@ -54,6 +54,10 @@ void test_areal()
     bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
     bool const open = bg::closure<Polygon>::value == bg::open;
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
+
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -167,17 +171,17 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
+    // SQL Server gives: 88.1920416352664
+    // PostGIS gives:    88.19203677911
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1, 19, 88.19203,
         ut_settings(if_typed_tt<ct>(0.01, 0.1)));
 
-    // SQL Server gives: 88.1920416352664
-    // PostGIS gives:    88.19203677911
-
     test_one<Polygon, Polygon, Polygon>("geos_1",
         geos_1[0], geos_1[1],
-            1, -1, 3461.0214843, ut_settings(0.005)); // MSVC 14 reports 3461.025390625
+            1, -1, 3461.0214843, // MSVC 14 reports 3461.025390625
+            ut_settings(0.005, false));
 
     // Expectations:
     // In most cases: 0 (no intersection)
@@ -622,6 +626,9 @@ void test_all()
     typedef bg::model::polygon<P, false, false> polygon_ccw_open;
     boost::ignore_unused<polygon_ccw, polygon_open, polygon_ccw_open>();
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
@@ -674,8 +681,7 @@ void test_all()
     test_one<linestring, linestring, box>("llbo", "LINESTRING(9 9,10 10)", clip, 0, 0, 0.0);
 
     // Touching with point (-> output linestring with ONE point)
-    //std::cout << "Note: the output line is degenerate! Might be removed!" << std::endl;
-    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0);
+    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0, ignore_validity);
 
     // Along border
     test_one<linestring, linestring, box>("llb_along", "LINESTRING(2 2,2 8)", clip, 1, 2, 6.0);
