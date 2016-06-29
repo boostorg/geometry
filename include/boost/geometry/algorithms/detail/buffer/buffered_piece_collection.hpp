@@ -1217,9 +1217,8 @@ struct buffered_piece_collection
             typename cs_tag<Ring>::type
         >::type side_strategy_type;
 
-        enrich_intersection_points<false, false, overlay_union>(m_turns,
-                    m_clusters, detail::overlay::operation_union,
-                    offsetted_rings, offsetted_rings,
+        enrich_intersection_points<false, false, overlay_buffer>(m_turns,
+                    m_clusters, offsetted_rings, offsetted_rings,
                     m_robust_policy, side_strategy_type());
     }
 
@@ -1353,7 +1352,7 @@ struct buffered_piece_collection
                 false, false,
                 buffered_ring_collection<buffered_ring<Ring> >,
                 buffered_ring_collection<buffered_ring<Ring > >,
-                detail::overlay::operation_union,
+                overlay_buffer,
                 backtrack_for_buffer
             > traverser;
 

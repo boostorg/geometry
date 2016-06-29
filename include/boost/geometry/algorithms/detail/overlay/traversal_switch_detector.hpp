@@ -37,7 +37,7 @@ template
 <
     bool Reverse1,
     bool Reverse2,
-    operation_type OperationType,
+    overlay_type OverlayType,
     typename Geometry1,
     typename Geometry2,
     typename Turns,

@@ -81,7 +81,7 @@ template
 <
     bool Reverse1,
     bool Reverse2,
-    operation_type OperationType,
+    overlay_type OverlayType,
     typename Geometry1,
     typename Geometry2,
     typename Turns,
@@ -91,7 +91,9 @@ template
 >
 struct traversal
 {
-    typedef typename side_compare<OperationType>::type side_compare_type;
+    static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
+
+    typedef typename side_compare<target_operation>::type side_compare_type;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
@@ -167,12 +169,12 @@ struct traversal
                               segment_identifier const& seg_id1,
                               segment_identifier const& seg_id2) const
     {
-        if (OperationType == operation_intersection)
+        if (target_operation == operation_intersection)
         {
             // For intersections always switch sources
             return seg_id1.source_index != seg_id2.source_index;
         }
-        else if (OperationType == operation_union)
+        else if (target_operation == operation_union)
         {
             // For uu, only switch sources if indicated
             turn_type const& turn = m_turns[turn_index];
@@ -222,7 +224,7 @@ struct traversal
         // It is not a dead end if there is an operation to continue, or of
         // there is a cluster (assuming for now we can get out of the cluster)
         return turn.cluster_id >= 0
-            || turn.has(OperationType)
+            || turn.has(target_operation)
             || turn.has(operation_continue);
     }
 
@@ -288,7 +290,7 @@ struct traversal
         {
             turn_operation_type const& op = turn.operations[i];
 
-            if (op.operation == OperationType
+            if (op.operation == target_operation
                 && ! op.visited.finished()
                 && (! result || select_source(turn_index, op.seg_id, seg_id)))
             {
@@ -356,8 +358,8 @@ struct traversal
         int& op_index, signed_size_type start_turn_index,
         sbs_type const& sbs, bool is_touching) const
     {
-        bool const is_union = OperationType == operation_union;
-        bool const is_intersection = OperationType == operation_intersection;
+        bool const is_union = target_operation == operation_union;
+        bool const is_intersection = target_operation == operation_intersection;
 
         std::size_t selected_rank = 0;
         std::size_t min_rank = 0;
@@ -433,7 +435,7 @@ struct traversal
             signed_size_type start_turn_index,
             segment_identifier const& previous_seg_id) const
     {
-        bool const is_union = OperationType == operation_union;
+        bool const is_union = target_operation == operation_union;
 
         turn_type const& turn = m_turns[turn_index];
         BOOST_ASSERT(turn.cluster_id >= 0);

@@ -33,7 +33,7 @@ template
     bool Reverse1, bool Reverse2,
     typename Geometry1,
     typename Geometry2,
-    operation_type OperationType,
+    overlay_type OverlayType,
     typename Backtrack = backtrack_check_self_intersections<Geometry1, Geometry2>
 >
 class traverse
@@ -75,7 +75,7 @@ public :
     {
         traversal_switch_detector
             <
-                Reverse1, Reverse2, OperationType,
+                Reverse1, Reverse2, OverlayType,
                 Geometry1, Geometry2,
                 Turns, Clusters,
                 RobustPolicy, Visitor
@@ -87,7 +87,7 @@ public :
 
         traversal_ring_creator
             <
-                Reverse1, Reverse2, OperationType,
+                Reverse1, Reverse2, OverlayType,
                 Geometry1, Geometry2,
                 Turns, Clusters,
                 RobustPolicy, Visitor,

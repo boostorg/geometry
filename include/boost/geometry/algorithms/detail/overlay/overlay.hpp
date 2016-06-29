@@ -237,11 +237,6 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
-        static const operation_type op_type
-                = OverlayType == overlay_union
-                  ? geometry::detail::overlay::operation_union
-                  : geometry::detail::overlay::operation_intersection;
-
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
@@ -249,8 +244,7 @@ std::cout << "enrich" << std::endl;
         cluster_type clusters;
 
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
-                clusters, op_type,
-                    geometry1, geometry2,
+                clusters, geometry1, geometry2,
                     robust_policy,
                     side_strategy);
 
@@ -265,7 +259,7 @@ std::cout << "traverse" << std::endl;
         // Note that these rings are always in clockwise order, even in CCW polygons,
         // and are marked as "to be reversed" below
         ring_container_type rings;
-        traverse<Reverse1, Reverse2, Geometry1, Geometry2, op_type>::apply
+        traverse<Reverse1, Reverse2, Geometry1, Geometry2, OverlayType>::apply
                 (
                     geometry1, geometry2,
                     robust_policy,

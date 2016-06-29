@@ -33,7 +33,7 @@ template
 <
     bool Reverse1,
     bool Reverse2,
-    operation_type OperationType,
+    overlay_type OverlayType,
     typename Geometry1,
     typename Geometry2,
     typename Turns,
@@ -44,12 +44,15 @@ template
 >
 struct traversal_ring_creator
 {
-    typedef traversal<Reverse1, Reverse2, OperationType,
+    typedef traversal<Reverse1, Reverse2, OverlayType,
            Geometry1, Geometry2, Turns, Clusters, RobustPolicy, Visitor>
         traversal_type;
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
+
+    static const operation_type target_operation
+        = operation_from_overlay<OverlayType>::value;
 
     inline traversal_ring_creator(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
@@ -233,7 +236,7 @@ struct traversal_ring_creator
         if (! start_op.visited.none()
             || ! start_op.enriched.startable
             || start_op.visited.rejected()
-            || ! (start_op.operation == OperationType
+            || ! (start_op.operation == target_operation
                 || start_op.operation == detail::overlay::operation_continue))
         {
             return;
@@ -278,7 +281,7 @@ struct traversal_ring_creator
     {
         if (pass == 1)
         {
-            if (OperationType == operation_intersection)
+            if (target_operation == operation_intersection)
             {
                 // Second pass currently only used for uu
                 return;
@@ -300,7 +303,7 @@ struct traversal_ring_creator
                 // Skip discarded and blocked turns
                 continue;
             }
-            if (OperationType == operation_union)
+            if (target_operation == operation_union)
             {
                 if (start_turn.both(operation_union))
                 {

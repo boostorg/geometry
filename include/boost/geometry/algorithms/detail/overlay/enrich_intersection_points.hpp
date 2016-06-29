@@ -239,7 +239,6 @@ inline void create_map(Turns const& turns,
 \tparam Geometry2 \tparam_geometry
 \tparam Strategy side strategy type
 \param turns container containing intersectionpoints
-\param for_operation operation_type (union or intersection)
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param robust_policy policy to handle robustness issues
@@ -257,11 +256,12 @@ template
 >
 inline void enrich_intersection_points(Turns& turns,
     Clusters& clusters,
-    detail::overlay::operation_type for_operation,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
     RobustPolicy const& robust_policy,
     Strategy const& strategy)
 {
+    static const detail::overlay::operation_type for_operation
+            = detail::overlay::operation_from_overlay<OverlayType>::value;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
     typedef detail::overlay::indexed_turn_operation
