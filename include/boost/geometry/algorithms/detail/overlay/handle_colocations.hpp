@@ -16,6 +16,7 @@
 
 #include <boost/range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -202,7 +203,6 @@ inline signed_size_type add_turn_to_cluster(Turn const& turn,
 
 template
 <
-    bool Reverse1, bool Reverse2,
     typename Turns,
     typename ClusterPerSegment,
     typename Operations,
@@ -388,7 +388,7 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 
 template
 <
-    bool Reverse0, bool Reverse1,
+    bool Reverse0, bool Reverse1, // Reverse interpretation interior/exterior
     typename Turns,
     typename Clusters
 >
@@ -565,14 +565,17 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     {
         if (it->second.size() > 1u)
         {
-            handle_colocation_cluster<Reverse1, Reverse2>(turns, cluster_id,
-                cluster_per_segment, it->second,
-                geometry1, geometry2);
+            handle_colocation_cluster(turns, cluster_id, cluster_per_segment,
+                it->second, geometry1, geometry2);
         }
     }
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
-    discard_interior_exterior_turns<Reverse1, Reverse2>(turns, clusters);
+    discard_interior_exterior_turns
+        <
+            do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
+            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2
+        >(turns, clusters);
     remove_clusters(turns, clusters);
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
