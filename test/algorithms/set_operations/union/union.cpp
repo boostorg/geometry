@@ -463,6 +463,16 @@ void test_areal()
         test_one<Polygon, Polygon, Polygon>("mysql_21964079_2",
             mysql_21964079_2[0], mysql_21964079_2[1],
             2, 1, -1, 112.0);
+
+        test_one<Polygon, Polygon, Polygon>("mysql_23023665_1",
+            mysql_23023665_1[0], mysql_23023665_1[1],
+            2, 1, -1, 92.0 + 142.5);
+        test_one<Polygon, Polygon, Polygon>("mysql_23023665_2",
+            mysql_23023665_2[0], mysql_23023665_2[1],
+            2, 1, -1, 96.0 + 16.0);
+        test_one<Polygon, Polygon, Polygon>("mysql_23023665_3",
+            mysql_23023665_3[0], mysql_23023665_3[1],
+            2, 1, -1, 225.0 + 66.0);
     }
     else
     {
@@ -482,15 +492,6 @@ void test_areal()
         ignore_validity);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_1",
-        mysql_23023665_1[0], mysql_23023665_1[1],
-        2, 1, -1, 92.0 + 142.5);
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_2",
-        mysql_23023665_2[0], mysql_23023665_2[1],
-        2, 1, -1, 96.0 + 16.0);
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_3",
-        mysql_23023665_3[0], mysql_23023665_3[1],
-        2, 1, -1, 225.0 + 66.0);
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_4",
         mysql_23023665_4[0], mysql_23023665_4[1],
         1, 1, -1, 1.5 + 219.0);
