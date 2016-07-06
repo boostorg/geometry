@@ -159,6 +159,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
                 << " nxt=" << op.enriched.next_ip_index
                 << " / " << op.enriched.travels_to_ip_index
                 << " [vx " << op.enriched.travels_to_vertex_index << "]"
+                << std::boolalpha << turns[it->turn_index].discarded
                 << std::endl;
                 ;
         }
