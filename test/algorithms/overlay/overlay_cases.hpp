@@ -1105,12 +1105,6 @@ static std::string mysql_23023665_3[2] =
         "POLYGON((6 0,-5 0,-1 -12,6 0))"
     };
 
-static std::string mysql_23023665_4[2] =
-    {
-        "POLYGON((7 0,10 -3,7 1,7 0))",
-        "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))"
-    };
-
 static std::string mysql_23023665_5[2] =
     {
         "POLYGON((8 6,5 7,-1 4,-8 -7,0 -17,8 6),(3 6,5 5,0 -2,3 6))",

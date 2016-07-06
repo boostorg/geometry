@@ -490,12 +490,6 @@ void test_areal()
         mysql_21964049[0], mysql_21964049[1],
         1, 0, -1, 220.5,
         ignore_validity);
-
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_4",
-        mysql_23023665_4[0], mysql_23023665_4[1],
-        1, 1, -1, 1.5 + 219.0);
-#endif
 }
 
 template <typename P>
