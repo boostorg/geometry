@@ -1330,17 +1330,12 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (it->location != location_ok)
+            buffer_turn_info_type& turn = *it;
+            if (turn.location != location_ok)
             {
-                // Set it to blocked. They should not be discarded, to avoid
-                // generating rings over these turns
-                // Performance goes down a tiny bit from 161 s to 173 because there
-                // are sometimes much more turns.
-                // We might speed it up a bit by keeping only one blocked
-                // intersection per segment, but that is complex to program
-                // because each turn involves two segments
-                it->operations[0].operation = detail::overlay::operation_blocked;
-                it->operations[1].operation = detail::overlay::operation_blocked;
+                // Discard this turn (don't set it to blocked to avoid colocated
+                // clusters being discarded afterwards
+                turn.discarded = true;
             }
         }
     }
