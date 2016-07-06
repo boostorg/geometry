@@ -203,6 +203,13 @@ void test_all()
         1, 12, 80.5 + 83.0);
 #endif
 
+    test_one<polygon, polygon, polygon>("case_100",
+        case_100[0], case_100[1],
+        1, 7, 3.125,
+        1, 7, 16.0,
+        1, 13, 16.0 + 3.125,
+        ignore_validity);
+
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
         3, 37, 61,

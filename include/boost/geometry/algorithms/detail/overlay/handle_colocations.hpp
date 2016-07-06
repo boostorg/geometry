@@ -437,9 +437,10 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
                 continue;
             }
 
-            if (! turn.both(operation_union))
+            if (! (turn.both(operation_union)
+                   || turn.combination(operation_union, operation_blocked)))
             {
-                // Not a uu, so cannot be colocated with a iu turn
+                // Not a uu/ux, so cannot be colocated with a iu turn
                 continue;
             }
 

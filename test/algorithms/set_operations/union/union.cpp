@@ -243,6 +243,12 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("99",
                 case_99[0], case_99[1], 1, 0, 5, 1600.0);
 
+    if (!ccw)
+    {
+        test_one<Polygon, Polygon, Polygon>("100",
+                    case_100[0], case_100[1], 1, 1, 13, 19.125);
+    }
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],
@@ -473,6 +479,9 @@ void test_areal()
         test_one<Polygon, Polygon, Polygon>("mysql_23023665_3",
             mysql_23023665_3[0], mysql_23023665_3[1],
             2, 1, -1, 225.0 + 66.0);
+        test_one<Polygon, Polygon, Polygon>("mysql_21964049",
+            mysql_21964049[0], mysql_21964049[1],
+            1, 1, -1, 220.5);
     }
     else
     {
@@ -485,11 +494,6 @@ void test_areal()
             2, 0, -1, 112.0,
             ignore_validity);
     }
-    // #holes should be 1
-    test_one<Polygon, Polygon, Polygon>("mysql_21964049",
-        mysql_21964049[0], mysql_21964049[1],
-        1, 0, -1, 220.5,
-        ignore_validity);
 }
 
 template <typename P>
