@@ -2,9 +2,10 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015, 2016 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -91,17 +92,69 @@ protected :
     {
         calculation_type sum;
 
+        calculation_type max_lon, min_lon;
+
         // Distances are calculated on unit sphere here
         strategy::distance::haversine<calculation_type> distance_over_unit_sphere;
 
+        // Keep track if encircles some pole
+        size_t crosses_prime_meridian;
+
+        bool south; // true if has no point on North hemisphere
+        bool south_vertex; // true if South pole is a vertex
 
         inline excess_sum()
             : sum(0)
             , distance_over_unit_sphere(1)
+            , crosses_prime_meridian(0)
+            , south(true)
+            , south_vertex(false)
+            , max_lon(0)
+            , min_lon(360)
         {}
         inline calculation_type area(calculation_type radius) const
         {
-            return - sum * radius * radius;
+            calculation_type result;
+
+            std::cout << "(sum=" << sum << ")";
+
+            // Encircles pole
+            if((crosses_prime_meridian % 2 == 1 && south) || south_vertex)
+            {
+
+                calculation_type constant;
+
+                //if(south_vertex)
+                //{
+                    constant = 2.0 * (max_lon - min_lon) / geometry::math::pi<calculation_type>();
+                //} else {
+                //    constant = 4.0;
+                //}
+
+                if(crosses_prime_meridian % 2 == 0 && crosses_prime_meridian > 1)
+                {
+                    constant = 4.0 - constant;
+                }
+
+                std::cout << "(const=" << constant << ")";
+
+
+                result = constant
+                         * geometry::math::pi<calculation_type>()
+                         - std::abs(sum);
+
+                if(geometry::math::sign<calculation_type>(sum) == -1)
+                {
+                    result = - result;
+                }
+
+            } else {
+                result =  - sum;
+            }
+
+            result *= radius * radius;
+
+            return result;
         }
     };
 
@@ -133,7 +186,7 @@ public :
             // Distance p1 p2
             calculation_type a = state.distance_over_unit_sphere.apply(p1, p2);
 
-            // Sides on unit sphere to south pole
+            // Sides on unit sphere to north pole
             calculation_type b = half_pi - geometry::get_as_radian<1>(p2);
             calculation_type c = half_pi - geometry::get_as_radian<1>(p1);
 
@@ -149,6 +202,7 @@ public :
                     * tan((s - c) / two))));
 
             excess = geometry::math::abs(excess);
+
 
             // In right direction: positive, add area. In left direction: negative, subtract area.
             // Longitude comparisons are not so obvious. If one is negative and other is positive,
@@ -166,12 +220,55 @@ public :
                 excess = -excess;
             }
 
+            // Keep track whenever a segment crosses the prime meridian
+            // First normalize to [0,360)
+            //TODO: compress with trapezoidal strategy
+
+            calculation_type p1_lon = geometry::get_as_radian<0>(p1)
+                                    - ( floor( geometry::get_as_radian<0>(p1) / two_pi ) * two_pi );
+            calculation_type p2_lon = geometry::get_as_radian<0>(p2)
+                                    - ( floor( geometry::get_as_radian<0>(p2) / two_pi ) * two_pi );
+
+            calculation_type max_lon = std::max(p1_lon, p2_lon);
+            calculation_type min_lon = std::min(p1_lon, p2_lon);
+
+            if(max_lon > pi && min_lon < pi && max_lon - min_lon > pi)
+            {
+                state.crosses_prime_meridian++;
+            }
+
+            //Test if the segment has a vertex that is the South pole
+            if (geometry::get_as_radian<1>(p1) == - half_pi
+                || geometry::get_as_radian<1>(p2) == - half_pi)
+            {
+                state.south_vertex = true;
+            } else {
+                // Global max, min
+                state.max_lon = std::max(state.max_lon, max_lon);
+                state.min_lon = std::min(state.min_lon, min_lon);
+            }
+
+            // Test if the segment has a point on northern hemisphere
+            if(state.south)
+            {
+                if(get<1>(p1) > 0 || get<1>(p2) > 0)
+                {
+                    state.south = false;
+                }
+            }
+
             state.sum += excess;
+
+            std::cout << "(width=" << max_lon-min_lon << ")";
+
         }
     }
 
     inline return_type result(excess_sum const& state) const
     {
+        std::cout << "(pole=" << state.crosses_prime_meridian << ")";
+        std::cout<<"(W="<<state.max_lon - state.min_lon<<")";
+        //std::cout << "(south=" << state.south << ")";
         return state.area(m_radius);
     }
 
@@ -180,33 +277,8 @@ private :
     calculation_type m_radius;
 };
 
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-namespace services
-{
-
-
-template <typename Point>
-struct default_strategy<spherical_equatorial_tag, Point>
-{
-    typedef strategy::area::huiller<Point> type;
-};
-
-// Note: spherical polar coordinate system requires "get_as_radian_equatorial"
-/***template <typename Point>
-struct default_strategy<spherical_polar_tag, Point>
-{
-    typedef strategy::area::huiller<Point> type;
-};***/
-
-} // namespace services
-
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
 
 }} // namespace strategy::area
-
-
 
 
 }} // namespace boost::geometry
