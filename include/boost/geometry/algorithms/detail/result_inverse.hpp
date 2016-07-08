@@ -28,14 +28,19 @@ namespace boost { namespace geometry { namespace detail
 template <typename T>
 struct result_inverse
 {
-    void set(T const& d, T const& a)
-    {
-        distance = d;
-        azimuth = a;
-    }
+    result_inverse()
+        : distance(0)
+        , azimuth(0)
+        , reverse_azimuth(0)
+        , reduced_length(0)
+        , geodesic_scale(1)
+    {}
 
     T distance;
     T azimuth;
+    T reverse_azimuth;
+    T reduced_length;
+    T geodesic_scale;
 };
 
 }}} // namespace boost::geometry::detail

@@ -21,7 +21,9 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
 #include <boost/geometry/algorithms/detail/result_inverse.hpp>
+
 
 namespace boost { namespace geometry { namespace detail
 {
@@ -35,9 +37,22 @@ namespace boost { namespace geometry { namespace detail
     - Technical Report: PAUL D. THOMAS, SPHEROIDAL GEODESICS, REFERENCE SYSTEMS, AND LOCAL GEOMETRY, 1970
       http://www.dtic.mil/docs/citations/AD703541
 */
-template <typename CT, bool EnableDistance, bool EnableAzimuth>
-struct thomas_inverse
+template <
+    typename CT,
+    bool EnableDistance,
+    bool EnableAzimuth,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
+>
+class thomas_inverse
 {
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcAzimuths = EnableAzimuth || EnableReverseAzimuth || CalcQuantities;
+    static const bool CalcFwdAzimuth = EnableAzimuth || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
+
+public:
     typedef result_inverse<CT> result_type;
 
     template <typename T1, typename T2, typename Spheroid>
@@ -51,13 +66,12 @@ struct thomas_inverse
 
         // coordinates in radians
 
-        if ( math::equals(lon1, lon2)
-          && math::equals(lat1, lat2) )
+        if ( math::equals(lon1, lon2) && math::equals(lat1, lat2) )
         {
-            result.set(CT(0), CT(0));
             return result;
         }
 
+        CT const pi_half = math::pi<CT>() / CT(2);
         CT const f = detail::flattening<CT>(spheroid);
         CT const one_minus_f = CT(1) - f;
 
@@ -66,7 +80,6 @@ struct thomas_inverse
 //        CT const theta1 = atan(tan_theta1);
 //        CT const theta2 = atan(tan_theta2);
 
-        CT const pi_half = math::pi<CT>() / CT(2);
         CT const theta1 = math::equals(lat1, pi_half) ? lat1 :
                           math::equals(lat1, -pi_half) ? lat1 :
                           atan(one_minus_f * tan(lat1));
@@ -102,7 +115,6 @@ struct thomas_inverse
           || math::equals(L, CT(0))
           || math::equals(one_minus_L, CT(0)) )
         {
-            result.set(CT(0), CT(0));
             return result;
         }
 
@@ -134,12 +146,8 @@ struct thomas_inverse
             result.distance = a * sin_d * (T - delta1d);
             //double S2 = a * sin_d * (T - delta1d + delta2d);
         }
-        else
-        {
-            result.distance = CT(0);
-        }
     
-        if ( BOOST_GEOMETRY_CONDITION(EnableAzimuth) )
+        if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
             // NOTE: if both cos_latX == 0 then below we'd have 0 * INF
             // it's a situation when the endpoints are on the poles +-90 deg
@@ -175,10 +183,30 @@ struct thomas_inverse
             }
 
             result.azimuth = alpha1;
+
+            CT alpha2 = pi - (v - u);
+            if (alpha2 > pi)
+            {
+                alpha2 -= CT(2) * pi;
+            }
+
+            result.reverse_azimuth = alpha2;
         }
-        else
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            result.azimuth = CT(0);
+            CT const dlon = lon2 - lon1;
+            CT const sin_lat1 = sin(lat1);
+            CT const cos_lat1 = cos(lat1);
+            CT const sin_lat2 = sin(lat2);
+            CT const cos_lat2 = cos(lat2);
+
+            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
+                              result.azimuth, result.reverse_azimuth,
+                              get_radius<2>(spheroid), f,
+                              result.reduced_length, result.geodesic_scale,
+                              quantities::J12_calc_f2);
         }
 
         return result;
