@@ -24,6 +24,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
 #include <boost/geometry/algorithms/detail/result_inverse.hpp>
 
 
@@ -46,12 +47,24 @@ namespace boost { namespace geometry { namespace detail
     - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template <typename CT, bool EnableDistance, bool EnableAzimuth>
+template <
+    typename CT,
+    bool EnableDistance,
+    bool EnableAzimuth,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
+>
 struct vincenty_inverse
 {
-    typedef result_inverse<CT> result_type;
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcAzimuths = EnableAzimuth || EnableReverseAzimuth || CalcQuantities;
+    static const bool CalcFwdAzimuth = EnableAzimuth || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
 
 public:
+    typedef result_inverse<CT> result_type;
+
     template <typename T1, typename T2, typename Spheroid>
     static inline result_type apply(T1 const& lon1,
                                     T1 const& lat1,
@@ -63,7 +76,6 @@ public:
 
         if (math::equals(lat1, lat2) && math::equals(lon1, lon2))
         {
-            result.set(CT(0), CT(0));
             return result;
         }
 
@@ -174,28 +186,37 @@ public:
 
             result.distance = radius_b * A * (sigma - delta_sigma); // (19)
         }
-        else
-        {
-            result.distance = CT(0);
-        }
     
-        if ( BOOST_GEOMETRY_CONDITION(EnableAzimuth) )
+        if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
-            result.azimuth = atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda); // (20)
+            if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
+            {
+                result.azimuth = atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda); // (20)
+            }
+
+            if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+            {
+                result.reverse_azimuth = atan2(cos_U1 * sin_lambda, -sin_U1 * cos_U2 + cos_U1 * sin_U2 * cos_lambda); // (21)
+            }
         }
-        else
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            result.azimuth = CT(0);
+            CT const sin_lat1 = sin(lat1);
+            CT const cos_lat1 = cos(lat1);
+            CT const sin_lat2 = sin(lat2);
+            CT const cos_lat2 = cos(lat2);
+
+            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            quantities::apply(L, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
+                              result.azimuth, result.reverse_azimuth,
+                              radius_b, flattening,
+                              result.reduced_length, result.geodesic_scale,
+                              quantities::J12_calc_f2); // TODO use more accurage J12
         }
 
         return result;
     }
-
-//    inline CT azimuth21() const
-//    {
-//        // NOTE: signs of X and Y are different than in the original paper
-//        atan2(-cos_U1 * sin_lambda, sin_U1 * cos_U2 - cos_U1 * sin_U2 * cos_lambda); // (21)
-//    }
 };
 
 }}} // namespace boost::geometry::detail
