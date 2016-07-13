@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/range.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
