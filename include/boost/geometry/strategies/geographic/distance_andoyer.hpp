@@ -89,7 +89,7 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return geometry::detail::andoyer_inverse
+        return geometry::formula::andoyer_inverse
             <
                 typename calculation_type<Point1, Point2>::type,
                 true, false
