@@ -75,7 +75,7 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
     typedef bg::srs::spheroid<rtype> stype;
 
     typedef bg::strategy::distance::andoyer<stype> andoyer_type;
-    typedef bg::detail::andoyer_inverse<rtype, true, false> andoyer_inverse_type;
+    typedef bg::formula::andoyer_inverse<rtype, true, false> andoyer_inverse_type;
 
     BOOST_CONCEPT_ASSERT
         ( 
@@ -113,7 +113,7 @@ void test_azimuth(double lon1, double lat1,
         >::type rtype;
 
     typedef bg::srs::spheroid<rtype> stype;
-    typedef bg::detail::andoyer_inverse<rtype, false, true> andoyer_inverse_type;
+    typedef bg::formula::andoyer_inverse<rtype, false, true> andoyer_inverse_type;
 
     rtype a_formula = andoyer_inverse_type::apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).azimuth;
 
