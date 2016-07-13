@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -33,7 +33,7 @@
 #endif
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -207,19 +207,19 @@ public:
             CT const sin_lat2 = sin(lat2);
             CT const cos_lat2 = cos(lat2);
 
-            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
             quantities::apply(L, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               radius_b, flattening,
                               result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f2); // TODO use more accurage J12
+                              quantities::J12_calc_f2); // TODO use more accurate J12
         }
 
         return result;
     }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_INVERSE_HPP

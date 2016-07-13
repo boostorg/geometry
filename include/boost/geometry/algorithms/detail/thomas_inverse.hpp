@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015 Oracle and/or its affiliates.
+// Copyright (c) 2015-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -25,7 +25,7 @@
 #include <boost/geometry/algorithms/detail/result_inverse.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -201,7 +201,7 @@ public:
             CT const sin_lat2 = sin(lat2);
             CT const cos_lat2 = cos(lat2);
 
-            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
@@ -213,7 +213,7 @@ public:
     }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_THOMAS_INVERSE_HPP

@@ -25,7 +25,7 @@
 #include <boost/geometry/algorithms/detail/result_inverse.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -189,7 +189,7 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
@@ -236,7 +236,7 @@ private:
     }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_ANDOYER_INVERSE_HPP

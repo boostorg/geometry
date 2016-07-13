@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -20,6 +20,7 @@
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
@@ -30,19 +31,21 @@
 #endif
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 template <typename T>
 struct result_direct
 {
-    void set(T const& lo2, T const& la2)
-    {
-        lon2 = lo2;
-        lat2 = la2;
-    }
+    result_direct()
+        : lon2(0)
+        , lat2(0)
+        , reverse_azimuth(0)
+    {}
+
     T lon2;
     T lat2;
+    T reverse_azimuth;
 };
 
 /*!
@@ -56,12 +59,15 @@ struct result_direct
     - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template <typename CT>
+template <
+    typename CT,
+    bool EnableCoordinates = true,
+    bool EnableReverseAzimuth = false
+>
 struct vincenty_direct
 {
     typedef result_direct<CT> result_type;
 
-public:
     template <typename T, typename Dist, typename Azi, typename Spheroid>
     static inline result_type apply(T const& lo1,
                                     T const& la1,
@@ -76,7 +82,8 @@ public:
 
         if ( math::equals(distance, Dist(0)) || distance < Dist(0) )
         {
-            result.set(lon1, lat1);
+            result.lon2 = lon1;
+            result.lat2 = lat1;
             return result;
         }
 
@@ -141,13 +148,12 @@ public:
                //&& geometry::math::abs(sigma) < pi
                && counter < BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS ); // robustness
 
+        if (BOOST_GEOMETRY_CONDITION(EnableCoordinates))
         {
             result.lat2
                 = atan2( sin_U1 * cos_sigma + cos_U1 * sin_sigma * cos_azimuth12,
                          one_min_f * math::sqrt(sin_alpha_sqr + math::sqr(sin_U1 * sin_sigma - cos_U1 * cos_sigma * cos_azimuth12))); // (8)
-        }
-
-        {
+            
             CT const lambda = atan2( sin_sigma * sin_azimuth12,
                                      cos_U1 * cos_sigma - sin_U1 * sin_sigma * cos_azimuth12); // (9)
             CT const C = (flattening/CT(16)) * cos_alpha_sqr * ( CT(4) + flattening * ( CT(4) - CT(3) * cos_alpha_sqr ) ); // (10)
@@ -157,21 +163,18 @@ public:
             result.lon2 = lon1 + L;
         }
 
+        if (BOOST_GEOMETRY_CONDITION(EnableReverseAzimuth))
+        {
+            result.reverse_azimuth
+                = atan2(sin_alpha, -sin_U1 * sin_sigma + cos_U1 * cos_sigma * cos_azimuth12); // (12)
+        }
+
         return result;
     }
 
-    /*
-    inline CT azimuth21() const
-    {
-        // NOTE: signs of X and Y are different than in the original paper
-        return is_distance_zero ?
-               CT(0) :
-               atan2(-sin_alpha, sin_U1 * sin_sigma - cos_U1 * cos_sigma * cos_azimuth12); // (12)
-    }
-    */
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP

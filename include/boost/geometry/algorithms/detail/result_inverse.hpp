@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015 Oracle and/or its affiliates.
+// Copyright (c) 2015-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,7 +22,7 @@
 #include <boost/geometry/algorithms/detail/flattening.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 template <typename T>
@@ -43,7 +43,7 @@ struct result_inverse
     T geodesic_scale;
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESULT_INVERSE_HPP

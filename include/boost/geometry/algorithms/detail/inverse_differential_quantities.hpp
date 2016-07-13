@@ -16,7 +16,7 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -30,7 +30,7 @@ template <
     bool EnableReducedLength,
     bool EnableGeodesicScale
 >
-class inverse_differential_quantities
+class differential_quantities
 {
 public:
     template <typename J12Calc>
@@ -157,7 +157,7 @@ private:
     }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_INVERSE_DIFFERENTIAL_QUANTITIES_HPP
