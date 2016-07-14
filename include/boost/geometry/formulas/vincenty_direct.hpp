@@ -25,6 +25,8 @@
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
 
+#include <boost/geometry/formulas/differential_quantities.hpp>
+
 
 #ifndef BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS
 #define BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS 1000
@@ -46,6 +48,8 @@ struct result_direct
     T lon2;
     T lat2;
     T reverse_azimuth;
+    T reduced_length;
+    T geodesic_scale;
 };
 
 /*!
@@ -62,10 +66,17 @@ struct result_direct
 template <
     typename CT,
     bool EnableCoordinates = true,
-    bool EnableReverseAzimuth = false
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
 >
-struct vincenty_direct
+class vincenty_direct
 {
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcCoordinates = EnableCoordinates || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
+
+public:
     typedef result_direct<CT> result_type;
 
     template <typename T, typename Dist, typename Azi, typename Spheroid>
@@ -148,7 +159,7 @@ struct vincenty_direct
                //&& geometry::math::abs(sigma) < pi
                && counter < BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS ); // robustness
 
-        if (BOOST_GEOMETRY_CONDITION(EnableCoordinates))
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             result.lat2
                 = atan2( sin_U1 * cos_sigma + cos_U1 * sin_sigma * cos_azimuth12,
@@ -163,10 +174,20 @@ struct vincenty_direct
             result.lon2 = lon1 + L;
         }
 
-        if (BOOST_GEOMETRY_CONDITION(EnableReverseAzimuth))
+        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
         {
             result.reverse_azimuth
                 = atan2(sin_alpha, -sin_U1 * sin_sigma + cos_U1 * cos_sigma * cos_azimuth12); // (12)
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        {
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            quantities::apply(lon1, lat1, result.lon2, result.lat2,
+                              azimuth12, result.reverse_azimuth,
+                              radius_b, flattening,
+                              result.reduced_length, result.geodesic_scale,
+                              quantities::J12_calc_f2); // TODO use more accurate J12
         }
 
         return result;
