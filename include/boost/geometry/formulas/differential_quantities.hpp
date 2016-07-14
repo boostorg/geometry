@@ -34,6 +34,27 @@ class differential_quantities
 {
 public:
     template <typename J12Calc>
+    static inline void apply(CT const& lon1, CT const& lat1,
+                             CT const& lon2, CT const& lat2,
+                             CT const& azimuth, CT const& reverse_azimuth,
+                             CT const& b, CT const& f,
+                             CT & reduced_length, CT & geodesic_scale,
+                             J12Calc J12_calc)
+    {
+        CT const dlon = lon2 - lon1;
+        CT const sin_lat1 = sin(lat1);
+        CT const cos_lat1 = cos(lat1);
+        CT const sin_lat2 = sin(lat2);
+        CT const cos_lat2 = cos(lat2);
+
+        apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
+              azimuth, reverse_azimuth,
+              b, f,
+              reduced_length, geodesic_scale,
+              J12_calc);
+    }
+
+    template <typename J12Calc>
     static inline void apply(CT const& dlon,
                              CT const& sin_lat1, CT const& cos_lat1,
                              CT const& sin_lat2, CT const& cos_lat2,

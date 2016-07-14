@@ -203,13 +203,8 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            CT const sin_lat1 = sin(lat1);
-            CT const cos_lat1 = cos(lat1);
-            CT const sin_lat2 = sin(lat2);
-            CT const cos_lat2 = cos(lat2);
-
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
-            quantities::apply(L, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
+            quantities::apply(lon1, lat1, lon2, lat2,
                               result.azimuth, result.reverse_azimuth,
                               radius_b, flattening,
                               result.reduced_length, result.geodesic_scale,
