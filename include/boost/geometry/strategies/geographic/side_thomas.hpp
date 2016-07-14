@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_THOMAS_HPP
 
 
-#include <boost/geometry/algorithms/detail/thomas_inverse.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
 
 #include <boost/geometry/strategies/geographic/side_detail.hpp>
 

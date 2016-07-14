@@ -23,7 +23,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 namespace boost { namespace geometry
 {

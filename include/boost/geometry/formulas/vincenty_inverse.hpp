@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_INVERSE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_INVERSE_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_VINCENTY_INVERSE_HPP
+#define BOOST_GEOMETRY_FORMULAS_VINCENTY_INVERSE_HPP
 
 
 #include <boost/math/constants/constants.hpp>
@@ -24,8 +24,9 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
-#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
-#include <boost/geometry/algorithms/detail/result_inverse.hpp>
+
+#include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/result_inverse.hpp>
 
 
 #ifndef BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS
@@ -222,4 +223,4 @@ public:
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_INVERSE_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_VINCENTY_INVERSE_HPP

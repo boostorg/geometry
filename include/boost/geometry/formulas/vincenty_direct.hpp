@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP
+#define BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP
 
 
 #include <boost/math/constants/constants.hpp>
@@ -177,4 +177,4 @@ struct vincenty_direct
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP

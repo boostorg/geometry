@@ -22,7 +22,8 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
+
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 namespace boost { namespace geometry
 {

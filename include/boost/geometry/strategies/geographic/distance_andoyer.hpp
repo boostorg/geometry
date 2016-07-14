@@ -20,8 +20,9 @@
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
 
-#include <boost/geometry/algorithms/detail/andoyer_inverse.hpp>
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+
+#include <boost/geometry/formulas/andoyer_inverse.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 

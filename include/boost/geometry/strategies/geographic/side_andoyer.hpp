@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_ANDOYER_HPP
 
 
-#include <boost/geometry/algorithms/detail/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/andoyer_inverse.hpp>
 
 #include <boost/geometry/strategies/geographic/side_detail.hpp>
 
