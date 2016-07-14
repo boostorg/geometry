@@ -24,8 +24,8 @@
 
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/strategies/geographic/side_vincenty.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_direct.hpp>
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
+#include <boost/geometry/formulas/vincenty_direct.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
