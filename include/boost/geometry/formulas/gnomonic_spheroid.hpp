@@ -55,7 +55,7 @@ public:
                                CT & x, CT & y,
                                Spheroid const& spheroid)
     {
-        inverse_result i_res = inverse_type::apply(lat0, lon0, lat, lon, spheroid);
+        inverse_result i_res = inverse_type::apply(lon0, lat0, lon, lat, spheroid);
 
         if (math::smaller_or_equals(i_res.geodesic_scale, CT(0)))
         {
