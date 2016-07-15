@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/flattening.hpp>
 
 #include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/result_direct.hpp>
 
 
 #ifndef BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS
@@ -35,22 +36,6 @@
 
 namespace boost { namespace geometry { namespace formula
 {
-
-template <typename T>
-struct result_direct
-{
-    result_direct()
-        : lon2(0)
-        , lat2(0)
-        , reverse_azimuth(0)
-    {}
-
-    T lon2;
-    T lat2;
-    T reverse_azimuth;
-    T reduced_length;
-    T geodesic_scale;
-};
 
 /*!
 \brief The solution of the direct problem of geodesics on latlong coordinates, after Vincenty, 1975

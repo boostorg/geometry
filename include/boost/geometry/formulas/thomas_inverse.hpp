@@ -36,7 +36,7 @@ namespace boost { namespace geometry { namespace formula
     - Technical Report: PAUL D. THOMAS, MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
       http://www.dtic.mil/docs/citations/AD0627893
     - Technical Report: PAUL D. THOMAS, SPHEROIDAL GEODESICS, REFERENCE SYSTEMS, AND LOCAL GEOMETRY, 1970
-      http://www.dtic.mil/docs/citations/AD703541
+      http://www.dtic.mil/docs/citations/AD0703541
 */
 template <
     typename CT,
@@ -63,11 +63,6 @@ public:
                                     T2 const& lat2,
                                     Spheroid const& spheroid)
     {
-        CT const c0 = 0;
-        CT const c1 = 1;
-        CT const c2 = 2;
-        CT const c4 = 4;
-
         result_type result;
 
         // coordinates in radians
@@ -76,6 +71,11 @@ public:
         {
             return result;
         }
+
+        CT const c0 = 0;
+        CT const c1 = 1;
+        CT const c2 = 2;
+        CT const c4 = 4;
 
         CT const pi_half = math::pi<CT>() / c2;
         CT const f = detail::flattening<CT>(spheroid);
