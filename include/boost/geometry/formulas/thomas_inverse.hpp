@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015 Oracle and/or its affiliates.
+// Copyright (c) 2015-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_THOMAS_INVERSE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_THOMAS_INVERSE_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_THOMAS_INVERSE_HPP
+#define BOOST_GEOMETRY_FORMULAS_THOMAS_INVERSE_HPP
 
 
 #include <boost/math/constants/constants.hpp>
@@ -21,11 +21,12 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
-//#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
-#include <boost/geometry/algorithms/detail/result_inverse.hpp>
+
+#include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/result_inverse.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -35,7 +36,7 @@ namespace boost { namespace geometry { namespace detail
     - Technical Report: PAUL D. THOMAS, MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
       http://www.dtic.mil/docs/citations/AD0627893
     - Technical Report: PAUL D. THOMAS, SPHEROIDAL GEODESICS, REFERENCE SYSTEMS, AND LOCAL GEOMETRY, 1970
-      http://www.dtic.mil/docs/citations/AD703541
+      http://www.dtic.mil/docs/citations/AD0703541
 */
 template <
     typename CT,
@@ -71,9 +72,14 @@ public:
             return result;
         }
 
-        CT const pi_half = math::pi<CT>() / CT(2);
+        CT const c0 = 0;
+        CT const c1 = 1;
+        CT const c2 = 2;
+        CT const c4 = 4;
+
+        CT const pi_half = math::pi<CT>() / c2;
         CT const f = detail::flattening<CT>(spheroid);
-        CT const one_minus_f = CT(1) - f;
+        CT const one_minus_f = c1 - f;
 
 //        CT const tan_theta1 = one_minus_f * tan(lat1);
 //        CT const tan_theta2 = one_minus_f * tan(lat2);
@@ -87,10 +93,10 @@ public:
                           math::equals(lat2, -pi_half) ? lat2 :
                           atan(one_minus_f * tan(lat2));
 
-        CT const theta_m = (theta1 + theta2) / CT(2);
-        CT const d_theta_m = (theta2 - theta1) / CT(2);
+        CT const theta_m = (theta1 + theta2) / c2;
+        CT const d_theta_m = (theta2 - theta1) / c2;
         CT const d_lambda = lon2 - lon1;
-        CT const d_lambda_m = d_lambda / CT(2);
+        CT const d_lambda_m = d_lambda / c2;
 
         CT const sin_theta_m = sin(theta_m);
         CT const cos_theta_m = cos(theta_m);
@@ -105,48 +111,48 @@ public:
 
         CT const H = cos2_theta_m - sin2_d_theta_m;
         CT const L = sin2_d_theta_m + H * sin2_d_lambda_m;
-        CT const cos_d = CT(1) - CT(2) * L;
+        CT const cos_d = c1 - c2 * L;
         CT const d = acos(cos_d);
         CT const sin_d = sin(d);
 
-        CT const one_minus_L = CT(1) - L;
+        CT const one_minus_L = c1 - L;
 
-        if ( math::equals(sin_d, CT(0))
-          || math::equals(L, CT(0))
-          || math::equals(one_minus_L, CT(0)) )
+        if ( math::equals(sin_d, c0)
+          || math::equals(L, c0)
+          || math::equals(one_minus_L, c0) )
         {
             return result;
         }
 
-        CT const U = CT(2) * sin2_theta_m * cos2_d_theta_m / one_minus_L;
-        CT const V = CT(2) * sin2_d_theta_m * cos2_theta_m / L;
+        CT const U = c2 * sin2_theta_m * cos2_d_theta_m / one_minus_L;
+        CT const V = c2 * sin2_d_theta_m * cos2_theta_m / L;
         CT const X = U + V;
         CT const Y = U - V;
         CT const T = d / sin_d;
-        //CT const D = CT(4) * math::sqr(T);
-        //CT const E = CT(2) * cos_d;
-        //CT const A = D * E;
-        //CT const B = CT(2) * D;
-        //CT const C = T - (A - E) / CT(2);
+        CT const D = c4 * math::sqr(T);
+        CT const E = c2 * cos_d;
+        CT const A = D * E;
+        CT const B = c2 * D;
+        CT const C = T - (A - E) / c2;
 
+        CT const f_sqr = math::sqr(f);
+        CT const f_sqr_per_64 = f_sqr / CT(64);
+    
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
-            //CT const n1 = X * (A + C*X);
-            //CT const n2 = Y * (B + E*Y);
-            //CT const n3 = D*X*Y;
+            CT const n1 = X * (A + C*X);
+            CT const n2 = Y * (B + E*Y);
+            CT const n3 = D*X*Y;
 
-            //CT const f_sqr = math::sqr(f);
-            //CT const f_sqr_per_64 = f_sqr / CT(64);
-
-            CT const delta1d = f * (T*X-Y) / CT(4);
-            //CT const delta2d = f_sqr_per_64 * (n1 - n2 + n3);
+            CT const delta1d = f * (T*X-Y) / c4;
+            CT const delta2d = f_sqr_per_64 * (n1 - n2 + n3);
 
             CT const a = get_radius<0>(spheroid);
 
-            result.distance = a * sin_d * (T - delta1d);
-            //double S2 = a * sin_d * (T - delta1d + delta2d);
+            //result.distance = a * sin_d * (T - delta1d);
+            result.distance = a * sin_d * (T - delta1d + delta2d);
         }
-
+    
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
             // NOTE: if both cos_latX == 0 then below we'd have 0 * INF
@@ -154,66 +160,58 @@ public:
             // in this case the azimuth could either be 0 or +-pi
             // but above always 0 is returned
 
-            // may also be used to calculate distance21
-            //CT const D = CT(4) * math::sqr(T);
-            CT const E = CT(2) * cos_d;
-            //CT const A = D * E;
-            //CT const B = CT(2) * D;
-            // may also be used to calculate distance21
-            CT const f_sqr = math::sqr(f);
-            CT const f_sqr_per_64 = f_sqr / CT(64);
-
-            CT const F = CT(2)*Y-E*(CT(4)-X);
-            //CT const M = CT(32)*T-(CT(20)*T-A)*X-(B+CT(4))*Y;
-            CT const G = f*T/CT(2) + f_sqr_per_64;
+            CT const F = c2*Y-E*(c4-X);
+            CT const M = CT(32)*T-(CT(20)*T-A)*X-(B+c4)*Y;
+            CT const G = f*T/c2 + f_sqr_per_64 * M;
             CT const tan_d_lambda = tan(d_lambda);
-            CT const Q = -(F*G*tan_d_lambda) / CT(4);
+            CT const Q = -(F*G*tan_d_lambda) / c4;
 
-            CT const d_lambda_p = (d_lambda + Q) / CT(2);
-            CT const tan_d_lambda_p = tan(d_lambda_p);
+            CT const d_lambda_m_p = (d_lambda + Q) / c2;
+            CT const tan_d_lambda_m_p = tan(d_lambda_m_p);
 
-            CT const v = atan2(cos_d_theta_m, sin_theta_m * tan_d_lambda_p);
-            CT const u = atan2(-sin_d_theta_m, cos_theta_m * tan_d_lambda_p);
+            CT const v = atan2(cos_d_theta_m, sin_theta_m * tan_d_lambda_m_p);
+            CT const u = atan2(-sin_d_theta_m, cos_theta_m * tan_d_lambda_m_p);
 
             CT const pi = math::pi<CT>();
-            CT alpha1 = v + u;
-            if ( alpha1 > pi )
+
+            if (BOOST_GEOMETRY_CONDITION(EnableAzimuth))
             {
-                alpha1 -= CT(2) * pi;
+                CT alpha1 = v + u;
+                if (alpha1 > pi)
+                {
+                    alpha1 -= c2 * pi;
+                }
+
+                result.azimuth = alpha1;
             }
 
-            result.azimuth = alpha1;
-
-            CT alpha2 = pi - (v - u);
-            if (alpha2 > pi)
+            if (BOOST_GEOMETRY_CONDITION(EnableReverseAzimuth))
             {
-                alpha2 -= CT(2) * pi;
-            }
+                CT alpha2 = pi - (v - u);
+                if (alpha2 > pi)
+                {
+                    alpha2 -= c2 * pi;
+                }
 
-            result.reverse_azimuth = alpha2;
+                result.reverse_azimuth = alpha2;
+            }
         }
-/*
+
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            CT const dlon = lon2 - lon1;
-            CT const sin_lat1 = sin(lat1);
-            CT const cos_lat1 = cos(lat1);
-            CT const sin_lat2 = sin(lat2);
-            CT const cos_lat2 = cos(lat2);
-
-            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
-            quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            quantities::apply(lon1, lat1, lon2, lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
                               result.reduced_length, result.geodesic_scale,
                               quantities::J12_calc_f2);
         }
-*/
+
         return result;
     }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_THOMAS_INVERSE_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_THOMAS_INVERSE_HPP

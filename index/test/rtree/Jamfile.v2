@@ -12,6 +12,7 @@ build-project generated ;
 
 test-suite boost-geometry-index-rtree
     :
+    [ run rtree_contains_point.cpp ]
     [ run rtree_epsilon.cpp ]
     [ run rtree_insert_remove.cpp ]
     [ run rtree_intersects_geom.cpp ]

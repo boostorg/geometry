@@ -16,6 +16,8 @@
 #include <sstream>
 #include <string>
 
+#include <boost/variant.hpp>
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
@@ -25,8 +27,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
-#include <boost/geometry/io/svg/write_svg.hpp>
-#include <boost/geometry/io/svg/write_svg_multi.hpp>
+#include <boost/geometry/io/svg/write.hpp>
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 
@@ -79,6 +80,11 @@ void test_all()
     multi_polygon m_po;
     m_po.push_back(po);
 
+    boost::variant<P, linestring, polygon> var;
+    linestring lsv;
+    push_back_square(lsv, 130, 140);
+    var = lsv;
+
     std::string style = "fill-opacity:0.5;fill:rgb(200,0,0);stroke:rgb(200,0,0);stroke-width:3";
     std::string m_style = "fill-opacity:0.5;fill:rgb(0,200,0);stroke:rgb(0,200,0);stroke-width:1";
 
@@ -101,6 +107,7 @@ void test_all()
         os << bg::svg(m_pt, m_style);
         os << bg::svg(m_ls, m_style);
         os << bg::svg(m_po, m_style);
+        os << bg::svg(var, style);
 
         os << "</svg>";
     }
@@ -121,6 +128,8 @@ void test_all()
         mapper.add(m_pt);
         mapper.add(m_ls);
         mapper.add(m_po);
+        mapper.add(var);
+
         mapper.map(pt, style);
         mapper.map(b, style);
         mapper.map(s, style);
@@ -130,6 +139,7 @@ void test_all()
         mapper.map(m_pt, m_style);
         mapper.map(m_ls, m_style);
         mapper.map(m_po, m_style);
+        mapper.map(var, m_style);
     }
 }
 

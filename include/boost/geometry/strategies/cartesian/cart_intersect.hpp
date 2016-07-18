@@ -30,6 +30,7 @@
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 // Temporary / will be Strategy as template parameter
@@ -37,6 +38,7 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
@@ -63,6 +65,69 @@ template <typename Policy, typename CalculationType = void>
 struct relate_cartesian_segments
 {
     typedef typename Policy::return_type return_type;
+
+    template <typename CoordinateType, typename SegmentRatio>
+    struct segment_intersection_info
+    {
+        typedef typename select_most_precise
+            <
+                CoordinateType, double
+            >::type promoted_type;
+
+        promoted_type comparable_length_a() const
+        {
+            return dx_a * dx_a + dy_a * dy_a;
+        }
+
+        promoted_type comparable_length_b() const
+        {
+            return dx_b * dx_b + dy_b * dy_b;
+        }
+
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_a(Point& point, Segment1 const& a, Segment2 const& ) const
+        {
+            assign(point, a, dx_a, dy_a, robust_ra);
+        }
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_b(Point& point, Segment1 const& , Segment2 const& b) const
+        {
+            assign(point, b, dx_b, dy_b, robust_rb);
+        }
+
+        template <typename Point, typename Segment>
+        void assign(Point& point, Segment const& segment, CoordinateType const& dx, CoordinateType const& dy, SegmentRatio const& ratio) const
+        {
+            // Calculate the intersection point based on segment_ratio
+            // Up to now, division was postponed. Here we divide using numerator/
+            // denominator. In case of integer this results in an integer
+            // division.
+            BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
+
+            typedef typename promote_integral<CoordinateType>::type promoted_type;
+
+            promoted_type const numerator
+                = boost::numeric_cast<promoted_type>(ratio.numerator());
+            promoted_type const denominator
+                = boost::numeric_cast<promoted_type>(ratio.denominator());
+            promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
+            promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
+
+            set<0>(point, get<0, 0>(segment) + boost::numeric_cast
+                <
+                    CoordinateType
+                >(numerator * dx_promoted / denominator));
+            set<1>(point, get<0, 1>(segment) + boost::numeric_cast
+                <
+                    CoordinateType
+                >(numerator * dy_promoted / denominator));
+        }
+
+        CoordinateType dx_a, dy_a;
+        CoordinateType dx_b, dy_b;
+        SegmentRatio robust_ra;
+        SegmentRatio robust_rb;
+    };
 
     template <typename D, typename W, typename ResultType>
     static inline void cramers_rule(D const& dx_a, D const& dy_a,
@@ -160,11 +225,6 @@ struct relate_cartesian_segments
 
         typedef typename select_most_precise
             <
-                coordinate_type, double
-            >::type promoted_type;
-
-        typedef typename select_most_precise
-            <
                 typename geometry::coordinate_type<RobustPoint1>::type,
                 typename geometry::coordinate_type<RobustPoint2>::type
             >::type robust_coordinate_type;
@@ -178,7 +238,6 @@ struct relate_cartesian_segments
         segment_intersection_info
         <
             coordinate_type,
-            promoted_type,
             ratio_type
         > sinfo;
 
@@ -481,6 +540,20 @@ private:
                 : 2 );
     }
 };
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename Policy, typename CalculationType>
+struct default_strategy<cartesian_tag, Policy, CalculationType>
+{
+    typedef relate_cartesian_segments<Policy, CalculationType> type;
+};
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::intersection

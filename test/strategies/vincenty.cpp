@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,8 +24,8 @@
 
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/strategies/geographic/side_vincenty.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_direct.hpp>
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
+#include <boost/geometry/formulas/vincenty_direct.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -125,7 +125,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         double const d2r = bg::math::d2r<double>();
         double const r2d = bg::math::r2d<double>();
 
-        typedef bg::detail::vincenty_inverse<calc_t, true, true> inverse_formula;
+        typedef bg::formula::vincenty_inverse<calc_t, true, true> inverse_formula;
         typename inverse_formula::result_type
             result_i = inverse_formula::apply(lon1 * d2r,
                                              lat1 * d2r,
@@ -143,7 +143,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
         //check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
 
-        typedef bg::detail::vincenty_direct<calc_t> direct_formula;
+        typedef bg::formula::vincenty_direct<calc_t> direct_formula;
         typename direct_formula::result_type
             result_d = direct_formula::apply(lon1 * d2r,
                                              lat1 * d2r,

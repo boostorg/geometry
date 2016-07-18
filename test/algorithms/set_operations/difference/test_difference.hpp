@@ -18,6 +18,7 @@
 #include <iomanip>
 
 #include <geometry_test_common.hpp>
+#include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
@@ -178,7 +179,8 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         rescale_policy_type rescale_policy
                 = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-        std::vector<OutputType> inserted, array_with_one_empty_geometry;
+        typename setop_output_type<OutputType>::type
+            inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
         if (sym)
         {
@@ -386,13 +388,14 @@ void test_one_lp(std::string const& caseid,
 
     bg::correct(g1);
 
-    std::vector<OutputType> pieces;
+    typedef typename setop_output_type<OutputType>::type result_type;
+    result_type pieces;
     bg::difference(g1, g2, pieces);
 
     typename bg::default_length_result<G1>::type length = 0;
     std::size_t n = 0;
     std::size_t piece_count = 0;
-    for (typename std::vector<OutputType>::iterator it = pieces.begin();
+    for (typename result_type::iterator it = pieces.begin();
             it != pieces.end();
             ++it)
     {

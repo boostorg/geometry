@@ -27,21 +27,34 @@
 
 template <typename G1, typename G2>
 void check_disjoint(std::string const& id,
+                    std::string const& wkt1,
+                    std::string const& wkt2,
                     G1 const& g1,
                     G2 const& g2,
                     bool expected)
 {
     bool detected = bg::disjoint(g1, g2);
-    BOOST_CHECK_MESSAGE(detected == expected,
-        "disjoint: " << id
-        << " -> Expected: " << expected
-        << " detected: " << detected);
+    if (id.empty())
+    {
+        BOOST_CHECK_MESSAGE(detected == expected,
+            "disjoint: " << wkt1 << " and " << wkt2
+            << " -> Expected: " << expected
+            << " detected: " << detected);
+    }
+    else
+    {
+        BOOST_CHECK_MESSAGE(detected == expected,
+            "disjoint: " << id
+            << " -> Expected: " << expected
+            << " detected: " << detected);
+    }
 }
 
 template <typename G1, typename G2>
 void test_disjoint(std::string const& id,
-            std::string const& wkt1,
-            std::string const& wkt2, bool expected)
+                   std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
 {
     G1 g1;
     bg::read_wkt(wkt1, g1);
@@ -52,11 +65,18 @@ void test_disjoint(std::string const& id,
     boost::variant<G1> v1(g1);
     boost::variant<G2> v2(g2);
 
-    check_disjoint(id, g1, g2, expected);
-    check_disjoint(id, v1, g2, expected);
-    check_disjoint(id, g1, v2, expected);
-    check_disjoint(id, v1, v2, expected);
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected);
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected);
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected);
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected);
 }
 
+template <typename G1, typename G2>
+void test_geometry(std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
+{
+    test_disjoint<G1, G2>("", wkt1, wkt2, expected);
+}
 
 #endif // BOOST_GEOMETRY_TEST_DISJOINT_HPP

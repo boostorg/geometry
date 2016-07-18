@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2015.
-// Modifications copyright (c) 2013, 2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2015, 2016.
+// Modifications copyright (c) 2013-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -68,6 +68,14 @@ void test_touches(std::string const& wkt1,
     check_touches(v1, geometry2, wkt1, wkt2, expected);
     check_touches(geometry1, v2, wkt1, wkt2, expected);
     check_touches(v1, v2, wkt1, wkt2, expected);
+}
+
+template <typename Geometry1, typename Geometry2>
+void test_geometry(std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected)
+{
+    test_touches<Geometry1, Geometry2>(wkt1, wkt2, expected);
 }
 
 

@@ -1042,7 +1042,7 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
             typename geometry::point_type<Geometry1>::type // TODO from both
         >::type rescale_policy_type;
 
-    typedef strategy_intersection
+    typedef intersection_strategies
         <
             typename cs_tag<GeometryOut>::type,
             Geometry1,

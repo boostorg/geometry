@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ANDOYER_INVERSE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ANDOYER_INVERSE_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP
+#define BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP
 
 
 #include <boost/math/constants/constants.hpp>
@@ -21,11 +21,17 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
 //#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
 #include <boost/geometry/algorithms/detail/result_inverse.hpp>
+=======
+>>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
+
+#include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/result_inverse.hpp>
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
 
 /*!
@@ -96,7 +102,11 @@ public:
 
         CT const d = acos(cos_d); // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
+<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
 
+=======
+        
+>>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
             CT const K = math::sqr(sin_lat1-sin_lat2);
@@ -186,10 +196,17 @@ public:
                 }
             }
         }
+<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
 /*
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
             typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+=======
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        {
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+>>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
@@ -235,9 +252,44 @@ private:
             }
         }
     }
+
+private:
+    static inline void normalize_azimuth(CT & azimuth, CT const& A, CT const& dA)
+    {
+        CT const c0 = 0;
+        
+        if (A >= c0) // A indicates Eastern hemisphere
+        {
+            if (dA >= c0) // A altered towards 0
+            {
+                if (azimuth < c0)
+                    azimuth = c0;
+            }
+            else // dA < 0, A altered towards pi
+            {
+                CT const pi = math::pi<CT>();
+                if (azimuth > pi)
+                    azimuth = pi;
+            }
+        }
+        else // A indicates Western hemisphere
+        {
+            if (dA <= c0) // A altered towards 0
+            {
+                if (azimuth > c0)
+                    azimuth = c0;
+            }
+            else // dA > 0, A altered towards -pi
+            {
+                CT const minus_pi = -math::pi<CT>();
+                if (azimuth < minus_pi)
+                    azimuth = minus_pi;
+            }
+        }
+    }
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_ANDOYER_INVERSE_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP

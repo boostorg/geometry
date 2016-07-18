@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -23,7 +23,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-#include <boost/geometry/algorithms/detail/thomas_inverse.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
 
 namespace boost { namespace geometry
 {
@@ -78,7 +78,7 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return geometry::detail::thomas_inverse
+        return geometry::formula::thomas_inverse
                 <
                     typename calculation_type<Point1, Point2>::type,
                     true, false
