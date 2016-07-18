@@ -64,6 +64,7 @@
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
+#include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>

@@ -242,11 +242,12 @@ public :
                 || geometry::get_as_radian<1>(p2) == - half_pi)
             {
                 state.south_vertex = true;
-            } else {
-                // Global max, min
-                state.max_lon = std::max(state.max_lon, max_lon);
-                state.min_lon = std::min(state.min_lon, min_lon);
             }
+
+            // Global max, min
+            state.max_lon = std::max(state.max_lon, max_lon);
+            state.min_lon = std::min(state.min_lon, min_lon);
+
 
             // Test if the segment has a point on northern hemisphere
             if(state.south)
