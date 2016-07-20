@@ -371,18 +371,32 @@ template <bool Reverse0, bool Reverse1>
 inline bool is_ie_turn(segment_identifier const& ext_seg_0,
                        segment_identifier const& ext_seg_1,
                        segment_identifier const& int_seg_0,
-                       segment_identifier const& int_seg_1)
+                       segment_identifier const& other_seg_1)
 {
-    // Compares two segment identifiers from two turns (external / internal)
+    // Compares two segment identifiers from two turns (external / one internal)
 
     // From first turn [0], both are from same polygon (multi_index),
     // one is exterior (-1), the other is interior (>= 0),
     // and the second turn [1] handles the same ring
-    return ext_seg_0.multi_index == int_seg_0.multi_index
+
+    // For difference, where the rings are processed in reversal, all interior
+    // rings become exterior and vice versa. But also the multi property changes:
+    // rings originally from the same multi should now be considered as from
+    // different multi polygons.
+    // But this is not always the case, and at this point hard to figure out
+    // (not yet implemented, TODO)
+
+    bool const same_multi0 = ! Reverse0
+                             && ext_seg_0.multi_index == int_seg_0.multi_index;
+
+    bool const same_multi1 = ! Reverse1
+                             && ext_seg_1.multi_index == other_seg_1.multi_index;
+
+    return same_multi0
+            && same_multi1
             && ! is_interior<Reverse0>(ext_seg_0)
             && is_interior<Reverse0>(int_seg_0)
-            && ext_seg_1.multi_index == int_seg_1.multi_index
-            && ext_seg_1.ring_index == int_seg_1.ring_index;
+            && ext_seg_1.ring_index == other_seg_1.ring_index;
 
     // The other way round is tested in another call
 }
@@ -395,15 +409,6 @@ template
 >
 inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 {
-    if (Reverse0 || Reverse1)
-    {
-        // For difference, one of the rings is reversed, the interpretation
-        // of internal rings is different. However, somehow the implementation
-        // does not work yet. Without it, there are no problems found.
-        // TODO
-        return;
-    }
-
     typedef std::set<signed_size_type>::const_iterator set_iterator;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
@@ -426,7 +431,8 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
 
 
-            if (turn.both(operation_intersection))
+            if (turn.both(operation_intersection)
+                    && Reverse0 == Reverse1)
             {
                 if (   is_interior<Reverse0>(seg_0)
                     && is_interior<Reverse1>(seg_1))
@@ -452,20 +458,16 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
                     continue;
                 }
 
-                // Turn with, possibly, an interior rings involved
+                // Turn with, possibly, an interior ring involved
                 turn_type& int_turn = turns[*int_it];
                 segment_identifier const& int_seg_0 = int_turn.operations[0].seg_id;
                 segment_identifier const& int_seg_1 = int_turn.operations[1].seg_id;
 
-                if (   ! is_interior<Reverse0>(int_seg_0)
-                    && ! is_interior<Reverse1>(int_seg_1))
+                if (is_ie_turn<Reverse0, Reverse1>(seg_0, seg_1, int_seg_0, int_seg_1))
                 {
-                    // Not an interior ring
-                    continue;
+                    discard_ie_turn(int_turn, ids_to_remove, *int_it);
                 }
-
-                if (   is_ie_turn<Reverse0, Reverse1>(seg_0, seg_1, int_seg_0, int_seg_1)
-                    || is_ie_turn<Reverse1, Reverse0>(seg_1, seg_0, int_seg_1, int_seg_0))
+                if (is_ie_turn<Reverse1, Reverse0>(seg_1, seg_0, int_seg_1, int_seg_0))
                 {
                     discard_ie_turn(int_turn, ids_to_remove, *int_it);
                 }
