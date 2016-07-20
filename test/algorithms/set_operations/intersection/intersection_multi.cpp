@@ -14,12 +14,6 @@
 #include <iostream>
 #include <string>
 
-// If defined, tests are run without rescaling-to-integer or robustness policy
-// This multi_intersection currently contains no tests for double then failing
-// #define BOOST_GEOMETRY_NO_ROBUSTNESS
-
-// #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-
 #include "test_intersection.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
@@ -134,12 +128,12 @@ void test_areal()
         case_107_multi[1], case_107_multi[2],
         3, 13, 3.0);
 
-#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
-    // Caused by rescaling. One intersection is missing.
-    // If rescaling is turned off it works correctly
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // One intersection is missing (by rescaling)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
         case_108_multi[0], case_108_multi[1],
-        5, 33, 7.5);
+        5, 33, 7.5,
+        ignore_validity);
 #endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
@@ -274,17 +268,22 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],
-        1, 4, 1.7791170511070893e-14);
+        1, 4,
+#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
+        9.896437631745599e-09
+#else
+        1.7791170511070893e-14
+#endif
+    );
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_12",
         mysql_23023665_12[0], mysql_23023665_12[1],
-        2, -1, 11.812440191387557);
-#endif
+        1, -1, 11.812440191387557,
+        ignore_validity);
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>

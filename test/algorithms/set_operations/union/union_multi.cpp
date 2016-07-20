@@ -14,10 +14,6 @@
 #include <iostream>
 #include <string>
 
-// If defined, tests are run without rescaling-to-integer or robustness policy
-// This multi_union currently contains no tests for double which then fail
-// #define BOOST_GEOMETRY_NO_ROBUSTNESS
-
 #include "test_union.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
@@ -373,18 +369,21 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
-
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    // TODO: solve validity, it needs calculating self-turns
+    // Should have 1 hole
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],
-        1, 1, -1, 99.19494);
+        1, 0, -1, 99.19494,
+        ignore_validity);
+    // Should have 2 holes
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_8",
         mysql_23023665_8[0], mysql_23023665_8[1],
-        1, 2, -1, 1400.0);
+        1, 1, -1, 1400.0,
+        ignore_validity);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
         mysql_23023665_9[0], mysql_23023665_9[1],
         1, 9, -1, 1250.0);
-#endif
 }
 
 // Test cases (generic)

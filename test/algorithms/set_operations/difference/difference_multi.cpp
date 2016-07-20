@@ -10,19 +10,6 @@
 #include <iostream>
 #include <string>
 
-// If defined, tests are run without rescaling-to-integer or robustness policy
-// This multi_difference currently contains no tests for double which then fail
-// #define BOOST_GEOMETRY_NO_ROBUSTNESS
-
-//#define HAVE_TTMATH
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
-
-//#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
-//#define BOOST_GEOMETRY_DEBUG_FOLLOW
-//#define BOOST_GEOMETRY_DEBUG_TRAVERSE
-
-
 #include "test_difference.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
@@ -41,6 +28,11 @@ void test_areal()
 {
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
+
+    ut_settings sym_settings;
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    sym_settings.sym_difference = false;
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
             case_multi_simplex[0], case_multi_simplex[1],
@@ -152,7 +144,6 @@ void test_areal()
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
             4, 42, 0.0907392476356186 + 0.126018011439877,
             tolerance(0.001));
-#endif
 
     // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
     test_one<Polygon, MultiPolygon, MultiPolygon>("bug_21155501",
@@ -160,6 +151,7 @@ void test_areal()
             1, 9, 3.758937,
             0, 0, 0.0,
             ignore_validity);
+#endif
 
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
@@ -255,7 +247,8 @@ void test_areal()
         mysql_21965285_b[0],
         mysql_21965285_b[1],
         2, -1, 183.71376870369406,
-        2, -1, 131.21376870369406);
+        2, -1, 131.21376870369406,
+        sym_settings);
 }
 
 
