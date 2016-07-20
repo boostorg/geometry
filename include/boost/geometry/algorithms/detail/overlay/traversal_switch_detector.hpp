@@ -258,6 +258,11 @@ struct traversal_switch_detector
                 std::cout << "CL SWITCH RESULT " << it->first
                              << " -> " << cinfo.switch_source << std::endl;
             }
+            else
+            {
+                std::cout << "CL SWITCH RESULT " << it->first
+                          << " is not registered as open" << std::endl;
+            }
         }
 #endif
 
