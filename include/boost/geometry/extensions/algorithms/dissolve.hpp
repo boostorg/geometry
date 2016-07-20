@@ -65,15 +65,26 @@ class backtrack_for_dissolve
 public :
     typedef detail::overlay::backtrack_state state_type;
 
-    template <typename Operation, typename Rings, typename Turns, typename RescalePolicy>
+    template
+        <
+            typename Operation,
+            typename Rings,
+            typename Turns,
+            typename RobustPolicy,
+            typename Visitor
+        >
     static inline void apply(std::size_t size_at_start,
-                Rings& rings, typename boost::range_value<Rings>::type& ring,
-                Turns& turns, Operation& operation,
-                std::string const& ,
+                Rings& rings,
+                typename boost::range_value<Rings>::type& ring,
+                Turns& turns,
+                typename boost::range_value<Turns>::type const& turn,
+                Operation& operation,
+                detail::overlay::traverse_error_type,
                 Geometry const& ,
                 Geometry const& ,
-                RescalePolicy const& ,
-                state_type& state
+                RobustPolicy const& ,
+                state_type& state,
+                Visitor const& visitor
                 )
     {
         state.m_good = false;
@@ -89,6 +100,41 @@ public :
         clear_visit_info(turns);
     }
 };
+
+struct dissolve_overlay_visitor
+{
+public :
+    void print(char const* /*header*/)
+    {
+    }
+
+    template <typename Turns>
+    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/)
+    {
+    }
+
+    template <typename Turns>
+    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/, int /*op_index*/)
+    {
+    }
+
+    template <typename Turns>
+    void visit_turns(int , Turns const& ) {}
+
+    template <typename Clusters, typename Turns>
+    void visit_clusters(Clusters const& , Turns const& ) {}
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse(Turns const& /*turns*/, Turn const& /*turn*/, Operation const& /*op*/, const char* /*header*/)
+    {
+    }
+
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
+            detail::overlay::traverse_error_type )
+    {}
+};
+
 
 
 template <typename Geometry, typename GeometryOut>
@@ -123,43 +169,49 @@ struct dissolve_ring_or_polygon
             typedef std::vector<ring_type> out_vector;
             out_vector rings;
 
-            // Enrich the turns
+            typedef std::map
+                <
+                    signed_size_type,
+                    detail::overlay::cluster_info
+                > cluster_type;
+
+            cluster_type clusters;
+            dissolve_overlay_visitor visitor;
+
+            // Enrich/traverse the polygons twice: once for union...
             typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             >::type side_strategy_type;
 
-            enrich_intersection_points<false, false, overlay_dissolve>(turns,
-                        detail::overlay::operation_union,
-                        geometry, geometry, rescale_policy,
+            enrich_intersection_points<false, false, overlay_union>(turns,
+                        clusters, geometry, geometry, rescale_policy,
                         side_strategy_type());
 
-            typedef detail::overlay::traverse
+            detail::overlay::traverse
                 <
                     false, false,
                     Geometry, Geometry,
+                    overlay_union,
                     backtrack_for_dissolve<Geometry>
-                > traverser;
-
-
-            // Traverse the polygons twice for union...
-            traverser::apply(geometry, geometry,
-                            detail::overlay::operation_union,
-                            rescale_policy,
-                            turns, rings);
+                >::apply(geometry, geometry, rescale_policy,
+                            turns, rings, clusters, visitor);
 
             clear_visit_info(turns);
 
-            enrich_intersection_points<false, false, bg::overlay_dissolve>(turns,
-                        detail::overlay::operation_intersection,
-                        geometry, geometry, rescale_policy,
+            // ... and for intersection
+            enrich_intersection_points<false, false, overlay_intersection>(turns,
+                        clusters, geometry, geometry, rescale_policy,
                         side_strategy_type());
 
-            // ... and for intersection
-            traverser::apply(geometry, geometry,
-                            detail::overlay::operation_intersection,
-                            rescale_policy,
-                            turns, rings);
+            detail::overlay::traverse
+                <
+                    false, false,
+                    Geometry, Geometry,
+                    overlay_intersection,
+                    backtrack_for_dissolve<Geometry>
+                >::apply(geometry, geometry, rescale_policy,
+                            turns, rings, clusters, visitor);
 
             std::map<ring_identifier, detail::overlay::ring_turn_info> map;
             get_ring_turn_info(map, turns);
