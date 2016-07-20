@@ -184,7 +184,7 @@ struct dissolve_ring_or_polygon
                 typename cs_tag<Geometry>::type
             >::type side_strategy_type;
 
-            enrich_intersection_points<false, false, overlay_union>(turns,
+            enrich_intersection_points<false, false, overlay_dissolve>(turns,
                         clusters, geometry, geometry, rescale_policy,
                         side_strategy_type());
 
@@ -192,7 +192,7 @@ struct dissolve_ring_or_polygon
                 <
                     false, false,
                     Geometry, Geometry,
-                    overlay_union,
+                    overlay_dissolve,
                     backtrack_for_dissolve<Geometry>
                 >::apply(geometry, geometry, rescale_policy,
                             turns, rings, clusters, visitor);
@@ -220,7 +220,7 @@ struct dissolve_ring_or_polygon
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_union>(geometry, map, selected);
+            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected);
 
             // Add intersected rings
             {
