@@ -87,7 +87,7 @@ struct traversal_switch_detector
         return it == m_regions.end() ? -1 : it->second;
     }
 
-    void create_region(ring_identifier const& ring_id, std::set<int> const& ring_turn_indices, int region_id = -1)
+    void create_region(ring_identifier const& ring_id, std::set<signed_size_type> const& ring_turn_indices, int region_id = -1)
     {
         std::map<ring_identifier, int>::const_iterator it = m_regions.find(ring_id);
         if (it != m_regions.end())
@@ -134,7 +134,7 @@ struct traversal_switch_detector
 
     void propagate_region(ring_identifier const& ring_id, int region_id)
     {
-        std::map<ring_identifier, std::set<int> >::const_iterator it = m_turns_per_ring.find(ring_id);
+        std::map<ring_identifier, std::set<signed_size_type> >::const_iterator it = m_turns_per_ring.find(ring_id);
         if (it != m_turns_per_ring.end())
         {
             create_region(ring_id, it->second, region_id);
@@ -164,7 +164,7 @@ struct traversal_switch_detector
         }
 
         // All rings having turns are in the map. Now iterate them
-        for (std::map<ring_identifier, std::set<int> >::const_iterator it
+        for (std::map<ring_identifier, std::set<signed_size_type> >::const_iterator it
              = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
         {
             create_region(it->first, it->second);
