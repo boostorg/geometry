@@ -25,6 +25,7 @@
 [*Improvements]
 
 * SVG: support boost::variant of geometries
+* Rename namespace concept to concepts to avoid conflicts with the newest compilers
 
 [*Solved tickets]
 
