@@ -236,10 +236,12 @@ inline void create_map(Turns const& turns,
 \ingroup overlay
 \tparam Turns type of intersection container
             (e.g. vector of "intersection/turn point"'s)
+\tparam Clusters type of cluster container
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam Strategy side strategy type
-\param turns container containing intersectionpoints
+\param turns container containing intersection points
+\param clusters container containing clusters
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param robust_policy policy to handle robustness issues
