@@ -52,7 +52,7 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
 
     BOOST_CONCEPT_ASSERT
         ( 
-            (bg::concept::PointDistanceStrategy<thomas_type, P1, P2>)
+            (bg::concepts::PointDistanceStrategy<thomas_type, P1, P2>)
         );
 
     thomas_type thomas;
