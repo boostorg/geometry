@@ -52,7 +52,7 @@ struct svg_point
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                Point const& p, std::string const& style, int size)
+                Point const& p, std::string const& style, double size)
     {
         os << "<circle cx=\"" << geometry::get<0>(p)
             << "\" cy=\"" << geometry::get<1>(p)
@@ -67,7 +67,7 @@ struct svg_box
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                Box const& box, std::string const& style, int )
+                Box const& box, std::string const& style, double)
     {
         // Prevent invisible boxes, making them >=1, using "max"
         BOOST_USING_STD_MAX();
@@ -91,7 +91,7 @@ struct svg_segment
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        Segment const& segment, std::string const& style, int)
+        Segment const& segment, std::string const& style, double)
     {
         typedef typename coordinate_type<Segment>::type ct;
         ct x1 = geometry::get<0, 0>(segment);
@@ -114,7 +114,7 @@ struct svg_range
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        Range const& range, std::string const& style, int )
+        Range const& range, std::string const& style, double)
     {
         typedef typename boost::range_iterator<Range const>::type iterator;
 
@@ -142,7 +142,7 @@ struct svg_poly
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        Polygon const& polygon, std::string const& style, int )
+        Polygon const& polygon, std::string const& style, double)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator_type;
@@ -206,7 +206,7 @@ struct svg_multi
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        MultiGeometry const& multi, std::string const& style, int size)
+        MultiGeometry const& multi, std::string const& style, double size)
     {
         for (typename boost::range_iterator<MultiGeometry const>::type
                     it = boost::begin(multi);
@@ -316,7 +316,7 @@ struct devarianted_svg
     static inline void apply(OutputStream& os,
                              Geometry const& geometry,
                              std::string const& style,
-                             int size)
+                             double size)
     {
         svg<Geometry>::apply(os, geometry, style, size);
     }
@@ -330,9 +330,9 @@ struct devarianted_svg<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     {
         OutputStream& m_os;
         std::string const& m_style;
-        int m_size;
+        double m_size;
 
-        visitor(OutputStream& os, std::string const& style, int size)
+        visitor(OutputStream& os, std::string const& style, double size)
             : m_os(os)
             , m_style(style)
             , m_size(size)
@@ -350,7 +350,7 @@ struct devarianted_svg<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         OutputStream& os,
         variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
         std::string const& style,
-        int size
+        double size
     )
     {
         boost::apply_visitor(visitor<OutputStream>(os, style, size), geometry);
@@ -371,7 +371,7 @@ class svg_manipulator
 {
 public:
 
-    inline svg_manipulator(Geometry const& g, std::string const& style, int size)
+    inline svg_manipulator(Geometry const& g, std::string const& style, double size)
         : m_geometry(g)
         , m_style(style)
         , m_size(size)
@@ -392,7 +392,7 @@ public:
 private:
     Geometry const& m_geometry;
     std::string const& m_style;
-    int m_size;
+    double m_size;
 };
 
 /*!
@@ -405,7 +405,8 @@ private:
 \ingroup svg
 */
 template <typename Geometry>
-inline svg_manipulator<Geometry> svg(Geometry const& geometry, std::string const& style, int size = -1)
+inline svg_manipulator<Geometry> svg(Geometry const& geometry,
+            std::string const& style, double size = -1.0)
 {
     concepts::check<Geometry const>();
 
