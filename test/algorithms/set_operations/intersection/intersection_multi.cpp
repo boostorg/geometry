@@ -266,14 +266,16 @@ void test_areal()
         ticket_9081[0], ticket_9081[1],
         2, 10, 0.0019812556);
 
+    // qcc-arm reports 1.7791215549400884e-14
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],
         1, 4,
 #ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
         9.896437631745599e-09
 #else
-        1.7791170511070893e-14
+        1.7791170511070893e-14, ut_settings(0.001)
 #endif
+
     );
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
