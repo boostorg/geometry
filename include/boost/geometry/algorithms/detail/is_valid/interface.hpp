@@ -37,7 +37,7 @@ struct is_valid
     template <typename VisitPolicy>
     static inline bool apply(Geometry const& geometry, VisitPolicy& visitor)
     {
-        concept::check<Geometry const>();
+        concepts::check<Geometry const>();
         return dispatch::is_valid<Geometry>::apply(geometry, visitor);
     }
 };

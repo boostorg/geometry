@@ -21,7 +21,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/extensions/nsphere/core/radius.hpp>
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concepts {
 
 /*!
     \brief Checks Nsphere concept (const version)
@@ -78,7 +78,7 @@ public :
 template <typename Geometry>
 class Nsphere
 {
-    BOOST_CONCEPT_ASSERT( (concept::ConstNsphere<Geometry>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstNsphere<Geometry>) );
 
     typedef typename point_type<Geometry>::type point_type;
     typedef typename radius_type<Geometry>::type radius_type;
@@ -117,6 +117,6 @@ public :
 
 
 
-}}} // namespace boost::geometry::concept
+}}} // namespace boost::geometry::concepts
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_GEOMETRIES_CONCEPTS_NSPHERE_CONCEPT_HPP

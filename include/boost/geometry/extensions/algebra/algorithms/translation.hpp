@@ -23,9 +23,9 @@ namespace boost { namespace geometry
 template <typename Point1, typename Point2, typename Vector>
 inline void translation(Point1 const& p1, Point2 const& p2, Vector & v)
 {
-    concept::check_concepts_and_equal_dimensions<Point1 const, Point2 const>();
+    concepts::check_concepts_and_equal_dimensions<Point1 const, Point2 const>();
     // TODO - replace the following by check_equal_dimensions
-    concept::check_concepts_and_equal_dimensions<Point1 const, Vector>();
+    concepts::check_concepts_and_equal_dimensions<Point1 const, Vector>();
 
     for_each_coordinate(v, detail::point_assignment<Point2>(p2));
     for_each_coordinate(v, detail::point_operation<Point1, std::minus>(p1));

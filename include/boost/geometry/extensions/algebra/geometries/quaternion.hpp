@@ -33,7 +33,7 @@ namespace model
 template <typename T>
 class quaternion
 {
-    BOOST_CONCEPT_ASSERT( (concept::Quaternion<quaternion>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Quaternion<quaternion>) );
 
 public:
 

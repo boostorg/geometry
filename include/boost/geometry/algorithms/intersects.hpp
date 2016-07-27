@@ -49,7 +49,7 @@ namespace boost { namespace geometry
 template <typename Geometry>
 inline bool intersects(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     typedef typename geometry::point_type<Geometry>::type point_type;
     typedef detail::no_rescale_policy rescale_policy_type;
@@ -93,8 +93,8 @@ inline bool intersects(Geometry const& geometry)
 template <typename Geometry1, typename Geometry2>
 inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
+    concepts::check<Geometry1 const>();
+    concepts::check<Geometry2 const>();
 
     return ! geometry::disjoint(geometry1, geometry2);
 }

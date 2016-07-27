@@ -33,7 +33,7 @@ namespace model
 template <typename T>
 class rotation_quaternion
 {
-    BOOST_CONCEPT_ASSERT( (concept::RotationQuaternion<rotation_quaternion>) );
+    BOOST_CONCEPT_ASSERT( (concepts::RotationQuaternion<rotation_quaternion>) );
 
 public:
 

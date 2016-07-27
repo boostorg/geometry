@@ -248,9 +248,9 @@ struct rotation<V1, V2, Rotation, vector_tag, vector_tag, rotation_matrix_tag>
 template <typename V1, typename V2, typename Rotation>
 inline void rotation(V1 const& v1, V2 const& v2, Rotation & r)
 {
-    concept::check_concepts_and_equal_dimensions<V1 const, V2 const>();
+    concepts::check_concepts_and_equal_dimensions<V1 const, V2 const>();
     // TODO - replace the following by check_equal_dimensions
-    concept::check_concepts_and_equal_dimensions<V1 const, Rotation>();
+    concepts::check_concepts_and_equal_dimensions<V1 const, Rotation>();
 
     dispatch::rotation<V1, V2, Rotation>::apply(v1, v2, r);
 }

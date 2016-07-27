@@ -30,32 +30,32 @@ namespace dispatch
 
 template <typename Geometry>
 struct check<Geometry, vector_tag, true>
-    : detail::concept_check::check<concept::ConstVector<Geometry> >
+    : detail::concept_check::check<concepts::ConstVector<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, vector_tag, false>
-    : detail::concept_check::check<concept::Vector<Geometry> >
+    : detail::concept_check::check<concepts::Vector<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, rotation_quaternion_tag, true>
-    : detail::concept_check::check<concept::ConstRotationQuaternion<Geometry> >
+    : detail::concept_check::check<concepts::ConstRotationQuaternion<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, rotation_quaternion_tag, false>
-    : detail::concept_check::check<concept::RotationQuaternion<Geometry> >
+    : detail::concept_check::check<concepts::RotationQuaternion<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, rotation_matrix_tag, true>
-    : detail::concept_check::check<concept::ConstRotationMatrix<Geometry> >
+    : detail::concept_check::check<concepts::ConstRotationMatrix<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, rotation_matrix_tag, false>
-    : detail::concept_check::check<concept::RotationMatrix<Geometry> >
+    : detail::concept_check::check<concepts::RotationMatrix<Geometry> >
 {};
 
 } // namespace dispatch

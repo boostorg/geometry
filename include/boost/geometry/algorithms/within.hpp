@@ -284,7 +284,7 @@ struct within
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        concept::within::check
+        concepts::within::check
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
@@ -339,8 +339,8 @@ struct within
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        concept::check<Geometry1 const>();
-        concept::check<Geometry2 const>();
+        concepts::check<Geometry1 const>();
+        concepts::check<Geometry2 const>();
         assert_dimension_equal<Geometry1, Geometry2>();
 
         return resolve_strategy::within::apply(geometry1,
