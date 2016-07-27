@@ -411,10 +411,8 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 {
     typedef std::set<signed_size_type>::const_iterator set_iterator;
     typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type turn_operation_type;
 
     std::set<signed_size_type> ids_to_remove;
-
 
     for (typename Clusters::iterator cit = clusters.begin();
          cit != clusters.end(); ++cit)
@@ -429,7 +427,6 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             turn_type& turn = turns[*it];
             segment_identifier const& seg_0 = turn.operations[0].seg_id;
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
-
 
             if (turn.both(operation_intersection)
                     && Reverse0 == Reverse1)
