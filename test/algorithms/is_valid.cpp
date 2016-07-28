@@ -262,7 +262,7 @@ inline void test_open_rings()
     typedef bg::model::ring<Point, false, true> CG; // ccw, closed ring
     typedef bg::model::ring<Point, true, false> CW_OG; // cw, open ring
     typedef bg::model::ring<Point, true, true> CW_CG; // cw, closed ring
- 
+
     typedef validity_tester_areal<AllowDuplicates> tester;
     typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
