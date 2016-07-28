@@ -339,24 +339,57 @@ struct cartesian_segments
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
+            math::detail::equals_factor_policy<robust_coordinate_type>
+                policy(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
+
+            robust_coordinate_type const zero = 0;
+
             robust_coordinate_type robust_da0, robust_da;
             robust_coordinate_type robust_db0, robust_db;
 
-            cramers_rule(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b,
-                get<0>(robust_a1) - get<0>(robust_b1),
-                get<1>(robust_a1) - get<1>(robust_b1),
-                robust_da0, robust_da);
+            bool robust_da0_is_zero = false;
+            if (sides.get<0, 0>() == 0)
+            {
+                robust_da0 = 1;
+                robust_da = 0;
+            }
+            else if (sides.get<0, 1>() == 0)
+            {
+                robust_da0 = 1;
+                robust_da = 1;
+            }
+            else
+            {
+                cramers_rule(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b,
+                             get<0>(robust_a1) - get<0>(robust_b1),
+                             get<1>(robust_a1) - get<1>(robust_b1),
+                             robust_da0, robust_da);
 
-            cramers_rule(robust_dx_b, robust_dy_b, robust_dx_a, robust_dy_a,
-                get<0>(robust_b1) - get<0>(robust_a1),
-                get<1>(robust_b1) - get<1>(robust_a1),
-                robust_db0, robust_db);
+                robust_da0_is_zero = math::detail::equals_by_policy(robust_da0, zero, policy);
+            }
 
-            math::detail::equals_factor_policy<robust_coordinate_type>
-                policy(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
-            robust_coordinate_type const zero = 0;
-            if (math::detail::equals_by_policy(robust_da0, zero, policy)
-             || math::detail::equals_by_policy(robust_db0, zero, policy))
+            bool robust_db0_is_zero = false;
+            if (sides.get<1, 0>() == 0)
+            {
+                robust_db0 = 1;
+                robust_db = 0;
+            }
+            else if (sides.get<1, 1>() == 0)
+            {
+                robust_db0 = 1;
+                robust_db = 1;
+            }
+            else
+            {
+                cramers_rule(robust_dx_b, robust_dy_b, robust_dx_a, robust_dy_a,
+                             get<0>(robust_b1) - get<0>(robust_a1),
+                             get<1>(robust_b1) - get<1>(robust_a1),
+                             robust_db0, robust_db);
+
+                robust_db0_is_zero = math::detail::equals_by_policy(robust_db0, zero, policy);
+            }
+
+            if (robust_da0_is_zero || robust_db0_is_zero)
             {
                 // If this is the case, no rescaling is done for FP precision.
                 // We set it to collinear, but it indicates a robustness issue.
@@ -536,7 +569,7 @@ private:
         int const a2_wrt_b = position_value(oa_2, ob_1, ob_2);
         int const b1_wrt_a = position_value(ob_1, oa_1, oa_2);
         int const b2_wrt_a = position_value(ob_2, oa_1, oa_2);
-        
+
         // fix the ratios if necessary
         // CONSIDER: fixing ratios also in other cases, if they're inconsistent
         // e.g. if ratio == 1 or 0 (so IP at the endpoint)
@@ -553,7 +586,7 @@ private:
         {
             ra_from.assign(1, 1);
             rb_to.assign(0, 1);
-        } 
+        }
 
         if (a2_wrt_b == 1)
         {
