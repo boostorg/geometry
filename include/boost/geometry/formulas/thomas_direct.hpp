@@ -149,12 +149,11 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, result.lon2, result.lat2,
                               azimuth12, result.reverse_azimuth,
                               b, f,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f2);
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;

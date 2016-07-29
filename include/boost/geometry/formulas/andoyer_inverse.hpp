@@ -190,12 +190,11 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 1> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f1);
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;
