@@ -47,7 +47,7 @@ class sjoberg_intersection
 
 public:
     template <typename T1, typename T2, typename Spheroid>
-    static inline void apply(T1 const& lona1, T1 const& lata1,
+    static inline bool apply(T1 const& lona1, T1 const& lata1,
                              T1 const& lona2, T1 const& lata2,
                              T2 const& lonb1, T2 const& latb1,
                              T2 const& lonb2, T2 const& latb2,
@@ -66,11 +66,11 @@ public:
         CT const alpha1 = inverse_type::apply(lon_a1, lat_a1, lon_a2, lat_a2, spheroid).azimuth;
         CT const alpha2 = inverse_type::apply(lon_b1, lat_b1, lon_b2, lat_b2, spheroid).azimuth;
 
-        apply(lon_a1, lat_a1, alpha1, lon_b1, lat_b1, alpha2, lon, lat, spheroid);
+        return apply(lon_a1, lat_a1, alpha1, lon_b1, lat_b1, alpha2, lon, lat, spheroid);
     }
     
     template <typename Spheroid>
-    static inline void apply(CT const& lon1, CT const& lat1, CT const& alpha1,
+    static inline bool apply(CT const& lon1, CT const& lat1, CT const& alpha1,
                              CT const& lon2, CT const& lat2, CT const& alpha2,
                              CT & lon, CT & lat,
                              Spheroid const& spheroid)
@@ -89,7 +89,7 @@ public:
         CT const f = detail::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
         CT const e_sqr = f * (2 - f);
-
+        
         CT const sin_alpha1 = sin(alpha1);
         CT const sin_alpha2 = sin(alpha2);
 
@@ -111,10 +111,34 @@ public:
 
         CT const sqrt_1_C1_sqr = math::sqrt(c1 - math::sqr(C1));
         CT const sqrt_1_C2_sqr = math::sqrt(c1 - math::sqr(C2));
+
+        // handle special case: segments on the equator
+        bool const on_equator1 = math::equals(sqrt_1_C1_sqr, c0);
+        bool const on_equator2 = math::equals(sqrt_1_C2_sqr, c0);
+        if (on_equator1 && on_equator2)
+        {
+            return false;
+        }
+        else if (on_equator1)
+        {
+            CT const dL2 = d_lambda_e_sqr(sin_beta2, c0, C2, sqrt_1_C2_sqr, e_sqr);
+            CT const asin_t2_t02 = asin(C2 * tan_beta2 / sqrt_1_C2_sqr);
+            lat = c0;
+            lon = lon2 - asin_t2_t02 + dL2;
+            return true;
+        }
+        else if (on_equator2)
+        {
+            CT const dL1 = d_lambda_e_sqr(sin_beta1, c0, C1, sqrt_1_C1_sqr, e_sqr);
+            CT const asin_t1_t01 = asin(C1 * tan_beta1 / sqrt_1_C1_sqr);
+            lat = c0;
+            lon = lon1 - asin_t1_t01 + dL1;
+            return true;
+        }
+
         CT const t01 = sqrt_1_C1_sqr / C1;
         CT const t02 = sqrt_1_C2_sqr / C2;
 
-        // t01 = 0 if on equator
         CT const asin_t1_t01 = asin(tan_beta1 / t01);
         CT const asin_t2_t02 = asin(tan_beta2 / t02);
         CT const t01_t02 = t01 * t02;
@@ -233,6 +257,8 @@ public:
         CT const l1 = lon1 + asin_t_t01 - asin_t1_t01 + dL1;
         //CT const l2 = lon2 + asin_t_t02 - asin_t2_t02 + dL2;
         lon = l1;
+
+        return true;
     }
 
 private:
