@@ -106,7 +106,17 @@ public:
         CT const D = (c1 - C2) * (c1 - C2 - C1 * M);
         CT const P = C2 * (c1 + C1 * M / c2) / D;
 
-        CT const cos_sigma1 = sin_theta1 / sin_theta0;
+        // special case for equator:
+        // sin_theta0 = 0 <=> lat1 = 0 ^ |azimuth12| = pi/2
+        // NOTE: in this case it doesn't matter what's the value of cos_sigma1 because
+        //       theta1=0, theta0=0, M=1|-1, C2=0 so X=0 and Y=0 so d_sigma=d
+        //       cos_a12=0 so N=0, therefore
+        //       lat2=0, azi21=pi/2|-pi/2
+        //       d_eta = atan2(sin_d_sigma, cos_d_sigma)
+        //       H = C1 * d_sigma
+        CT const cos_sigma1 = math::equals(sin_theta0, c0)
+                            ? c1
+                            : sin_theta1 / sin_theta0;
         CT const sigma1 = acos(cos_sigma1);
         CT const d = distance / (a * D);
         CT const u = 2 * (sigma1 - d);
