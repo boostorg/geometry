@@ -76,8 +76,6 @@ public:
                                Spheroid const& spheroid)
     {
         CT const a = get_radius<0>(spheroid);
-        CT const b = get_radius<2>(spheroid);
-        CT const f = detail::flattening<CT>(spheroid);
         CT const ds_threshold = a * std::numeric_limits<CT>::epsilon(); // TODO: 0 for non-fundamental type
         
         CT const azimuth = atan2(x, y);

@@ -153,9 +153,6 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
-            CT const sin_a21 = sin(result.reverse_azimuth);
-            CT const cos_a21 = cos(result.reverse_azimuth);
-
             CT const S_sigma = c2 * sigma1 - d_sigma;
             CT const cos_S_sigma = cos(S_sigma);
             CT const d_eta = atan2(sin_d_sigma * sin_a12, cos_theta1 * cos_d_sigma - sin_theta1 * sin_d_sigma * cos_a12);
@@ -166,6 +163,7 @@ public:
 
             if (! math::equals(M, c0))
             {
+                CT const sin_a21 = sin(result.reverse_azimuth);
                 CT const tan_theta2 = (sin_theta1 * cos_d_sigma + N * sin_d_sigma) * sin_a21 / M;
                 result.lat2 = atan(tan_theta2 / one_minus_f);
             }

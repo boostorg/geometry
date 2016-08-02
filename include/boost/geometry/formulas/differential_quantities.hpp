@@ -90,7 +90,7 @@ public:
 
             CT const sin_alp1 = sin(azimuth);
             CT const cos_alp1 = cos(azimuth);
-            CT const sin_alp2 = sin(reverse_azimuth);
+            //CT const sin_alp2 = sin(reverse_azimuth);
             CT const cos_alp2 = cos(reverse_azimuth);
 
             CT sin_sig1 = sin_bet1;

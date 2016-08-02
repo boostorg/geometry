@@ -82,13 +82,12 @@ public:
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
-        CT const c4 = 4;
 
         CT const pi = math::pi<CT>();
         CT const pi_half = pi / c2;
         CT const f = detail::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
-        CT const e_sqr = f * (2 - f);
+        CT const e_sqr = f * (c2 - f);
         
         CT const sin_alpha1 = sin(alpha1);
         CT const sin_alpha2 = sin(alpha2);
@@ -238,8 +237,6 @@ public:
             CT const f2 = C2 / cos_beta * math::sqrt(G / (cos_beta_sqr - C2_sqr));
             CT const abs_f1 = math::abs(f1);
             CT const abs_f2 = math::abs(f2);
-            CT const abs_R1 = math::abs(R1);
-            CT const abs_R2 = math::abs(R2);
             CT const dbeta = t_sign * (k_base - R2 + R1) / (abs_f1 + abs_f2);
  
             if (math::equals(dbeta, CT(0)))
