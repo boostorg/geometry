@@ -34,13 +34,17 @@ void check_one(double result, double expected, double reference, double referenc
     }
 
     double res_max = (std::max)(bg::math::abs(result), bg::math::abs(expected));
-    if (res_max > 10 * std::numeric_limits<double>::epsilon())
+    if (res_max > 100 * std::numeric_limits<double>::epsilon())
     {
         BOOST_CHECK_CLOSE(result, expected, 0.001);
     }
+    else if (res_max > 10 * std::numeric_limits<double>::epsilon())
+    {
+        BOOST_CHECK_CLOSE(result, expected, 0.1);
+    }
     else if (res_max > std::numeric_limits<double>::epsilon())
     {
-        BOOST_CHECK_CLOSE(result, expected, 0.01);
+        BOOST_CHECK_CLOSE(result, expected, 10);
     }
 
     // NOTE: in some cases it probably will be necessary to normalize
