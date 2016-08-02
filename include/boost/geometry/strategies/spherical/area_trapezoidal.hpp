@@ -13,7 +13,7 @@
 
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/util/math.hpp>
-
+#include <boost/geometry/formulas/geographic_area.hpp>
 
 namespace boost { namespace geometry
 {
@@ -45,12 +45,12 @@ typedef typename boost::mpl::if_c
                 double
             >::type,
         CalculationType
-    >::type calculation_type;
+    >::type CT;
 
 protected :
     struct excess_sum
     {
-        calculation_type sum;
+        CT sum;
 
         // Keep track if encircles some pole
         size_t crosses_prime_meridian;
@@ -59,9 +59,9 @@ protected :
             : sum(0)
             , crosses_prime_meridian(0)
         {}
-        inline calculation_type area(calculation_type radius) const
+        inline CT area(CT radius) const
         {
-            calculation_type result;
+            CT result;
 
             std::cout << "(sum=" << sum << ")";
 
@@ -72,11 +72,11 @@ protected :
                         = 1 + (crosses_prime_meridian / 2);
 
                 result = 2.0
-                         * geometry::math::pi<calculation_type>()
+                         * geometry::math::pi<CT>()
                          * times_crosses_prime_meridian
                          - std::abs(sum);
 
-                if(geometry::math::sign<calculation_type>(sum) == 1)
+                if(geometry::math::sign<CT>(sum) == 1)
                 {
                     result = - result;
                 }
@@ -92,11 +92,11 @@ protected :
     };
 
 public :
-    typedef calculation_type return_type;
+    typedef CT return_type;
     typedef PointOfSegment segment_point_type;
     typedef excess_sum state_type;
 
-    inline trapezoidal(calculation_type radius = 1.0)
+    inline trapezoidal(CT radius = 1.0)
         : m_radius(radius)
     {}
 
@@ -106,44 +106,16 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
-            calculation_type const two = 2.0;
-            calculation_type const pi
-                = geometry::math::pi<calculation_type>();
-            calculation_type const two_pi
-                = geometry::math::two_pi<calculation_type>();
-            calculation_type const half_pi
-                = geometry::math::half_pi<calculation_type>();
 
-            // Trapezoidal formula
-            //
-
-            calculation_type tan_lat1 =
-                    tan(geometry::get_as_radian<1>(p1) / two);
-            calculation_type tan_lat2 =
-                    tan(geometry::get_as_radian<1>(p2) / two);
-
-            calculation_type excess = two
-                * atan(((tan_lat1 + tan_lat2) / (1 + tan_lat1 * tan_lat2))
-                       * tan((geometry::get_as_radian<0>(p2)
-                              - geometry::get_as_radian<0>(p1)) / 2));
+            state.sum += geometry::formula::geographic_area
+                                <CT>
+                                ::spherical_excess(p1, p2);
 
             // Keep track whenever a segment crosses the prime meridian
-            // First normalize to [0,360)
+            geometry::formula::geographic_area
+                         <CT>
+                         ::crosses_prime_meridian(p1, p2, state);
 
-            calculation_type p1_lon = get_as_radian<0>(p1)
-                                    - ( floor( get_as_radian<0>(p1) / two_pi ) * two_pi );
-            calculation_type p2_lon = get_as_radian<0>(p2)
-                                    - ( floor( get_as_radian<0>(p2) / two_pi ) * two_pi );
-
-            calculation_type max_lon = std::max(p1_lon, p2_lon);
-            calculation_type min_lon = std::min(p1_lon, p2_lon);
-
-            if(max_lon > pi && min_lon < pi && max_lon - min_lon > pi)
-            {
-                state.crosses_prime_meridian++;
-            }
-
-            state.sum += excess;
         }
     }
 
@@ -155,7 +127,7 @@ public :
 
 private :
     /// Radius of the sphere
-    calculation_type m_radius;
+    CT m_radius;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

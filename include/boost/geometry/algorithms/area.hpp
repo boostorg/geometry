@@ -320,5 +320,4 @@ inline typename Strategy::return_type area(
 
 }} // namespace boost::geometry
 
-
 #endif // BOOST_GEOMETRY_ALGORITHMS_AREA_HPP

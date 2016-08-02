@@ -21,11 +21,6 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
-<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
-//#include <boost/geometry/algorithms/detail/inverse_differential_quantities.hpp>
-#include <boost/geometry/algorithms/detail/result_inverse.hpp>
-=======
->>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
 
 #include <boost/geometry/formulas/differential_quantities.hpp>
 #include <boost/geometry/formulas/result_inverse.hpp>
@@ -102,11 +97,7 @@ public:
 
         CT const d = acos(cos_d); // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
-<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
 
-=======
-        
->>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
             CT const K = math::sqr(sin_lat1-sin_lat2);
@@ -196,61 +187,20 @@ public:
                 }
             }
         }
-<<<<<<< HEAD:include/boost/geometry/algorithms/detail/andoyer_inverse.hpp
-/*
-        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
-        {
-            typedef inverse_differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
-=======
+
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
->>>>>>> 50d9fe37d893aaa3844afcf8a5d0e69142dcd642:include/boost/geometry/formulas/andoyer_inverse.hpp
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
                               result.reduced_length, result.geodesic_scale,
                               quantities::J12_calc_f1);
         }
-*/
+
         return result;
 
-    }
-
-private:
-    static inline void normalize_azimuth(CT & azimuth, CT const& A, CT const& dA)
-    {
-        CT const c0 = 0;
-
-        if (A >= c0) // A indicates Eastern hemisphere
-        {
-            if (dA >= c0) // A altered towards 0
-            {
-                if (azimuth < c0)
-                    azimuth = c0;
-            }
-            else // dA < 0, A altered towards pi
-            {
-                CT const pi = math::pi<CT>();
-                if (azimuth > pi)
-                    azimuth = pi;
-            }
-        }
-        else // A indicates Western hemisphere
-        {
-            if (dA <= c0) // A altered towards 0
-            {
-                if (azimuth > c0)
-                    azimuth = c0;
-            }
-            else // dA > 0, A altered towards -pi
-            {
-                CT const minus_pi = -math::pi<CT>();
-                if (azimuth < minus_pi)
-                    azimuth = minus_pi;
-            }
-        }
     }
 
 private:
