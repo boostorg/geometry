@@ -20,9 +20,8 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
-
 #include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_inverse.hpp>
 
 
@@ -75,7 +74,7 @@ public:
         CT const c0 = CT(0);
         CT const c1 = CT(1);
         CT const pi = math::pi<CT>();
-        CT const f = detail::flattening<CT>(spheroid);
+        CT const f = formula::flattening<CT>(spheroid);
 
         CT const dlon = lon2 - lon1;
         CT const sin_dlon = sin(dlon);

@@ -20,7 +20,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 
 
 namespace boost { namespace geometry { namespace formula
@@ -85,7 +85,7 @@ public:
 
         CT const pi = math::pi<CT>();
         CT const pi_half = pi / c2;
-        CT const f = detail::flattening<CT>(spheroid);
+        CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
         CT const e_sqr = f * (c2 - f);
         

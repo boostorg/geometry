@@ -23,9 +23,8 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
-
 #include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_inverse.hpp>
 
 
@@ -99,7 +98,7 @@ public:
 
         CT const radius_a = CT(get_radius<0>(spheroid));
         CT const radius_b = CT(get_radius<2>(spheroid));
-        CT const flattening = geometry::detail::flattening<CT>(spheroid);
+        CT const flattening = formula::flattening<CT>(spheroid);
 
         // U: reduced latitude, defined by tan U = (1-f) tan phi
         CT const one_min_f = c1 - flattening;
