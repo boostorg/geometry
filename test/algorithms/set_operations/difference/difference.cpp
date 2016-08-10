@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,10 +16,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
-// If defined, tests are run without rescaling-to-integer or robustness policy
-// Test which would fail then are disabled automatically
-// #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
@@ -49,10 +44,19 @@ void test_all()
 
     typedef typename bg::coordinate_type<P>::type ct;
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
+    ut_settings sym_settings;
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    sym_settings.sym_difference = false;
+#endif
+
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
-        3, 12, 3.52636706856656);
+        3, 12, 3.52636706856656,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("simplex_with_empty",
         simplex_normal[0], polygon_empty,
@@ -62,19 +66,19 @@ void test_all()
     test_one<polygon, polygon, polygon>(
             "star_ring", example_star, example_ring,
             5, 22, 1.1901714,
-            5, 27, 1.6701714);
+            5, 27, 1.6701714,
+            sym_settings);
 
     test_one<polygon, polygon, polygon>("two_bends",
         two_bends[0], two_bends[1],
         1, 5, 8.0,
         1, 5, 8.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("star_comb_15",
         star_comb_15[0], star_comb_15[1],
         30, 160, 227.658275102812,
-        30, 198, 480.485775259312);
-#endif
+        30, 198, 480.485775259312,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -108,12 +112,14 @@ void test_all()
     test_one<polygon, polygon, polygon>("only_hole_intersections1",
         only_hole_intersections[0], only_hole_intersections[1],
         2, 10,  1.9090909,
-        4, 16, 10.9090909);
+        4, 16, 10.9090909,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("only_hole_intersection2",
         only_hole_intersections[0], only_hole_intersections[2],
         3, 20, 30.9090909,
-        4, 16, 10.9090909);
+        4, 16, 10.9090909,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("first_within_second",
         first_within_second[1], first_within_second[0],
@@ -146,11 +152,15 @@ void test_all()
         3, 21, 16.25,
         3, 17, 6.25);
 
-    test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
-        intersect_holes_new_ring[0], intersect_holes_new_ring[1],
-        3, 15, 9.8961,
-        4, 25, 121.8961,
-        tolerance(0.01));
+    {
+        ut_settings settings = sym_settings;
+        settings.percentage = 0.01;
+        test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
+            intersect_holes_new_ring[0], intersect_holes_new_ring[1],
+            3, 15, 9.8961,
+            4, 25, 121.8961,
+            settings);
+    }
 
     test_one<polygon, polygon, polygon>("first_within_hole_of_second",
         first_within_hole_of_second[0], first_within_hole_of_second[1],
@@ -170,7 +180,8 @@ void test_all()
     test_one<polygon, polygon, polygon>(
             "case4", case_4[0], case_4[1],
             6, 28, 2.77878787878788,
-            4, 22, 4.77878787878788);
+            4, 22, 4.77878787878788,
+            sym_settings);
 
     test_one<polygon, polygon, polygon>(
             "case5", case_5[0], case_5[1],
@@ -189,7 +200,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("case_80",
         case_80[0], case_80[1],
         1, 9, 44.5,
-        1, 10, 84.5);
+        1, 10, 84.5,
+        ignore_validity);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Fails, holes are not subtracted
@@ -199,6 +211,13 @@ void test_all()
         1, 8, 83.0,
         1, 12, 80.5 + 83.0);
 #endif
+
+    test_one<polygon, polygon, polygon>("case_100",
+        case_100[0], case_100[1],
+        1, 7, 3.125,
+        1, 7, 16.0,
+        1, 13, 16.0 + 3.125,
+        ignore_validity);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
@@ -216,12 +235,12 @@ void test_all()
         1, 5, 1,
         1, 7, 2);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("buffer_mp1",
         buffer_mp1[0], buffer_mp1[1],
         1, 61, 10.2717,
         1, 61, 10.2717);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
         test_one<polygon, polygon, polygon>("buffer_mp2",
@@ -243,17 +262,23 @@ void test_all()
         1, 0, 13);
     ***/
 
-    // Isovist - the # output polygons differ per compiler/pointtype, (very) small
-    // rings might be discarded. We check area only
-    test_one<polygon, polygon, polygon>("isovist",
-        isovist1[0], isovist1[1],
-        -1, -1, 0.279132,
-        -1, -1, 224.8892,
+    {
+        ut_settings settings;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        tolerance(0.1));
+        settings.percentage = 0.1;
+        settings.test_validity = false;
 #else
-        tolerance(0.001));
+        settings.percentage = 0.001;
 #endif
+
+        // Isovist - the # output polygons differ per compiler/pointtype, (very) small
+        // rings might be discarded. We check area only
+        test_one<polygon, polygon, polygon>("isovist",
+            isovist1[0], isovist1[1],
+            -1, -1, 0.279132,
+            -1, -1, 224.8892,
+            settings);
+    }
     // SQL Server gives:    0.279121891701124 and 224.889211358929
     // PostGIS gives:       0.279121991127244 and 224.889205853156
     // No robustness gives: 0.279121991127106 and 224.825363749290
@@ -273,30 +298,38 @@ void test_all()
     // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
 #endif
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<polygon, polygon, polygon>("geos_2",
-        geos_2[0], geos_2[1],
-        1, -1, 138.6923828,
-        1, -1, 211.859375,
-        tolerance(0.01)); // MSVC 14 expects 138.69214 and 211.85913
+    {
+        // MSVC 14 expects 138.69214 and 211.85913: increase percentage
+
+        ut_settings settings = sym_settings;
+        settings.percentage = 0.01;
+        settings.test_validity = false;
+
+        test_one<polygon, polygon, polygon>("geos_2",
+            geos_2[0], geos_2[1],
+            1, -1, 138.6923828,
+            1, -1, 211.859375,
+            settings);
+    }
 
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
         1, -1, 13180420.0,
-        1, -1, 16211128.5 + 13180420.0);
-#endif
+        1, -1, 16211128.5 + 13180420.0,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("geos_4",
         geos_4[0], geos_4[1],
         1, -1, 971.9163115,
-        1, -1, 1332.4163115);
+        1, -1, 1332.4163115,
+        sym_settings);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
         2, -1, 8960.49049,
-        1, -1, 71495.3331 + 8960.49049);
+        2, -1, 71495.3331 + 8960.49049);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
@@ -374,11 +407,15 @@ void test_all()
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
             6, 24, 20.096189);
+#endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_a",
             ticket_10108_a[0], ticket_10108_a[1],
             1, 4,  0.0145037,
-            1, 4,  0.029019232);
+            1, 4,  0.029019232,
+            sym_settings);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
             1, 5, 1081.68697,
@@ -402,11 +439,15 @@ void test_all()
     {
         test_one<polygon, polygon, ring>(
                 "star_ring_ring", example_star, example_ring,
-                5, 22, 1.1901714, 5, 27, 1.6701714);
+                5, 22, 1.1901714,
+                5, 27, 1.6701714,
+                sym_settings);
 
         test_one<polygon, ring, polygon>(
                 "ring_star_ring", example_ring, example_star,
-                5, 27, 1.6701714, 5, 22, 1.1901714);
+                5, 27, 1.6701714,
+                5, 22, 1.1901714,
+                sym_settings);
 
         static std::string const clip = "POLYGON((2.5 0.5,5.5 2.5))";
 
@@ -424,13 +465,19 @@ void test_all()
         typedef bg::model::polygon<P, false> polygon_ccw;
         test_one<polygon, polygon_ccw, polygon_ccw>(
                 "star_ring_ccw", example_star, example_ring,
-                5, 22, 1.1901714, 5, 27, 1.6701714);
+                5, 22, 1.1901714,
+                5, 27, 1.6701714,
+                sym_settings);
         test_one<polygon, polygon, polygon_ccw>(
                 "star_ring_ccw1", example_star, example_ring,
-                5, 22, 1.1901714, 5, 27, 1.6701714);
+                5, 22, 1.1901714,
+                5, 27, 1.6701714,
+                sym_settings);
         test_one<polygon, polygon_ccw, polygon>(
                 "star_ring_ccw2", example_star, example_ring,
-                5, 22, 1.1901714, 5, 27, 1.6701714);
+                5, 22, 1.1901714,
+                5, 27, 1.6701714,
+                sym_settings);
     }
 
     // Multi/box (should be moved to multi)
@@ -458,17 +505,65 @@ void test_all()
             5, 27, 1.6701714);
     ***/
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Should have 2 outputs
+    int const correction_for_invalidity = 1; // should be 0
     test_one<polygon, polygon, polygon>("mysql_21977775",
         mysql_21977775[0], mysql_21977775[1],
-        2, -1, 160.856568913, 2, -1, 92.3565689126);
-#endif
+        2 - correction_for_invalidity, -1, 160.856568913,
+        2, -1, 92.3565689126,
+        ignore_validity);
 
+    // also mysql_23023665
     test_one<polygon, polygon, polygon>("mysql_21965285",
         mysql_21965285[0], mysql_21965285[1],
-        1, -1, 92.0,
-        1, -1, 14.0,
-        1, -1, 92.0 + 14.0);
+        1, 2 - correction_for_invalidity, -1, 92.0,
+        1, 1, -1, 14.0,
+        1, 2, -1, 92.0 + 14.0,
+        ignore_validity);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_1",
+        mysql_23023665_1[0], mysql_23023665_1[1],
+        1, 2 - correction_for_invalidity, -1, 92.0,
+        1, 1, -1, 142.5,
+        ignore_validity);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_2",
+        mysql_23023665_2[0], mysql_23023665_2[1],
+        1, 2 - correction_for_invalidity, -1, 96.0,
+        1, 1, -1, 16.0,
+        ignore_validity);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_3",
+        mysql_23023665_3[0], mysql_23023665_3[1],
+        1, 2 - correction_for_invalidity, -1, 225.0,
+        1, 1, -1, 66.0,
+        ignore_validity);
+
+//    Case mysql_23023665_4 is not yet included!
+//    test_one<polygon, polygon, polygon>("mysql_23023665_4",
+//        mysql_23023665_4[0], mysql_23023665_4[1],
+//        1, 1, -1, 1.5,
+//        1, 2, -1, 219.0,
+//        1, 2, -1, 1.5 + 219.0);
+
+    test_one<polygon, polygon, polygon>("mysql_23023665_5",
+        mysql_23023665_5[0], mysql_23023665_5[1],
+        2 - correction_for_invalidity, 2 - correction_for_invalidity, -1, 165.23735,
+        2, 2, -1, 105.73735,
+        ignore_validity);
+    test_one<polygon, polygon, polygon>("mysql_23023665_6",
+        mysql_23023665_6[0], mysql_23023665_6[1],
+        2, 2, -1, 105.68756,
+        3, 3, -1, 10.18756
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        , ignore_validity
+#endif
+        );
+    test_one<polygon, polygon, polygon>("mysql_23023665_13",
+        mysql_23023665_13[0], mysql_23023665_13[1],
+        3 - correction_for_invalidity, 3 - correction_for_invalidity, -1, 99.74526,
+        3, 3, -1, 37.74526,
+        ignore_validity);
 }
 
 
@@ -478,30 +573,25 @@ void test_specific()
 {
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
 
-    ut_settings settings;
-    settings.test_validity = true;
-
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
         1, 4, 385,
-        1, 16, 3371540 + 385,
-        settings);
+        1, 16, 3371540 + 385);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
         1, 6, 1510434,
-        0, 0, 0,
-        settings);
+        0, 0, 0);
 
     test_one<polygon, polygon, polygon>("ticket_11121",
         ticket_11121[0], ticket_11121[1],
         2, 8, 489763.5,
-        1, 4, 6731652.0,
-        settings);
+        1, 4, 6731652.0);
 
     {
         ut_settings settings;
+        settings.test_validity = false;
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
         settings.test_validity = true;
 #endif
@@ -511,7 +601,7 @@ void test_specific()
             ticket_11676[0], ticket_11676[1],
             1, 18, 2537992.5,
             2, 11, 294963.5,
-            1, -1, 2537992.5 + 294963.5,
+            2, -1, 2537992.5 + 294963.5,
             settings);
     }
 }

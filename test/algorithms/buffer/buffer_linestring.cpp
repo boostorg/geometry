@@ -3,6 +3,10 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -96,6 +100,8 @@ static std::string const mysql_report_2015_06_11 = "LINESTRING("
 static std::string const mysql_report_2015_09_08a = "LINESTRING(1 1, 2 1, 1.765258e+308 4, -1 1, 10 4)";
 static std::string const mysql_report_2015_09_08b = "LINESTRING(2199023255556 16777218, 32770 8194, 1.417733e+308 7.823620e+307, -8 -9, 2147483649 20)";
 static std::string const mysql_report_2015_09_08c = "LINESTRING(-5 -8, 2 8, 2.160023e+307 1.937208e+307, -4 -3, -5 -4, 8796093022208 281474976710653)";
+
+static std::string const mysql_23023665 = "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -280,6 +286,9 @@ void test_all()
     test_one<linestring, polygon>("mysql_report_2015_09_08b", mysql_report_2015_09_08b, join_round32, end_round32, 0.0, 1099511627778.0);
     test_one<linestring, polygon>("mysql_report_2015_09_08c", mysql_report_2015_09_08c, join_round32, end_round32, 0.0, 0xbe);
 #endif
+
+    test_one<linestring, polygon>("mysql_23023665_1", mysql_23023665, join_round32, end_flat, 459.1051, 10);
+    test_one<linestring, polygon>("mysql_23023665_2", mysql_23023665, join_round32, end_flat, 6877.7097, 50);
 }
 
 template <bool Clockwise, typename P>

@@ -49,7 +49,7 @@ struct azimuth<ReturnType, geographic_tag>
     template <typename P1, typename P2, typename Spheroid>
     static inline ReturnType apply(P1 const& p1, P2 const& p2, Spheroid const& spheroid)
     {
-        return geometry::detail::vincenty_inverse<ReturnType, false, true>
+        return geometry::detail::vincenty_inverse<ReturnType, false, true>().apply
                     ( get_as_radian<0>(p1), get_as_radian<1>(p1),
                       get_as_radian<0>(p2), get_as_radian<1>(p2),
                       spheroid ).azimuth;

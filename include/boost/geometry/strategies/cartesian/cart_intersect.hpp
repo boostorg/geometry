@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -30,6 +30,7 @@
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 // Temporary / will be Strategy as template parameter
@@ -37,6 +38,7 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
@@ -63,6 +65,69 @@ template <typename Policy, typename CalculationType = void>
 struct relate_cartesian_segments
 {
     typedef typename Policy::return_type return_type;
+
+    template <typename CoordinateType, typename SegmentRatio>
+    struct segment_intersection_info
+    {
+        typedef typename select_most_precise
+            <
+                CoordinateType, double
+            >::type promoted_type;
+
+        promoted_type comparable_length_a() const
+        {
+            return dx_a * dx_a + dy_a * dy_a;
+        }
+
+        promoted_type comparable_length_b() const
+        {
+            return dx_b * dx_b + dy_b * dy_b;
+        }
+
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_a(Point& point, Segment1 const& a, Segment2 const& ) const
+        {
+            assign(point, a, dx_a, dy_a, robust_ra);
+        }
+        template <typename Point, typename Segment1, typename Segment2>
+        void assign_b(Point& point, Segment1 const& , Segment2 const& b) const
+        {
+            assign(point, b, dx_b, dy_b, robust_rb);
+        }
+
+        template <typename Point, typename Segment>
+        void assign(Point& point, Segment const& segment, CoordinateType const& dx, CoordinateType const& dy, SegmentRatio const& ratio) const
+        {
+            // Calculate the intersection point based on segment_ratio
+            // Up to now, division was postponed. Here we divide using numerator/
+            // denominator. In case of integer this results in an integer
+            // division.
+            BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
+
+            typedef typename promote_integral<CoordinateType>::type promoted_type;
+
+            promoted_type const numerator
+                = boost::numeric_cast<promoted_type>(ratio.numerator());
+            promoted_type const denominator
+                = boost::numeric_cast<promoted_type>(ratio.denominator());
+            promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
+            promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
+
+            set<0>(point, get<0, 0>(segment) + boost::numeric_cast
+                <
+                    CoordinateType
+                >(numerator * dx_promoted / denominator));
+            set<1>(point, get<0, 1>(segment) + boost::numeric_cast
+                <
+                    CoordinateType
+                >(numerator * dy_promoted / denominator));
+        }
+
+        CoordinateType dx_a, dy_a;
+        CoordinateType dx_b, dy_b;
+        SegmentRatio robust_ra;
+        SegmentRatio robust_rb;
+    };
 
     template <typename D, typename W, typename ResultType>
     static inline void cramers_rule(D const& dx_a, D const& dy_a,
@@ -108,16 +173,17 @@ struct relate_cartesian_segments
     }
 
     // The main entry-routine, calculating intersections of segments a / b
-    template <typename Segment1, typename Segment2, typename RobustPolicy, typename RobustPoint>
+    // NOTE: Robust* types may be the same as Segments' point types
+    template <typename Segment1, typename Segment2,
+              typename RobustPolicy,
+              typename RobustPoint1, typename RobustPoint2>
     static inline return_type apply(Segment1 const& a, Segment2 const& b,
-            RobustPolicy const& robust_policy,
-            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
-            RobustPoint const& robust_b1, RobustPoint const& robust_b2)
+            RobustPolicy const& /*robust_policy*/,
+            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
     {
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
-
-        boost::ignore_unused_variable_warning(robust_policy);
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
 
         using geometry::detail::equals::equals_point_point;
         bool const a_is_point = equals_point_point(robust_a1, robust_a2);
@@ -159,12 +225,8 @@ struct relate_cartesian_segments
 
         typedef typename select_most_precise
             <
-                coordinate_type, double
-            >::type promoted_type;
-
-        typedef typename geometry::coordinate_type
-            <
-                RobustPoint
+                typename geometry::coordinate_type<RobustPoint1>::type,
+                typename geometry::coordinate_type<RobustPoint2>::type
             >::type robust_coordinate_type;
 
         typedef typename segment_ratio_type
@@ -176,7 +238,6 @@ struct relate_cartesian_segments
         segment_intersection_info
         <
             coordinate_type,
-            promoted_type,
             ratio_type
         > sinfo;
 
@@ -300,12 +361,13 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustPoint
+        typename RobustPoint1,
+        typename RobustPoint2
     >
     static inline return_type relate_collinear(Segment1 const& a,
             Segment2 const& b,
-            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
-            RobustPoint const& robust_b1, RobustPoint const& robust_b2,
+            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
             bool a_is_point, bool b_is_point)
     {
         if (a_is_point)
@@ -335,12 +397,13 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustType
+        typename RobustType1,
+        typename RobustType2
     >
     static inline return_type relate_collinear(Segment1 const& a
             , Segment2 const& b
-            , RobustType oa_1, RobustType oa_2
-            , RobustType ob_1, RobustType ob_2
+            , RobustType1 oa_1, RobustType1 oa_2
+            , RobustType2 ob_1, RobustType2 ob_2
             )
     {
         // Calculate the ratios where a starts in b, b starts in a
@@ -373,8 +436,8 @@ private:
         // b2 is located w.r.t. a at ratio: (5-2)/5=3/5 (on a)
         // a1 is located w.r.t. b at ratio: (2-8)/-3=6/3 (after b ends)
         // a2 is located w.r.t. b at ratio: (7-8)/-3=1/3 (on b)
-        RobustType const length_a = oa_2 - oa_1; // no abs, see above
-        RobustType const length_b = ob_2 - ob_1;
+        RobustType1 const length_a = oa_2 - oa_1; // no abs, see above
+        RobustType2 const length_b = ob_2 - ob_1;
 
         RatioType ra_from(oa_1 - ob_1, length_b);
         RatioType ra_to(oa_2 - ob_1, length_b);
@@ -435,12 +498,13 @@ private:
     <
         typename RatioType,
         typename DegenerateSegment,
-        typename RobustType
+        typename RobustType1,
+        typename RobustType2
     >
     static inline return_type relate_one_degenerate(
             DegenerateSegment const& degenerate_segment
-            , RobustType d
-            , RobustType s1, RobustType s2
+            , RobustType1 d
+            , RobustType2 s1, RobustType2 s2
             , bool a_degenerate
             )
     {
@@ -476,6 +540,20 @@ private:
                 : 2 );
     }
 };
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename Policy, typename CalculationType>
+struct default_strategy<cartesian_tag, Policy, CalculationType>
+{
+    typedef relate_cartesian_segments<Policy, CalculationType> type;
+};
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::intersection

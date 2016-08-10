@@ -1149,6 +1149,8 @@ struct linear_areal
                                                  Geometry2 const& geometry2,
                                                  Turn const& turn)
         {
+            typedef typename cs_tag<typename Turn::point_type>::type cs_tag;
+
             if ( turn.operations[op_id].position == overlay::position_front )
                 return false;
 
@@ -1192,7 +1194,7 @@ struct linear_areal
                                                                  boost::end(range2));
 
                 // Will this sequence of points be always correct?
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
+                overlay::side_calculator<cs_tag, point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
 
                 return calculate_from_inside_sides(side_calc);
             }
@@ -1201,7 +1203,7 @@ struct linear_areal
                 point1_type new_qj;
                 geometry::convert(turn.point, new_qj);
 
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, new_qj, qj);
+                overlay::side_calculator<cs_tag, point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, new_qj, qj);
 
                 return calculate_from_inside_sides(side_calc);
             }
@@ -1414,10 +1416,14 @@ struct linear_areal
 template <typename Geometry1, typename Geometry2>
 struct areal_linear
 {
+    typedef linear_areal<Geometry2, Geometry1, true> linear_areal_type;
+
+    static const bool interruption_enabled = linear_areal_type::interruption_enabled;
+
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
-        linear_areal<Geometry2, Geometry1, true>::apply(geometry2, geometry1, result);
+        linear_areal_type::apply(geometry2, geometry1, result);
     }
 };
 

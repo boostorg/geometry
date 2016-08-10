@@ -79,7 +79,7 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
 
     BOOST_CONCEPT_ASSERT
         ( 
-            (bg::concept::PointDistanceStrategy<andoyer_type, P1, P2>) 
+            (bg::concepts::PointDistanceStrategy<andoyer_type, P1, P2>) 
         );
 
     andoyer_type andoyer;

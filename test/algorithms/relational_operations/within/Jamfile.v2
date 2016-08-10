@@ -22,5 +22,6 @@ test-suite boost-geometry-algorithms-within
     [ run within_linear_linear.cpp      : : : : algorithms_within_linear_linear ]
     [ run within_multi.cpp              : : : : algorithms_within_multi ]
     [ run within_pointlike_geometry.cpp : : : : algorithms_within_pointlike_geometry ]
+    [ run within_sph.cpp                : : : : algorithms_within_sph ]
     [ run within_sph_geo.cpp            : : : : algorithms_within_sph_geo ]
     ;

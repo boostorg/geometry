@@ -129,8 +129,9 @@ struct map_visitor
         for (typename Clusters::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
         {
             std::cout << " CLUSTER " << it->first << ": ";
-            for (typename std::set<bg::signed_size_type>::const_iterator sit = it->second.begin();
-                 sit != it->second.end(); ++sit)
+            for (typename std::set<bg::signed_size_type>::const_iterator sit
+                 = it->second.turn_indices.begin();
+                 sit != it->second.turn_indices.end(); ++sit)
             {
                 std::cout << " "  << *sit;
             }
@@ -365,7 +366,7 @@ void test_overlay(std::string const& caseid,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef bg::strategy_intersection
+    typedef bg::intersection_strategies
     <
         typename bg::cs_tag<Geometry>::type,
         Geometry,

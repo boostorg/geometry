@@ -196,7 +196,11 @@ void test_linestring_linestring()
         test_geometry<ls, ls>("LINESTRING(-3.2333333333333333925452279800083 5.5999999999999978683717927196994,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
                               "LINESTRING(-3.2333333333333325043668082798831 5.5999999999999996447286321199499,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
                               "FF1F00102", "F0FFFF102"); // on some platforms the first Linestring may be detected as degenerated to Point
+    }
 
+    if ( BOOST_GEOMETRY_CONDITION((
+            boost::is_same<typename bg::coordinate_type<ls>::type, double>::value )) )
+    {
         // detected as collinear
         test_geometry<ls, ls>("LINESTRING(1 -10, 3.069359e+307 3.069359e+307)",
                               "LINESTRING(1 6, 1 0)",

@@ -31,6 +31,7 @@
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
@@ -268,6 +269,49 @@ struct assign_loop<T, Count, Count>
     }
 };
 
+template <typename CSTag>
+struct box_first_in_section
+{
+    template <typename Box, typename Point>
+    static inline void apply(Box & box, Point const& prev, Point const& curr)
+    {
+        geometry::model::referring_segment<Point const> seg(prev, curr);
+        geometry::envelope(seg, box);
+    }
+};
+
+template <>
+struct box_first_in_section<cartesian_tag>
+{
+    template <typename Box, typename Point>
+    static inline void apply(Box & box, Point const& prev, Point const& curr)
+    {
+        geometry::envelope(prev, box);
+        geometry::expand(box, curr);
+    }
+};
+
+template <typename CSTag>
+struct box_next_in_section
+{
+    template <typename Box, typename Point>
+    static inline void apply(Box & box, Point const& prev, Point const& curr)
+    {
+        geometry::model::referring_segment<Point const> seg(prev, curr);
+        geometry::expand(box, seg);
+    }
+};
+
+template <>
+struct box_next_in_section<cartesian_tag>
+{
+    template <typename Box, typename Point>
+    static inline void apply(Box & box, Point const& , Point const& curr)
+    {
+        geometry::expand(box, curr);
+    }
+};
+
 /// @brief Helper class to create sections of a part of a range, on the fly
 template
 <
@@ -402,10 +446,19 @@ struct sectionalize_part
                         int, 0, dimension_count
                     >::apply(direction_classes, section.directions);
 
-                geometry::expand(section.bounding_box, previous_robust_point);
+                // In cartesian this is envelope of previous point expanded with current point
+                // in non-cartesian this is envelope of a segment
+                box_first_in_section<typename cs_tag<robust_point_type>::type>
+                    ::apply(section.bounding_box, previous_robust_point, current_robust_point);
+            }
+            else
+            {
+                // In cartesian this is expand with current point
+                // in non-cartesian this is expand with a segment
+                box_next_in_section<typename cs_tag<robust_point_type>::type>
+                    ::apply(section.bounding_box, previous_robust_point, current_robust_point);
             }
 
-            geometry::expand(section.bounding_box, current_robust_point);
             section.end_index = index + 1;
             section.count++;
             if (! duplicate)
@@ -769,7 +822,7 @@ inline void sectionalize(Geometry const& geometry,
                 int source_index = 0,
                 std::size_t max_count = 10)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     typedef typename boost::range_value<Sections>::type section_type;
 

@@ -400,6 +400,8 @@ struct get_turn_info_for_endpoint
                                        IntersectionInfo const& inters, unsigned int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
+        typedef typename cs_tag<typename TurnInfo::point_type>::type cs_tag;
+
         boost::ignore_unused_variable_warning(i2);
         boost::ignore_unused_variable_warning(j2);
         boost::ignore_unused_variable_warning(ip_index);
@@ -425,7 +427,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<RobustPoint1, RobustPoint2, RobustPoint2>
+                    side_calculator<cs_tag, RobustPoint1, RobustPoint2, RobustPoint2>
                         side_calc(ri2, ri1, rj1, ri2, rj2, rk2);
 
                     std::pair<operation_type, operation_type>
@@ -476,7 +478,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<RobustPoint1, RobustPoint2, RobustPoint2>
+                    side_calculator<cs_tag, RobustPoint1, RobustPoint2, RobustPoint2>
                         side_calc(ri2, rj1, ri1, ri2, rj2, rk2);
                     
                     std::pair<operation_type, operation_type>

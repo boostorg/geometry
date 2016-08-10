@@ -139,10 +139,15 @@ struct box_equals
         equals_with_tolerance equals(tol);
 
 #ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-        return equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
-            && equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-            && equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
-            && equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2));
+        // check latitude with tolerance when necessary
+        return bg::math::equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
+            && (bg::get<0, 1>(box1) < 0
+                ? equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
+                : bg::math::equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2)))
+            && bg::math::equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
+            && (bg::get<1, 1>(box1) > 0
+                ? equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2))
+                : bg::math::equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2)));
 #else
         // check latitude with tolerance when necessary
         return bg::get<0, 0>(box1) == bg::get<0, 0>(box2)
