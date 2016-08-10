@@ -42,8 +42,6 @@ class traverse
     template <typename Turns>
     static void reset_visits(Turns& turns)
     {
-        typedef typename boost::range_value<Turns>::type tp_type;
-
         for (typename boost::range_iterator<Turns>::type
             it = boost::begin(turns);
             it != boost::end(turns);
