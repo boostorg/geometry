@@ -35,6 +35,7 @@
 
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_original_visitor.hpp>
@@ -297,7 +298,7 @@ struct buffered_piece_collection
     typedef std::map
         <
             signed_size_type,
-            std::set<signed_size_type>
+            detail::overlay::cluster_info
         > cluster_type;
 
     cluster_type m_clusters;
@@ -1216,9 +1217,8 @@ struct buffered_piece_collection
             typename cs_tag<Ring>::type
         >::type side_strategy_type;
 
-        enrich_intersection_points<false, false, overlay_union>(m_turns,
-                    m_clusters, detail::overlay::operation_union,
-                    offsetted_rings, offsetted_rings,
+        enrich_intersection_points<false, false, overlay_buffer>(m_turns,
+                    m_clusters, offsetted_rings, offsetted_rings,
                     m_robust_policy, side_strategy_type());
     }
 
@@ -1330,17 +1330,12 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (it->location != location_ok)
+            buffer_turn_info_type& turn = *it;
+            if (turn.location != location_ok)
             {
-                // Set it to blocked. They should not be discarded, to avoid
-                // generating rings over these turns
-                // Performance goes down a tiny bit from 161 s to 173 because there
-                // are sometimes much more turns.
-                // We might speed it up a bit by keeping only one blocked
-                // intersection per segment, but that is complex to program
-                // because each turn involves two segments
-                it->operations[0].operation = detail::overlay::operation_blocked;
-                it->operations[1].operation = detail::overlay::operation_blocked;
+                // Discard this turn (don't set it to blocked to avoid colocated
+                // clusters being discarded afterwards
+                turn.discarded = true;
             }
         }
     }
@@ -1352,7 +1347,7 @@ struct buffered_piece_collection
                 false, false,
                 buffered_ring_collection<buffered_ring<Ring> >,
                 buffered_ring_collection<buffered_ring<Ring > >,
-                detail::overlay::operation_union,
+                overlay_buffer,
                 backtrack_for_buffer
             > traverser;
 

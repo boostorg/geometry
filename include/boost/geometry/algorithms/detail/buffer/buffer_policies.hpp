@@ -58,14 +58,14 @@ public :
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns,
-                typename boost::range_value<Turns>::type const& turn,
+                typename boost::range_value<Turns>::type const& /*turn*/,
                 Operation& operation,
-                detail::overlay::traverse_error_type traverse_error,
+                detail::overlay::traverse_error_type /*traverse_error*/,
                 Geometry const& ,
                 Geometry const& ,
                 RobustPolicy const& ,
                 state_type& state,
-                Visitor& visitor
+                Visitor& /*visitor*/
                 )
     {
 #if defined(BOOST_GEOMETRY_COUNT_BACKTRACK_WARNINGS)
@@ -92,17 +92,17 @@ g_backtrack_warning_count++;
 struct buffer_overlay_visitor
 {
 public :
-    void print(char const* header)
+    void print(char const* /*header*/)
     {
     }
 
     template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index)
+    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/)
     {
     }
 
     template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index, int op_index)
+    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/, int /*op_index*/)
     {
     }
 
@@ -113,7 +113,7 @@ public :
     void visit_clusters(Clusters const& , Turns const& ) {}
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const char* header)
+    void visit_traverse(Turns const& /*turns*/, Turn const& /*turn*/, Operation const& /*op*/, const char* /*header*/)
     {
     }
 

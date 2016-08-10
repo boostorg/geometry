@@ -182,8 +182,8 @@ template <typename Input, typename Output, typename Distance>
 inline void buffer(Input const& geometry_in, Output& geometry_out,
             Distance const& distance, Distance const& chord_length = -1)
 {
-    concept::check<Input const>();
-    concept::check<Output>();
+    concepts::check<Input const>();
+    concepts::check<Output>();
 
     resolve_variant::buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
 }
@@ -204,8 +204,8 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 template <typename Output, typename Input, typename Distance>
 Output return_buffer(Input const& geometry, Distance const& distance, Distance const& chord_length = -1)
 {
-    concept::check<Input const>();
-    concept::check<Output>();
+    concepts::check<Input const>();
+    concepts::check<Output>();
 
     Output geometry_out;
 
@@ -256,8 +256,8 @@ inline void buffer(GeometryIn const& geometry_in,
                 PointStrategy const& point_strategy)
 {
     typedef typename boost::range_value<MultiPolygon>::type polygon_type;
-    concept::check<GeometryIn const>();
-    concept::check<polygon_type>();
+    concepts::check<GeometryIn const>();
+    concepts::check<polygon_type>();
 
     typedef typename point_type<GeometryIn>::type point_type;
     typedef typename rescale_policy_type<point_type>::type rescale_policy_type;

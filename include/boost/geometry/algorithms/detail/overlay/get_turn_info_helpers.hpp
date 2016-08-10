@@ -36,14 +36,19 @@ struct turn_operation_linear
     bool is_collinear; // valid only for Linear geometry
 };
 
-template <typename PointP, typename PointQ,
+template <typename TurnPointCSTag, typename PointP, typename PointQ,
           typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
           typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
 >
 struct side_calculator
 {
-    // todo: get from coordinate system
-    typedef boost::geometry::strategy::side::side_by_triangle<> side;
+    // This strategy should be the same as side strategy defined in
+    // intersection_strategies<> which is used in various places
+    // of the library
+    typedef typename strategy::side::services::default_strategy
+        <
+            TurnPointCSTag
+        >::type side;
 
     inline side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
                            Qi const& qi, Qj const& qj, Qk const& qk)
@@ -94,7 +99,7 @@ struct robust_points
     robust_point2_type m_rqi, m_rqj, m_rqk;
 };
 
-template <typename Point1, typename Point2, typename RobustPolicy>
+template <typename Point1, typename Point2, typename TurnPoint, typename RobustPolicy>
 class intersection_info_base
     : private robust_points<Point1, Point2, RobustPolicy>
 {
@@ -107,7 +112,9 @@ public:
     typedef typename base::robust_point1_type robust_point1_type;
     typedef typename base::robust_point2_type robust_point2_type;
 
-    typedef side_calculator<robust_point1_type, robust_point2_type> side_calculator_type;
+    typedef typename cs_tag<TurnPoint>::type cs_tag;
+
+    typedef side_calculator<cs_tag, robust_point1_type, robust_point2_type> side_calculator_type;
     
     intersection_info_base(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
@@ -148,8 +155,8 @@ private:
     point2_type const& m_qk;
 };
 
-template <typename Point1, typename Point2>
-class intersection_info_base<Point1, Point2, detail::no_rescale_policy>
+template <typename Point1, typename Point2, typename TurnPoint>
+class intersection_info_base<Point1, Point2, TurnPoint, detail::no_rescale_policy>
 {
 public:
     typedef Point1 point1_type;
@@ -158,7 +165,9 @@ public:
     typedef Point1 robust_point1_type;
     typedef Point2 robust_point2_type;
 
-    typedef side_calculator<Point1, Point2> side_calculator_type;
+    typedef typename cs_tag<TurnPoint>::type cs_tag;
+
+    typedef side_calculator<cs_tag, Point1, Point2> side_calculator_type;
     
     intersection_info_base(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
@@ -197,13 +206,13 @@ template
     typename RobustPolicy
 >
 class intersection_info
-    : public intersection_info_base<Point1, Point2, RobustPolicy>
+    : public intersection_info_base<Point1, Point2, TurnPoint, RobustPolicy>
 {
-    typedef intersection_info_base<Point1, Point2, RobustPolicy> base;
+    typedef intersection_info_base<Point1, Point2, TurnPoint, RobustPolicy> base;
 
-    typedef typename strategy_intersection
+    typedef typename intersection_strategies
         <
-            typename cs_tag<TurnPoint>::type,
+            typename base::cs_tag,
             Point1,
             Point2,
             TurnPoint,
@@ -298,9 +307,9 @@ private:
     {
         typedef model::referring_segment<Point const> seg;
 
-        typedef strategy_intersection
+        typedef intersection_strategies
             <
-                typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
+                typename base::cs_tag, Point, Point, Point, RobustPolicy
             > si;
         
         typedef typename si::segment_intersection_strategy_type strategy;

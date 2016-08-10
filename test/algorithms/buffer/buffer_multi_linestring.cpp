@@ -3,6 +3,10 @@
 
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016.
+// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -34,6 +38,8 @@ static std::string const mysql_2015_04_10b = "MULTILINESTRING((-58 19, 61 88),  
 
 static std::string const mysql_2015_09_08a = "MULTILINESTRING((7 -4, -3 -5), (72057594037927936 15, 72057594037927940 70368744177660, 32771 36028797018963964, 8589934589 2305843009213693953, 7 2, 9.300367e+307 9.649737e+307, -4092 -274877906946, 5 10, -3 4))";
 static std::string const mysql_2015_09_08b = "MULTILINESTRING((-9 -10, 0 -1, 5 -10, -6 7, -7 7, 5.041061e+307 9.926906e+307, 6.870356e+307 1.064454e+307, 35184372088830 288230376151711743, 183673728842483250000000000000000000000.000000 244323751784861950000000000000000000000.000000), (-23530 -7131, -6 1, 1 1, 2 -6, 32766 -4194302, -4 -6), (134217725 0, 50336782742294697000000000000000000000.000000 36696596077212901000000000000000000000.000000, 7434 16486, 3.025467e+307 8.926790e+307), (2147483646 67108868, 71328904281592545000000000000000000000.000000 225041650340452780000000000000000000000.000000, -7 4, 1.667154e+307 3.990414e+307))"; 
+
+static std::string const mysql_23023665_1 = "MULTILINESTRING((-5 15, 7 15, 19 -10, -11 -2),(2 13, 2 -9))";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -139,6 +145,13 @@ void test_all()
             mysql_2015_09_08b, join_round32, end_round32,
             1.32832149026508268e+19, 2061380362.0,
             same_distance, true, 1.0e12);
+
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1",
+            mysql_23023665_1, join_round32, end_round32,
+            1, 1, 186.55043107613727, 1.0,
+            same_distance, true, 1.0e12);
+#endif
 }
 
 

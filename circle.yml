@@ -154,8 +154,8 @@ test:
         #parallel: true
 
     ## ... alter the json file
-    - jq -c ".service_name = \"circle-ci\" | .service_job_id = \"$CIRCLE_BUILD_NUM\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json
-    #- jq -c ".service_name = \"circle-ci\" | .service_job_id = \"$CIRCLE_BUILD_NUM\" | .parallel = true | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json #:
+    - jq -c ".service_name = \"circle-ci\" | .service_number = \"$CIRCLE_BUILD_NUM\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json
+    #- jq -c ".service_name = \"circle-ci\" | .service_number = \"$CIRCLE_BUILD_NUM\" | .parallel = true | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_ROOT/coverage.json > $COVERAGE_ROOT/processed.json #:
         #parallel: true
 
     ## ... send it to Coveralls

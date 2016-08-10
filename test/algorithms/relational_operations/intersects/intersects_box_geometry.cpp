@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2015.
-// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2015, 2016.
+// Modifications copyright (c) 2013-2016, Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,33 +19,39 @@
 #include <boost/geometry/util/rational.hpp>
 
 
-template <typename P>
+template <typename P1, typename P2>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon;
-    typedef bg::model::ring<P> ring;
+    typedef bg::model::polygon<P1> polygon;
+    typedef bg::model::ring<P1> ring;
 
     // intersect <=> ! disjoint (in most cases)
     // so most tests are done in disjoint test.
     // We only test compilation of a few cases.
-    test_geometry<P, bg::model::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
+    test_geometry<P1, bg::model::box<P2> >("POINT(1 1)", "BOX(0 0,2 2)", true);
 
-    test_geometry<polygon, bg::model::box<P> >(
+    test_geometry<polygon, bg::model::box<P2> >(
         "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))",
         "BOX(1941 2066, 2055 2166)", true);
 
-    test_geometry<ring, bg::model::box<P> >(
+    test_geometry<ring, bg::model::box<P2> >(
         "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))",
         "BOX(1941 2066, 2055 2166)", true);
 
-    test_geometry<polygon, bg::model::box<P> >(
+    test_geometry<polygon, bg::model::box<P2> >(
         "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))",
         "BOX(1941 2066, 2055 2166)", true);
 
-    test_geometry<P, bg::model::box<P> >(
+    test_geometry<P1, bg::model::box<P2> >(
         "POINT(0 0)",
         "BOX(0 0,4 4)",
         true);
+}
+
+template <typename P>
+void test_all()
+{
+    test_all<P, P>();
 }
 
 // Those tests won't pass for rational<> because numeric_limits<> isn't specialized for this type
@@ -150,6 +156,7 @@ void test_additional()
 
 int test_main( int , char* [] )
 {
+    test_all<bg::model::d2::point_xy<float>, bg::model::point<double, 2, bg::cs::cartesian> >();
     test_all<bg::model::d2::point_xy<double> >();
     test_additional<bg::model::d2::point_xy<double> >();
 

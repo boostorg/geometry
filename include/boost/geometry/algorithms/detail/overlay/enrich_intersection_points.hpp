@@ -66,7 +66,7 @@ inline void enrich_sort(Operations& operations,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
-            Strategy const& strategy)
+            Strategy const& /*strategy*/)
 {
     std::sort(boost::begin(operations),
             boost::end(operations),
@@ -159,6 +159,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
                 << " nxt=" << op.enriched.next_ip_index
                 << " / " << op.enriched.travels_to_ip_index
                 << " [vx " << op.enriched.travels_to_vertex_index << "]"
+                << std::boolalpha << turns[it->turn_index].discarded
                 << std::endl;
                 ;
         }
@@ -235,11 +236,12 @@ inline void create_map(Turns const& turns,
 \ingroup overlay
 \tparam Turns type of intersection container
             (e.g. vector of "intersection/turn point"'s)
+\tparam Clusters type of cluster container
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam Strategy side strategy type
-\param turns container containing intersectionpoints
-\param for_operation operation_type (union or intersection)
+\param turns container containing intersection points
+\param clusters container containing clusters
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param robust_policy policy to handle robustness issues
@@ -257,11 +259,12 @@ template
 >
 inline void enrich_intersection_points(Turns& turns,
     Clusters& clusters,
-    detail::overlay::operation_type for_operation,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
     RobustPolicy const& robust_policy,
     Strategy const& strategy)
 {
+    static const detail::overlay::operation_type for_operation
+            = detail::overlay::operation_from_overlay<OverlayType>::value;
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
     typedef detail::overlay::indexed_turn_operation
@@ -328,7 +331,7 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
-        detail::overlay::assign_startable_in_clusters<Reverse1, Reverse2>(
+        detail::overlay::gather_cluster_properties<Reverse1, Reverse2>(
                 clusters, turns, for_operation, geometry1, geometry2);
     }
 

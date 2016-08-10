@@ -165,11 +165,8 @@ namespace dispatch
 
 template<overlay_type OverlayType>
 struct decide
-{};
-
-template<>
-struct decide<overlay_union>
 {
+    // Default implementation (union, inflate, deflate, dissolve)
     static bool include(ring_identifier const& , ring_turn_info const& info)
     {
         return ! info.within_other;
@@ -179,6 +176,7 @@ struct decide<overlay_union>
     {
         return false;
     }
+
 };
 
 template<>

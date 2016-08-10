@@ -14,18 +14,10 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-relational
-    :
-    [ run covered_by.cpp         : : : : algorithms_covered_by ]
-    [ run covered_by_multi.cpp   : : : : algorithms_covered_by_multi ]
-    [ run covered_by_sph_geo.cpp : : : : algorithms_covered_by_sph_geo ]
-    [ run crosses.cpp            : : : : algorithms_crosses ]
-    [ run equals.cpp             : : : : algorithms_equals ]
-    [ run equals_multi.cpp       : : : : algorithms_equals_multi ]
-    [ run equals_on_spheroid.cpp : : : : algorithms_equals_on_spheroid ]
-    ;
-
+build-project covered_by ;
+build-project crosses ;
 build-project disjoint ;
+build-project equals ;
 build-project intersects ;
 build-project overlaps ;
 build-project relate ;

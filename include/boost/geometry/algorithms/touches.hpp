@@ -373,7 +373,7 @@ struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
 
 // A/L
 template <typename Linear, typename Areal, typename Tag1, typename Tag2>
-struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
+struct touches<Areal, Linear, Tag1, Tag2, areal_tag, linear_tag, false>
     : detail::relate::relate_impl
     <
         detail::de9im::static_mask_touches_type,
@@ -410,8 +410,8 @@ struct touches
 {
     static bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        concept::check<Geometry1 const>();
-        concept::check<Geometry2 const>();
+        concepts::check<Geometry1 const>();
+        concepts::check<Geometry2 const>();
 
         return dispatch::touches<Geometry1, Geometry2>
                        ::apply(geometry1, geometry2);
@@ -494,7 +494,7 @@ struct self_touches
 {
     static bool apply(Geometry const& geometry)
     {
-        concept::check<Geometry const>();
+        concepts::check<Geometry const>();
 
         typedef detail::no_rescale_policy rescale_policy_type;
         typedef typename geometry::point_type<Geometry>::type point_type;

@@ -169,7 +169,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
 
         BOOST_CONCEPT_ASSERT(
             (
-                bg::concept::PointDistanceStrategy<vincenty_type, P1, P2>)
+                bg::concepts::PointDistanceStrategy<vincenty_type, P1, P2>)
             );
 
         vincenty_type vincenty(spheroid);

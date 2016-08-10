@@ -206,7 +206,7 @@ inline void test_services()
     typedef bgsd::pythagoras_point_box<CalculationType> strategy_type;
 
     BOOST_CONCEPT_ASSERT
-        ( (bg::concept::PointDistanceStrategy<strategy_type, Point, Box>) );
+        ( (bg::concepts::PointDistanceStrategy<strategy_type, Point, Box>) );
 
     typedef typename bgsd::services::return_type
         <

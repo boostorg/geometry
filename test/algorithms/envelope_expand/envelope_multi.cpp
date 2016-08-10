@@ -13,7 +13,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <algorithms/test_envelope.hpp>
+#include "test_envelope.hpp"
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

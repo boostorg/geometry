@@ -3,9 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -19,6 +18,7 @@
 #include <fstream>
 
 #include <geometry_test_common.hpp>
+#include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/algorithm/copy.hpp>
@@ -50,11 +50,25 @@ struct ut_settings
 
     ut_settings()
         : percentage(0.001)
-        , test_validity(false)
+        , test_validity(true)
     {}
 
 };
 
+#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
+template <typename Geometry>
+inline void check_input_validity(std::string const& caseid, int case_index,
+                Geometry const& geometry)
+{
+    std::string message;
+    if (!bg::is_valid(geometry, message))
+    {
+        std::cout << caseid << " Input ["
+                  << case_index << "] not valid" << std::endl
+                  << "   ("  << message << ")" << std::endl;
+    }
+}
+#endif
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
@@ -66,11 +80,17 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     boost::ignore_unused<coordinate_type>();
     boost::ignore_unused(expected_point_count);
 
-    // Declare output (vector of rings, or vector of polygons)
-    std::vector<OutputType> clip;
+    // Declare output (vector of rings or multi_polygon)
+    typedef typename setop_output_type<OutputType>::type result_type;
+    result_type clip;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     std::cout << "*** UNION " << caseid << std::endl;
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
+    check_input_validity(caseid, 0, g1);
+    check_input_validity(caseid, 1, g2);
 #endif
 
     bg::union_(g1, g2, clip);
@@ -78,7 +98,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
     std::size_t holes = 0;
-    for (typename std::vector<OutputType>::iterator it = clip.begin();
+    for (typename result_type::iterator it = clip.begin();
             it != clip.end(); ++it)
     {
         area += bg::area(*it);
@@ -101,13 +121,13 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
-        std::vector<OutputType> inserted, array_with_one_empty_geometry;
+        result_type inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
         boost::copy(array_with_one_empty_geometry, bg::detail::union_::union_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
 
         typename bg::default_area_result<OutputType>::type area_inserted = 0;
         int index = 0;
-        for (typename std::vector<OutputType>::iterator it = inserted.begin();
+        for (typename result_type::iterator it = inserted.begin();
                 it != inserted.end();
                 ++it, ++index)
         {
@@ -194,7 +214,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         //mapper.map(g1, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
         //mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
 
-        for (typename std::vector<OutputType>::const_iterator it = clip.begin();
+        for (typename result_type::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
