@@ -151,15 +151,99 @@ inline Point3d projected_to_xy(Point3d const& point_3d, Spheroid const& spheroid
     // y_res = r * sin(lon) = e^2 * len_xy * y / len_xy = e^2 * y
     
     coord_t const c0 = 0;
-    coord_t const e_sqr = bg::formula::eccentricity_sqr<coord_t>(spheroid);
+    coord_t const e_sqr = formula::eccentricity_sqr<coord_t>(spheroid);
 
     Point3d res;
 
-    bg::set<0>(res, e_sqr * bg::get<0>(point_3d));
-    bg::set<1>(res, e_sqr * bg::get<1>(point_3d));
-    bg::set<2>(res, c0);
+    set<0>(res, e_sqr * get<0>(point_3d));
+    set<1>(res, e_sqr * get<1>(point_3d));
+    set<2>(res, c0);
 
     return res;
+}
+
+template <typename Point3d, typename Spheroid>
+inline Point3d projected_to_surface(Point3d const& direction, Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    coord_t const c0 = 0;
+    coord_t const c2 = 2;
+    coord_t const c4 = 4;
+
+    // calculate the point of intersection of a ray and spheroid's surface
+    // the origin is the origin of the coordinate system
+    //(x*x+y*y)/(a*a) + z*z/(b*b) = 1
+    // x = d.x * t
+    // y = d.y * t
+    // z = d.z * t        
+    coord_t const dx = get<0>(direction);
+    coord_t const dy = get<1>(direction);
+    coord_t const dz = get<2>(direction);
+
+    //coord_t const a_sqr = math::sqr(get_radius<0>(spheroid));
+    //coord_t const b_sqr = math::sqr(get_radius<2>(spheroid));
+    // "unit" spheroid, a = 1
+    coord_t const a_sqr = 1;
+    coord_t const b_sqr = math::sqr(get_radius<2>(spheroid) / get_radius<0>(spheroid));
+
+    coord_t const param_a = (dx*dx + dy*dy) / a_sqr + dz*dz / b_sqr;
+
+    coord_t const delta = c4 * param_a;
+    coord_t const t = delta >= c0 ?
+                      math::sqrt(delta) / (c2 * param_a) :
+                      c0;
+
+    // result = direction * t
+    point_3d result = direction;
+    multiply_value(result, t);
+
+    return result;
+}
+
+template <typename Point3d, typename Spheroid>
+inline Point3d projected_to_surface(Point3d const& origin, Point3d const& direction, Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    coord_t const c0 = 0;
+    coord_t const c1 = 1;
+    coord_t const c2 = 2;
+    coord_t const c4 = 4;
+
+    // calculate the point of intersection of a ray and spheroid's surface
+    //(x*x+y*y)/(a*a) + z*z/(b*b) = 1
+    // x = o.x + d.x * t
+    // y = o.y + d.y * t
+    // z = o.z + d.z * t        
+    coord_t const ox = get<0>(origin);
+    coord_t const oy = get<1>(origin);
+    coord_t const oz = get<2>(origin);
+    coord_t const dx = get<0>(direction);
+    coord_t const dy = get<1>(direction);
+    coord_t const dz = get<2>(direction);
+
+    //coord_t const a_sqr = math::sqr(get_radius<0>(spheroid));
+    //coord_t const b_sqr = math::sqr(get_radius<2>(spheroid));
+    // "unit" spheroid, a = 1
+    coord_t const a_sqr = 1;
+    coord_t const b_sqr = math::sqr(get_radius<2>(spheroid) / get_radius<0>(spheroid));
+
+    coord_t const param_a = (dx*dx + dy*dy) / a_sqr + dz*dz / b_sqr;
+    coord_t const param_b = c2 * ((ox*dx + oy*dy) / a_sqr + oz*dz / b_sqr);
+    coord_t const param_c = (ox*ox + oy*oy) / a_sqr + oz*oz / b_sqr - c1;
+
+    coord_t const delta = param_b*param_b - c4 * param_a*param_c;
+    coord_t const t = delta >= c0 ?
+                      (-param_b + math::sqrt(delta)) / (c2 * param_a) :
+                      c0;
+
+    // result = origin + direction * t
+    point_3d result = direction;
+    multiply_value(result, t);
+    add_point(result, origin);
+
+    return result;
 }
 
 } // namespace formula
