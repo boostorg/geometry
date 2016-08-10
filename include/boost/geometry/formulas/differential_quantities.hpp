@@ -63,7 +63,7 @@ public:
                              CT & reduced_length, CT & geodesic_scale,
                              J12Calc J12_calc)
     {
-        CT one_minus_f = 1 - f;
+        CT one_minus_f = CT(1) - f;
         CT sin_bet1 = one_minus_f * sin_lat1;
         CT sin_bet2 = one_minus_f * sin_lat2;
             
@@ -102,13 +102,13 @@ public:
             normalize(sin_sig2, cos_sig2);
 
             CT sin_alp0 = sin_alp1 * cos_bet1;
-            CT cos_alp0_sqr = 1 - math::sqr(sin_alp0);
+            CT cos_alp0_sqr = CT(1) - math::sqr(sin_alp0);
 
             CT const J12 = J12_calc(sin_sig1, cos_sig1, sin_sig2, cos_sig2, cos_alp0_sqr, f);
 
-            CT const e2 = f * (2 - f);
-            CT const dn1 = math::sqrt(1 + e2 * math::sqr(sin_lat1));
-            CT const dn2 = math::sqrt(1 + e2 * math::sqr(sin_lat2));
+            CT const e2 = f * (CT(2) - f);
+            CT const dn1 = math::sqrt(CT(1) + e2 * math::sqr(sin_lat1));
+            CT const dn2 = math::sqrt(CT(1) + e2 * math::sqr(sin_lat2));
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
             {
@@ -153,17 +153,17 @@ public:
     {
         CT const sig12 = atan2(cos_sig1 * sin_sig2 - sin_sig1 * cos_sig2,
                                cos_sig1 * cos_sig2 + sin_sig1 * sin_sig2);
-        CT const sin_2sig1 = 2 * cos_sig1 * sin_sig1; // sin(2sig1)
-        CT const sin_2sig2 = 2 * cos_sig2 * sin_sig2; // sin(2sig2)
+        CT const sin_2sig1 = CT(2) * cos_sig1 * sin_sig1; // sin(2sig1)
+        CT const sin_2sig2 = CT(2) * cos_sig2 * sin_sig2; // sin(2sig2)
         CT const sin_2sig12 = sin_2sig2 - sin_2sig1;
-        CT const sin_4sig1 = 2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
-        CT const sin_4sig2 = 2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
+        CT const sin_4sig1 = CT(2) * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
+        CT const sin_4sig2 = CT(2) * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
         CT const sin_4sig12 = sin_4sig2 - sin_4sig1;
         
-        CT const t1 = 2 * sig12 - sin_2sig12;
+        CT const t1 = CT(2) * sig12 - sin_2sig12;
         CT const t2 = cos_alp0_sqr * sin_4sig12
-                   + (-8 * cos_alp0_sqr + 12) * sin_2sig12
-                   + (12 * cos_alp0_sqr - 24) * sig12;
+                   + (-CT(8) * cos_alp0_sqr + CT(12)) * sin_2sig12
+                   + (CT(12) * cos_alp0_sqr - CT(24)) * sig12;
         CT const J12 = cos_alp0_sqr * f * (t1 / 2 - f * t2 / 16);
 
         return J12;

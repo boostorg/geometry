@@ -7,6 +7,7 @@
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -80,6 +81,12 @@ namespace ttmath
     inline Big<Exponent, Mantissa> atan(Big<Exponent, Mantissa> const& v)
     {
         return ATan(v);
+    }
+
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> atanh(Big<Exponent, Mantissa> const& v)
+    {
+        return ATanh(v);
     }
 
     template <uint Exponent, uint Mantissa>

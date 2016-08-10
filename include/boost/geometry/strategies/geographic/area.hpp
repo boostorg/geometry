@@ -13,6 +13,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/formulas/geographic_area.hpp>
+#include <boost/math/special_functions/atanh.hpp>
 
 namespace boost { namespace geometry
 {
@@ -31,12 +32,17 @@ template
 <
     typename PointOfSegment,
     typename Strategy = void,
+    const std::size_t SeriesOrder = 2,
     typename Spheroid = void,
     typename CalculationType = void
 >
 class geographic_area
 {
-typedef typename boost::mpl::if_c
+
+    //Select default types for Strategy, Spheroid and CalculationType
+    //in case they are not set
+
+    typedef typename boost::mpl::if_c
     <
         boost::is_void<CalculationType>::type::value,
         typename select_most_precise
@@ -47,8 +53,7 @@ typedef typename boost::mpl::if_c
         CalculationType
     >::type CT;
 
-//If strategy not set select default strategy for azimuth computation
-typedef typename boost::mpl::if_c
+    typedef typename boost::mpl::if_c
     <
         boost::is_void<Strategy>::type::value,
         typename geometry::formula::thomas_inverse
@@ -61,7 +66,7 @@ typedef typename boost::mpl::if_c
         Strategy
     >::type AzimuthStrategy;
 
-typedef typename boost::mpl::if_c
+    typedef typename boost::mpl::if_c
     <
         boost::is_void<Spheroid>::type::value,
         geometry::srs::spheroid<CT>,
@@ -82,24 +87,27 @@ protected :
             : spheroid(spheroid)
             , a2(math::sqr(get_radius<0>(spheroid)))
             , e2(detail::flattening<CT>(spheroid)
-                 * (2.0 - detail::flattening<CT>(spheroid)))
-            , ep2(e2 / (1 - e2))
+                 * (CT(2.0) - CT(detail::flattening<CT>(spheroid))))
+            , ep2(e2 / (CT(1.0) - e2))
             , ep(math::sqrt(ep2))
-            , c2((a2 / 2.0) +
-              ((math::sqr(get_radius<2>(spheroid)) * std::atanh(math::sqrt(e2)))
-              / (2.0 * math::sqrt(e2))))
+            , c2((a2 / CT(2.0)) +
+              ((math::sqr(get_radius<2>(spheroid))
+//                  * 1)
+                * atanh(math::sqrt(e2)))
+//                  * std::atanh(math::sqrt(e2)))
+              / (CT(2.0) * math::sqrt(e2))))
         {}
     };
 
-    struct spheroid_param
+    struct area_sums
     {
         CT excess_sum;
         CT correction_sum;
 
         // Keep track if encircles some pole
-        size_t crosses_prime_meridian;
+        std::size_t crosses_prime_meridian;
 
-        inline spheroid_param()
+        inline area_sums()
             : excess_sum(0)
             , correction_sum(0)
             , crosses_prime_meridian(0)
@@ -111,19 +119,17 @@ protected :
             CT sum = spheroid_const.c2 * excess_sum
                    + spheroid_const.e2 * spheroid_const.a2 * correction_sum;
 
-            std::cout << "(result=" << result << ")";
-
             // If encircles some pole
             if(crosses_prime_meridian % 2 == 1)
             {
-                size_t times_crosses_prime_meridian
+                std::size_t times_crosses_prime_meridian
                         = 1 + (crosses_prime_meridian / 2);
 
-                result = 2.0
+                result = CT(2.0)
                          * geometry::math::pi<CT>()
                          * spheroid_const.c2
-                         * times_crosses_prime_meridian
-                         - std::abs(sum);
+                         * CT(times_crosses_prime_meridian)
+                         - geometry::math::abs(sum);
 
                 if(geometry::math::sign<CT>(sum) == 1)
                 {
@@ -141,15 +147,15 @@ protected :
 public :
     typedef CT return_type;
     typedef PointOfSegment segment_point_type;
-    typedef spheroid_param state_type;
+    typedef area_sums state_type;
 
-    inline geographic_area(SpheroidType spheroid)
+    inline geographic_area(SpheroidType spheroid = SpheroidType())
         :   spheroid_const(spheroid)
     {}
 
     inline void apply(PointOfSegment const& p1,
                 PointOfSegment const& p2,
-                spheroid_param& state) const
+                area_sums& state) const
     {
 
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
@@ -157,22 +163,27 @@ public :
 
             //Compute the trapezoidal area
             state.excess_sum += geometry::formula::geographic_area
-                                <CT>
-                                ::spherical_excess(p1, p2);
-
+                        <CT>
+                        ::template spherical_excess(p1, p2);
 
             state.correction_sum += geometry::formula::geographic_area
-               <CT>::template ellipsoidal_correction<AzimuthStrategy, 2>
-                    (p1, p2, spheroid_const);
+                        <CT, SeriesOrder>
+                        ::template ellipsoidal_correction
+                        <AzimuthStrategy>
+                        (p1, p2, spheroid_const);
+
+            //std::cout << "current excess=" << state.excess_sum
+            //             << " correction=" << state.correction_sum
+            //                << std::endl;
 
             // Keep track whenever a segment crosses the prime meridian
             geometry::formula::geographic_area
-                         <CT>
-                         ::crosses_prime_meridian(p1, p2, state);
+                        <CT>
+                        ::crosses_prime_meridian(p1, p2, state);
         }
     }
 
-    inline return_type result(spheroid_param const& state) const
+    inline return_type result(area_sums const& state) const
     {
         return state.area(spheroid_const);
     }
