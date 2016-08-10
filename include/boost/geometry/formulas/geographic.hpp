@@ -31,7 +31,7 @@ namespace boost { namespace geometry {
 namespace formula {
 
 template <typename Point3d, typename PointGeo, typename Spheroid>
-static inline Point3d geo_to_cart3d(PointGeo const& point_geo, Spheroid const& spheroid)
+inline Point3d geo_to_cart3d(PointGeo const& point_geo, Spheroid const& spheroid)
 {
     typedef typename coordinate_type<Point3d>::type calc_t;
 
@@ -57,7 +57,7 @@ static inline Point3d geo_to_cart3d(PointGeo const& point_geo, Spheroid const& s
 }
 
 template <typename PointGeo, typename Spheroid, typename Point3d>
-static inline void geo_to_cart3d(PointGeo const& point_geo, Point3d & result, Point3d & north, Point3d & east, Spheroid const& spheroid)
+inline void geo_to_cart3d(PointGeo const& point_geo, Point3d & result, Point3d & north, Point3d & east, Spheroid const& spheroid)
 {
     typedef typename coordinate_type<Point3d>::type calc_t;
 
@@ -90,7 +90,7 @@ static inline void geo_to_cart3d(PointGeo const& point_geo, Point3d & result, Po
 }
 
 template <typename PointGeo, typename Point3d, typename Spheroid>
-static inline PointGeo cart3d_to_geo(Point3d const& point_3d, Spheroid const& spheroid)
+inline PointGeo cart3d_to_geo(Point3d const& point_3d, Spheroid const& spheroid)
 {
     typedef typename coordinate_type<PointGeo>::type coord_t;
     typedef typename coordinate_type<Point3d>::type calc_t;
@@ -132,6 +132,32 @@ static inline PointGeo cart3d_to_geo(Point3d const& point_3d, Spheroid const& sp
 
     set<0>(res, lon);
     set<1>(res, lat);
+
+    return res;
+}
+
+template <typename Point3d, typename Spheroid>
+inline Point3d projected_to_xy(Point3d const& point_3d, Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;    
+    
+    // len_xy = sqrt(x^2 + y^2)
+    // r = len_xy - |z / tan(lat)|
+    // assuming h = 0
+    // lat = atan2(z, (1 - e^2) * len_xy);
+    // |z / tan(lat)| = (1 - e^2) * len_xy
+    // r = e^2 * len_xy
+    // x_res = r * cos(lon) = e^2 * len_xy * x / len_xy = e^2 * x
+    // y_res = r * sin(lon) = e^2 * len_xy * y / len_xy = e^2 * y
+    
+    coord_t const c0 = 0;
+    coord_t const e_sqr = bg::formula::eccentricity_sqr<coord_t>(spheroid);
+
+    Point3d res;
+
+    bg::set<0>(res, e_sqr * bg::get<0>(point_3d));
+    bg::set<1>(res, e_sqr * bg::get<1>(point_3d));
+    bg::set<2>(res, c0);
 
     return res;
 }
