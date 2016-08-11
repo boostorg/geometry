@@ -29,16 +29,16 @@ namespace boost { namespace geometry { namespace formula
 /*!
 \brief The intersection of two geodesics as proposed by Sjoberg.
 \author See
-    - Lars E. Sjoberg, Intersections on the sphere and ellipsoid, 2002
+    - [Sjoberg02] Lars E. Sjoberg, Intersections on the sphere and ellipsoid, 2002
       http://link.springer.com/article/10.1007/s00190-001-0230-9
-    - Lars E. Sjoberg, Geodetic intersection on the ellipsoid, 2007
+    - [Sjoberg07] Lars E. Sjoberg, Geodetic intersection on the ellipsoid, 2007
       http://link.springer.com/article/10.1007/s00190-007-0204-7
 */
 template
 <
     typename CT,
     template <typename, bool, bool, bool, bool, bool> class Inverse,
-    unsigned Order = 4
+    unsigned int Order = 4
 >
 class sjoberg_intersection
 {
@@ -149,7 +149,7 @@ public:
 
         // find the initial t using simplified spherical solution
         // though not entirely since the reduced latitudes and azimuths are spheroidal
-        // paper 2007
+        // [Sjoberg07]
         CT const k_base = lon1 - lon2 + asin_t2_t02 - asin_t1_t01;
         
         {
@@ -190,10 +190,10 @@ public:
             boost::ignore_unused(found);
         }
         
-        // paper 2007
+        // [Sjoberg07]
         //int const d2_sign = t_id < 2 ? -1 : 1;
         int const t_sign = (t_id % 2) ? -1 : 1;
-        // paper 2002
+        // [Sjoberg02]
         CT const C1_sqr = math::sqr(C1);
         CT const C2_sqr = math::sqr(C2);
         
@@ -210,7 +210,7 @@ public:
             dL1 = d_lambda_e_sqr(sin_beta1, sin_beta, C1, sqrt_1_C1_sqr, e_sqr);
             dL2 = d_lambda_e_sqr(sin_beta2, sin_beta, C2, sqrt_1_C2_sqr, e_sqr);
 
-            // paper 2007
+            // [Sjoberg07]
             /*CT const k = k_base + dL1 - dL2;
             CT const K = sin(k);
             CT const d1 = sqr_t01_sqr_t02;
@@ -224,7 +224,7 @@ public:
             CT const dbeta = math::abs(new_beta - beta);
             beta = new_beta;*/
 
-            // paper 2002 - it converges faster
+            // [Sjoberg02] - it converges faster
             // Newton–Raphson method
             asin_t_t01 = asin(t / t01);
             asin_t_t02 = asin(t / t02);
@@ -259,7 +259,7 @@ public:
     }
 
 private:
-    /*! Approximation of dLambda_j (paper 2007), expanded into taylor series in e^2
+    /*! Approximation of dLambda_j [Sjoberg07], expanded into taylor series in e^2
         Maxima script:
         dLI_j(c_j, sinB_j, sinB) := integrate(1 / (sqrt(1 - c_j ^ 2 - x ^ 2)*(1 + sqrt(1 - e2*(1 - x ^ 2)))), x, sinB_j, sinB);
         dL_j(c_j, B_j, B) := -e2 * c_j * dLI_j(c_j, B_j, B);
@@ -308,24 +308,37 @@ private:
             return -Cj * e_sqr * (L0 + e_sqr * L1);
         }
 
-        CT const E = Cj_sqr * (3 * Cj_sqr + 2) + 3;
+        CT const c3 = 3;
+        CT const c5 = 5;
+        CT const c128 = 128;
+
+        CT const E = Cj_sqr * (c3 * Cj_sqr + c2) + c3;
         CT const X_sqr = math::sqr(X);
         CT const Xj_sqr = math::sqr(Xj);
-        CT const F = X * (-2 * X_sqr + 3 * Cj_sqr + 5);
-        CT const Fj = Xj * (-2 * Xj_sqr + 3 * Cj_sqr + 5);
-        CT const L2 = (E * (asin_B - asin_Bj) + F * sqrt_Y - Fj * sqrt_Yj) / 128;
+        CT const F = X * (-c2 * X_sqr + c3 * Cj_sqr + c5);
+        CT const Fj = Xj * (-c2 * Xj_sqr + c3 * Cj_sqr + c5);
+        CT const L2 = (E * (asin_B - asin_Bj) + F * sqrt_Y - Fj * sqrt_Yj) / c128;
 
         if (Order == 3)
         {
             return -Cj * e_sqr * (L0 + e_sqr * (L1 + e_sqr * L2));
         }
 
-        CT const G = Cj_sqr * (Cj_sqr * (Cj_sqr * 15 + 9) + 9) + 15;
-        CT const H = -10 * Cj_sqr - 26;
-        CT const I = Cj_sqr * (Cj_sqr * 15 + 24) + 33;
-        CT const J = X_sqr * (X * (8 * X_sqr + H)) + X * I;
-        CT const Jj = Xj_sqr * (Xj * (8 * Xj_sqr + H)) + Xj * I;
-        CT const L3 = (G * (asin_B - asin_Bj) + J * sqrt_Y - Jj * sqrt_Yj) / 6144;
+        CT const c8 = 8;
+        CT const c9 = 9;
+        CT const c10 = 10;
+        CT const c15 = 15;
+        CT const c24 = 24;
+        CT const c26 = 26;
+        CT const c33 = 33;
+        CT const c6144 = 6144;
+
+        CT const G = Cj_sqr * (Cj_sqr * (Cj_sqr * c15 + c9) + c9) + c15;
+        CT const H = -c10 * Cj_sqr - c26;
+        CT const I = Cj_sqr * (Cj_sqr * c15 + c24) + c33;
+        CT const J = X_sqr * (X * (c8 * X_sqr + H)) + X * I;
+        CT const Jj = Xj_sqr * (Xj * (c8 * Xj_sqr + H)) + Xj * I;
+        CT const L3 = (G * (asin_B - asin_Bj) + J * sqrt_Y - Jj * sqrt_Yj) / c6144;
 
         // Order 4 and higher
         return -Cj * e_sqr * (L0 + e_sqr * (L1 + e_sqr * (L2 + e_sqr * L3)));

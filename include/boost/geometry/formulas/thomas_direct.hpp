@@ -127,7 +127,6 @@ public:
         CT const sigma1 = acos(cos_sigma1);
         CT const d = distance / (a * D);
         CT const u = 2 * (sigma1 - d);
-        CT const sin_sigma1 = sin(sigma1);
         CT const cos_d = cos(d);
         CT const sin_d = sin(d);
         CT const cos_u = cos(u);

@@ -29,7 +29,7 @@ template <
     typename CT,
     bool EnableReducedLength,
     bool EnableGeodesicScale,
-    unsigned Order = 2,
+    unsigned int Order = 2,
     bool ApproxF = true
 >
 class differential_quantities
@@ -60,12 +60,15 @@ public:
                              CT const& b, CT const& f,
                              CT & reduced_length, CT & geodesic_scale)
     {
-        CT const one_minus_f = 1 - f;
+        CT const c0 = 0;
+        CT const c1 = 1;
+        CT const one_minus_f = c1 - f;
+
         CT const sin_bet1 = one_minus_f * sin_lat1;
         CT const sin_bet2 = one_minus_f * sin_lat2;
             
         // equator
-        if (math::equals(sin_bet1, CT(0)) && math::equals(sin_bet2, CT(0)))
+        if (math::equals(sin_bet1, c0) && math::equals(sin_bet2, c0))
         {
             CT const sig_12 = math::abs(dlon) / one_minus_f;
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
@@ -82,7 +85,8 @@ public:
         }
         else
         {
-            CT const e2 = f * (2 - f);
+            CT const c2 = 2;
+            CT const e2 = f * (c2 - f);
             CT const ep2 = e2 / math::sqr(one_minus_f);
 
             CT const cos_bet1 = cos_lat1;
@@ -102,14 +106,14 @@ public:
             normalize(sin_sig2, cos_sig2);
 
             CT const sin_alp0 = sin_alp1 * cos_bet1;
-            CT const cos_alp0_sqr = 1 - math::sqr(sin_alp0);
+            CT const cos_alp0_sqr = c1 - math::sqr(sin_alp0);
 
             CT const J12 = BOOST_GEOMETRY_CONDITION(ApproxF) ?
                            J12_f(sin_sig1, cos_sig1, sin_sig2, cos_sig2, cos_alp0_sqr, f) :
                            J12_ep_sqr(sin_sig1, cos_sig1, sin_sig2, cos_sig2, cos_alp0_sqr, ep2) ;
 
-            CT const dn1 = math::sqrt(1 + e2 * math::sqr(sin_lat1));
-            CT const dn2 = math::sqrt(1 + e2 * math::sqr(sin_lat2));
+            CT const dn1 = math::sqrt(c1 + e2 * math::sqr(sin_lat1));
+            CT const dn2 = math::sqrt(c1 + e2 * math::sqr(sin_lat2));
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
             {
@@ -156,43 +160,59 @@ private:
             return 0;
         }
 
+        CT const c2 = 2;
+
         CT const sig_12 = atan2(cos_sig1 * sin_sig2 - sin_sig1 * cos_sig2,
                                 cos_sig1 * cos_sig2 + sin_sig1 * sin_sig2);
-        CT const sin_2sig1 = 2 * cos_sig1 * sin_sig1; // sin(2sig1)
-        CT const sin_2sig2 = 2 * cos_sig2 * sin_sig2; // sin(2sig2)
+        CT const sin_2sig1 = c2 * cos_sig1 * sin_sig1; // sin(2sig1)
+        CT const sin_2sig2 = c2 * cos_sig2 * sin_sig2; // sin(2sig2)
         CT const sin_2sig_12 = sin_2sig2 - sin_2sig1;
-        CT const L1 = sig_12 - sin_2sig_12 / 2;
+        CT const L1 = sig_12 - sin_2sig_12 / c2;
 
         if (Order == 1)
         {
             return cos_alp0_sqr * f * L1;
         }
         
-        CT const sin_4sig1 = 2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
-        CT const sin_4sig2 = 2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
+        CT const sin_4sig1 = c2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
+        CT const sin_4sig2 = c2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
         CT const sin_4sig_12 = sin_4sig2 - sin_4sig1;
         
+        CT const c8 = 8;
+        CT const c12 = 12;
+        CT const c16 = 16;
+        CT const c24 = 24;
+
         CT const L2 = -( cos_alp0_sqr * sin_4sig_12
-                         + (-8 * cos_alp0_sqr + 12) * sin_2sig_12
-                         + (12 * cos_alp0_sqr - 24) * sig_12)
-                       / 16;
+                         + (-c8 * cos_alp0_sqr + c12) * sin_2sig_12
+                         + (c12 * cos_alp0_sqr - c24) * sig_12)
+                       / c16;
 
         if (Order == 2)
         {
             return cos_alp0_sqr * f * (L1 + f * L2);
         }
 
+        CT const c4 = 4;
+        CT const c9 = 9;
+        CT const c48 = 48;
+        CT const c60 = 60;
+        CT const c64 = 64;
+        CT const c96 = 96;
+        CT const c128 = 128;
+        CT const c144 = 144;
+
         CT const cos_alp0_quad = math::sqr(cos_alp0_sqr);
         CT const sin3_2sig1 = math::sqr(sin_2sig1) * sin_2sig1;
         CT const sin3_2sig2 = math::sqr(sin_2sig2) * sin_2sig2;
         CT const sin3_2sig_12 = sin3_2sig2 - sin3_2sig1;
 
-        CT const A = (9 * cos_alp0_quad - 12 * cos_alp0_sqr) * sin_4sig_12;
-        CT const B = 4 * cos_alp0_quad * sin3_2sig_12;
-        CT const C = (-48 * cos_alp0_quad + 96 * cos_alp0_sqr - 64) * sin_2sig_12;
-        CT const D = (60 * cos_alp0_quad - 144 * cos_alp0_sqr + 128) * sig_12;
+        CT const A = (c9 * cos_alp0_quad - c12 * cos_alp0_sqr) * sin_4sig_12;
+        CT const B = c4 * cos_alp0_quad * sin3_2sig_12;
+        CT const C = (-c48 * cos_alp0_quad + c96 * cos_alp0_sqr - c64) * sin_2sig_12;
+        CT const D = (c60 * cos_alp0_quad - c144 * cos_alp0_sqr + c128) * sig_12;
 
-        CT const L3 = (A + B + C + D) / 64;
+        CT const L3 = (A + B + C + D) / c64;
 
         // Order 3 and higher
         return cos_alp0_sqr * f * (L1 + f * (L2 + f * L3));
@@ -219,26 +239,32 @@ private:
             return 0;
         }
 
+        CT const c2 = 2;
+        CT const c4 = 4;
+
         CT const c2a0ep2 = cos_alp0_sqr * ep_sqr;
 
         CT const sig_12 = atan2(cos_sig1 * sin_sig2 - sin_sig1 * cos_sig2,
                                 cos_sig1 * cos_sig2 + sin_sig1 * sin_sig2); // sig2 - sig1
-        CT const sin_2sig1 = 2 * cos_sig1 * sin_sig1; // sin(2sig1)
-        CT const sin_2sig2 = 2 * cos_sig2 * sin_sig2; // sin(2sig2)
+        CT const sin_2sig1 = c2 * cos_sig1 * sin_sig1; // sin(2sig1)
+        CT const sin_2sig2 = c2 * cos_sig2 * sin_sig2; // sin(2sig2)
         CT const sin_2sig_12 = sin_2sig2 - sin_2sig1;
 
-        CT const L1 = (2 * sig_12 - sin_2sig_12) / 4;
+        CT const L1 = (c2 * sig_12 - sin_2sig_12) / c4;
 
         if (Order == 1)
         {
             return c2a0ep2 * L1;
         }
+
+        CT const c8 = 8;
+        CT const c64 = 64;
         
-        CT const sin_4sig1 = 2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
-        CT const sin_4sig2 = 2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
+        CT const sin_4sig1 = c2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
+        CT const sin_4sig2 = c2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
         CT const sin_4sig_12 = sin_4sig2 - sin_4sig1;
         
-        CT const L2 = (sin_4sig_12 - 8 * sin_2sig_12 + 12 * sig_12) / 64;
+        CT const L2 = (sin_4sig_12 - c8 * sin_2sig_12 + 12 * sig_12) / c64;
 
         if (Order == 2)
         {
@@ -249,7 +275,12 @@ private:
         CT const sin3_2sig2 = math::sqr(sin_2sig2) * sin_2sig2;
         CT const sin3_2sig_12 = sin3_2sig2 - sin3_2sig1;
 
-        CT const L3 = (9 * sin_4sig_12 + 4 * sin3_2sig_12 - 48 * sin_2sig_12 + 60 * sig_12) / 512;
+        CT const c9 = 9;
+        CT const c48 = 48;
+        CT const c60 = 60;
+        CT const c512 = 512;
+
+        CT const L3 = (c9 * sin_4sig_12 + c4 * sin3_2sig_12 - c48 * sin_2sig_12 + c60 * sig_12) / c512;
 
         // Order 3 and higher
         return c2a0ep2 * (L1 + c2a0ep2 * (L2 + c2a0ep2 * L3));
@@ -257,9 +288,9 @@ private:
 
     static inline void normalize(CT & x, CT & y)
     {
-        CT const l = math::sqrt(math::sqr(x) + math::sqr(y));
-        x /= l;
-        y /= l;
+        CT const len = math::sqrt(math::sqr(x) + math::sqr(y));
+        x /= len;
+        y /= len;
     }
 };
 

@@ -130,10 +130,7 @@ public:
                 // T = inf
                 // dA = inf
                 // azimuth = -inf
-                if (lat1 <= lat2)
-                    result.azimuth = c0;
-                else
-                    result.azimuth = pi;
+                result.azimuth = lat1 <= lat2 ? c0 : pi;
             }
             else
             {
@@ -210,13 +207,17 @@ private:
             if (dA >= c0) // A altered towards 0
             {
                 if (azimuth < c0)
+                {
                     azimuth = c0;
+                }
             }
             else // dA < 0, A altered towards pi
             {
                 CT const pi = math::pi<CT>();
                 if (azimuth > pi)
+                {
                     azimuth = pi;
+                }
             }
         }
         else // A indicates Western hemisphere
@@ -224,13 +225,17 @@ private:
             if (dA <= c0) // A altered towards 0
             {
                 if (azimuth > c0)
+                {
                     azimuth = c0;
+                }
             }
             else // dA > 0, A altered towards -pi
             {
                 CT const minus_pi = -math::pi<CT>();
                 if (azimuth < minus_pi)
+                {
                     azimuth = minus_pi;
+                }
             }
         }
     }
