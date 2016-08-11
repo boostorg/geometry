@@ -447,6 +447,6 @@ expected_results expected[] =
     }
 };
 
-size_t expected_size = sizeof(expected) / sizeof(expected_results);
+size_t const expected_size = sizeof(expected) / sizeof(expected_results);
 
 #endif // BOOST_GEOMETRY_TEST_DIRECT_CASES_HPP
