@@ -32,9 +32,10 @@ namespace boost { namespace geometry { namespace formula
     - GeographicLib forum thread: Intersection between two geodesic lines
       https://sourceforge.net/p/geographiclib/discussion/1026621/thread/21aaff9f/
 */
-template <
+template
+<
     typename CT,
-    template <typename, bool, bool, bool, bool ,bool> class Inverse,
+    template <typename, bool, bool, bool, bool, bool> class Inverse,
     template <typename, bool, bool, bool, bool> class Direct
 >
 class gnomonic_intersection

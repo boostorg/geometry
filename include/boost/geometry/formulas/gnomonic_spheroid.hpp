@@ -55,13 +55,15 @@ public:
                                Spheroid const& spheroid)
     {
         inverse_result i_res = inverse_type::apply(lon0, lat0, lon, lat, spheroid);
+        CT const& m = i_res.reduced_length;
+        CT const& M = i_res.geodesic_scale;
 
-        if (math::smaller_or_equals(i_res.geodesic_scale, CT(0)))
+        if (math::smaller_or_equals(M, CT(0)))
         {
             return false;
         }
 
-        CT rho = i_res.reduced_length / i_res.geodesic_scale;
+        CT rho = m / M;
         x = sin(i_res.azimuth) * rho;
         y = cos(i_res.azimuth) * rho;
         
@@ -87,6 +89,12 @@ public:
             direct_result d_res = direct_quantities_type::apply(lon0, lat0, distance, azimuth, spheroid);
             CT const& m = d_res.reduced_length;
             CT const& M = d_res.geodesic_scale;
+
+            if (math::smaller_or_equals(M, CT(0)))
+            {
+                // found = false;
+                return found;
+            }
             
             CT const drho = m / M - rho; // rho = m / M
             CT const ds = drho * math::sqr(M); // drho/ds = 1/M^2
