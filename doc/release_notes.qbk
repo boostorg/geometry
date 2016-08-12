@@ -32,6 +32,7 @@
 
 * [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different
 * [@https://svn.boost.org/trac/boost/ticket/12287 12287] Invalid result of rtree.query() for contains() predicate
+* [@https://svn.boost.org/trac/boost/ticket/12289 12289] Avoid warning/compilation error for std::cout
 
 [/=================]
 [heading Boost 1.61]
