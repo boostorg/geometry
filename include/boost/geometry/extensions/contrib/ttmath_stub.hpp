@@ -36,6 +36,15 @@ namespace ttmath
     }
 
     template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> pow(Big<Exponent, Mantissa> const& v,
+                                       int n)
+    {
+        Big<Exponent, Mantissa> tmp(v);
+        tmp.Pow(n);
+        return tmp;
+    }
+
+    template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> abs(Big<Exponent, Mantissa> const& v)
     {
         return Abs(v);

@@ -116,8 +116,6 @@ protected :
         {
             calculation_type result;
 
-            std::cout << "(sum=" << sum << ")";
-
             // Encircles pole
             if((crosses_prime_meridian % 2 == 1 && south) || south_vertex)
             {
@@ -219,7 +217,7 @@ public :
             {
                 excess = -excess;
             }
-
+/*
             // Keep track whenever a segment crosses the prime meridian
             // First normalize to [0,360)
             //TODO: compress with trapezoidal strategy
@@ -257,18 +255,18 @@ public :
                     state.south = false;
                 }
             }
-
+*/
             state.sum += excess;
 
-            std::cout << "(width=" << max_lon-min_lon << ")";
+            //std::cout << "(width=" << max_lon-min_lon << ")";
 
         }
     }
 
     inline return_type result(excess_sum const& state) const
     {
-        std::cout << "(pole=" << state.crosses_prime_meridian << ")";
-        std::cout<<"(W="<<state.max_lon - state.min_lon<<")";
+        //std::cout << "(pole=" << state.crosses_prime_meridian << ")";
+        //std::cout<<"(W="<<state.max_lon - state.min_lon<<")";
         //std::cout << "(south=" << state.south << ")";
         return state.area(m_radius);
     }

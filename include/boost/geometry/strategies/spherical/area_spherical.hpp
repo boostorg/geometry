@@ -7,13 +7,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_TRAPEZOIDAL_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_TRAPEZOIDAL_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 
-
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/formulas/geographic_area.hpp>
+#include <boost/geometry/formulas/area_formulas.hpp>
 
 namespace boost { namespace geometry
 {
@@ -21,10 +18,8 @@ namespace boost { namespace geometry
 namespace strategy { namespace area
 {
 
-
-
 /*!
-\brief Area calculation by trapezoidal rule
+\brief Spherical area calculation by trapezoidal rule
 
 }
 
@@ -34,7 +29,7 @@ template
     typename PointOfSegment,
     typename CalculationType = void
 >
-class trapezoidal
+class area_spherical
 {
 typedef typename boost::mpl::if_c
     <
@@ -50,39 +45,37 @@ typedef typename boost::mpl::if_c
 protected :
     struct excess_sum
     {
-        CT sum;
+        CT m_sum;
 
         // Keep track if encircles some pole
-        size_t crosses_prime_meridian;
+        size_t m_crosses_prime_meridian;
 
         inline excess_sum()
-            : sum(0)
-            , crosses_prime_meridian(0)
+            : m_sum(0)
+            , m_crosses_prime_meridian(0)
         {}
         inline CT area(CT radius) const
         {
             CT result;
 
-            std::cout << "(sum=" << sum << ")";
-
             // Encircles pole
-            if(crosses_prime_meridian % 2 == 1)
+            if(m_crosses_prime_meridian % 2 == 1)
             {
                 size_t times_crosses_prime_meridian
-                        = 1 + (crosses_prime_meridian / 2);
+                        = 1 + (m_crosses_prime_meridian / 2);
 
-                result = 2.0
+                result = CT(2)
                          * geometry::math::pi<CT>()
                          * times_crosses_prime_meridian
-                         - std::abs(sum);
+                         - geometry::math::abs(m_sum);
 
-                if(geometry::math::sign<CT>(sum) == 1)
+                if(geometry::math::sign<CT>(m_sum) == 1)
                 {
                     result = - result;
                 }
 
             } else {
-                result =  sum;
+                result =  m_sum;
             }
 
             result *= radius * radius;
@@ -96,7 +89,7 @@ public :
     typedef PointOfSegment segment_point_type;
     typedef excess_sum state_type;
 
-    inline trapezoidal(CT radius = 1.0)
+    inline area_spherical(CT radius = 1.0)
         : m_radius(radius)
     {}
 
@@ -107,21 +100,19 @@ public :
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
 
-            state.sum += geometry::formula::geographic_area
-                                <CT>
-                                ::spherical_excess(p1, p2);
+            state.m_sum += geometry::formula::area_formulas
+                             <CT>::spherical_excess(p1, p2);
 
             // Keep track whenever a segment crosses the prime meridian
-            geometry::formula::geographic_area
-                         <CT>
-                         ::crosses_prime_meridian(p1, p2, state);
+            geometry::formula::area_formulas
+                         <CT>::crosses_prime_meridian(p1, p2, state);
 
         }
     }
 
     inline return_type result(excess_sum const& state) const
     {
-        std::cout << "(tpole=" << state.crosses_prime_meridian << ")";
+        //std::cout << "(tpole=" << state.crosses_prime_meridian << ")";
         return state.area(m_radius);
     }
 
@@ -139,14 +130,14 @@ namespace services
 template <typename Point>
 struct default_strategy<spherical_equatorial_tag, Point>
 {
-    typedef strategy::area::trapezoidal<Point> type;
+    typedef strategy::area::area_spherical<Point> type;
 };
 
 // Note: spherical polar coordinate system requires "get_as_radian_equatorial"
 /***template <typename Point>
 struct default_strategy<spherical_polar_tag, Point>
 {
-    typedef strategy::area::trapezoidal<Point> type;
+    typedef strategy::area::area_spherical<Point> type;
 };***/
 
 } // namespace services
@@ -161,4 +152,4 @@ struct default_strategy<spherical_polar_tag, Point>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_TRAPEZOIDAL_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP

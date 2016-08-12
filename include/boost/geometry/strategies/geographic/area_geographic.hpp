@@ -7,13 +7,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP
 
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/formulas/geographic_area.hpp>
-#include <boost/math/special_functions/atanh.hpp>
+#include <boost/geometry/formulas/area_formulas.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
+//#include <boost/math/special_functions/atanh.hpp>
 
 namespace boost { namespace geometry
 {
@@ -22,7 +21,8 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Area calculation by trapezoidal rule plus ellipsoidal correction
+\brief Geographic area calculation by trapezoidal rule plus integral
+approximation that gives the ellipsoidal correction
 
 }
 
@@ -33,10 +33,11 @@ template
     typename PointOfSegment,
     typename Strategy = void,
     const std::size_t SeriesOrder = 2,
+    bool ExpandEpsN = true,
     typename Spheroid = void,
     typename CalculationType = void
 >
-class geographic_area
+class area_geographic
 {
 
     //Select default types for Strategy, Spheroid and CalculationType
@@ -76,58 +77,55 @@ class geographic_area
 protected :
     struct spheroid_constants
     {
-        SpheroidType spheroid;
-        CT const a2;  // squared equatorial radius
-        CT const e2;  // squared eccentricity
-        CT const ep2; // squared second eccentricity
-        CT const ep;  // second eccentricity
-        CT const c2;  // authalic radius
+        SpheroidType m_spheroid;
+        CT const m_a2;  // squared equatorial radius
+        CT const m_e2;  // squared eccentricity
+        CT const m_ep2; // squared second eccentricity
+        CT const m_ep;  // second eccentricity
+        CT const m_c2;  // authalic radius
 
         inline spheroid_constants(SpheroidType spheroid)
-            : spheroid(spheroid)
-            , a2(math::sqr(get_radius<0>(spheroid)))
-            , e2(detail::flattening<CT>(spheroid)
+            : m_spheroid(spheroid)
+            , m_a2(math::sqr(get_radius<0>(spheroid)))
+            , m_e2(detail::flattening<CT>(spheroid)
                  * (CT(2.0) - CT(detail::flattening<CT>(spheroid))))
-            , ep2(e2 / (CT(1.0) - e2))
-            , ep(math::sqrt(ep2))
-            , c2((a2 / CT(2.0)) +
-              ((math::sqr(get_radius<2>(spheroid))
-//                  * 1)
-                * atanh(math::sqrt(e2)))
-//                  * std::atanh(math::sqrt(e2)))
-              / (CT(2.0) * math::sqrt(e2))))
+            , m_ep2(m_e2 / (CT(1.0) - m_e2))
+            , m_ep(math::sqrt(m_ep2))
+            , m_c2((m_a2 / CT(2.0)) +
+              ((math::sqr(get_radius<2>(spheroid)) * atanh(math::sqrt(m_e2)))
+               / (CT(2.0) * math::sqrt(m_e2))))
         {}
     };
 
     struct area_sums
     {
-        CT excess_sum;
-        CT correction_sum;
+        CT m_excess_sum;
+        CT m_correction_sum;
 
         // Keep track if encircles some pole
-        std::size_t crosses_prime_meridian;
+        std::size_t m_crosses_prime_meridian;
 
         inline area_sums()
-            : excess_sum(0)
-            , correction_sum(0)
-            , crosses_prime_meridian(0)
+            : m_excess_sum(0)
+            , m_correction_sum(0)
+            , m_crosses_prime_meridian(0)
         {}
         inline CT area(spheroid_constants spheroid_const) const
         {
             CT result;
 
-            CT sum = spheroid_const.c2 * excess_sum
-                   + spheroid_const.e2 * spheroid_const.a2 * correction_sum;
+            CT sum = spheroid_const.m_c2 * m_excess_sum
+                   + spheroid_const.m_e2 * spheroid_const.m_a2 * m_correction_sum;
 
             // If encircles some pole
-            if(crosses_prime_meridian % 2 == 1)
+            if(m_crosses_prime_meridian % 2 == 1)
             {
                 std::size_t times_crosses_prime_meridian
-                        = 1 + (crosses_prime_meridian / 2);
+                        = 1 + (m_crosses_prime_meridian / 2);
 
                 result = CT(2.0)
                          * geometry::math::pi<CT>()
-                         * spheroid_const.c2
+                         * spheroid_const.m_c2
                          * CT(times_crosses_prime_meridian)
                          - geometry::math::abs(sum);
 
@@ -149,7 +147,7 @@ public :
     typedef PointOfSegment segment_point_type;
     typedef area_sums state_type;
 
-    inline geographic_area(SpheroidType spheroid = SpheroidType())
+    inline area_geographic(SpheroidType spheroid = SpheroidType())
         :   spheroid_const(spheroid)
     {}
 
@@ -162,24 +160,18 @@ public :
         {
 
             //Compute the trapezoidal area
-            state.excess_sum += geometry::formula::geographic_area
-                        <CT>
-                        ::template spherical_excess(p1, p2);
+            state.m_excess_sum += geometry::formula::area_formulas
+                                    <CT>::spherical_excess(p1, p2);
 
-            state.correction_sum += geometry::formula::geographic_area
-                        <CT, SeriesOrder>
-                        ::template ellipsoidal_correction
-                        <AzimuthStrategy>
-                        (p1, p2, spheroid_const);
-
-            //std::cout << "current excess=" << state.excess_sum
-            //             << " correction=" << state.correction_sum
-            //                << std::endl;
+            state.m_correction_sum += geometry::formula::area_formulas
+                                    <CT, SeriesOrder, ExpandEpsN>
+                                    ::template ellipsoidal_correction
+                                    <AzimuthStrategy>
+                                    (p1, p2, spheroid_const);
 
             // Keep track whenever a segment crosses the prime meridian
-            geometry::formula::geographic_area
-                        <CT>
-                        ::crosses_prime_meridian(p1, p2, state);
+            geometry::formula::area_formulas<CT>
+                    ::crosses_prime_meridian(p1, p2, state);
         }
     }
 
@@ -202,7 +194,7 @@ namespace services
 template <typename Point>
 struct default_strategy<geographic_tag, Point>
 {
-    typedef strategy::area::geographic_area<Point> type;
+    typedef strategy::area::area_geographic<Point> type;
 };
 
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -216,4 +208,4 @@ struct default_strategy<geographic_tag, Point>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP

@@ -98,7 +98,7 @@ void test_spherical(bool polar = false)
     BOOST_CHECK_CLOSE(area, expected, 0.0001);
 
     // With strategy, radius 2 -> 4 pi r^2
-    bg::strategy::area::huiller
+    bg::strategy::area::area_spherical
         <
             typename bg::point_type<Point>::type
         > strategy(2.0);
@@ -109,7 +109,7 @@ void test_spherical(bool polar = false)
 
     // Wrangel Island (dateline crossing)
     // With (spherical) Earth strategy
-    bg::strategy::area::huiller
+    bg::strategy::area::area_spherical
         <
             typename bg::point_type<Point>::type
         > spherical_earth(6373);
@@ -226,7 +226,6 @@ void test_spherical(bool polar = false)
         BOOST_CHECK_CLOSE(area1, 0.0305, 0.001);
     }
     // around poles
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
     {
         bg::read_wkt("POLYGON((0 80,-90 80,-180 80,90 80,0 80))", geometry);
         ct area1 = bg::area(geometry);
@@ -240,7 +239,6 @@ void test_spherical(bool polar = false)
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
     }
-#endif
 
     {
         bg::model::ring<Point> aurha; // a'dam-utr-rott.-den haag-a'dam
@@ -254,11 +252,11 @@ void test_spherical(bool polar = false)
             }
             bg::correct(aurha);
         }
-        bg::strategy::area::huiller
+        bg::strategy::area::area_spherical
             <
                 typename bg::point_type<Point>::type
-            > huiller(6372.795);
-        area = bg::area(aurha, huiller);
+            > area_spherical(6372.795);
+        area = bg::area(aurha, area_spherical);
         BOOST_CHECK_CLOSE(area, 1476.645675, 0.0001);
 
         // SQL Server gives: 1481.55595960659
