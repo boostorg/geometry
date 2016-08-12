@@ -110,7 +110,7 @@ struct traversal_switch_detector
         for (set_iterator sit = ring_turn_indices.begin();
              sit != ring_turn_indices.end(); ++sit)
         {
-            int const turn_index = *sit;
+            signed_size_type const turn_index = *sit;
             turn_type const& turn = m_turns[turn_index];
             if (! connects_same_zone(turn))
             {

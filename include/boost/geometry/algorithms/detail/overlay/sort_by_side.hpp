@@ -39,7 +39,7 @@ struct ranked_point
         , operation(operation_none)
     {}
 
-    ranked_point(const Point& p, signed_size_type ti, signed_size_type oi,
+    ranked_point(const Point& p, signed_size_type ti, int oi,
                  direction_type d, operation_type op, segment_identifier sid)
         : point(p)
         , rank(0)
@@ -57,7 +57,7 @@ struct ranked_point
     std::size_t rank;
     signed_size_type zone; // index of closed zone, in uu turn there would be 2 zones
     signed_size_type turn_index;
-    signed_size_type operation_index;
+    int operation_index; // 0,1
     direction_type direction;
     std::size_t count_left;
     std::size_t count_right;
@@ -303,7 +303,7 @@ struct side_sorter
             return;
         }
 
-        int const last = 1 + m_ranked_points.back().rank;
+        std::size_t const last = 1 + m_ranked_points.back().rank;
 
         // Move iterator after rank==0
         bool has_first = false;
