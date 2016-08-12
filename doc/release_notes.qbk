@@ -24,6 +24,7 @@
 
 [*Improvements]
 
+* Union: take care that output is valid (with some exceptions), also with self-tangent polygons or shared edges
 * SVG: support boost::variant of geometries
 * SVG: coordinates are now written as double (by default) to svg
 * Rename namespace concept to concepts to avoid conflicts with the newest compilers
