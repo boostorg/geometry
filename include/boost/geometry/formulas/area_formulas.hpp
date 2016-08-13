@@ -372,6 +372,14 @@ public:
         return excess;
     }
 
+    template<typename T>
+    static inline void normalize(T& x, T& y)
+    {
+        T h = hypot(x, y);
+        x /= h;
+        y /= h;
+    }
+
     /*
         Compute the ellipsoidal correction of a geodesic (or shperical) segment
     */
@@ -410,16 +418,23 @@ public:
         //TODO: do it faster
         CT cos_bet1 = cos(atan(tan(get_as_radian<1>(p1)) * (1 - f)));
         CT cos_bet2 = cos(atan(tan(get_as_radian<1>(p2)) * (1 - f)));
+        CT sin_bet1 = sin(atan(tan(get_as_radian<1>(p1)) * (1 - f)));
+        CT sin_bet2 = sin(atan(tan(get_as_radian<1>(p2)) * (1 - f)));
         CT sin_alp1 = sin(alp1);
         CT cos_alp1 = cos(alp1);
         CT cos_alp2 = cos(alp2);
         CT sin_alp0 = sin_alp1 * cos_bet1;
         CT cos_alp0 = math::sqrt(CT(1) - math::sqr(sin_alp0));
-        //cos_alp0 = hypot(cos_alp2, sin(alp2) * sin_bet2);
+        //CT cos_alp0 = hypot(cos_alp2, sin(alp2) * sin_bet2);
         CT cos_sig1 = cos_alp1 * cos_bet1;
         CT cos_sig2 = cos_alp2 * cos_bet2;
+        CT sin_sig1 = sin_bet1;
+        CT sin_sig2 = sin_bet2;
 
-        CT coeffs[SeriesOrder + 1];;
+        normalize(sin_sig1, cos_sig1);
+        normalize(sin_sig2, cos_sig2);
+
+        CT coeffs[SeriesOrder + 1];
         const std::size_t coeffs_var_size = ((SeriesOrder + 2)
                                           * (SeriesOrder + 1)) / 2;
         CT coeffs_var[coeffs_var_size];
