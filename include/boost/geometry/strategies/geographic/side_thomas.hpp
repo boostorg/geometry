@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_THOMAS_HPP
 
 
-#include <boost/geometry/algorithms/detail/thomas_inverse.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
 
 #include <boost/geometry/strategies/geographic/side_detail.hpp>
 
@@ -36,9 +36,9 @@ namespace strategy { namespace side
  */
 template <typename Model, typename CalculationType = void>
 class thomas
-    : public detail::by_azimuth<geometry::detail::thomas_inverse, Model, CalculationType>
+    : public detail::by_azimuth<geometry::formula::thomas_inverse, Model, CalculationType>
 {
-    typedef detail::by_azimuth<geometry::detail::thomas_inverse, Model, CalculationType> base_t;
+    typedef detail::by_azimuth<geometry::formula::thomas_inverse, Model, CalculationType> base_t;
 
 public:
     thomas(Model const& model = Model())

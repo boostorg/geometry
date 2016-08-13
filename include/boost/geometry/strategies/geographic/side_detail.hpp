@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -46,7 +46,7 @@ namespace detail
 \tparam Model Reference model of coordinate system.
 \tparam CalculationType \tparam_calculation
  */
-template <template<typename, bool, bool> class InverseFormula,
+template <template<typename, bool, bool, bool, bool, bool> class InverseFormula,
           typename Model,
           typename CalculationType = void>
 class by_azimuth
@@ -68,7 +68,7 @@ public:
                     >::type
             >::type calc_t;
 
-        typedef InverseFormula<calc_t, false, true> inverse_formula;
+        typedef InverseFormula<calc_t, false, true, false, false, false> inverse_formula;
 
         calc_t a1p = azimuth<calc_t, inverse_formula>(p1, p, m_model);
         calc_t a12 = azimuth<calc_t, inverse_formula>(p1, p2, m_model);

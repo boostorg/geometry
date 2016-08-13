@@ -20,8 +20,9 @@
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
 
-#include <boost/geometry/algorithms/detail/andoyer_inverse.hpp>
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+
+#include <boost/geometry/formulas/andoyer_inverse.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -89,7 +90,7 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return geometry::detail::andoyer_inverse
+        return geometry::formula::andoyer_inverse
             <
                 typename calculation_type<Point1, Point2>::type,
                 true, false
