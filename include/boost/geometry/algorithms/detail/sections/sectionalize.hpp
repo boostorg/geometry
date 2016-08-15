@@ -822,7 +822,7 @@ inline void sectionalize(Geometry const& geometry,
                 int source_index = 0,
                 std::size_t max_count = 10)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     typedef typename boost::range_value<Sections>::type section_type;
 

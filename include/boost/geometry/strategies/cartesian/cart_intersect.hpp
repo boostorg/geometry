@@ -182,8 +182,8 @@ struct relate_cartesian_segments
             RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
             RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
     {
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
 
         using geometry::detail::equals::equals_point_point;
         bool const a_is_point = equals_point_point(robust_a1, robust_a2);

@@ -199,8 +199,8 @@ struct relate
                              Geometry2 const& geometry2,
                              Mask const& mask)
     {
-        concept::check<Geometry1 const>();
-        concept::check<Geometry2 const>();
+        concepts::check<Geometry1 const>();
+        concepts::check<Geometry2 const>();
         assert_dimension_equal<Geometry1, Geometry2>();
 
         typename detail::relate::result_handler_type

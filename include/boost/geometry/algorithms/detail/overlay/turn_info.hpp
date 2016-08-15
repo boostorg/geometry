@@ -13,7 +13,9 @@
 #include <boost/array.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -21,18 +23,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-
-enum operation_type
-{
-    operation_none,
-    operation_union,
-    operation_intersection,
-    operation_blocked,
-    operation_continue,
-    operation_opposite
-};
-
 
 enum method_type
 {
@@ -99,7 +89,7 @@ struct turn_info
 
     Point point;
     method_type method;
-    int cluster_id;
+    signed_size_type cluster_id;
     bool discarded;
     bool colocated;
     bool switch_source; // For u/u turns which can either switch or not

@@ -510,7 +510,7 @@ void test_all()
     // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 697.7798, 2.5, -999, false);
-    test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 1470.8096, 8.4, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 1470.8096, 8.4, -999, false, 0.02); // qcc-arm reports 1470.79863681712281
 
     test_one<polygon_type, polygon_type>("ticket_10398_2_45", ticket_10398_2, join_miter, end_flat, 535.4780, 4.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_2_62", ticket_10398_2, join_miter, end_flat, 705.2046, 6.2, -999, false);

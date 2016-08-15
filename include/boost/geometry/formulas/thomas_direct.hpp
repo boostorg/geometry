@@ -85,16 +85,23 @@ public:
         CT const f = detail::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
 
-        CT const pi_half = math::pi<CT>() / c2;
+        CT const pi = math::pi<CT>();
+        CT const pi_half = pi / c2;
 
-        CT const theta1 = math::equals(lat1, pi_half) ? lat1 :
-                          math::equals(lat1, -pi_half) ? lat1 :
-                          atan(one_minus_f * tan(lat1));
+        // keep azimuth small - experiments show low accuracy
+        // if the azimuth is closer to (+-)180 deg.
+        CT azi12_alt = azimuth12;
+        CT lat1_alt = lat1;
+        bool alter_result = vflip_if_south(lat1, azimuth12, lat1_alt, azi12_alt);
+        
+        CT const theta1 = math::equals(lat1_alt, pi_half) ? lat1_alt :
+                          math::equals(lat1_alt, -pi_half) ? lat1_alt :
+                          atan(one_minus_f * tan(lat1_alt));
         CT const sin_theta1 = sin(theta1);
         CT const cos_theta1 = cos(theta1);
 
-        CT const sin_a12 = sin(azimuth12);
-        CT const cos_a12 = cos(azimuth12);
+        CT const sin_a12 = sin(azi12_alt);
+        CT const cos_a12 = cos(azi12_alt);
 
         CT const M = cos_theta1 * sin_a12; // cos_theta0
         CT const theta0 = acos(M);
@@ -106,11 +113,20 @@ public:
         CT const D = (c1 - C2) * (c1 - C2 - C1 * M);
         CT const P = C2 * (c1 + C1 * M / c2) / D;
 
-        CT const cos_sigma1 = sin_theta1 / sin_theta0;
+        // special case for equator:
+        // sin_theta0 = 0 <=> lat1 = 0 ^ |azimuth12| = pi/2
+        // NOTE: in this case it doesn't matter what's the value of cos_sigma1 because
+        //       theta1=0, theta0=0, M=1|-1, C2=0 so X=0 and Y=0 so d_sigma=d
+        //       cos_a12=0 so N=0, therefore
+        //       lat2=0, azi21=pi/2|-pi/2
+        //       d_eta = atan2(sin_d_sigma, cos_d_sigma)
+        //       H = C1 * d_sigma
+        CT const cos_sigma1 = math::equals(sin_theta0, c0)
+                                ? c1
+                                : normalized1_1(sin_theta1 / sin_theta0);
         CT const sigma1 = acos(cos_sigma1);
         CT const d = distance / (a * D);
         CT const u = 2 * (sigma1 - d);
-        CT const sin_sigma1 = sin(sigma1);
         CT const cos_d = cos(d);
         CT const sin_d = sin(d);
         CT const cos_u = cos(u);
@@ -127,17 +143,15 @@ public:
         if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
         {
             result.reverse_azimuth = atan2(M, N * cos_d_sigma - sin_theta1 * sin_d_sigma);
+
+            if (alter_result)
+            {
+                vflip_rev_azi(result.reverse_azimuth, azimuth12);
+            }
         }
 
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
-            CT const sin_a21 = sin(result.reverse_azimuth);
-            CT const cos_a21 = cos(result.reverse_azimuth);
-
-            CT const tan_lat2 = (sin_theta1 * cos_d_sigma + N * sin_d_sigma) * sin_a21 / (one_minus_f * M);
-
-            result.lat2 = atan(tan_lat2);
-
             CT const S_sigma = c2 * sigma1 - d_sigma;
             CT const cos_S_sigma = cos(S_sigma);
             CT const d_eta = atan2(sin_d_sigma * sin_a12, cos_theta1 * cos_d_sigma - sin_theta1 * sin_d_sigma * cos_a12);
@@ -145,21 +159,88 @@ public:
             CT const d_lambda = d_eta - H;
             
             result.lon2 = lon1 + d_lambda;
+
+            if (! math::equals(M, c0))
+            {
+                CT const sin_a21 = sin(result.reverse_azimuth);
+                CT const tan_theta2 = (sin_theta1 * cos_d_sigma + N * sin_d_sigma) * sin_a21 / M;
+                result.lat2 = atan(tan_theta2 / one_minus_f);
+            }
+            else
+            {
+                CT const sigma2 = S_sigma - sigma1;
+                //theta2 = asin(cos(sigma2)) <=> sin_theta0 = 1
+                CT const tan_theta2 = cos(sigma2) / sin(sigma2);
+                result.lat2 = atan(tan_theta2 / one_minus_f);
+            }
+
+            if (alter_result)
+            {
+                result.lat2 = -result.lat2;
+            }
         }        
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, result.lon2, result.lat2,
                               azimuth12, result.reverse_azimuth,
                               b, f,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f2);
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;
     }
 
+private:
+    static inline bool vflip_if_south(CT const& lat1, CT const& azi12, CT & lat1_alt, CT & azi12_alt)
+    {
+        CT const c2 = 2;
+        CT const pi = math::pi<CT>();
+        CT const pi_half = pi / c2;
+
+        if (azi12 > pi_half)
+        {
+            azi12_alt = pi - azi12;
+            lat1_alt = -lat1;
+            return true;
+        }
+        else if (azi12 < -pi_half)
+        {
+            azi12_alt = -pi - azi12;
+            lat1_alt = -lat1;
+            return true;
+        }
+
+        return false;
+    }
+
+    static inline void vflip_rev_azi(CT & rev_azi, CT const& azimuth12)
+    {
+        CT const c0 = 0;
+        CT const pi = math::pi<CT>();
+
+        if (rev_azi == c0)
+        {
+            rev_azi = azimuth12 >= 0 ? pi : -pi;
+        }
+        else if (rev_azi > c0)
+        {
+            rev_azi = pi - rev_azi;
+        }
+        else
+        {
+            rev_azi = -pi - rev_azi;
+        }
+    }
+
+    static inline CT normalized1_1(CT const& value)
+    {
+        CT const c1 = 1;
+        return value > c1 ? c1 :
+               value < -c1 ? -c1 :
+               value;
+    }
 };
 
 }}} // namespace boost::geometry::formula

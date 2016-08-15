@@ -163,9 +163,14 @@ public:
             CT const F = c2*Y-E*(c4-X);
             CT const M = CT(32)*T-(CT(20)*T-A)*X-(B+c4)*Y;
             CT const G = f*T/c2 + f_sqr_per_64 * M;
+            
+            // TODO:
+            // If d_lambda is close to 90 or -90 deg then tan(d_lambda) is big
+            // and F is small. The result is not accurate.
+            // In the edge case the result may be 2 orders of magnitude less
+            // accurate than Andoyer's.
             CT const tan_d_lambda = tan(d_lambda);
             CT const Q = -(F*G*tan_d_lambda) / c4;
-
             CT const d_lambda_m_p = (d_lambda + Q) / c2;
             CT const tan_d_lambda_m_p = tan(d_lambda_m_p);
 
@@ -199,12 +204,11 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, lon2, lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f2);
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;

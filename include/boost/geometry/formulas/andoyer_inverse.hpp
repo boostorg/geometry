@@ -130,10 +130,7 @@ public:
                 // T = inf
                 // dA = inf
                 // azimuth = -inf
-                if (lat1 <= lat2)
-                    result.azimuth = c0;
-                else
-                    result.azimuth = pi;
+                result.azimuth = lat1 <= lat2 ? c0 : pi;
             }
             else
             {
@@ -188,19 +185,16 @@ public:
             }
         }
 
-
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 1> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
                               get_radius<2>(spheroid), f,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f1);
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;
-
     }
 
 private:
@@ -213,13 +207,17 @@ private:
             if (dA >= c0) // A altered towards 0
             {
                 if (azimuth < c0)
+                {
                     azimuth = c0;
+                }
             }
             else // dA < 0, A altered towards pi
             {
                 CT const pi = math::pi<CT>();
                 if (azimuth > pi)
+                {
                     azimuth = pi;
+                }
             }
         }
         else // A indicates Western hemisphere
@@ -227,13 +225,17 @@ private:
             if (dA <= c0) // A altered towards 0
             {
                 if (azimuth > c0)
+                {
                     azimuth = c0;
+                }
             }
             else // dA > 0, A altered towards -pi
             {
                 CT const minus_pi = -math::pi<CT>();
                 if (azimuth < minus_pi)
+                {
                     azimuth = minus_pi;
+                }
             }
         }
     }

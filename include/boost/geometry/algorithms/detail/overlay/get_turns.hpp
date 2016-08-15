@@ -972,7 +972,7 @@ inline void get_turns(Geometry1 const& geometry1,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
 {
-    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
+    concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
     typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
     //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;

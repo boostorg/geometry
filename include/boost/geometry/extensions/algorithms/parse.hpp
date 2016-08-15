@@ -89,7 +89,7 @@ struct parsing<point_tag, Point>
 template <typename Geometry>
 inline void parse(Geometry& geometry, std::string const& c1, std::string const& c2)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
     dispatch::parsing<typename tag<Geometry>::type, Geometry>::parse(geometry, c1, c2);
 }
 
@@ -102,7 +102,7 @@ template <typename Geometry, typename S>
 inline void parse(Geometry& geometry, std::string const& c1,
         std::string const& c2, S const& strategy)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
     dispatch::parsing<typename tag<Geometry>::type, Geometry>::parse(geometry, c1, c2, strategy);
 }
 
@@ -111,7 +111,7 @@ inline void parse(Geometry& geometry, std::string const& c1,
 template <typename Geometry>
 inline Geometry parse(std::string const& c1, std::string const& c2)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
 
     Geometry geometry;
     dispatch::parsing<typename tag<Geometry>::type, Geometry>::parse(geometry, c1, c2);

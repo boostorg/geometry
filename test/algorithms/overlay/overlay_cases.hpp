@@ -508,6 +508,12 @@ static std::string case_99[2] =
         "POLYGON((10 10,10 30,30 30,30 10,10 10))"
     };
 
+static std::string case_100[2] =
+    {
+        "POLYGON((2 1,4 1,4 3,2 3,2 1),(3 1.5,4 3,2.5 2.5,3 1.5))",
+        "POLYGON((4 0,8 0,8 4,4 4,4 0))"
+    };
+
 static std::string case_many_situations[2] = {
         "POLYGON((2 6,2 14,10 18,18 14,18 6,16 5,14 4,12 3,10 2,8 3,6 4,4 5,2 6))",
         "POLYGON((2 6,2 7,2 8,2 9,2 10,2 11,2 12,1 14"
@@ -1103,12 +1109,6 @@ static std::string mysql_23023665_3[2] =
     {
         "POLYGON((5 0,15 18,-14 11,5 0),(0 3,-1 4,5 0,0 3))",
         "POLYGON((6 0,-5 0,-1 -12,6 0))"
-    };
-
-static std::string mysql_23023665_4[2] =
-    {
-        "POLYGON((7 0,10 -3,7 1,7 0))",
-        "POLYGON((7 4,-14 10,7 -17,7 4),(7 1,0 3,-2 4,7 1))"
     };
 
 static std::string mysql_23023665_5[2] =

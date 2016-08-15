@@ -110,8 +110,8 @@ struct intersection
           const Geometry2& geometry2,
           GeometryOut& geometry_out)
     {
-        concept::check<Geometry1 const>();
-        concept::check<Geometry2 const>();
+        concepts::check<Geometry1 const>();
+        concepts::check<Geometry2 const>();
         
         typedef typename geometry::rescale_overlay_policy_type
         <

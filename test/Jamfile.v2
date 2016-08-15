@@ -27,6 +27,7 @@ build-project concepts ;
 build-project geometries ;
 build-project arithmetic ;
 build-project algorithms ;
+build-project formulas ;
 build-project iterators ;
 build-project strategies ;
 build-project policies ;

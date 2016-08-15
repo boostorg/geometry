@@ -203,12 +203,11 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
-            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale> quantities;
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
             quantities::apply(lon1, lat1, lon2, lat2,
                               result.azimuth, result.reverse_azimuth,
                               radius_b, flattening,
-                              result.reduced_length, result.geodesic_scale,
-                              quantities::J12_calc_f2); // TODO use more accurate J12
+                              result.reduced_length, result.geodesic_scale);
         }
 
         return result;

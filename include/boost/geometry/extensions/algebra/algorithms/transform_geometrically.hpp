@@ -58,8 +58,8 @@ struct transform_geometrically
 template <typename Point, typename Vector>
 struct transform_geometrically<Point, Vector, point_tag, vector_tag>
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
-    BOOST_CONCEPT_ASSERT( (concept::Vector<Vector>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Vector<Vector>) );
 
     static inline void apply(Point & point, Vector const& vector)
     {
@@ -90,8 +90,8 @@ struct transform_geometrically<Box, Vector, box_tag, vector_tag>
 {
     typedef typename traits::point_type<Box>::type point_type;
 
-    BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
-    BOOST_CONCEPT_ASSERT( (concept::Vector<Vector>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Point<point_type>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Vector<Vector>) );
 
     static inline void apply(Box & box, Vector const& vector)
     {
@@ -124,7 +124,7 @@ struct transform_geometrically<Vector, RotationQuaternion, vector_tag, rotation_
 {
     static inline void apply(Vector & v, RotationQuaternion const& r)
     {
-        concept::check_concepts_and_equal_dimensions<Vector, RotationQuaternion const>();
+        concepts::check_concepts_and_equal_dimensions<Vector, RotationQuaternion const>();
 
         detail::algebra::quaternion_rotate(v, r);
     }
@@ -136,7 +136,7 @@ struct transform_geometrically<Vector, RotationMatrix, vector_tag, rotation_matr
 {
     static inline void apply(Vector & v, RotationMatrix const& r)
     {
-        concept::check_concepts_and_equal_dimensions<Vector, RotationMatrix const>();
+        concepts::check_concepts_and_equal_dimensions<Vector, RotationMatrix const>();
 
         // TODO vector_type and convert from Vector
         Vector tmp(v);

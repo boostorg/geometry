@@ -21,10 +21,6 @@
 #include <iostream>
 #include <string>
 
-// If defined, tests are run without rescaling-to-integer or robustness policy
-// Test which would fail then are disabled automatically
-// #define BOOST_GEOMETRY_NO_ROBUSTNESS
-
 #include <boost/config.hpp>
 #include <boost/core/ignore_unused.hpp>
 
@@ -53,6 +49,10 @@ void test_areal()
     typedef typename bg::coordinate_type<Polygon>::type ct;
     bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
     bool const open = bg::closure<Polygon>::value == bg::open;
+
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
 
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
@@ -167,17 +167,24 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<Polygon, Polygon, Polygon>("isovist",
+        isovist1[0], isovist1[1],
+        1, 19, 88.4178,
+        ignore_validity);
+#else
+    // SQL Server gives: 88.1920416352664
+    // PostGIS gives:    88.19203677911
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1, 19, 88.19203,
         ut_settings(if_typed_tt<ct>(0.01, 0.1)));
-
-    // SQL Server gives: 88.1920416352664
-    // PostGIS gives:    88.19203677911
+#endif
 
     test_one<Polygon, Polygon, Polygon>("geos_1",
         geos_1[0], geos_1[1],
-            1, -1, 3461.0214843, ut_settings(0.005)); // MSVC 14 reports 3461.025390625
+            1, -1, 3461.0214843, // MSVC 14 reports 3461.025390625
+            ut_settings(0.005, false));
 
     // Expectations:
     // In most cases: 0 (no intersection)
@@ -250,23 +257,17 @@ void test_areal()
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
-#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
+#endif
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
                 1, 4, 3.635930e-08, ut_settings(0.01));
-#endif
-
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
                 1, 4, 4.34355e-05, ut_settings(0.01));
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
                 1, 4, 0.0003);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
                 1, 5, 0.3843747);
@@ -311,16 +312,11 @@ void test_areal()
                 ticket_11576[0], ticket_11576[1],
                 1, 0, 5.585617332907136e-07);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 8, 129.90381);
-#endif
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
-#endif
-
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
 
@@ -349,27 +345,26 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
         mysql_23023665_6[0], mysql_23023665_6[1],
-        2, -1, 11.812440191387557);
+        1, -1, 11.812440191387557,
+        ignore_validity);
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
-        1, 1, -1, 54.701340543162523);
+        1, 0, -1, 54.701340543162523,
+        ignore_validity);
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
         mysql_23023665_11[0], mysql_23023665_11[1],
-        1, 1, -1, 35.933385462482065);
-#endif
+        1, 0, -1, 35.933385462482065,
+        ignore_validity);
 
-    return;
-
-    test_one<Polygon, Polygon, Polygon>(
-        "polygon_pseudo_line",
-        "Polygon((0 0,0 4,4 4,4 0,0 0))",
-        "Polygon((2 -2,2 -1,2 6,2 -2))",
-        5, 22, 1.1901714);
+//    test_one<Polygon, Polygon, Polygon>(
+//        "polygon_pseudo_line",
+//        "Polygon((0 0,0 4,4 4,4 0,0 0))",
+//        "Polygon((2 -2,2 -1,2 6,2 -2))",
+//        5, 22, 1.1901714);
 }
 
 template <typename Polygon, typename Box>
@@ -622,6 +617,9 @@ void test_all()
     typedef bg::model::polygon<P, false, false> polygon_ccw_open;
     boost::ignore_unused<polygon_ccw, polygon_open, polygon_ccw_open>();
 
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
@@ -674,8 +672,7 @@ void test_all()
     test_one<linestring, linestring, box>("llbo", "LINESTRING(9 9,10 10)", clip, 0, 0, 0.0);
 
     // Touching with point (-> output linestring with ONE point)
-    //std::cout << "Note: the output line is degenerate! Might be removed!" << std::endl;
-    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0);
+    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0, ignore_validity);
 
     // Along border
     test_one<linestring, linestring, box>("llb_along", "LINESTRING(2 2,2 8)", clip, 1, 2, 6.0);

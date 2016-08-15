@@ -20,7 +20,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concepts {
 
 template <typename Geometry>
 class Matrix
@@ -136,6 +136,6 @@ public:
 #endif
 };
 
-}}} // namespace boost::geometry::concept
+}}} // namespace boost::geometry::concepts
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_MATRIX_CONCEPT_HPP

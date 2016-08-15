@@ -18,6 +18,9 @@
 template <typename P, bool ClockWise, bool Closed>
 void test_spikes_in_ticket_8364()
 {
+    ut_settings ignore_validity;
+    ignore_validity.test_validity = false;
+
     // See: https://svn.boost.org/trac/boost/ticket/8364
     //_TPolygon<T> polygon( "MULTIPOLYGON(((1031 1056,3232 1056,3232 2856,1031 2856)))" );
     //polygon -= _TPolygon<T>( "MULTIPOLYGON(((1032 1458,1032 1212,2136 2328,3234 2220,3234 2412,2136 2646)))" );
@@ -46,7 +49,8 @@ void test_spikes_in_ticket_8364()
         if_typed<ct, int>(7893.0, 7810.487954), // SQL Server: 7810.48711165739
         if_typed<ct, int>(1, 5),
         -1,
-        if_typed<ct, int>(2783349.5, 2775256.487954 + 7810.487954));
+        if_typed<ct, int>(2783349.5, 2775256.487954 + 7810.487954),
+        ignore_validity);
 
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step4",
         "MULTIPOLYGON(((2567 2688,2136 2790,2052 2712,1032 2130,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2580,2567 2688)))",
@@ -59,7 +63,8 @@ void test_spikes_in_ticket_8364()
         if_typed<ct, int>(161133.5, 161054.559567), // SQL Server: 161054.560110092
         if_typed<ct, int>(1, 2),
         if_typed<ct, int>(25, 31),
-        if_typed<ct, int>(2776875.5, 2616029.559567 + 161054.559567));
+        if_typed<ct, int>(2776875.5, 2616029.559567 + 161054.559567),
+        ignore_validity);
 }
 
 template <typename P, bool ClockWise, bool Closed>
