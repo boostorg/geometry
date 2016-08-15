@@ -188,21 +188,19 @@ inline Point3d projected_to_surface(Point3d const& direction, Spheroid const& sp
     coord_t const b_sqr = math::sqr(get_radius<2>(spheroid) / get_radius<0>(spheroid));
 
     coord_t const param_a = (dx*dx + dy*dy) / a_sqr + dz*dz / b_sqr;
-
     coord_t const delta = c4 * param_a;
-    coord_t const t = delta >= c0 ?
-                      math::sqrt(delta) / (c2 * param_a) :
-                      c0;
+    // delta >= 0
+    coord_t const t = math::sqrt(delta) / (c2 * param_a);
 
     // result = direction * t
-    point_3d result = direction;
+    Point3d result = direction;
     multiply_value(result, t);
 
     return result;
 }
 
 template <typename Point3d, typename Spheroid>
-inline Point3d projected_to_surface(Point3d const& origin, Point3d const& direction, Spheroid const& spheroid)
+inline bool projected_to_surface(Point3d const& origin, Point3d const& direction, Point3d & result1, Point3d & result2, Spheroid const& spheroid)
 {
     typedef typename coordinate_type<Point3d>::type coord_t;
 
@@ -233,17 +231,178 @@ inline Point3d projected_to_surface(Point3d const& origin, Point3d const& direct
     coord_t const param_b = c2 * ((ox*dx + oy*dy) / a_sqr + oz*dz / b_sqr);
     coord_t const param_c = (ox*ox + oy*oy) / a_sqr + oz*oz / b_sqr - c1;
 
-    coord_t const delta = param_b*param_b - c4 * param_a*param_c;
-    coord_t const t = delta >= c0 ?
-                      (-param_b + math::sqrt(delta)) / (c2 * param_a) :
-                      c0;
+    coord_t const delta = math::sqr(param_b) - c4 * param_a*param_c;
+
+    if (delta < c0)
+    {
+        return false;
+    }
 
     // result = origin + direction * t
-    point_3d result = direction;
-    multiply_value(result, t);
-    add_point(result, origin);
 
-    return result;
+    coord_t const sqrt_delta = math::sqrt(delta);
+    coord_t const two_a = c2 * param_a;
+
+    coord_t const t1 = (-param_b + sqrt_delta) / two_a;
+    result1 = direction;
+    multiply_value(result1, t1);
+    add_point(result1, origin);
+
+    coord_t const t2 = (-param_b - sqrt_delta) / two_a;
+    result2 = direction;
+    multiply_value(result2, t2);
+    add_point(result2, origin);
+
+    return true;
+}
+
+template <typename Point3d, typename Spheroid>
+inline bool great_elliptic_intersection(Point3d const& a1, Point3d const& a2,
+                                        Point3d const& b1, Point3d const& b2,
+                                        Point3d & result,
+                                        Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    coord_t c0 = 0;
+
+    Point3d n1 = cross_product(a1, a2);
+    Point3d n2 = cross_product(b1, b2);
+
+    // intersection direction
+    Point3d id = cross_product(n1, n2);
+    coord_t id_len_sqr = dot_product(id, id);
+
+    if (math::equals(id_len_sqr, c0))
+    {
+        return false;
+    }
+
+    result = projected_to_surface(id, spheroid);
+
+    return true;
+}
+
+template <typename Point3d, typename Spheroid>
+inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
+                                  Point3d const& b1, Point3d const& b2,
+                                  Point3d & result,
+                                  Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    coord_t c0 = 0;
+    coord_t c1 = 1;
+
+    Point3d axy1 = projected_to_xy(a1, spheroid);
+    Point3d axy2 = projected_to_xy(a2, spheroid);
+    Point3d bxy1 = projected_to_xy(b1, spheroid);
+    Point3d bxy2 = projected_to_xy(b2, spheroid);
+
+    // axy12 = axy2 - axy1;
+    Point3d axy12 = axy2;
+    subtract_point(axy12, axy1);
+    // bxy12 = bxy2 - bxy1;
+    Point3d bxy12 = bxy2;
+    subtract_point(bxy12, bxy1);
+
+    // aorig = axy1 + axy12 * 0.5;
+    Point3d aorig = axy12;
+    multiply_value(aorig, coord_t(0.5));
+    add_point(aorig, axy1);
+    // borig = bxy1 + bxy12 * 0.5;
+    Point3d borig = bxy12;
+    multiply_value(borig, coord_t(0.5));
+    add_point(borig, bxy1);
+
+    // av1 = a1 - aorig
+    Point3d a1v = a1;
+    subtract_point(a1v, aorig);
+    // av2 = a2 - aorig
+    Point3d a2v = a2;
+    subtract_point(a2v, aorig);
+    // bv1 = b1 - borig
+    Point3d b1v = b1;
+    subtract_point(b1v, borig);
+    // bv2 = b2 - borig
+    Point3d b2v = b2;
+    subtract_point(b2v, borig);
+
+    Point3d n1 = cross_product(a1v, a2v);
+    Point3d n2 = cross_product(b1v, b2v);
+        
+    coord_t n1_len = math::sqrt(dot_product(n1, n1));
+    coord_t n2_len = math::sqrt(dot_product(n2, n2));
+
+    if (math::equals(n1_len, c0) || math::equals(n2_len, c0))
+    {
+        return false;
+    }
+
+    // normalize
+    divide_value(n1, n1_len);
+    divide_value(n2, n2_len);
+    
+    // Below
+    // n . (p - o) = 0
+    // n . p - n . o = 0
+    // n . p + d = 0
+    // n . p = h
+
+    coord_t dot_n1_n2 = dot_product(n1, n2);
+    coord_t denom = c1 - math::sqr(dot_n1_n2);
+
+    // equivalent to |n1 x n2| = 0
+    if (math::equals(denom, c0))
+    {
+        return false;
+    }
+
+    // intersection direction
+    Point3d id = cross_product(n1, n2);
+    
+    coord_t h1 = dot_product(n1, aorig);
+    coord_t h2 = dot_product(n2, borig);
+
+    coord_t C1 = (h1 - h2 * dot_n1_n2) / denom;
+    coord_t C2 = (h2 - h1 * dot_n1_n2) / denom;
+    
+    // C1 * n1 + C2 * n2
+    Point3d C1_n1 = n1;
+    multiply_value(C1_n1, C1);
+    Point3d C2_n2 = n2;
+    multiply_value(C2_n2, C2);
+    Point3d io = C1_n1;
+    add_point(io, C2_n2);
+
+    Point3d ip1_s, ip2_s;
+    if (! projected_to_surface(io, id, ip1_s, ip2_s, spheroid))
+    {
+        return false;
+    }
+
+    coord_t a1v_len = math::sqrt(dot_product(a1v, a1v));
+    divide_value(a1v, a1v_len);
+    coord_t a2v_len = math::sqrt(dot_product(a2v, a2v));
+    divide_value(a2v, a2v_len);
+    coord_t b1v_len = math::sqrt(dot_product(b1v, b1v));
+    divide_value(b1v, a1v_len);
+    coord_t b2v_len = math::sqrt(dot_product(b2v, b2v));
+    divide_value(b2v, a2v_len);
+
+    // NOTE: could be used to calculate comparable distances/angles
+    coord_t cos_a1i = dot_product(a1v, id);
+    coord_t cos_a2i = dot_product(a2v, id);
+    coord_t gri = bg::math::detail::greatest(cos_a1i, cos_a2i);
+    Point3d neg_id = id;
+    multiply_value(neg_id, -c1);
+    coord_t cos_a1ni = dot_product(a1v, neg_id);
+    coord_t cos_a2ni = dot_product(a2v, neg_id);
+    coord_t grni = bg::math::detail::greatest(cos_a1ni, cos_a2ni);
+
+    result = gri >= grni ? ip1_s : ip2_s;
+
+    return true;
 }
 
 } // namespace formula
