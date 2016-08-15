@@ -134,11 +134,11 @@ struct default_strategy<spherical_equatorial_tag, Point>
 };
 
 // Note: spherical polar coordinate system requires "get_as_radian_equatorial"
-/***template <typename Point>
+template <typename Point>
 struct default_strategy<spherical_polar_tag, Point>
 {
     typedef strategy::area::area_spherical<Point> type;
-};***/
+};
 
 } // namespace services
 

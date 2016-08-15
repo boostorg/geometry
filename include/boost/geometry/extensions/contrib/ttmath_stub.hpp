@@ -36,6 +36,13 @@ namespace ttmath
     }
 
     template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> hypot(Big<Exponent, Mantissa> const& v,
+                                         Big<Exponent, Mantissa> const& u)
+    {
+        return Sqrt(v * v + u * u);
+    }
+
+    template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> pow(Big<Exponent, Mantissa> const& v,
                                        int n)
     {
