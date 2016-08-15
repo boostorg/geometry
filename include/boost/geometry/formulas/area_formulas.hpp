@@ -36,14 +36,15 @@ class area_formulas
 
 public:
 
-    //TODO: move Horner and Clenshaw to a more general space
+    //TODO: move the following to a more general space to be used by other
+    //      classes as well
     /*
         Evaluate the polynomial in x using Horner's method.
     */
     template <typename NT, typename IteratorType>
-    static inline NT HornerEvaluate(NT x,
-                                    IteratorType begin,
-                                    IteratorType end)
+    static inline NT horner_evaluate(NT x,
+                                     IteratorType begin,
+                                     IteratorType end)
     {
         NT result(0);
         IteratorType it = end;
@@ -58,9 +59,9 @@ public:
         https://en.wikipedia.org/wiki/Clenshaw_algorithm
     */
     template <typename NT, typename IteratorType>
-    static inline NT ClenshawSum(NT cosx,
-                                 IteratorType begin,
-                                 IteratorType end)
+    static inline NT clenshaw_sum(NT cosx,
+                                  IteratorType begin,
+                                  IteratorType end)
     {
         IteratorType it = end;
         bool odd(true);
@@ -76,8 +77,16 @@ public:
         return *begin + b_k1 * cosx - b_k2;
     }
 
+    template<typename T>
+    static inline void normalize(T& x, T& y)
+    {
+        T h = hypot(x, y);
+        x /= h;
+        y /= h;
+    }
+
     /*
-     Evaluate the series expansion of the following integral
+     Generate and evaluate the series expansion of the following integral
 
         I4 = -integrate( (t(ep2) - t(k2*sin(sigma1)^2)) / (ep2 - k2*sin(sigma1)^2)
            * sin(sigma1)/2, sigma1, pi/2, sigma )
@@ -93,7 +102,7 @@ public:
         sum(C4[l] * cos((2*l+1)*sigma), l, 0, maxpow-1) )
 
      The above expansion is performed in Computer Algebra System Maxima.
-     The C++ code (that yields the function GenerateCoeffs1 below) is generated
+     The C++ code (that yields the function evaluate_coeffs_n below) is generated
      by the following Maxima script and is based on script:
      http://geographiclib.sourceforge.net/html/geod.mac
 
@@ -150,7 +159,7 @@ public:
                s/case\sCT(/case /g; s/):/:/g'
     */
 
-    static inline void GenerateCoeffs1(CT n, CT coeffs_n[])
+    static inline void evaluate_coeffs_n(CT n, CT coeffs_n[])
     {
 
         switch (SeriesOrder) {
@@ -229,7 +238,7 @@ public:
     /*
        Expand in k2 and ep2.
     */
-    static inline void GenerateCoeffs1b(CT ep, CT coeffs_n[])
+    static inline void evaluate_coeffs_ep(CT ep, CT coeffs_n[])
     {
         switch (SeriesOrder) {
         case 0:
@@ -304,19 +313,17 @@ public:
     }
 
     /*
-        Given the set of coefficients coeffs1[] generate the set of
-        coefficients coeffs2[]
+        Given the set of coefficients coeffs1[] evaluate on var2 and return
+        the set of coefficients coeffs2[]
     */
-    static inline void GenerateCoeffs2(CT eps,
-                                       CT coeffs1[],
-                                       CT coeffs2[]){
+    static inline void evaluate_coeffs_var2(CT var2,
+                                            CT coeffs1[],
+                                            CT coeffs2[]){
         std::size_t begin(0), end(0);
         for(std::size_t i = 0; i <= SeriesOrder; i++){
             end = begin + SeriesOrder + 1 - i;
-            coeffs2[i] = ((i==0) ? CT(1) : pow(eps,int(i)))
-                       * HornerEvaluate(eps,
-                                        coeffs1 + begin,
-                                        coeffs1 + end);
+            coeffs2[i] = ((i==0) ? CT(1) : pow(var2,int(i)))
+                        * horner_evaluate(var2, coeffs1 + begin, coeffs1 + end);
             begin = end;
         }
     }
@@ -372,14 +379,6 @@ public:
         return excess;
     }
 
-    template<typename T>
-    static inline void normalize(T& x, T& y)
-    {
-        T h = hypot(x, y);
-        x /= h;
-        y /= h;
-    }
-
     /*
         Compute the ellipsoidal correction of a geodesic (or shperical) segment
     */
@@ -414,12 +413,16 @@ public:
 
         CT const ep = spheroid_const.m_ep;
         CT const f = geometry::detail::flattening<CT>(spheroid_const.m_spheroid);
+        CT const one_minus_f = CT(1) - f;
+        std::size_t const series_order_plus_one = SeriesOrder + 1;
+        std::size_t const series_order_plus_two = SeriesOrder + 2;
 
-        //TODO: do it faster
-        CT cos_bet1 = cos(atan(tan(get_as_radian<1>(p1)) * (1 - f)));
-        CT cos_bet2 = cos(atan(tan(get_as_radian<1>(p2)) * (1 - f)));
-        CT sin_bet1 = sin(atan(tan(get_as_radian<1>(p1)) * (1 - f)));
-        CT sin_bet2 = sin(atan(tan(get_as_radian<1>(p2)) * (1 - f)));
+        CT tan_bet1 = tan(get_as_radian<1>(p1)) * one_minus_f;
+        CT tan_bet2 = tan(get_as_radian<1>(p2)) * one_minus_f;
+        CT cos_bet1 = cos(atan(tan_bet1));
+        CT cos_bet2 = cos(atan(tan_bet2));
+        CT sin_bet1 = tan_bet1 * cos_bet1;
+        CT sin_bet2 = tan_bet2 * cos_bet2;
         CT sin_alp1 = sin(alp1);
         CT cos_alp1 = cos(alp1);
         CT cos_alp2 = cos(alp2);
@@ -435,24 +438,24 @@ public:
         normalize(sin_sig2, cos_sig2);
 
         CT coeffs[SeriesOrder + 1];
-        const std::size_t coeffs_var_size = ((SeriesOrder + 2)
-                                          * (SeriesOrder + 1)) / 2;
+        const std::size_t coeffs_var_size = (series_order_plus_two
+                                            * series_order_plus_one) / 2;
         CT coeffs_var[coeffs_var_size];
 
         if(ExpandEpsN){ // expand by eps and n
 
             CT k2 = math::sqr(ep * cos_alp0);
             CT sqrt_k2_plus_one = math::sqrt(CT(1) + k2);
-            CT eps = (sqrt_k2_plus_one - 1) / (sqrt_k2_plus_one + 1);
+            CT eps = (sqrt_k2_plus_one - CT(1)) / (sqrt_k2_plus_one + CT(1));
             CT n = f / (CT(2) - f);
 
             // Generate and evaluate the polynomials on n
             // to get the series coefficients (that depend on eps)
-            GenerateCoeffs1(n, coeffs_var);
+            evaluate_coeffs_n(n, coeffs_var);
 
-            // Generate and evaluate the polynomials on eps
+            // Generate and evaluate the polynomials on eps (i.e. var2 = eps)
             // to get the final series coefficients
-            GenerateCoeffs2(eps, coeffs_var, coeffs);
+            evaluate_coeffs_var2(eps, coeffs_var, coeffs);
 
         }else{ // expand by k2 and ep
 
@@ -460,16 +463,16 @@ public:
             CT ep2 = math::sqr(ep);
 
             // Generate and evaluate the polynomials on ep2
-            GenerateCoeffs1b(ep2, coeffs_var);
+            evaluate_coeffs_ep(ep2, coeffs_var);
 
-            // Generate and evaluate the polynomials on k2
-            GenerateCoeffs2(k2, coeffs_var, coeffs);
+            // Generate and evaluate the polynomials on k2 (i.e. var2 = k2)
+            evaluate_coeffs_var2(k2, coeffs_var, coeffs);
 
         }
 
         // Evaluate the trigonometric sum
-        CT I12 = ClenshawSum(cos_sig2, coeffs, coeffs + SeriesOrder + 1)
-               - ClenshawSum(cos_sig1, coeffs, coeffs + SeriesOrder + 1);
+        CT I12 = clenshaw_sum(cos_sig2, coeffs, coeffs + series_order_plus_one)
+               - clenshaw_sum(cos_sig1, coeffs, coeffs + series_order_plus_one);
 
         // Return the part of the ellipsodal correction that depends on
         // point coordinates
