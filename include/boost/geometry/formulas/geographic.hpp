@@ -15,7 +15,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
-//#include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/cross_product.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 
@@ -233,7 +233,8 @@ inline bool projected_to_surface(Point3d const& origin, Point3d const& direction
 
     coord_t const delta = math::sqr(param_b) - c4 * param_a*param_c;
 
-    if (delta < c0)
+    // equals() ?
+    if (delta < c0 || param_a == 0)
     {
         return false;
     }
@@ -265,6 +266,7 @@ inline bool great_elliptic_intersection(Point3d const& a1, Point3d const& a2,
     typedef typename coordinate_type<Point3d>::type coord_t;
 
     coord_t c0 = 0;
+    coord_t c1 = 1;
 
     Point3d n1 = cross_product(a1, a2);
     Point3d n2 = cross_product(b1, b2);
@@ -278,7 +280,25 @@ inline bool great_elliptic_intersection(Point3d const& a1, Point3d const& a2,
         return false;
     }
 
-    result = projected_to_surface(id, spheroid);
+    // no need to normalize a1 and a2 because the intersection point on
+    // the opposite side of the globe is at the same distance from the origin
+    coord_t cos_a1i = dot_product(a1, id);
+    coord_t cos_a2i = dot_product(a2, id);
+    coord_t gri = math::detail::greatest(cos_a1i, cos_a2i);
+    Point3d neg_id = id;
+    multiply_value(neg_id, -c1);
+    coord_t cos_a1ni = dot_product(a1, neg_id);
+    coord_t cos_a2ni = dot_product(a2, neg_id);
+    coord_t grni = math::detail::greatest(cos_a1ni, cos_a2ni);
+
+    if (gri >= grni)
+    {
+        result = projected_to_surface(id, spheroid);
+    }
+    else
+    {
+        result = projected_to_surface(neg_id, spheroid);
+    }
 
     return true;
 }
@@ -349,21 +369,21 @@ inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
     // n . p + d = 0
     // n . p = h
 
-    coord_t dot_n1_n2 = dot_product(n1, n2);
-    coord_t denom = c1 - math::sqr(dot_n1_n2);
+    // intersection direction
+    Point3d id = cross_product(n1, n2);
 
-    // equivalent to |n1 x n2| = 0
-    if (math::equals(denom, c0))
+    if (math::equals(dot_product(id, id), c0))
     {
         return false;
     }
 
-    // intersection direction
-    Point3d id = cross_product(n1, n2);
-    
+    coord_t dot_n1_n2 = dot_product(n1, n2);
+    coord_t dot_n1_n2_sqr = math::sqr(dot_n1_n2);
+
     coord_t h1 = dot_product(n1, aorig);
     coord_t h2 = dot_product(n2, borig);
 
+    coord_t denom = c1 - dot_n1_n2_sqr;
     coord_t C1 = (h1 - h2 * dot_n1_n2) / denom;
     coord_t C2 = (h2 - h1 * dot_n1_n2) / denom;
     
@@ -393,12 +413,12 @@ inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
     // NOTE: could be used to calculate comparable distances/angles
     coord_t cos_a1i = dot_product(a1v, id);
     coord_t cos_a2i = dot_product(a2v, id);
-    coord_t gri = bg::math::detail::greatest(cos_a1i, cos_a2i);
+    coord_t gri = math::detail::greatest(cos_a1i, cos_a2i);
     Point3d neg_id = id;
     multiply_value(neg_id, -c1);
     coord_t cos_a1ni = dot_product(a1v, neg_id);
     coord_t cos_a2ni = dot_product(a2v, neg_id);
-    coord_t grni = bg::math::detail::greatest(cos_a1ni, cos_a2ni);
+    coord_t grni = math::detail::greatest(cos_a1ni, cos_a2ni);
 
     result = gri >= grni ? ip1_s : ip2_s;
 
