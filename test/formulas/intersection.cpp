@@ -13,6 +13,7 @@
 #include "intersection_cases.hpp"
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/geographic.hpp>
 #include <boost/geometry/formulas/gnomonic_intersection.hpp>
 #include <boost/geometry/formulas/sjoberg_intersection.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
@@ -74,6 +75,31 @@ void test_all(expected_results const& results)
     result.lon *= r2d;
     result.lat *= r2d;
     check_inverse(result, results.sjoberg_andoyer, results.sjoberg_karney, 0.0001);
+
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > point_geo;
+    typedef bg::model::point<double, 3, bg::cs::cartesian> point_3d;
+    point_geo a1(results.p1.lon, results.p1.lat);
+    point_geo a2(results.p2.lon, results.p2.lat);
+    point_geo b1(results.q1.lon, results.q1.lat);
+    point_geo b2(results.q2.lon, results.q2.lat);
+    point_3d a1v = bg::formula::geo_to_cart3d<point_3d>(a1, spheroid);
+    point_3d a2v = bg::formula::geo_to_cart3d<point_3d>(a2, spheroid);
+    point_3d b1v = bg::formula::geo_to_cart3d<point_3d>(b1, spheroid);
+    point_3d b2v = bg::formula::geo_to_cart3d<point_3d>(b2, spheroid);
+    point_3d resv(0, 0);
+    point_geo res(0, 0);
+
+    bg::formula::elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
+    res = bg::formula::cart3d_to_geo<point_geo>(resv, spheroid);
+    result.lon = bg::get<0>(res);
+    result.lat = bg::get<1>(res);
+    check_inverse(result, results.elliptic, results.gnomonic_karney, 0.0001);
+
+    bg::formula::great_elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
+    res = bg::formula::cart3d_to_geo<point_geo>(resv, spheroid);
+    result.lon = bg::get<0>(res);
+    result.lat = bg::get<1>(res);
+    check_inverse(result, results.great_elliptic, results.gnomonic_karney, 0.0001);
 }
 
 int test_main(int, char*[])
