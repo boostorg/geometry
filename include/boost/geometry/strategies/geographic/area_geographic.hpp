@@ -34,6 +34,7 @@ template
     typename Strategy = void,
     const std::size_t SeriesOrder = 2,
     bool ExpandEpsN = true,
+    bool LongSegment = false,
     typename Spheroid = void,
     typename CalculationType = void
 >
@@ -161,7 +162,7 @@ public :
 
             //Compute the trapezoidal area
             state.m_excess_sum += geometry::formula::area_formulas
-                                    <CT>::spherical_excess(p1, p2);
+                                    <CT>::template spherical_excess<LongSegment>(p1, p2);
 
             state.m_correction_sum += geometry::formula::area_formulas
                                     <CT, SeriesOrder, ExpandEpsN>

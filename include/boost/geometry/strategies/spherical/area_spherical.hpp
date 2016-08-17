@@ -27,6 +27,7 @@ namespace strategy { namespace area
 template
 <
     typename PointOfSegment,
+    bool LongSegment = false,
     typename CalculationType = void
 >
 class area_spherical
@@ -101,7 +102,7 @@ public :
         {
 
             state.m_sum += geometry::formula::area_formulas
-                             <CT>::spherical_excess(p1, p2);
+                             <CT>::template spherical_excess<LongSegment>(p1, p2);
 
             // Keep track whenever a segment crosses the prime meridian
             geometry::formula::area_formulas

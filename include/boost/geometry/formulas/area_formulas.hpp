@@ -21,6 +21,8 @@ namespace boost { namespace geometry { namespace formula
  The current class computes the area of the trapezoid defined by a segment
  the two meridians passing by the endpoints and the equator.
 \author See
+- Danielsen JS, The area under the geodesic. Surv Rev 30(232):
+61–66, 1989
 - Charles F.F Karney, Algorithms for geodesics, 2011
 https://arxiv.org/pdf/1109.4448.pdf
 */
@@ -28,8 +30,7 @@ https://arxiv.org/pdf/1109.4448.pdf
 template <
         typename CT,
         const std::size_t SeriesOrder = 2,
-        bool ExpandEpsN = true,
-        bool LongSegment = false
+        bool ExpandEpsN = true
 >
 class area_formulas
 {
@@ -332,6 +333,7 @@ public:
         Compute the spherical excess of a geodesic (or shperical) segment
     */
     template <
+                bool LongSegment,
                 typename PointOfSegment
              >
     static inline CT spherical_excess(PointOfSegment const& p1,
@@ -339,12 +341,13 @@ public:
     {
         CT excess;
 
-        if(LongSegment)
+        if(LongSegment) // not for segments parallel to equator
         {
             CT cbet1 = cos(geometry::get_as_radian<1>(p1));
             CT sbet1 = sin(geometry::get_as_radian<1>(p1));
             CT cbet2 = cos(geometry::get_as_radian<1>(p2));
             CT sbet2 = sin(geometry::get_as_radian<1>(p2));
+
             CT omg12 = geometry::get_as_radian<0>(p1)
                      - geometry::get_as_radian<0>(p2);
             CT comg12 = cos(omg12);
