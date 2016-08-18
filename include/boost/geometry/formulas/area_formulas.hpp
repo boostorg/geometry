@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -29,7 +30,7 @@ https://arxiv.org/pdf/1109.4448.pdf
 
 template <
         typename CT,
-        const std::size_t SeriesOrder = 2,
+        std::size_t SeriesOrder = 2,
         bool ExpandEpsN = true
 >
 class area_formulas
@@ -49,9 +50,11 @@ public:
     {
         NT result(0);
         IteratorType it = end;
-        do{
+        do
+        {
             result = result * x + *--it;
-        }while(it != begin);
+        }
+        while (it != begin);
         return result;
     }
 
@@ -65,15 +68,17 @@ public:
                                   IteratorType end)
     {
         IteratorType it = end;
-        bool odd(true);
+        bool odd = true;
         CT b_k, b_k1(0), b_k2(0);
-        do{
+        do
+        {
             CT c_k = odd ? *--it : NT(0);
             b_k = c_k + NT(2) * cosx * b_k1 - b_k2;
             b_k2 = b_k1;
             b_k1 = b_k;
             odd = !odd;
-        }while(it != begin);
+        }
+        while (it != begin);
 
         return *begin + b_k1 * cosx - b_k2;
     }
@@ -81,7 +86,7 @@ public:
     template<typename T>
     static inline void normalize(T& x, T& y)
     {
-        T h = hypot(x, y);
+        T h = boost::math::hypot(x, y);
         x /= h;
         y /= h;
     }

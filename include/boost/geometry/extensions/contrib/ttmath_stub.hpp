@@ -52,7 +52,22 @@ namespace ttmath
     }
 
     template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> log(Big<Exponent, Mantissa> const& v,
+                                       int n = 10)
+    {
+        Big<Exponent, Mantissa> tmp;
+        tmp.Log(v, n);
+        return tmp;
+    }
+
+    template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> abs(Big<Exponent, Mantissa> const& v)
+    {
+        return Abs(v);
+    }
+
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> fabs(Big<Exponent, Mantissa> const& v)
     {
         return Abs(v);
     }

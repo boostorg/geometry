@@ -12,7 +12,7 @@
 
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
-//#include <boost/math/special_functions/atanh.hpp>
+#include <boost/math/special_functions/atanh.hpp>
 
 namespace boost { namespace geometry
 {
@@ -32,7 +32,7 @@ template
 <
     typename PointOfSegment,
     typename Strategy = void,
-    const std::size_t SeriesOrder = 2,
+    std::size_t SeriesOrder = 2,
     bool ExpandEpsN = true,
     bool LongSegment = false,
     typename Spheroid = void,
@@ -93,7 +93,7 @@ protected :
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
             , m_c2((m_a2 / CT(2.0)) +
-              ((math::sqr(get_radius<2>(spheroid)) * atanh(math::sqrt(m_e2)))
+              ((math::sqr(get_radius<2>(spheroid)) * boost::math::atanh(math::sqrt(m_e2)))
                / (CT(2.0) * math::sqrt(m_e2))))
         {}
     };
@@ -119,7 +119,7 @@ protected :
                    + spheroid_const.m_e2 * spheroid_const.m_a2 * m_correction_sum;
 
             // If encircles some pole
-            if(m_crosses_prime_meridian % 2 == 1)
+            if (m_crosses_prime_meridian % 2 == 1)
             {
                 std::size_t times_crosses_prime_meridian
                         = 1 + (m_crosses_prime_meridian / 2);
@@ -130,12 +130,14 @@ protected :
                          * CT(times_crosses_prime_meridian)
                          - geometry::math::abs(sum);
 
-                if(geometry::math::sign<CT>(sum) == 1)
+                if (geometry::math::sign<CT>(sum) == 1)
                 {
                     result = - result;
                 }
 
-            } else {
+            }
+            else
+            {
                 result = sum;
             }
 

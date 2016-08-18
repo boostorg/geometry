@@ -117,21 +117,22 @@ protected :
             calculation_type result;
 
             // Encircles pole
-            if((crosses_prime_meridian % 2 == 1 && south) || south_vertex)
+            if ((crosses_prime_meridian % 2 == 1 && south) || south_vertex)
             {
 
                 calculation_type constant;
 
                 //if(south_vertex)
                 //{
-                    constant = 2.0 * (max_lon - min_lon) / geometry::math::pi<calculation_type>();
+                    constant = calculation_type(2) * (max_lon - min_lon)
+                             / geometry::math::pi<calculation_type>();
                 //} else {
                 //    constant = 4.0;
                 //}
 
-                if(crosses_prime_meridian % 2 == 0 && crosses_prime_meridian > 1)
+                if (crosses_prime_meridian % 2 == 0 && crosses_prime_meridian > 1)
                 {
-                    constant = 4.0 - constant;
+                    constant = calculation_type(4) - constant;
                 }
 
                 std::cout << "(const=" << constant << ")";
@@ -141,12 +142,14 @@ protected :
                          * geometry::math::pi<calculation_type>()
                          - std::abs(sum);
 
-                if(geometry::math::sign<calculation_type>(sum) == -1)
+                if (geometry::math::sign<calculation_type>(sum) == -1)
                 {
                     result = - result;
                 }
 
-            } else {
+            }
+            else
+            {
                 result =  - sum;
             }
 
