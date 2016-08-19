@@ -41,8 +41,7 @@ template
 class area_geographic
 {
 
-    //Select default types for Strategy, Spheroid and CalculationType
-    //in case they are not set
+    //Select default types in case they are not set
 
     typedef typename boost::mpl::if_c
     <

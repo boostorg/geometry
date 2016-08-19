@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 
 #include <boost/geometry/formulas/area_formulas.hpp>
+#include <boost/geometry/core/srs.hpp>
 
 namespace boost { namespace geometry
 {
@@ -55,9 +56,11 @@ protected :
             : m_sum(0)
             , m_crosses_prime_meridian(0)
         {}
-        inline CT area(CT radius) const
+        template <typename SphereType>
+        inline CT area(SphereType sphere) const
         {
             CT result;
+            CT radius = sphere.get_radius<0>();
 
             // Encircles pole
             if(m_crosses_prime_meridian % 2 == 1)
@@ -89,10 +92,17 @@ public :
     typedef CT return_type;
     typedef PointOfSegment segment_point_type;
     typedef excess_sum state_type;
+    typedef geometry::srs::sphere<CT> sphere_type;
 
-    inline area_spherical(CT radius = 1.0)
-        : m_radius(radius)
+    inline area_spherical(sphere_type sphere = sphere_type())
+        : m_sphere(sphere)
     {}
+
+    inline area_spherical(CT radius) //backward compatibility
+        : m_sphere()
+    {
+        m_sphere.set_radius<0>(radius);
+    }
 
     inline void apply(PointOfSegment const& p1,
                 PointOfSegment const& p2,
@@ -113,13 +123,12 @@ public :
 
     inline return_type result(excess_sum const& state) const
     {
-        //std::cout << "(tpole=" << state.crosses_prime_meridian << ")";
-        return state.area(m_radius);
+        return state.area(m_sphere);
     }
 
 private :
-    /// Radius of the sphere
-    CT m_radius;
+    /// srs Sphere
+    sphere_type m_sphere;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

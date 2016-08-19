@@ -70,11 +70,16 @@ void test_spherical_geo()
     // calculations splitted for ttmath
     std::string poly = "POLYGON((0 0,0 90,90 0,0 0))";
 
+    bg::strategy::area::area_spherical
+        <
+            typename bg::point_type<pt>::type
+        > strategy_unary(1.0);
+
     ct const four = 4.0;
     ct const eight = 8.0;
     ct expected = four * boost::geometry::math::pi<ct>() / eight;
     bg::read_wkt(poly, geometry);
-    ct area = bg::area(geometry);
+    ct area = bg::area(geometry, strategy_unary);
     BOOST_CHECK_CLOSE(area, expected, 0.0001);
 
     // With strategy, radius 2 -> 4 pi r^2
@@ -219,7 +224,7 @@ void test_spherical_geo()
         ct area3 = bg::area(geometry);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 0.0303822, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1233204227903.1848, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -243,7 +248,7 @@ void test_spherical_geo()
         ct area3 = bg::area(geometry);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 0.0305, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1237986107636.0261, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -276,7 +281,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 0.0303822, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1233204227903.1833, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -314,7 +319,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 0.0305, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1237986107636.0247, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
