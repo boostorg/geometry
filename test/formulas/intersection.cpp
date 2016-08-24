@@ -89,7 +89,7 @@ void test_all(expected_results const& results)
     point_3d resv(0, 0);
     point_geo res(0, 0);
 
-    bg::formula::elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
+    bg::formula::experimental_elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
     res = bg::formula::cart3d_to_geo<point_geo>(resv, spheroid);
     result.lon = bg::get<0>(res);
     result.lat = bg::get<1>(res);
