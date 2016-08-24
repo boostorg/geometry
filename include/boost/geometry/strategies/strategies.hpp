@@ -68,6 +68,7 @@
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
+//#include <boost/geometry/strategies/geographic/intersection.hpp>
 //#include <boost/geometry/strategies/geographic/side_andoyer.hpp>
 //#include <boost/geometry/strategies/geographic/side_thomas.hpp>
 //#include <boost/geometry/strategies/geographic/side_vincenty.hpp>
