@@ -18,6 +18,7 @@
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/cross_product.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
+#include <boost/geometry/arithmetic/normalize.hpp>
 
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
@@ -303,66 +304,36 @@ inline bool great_elliptic_intersection(Point3d const& a1, Point3d const& a2,
     return true;
 }
 
+template <typename Point3d1, typename Point3d2>
+static inline int elliptic_side_value(Point3d1 const& origin, Point3d1 const& norm, Point3d2 const& pt)
+{
+    typedef typename coordinate_type<Point3d1>::type calc_t;
+    calc_t c0 = 0;
+
+    // vector oposite to pt - origin
+    // only for the purpose of assigning origin
+    Point3d1 vec = origin;
+    subtract_point(vec, pt);
+
+    calc_t d = dot_product(norm, vec);
+
+    // since the vector is opposite the signs are opposite
+    return math::equals(d, c0) ? 0
+        : d < c0 ? 1
+        : -1; // d > 0
+}
+
 template <typename Point3d, typename Spheroid>
-inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
-                                  Point3d const& b1, Point3d const& b2,
-                                  Point3d & result,
-                                  Spheroid const& spheroid)
+inline bool planes_spheroid_intersection(Point3d const& o1, Point3d const& n1,
+                                         Point3d const& o2, Point3d const& n2,
+                                         Point3d & ip1, Point3d & ip2,
+                                         Spheroid const& spheroid)
 {
     typedef typename coordinate_type<Point3d>::type coord_t;
 
     coord_t c0 = 0;
     coord_t c1 = 1;
 
-    Point3d axy1 = projected_to_xy(a1, spheroid);
-    Point3d axy2 = projected_to_xy(a2, spheroid);
-    Point3d bxy1 = projected_to_xy(b1, spheroid);
-    Point3d bxy2 = projected_to_xy(b2, spheroid);
-
-    // axy12 = axy2 - axy1;
-    Point3d axy12 = axy2;
-    subtract_point(axy12, axy1);
-    // bxy12 = bxy2 - bxy1;
-    Point3d bxy12 = bxy2;
-    subtract_point(bxy12, bxy1);
-
-    // aorig = axy1 + axy12 * 0.5;
-    Point3d aorig = axy12;
-    multiply_value(aorig, coord_t(0.5));
-    add_point(aorig, axy1);
-    // borig = bxy1 + bxy12 * 0.5;
-    Point3d borig = bxy12;
-    multiply_value(borig, coord_t(0.5));
-    add_point(borig, bxy1);
-
-    // av1 = a1 - aorig
-    Point3d a1v = a1;
-    subtract_point(a1v, aorig);
-    // av2 = a2 - aorig
-    Point3d a2v = a2;
-    subtract_point(a2v, aorig);
-    // bv1 = b1 - borig
-    Point3d b1v = b1;
-    subtract_point(b1v, borig);
-    // bv2 = b2 - borig
-    Point3d b2v = b2;
-    subtract_point(b2v, borig);
-
-    Point3d n1 = cross_product(a1v, a2v);
-    Point3d n2 = cross_product(b1v, b2v);
-        
-    coord_t n1_len = math::sqrt(dot_product(n1, n1));
-    coord_t n2_len = math::sqrt(dot_product(n2, n2));
-
-    if (math::equals(n1_len, c0) || math::equals(n2_len, c0))
-    {
-        return false;
-    }
-
-    // normalize
-    divide_value(n1, n1_len);
-    divide_value(n2, n2_len);
-    
     // Below
     // n . (p - o) = 0
     // n . p - n . o = 0
@@ -380,13 +351,13 @@ inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
     coord_t dot_n1_n2 = dot_product(n1, n2);
     coord_t dot_n1_n2_sqr = math::sqr(dot_n1_n2);
 
-    coord_t h1 = dot_product(n1, aorig);
-    coord_t h2 = dot_product(n2, borig);
+    coord_t h1 = dot_product(n1, o1);
+    coord_t h2 = dot_product(n2, o2);
 
     coord_t denom = c1 - dot_n1_n2_sqr;
     coord_t C1 = (h1 - h2 * dot_n1_n2) / denom;
     coord_t C2 = (h2 - h1 * dot_n1_n2) / denom;
-    
+
     // C1 * n1 + C2 * n2
     Point3d C1_n1 = n1;
     multiply_value(C1_n1, C1);
@@ -395,32 +366,86 @@ inline bool elliptic_intersection(Point3d const& a1, Point3d const& a2,
     Point3d io = C1_n1;
     add_point(io, C2_n2);
 
-    Point3d ip1_s, ip2_s;
-    if (! projected_to_surface(io, id, ip1_s, ip2_s, spheroid))
+    if (! projected_to_surface(io, id, ip1, ip2, spheroid))
     {
         return false;
     }
 
-    coord_t a1v_len = math::sqrt(dot_product(a1v, a1v));
-    divide_value(a1v, a1v_len);
-    coord_t a2v_len = math::sqrt(dot_product(a2v, a2v));
-    divide_value(a2v, a2v_len);
-    coord_t b1v_len = math::sqrt(dot_product(b1v, b1v));
-    divide_value(b1v, a1v_len);
-    coord_t b2v_len = math::sqrt(dot_product(b2v, b2v));
-    divide_value(b2v, a2v_len);
+    return true;
+}
 
-    // NOTE: could be used to calculate comparable distances/angles
-    coord_t cos_a1i = dot_product(a1v, id);
-    coord_t cos_a2i = dot_product(a2v, id);
-    coord_t gri = math::detail::greatest(cos_a1i, cos_a2i);
-    Point3d neg_id = id;
-    multiply_value(neg_id, -c1);
-    coord_t cos_a1ni = dot_product(a1v, neg_id);
-    coord_t cos_a2ni = dot_product(a2v, neg_id);
-    coord_t grni = math::detail::greatest(cos_a1ni, cos_a2ni);
 
-    result = gri >= grni ? ip1_s : ip2_s;
+template <typename Point3d, typename Spheroid>
+inline void experimental_elliptic_plane(Point3d const& p1, Point3d const& p2,
+                                        Point3d & v1, Point3d & v2,
+                                        Point3d & origin, Point3d & normal,
+                                        Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    Point3d xy1 = projected_to_xy(p1, spheroid);
+    Point3d xy2 = projected_to_xy(p2, spheroid);
+
+    // origin = (xy1 + xy2) / 2
+    origin = xy1;
+    add_point(origin, xy2);
+    multiply_value(origin, coord_t(0.5));
+
+    // v1 = p1 - origin
+    v1 = p1;
+    subtract_point(v1, origin);
+    // v2 = p2 - origin
+    v2 = p2;
+    subtract_point(v2, origin);
+
+    normal = cross_product(v1, v2);
+}
+
+template <typename Point3d, typename Spheroid>
+inline void experimental_elliptic_plane(Point3d const& p1, Point3d const& p2,
+                                        Point3d & origin, Point3d & normal,
+                                        Spheroid const& spheroid)
+{
+    Point3d v1, v2;
+    experimental_elliptic_plane(p1, p2, v1, v2, origin, normal, spheroid);
+}
+
+template <typename Point3d, typename Spheroid>
+inline bool experimental_elliptic_intersection(Point3d const& a1, Point3d const& a2,
+                                               Point3d const& b1, Point3d const& b2,
+                                               Point3d & result,
+                                               Spheroid const& spheroid)
+{
+    typedef typename coordinate_type<Point3d>::type coord_t;
+
+    coord_t c0 = 0;
+    coord_t c1 = 1;
+
+    Point3d a1v, a2v, o1, n1;
+    experimental_elliptic_plane(a1, a2, a1v, a2v, o1, n1, spheroid);
+    Point3d b1v, b2v, o2, n2;
+    experimental_elliptic_plane(b1, b2, b1v, b2v, o2, n2, spheroid);
+
+    if (! detail::vec_normalize(n1) || ! detail::vec_normalize(n2))
+    {
+        return false;
+    }
+
+    Point3d ip1_s, ip2_s;
+    if (! planes_spheroid_intersection(o1, n1, o2, n2, ip1_s, ip2_s, spheroid))
+    {
+        return false;
+    }
+
+    // NOTE: simplified test, may not work in all cases
+    coord_t dot_a1i1 = dot_product(a1, ip1_s);
+    coord_t dot_a2i1 = dot_product(a2, ip1_s);
+    coord_t gri1 = math::detail::greatest(dot_a1i1, dot_a2i1);
+    coord_t dot_a1i2 = dot_product(a1, ip2_s);
+    coord_t dot_a2i2 = dot_product(a2, ip2_s);
+    coord_t gri2 = math::detail::greatest(dot_a1i2, dot_a2i2);
+
+    result = gri1 >= gri2 ? ip1_s : ip2_s;
 
     return true;
 }
