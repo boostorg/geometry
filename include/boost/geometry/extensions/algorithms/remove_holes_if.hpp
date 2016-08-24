@@ -98,7 +98,7 @@ struct remove_holes_if<multi_polygon_tag, MultiPolygon, Predicate>
 template <typename Geometry, typename Predicate>
 inline void remove_holes_if(Geometry& geometry, Predicate const& predicate)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
 
     dispatch::remove_holes_if
         <

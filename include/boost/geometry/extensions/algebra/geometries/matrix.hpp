@@ -27,7 +27,7 @@ namespace model {
 template <typename T, std::size_t Rows, std::size_t Cols>
 class matrix
 {
-    BOOST_CONCEPT_ASSERT( (concept::Matrix<matrix>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Matrix<matrix>) );
 
 public:
 

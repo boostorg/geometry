@@ -109,7 +109,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             RobustPolicy const& robust_policy,
             Turns& turns)
 {
-    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
+    concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
     typedef detail::get_intersection_points::get_turn_without_info
                         <

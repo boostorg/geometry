@@ -128,7 +128,7 @@ void test_geometry(std::string const& wkt,
     check_geometry(v, expected, distance);
 
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<dp, point_type>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<dp, point_type>) );
 
     check_geometry(geometry, expected, distance, dp());
     check_geometry(v, expected, distance, dp());
@@ -155,7 +155,7 @@ void test_geometry(std::string const& wkt,
             less_comparator
         > douglass_peucker_with_less;
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<douglass_peucker_with_less, point_type>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<douglass_peucker_with_less, point_type>) );
 
     check_geometry(geometry, expected, distance, douglass_peucker_with_less(less));
     check_geometry(v, expected, distance, douglass_peucker_with_less(less));
@@ -172,7 +172,7 @@ void test_geometry(std::string const& wkt,
     bg::read_wkt(wkt, geometry);
     boost::variant<Geometry> v(geometry);
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<Strategy,
+    BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<Strategy,
                            typename bg::point_type<Geometry>::type>) );
 
     check_geometry(geometry, expected, distance, strategy);

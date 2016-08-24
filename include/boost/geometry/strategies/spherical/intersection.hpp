@@ -174,8 +174,8 @@ struct relate_ecef_segments
         // all relops and setops would have to take the strategy or model.
         CalcPolicy const calc_policy;
 
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
 
         // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;

@@ -521,8 +521,8 @@ inline void connect(Geometry const& geometry, Collection& output_collection)
 {
     typedef typename boost::range_value<Collection>::type geometry_out;
 
-    concept::check<Geometry const>();
-    concept::check<geometry_out>();
+    concepts::check<Geometry const>();
+    concepts::check<geometry_out>();
 
     typedef detail::connect::map_policy
         <
@@ -553,8 +553,8 @@ inline void connect(Geometry const& geometry, Collection& output_collection,
 {
     typedef typename boost::range_value<Collection>::type geometry_out;
 
-    concept::check<Geometry const>();
-    concept::check<geometry_out>();
+    concepts::check<Geometry const>();
+    concepts::check<geometry_out>();
 
     typedef detail::connect::fuzzy_policy
         <

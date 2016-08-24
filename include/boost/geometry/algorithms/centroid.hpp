@@ -545,7 +545,7 @@ struct centroid
     template <typename Point, typename Strategy>
     static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
     {
-        concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
+        concepts::check_concepts_and_equal_dimensions<Point, Geometry const>();
         resolve_strategy::centroid<Geometry>::apply(geometry, out, strategy);
     }
 };

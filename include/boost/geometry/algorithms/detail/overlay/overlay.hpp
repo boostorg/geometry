@@ -23,10 +23,10 @@
 #include <boost/mpl/assert.hpp>
 
 
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/detail/overlay/handle_touch.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -220,10 +220,8 @@ struct overlay
         typedef std::map
             <
                 signed_size_type,
-                std::set<signed_size_type>
+                cluster_info
             > cluster_type;
-
-        cluster_type clusters;
 
         turn_container_type turns;
 
@@ -239,37 +237,20 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
-        static const operation_type op_type
-                = OverlayType == overlay_union
-                  ? geometry::detail::overlay::operation_union
-                  : geometry::detail::overlay::operation_intersection;
-
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
+        cluster_type clusters;
+
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
-                clusters, op_type,
-                    geometry1, geometry2,
+                clusters, geometry1, geometry2,
                     robust_policy,
                     side_strategy);
 
         visitor.visit_turns(2, turns);
 
         visitor.visit_clusters(clusters, turns);
-
-
-#if 0
-        // TODO: does not work always correctly, move to traverse and fix
-        if (op_type == geometry::detail::overlay::operation_union)
-        {
-            #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-            std::cout << "handle_touch" << std::endl;
-            #endif
-
-            handle_touch(op_type, turns, visitor);
-        }
-#endif
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
@@ -278,7 +259,7 @@ std::cout << "traverse" << std::endl;
         // Note that these rings are always in clockwise order, even in CCW polygons,
         // and are marked as "to be reversed" below
         ring_container_type rings;
-        traverse<Reverse1, Reverse2, Geometry1, Geometry2, op_type>::apply
+        traverse<Reverse1, Reverse2, Geometry1, Geometry2, OverlayType>::apply
                 (
                     geometry1, geometry2,
                     robust_policy,

@@ -993,8 +993,8 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
             OutputIterator out,
             Strategy const& strategy)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
+    concepts::check<Geometry1 const>();
+    concepts::check<Geometry2 const>();
 
     typedef typename Strategy::rescale_policy_type rescale_policy_type;
     rescale_policy_type robust_policy
@@ -1034,8 +1034,8 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
+    concepts::check<Geometry1 const>();
+    concepts::check<Geometry2 const>();
 
     typedef typename geometry::rescale_policy_type
         <

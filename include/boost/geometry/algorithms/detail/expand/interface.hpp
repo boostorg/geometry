@@ -42,9 +42,9 @@ struct expand
     template <typename Box>
     static inline void apply(Box& box, Geometry const& geometry)
     {
-        concept::check<Box>();
-        concept::check<Geometry const>();
-        concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
+        concepts::check<Box>();
+        concepts::check<Geometry const>();
+        concepts::check_concepts_and_equal_dimensions<Box, Geometry const>();
         
         dispatch::expand<Box, Geometry>::apply(box, geometry);
     }
@@ -100,7 +100,7 @@ inline void expand(Box& box, Geometry const& geometry,
             StrategyLess const& strategy_less,
             StrategyGreater const& strategy_greater)
 {
-    concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
+    concepts::check_concepts_and_equal_dimensions<Box, Geometry const>();
 
     dispatch::expand<Box, Geometry>::apply(box, geometry);
 }

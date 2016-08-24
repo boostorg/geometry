@@ -73,7 +73,7 @@ struct disjoint
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        concept::check_concepts_and_equal_dimensions
+        concepts::check_concepts_and_equal_dimensions
             <
                 Geometry1 const,
                 Geometry2 const

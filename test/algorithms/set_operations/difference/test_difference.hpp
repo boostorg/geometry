@@ -62,14 +62,13 @@ struct ut_settings
     bool sym_difference;
     bool remove_spikes;
 
-    // TODO: set by default to true when all tests pass
     bool test_validity;
 
     ut_settings()
         : percentage(0.0001)
         , sym_difference(true)
         , remove_spikes(false)
-        , test_validity(false)
+        , test_validity(true)
     {}
 
 };

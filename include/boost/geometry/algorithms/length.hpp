@@ -251,7 +251,7 @@ template<typename Geometry>
 inline typename default_length_result<Geometry>::type
 length(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
 
@@ -283,7 +283,7 @@ template<typename Geometry, typename Strategy>
 inline typename default_length_result<Geometry>::type
 length(Geometry const& geometry, Strategy const& strategy)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
 

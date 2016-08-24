@@ -94,9 +94,9 @@ struct cross_product<3>
 template <typename ResultP, typename P1, typename P2>
 inline ResultP cross_product(P1 const& p1, P2 const& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<ResultP>) );
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<P1>) );
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<P2>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Point<ResultP>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<P1>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<P2>) );
 
     ResultP result;
     detail::cross_product<dimension<ResultP>::value>::apply(p1, p2, result);
@@ -114,8 +114,8 @@ inline ResultP cross_product(P1 const& p1, P2 const& p2)
 template <typename P>
 inline P cross_product(P const& p1, P const& p2)
 {
-    BOOST_CONCEPT_ASSERT((concept::Point<P>));
-    BOOST_CONCEPT_ASSERT((concept::ConstPoint<P>));
+    BOOST_CONCEPT_ASSERT((concepts::Point<P>));
+    BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P>));
 
     P result;
     detail::cross_product<dimension<P>::value>::apply(p1, p2, result);

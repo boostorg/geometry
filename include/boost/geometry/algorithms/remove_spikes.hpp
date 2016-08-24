@@ -241,7 +241,7 @@ struct remove_spikes
 {
     static void apply(Geometry& geometry)
     {
-        concept::check<Geometry>();
+        concepts::check<Geometry>();
         dispatch::remove_spikes<Geometry>::apply(geometry);
     }
 };

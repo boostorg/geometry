@@ -96,7 +96,7 @@ public:
 #if !defined(BOOST_MSVC)
         BOOST_CONCEPT_ASSERT
             (
-                (concept::PointSegmentDistanceStrategy
+                (concepts::PointSegmentDistanceStrategy
                     <
                         Strategy, Point, typename point_type<Box>::type
                     >)
