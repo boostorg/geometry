@@ -37,7 +37,7 @@ struct expected_results
     expected_result sjoberg_vincenty;
     expected_result sjoberg_thomas;
     expected_result sjoberg_andoyer;
-    expected_result elliptic;
+    expected_result experimental_elliptic;
     expected_result great_elliptic;
 };
 

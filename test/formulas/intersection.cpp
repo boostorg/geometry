@@ -86,14 +86,14 @@ void test_all(expected_results const& results)
     point_3d a2v = bg::formula::geo_to_cart3d<point_3d>(a2, spheroid);
     point_3d b1v = bg::formula::geo_to_cart3d<point_3d>(b1, spheroid);
     point_3d b2v = bg::formula::geo_to_cart3d<point_3d>(b2, spheroid);
-    point_3d resv(0, 0);
+    point_3d resv(0, 0, 0);
     point_geo res(0, 0);
 
     bg::formula::experimental_elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
     res = bg::formula::cart3d_to_geo<point_geo>(resv, spheroid);
     result.lon = bg::get<0>(res);
     result.lat = bg::get<1>(res);
-    check_inverse(result, results.elliptic, results.gnomonic_karney, 0.0001);
+    check_inverse(result, results.experimental_elliptic, results.gnomonic_karney, 0.0001);
 
     bg::formula::great_elliptic_intersection(a1v, a2v, b1v, b2v, resv, spheroid);
     res = bg::formula::cart3d_to_geo<point_geo>(resv, spheroid);
