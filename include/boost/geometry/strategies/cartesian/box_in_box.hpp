@@ -36,8 +36,7 @@ namespace within
 {
 
 
-template <typename Geometry, std::size_t Dimension, typename CSTag>
-struct box_within_range
+struct box_within_coord
 {
     template <typename BoxContainedValue, typename BoxContainingValue>
     static inline bool apply(BoxContainedValue const& bed_min,
@@ -51,8 +50,7 @@ struct box_within_range
 };
 
 
-template <typename Geometry, std::size_t Dimension, typename CSTag>
-struct box_covered_by_range
+struct box_covered_by_coord
 {
     template <typename BoxContainedValue, typename BoxContainingValue>
     static inline bool apply(BoxContainedValue const& bed_min,
@@ -65,7 +63,19 @@ struct box_covered_by_range
 };
 
 
-struct box_within_longitude_check
+template <typename Geometry, std::size_t Dimension, typename CSTag>
+struct box_within_range
+    : box_within_coord
+{};
+
+
+template <typename Geometry, std::size_t Dimension, typename CSTag>
+struct box_covered_by_range
+    : box_covered_by_coord
+{};
+
+
+struct box_within_longitude_diff
 {
     template <typename CalcT>
     static inline bool apply(CalcT const& diff_ed)
@@ -74,7 +84,7 @@ struct box_within_longitude_check
     }
 };
 
-struct box_covered_by_longitude_check
+struct box_covered_by_longitude_diff
 {
     template <typename CalcT>
     static inline bool apply(CalcT const&)
@@ -84,6 +94,7 @@ struct box_covered_by_longitude_check
 };
 
 template <typename Geometry,
+          typename CoordCheck,
           typename InteriorCheck>
 struct box_longitude_range
 {
@@ -100,6 +111,11 @@ struct box_longitude_range
             >::type calc_t;
         typedef typename coordinate_system<Geometry>::type::units units_t;
         typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+
+        if (CoordCheck::apply(bed_min, bed_max, bing_min, bing_max))
+        {
+            return true;
+        }
 
         // min <= max <=> diff >= 0
         calc_t const diff_ed = bed_max - bed_min;
@@ -122,7 +138,8 @@ struct box_longitude_range
         calc_t const diff_min = math::longitude_distance_unsigned<units_t>(bing_min, bed_min);
 
         // max of contained translated into the containing origin must be lesser than max of containing
-        return bing_min + diff_min + diff_ed <= bing_max;
+        return bing_min + diff_min + diff_ed <= bing_max
+            /*|| bing_max - diff_min - diff_ed >= bing_min*/;
     }
 };
 
@@ -130,13 +147,13 @@ struct box_longitude_range
 // spherical_equatorial_tag, spherical_polar_tag and geographic_cat are casted to spherical_tag
 template <typename Geometry>
 struct box_within_range<Geometry, 0, spherical_tag>
-    : box_longitude_range<Geometry, box_within_longitude_check>
+    : box_longitude_range<Geometry, box_within_coord, box_within_longitude_diff>
 {};
 
 
 template <typename Geometry>
 struct box_covered_by_range<Geometry, 0, spherical_tag>
-    : box_longitude_range<Geometry, box_covered_by_longitude_check>
+    : box_longitude_range<Geometry, box_covered_by_coord, box_covered_by_longitude_diff>
 {};
 
 
