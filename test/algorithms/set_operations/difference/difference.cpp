@@ -406,7 +406,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
-            6, 24, 20.096189);
+            1, 20, 20.096189, ignore_validity);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_a",

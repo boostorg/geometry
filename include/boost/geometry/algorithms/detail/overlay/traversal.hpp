@@ -162,39 +162,30 @@ struct traversal
                               segment_identifier const& seg_id1,
                               segment_identifier const& seg_id2) const
     {
-        if (target_operation == operation_intersection)
-        {
-            // For intersections always switch sources
-            return seg_id1.source_index != seg_id2.source_index;
-        }
-        else if (target_operation == operation_union)
-        {
-            // For uu, only switch sources if indicated
-            turn_type const& turn = m_turns[turn_index];
+        // For uu/ii, only switch sources if indicated
+        turn_type const& turn = m_turns[turn_index];
 
-            if (OverlayType == overlay_buffer)
-            {
-                // Buffer does not use source_index (always 0)
-                return turn.switch_source
-                        ? seg_id1.multi_index != seg_id2.multi_index
-                        : seg_id1.multi_index == seg_id2.multi_index;
-            }
+        if (OverlayType == overlay_buffer)
+        {
+            // Buffer does not use source_index (always 0)
+            return turn.switch_source
+                    ? seg_id1.multi_index != seg_id2.multi_index
+                    : seg_id1.multi_index == seg_id2.multi_index;
+        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-            if (turn.switch_source == 1)
-            {
-                std::cout << "Switch source at " << turn_index << std::endl;
-            }
-            else
-            {
-                std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
-            }
-#endif
-            return turn.switch_source
-                    ? seg_id1.source_index != seg_id2.source_index
-                    : seg_id1.source_index == seg_id2.source_index;
+        if (turn.switch_source)
+        {
+            std::cout << "Switch source at " << turn_index << std::endl;
         }
-        return false;
+        else
+        {
+            std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
+        }
+#endif
+        return turn.switch_source
+                ? seg_id1.source_index != seg_id2.source_index
+                : seg_id1.source_index == seg_id2.source_index;
     }
 
     inline
@@ -273,10 +264,6 @@ struct traversal
                 segment_identifier const& seg_id,
                 int& selected_op_index) const
     {
-        // For "ii", take the other one (alternate)
-        //           UNLESS the other one is already visited
-        // For "uu", take the same one (see above);
-
         bool result = false;
 
         for (int i = 0; i < 2; i++)
