@@ -64,9 +64,7 @@ struct traversal_ring_creator
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
-        , m_has_uu(false)
     {
-
     }
 
     template <typename Ring>
@@ -276,49 +274,21 @@ struct traversal_ring_creator
 
     template <typename Rings>
     void iterate(Rings& rings, std::size_t& finalized_ring_size,
-                 typename Backtrack::state_type& state,
-                 int pass)
+                 typename Backtrack::state_type& state)
     {
-        if (pass == 1)
-        {
-            if (target_operation == operation_intersection)
-            {
-                // Second pass currently only used for uu
-                return;
-            }
-            if (! m_has_uu)
-            {
-                // There is no uu found in first pass
-                return;
-            }
-        }
-
-        // Iterate through all unvisited points
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
-            turn_type const& start_turn = m_turns[turn_index];
+            turn_type const& turn = m_turns[turn_index];
 
-            if (start_turn.discarded || start_turn.blocked())
+            if (turn.discarded || turn.blocked())
             {
                 // Skip discarded and blocked turns
                 continue;
             }
-            if (target_operation == operation_union)
-            {
-                if (start_turn.both(operation_union))
-                {
-                    // Start with a uu-turn only in the second pass
-                    m_has_uu = true;
-                    if (pass == 0)
-                    {
-                        continue;
-                    }
-                }
-            }
 
             for (int op_index = 0; op_index < 2; op_index++)
             {
-                traverse_with_operation(start_turn, turn_index, op_index,
+                traverse_with_operation(turn, turn_index, op_index,
                         rings, finalized_ring_size, state);
             }
         }
@@ -333,10 +303,6 @@ private:
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-
-    // Next member is only used for operation union
-    bool m_has_uu;
-
 };
 
 }} // namespace detail::overlay
