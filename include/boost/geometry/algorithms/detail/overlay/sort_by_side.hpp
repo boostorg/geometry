@@ -335,12 +335,8 @@ struct side_sorter
     }
 
     //! Check how many open spaces there are
-    template <typename Turns>
-    std::size_t open_count(Turns const& turns) const
+    inline std::size_t open_count() const
     {
-        typedef typename boost::range_value<Turns>::type turn_type;
-        typedef typename turn_type::turn_operation_type turn_operation_type;
-
         std::size_t result = 0;
         std::size_t last_rank = 0;
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
@@ -348,17 +344,12 @@ struct side_sorter
             rp const& ranked_point = m_ranked_points[i];
 
             if (ranked_point.rank > last_rank
-                && ranked_point.direction == sort_by_side::dir_to)
+                && ranked_point.direction == sort_by_side::dir_to
+                && ranked_point.count_left == 0
+                && ranked_point.count_right > 0)
             {
-                // TODO: take count-left / count_right from rank itself
-                turn_type const& ranked_turn = turns[ranked_point.turn_index];
-                turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
-                if (ranked_op.enriched.count_left == 0
-                     && ranked_op.enriched.count_right > 0)
-                {
-                    result++;
-                    last_rank = ranked_point.rank;
-                }
+                result++;
+                last_rank = ranked_point.rank;
             }
         }
         return result;

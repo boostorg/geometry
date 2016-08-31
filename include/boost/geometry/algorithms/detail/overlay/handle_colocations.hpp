@@ -710,7 +710,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count(turns);
+        cinfo.open_count = sbs.open_count();
     }
 }
 
