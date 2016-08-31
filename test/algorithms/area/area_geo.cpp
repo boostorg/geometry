@@ -29,68 +29,41 @@ void test_geo_strategies()
 
     typedef typename bg::point_type<pt_geo>::type pt_geo_type;
 
-    typedef typename bg::formula::andoyer_inverse
-            <
-                CT,
-                false,
-                true,
-                true
-            > strategy_andoyer;
-
-    typedef typename bg::formula::thomas_inverse
-            <
-                CT,
-                false,
-                true,
-                true
-            > strategy_thomas;
-
-    typedef typename bg::formula::vincenty_inverse
-            <
-                CT,
-                false,
-                true,
-                true
-            > strategy_vincenty;
-
-
-    bg::srs::spheroid<CT> spheroid;
-
     bg::strategy::area::area_geographic
             <pt_geo_type> geographic_default;
 
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_andoyer,
+                bg::formula::andoyer_inverse,
                 1,
                 true
             > geographic_andoyer1;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_andoyer,
+                bg::formula::andoyer_inverse,
                 2,
                 true
             > geographic_andoyer2;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_andoyer,
+                bg::formula::andoyer_inverse,
                 3,
                 true
             > geographic_andoyer3;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_andoyer,
+                bg::formula::andoyer_inverse,
                 4,
                 true
             > geographic_andoyer4;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_andoyer,
+                bg::formula::andoyer_inverse,
                 5,
                 true
             > geographic_andoyer5;
@@ -98,35 +71,35 @@ void test_geo_strategies()
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_thomas,
+                bg::formula::thomas_inverse,
                 1,
                 true
             > geographic_thomas1;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_thomas,
+                bg::formula::thomas_inverse,
                 2,
                 true
             > geographic_thomas2;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_thomas,
+                bg::formula::thomas_inverse,
                 3,
                 true
             > geographic_thomas3;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_thomas,
+                bg::formula::thomas_inverse,
                 4,
                 true
             > geographic_thomas4;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_thomas,
+                bg::formula::thomas_inverse,
                 5,
                 true
             > geographic_thomas5;
@@ -134,35 +107,35 @@ void test_geo_strategies()
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 1,
                 true
             > geographic_vincenty1;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 2,
                 true
             > geographic_vincenty2;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 3,
                 true
             > geographic_vincenty3;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 4,
                 true
             > geographic_vincenty4;
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 5,
                 true
             > geographic_vincenty5;
@@ -170,14 +143,14 @@ void test_geo_strategies()
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty,
+                bg::formula::vincenty_inverse,
                 5
             > geographic_vincenty5_default;
 
     bg::strategy::area::area_geographic
             <
                 pt_geo_type,
-                strategy_vincenty
+                bg::formula::vincenty_inverse
             > geographic_vincenty_default;
 
     bg::model::polygon<pt_geo> geometry_geo;

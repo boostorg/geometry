@@ -391,7 +391,8 @@ public:
         Compute the ellipsoidal correction of a geodesic (or shperical) segment
     */
     template <
-                typename AzimuthStrategy,
+                template <typename, bool, bool, bool, bool, bool> class Inverse,
+                //typename AzimuthStrategy,
                 typename PointOfSegment,
                 typename SpheroidConst
              >
@@ -401,8 +402,20 @@ public:
     {
 
 
-        // Azimuth Approximation
+        typedef Inverse<CT, false, true, true, false, false> inverse_type;
+        typedef typename inverse_type::result_type inverse_result;
 
+        inverse_result i_res = inverse_type::apply(get_as_radian<0>(p1),
+                                                   get_as_radian<1>(p1),
+                                                   get_as_radian<0>(p2),
+                                                   get_as_radian<1>(p2),
+                                                   spheroid_const.m_spheroid);
+
+        CT alp1 = i_res.azimuth;
+        CT alp2 = i_res.reverse_azimuth;
+
+        // Azimuth Approximation
+/*
         CT alp1, alp2;
 
         alp1 = AzimuthStrategy::apply(get_as_radian<0>(p1),
@@ -416,7 +429,7 @@ public:
                                       get_as_radian<0>(p2),
                                       get_as_radian<1>(p2),
                                       spheroid_const.m_spheroid).reverse_azimuth;
-
+*/
         // Integral approximation
 
         CT const ep = spheroid_const.m_ep;

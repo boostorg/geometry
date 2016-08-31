@@ -31,7 +31,8 @@ approximation that gives the ellipsoidal correction
 template
 <
     typename PointOfSegment,
-    typename Strategy = void,
+    template <typename, bool, bool, bool, bool, bool> class Inverse =
+              geometry::formula::thomas_inverse,
     std::size_t SeriesOrder = 2,
     bool ExpandEpsN = true,
     bool LongSegment = false,
@@ -53,7 +54,7 @@ class area_geographic
             >::type,
         CalculationType
     >::type CT;
-
+/*
     typedef typename boost::mpl::if_c
     <
         boost::is_void<Strategy>::type::value,
@@ -66,7 +67,7 @@ class area_geographic
             >,
         Strategy
     >::type AzimuthStrategy;
-
+*/
     typedef typename boost::mpl::if_c
     <
         boost::is_void<Spheroid>::type::value,
@@ -167,8 +168,7 @@ public :
 
             state.m_correction_sum += geometry::formula::area_formulas
                                     <CT, SeriesOrder, ExpandEpsN>
-                                    ::template ellipsoidal_correction
-                                    <AzimuthStrategy>
+                                    ::template ellipsoidal_correction<Inverse>
                                     (p1, p2, spheroid_const);
 
             // Keep track whenever a segment crosses the prime meridian
