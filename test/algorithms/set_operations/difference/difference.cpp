@@ -539,18 +539,12 @@ void test_all()
         1, 1, -1, 66.0,
         ignore_validity);
 
-//    Case mysql_23023665_4 is not yet included!
-//    test_one<polygon, polygon, polygon>("mysql_23023665_4",
-//        mysql_23023665_4[0], mysql_23023665_4[1],
-//        1, 1, -1, 1.5,
-//        1, 2, -1, 219.0,
-//        1, 2, -1, 1.5 + 219.0);
-
     test_one<polygon, polygon, polygon>("mysql_23023665_5",
         mysql_23023665_5[0], mysql_23023665_5[1],
         2 - correction_for_invalidity, 2 - correction_for_invalidity, -1, 165.23735,
         2, 2, -1, 105.73735,
         ignore_validity);
+
     test_one<polygon, polygon, polygon>("mysql_23023665_6",
         mysql_23023665_6[0], mysql_23023665_6[1],
         2, 2, -1, 105.68756,
