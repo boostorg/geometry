@@ -58,6 +58,7 @@ test-suite boost-geometry-algorithms
     [ run transform_multi.cpp          : : : : algorithms_transform_multi ]
     [ run unique.cpp                   : : : : algorithms_unique ]
     [ run unique_multi.cpp             : : : : algorithms_unique_multi ]
+    [ run vertex_latitude.cpp          : : : : algorithms_vertex_latitude ]
     ;
 
 build-project buffer ;

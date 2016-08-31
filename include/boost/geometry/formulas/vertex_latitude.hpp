@@ -54,16 +54,16 @@ public:
         inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2,
                                                    spheroid);
 
-        CT const alp1 = i_res.azimuth;
-        CT const alp2 = i_res.reverse_azimuth;
+        CT const alp1 = std::abs(i_res.azimuth);
+        CT const alp2 = std::abs(i_res.reverse_azimuth);
 
-        std::cout << "a1=" << alp1 * 180 / math::pi<CT>()
-                  << " a2="
-                  << alp2 * 180 / math::pi<CT>()
-                  << std::endl;
+        //std::cout << "a1=" << alp1 * 180 / math::pi<CT>()
+        //          << " a2="
+        //          << alp2 * 180 / math::pi<CT>()
+        //          << std::endl;
 
         // if the segment does not contain the vertex of the geodesic
-        // then the vertex is one of the endpoints
+        // then return the endpoint of max (min) latitude
         if ((alp1 < half_pi && alp2 < half_pi)
             || (alp1 > half_pi && alp2 > half_pi)
             || (north == sign))
@@ -73,18 +73,13 @@ public:
 
         CT const sin_alp1 = sin(alp1);
         CT const sin_lat1 = sin(lat1);
-        //CT const sin_lat2 = sin(lat2);
         CT const cos_lat1 = math::sqrt(CT(1) - math::sqr(sin_lat1));
-        //CT const cos_lat2 = math::sqrt(CT(1) - math::sqr(sin_lat2));
 
-        //normal radius at point p1(lon1,lat1)
+        // normal radius at point p1(lon1,lat1)
         CT const n_b1 = a / (math::sqrt(CT(1) - e2 * math::sqr(sin_lat1)));
-        //CT const n_b2 = a / (math::sqrt(CT(1) - e2 * math::sqr(sin_lat2)));
 
-        //the invariant of the geodesic
+        // the invariant of the geodesic
         CT const c = n_b1 * cos_lat1 * sin_alp1;
-
-        //CT const alp2b = std::asin(c / (n_b2 * cos_lat2));
 
         CT const a_c2 = math::sqr(a / c);
         CT const max_lat = std::asin(math::sqrt((a_c2 - 1) / (a_c2 - e2)));
