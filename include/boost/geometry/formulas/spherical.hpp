@@ -1,6 +1,7 @@
 // Boost.Geometry
 
 // Copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -26,6 +27,18 @@
 namespace boost { namespace geometry {
     
 namespace formula {
+
+template <typename T>
+struct result_spherical
+{
+    result_spherical()
+        : azimuth(0)
+        , reverse_azimuth(0)
+    {}
+
+    T azimuth;
+    T reverse_azimuth;
+};
 
 template <typename Point3d, typename PointSph>
 static inline Point3d sph_to_cart3d(PointSph const& point_sph)
@@ -87,6 +100,44 @@ static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
     return math::equals(d, c0) ? 0
         : d > c0 ? 1
         : -1; // d < 0
+}
+
+template <typename CT, typename T1, typename T2>
+static inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
+                                                 T1 const& lat1,
+                                                 T2 const& lon2,
+                                                 T2 const& lat2,
+                                                 bool reverse_azimuth = false)
+{
+    typedef result_spherical<CT> result_type;
+    result_type result;
+
+    // http://williams.best.vwh.net/avform.htm#Crs
+    // https://en.wikipedia.org/wiki/Great-circle_navigation
+    CT dlon = lon2 - lon1;
+    CT cos_dlon = cos(dlon);
+    CT sin_dlon = sin(dlon);
+    CT cos_lat1 = cos(lat1);
+    CT cos_lat2 = cos(lat2);
+    CT sin_lat1 = sin(lat1);
+    CT sin_lat2 = sin(lat2);
+
+    // An optimization which should kick in often for Boxes
+    //if ( math::equals(dlon, ReturnType(0)) )
+    //if ( get<0>(p1) == get<0>(p2) )
+    //{
+    //    return - sin(get_as_radian<1>(p1)) * cos_p2lat);
+    //}
+
+    // "An alternative formula, not requiring the pre-computation of d"
+    // In the formula below dlon is used as "d"
+    result.azimuth = atan2(sin_dlon * cos_lat2,
+                          cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_dlon);
+
+    result.reverse_azimuth = atan2(sin_dlon * cos_lat1,
+                          sin_lat2 * cos_lat1 * cos_dlon - cos_lat2 * sin_lat1);
+
+    return result;
 }
 
 } // namespace formula

@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_MAXIMUM_LATITUDE_HPP
 #define BOOST_GEOMETRY_FORMULAS_MAXIMUM_LATITUDE_HPP
 
+#include <boost/geometry/formulas/spherical.hpp>
+
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -25,7 +27,8 @@ a point on the geodesic that maximizes (or minimizes) the latitude.
 template <
     typename CT,
     template <typename, bool, bool, bool, bool, bool> class Inverse,
-    bool north
+    bool north,
+    bool spherical = false
 >
 class vertex_latitude
 {
@@ -51,10 +54,22 @@ public:
         // and zero (false) otherwise.
         bool sign = std::signbit(std::abs(lat1) > std::abs(lat2) ? lat1 : lat2);
 
-        inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+        CT alp1, alp2;
 
-        CT const alp1 = std::abs(i_res.azimuth);
-        CT const alp2 = std::abs(i_res.reverse_azimuth);
+        if (spherical)
+        {
+            geometry::formula::result_spherical<CT> result = geometry::formula::
+                                  spherical_azimuth<CT>(lon1, lat1, lon2, lat2);
+            alp1 = std::abs(result.azimuth);
+            alp2 = std::abs(result.reverse_azimuth);
+        }
+        else
+        {
+            inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+
+            alp1 = std::abs(i_res.azimuth);
+            alp2 = std::abs(i_res.reverse_azimuth);
+        }
 
         // if the segment does not contain the vertex of the geodesic
         // then return the endpoint of max (min) latitude
@@ -65,20 +80,31 @@ public:
             return north ? std::max(lat1, lat2) : std::min(lat1, lat2);
         }
 
-        CT const sin_alp1 = sin(alp1);
-        CT const sin_lat1 = sin(lat1);
-        CT const cos_lat1 = math::sqrt(CT(1) - math::sqr(sin_lat1));
+        CT vertex_lat;
 
-        // normal radius at point p1(lon1,lat1)
-        CT const n_b1 = a / (math::sqrt(CT(1) - e2 * math::sqr(sin_lat1)));
+        if (spherical)
+        {
+            CT const cos2_lat1 = math::sqr(cos(lat1));
+            CT const sin2_alp2 = math::sqr(sin(alp2));
+            vertex_lat = std::asin(math::sqrt(1 - cos2_lat1 * sin2_alp2));
+        }
+        else
+        {
+            CT const sin_alp1 = sin(alp1);
+            CT const sin2_lat1 = math::sqr(sin(lat1));
+            CT const cos_lat1 = math::sqrt(CT(1) - sin2_lat1);
 
-        // the invariant of the geodesic
-        CT const c = n_b1 * cos_lat1 * sin_alp1;
+            // normal radius at point p1(lon1,lat1)
+            CT const n_b1 = a / (math::sqrt(CT(1) - e2 * sin2_lat1));
 
-        CT const a_c2 = math::sqr(a / c);
-        CT const max_lat = std::asin(math::sqrt((a_c2 - 1) / (a_c2 - e2)));
+            // the invariant of the geodesic
+            CT const c = n_b1 * cos_lat1 * sin_alp1;
 
-        return (sign ? max_lat * CT(-1) : max_lat);
+            CT const a_c2 = math::sqr(a / c);
+            vertex_lat = std::asin(math::sqrt((a_c2 - 1) / (a_c2 - e2)));
+        }
+
+        return (sign ? vertex_lat * CT(-1) : vertex_lat);
     }
 };
 
