@@ -24,7 +24,8 @@ a point on the geodesic that maximizes (or minimizes) the latitude.
 
 template <
     typename CT,
-    template <typename, bool, bool, bool, bool, bool> class Inverse
+    template <typename, bool, bool, bool, bool, bool> class Inverse,
+    bool north
 >
 class vertex_latitude
 {
@@ -39,8 +40,7 @@ public:
                            T1 const& lat1,
                            T2 const& lon2,
                            T2 const& lat2,
-                           Spheroid const& spheroid,
-                           bool north)
+                           Spheroid const& spheroid)
     {
         CT const a = get_radius<0>(spheroid);
         CT const f = detail::flattening<CT>(spheroid);
@@ -51,16 +51,10 @@ public:
         // and zero (false) otherwise.
         bool sign = std::signbit(std::abs(lat1) > std::abs(lat2) ? lat1 : lat2);
 
-        inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2,
-                                                   spheroid);
+        inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
 
         CT const alp1 = std::abs(i_res.azimuth);
         CT const alp2 = std::abs(i_res.reverse_azimuth);
-
-        //std::cout << "a1=" << alp1 * 180 / math::pi<CT>()
-        //          << " a2="
-        //          << alp2 * 180 / math::pi<CT>()
-        //          << std::endl;
 
         // if the segment does not contain the vertex of the geodesic
         // then return the endpoint of max (min) latitude

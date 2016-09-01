@@ -8,21 +8,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/srs.hpp>
-
-#include <boost/geometry/algorithms/detail/flattening.hpp>
-
-#include <iostream>
+#include <geometry_test_common.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
-
-#include <geometry_test_common.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 template <
             template <typename, bool, bool, bool, bool, bool> class Inverse,
@@ -36,15 +27,13 @@ void test_vertex_lat(P p1, P p2, CT expected_max, CT expected_min, CT error = 0.
        p20 = bg::get_as_radian<0>(p2),
        p21 = bg::get_as_radian<1>(p2);
 
-    bg::formula::vertex_latitude<CT, Inverse> vrt_lat;
-
-    CT p_max = vrt_lat.apply(p10, p11, p20, p21,
-                             bg::srs::spheroid<CT>(), true);
+    CT p_max = bg::formula::vertex_latitude<CT, Inverse, true>
+                 ::apply(p10, p11, p20, p21, bg::srs::spheroid<CT>());
     CT p_max_degree = p_max * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_max_degree, expected_max, error);
 
-    CT p_min = vrt_lat.apply(p10, p11, p20, p21,
-                             bg::srs::spheroid<CT>(), false);
+    CT p_min = bg::formula::vertex_latitude<CT, Inverse, false>
+                 ::apply(p10, p11, p20, p21, bg::srs::spheroid<CT>());
     CT p_min_degree = p_min * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_min_degree, expected_min, error);
 }
@@ -84,6 +73,15 @@ void test_all()
             (Pg(1, 1), Pg(10, 1), 1.0031124504591062, 1.0, 0.00000001);
     test_vertex_lat<bg::formula::vincenty_inverse>
             (Pg(1, 1), Pg(10, 1), 1.0031124508942098, 1.0, 0.00000001);
+
+    // Meridian and equator
+    test_vertex_lat<bg::formula::thomas_inverse>(Pg(1, 10), Pg(1, -10), 10.0, -10.0);
+    test_vertex_lat<bg::formula::thomas_inverse>(Pg(1, 0), Pg(10, 0), 0.0, 0.0);
+
+    // One endpoint in northern hemisphere and the other in southern hemisphere
+    test_vertex_lat<bg::formula::thomas_inverse>(Pg(1, 1), Pg(150, -5), 1.0, -8.1825389632359933);
+    test_vertex_lat<bg::formula::thomas_inverse>(Pg(150, -5), Pg(1, 1), 1.0, -8.1825389632359933);
+    test_vertex_lat<bg::formula::thomas_inverse>(Pg(150, 5), Pg(1, -1), 8.1825389632359933, -1.0);
 }
 
 int test_main( int , char* [] )
