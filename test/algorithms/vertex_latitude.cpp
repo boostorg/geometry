@@ -19,37 +19,34 @@ template <
         template <typename, bool, bool, bool, bool, bool> class Inverse,
         typename P,
         typename CT
-        >
+>
 void test_vertex_lat(P p1, P p2, CT expected_max, CT expected_min,
                      CT expected_max_sph, CT expected_min_sph, CT error = 0.0001)
 {
     CT p10 = bg::get_as_radian<0>(p1),
-            p11 = bg::get_as_radian<1>(p1),
-            p20 = bg::get_as_radian<0>(p2),
-            p21 = bg::get_as_radian<1>(p2);
+       p11 = bg::get_as_radian<1>(p1),
+       p20 = bg::get_as_radian<0>(p2),
+       p21 = bg::get_as_radian<1>(p2);
 
-    CT p_max = bg::formula::vertex_latitude<CT>
-            ::template geographic<Inverse, true>
-            (p10, p11, p20, p21, bg::srs::spheroid<CT>());
-    CT p_max_degree = p_max * 180 / bg::math::pi<CT>();
+    typename bg::formula::vertex_latitude<CT>::vertex_lat_result p_max
+             = bg::formula::vertex_latitude<CT>::template geographic<Inverse>
+               (p10, p11, p20, p21, bg::srs::spheroid<CT>());
+
+    CT p_max_degree = p_max.north * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_max_degree, expected_max, error);
 
-    CT p_min = bg::formula::vertex_latitude<CT>
-            ::template geographic<Inverse, false>
-            (p10, p11, p20, p21, bg::srs::spheroid<CT>());
-    CT p_min_degree = p_min * 180 / bg::math::pi<CT>();
+    CT p_min_degree = p_max.south * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_min_degree, expected_min, error);
 
-    CT p_max_sph = bg::formula::vertex_latitude<CT>
-            ::template spherical<true>(p10, p11, p20, p21);
-    CT p_max_degree_sph = p_max_sph * 180 / bg::math::pi<CT>();
+    typename bg::formula::vertex_latitude<CT>::vertex_lat_result p_max_sph
+             = bg::formula::vertex_latitude<CT>::template spherical
+               (p10, p11, p20, p21);
+
+    CT p_max_degree_sph = p_max_sph.north * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_max_degree_sph, expected_max_sph, error);
 
-    CT p_min_sph = bg::formula::vertex_latitude<CT>
-            ::template spherical<false>(p10, p11, p20, p21);
-    CT p_min_degree_sph = p_min_sph * 180 / bg::math::pi<CT>();
+    CT p_min_degree_sph = p_max_sph.south * 180 / bg::math::pi<CT>();
     BOOST_CHECK_CLOSE(p_min_degree_sph, expected_min_sph, error);
-
 }
 
 
@@ -61,6 +58,7 @@ void test_all()
     // Short segments
     test_vertex_lat<bg::formula::thomas_inverse>
             (Pg(1, 1), Pg(10, 5), 5.0, 1.0, 5.0, 1.0);
+
     test_vertex_lat<bg::formula::thomas_inverse>
             (Pg(1, 1), Pg(10, 1), 1.0031124506594733, 1.0, 1.0030915676477881, 1.0);
     test_vertex_lat<bg::formula::thomas_inverse>
@@ -99,13 +97,13 @@ void test_all()
     // Different strategies for inverse
     test_vertex_lat<bg::formula::thomas_inverse>
             (Pg(1, 1), Pg(10, 1), 1.0031124506594733, 1.0,
-                                  1.0030915676477881, 1.0, 0.00000001);
+             1.0030915676477881, 1.0, 0.00000001);
     test_vertex_lat<bg::formula::andoyer_inverse>
             (Pg(1, 1), Pg(10, 1), 1.0031124504591062, 1.0,
-                                  1.0030915676477881, 1.0, 0.00000001);
+             1.0030915676477881, 1.0, 0.00000001);
     test_vertex_lat<bg::formula::vincenty_inverse>
             (Pg(1, 1), Pg(10, 1), 1.0031124508942098, 1.0,
-                                  1.0030915676477881, 1.0, 0.00000001);
+             1.0030915676477881, 1.0, 0.00000001);
 
     // Meridian and equator
     test_vertex_lat<bg::formula::thomas_inverse>
@@ -120,7 +118,6 @@ void test_all()
             (Pg(150, -5), Pg(1, 1), 1.0, -8.1825389632359933, 1.0, -8.0761230625568015);
     test_vertex_lat<bg::formula::thomas_inverse>
             (Pg(150, 5), Pg(1, -1), 8.1825389632359933, -1.0, 8.0761230625568015, -1.0);
-
 }
 
 
