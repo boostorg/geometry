@@ -102,12 +102,11 @@ static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
         : -1; // d < 0
 }
 
-template <typename CT, typename T1, typename T2>
+template <typename CT, bool ReverseAzimuth, typename T1, typename T2>
 static inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
                                                  T1 const& lat1,
                                                  T2 const& lon2,
-                                                 T2 const& lat2,
-                                                 bool reverse_azimuth = false)
+                                                 T2 const& lat2)
 {
     typedef result_spherical<CT> result_type;
     result_type result;
@@ -132,10 +131,14 @@ static inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
     // "An alternative formula, not requiring the pre-computation of d"
     // In the formula below dlon is used as "d"
     result.azimuth = atan2(sin_dlon * cos_lat2,
-                          cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_dlon);
+                           cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_dlon);
 
-    result.reverse_azimuth = atan2(sin_dlon * cos_lat1,
-                          sin_lat2 * cos_lat1 * cos_dlon - cos_lat2 * sin_lat1);
+    if (ReverseAzimuth)
+    {
+        result.reverse_azimuth =
+                     atan2(sin_dlon * cos_lat1,
+                           sin_lat2 * cos_lat1 * cos_dlon - cos_lat2 * sin_lat1);
+    }
 
     return result;
 }

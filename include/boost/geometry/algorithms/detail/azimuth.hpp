@@ -70,7 +70,7 @@ struct azimuth<ReturnType, spherical_equatorial_tag>
     template <typename P1, typename P2, typename Sphere>
     static inline ReturnType apply(P1 const& p1, P2 const& p2, Sphere const& /*unused*/)
     {
-        return geometry::formula::spherical_azimuth<ReturnType>
+        return geometry::formula::spherical_azimuth<ReturnType, false>
                     ( get_as_radian<0>(p1), get_as_radian<1>(p1),
                       get_as_radian<0>(p2), get_as_radian<1>(p2)).azimuth;
     }
