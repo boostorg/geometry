@@ -77,8 +77,6 @@ public:
     {
         // coordinates in radians
 
-        // TODO - handle special cases like degenerated segments, equator, poles, etc.
-
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
@@ -135,116 +133,226 @@ public:
             return true;
         }
 
-        CT const t01 = sqrt_1_C1_sqr / C1;
-        CT const t02 = sqrt_1_C2_sqr / C2;
+        // vertical segments
+        bool const is_C1_zero = math::equals(C1, c0);
+        bool const is_C2_zero = math::equals(C2, c0);
+        if (is_C1_zero && is_C2_zero)
+        {
+            return false;
+        }
 
-        CT const asin_t1_t01 = asin(tan_beta1 / t01);
-        CT const asin_t2_t02 = asin(tan_beta2 / t02);
-        CT const t01_t02 = t01 * t02;
-        CT const t01_t02_2 = c2 * t01_t02;
-        CT const sqr_t01_sqr_t02 = math::sqr(t01) + math::sqr(t02);
+        CT t01 = 0;
+        CT t02 = 0;
+        CT asin_t1_t01 = 0;
+        CT asin_t2_t02 = 0;
+
+        if (! is_C1_zero)
+        {
+            t01 = sqrt_1_C1_sqr / C1;
+            asin_t1_t01 = asin(tan_beta1 / t01);
+        }
+
+        if (! is_C2_zero)
+        {
+            t02 = sqrt_1_C2_sqr / C2;
+            asin_t2_t02 = asin(tan_beta2 / t02);
+        }
+
+        // (lon1 - lon2) normalized to (-180, 180]
+        CT const dlon = math::longitude_distance_signed<radian>(lon2, lon1);
 
         CT t = tan_beta1;
-        int t_id = 0;
-
-        // find the initial t using simplified spherical solution
-        // though not entirely since the reduced latitudes and azimuths are spheroidal
-        // [Sjoberg07]
-        CT const k_base = lon1 - lon2 + asin_t2_t02 - asin_t1_t01;
+        int t_id = -1;
+        CT k_base = dlon;
         
+        if (is_C1_zero)
         {
+            k_base = dlon + asin_t2_t02;
+            t = sin(k_base) * t02;
+            t_id = 0;
+        }
+        else if (is_C2_zero)
+        {
+            k_base = dlon - asin_t1_t01;
+            t = sin(-k_base) * t01;
+            t_id = 0;
+        }
+        else
+        {
+            // find the initial t using simplified spherical solution
+            // though not entirely since the reduced latitudes and azimuths are spheroidal
+            // [Sjoberg07]
+            k_base = dlon + asin_t2_t02 - asin_t1_t01;
+        
             CT const K = sin(k_base);
+
+            CT const t01_t02 = t01 * t02;
+            CT const t01_t02_2 = c2 * t01_t02;
+            CT const sqr_t01_sqr_t02 = math::sqr(t01) + math::sqr(t02);
+
             CT const d1 = sqr_t01_sqr_t02;
             //CT const d2 = t01_t02_2 * math::sqrt(c1 - math::sqr(K));
             CT const d2 = t01_t02_2 * cos(k_base);
-            CT const D1 = math::sqrt(d1 - d2);
-            CT const D2 = math::sqrt(d1 + d2);
             CT const K_t01_t02 = K * t01_t02;
-
-            CT const T1 = K_t01_t02 / D1;
-            CT const T2 = K_t01_t02 / D2;
-            CT asin_T1_t01 = 0;
-            CT asin_T1_t02 = 0;
-            CT asin_T2_t01 = 0;
-            CT asin_T2_t02 = 0;
 
             // test 4 possible results
             CT l1 = 0, l2 = 0, dl = 0;
-            bool found = check_t<0>( T1,
-                                    lon1,  asin_T1_t01 = asin(T1 / t01), asin_t1_t01,
-                                    lon2,  asin_T1_t02 = asin(T1 / t02), asin_t2_t02,
-                                    t, l1, l2, dl, t_id)
-                      || check_t<1>(-T1,
-                                    lon1, -asin_T1_t01                 , asin_t1_t01,
-                                    lon2, -asin_T1_t02                 , asin_t2_t02,
-                                    t, l1, l2, dl, t_id)
-                      || check_t<2>( T2,
-                                    lon1,  asin_T2_t01 = asin(T2 / t01), asin_t1_t01,
-                                    lon2,  asin_T2_t02 = asin(T2 / t02), asin_t2_t02,
-                                    t, l1, l2, dl, t_id)
-                      || check_t<3>(-T2,
-                                    lon1, -asin_T2_t01                 , asin_t1_t01,
-                                    lon2, -asin_T2_t02                 , asin_t2_t02,
-                                    t, l1, l2, dl, t_id);
 
-            boost::ignore_unused(found);
+            CT const d1_minus_d2 = d1 - d2;
+            if (d1_minus_d2 > c0)
+            {
+                CT const D1 = math::sqrt(d1_minus_d2);
+                if (! math::equals(D1, c0))
+                {
+                    CT const T1 = K_t01_t02 / D1;
+                    CT const asin_T1_t01 = asin(T1 / t01);
+                    CT const asin_T1_t02 = asin(T1 / t02);
+
+                    check_t<0>(T1,
+                                lon1,  asin_T1_t01, asin_t1_t01,
+                                lon2,  asin_T1_t02, asin_t2_t02,
+                                t, l1, l2, dl, t_id);
+                    check_t<1>(-T1,
+                                lon1, -asin_T1_t01, asin_t1_t01,
+                                lon2, -asin_T1_t02, asin_t2_t02,
+                                t, l1, l2, dl, t_id);
+                }
+            }
+
+            CT const d1_plus_d2 = d1 + d2;
+            if (d1_plus_d2 > c0)
+            {
+                CT const D2 = math::sqrt(d1 + d2);
+                if (! math::equals(D2, c0))
+                {
+                    CT const T2 = K_t01_t02 / D2;
+                    CT const asin_T2_t01 = asin(T2 / t01);
+                    CT const asin_T2_t02 = asin(T2 / t02);
+            
+                    check_t<2>(T2,
+                                lon1,  asin_T2_t01, asin_t1_t01,
+                                lon2,  asin_T2_t02, asin_t2_t02,
+                                t, l1, l2, dl, t_id);
+                    check_t<3>(-T2,
+                                lon1, -asin_T2_t01, asin_t1_t01,
+                                lon2, -asin_T2_t02, asin_t2_t02,
+                                t, l1, l2, dl, t_id);
+                }
+            }
         }
-        
-        // [Sjoberg07]
-        //int const d2_sign = t_id < 2 ? -1 : 1;
-        int const t_sign = (t_id % 2) ? -1 : 1;
-        // [Sjoberg02]
+
+        if (t_id < 0)
+        {
+            return false;
+        }
+
         CT const C1_sqr = math::sqr(C1);
         CT const C2_sqr = math::sqr(C2);
         
         CT beta = atan(t);
-        CT dL1 = 0, dL2 = 0;
         CT asin_t_t01 = 0;
         CT asin_t_t02 = 0;
+        CT dL1 = 0;
+        CT dL2 = 0;
 
+        CT const t_orig = t;
+        CT const beta_orig = beta;
+        CT dbeta_abs_first = 0;
+        int dbeta_sign = 1;
+
+        // [Sjoberg02] converges faster than solution in [Sjoberg07]
+        // Newton–Raphson method
         for (int i = 0; i < 10; ++i)
         {
             CT const sin_beta = sin(beta);
-
-            // integrals approximation
-            dL1 = d_lambda_e_sqr(sin_beta1, sin_beta, C1, sqrt_1_C1_sqr, e_sqr);
-            dL2 = d_lambda_e_sqr(sin_beta2, sin_beta, C2, sqrt_1_C2_sqr, e_sqr);
-
-            // [Sjoberg07]
-            /*CT const k = k_base + dL1 - dL2;
-            CT const K = sin(k);
-            CT const d1 = sqr_t01_sqr_t02;
-            //CT const d2 = t01_t02_2 * math::sqrt(c1 - math::sqr(K));
-            CT const d2 = t01_t02_2 * cos(k);
-            CT const D = math::sqrt(d1 + d2_sign * d2);
-            CT const t_new = t_sign * K * t01_t02 / D;
-            CT const dt = math::abs(t_new - t);
-            t = t_new;
-            CT const new_beta = atan(t);
-            CT const dbeta = math::abs(new_beta - beta);
-            beta = new_beta;*/
-
-            // [Sjoberg02] - it converges faster
-            // Newton–Raphson method
-            asin_t_t01 = asin(t / t01);
-            asin_t_t02 = asin(t / t02);
-            CT const R1 = asin_t_t01 + dL1;
-            CT const R2 = asin_t_t02 + dL2;
             CT const cos_beta = cos(beta);
             CT const cos_beta_sqr = math::sqr(cos_beta);
             CT const G = c1 - e_sqr * cos_beta_sqr;
-            CT const f1 = C1 / cos_beta * math::sqrt(G / (cos_beta_sqr - C1_sqr));
-            CT const f2 = C2 / cos_beta * math::sqrt(G / (cos_beta_sqr - C2_sqr));
-            CT const abs_f1 = math::abs(f1);
-            CT const abs_f2 = math::abs(f2);
-            CT const dbeta = t_sign * (k_base - R2 + R1) / (abs_f1 + abs_f2);
- 
+
+            CT R1 = 0;
+            CT R2 = 0;
+            CT f1 = 0;
+            CT f2 = 0;
+
+            if (! is_C1_zero)
+            {
+                CT const t_t01 = t / t01;
+
+                // If the argument of asin() is not in [-1, 1] it may indicate that
+                // the result isn't converging so change the sign and try again
+                if (t_t01 < -c1 || t_t01 > c1)
+                {
+                    if (dbeta_sign == 1)
+                    {
+                        reset_loop(beta, t, dbeta_sign, i, beta_orig, t_orig);
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                asin_t_t01 = asin(t_t01);
+                dL1 = d_lambda_e_sqr(sin_beta1, sin_beta, C1, sqrt_1_C1_sqr, e_sqr);
+                R1 = asin_t_t01 + dL1;
+                f1 = C1 / cos_beta * math::sqrt(G / (cos_beta_sqr - C1_sqr));
+            }
+
+            if (! is_C2_zero)
+            {
+                CT const t_t02 = t / t02;
+
+                // If the argument of asin() is not in [-1, 1] it may indicate that
+                // the result isn't converging so change the sign and try again
+                if (t_t02 < -c1 || t_t02 > c1)
+                {
+                    if (dbeta_sign == 1)
+                    {
+                        reset_loop(beta, t, dbeta_sign, i, beta_orig, t_orig);
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                asin_t_t02 = asin(t_t02);
+                dL2 = d_lambda_e_sqr(sin_beta2, sin_beta, C2, sqrt_1_C2_sqr, e_sqr);
+                R2 = asin_t_t02 + dL2;
+                f2 = C2 / cos_beta * math::sqrt(G / (cos_beta_sqr - C2_sqr));
+            }
+            
+            // The sign of dbeta is changed WRT [Sjoberg02]
+            CT const dbeta = dbeta_sign * (k_base - R2 + R1) / (f1 - f2);
+
             if (math::equals(dbeta, CT(0)))
             {
                 break;
             }
 
+            // check if the result is converging properly, otherwise change the sign
+            if (i == 0)
+            {
+                dbeta_abs_first = math::abs(dbeta);
+            }
+            else if (i == 1 && math::abs(dbeta) > dbeta_abs_first)
+            {
+                if (dbeta_sign == 1)
+                {
+                    reset_loop(beta, t, dbeta_sign, i, beta_orig, t_orig);
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            // Because the sign of dbeta is changed WRT [Sjoberg02] dbeta is subtracted here
             beta = beta - dbeta;
+
             t = tan(beta);
         }
         
@@ -355,27 +463,35 @@ private:
     static inline bool check_t(CT const& t,
                                CT const& lon_a1, CT const& asin_t_t01, CT const& asin_t1_t01,
                                CT const& lon_b1, CT const& asin_t_t02, CT const& asin_t2_t02,
-                               CT & current_t, CT & current_lon1, CT & current_lon2, CT & current_dlon,
-                               int & t_id)
+                               CT & choosen_t, CT & choosen_lon1, CT & choosen_lon2, CT & choosen_dlon,
+                               int & t_id) // in/out
     {
         CT const lon1 = lon_a1 + asin_t_t01 - asin_t1_t01;
         CT const lon2 = lon_b1 + asin_t_t02 - asin_t2_t02;
 
-        // TODO - true angle difference
-        CT const dlon = math::abs(lon2 - lon1);
+        CT const dlon = math::abs(math::longitude_distance_signed<radian>(lon2, lon1));
 
         bool are_equal = math::equals(dlon, CT(0));
         
-        if ((TId == 0) || are_equal || dlon < current_dlon)
+        if (t_id < 0 || are_equal || dlon < choosen_dlon)
         {
-            current_t = t;
-            current_lon1 = lon1;
-            current_lon2 = lon2;
-            current_dlon = dlon;
+            choosen_t = t;
+            choosen_lon1 = lon1;
+            choosen_lon2 = lon2;
+            choosen_dlon = dlon;
             t_id = TId;
         }
 
         return are_equal;
+    }
+
+    template <typename CT>
+    static inline void reset_loop(CT & beta, CT & t, int & dbeta_sign, int & i, CT const& beta_orig, CT const& t_orig)
+    {
+        dbeta_sign = -1;
+        beta = beta_orig;
+        t = t_orig;
+        i = 0;
     }
 };
 
