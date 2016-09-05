@@ -27,38 +27,38 @@ namespace dispatch
 template <typename Tag, typename G>
 struct read_wkb {};
 
-template <typename G>
-struct read_wkb<point_tag, G>
+template <typename Geometry>
+struct read_wkb<point_tag, Geometry>
 {
     template <typename Iterator>
-    static inline bool parse(Iterator& it, Iterator end, G& geometry,
+    static inline bool parse(Iterator& it, Iterator end, Geometry& geometry,
         detail::wkb::byte_order_type::enum_t order)
     {
-        return detail::wkb::point_parser<G>::parse(it, end, geometry, order);
+        return detail::wkb::point_parser<Geometry>::parse(it, end, geometry, order);
     }
 };
 
-template <typename G>
-struct read_wkb<linestring_tag, G>
+template <typename Geometry>
+struct read_wkb<linestring_tag, Geometry>
 {
     template <typename Iterator>
-    static inline bool parse(Iterator& it, Iterator end, G& geometry,
+    static inline bool parse(Iterator& it, Iterator end, Geometry& geometry,
         detail::wkb::byte_order_type::enum_t order)
     {
         geometry::clear(geometry);
-        return detail::wkb::linestring_parser<G>::parse(it, end, geometry, order);
+        return detail::wkb::linestring_parser<Geometry>::parse(it, end, geometry, order);
     }
 };
 
-template <typename G>
-struct read_wkb<polygon_tag, G>
+template <typename Geometry>
+struct read_wkb<polygon_tag, Geometry>
 {
     template <typename Iterator>
-    static inline bool parse(Iterator& it, Iterator end, G& geometry,
+    static inline bool parse(Iterator& it, Iterator end, Geometry& geometry,
         detail::wkb::byte_order_type::enum_t order)
     {
         geometry::clear(geometry);
-        return detail::wkb::polygon_parser<G>::parse(it, end, geometry, order);
+        return detail::wkb::polygon_parser<Geometry>::parse(it, end, geometry, order);
     }
 };
 
@@ -66,8 +66,8 @@ struct read_wkb<polygon_tag, G>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-template <typename Iterator, typename G>
-inline bool read_wkb(Iterator begin, Iterator end, G& geometry)
+template <typename Iterator, typename Geometry>
+inline bool read_wkb(Iterator begin, Iterator end, Geometry& geometry)
 {
     // Stream of bytes can only be parsed using random access iterator.
     BOOST_STATIC_ASSERT((
@@ -82,16 +82,16 @@ inline bool read_wkb(Iterator begin, Iterator end, G& geometry)
     {
         return dispatch::read_wkb
             <
-            typename tag<G>::type,
-            G
+            typename tag<Geometry>::type,
+            Geometry
             >::parse(begin, end, geometry, byte_order);
     }
 
     return false;
 }
 
-template <typename ByteType, typename G>
-inline bool read_wkb(ByteType const* bytes, std::size_t length, G& geometry)
+template <typename ByteType, typename Geometry>
+inline bool read_wkb(ByteType const* bytes, std::size_t length, Geometry& geometry)
 {
     BOOST_STATIC_ASSERT((boost::is_integral<ByteType>::value));
     BOOST_STATIC_ASSERT((sizeof(boost::uint8_t) == sizeof(ByteType)));
