@@ -453,7 +453,6 @@ public:
         CT cos_omg1 = cos_alp1 * cos_bet1;
         CT sin_omg2 = sin_alp0 * sin_bet2;
         CT cos_omg2 = cos_alp2 * cos_bet2;
-        CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
         CT cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
         CT excess;
 
@@ -464,6 +463,7 @@ public:
         if (!meridian && cos_omg12 > -CT(0.7)
                       && sin_bet2 - sin_bet1 < CT(1.75)) // short segment
         {
+            CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
             normalize(sin_omg12, cos_omg12);
 
             CT cos_omg12p1 = CT(1) + cos_omg12;

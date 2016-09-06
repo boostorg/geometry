@@ -83,9 +83,9 @@ void test_spherical_geo()
     ct const two = 2.0;
     BOOST_CHECK_CLOSE(area, two * two * expected, 0.0001);
 
-    // Geographic total area of earth is about 510072000
-    // (https://en.wikipedia.org/wiki/Earth)
-    // So the 1/8 is 63759000 and here we get something close to it
+    // Geographic total area of earth is about 510065626583900.6 (WGS84 ellipsoid)
+    // (510072000 in https://en.wikipedia.org/wiki/Earth)
+    // So the 1/8 is 6.375820332×10^13 and here we get something close to it
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
     //GeoGraphicLib gives: 63758202715511.055
