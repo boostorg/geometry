@@ -112,7 +112,7 @@ public :
         {
 
             state.m_sum += geometry::formula::area_formulas
-                             <CT>::template spherical_excess<LongSegment>(p1, p2);
+                             <CT>::template spherical<LongSegment>(p1, p2);
 
             // Keep track whenever a segment crosses the prime meridian
             geometry::formula::area_formulas

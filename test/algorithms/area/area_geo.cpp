@@ -164,114 +164,115 @@ void test_geo_strategies()
     CT err = 0.0000001;
 
     CT area_default = bg::area(geometry_geo);
-    BOOST_CHECK_CLOSE(area_default, 63292982057581.711, err);
+    BOOST_CHECK_CLOSE(area_default, 63316536092341.266, err);
     area = bg::area(geometry_geo, geographic_default);
-    BOOST_CHECK_CLOSE(area, 63292982057581.711, err);
+    BOOST_CHECK_CLOSE(area, 63316536092341.266, err);
 
     CT area_less_accurate = bg::area(geometry_geo, geographic_andoyer1);
-    BOOST_CHECK_CLOSE(area_less_accurate, 63292982421447.312, err);
+    BOOST_CHECK_CLOSE(area_less_accurate, 63316309346280.18, err);
     area = bg::area(geometry_geo, geographic_andoyer2);
-    BOOST_CHECK_CLOSE(area, 63292982299473.633, err);
+    BOOST_CHECK_CLOSE(area, 63316309224306.5, err);
     area = bg::area(geometry_geo, geographic_andoyer3);
-    BOOST_CHECK_CLOSE(area, 63292982299578.328, err);
+    BOOST_CHECK_CLOSE(area, 63316309224411.195, err);
     area = bg::area(geometry_geo, geographic_andoyer4);
-    BOOST_CHECK_CLOSE(area, 63292982299578.227, err);
+    BOOST_CHECK_CLOSE(area, 63316309224411.094, err);
     area = bg::area(geometry_geo, geographic_andoyer5);
-    BOOST_CHECK_CLOSE(area, 63292982299578.227, err);
+    BOOST_CHECK_CLOSE(area, 63316309224411.094, err);
 
     area = bg::area(geometry_geo, geographic_thomas1);
-    BOOST_CHECK_CLOSE(area, 63292982179555.766, err);
+    BOOST_CHECK_CLOSE(area, 63316536214315.32, err);
     area = bg::area(geometry_geo, geographic_thomas2);
-    BOOST_CHECK_CLOSE(area, 63292982057581.711, err);
+    BOOST_CHECK_CLOSE(area, 63316536092341.266, err);
     area = bg::area(geometry_geo, geographic_thomas3);
-    BOOST_CHECK_CLOSE(area, 63292982057686.406, err);
+    BOOST_CHECK_CLOSE(area, 63316536092445.961, err);
     area = bg::area(geometry_geo, geographic_thomas4);
-    BOOST_CHECK_CLOSE(area, 63292982057686.305, err);
+    BOOST_CHECK_CLOSE(area, 63316536092445.859, err);
     area = bg::area(geometry_geo, geographic_thomas5);
-    BOOST_CHECK_CLOSE(area, 63292982057686.305, err);
+    BOOST_CHECK_CLOSE(area, 63316536092445.859, err);
 
     area = bg::area(geometry_geo, geographic_vincenty1);
-    BOOST_CHECK_CLOSE(area, 63292982178432.859, err);
+    BOOST_CHECK_CLOSE(area, 63316536473798.984, err);
     area = bg::area(geometry_geo, geographic_vincenty2);
-    BOOST_CHECK_CLOSE(area, 63292982056458.805, err);
+    BOOST_CHECK_CLOSE(area, 63316536351824.93, err);
     area = bg::area(geometry_geo, geographic_vincenty3);
-    BOOST_CHECK_CLOSE(area, 63292982056563.5, err);
+    BOOST_CHECK_CLOSE(area, 63316536351929.625, err);
     area = bg::area(geometry_geo, geographic_vincenty4);
-    BOOST_CHECK_CLOSE(area, 63292982056563.398, err);
+    BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
     CT area_most_accurate = bg::area(geometry_geo, geographic_vincenty5);
-    BOOST_CHECK_CLOSE(area, 63292982056563.398, err);
+    BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
 
     area = bg::area(geometry_geo, geographic_vincenty5_default);
-    BOOST_CHECK_CLOSE(area, 63292982056563.398, err);
+    BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
     area = bg::area(geometry_geo, geographic_vincenty_default);
-    BOOST_CHECK_CLOSE(area, 63292982056458.805, err);
+    BOOST_CHECK_CLOSE(area, 63316536351824.93, err);
 
-    BOOST_CHECK_CLOSE(area_most_accurate, area_less_accurate, .000001);
-    BOOST_CHECK_CLOSE(area_most_accurate, area_default, .00000001);
+    BOOST_CHECK_CLOSE(area_most_accurate, area_less_accurate, .001);
+    BOOST_CHECK_CLOSE(area_most_accurate, area_default, .000001);
 
-    /* timings and accuracy
-    std::cout.precision(32);
+    /* timings and accuracy */
+    std::cout.precision(25);
+    std::size_t exp_times = 100000;
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_andoyer1);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_andoyer1);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_andoyer2);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_andoyer2);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_andoyer3);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_andoyer3);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_andoyer4);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_andoyer4);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_andoyer5);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_andoyer5);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_thomas1);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_thomas1);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_thomas2);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_thomas2);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_thomas3);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_thomas3);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_thomas4);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_thomas4);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_thomas5);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_thomas5);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_vincenty1);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty1);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_vincenty2);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty2);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_vincenty3);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty3);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_vincenty4);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty4);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
     {   clock_t startTime = clock();
-        for (int j=0; j < 100000; j++) area = bg::area(geometry_geo, geographic_vincenty5);
-        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-        std::cout << "area=" << area << std::endl;}
-    */
+        for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty5);
+        std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
+        std::cout  << area << std::endl;}
+
 }
 
 int test_main(int, char* [])

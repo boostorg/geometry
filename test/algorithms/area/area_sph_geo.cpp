@@ -89,7 +89,7 @@ void test_spherical_geo()
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
     //GeoGraphicLib gives: 63758202715511.055
-    BOOST_CHECK_CLOSE(area, 63758202715509.859, 0.0001);
+    BOOST_CHECK_CLOSE(area, 63758202715509.844, 0.0001);
 
 
     // Wrangel Island (dateline crossing)
@@ -109,7 +109,7 @@ void test_spherical_geo()
 
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 4537974350.6843719, 0.0001);
+    BOOST_CHECK_CLOSE(area, 4537929936.5349159, 0.0001);
 
     // Wrangel, more in detail
     poly = "POLYGON((-178.568604 71.564148,-178.017548 71.449692,-177.833313 71.3461,\
@@ -149,7 +149,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 14136.09946, 0.001); // SQL Server gives: 14064.1902284513
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 14064196647.560314, 0.0001);
+    BOOST_CHECK_CLOSE(area, 14064129044.674297, 0.0001);
 
     poly = "POLYGON((-178.7858 10.7852, 177.4758 11.2333, 179.7436 11.5733, -178.7858 10.7852))";
     bg::read_wkt(poly, geometry);
@@ -157,7 +157,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 13760.2456, 0.001); // SQL Server gives: 13697.0941155193
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 13697095227.008451, 0.0001);
+    BOOST_CHECK_CLOSE(area, 13696308940.315653, 0.0001);
 
     poly = "POLYGON((-178.7858 20.7852, 177.4758 21.2333, 179.7436 21.5733, -178.7858 20.7852))";
     bg::read_wkt(poly, geometry);
@@ -165,7 +165,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 12987.8682, 0.001); // SQL Server gives: 12944.3970990317 -> -39m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 12944392155.546635, 0.0001);
+    BOOST_CHECK_CLOSE(area, 12943176284.560806, 0.0001);
 
     poly = "POLYGON((-178.7858 30.7852, 177.4758 31.2333, 179.7436 31.5733, -178.7858 30.7852))";
     bg::read_wkt(poly, geometry);
@@ -173,7 +173,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 11856.3935, 0.001); // SQL Server gives: 11838.5338423574 -> -18m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 11838524075.970982, 0.0001);
+    BOOST_CHECK_CLOSE(area, 11837280445.349375, 0.0001);
 
     poly = "POLYGON((-178.7858 40.7852, 177.4758 41.2333, 179.7436 41.5733, -178.7858 40.7852))";
     bg::read_wkt(poly, geometry);
@@ -182,7 +182,7 @@ void test_spherical_geo()
     // SQL Server gives: 10412.0607137119, -> +8m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 10412049661.81769, 0.0001);
+    BOOST_CHECK_CLOSE(area, 10411098789.39222, 0.0001);
 
     // Concave
     poly = "POLYGON((0 40,1 42,0 44,2 43,4 44,3 42,4 40,2 41,0 40))";
@@ -200,7 +200,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 133233.844876, 0.001); // SQL Server gives: 133353.335
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 133353331647.58241, 0.0001);
+    BOOST_CHECK_CLOSE(area, 133353077343.10347, 0.0001);
 
     // around 0 meridian
     {
@@ -225,7 +225,7 @@ void test_spherical_geo()
         area3 = bg::area(geometry_geo, area_geographic);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1227857282668.3145, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1227877191611.2805, 0.001);
     }
     {
         std::string poly1 = "POLYGON((-10 -5,-10 5,0 5,0 -5,-10 -5))";
@@ -249,7 +249,7 @@ void test_spherical_geo()
         area3 = bg::area(geometry_geo, area_geographic);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1232493707152.2292, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1232514639151.6477, 0.001);
     }
     // around 180 meridian
     {
@@ -288,7 +288,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1227857282668.313, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1227877191611.2805, 0.001);
     }
     {
         std::string poly1 = "POLYGON((-180 -5,-180 5,-170 5,-170 -5,-180 -5))";
@@ -326,7 +326,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1232493707152.2278, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1232514639151.6477, 0.001);
     }
     // around poles
     {

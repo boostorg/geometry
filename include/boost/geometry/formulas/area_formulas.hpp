@@ -341,8 +341,8 @@ public:
                 bool LongSegment,
                 typename PointOfSegment
              >
-    static inline CT spherical_excess(PointOfSegment const& p1,
-                                      PointOfSegment const& p2)
+    static inline CT spherical(PointOfSegment const& p1,
+                               PointOfSegment const& p2)
     {
         CT excess;
 
@@ -381,11 +381,21 @@ public:
                     * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
                            * tan((geometry::get_as_radian<0>(p2)
                                 - geometry::get_as_radian<0>(p1)) / 2));
-
         }
 
         return excess;
     }
+
+    struct return_type_ellipsoidal
+    {
+        return_type_ellipsoidal()
+            :   spherical_term(0),
+                ellipsoidal_term(0)
+        {}
+
+        CT spherical_term;
+        CT ellipsoidal_term;
+    };
 
     /*
         Compute the ellipsoidal correction of a geodesic (or shperical) segment
@@ -396,11 +406,13 @@ public:
                 typename PointOfSegment,
                 typename SpheroidConst
              >
-    static inline CT ellipsoidal_correction(PointOfSegment const& p1,
-                                            PointOfSegment const& p2,
-                                            SpheroidConst spheroid_const)
+    static inline return_type_ellipsoidal ellipsoidal(PointOfSegment const& p1,
+                                                      PointOfSegment const& p2,
+                                                      SpheroidConst spheroid_const)
     {
+        return_type_ellipsoidal result;
 
+        // Azimuth Approximation
 
         typedef Inverse<CT, false, true, true, false, false> inverse_type;
         typedef typename inverse_type::result_type inverse_result;
@@ -414,29 +426,15 @@ public:
         CT alp1 = i_res.azimuth;
         CT alp2 = i_res.reverse_azimuth;
 
-        // Azimuth Approximation
-/*
-        CT alp1, alp2;
-
-        alp1 = AzimuthStrategy::apply(get_as_radian<0>(p1),
-                                      get_as_radian<1>(p1),
-                                      get_as_radian<0>(p2),
-                                      get_as_radian<1>(p2),
-                                      spheroid_const.m_spheroid).azimuth;
-
-        alp2 = AzimuthStrategy::apply(get_as_radian<0>(p1),
-                                      get_as_radian<1>(p1),
-                                      get_as_radian<0>(p2),
-                                      get_as_radian<1>(p2),
-                                      spheroid_const.m_spheroid).reverse_azimuth;
-*/
-        // Integral approximation
+        // Constants
 
         CT const ep = spheroid_const.m_ep;
         CT const f = geometry::detail::flattening<CT>(spheroid_const.m_spheroid);
         CT const one_minus_f = CT(1) - f;
         std::size_t const series_order_plus_one = SeriesOrder + 1;
         std::size_t const series_order_plus_two = SeriesOrder + 2;
+
+        // Basic trigonometric computations
 
         CT tan_bet1 = tan(get_as_radian<1>(p1)) * one_minus_f;
         CT tan_bet2 = tan(get_as_radian<1>(p2)) * one_minus_f;
@@ -448,8 +446,48 @@ public:
         CT cos_alp1 = cos(alp1);
         CT cos_alp2 = cos(alp2);
         CT sin_alp0 = sin_alp1 * cos_bet1;
+
+        // Spherical term computation
+
+        CT sin_omg1 = sin_alp0 * sin_bet1;
+        CT cos_omg1 = cos_alp1 * cos_bet1;
+        CT sin_omg2 = sin_alp0 * sin_bet2;
+        CT cos_omg2 = cos_alp2 * cos_bet2;
+        CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
+        CT cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
+        CT excess;
+
+        bool meridian = get<0>(p2) - get<0>(p1) == CT(0)
+              || get<1>(p1) == CT(90) || get<1>(p1) == -CT(90)
+              || get<1>(p2) == CT(90) || get<1>(p2) == -CT(90);
+
+        if (!meridian && cos_omg12 > -CT(0.7)
+                      && sin_bet2 - sin_bet1 < CT(1.75)) // short segment
+        {
+            normalize(sin_omg12, cos_omg12);
+
+            CT cos_omg12p1 = CT(1) + cos_omg12;
+            CT cos_bet1p1 = CT(1) + cos_bet1;
+            CT cos_bet2p1 = CT(1) + cos_bet2;
+            excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2 * cos_bet1p1),
+                                cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
+        }
+        else
+        {
+            /*
+                    CT sin_alp2 = sin(alp2);
+                    CT sin_alp12 = sin_alp2 * cos_alp1 - cos_alp2 * sin_alp1;
+                    CT cos_alp12 = cos_alp2 * cos_alp1 + sin_alp2 * sin_alp1;
+                    excess = atan2(sin_alp12, cos_alp12);
+            */
+                    excess = alp2 - alp1;
+        }
+
+        result.spherical_term = excess;
+
+        // Ellipsoidal term computation (uses integral approximation)
+
         CT cos_alp0 = math::sqrt(CT(1) - math::sqr(sin_alp0));
-        //CT cos_alp0 = hypot(cos_alp2, sin(alp2) * sin_bet2);
         CT cos_sig1 = cos_alp1 * cos_bet1;
         CT cos_sig2 = cos_alp2 * cos_bet2;
         CT sin_sig1 = sin_bet1;
@@ -495,10 +533,11 @@ public:
         CT I12 = clenshaw_sum(cos_sig2, coeffs, coeffs + series_order_plus_one)
                - clenshaw_sum(cos_sig1, coeffs, coeffs + series_order_plus_one);
 
-        // Return the part of the ellipsodal correction that depends on
+        // The part of the ellipsodal correction that depends on
         // point coordinates
-        return cos_alp0 * sin_alp0 * I12;
+        result.ellipsoidal_term = cos_alp0 * sin_alp0 * I12;
 
+        return result;
     }
 
     // Keep track whenever a segment crosses the prime meridian

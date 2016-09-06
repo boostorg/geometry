@@ -162,14 +162,15 @@ public :
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
 
-            //Compute the trapezoidal area
-            state.m_excess_sum += geometry::formula::area_formulas
-                                    <CT>::template spherical_excess<LongSegment>(p1, p2);
+            typedef geometry::formula::area_formulas<CT, SeriesOrder,
+                    ExpandEpsN> area_formulas;
 
-            state.m_correction_sum += geometry::formula::area_formulas
-                                    <CT, SeriesOrder, ExpandEpsN>
-                                    ::template ellipsoidal_correction<Inverse>
-                                    (p1, p2, spheroid_const);
+            typename area_formulas::return_type_ellipsoidal result =
+                     area_formulas::template ellipsoidal<Inverse>
+                                             (p1, p2, spheroid_const);
+
+            state.m_excess_sum += result.spherical_term;
+            state.m_correction_sum += result.ellipsoidal_term;
 
             // Keep track whenever a segment crosses the prime meridian
             geometry::formula::area_formulas<CT>
