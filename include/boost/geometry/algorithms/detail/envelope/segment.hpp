@@ -7,6 +7,7 @@
 // This file was modified by Oracle on 2015, 2016.
 // Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -46,6 +47,10 @@
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
+#include <boost/geometry/formulas/vertex_latitude.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
+#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 
 namespace boost { namespace geometry
 {
@@ -58,8 +63,8 @@ namespace detail { namespace envelope
 template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_one_segment
 {
-    template<typename Point, typename Box>
-    static inline void apply(Point const& p1, Point const& p2, Box& mbr)
+    template<typename Point, typename Box, typename Strategy>
+    static inline void apply(Point const& p1, Point const& p2, Box& mbr, Strategy const& strategy)
     {
         envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr);
         detail::expand::point_loop
@@ -80,9 +85,11 @@ struct envelope_one_segment
 // normalized and in radians.
 // The longitudes and latitudes of the endpoints are overridden by
 // those of the box.
+template <bool IsSpherical>
 class compute_mbr_of_segment
 {
 private:
+/*
     // computes the azimuths of the segment with endpoints (lon1, lat1)
     // and (lon2, lat2)
     // radians
@@ -111,7 +118,7 @@ private:
                    cos_lat2 * sin_lat1 - sin_lat2 * cos_lat1 * cos_dlon);
         a2 += math::pi<CalculationType>();
     }
-
+*/
     // degrees or radians
     template <typename CalculationType>
     static inline void swap(CalculationType& lon1,
@@ -150,7 +157,7 @@ private:
 
         return math::abs(lon1 - lon2) > constants::half_period(); // > pi
     }
-
+/*
     // radians
     template <typename CalculationType>
     static inline CalculationType max_latitude(CalculationType const& azimuth,
@@ -159,13 +166,14 @@ private:
         // azimuth and latitude are assumed to be in radians
         return acos( math::abs(cos(latitude) * sin(azimuth)) );
     }
-
+*/
     // degrees or radians
-    template <typename Units, typename CalculationType>
+    template <typename Units, typename CalculationType, typename Strategy>
     static inline void compute_box_corners(CalculationType& lon1,
                                            CalculationType& lat1,
                                            CalculationType& lon2,
-                                           CalculationType& lat2)
+                                           CalculationType& lat2,
+                                           Strategy const& strategy)
     {
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
@@ -175,9 +183,22 @@ private:
         CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
 
-        CalculationType a1 = 0, a2 = 0;
-        azimuths(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
-
+        CalculationType a1, a2;
+        strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
+/*        if (IsSpherical)
+        {
+            //geometry::strategy::azimuth::azimuth_spherical
+            //        <CalculationType> azimuth_spherical;
+            //azimuth_spherical.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
+            strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
+        }
+        else
+        {
+            geometry::strategy::azimuth::azimuth_geographic
+                    <CalculationType, geometry::formula::thomas_inverse> azimuth_geographic;
+            azimuth_geographic.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
+        }
+*/
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);
@@ -192,11 +213,26 @@ private:
 
         if (contains_pi_half(a1, a2))
         {
+            CalculationType p_max;
+
+            if (IsSpherical)
+            {
+                p_max = geometry::formula::vertex_latitude<CalculationType>::
+                                  spherical(lat1_rad, a1);
+            }
+            else
+            {
+                p_max = geometry::formula::vertex_latitude<CalculationType>::
+                                  geographic(lat1_rad, a1,
+                                     geometry::srs::spheroid<CalculationType>());
+            }
+
             CalculationType const mid_lat = lat1 + lat2;
             if (mid_lat < 0)
             {
                 // update using min latitude
-                CalculationType const lat_min_rad = -max_latitude(a1, lat1_rad);
+                //CalculationType const lat_min_rad = -max_latitude(a1, lat1_rad);
+                CalculationType const lat_min_rad = -p_max;
                 CalculationType const lat_min = math::from_radian<Units>(lat_min_rad);
 
                 if (lat1 > lat_min)
@@ -207,7 +243,8 @@ private:
             else if (mid_lat > 0)
             {
                 // update using max latitude
-                CalculationType const lat_max_rad = max_latitude(a1, lat1_rad);
+                //CalculationType const lat_max_rad = max_latitude(a1, lat1_rad);
+                CalculationType const lat_max_rad = p_max;
                 CalculationType const lat_max = math::from_radian<Units>(lat_max_rad);
 
                 if (lat2 < lat_max)
@@ -218,11 +255,12 @@ private:
         }
     }
 
-    template <typename Units, typename CalculationType>
+    template <typename Units, typename CalculationType, typename Strategy>
     static inline void apply(CalculationType& lon1,
                              CalculationType& lat1,
                              CalculationType& lon2,
-                             CalculationType& lat2)
+                             CalculationType& lat2,
+                             Strategy const& strategy)
     {
         typedef math::detail::constants_on_spheroid
             <
@@ -278,16 +316,17 @@ private:
             swap(lon1, lat1, lon2, lat2);
         }
 
-        compute_box_corners<Units>(lon1, lat1, lon2, lat2);
+        compute_box_corners<Units>(lon1, lat1, lon2, lat2, strategy);
     }
 
 public:
-    template <typename Units, typename CalculationType, typename Box>
+    template <typename Units, typename CalculationType, typename Box, typename Strategy>
     static inline void apply(CalculationType lon1,
                              CalculationType lat1,
                              CalculationType lon2,
                              CalculationType lat2,
-                             Box& mbr)
+                             Box& mbr,
+                             Strategy const& strategy)
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
 
@@ -298,7 +337,7 @@ public:
 
         helper_box_type radian_mbr;
 
-        apply<Units>(lon1, lat1, lon2, lat2);
+        apply<Units>(lon1, lat1, lon2, lat2, strategy);
 
         geometry::set
             <
@@ -325,11 +364,11 @@ public:
 };
 
 
-template <std::size_t DimensionCount>
-struct envelope_segment_on_sphere
+template <std::size_t DimensionCount, bool IsSpherical>
+struct envelope_segment_on_sphere_or_spheroid
 {
-    template <typename Point, typename Box>
-    static inline void apply(Point const& p1, Point const& p2, Box& mbr)
+    template <typename Point, typename Box, typename Strategy>
+    static inline void apply(Point const& p1, Point const& p2, Box& mbr, Strategy const& strategy)
     {
         // first compute the envelope range for the first two coordinates
         Point p1_normalized = detail::return_normalized<Point>(p1);
@@ -337,16 +376,17 @@ struct envelope_segment_on_sphere
 
         typedef typename coordinate_system<Point>::type::units units_type;
 
-        compute_mbr_of_segment::template apply<units_type>(
+        compute_mbr_of_segment<IsSpherical>::template apply<units_type>(
                     geometry::get<0>(p1_normalized),
                     geometry::get<1>(p1_normalized),
                     geometry::get<0>(p2_normalized),
                     geometry::get<1>(p2_normalized),
-                    mbr);
+                    mbr,
+                    strategy);
 
         // now compute the envelope range for coordinates of
         // dimension 2 and higher
-        envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr);
+        envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr, strategy);
     }
 
     template <typename Segment, typename Box>
@@ -369,9 +409,14 @@ struct envelope_segment
 
 template <std::size_t DimensionCount>
 struct envelope_segment<DimensionCount, spherical_equatorial_tag>
-    : envelope_segment_on_sphere<DimensionCount>
+    : envelope_segment_on_sphere_or_spheroid<DimensionCount, true>
 {};
 
+
+template <std::size_t DimensionCount>
+struct envelope_segment<DimensionCount, geographic_tag>
+    : envelope_segment_on_sphere_or_spheroid<DimensionCount, false>
+{};
 
 
 }} // namespace detail::envelope
@@ -386,6 +431,7 @@ namespace dispatch
 template <typename Segment, typename CS_Tag>
 struct envelope<Segment, segment_tag, CS_Tag>
 {
+/*
     template <typename Box>
     static inline void apply(Segment const& segment, Box& mbr)
     {
@@ -397,8 +443,22 @@ struct envelope<Segment, segment_tag, CS_Tag>
                 dimension<Segment>::value, CS_Tag
             >::apply(p[0], p[1], mbr);
     }
-};
+*/
+    template <typename Box, typename Strategy>
+    static inline void apply(Segment const& segment,
+                             Box& mbr,
+                             Strategy const& strategy)
+    {
+        typename point_type<Segment>::type p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
+        detail::envelope::envelope_segment
+            <
+                dimension<Segment>::value, CS_Tag
+            >::apply(p[0], p[1], mbr, strategy);
+    }
 
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

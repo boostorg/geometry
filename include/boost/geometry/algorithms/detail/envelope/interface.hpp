@@ -37,6 +37,7 @@ namespace resolve_variant
 template <typename Geometry>
 struct envelope
 {
+/*
     template <typename Box>
     static inline void apply(Geometry const& geometry, Box& box)
     {
@@ -44,6 +45,15 @@ struct envelope
         concepts::check<Box>();
 
         dispatch::envelope<Geometry>::apply(geometry, box);
+    }
+*/
+    template <typename Box, typename Strategy>
+    static inline void apply(Geometry const& geometry, Box& box, Strategy const& strategy)
+    {
+        concepts::check<Geometry const>();
+        concepts::check<Box>();
+
+        dispatch::envelope<Geometry>::apply(geometry, box, strategy);
     }
 };
 
@@ -75,6 +85,26 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 } // namespace resolve_variant
 
+/*!
+\brief \brief_calc{envelope (with strategy)}
+\ingroup envelope
+\details \details_calc{envelope,\det_envelope}.
+\tparam Geometry \tparam_geometry
+\tparam Box \tparam_box
+\param geometry \param_geometry
+\param mbr \param_box \param_set{envelope}
+
+\qbk{[include reference/algorithms/envelope.qbk]}
+\qbk{
+[heading Example]
+[envelope] [envelope_output]
+}
+*/
+template<typename Geometry, typename Box, typename Strategy>
+inline void envelope(Geometry const& geometry, Box& mbr, Strategy& strategy)
+{
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy);
+}
 
 /*!
 \brief \brief_calc{envelope}
@@ -94,7 +124,19 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
 {
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr);
+    // TODO put this into a resolve_strategy stage
+    //      (and take the return type from resolve_variant)
+    typedef typename point_type<Geometry>::type point_type;
+    typedef typename coordinate_type<Geometry>::type coordinate_type;
+    //typedef typename strategy::azimuth::azimuth_geographic<coordinate_type> strategy_type;
+
+    typedef typename strategy::azimuth::services::default_strategy
+        <
+            typename cs_tag<point_type>::type,
+            coordinate_type
+        >::type strategy_type;
+
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy_type());
 }
 
 

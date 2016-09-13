@@ -48,9 +48,10 @@ struct segment_on_sphere
         Box mbrs[2];
 
         // compute the envelope of the segment
-        detail::envelope::envelope_segment_on_sphere
+        detail::envelope::envelope_segment_on_sphere_or_spheroid
             <
-                dimension<Segment>::value
+                dimension<Segment>::value,
+                true
             >::apply(segment, mbrs[0]);
 
         // normalize the box

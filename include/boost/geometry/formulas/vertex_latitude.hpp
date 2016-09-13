@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_FORMULAS_MAXIMUM_LATITUDE_HPP
 
 #include <boost/geometry/formulas/spherical.hpp>
+#include <boost/geometry/algorithms/detail/flattening.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -20,8 +21,8 @@ namespace boost { namespace geometry { namespace formula
 \brief Algorithm to compute the vertex latitude of a geodesic segment. Vertex is
 a point on the geodesic that maximizes (or minimizes) the latitude.
 \author See
-    Wood - Vertex Latitudes on Ellipsoid Geodesics, SIAM Rev., 38(4), 637–644,
-    1996
+    [Wood96] Wood - Vertex Latitudes on Ellipsoid Geodesics, SIAM Rev., 38(4),
+             637–644, 1996
 */
 
 template <typename CT>
@@ -30,88 +31,40 @@ class vertex_latitude
 
 public:
 
-    struct vertex_lat_result
-    {
-        vertex_lat_result()
-            :   north(0),
-              south(0)
-        {}
-
-        CT north, south;
-    };
-
     template <
             typename T1,
             typename T2
             >
-    static inline vertex_lat_result spherical(T1 const& lon1,
-                                              T1 const& lat1,
-                                              T2 const& lon2,
-                                              T2 const& lat2)
+    static inline CT spherical(T1 const& lat1,
+                               T2 const& alp1)
     {
-        vertex_lat_result vrt_result;
-
-        geometry::formula::result_spherical<CT> result = geometry::formula::
-                spherical_azimuth<CT, true>(lon1, lat1, lon2, lat2);
-
-        CT const alp1 = std::abs(result.azimuth);
-        CT const alp2 = std::abs(result.reverse_azimuth);
-
-        if(vertex_on_segment(alp1, alp2, lat1, lat2, vrt_result))
-        {
-            CT const cos2_lat1 = math::sqr(cos(lat1));
-            CT const sin2_alp1 = math::sqr(sin(alp1));
-            CT const vertex_lat = std::asin(math::sqrt(1 - cos2_lat1 * sin2_alp1));
-
-            sign_adjastment(lat1, lat2, vertex_lat, vrt_result);
-        }
-        return vrt_result;
+        return std::acos( math::abs(cos(lat1) * sin(alp1)) );
     }
 
 
     template <
-            template <typename, bool, bool, bool, bool, bool> class Inverse,
+            //template <typename, bool, bool, bool, bool, bool> class Inverse,
             typename T1,
             typename T2,
             typename Spheroid
             >
-    static inline vertex_lat_result geographic(T1 const& lon1,
-                                T1 const& lat1,
-                                T2 const& lon2,
-                                T2 const& lat2,
+    static inline CT geographic(T1 const& lat1,
+                                T2 const& alp1,
                                 Spheroid const& spheroid)
     {
-        vertex_lat_result vrt_result;
 
-        typedef Inverse<CT, false, true, true, false, false> inverse_type;
-        typedef typename inverse_type::result_type inverse_result;
-        inverse_result i_res = inverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+        CT const f = detail::flattening<CT>(spheroid);
 
-        CT const alp1 = std::abs(i_res.azimuth);
-        CT const alp2 = std::abs(i_res.reverse_azimuth);
+        CT const e2 = f * (CT(2) - f);
+        CT const sin_alp1 = sin(alp1);
+        CT const sin2_lat1 = math::sqr(sin(lat1));
+        CT const cos2_lat1 = CT(1) - sin2_lat1;
 
-        if(vertex_on_segment(alp1, alp2, lat1, lat2, vrt_result))
-        {
-            CT const a = get_radius<0>(spheroid);
-            CT const f = detail::flattening<CT>(spheroid);
-            CT const e2 = f * (CT(2) - f);
-
-            CT const sin_alp1 = sin(alp1);
-            CT const sin2_lat1 = math::sqr(sin(lat1));
-            CT const cos_lat1 = math::sqrt(CT(1) - sin2_lat1);
-
-            // normal radius at point p1(lon1,lat1)
-            CT const n_b1 = a / (math::sqrt(CT(1) - e2 * sin2_lat1));
-
-            // the invariant of the geodesic
-            CT const c = n_b1 * cos_lat1 * sin_alp1;
-
-            CT const a_c2 = math::sqr(a / c);
-            CT const vertex_lat = std::asin(math::sqrt((a_c2 - 1) / (a_c2 - e2)));
-
-            sign_adjastment(lat1, lat2, vertex_lat, vrt_result);
-        }
-        return vrt_result;
+        CT const e2_sin2 = CT(1) - e2 * sin2_lat1;
+        CT const cos2_sin2 = cos2_lat1 * math::sqr(sin_alp1);
+        CT const vertex_lat = std::asin( math::sqrt((e2_sin2 - cos2_sin2)
+                                                    / (e2_sin2 - e2 * cos2_sin2)));
+        return vertex_lat;
     }
 
     template <typename T>

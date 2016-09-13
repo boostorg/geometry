@@ -23,6 +23,7 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
+#include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/compare.hpp>
@@ -35,6 +36,7 @@
 #include <boost/geometry/strategies/within.hpp>
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/azimuth_cartesian.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_round.hpp>
@@ -58,6 +60,7 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/spherical/area_huiller.hpp>
+#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
@@ -65,6 +68,7 @@
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
+#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
