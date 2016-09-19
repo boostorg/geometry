@@ -58,8 +58,8 @@ struct envelope_one_point
             >::apply(point, box_corner);
     }
 
-    template <typename Point, typename Box>
-    static inline void apply(Point const& point, Box& mbr)
+    template <typename Point, typename Box, typename Strategy>
+    static inline void apply(Point const& point, Box& mbr, Strategy strategy)
     {
         apply<min_corner>(point, mbr);
         apply<max_corner>(point, mbr);
@@ -69,8 +69,8 @@ struct envelope_one_point
 
 struct envelope_point_on_spheroid
 {
-    template<typename Point, typename Box>
-    static inline void apply(Point const& point, Box& mbr)
+    template<typename Point, typename Box, typename Strategy>
+    static inline void apply(Point const& point, Box& mbr, Strategy const& strategy)
     {
         Point normalized_point = detail::return_normalized<Point>(point);
 
@@ -88,7 +88,7 @@ struct envelope_point_on_spheroid
         envelope_one_point
             <
                 2, dimension<Point>::value
-            >::apply(normalized_point, mbr);
+            >::apply(normalized_point, mbr, strategy);
     }
 };
 

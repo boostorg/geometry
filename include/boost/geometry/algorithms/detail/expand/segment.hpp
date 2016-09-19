@@ -42,23 +42,28 @@ namespace detail { namespace expand
 
 struct segment_on_sphere
 {
-    template <typename Box, typename Segment>
-    static inline void apply(Box& box, Segment const& segment)
+    template <typename Box, typename Segment, typename Strategy>
+    static inline void apply(Box& box,
+                             Segment const& segment,
+                             Strategy const& strategy)
     {
         Box mbrs[2];
 
         // compute the envelope of the segment
+        typename point_type<Segment>::type p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
         detail::envelope::envelope_segment_on_sphere_or_spheroid
             <
                 dimension<Segment>::value,
                 true
-            >::apply(segment, mbrs[0]);
+            >::apply(p[0], p[1], mbrs[0], strategy);
 
         // normalize the box
-        detail::envelope::envelope_box_on_spheroid::apply(box, mbrs[1]);
+        detail::envelope::envelope_box_on_spheroid::apply(box, mbrs[1], strategy);
 
         // compute the envelope of the two boxes
-        detail::envelope::envelope_range_of_boxes::apply(mbrs, box);
+        detail::envelope::envelope_range_of_boxes::apply(mbrs, box, strategy);
     }
 };
 

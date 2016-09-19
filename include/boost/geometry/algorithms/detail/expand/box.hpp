@@ -44,16 +44,18 @@ namespace detail { namespace expand
 
 struct box_on_spheroid
 {
-    template <typename BoxOut, typename BoxIn>
-    static inline void apply(BoxOut& box_out, BoxIn const& box_in)
+    template <typename BoxOut, typename BoxIn, typename Strategy>
+    static inline void apply(BoxOut& box_out,
+                             BoxIn const& box_in,
+                             Strategy const& strategy)
     {
         // normalize both boxes and convert box-in to be of type of box-out
         BoxOut mbrs[2];
-        detail::envelope::envelope_box_on_spheroid::apply(box_in, mbrs[0]);
-        detail::envelope::envelope_box_on_spheroid::apply(box_out, mbrs[1]);
+        detail::envelope::envelope_box_on_spheroid::apply(box_in, mbrs[0], strategy);
+        detail::envelope::envelope_box_on_spheroid::apply(box_out, mbrs[1], strategy);
 
         // compute the envelope of the two boxes
-        detail::envelope::envelope_range_of_boxes::apply(mbrs, box_out);
+        detail::envelope::envelope_range_of_boxes::apply(mbrs, box_out, strategy);
     }
 };
 

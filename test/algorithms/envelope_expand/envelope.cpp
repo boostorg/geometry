@@ -38,6 +38,11 @@ void test_2d()
     test_envelope<P>("POINT(1 1)", 1, 1, 1, 1);
     test_envelope<bg::model::linestring<P> >("LINESTRING(1 1,2 2)", 1, 2, 1, 2);
     test_envelope<bg::model::polygon<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
+    test_envelope<bg::model::box<P> >("BOX(1 1,3 3)", 1, 3, 1, 3);
+
+    test_envelope<P>("POINT(1 1)", 1, 1, 1, 1);
+    test_envelope<bg::model::linestring<P> >("LINESTRING(1 1,2 2)", 1, 2, 1, 2);
+    test_envelope<bg::model::polygon<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
 
     test_envelope<bg::model::ring<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
     test_envelope<bg::model::box<P> >("BOX(1 1,3 3)", 1, 3, 1, 3);
@@ -52,6 +57,7 @@ void test_2d()
 
     typedef std::pair<P, P> segment_type;
     test_envelope<segment_type>("SEGMENT(1 1,3 3)", 1, 3, 1, 3);
+
 }
 
 template <typename P>
@@ -207,6 +213,7 @@ int test_main(int, char* [])
     //test_2d<int[2]>();
     //test_2d<float[2]>();
     //test_2d<double[2]>();
+
     test_2d<boost::tuple<float, float> >();
     test_2d<bg::model::d2::point_xy<int> >();
     test_2d<bg::model::d2::point_xy<float> >();

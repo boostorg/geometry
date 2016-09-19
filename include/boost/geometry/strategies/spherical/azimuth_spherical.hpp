@@ -10,6 +10,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
 
+#include <boost/geometry/formulas/vertex_latitude.hpp>
+//#include <boost/geometry/formulas/spherical.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -50,6 +53,12 @@ namespace services
 
 template <typename CalculationType>
 struct default_strategy<spherical_equatorial_tag, CalculationType>
+{
+    typedef strategy::azimuth::azimuth_spherical<CalculationType> type;
+};
+
+template <typename CalculationType>
+struct default_strategy<spherical_polar_tag, CalculationType>
 {
     typedef strategy::azimuth::azimuth_spherical<CalculationType> type;
 };

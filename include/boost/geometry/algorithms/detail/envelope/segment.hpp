@@ -27,6 +27,7 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -48,9 +49,6 @@
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
 #include <boost/geometry/formulas/vertex_latitude.hpp>
-#include <boost/geometry/formulas/thomas_inverse.hpp>
-#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
-#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 
 namespace boost { namespace geometry
 {
@@ -64,16 +62,19 @@ template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_one_segment
 {
     template<typename Point, typename Box, typename Strategy>
-    static inline void apply(Point const& p1, Point const& p2, Box& mbr, Strategy const& strategy)
+    static inline void apply(Point const& p1,
+                             Point const& p2,
+                             Box& mbr,
+                             Strategy const& strategy)
     {
-        envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr);
+        envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr, strategy);
         detail::expand::point_loop
             <
                 strategy::compare::default_strategy,
                 strategy::compare::default_strategy,
                 Dimension,
                 DimensionCount
-            >::apply(mbr, p2);
+            >::apply(mbr, p2, strategy);
     }
 };
 
@@ -231,9 +232,9 @@ private:
             if (mid_lat < 0)
             {
                 // update using min latitude
-                //CalculationType const lat_min_rad = -max_latitude(a1, lat1_rad);
                 CalculationType const lat_min_rad = -p_max;
-                CalculationType const lat_min = math::from_radian<Units>(lat_min_rad);
+                CalculationType const lat_min
+                        = math::from_radian<Units>(lat_min_rad);
 
                 if (lat1 > lat_min)
                 {
@@ -243,9 +244,9 @@ private:
             else if (mid_lat > 0)
             {
                 // update using max latitude
-                //CalculationType const lat_max_rad = max_latitude(a1, lat1_rad);
                 CalculationType const lat_max_rad = p_max;
-                CalculationType const lat_max = math::from_radian<Units>(lat_max_rad);
+                CalculationType const lat_max
+                        = math::from_radian<Units>(lat_max_rad);
 
                 if (lat2 < lat_max)
                 {
@@ -320,7 +321,12 @@ private:
     }
 
 public:
-    template <typename Units, typename CalculationType, typename Box, typename Strategy>
+    template <
+              typename Units,
+              typename CalculationType,
+              typename Box,
+              typename Strategy
+             >
     static inline void apply(CalculationType lon1,
                              CalculationType lat1,
                              CalculationType lon2,
@@ -368,7 +374,10 @@ template <std::size_t DimensionCount, bool IsSpherical>
 struct envelope_segment_on_sphere_or_spheroid
 {
     template <typename Point, typename Box, typename Strategy>
-    static inline void apply(Point const& p1, Point const& p2, Box& mbr, Strategy const& strategy)
+    static inline void apply(Point const& p1,
+                             Point const& p2,
+                             Box& mbr,
+                             Strategy const& strategy)
     {
         // first compute the envelope range for the first two coordinates
         Point p1_normalized = detail::return_normalized<Point>(p1);

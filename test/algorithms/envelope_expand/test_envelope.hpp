@@ -78,17 +78,21 @@ void test_envelope(std::string const& wkt,
                    const T& y1, const T& y2,
                    const T& z1 = 0, const T& z2 = 0)
 {
+
     typedef bg::model::box<typename bg::point_type<Geometry>::type > box_type;
     box_type b;
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     bg::envelope(geometry, b);
-    check_result<box_type, bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
+    check_result<box_type, bg::dimension<Geometry>::type::value>
+            ::apply(b, x1, y1, z1, x2, y2, z2);
 
     boost::variant<Geometry> v(geometry);
     bg::envelope(v, b);
-    check_result<box_type, bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
+    check_result<box_type, bg::dimension<Geometry>::type::value>
+            ::apply(b, x1, y1, z1, x2, y2, z2);
+
 }
 
 

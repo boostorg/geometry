@@ -49,8 +49,8 @@ template
 >
 struct indexed_loop
 {
-    template <typename Box, typename Geometry>
-    static inline void apply(Box& box, Geometry const& source)
+    template <typename Box, typename Geometry, typename Strategy>
+    static inline void apply(Box& box, Geometry const& source, Strategy const& strategy)
     {
         typedef typename strategy::compare::detail::select_strategy
             <
@@ -87,7 +87,7 @@ struct indexed_loop
             <
                 StrategyLess, StrategyGreater,
                 Index, Dimension + 1, DimensionCount
-            >::apply(box, source);
+            >::apply(box, source, strategy);
     }
 };
 
@@ -103,8 +103,8 @@ struct indexed_loop
         Index, DimensionCount, DimensionCount
     >
 {
-    template <typename Box, typename Geometry>
-    static inline void apply(Box&, Geometry const&) {}
+    template <typename Box, typename Geometry, typename Strategy>
+    static inline void apply(Box&, Geometry const&, Strategy const&) {}
 };
 
 
@@ -117,20 +117,22 @@ template
 >
 struct expand_indexed
 {
-    template <typename Box, typename Geometry>
-    static inline void apply(Box& box, Geometry const& geometry)
+    template <typename Box, typename Geometry, typename Strategy>
+    static inline void apply(Box& box,
+                             Geometry const& geometry,
+                             Strategy const& strategy)
     {
         indexed_loop
             <
                 StrategyLess, StrategyGreater,
                 0, Dimension, DimensionCount
-            >::apply(box, geometry);
+            >::apply(box, geometry, strategy);
 
         indexed_loop
             <
                 StrategyLess, StrategyGreater,
                 1, Dimension, DimensionCount
-            >::apply(box, geometry);
+            >::apply(box, geometry, strategy);
     }
 };
 

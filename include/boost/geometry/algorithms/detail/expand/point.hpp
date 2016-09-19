@@ -59,8 +59,8 @@ template
 >
 struct point_loop
 {
-    template <typename Box, typename Point>
-    static inline void apply(Box& box, Point const& source)
+    template <typename Box, typename Point, typename Strategy>
+    static inline void apply(Box& box, Point const& source, Strategy const& strategy)
     {
         typedef typename strategy::compare::detail::select_strategy
             <
@@ -95,22 +95,24 @@ struct point_loop
         point_loop
             <
                 StrategyLess, StrategyGreater, Dimension + 1, DimensionCount
-            >::apply(box, source);
+            >::apply(box, source, strategy);
     }
 };
 
 
 template
 <
-    typename StrategyLess, typename StrategyGreater, std::size_t DimensionCount
+    typename StrategyLess,
+    typename StrategyGreater,
+    std::size_t DimensionCount
 >
 struct point_loop
     <
         StrategyLess, StrategyGreater, DimensionCount, DimensionCount
     >
 {
-    template <typename Box, typename Point>
-    static inline void apply(Box&, Point const&) {}
+    template <typename Box, typename Point, typename Strategy>
+    static inline void apply(Box&, Point const&, Strategy const& strategy) {}
 };
 
 
@@ -123,8 +125,10 @@ template
 >
 struct point_loop_on_spheroid
 {
-    template <typename Box, typename Point>
-    static inline void apply(Box& box, Point const& point)
+    template <typename Box, typename Point, typename Strategy>
+    static inline void apply(Box& box,
+                             Point const& point,
+                             Strategy const& strategy)
     {
         typedef typename point_type<Box>::type box_point_type;
         typedef typename coordinate_type<Box>::type box_coordinate_type;
@@ -224,7 +228,7 @@ struct point_loop_on_spheroid
         point_loop
             <
                 StrategyLess, StrategyGreater, 2, DimensionCount
-            >::apply(box, point);
+            >::apply(box, point, strategy);
     }
 };
 

@@ -27,6 +27,10 @@
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
+#include <boost/geometry/strategies/azimuth.hpp>
+#include <boost/geometry/strategies/cartesian/azimuth_cartesian.hpp>
+#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
+#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 
 namespace boost { namespace geometry
 {
@@ -48,7 +52,9 @@ struct envelope
     }
 */
     template <typename Box, typename Strategy>
-    static inline void apply(Geometry const& geometry, Box& box, Strategy const& strategy)
+    static inline void apply(Geometry const& geometry,
+                             Box& box,
+                             Strategy const& strategy)
     {
         concepts::check<Geometry const>();
         concepts::check<Box>();
@@ -57,29 +63,35 @@ struct envelope
     }
 };
 
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename Box>
+    template <typename Box, typename Strategy>
     struct visitor: boost::static_visitor<void>
     {
         Box& m_box;
+        Strategy const& m_strategy;
 
-        visitor(Box& box): m_box(box) {}
+        visitor(Box& box, Strategy const& strategy)
+            : m_box(box)
+            , m_strategy(strategy)
+        {}
 
         template <typename Geometry>
         void operator()(Geometry const& geometry) const
         {
-            envelope<Geometry>::apply(geometry, m_box);
+            envelope<Geometry>::apply(geometry, m_box, m_strategy);
         }
     };
 
-    template <typename Box>
+    template <typename Box, typename Strategy>
     static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          Box& box)
+          Box& box,
+          Strategy const& strategy)
     {
-        boost::apply_visitor(visitor<Box>(box), geometry);
+        boost::apply_visitor(visitor<Box, Strategy>(box, strategy), geometry);
     }
 };
 
@@ -127,8 +139,7 @@ inline void envelope(Geometry const& geometry, Box& mbr)
     // TODO put this into a resolve_strategy stage
     //      (and take the return type from resolve_variant)
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename coordinate_type<Geometry>::type coordinate_type;
-    //typedef typename strategy::azimuth::azimuth_geographic<coordinate_type> strategy_type;
+    typedef typename coordinate_type<point_type>::type coordinate_type;
 
     typedef typename strategy::azimuth::services::default_strategy
         <

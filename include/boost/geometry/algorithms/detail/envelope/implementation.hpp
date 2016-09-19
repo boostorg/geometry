@@ -57,12 +57,12 @@ struct envelope_polygon
             envelope_multi_range
                 <
                     envelope_range
-                >::apply(interior_rings(polygon), mbr);
+                >::apply(interior_rings(polygon), mbr, strategy);
         }
         else
         {
             // otherwise, consider only the exterior ring
-            envelope_range::apply(ext_ring, mbr);
+            envelope_range::apply(ext_ring, mbr, strategy);
         }
     }
 };

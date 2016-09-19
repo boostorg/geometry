@@ -36,12 +36,13 @@ namespace detail { namespace envelope
 
 struct envelope_linestring_on_spheroid
 {
-    template <typename Linestring, typename Box>
-    static inline void apply(Linestring const& linestring, Box& mbr)
+    template <typename Linestring, typename Box, typename Strategy>
+    static inline void apply(Linestring const& linestring, Box& mbr, Strategy const& strategy)
     {
         envelope_range::apply(geometry::segments_begin(linestring),
                               geometry::segments_end(linestring),
-                              mbr);
+                              mbr,
+                              strategy);
     }
 };
 
