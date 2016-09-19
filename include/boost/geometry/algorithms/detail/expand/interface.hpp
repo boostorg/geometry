@@ -5,9 +5,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -44,7 +45,9 @@ template <typename Geometry>
 struct expand
 {
     template <typename Box, typename Strategy>
-    static inline void apply(Box& box, Geometry const& geometry, Strategy const& strategy)
+    static inline void apply(Box& box,
+                             Geometry const& geometry,
+                             Strategy const& strategy)
     {
         concepts::check<Box>();
         concepts::check<Geometry const>();
@@ -81,7 +84,8 @@ struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
           boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
           Strategy const& strategy)
     {
-        return boost::apply_visitor(visitor<Box, Strategy>(box, strategy), geometry);
+        return boost::apply_visitor(visitor<Box, Strategy>(box, strategy),
+                                    geometry);
     }
 };
     

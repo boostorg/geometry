@@ -4,9 +4,10 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -41,16 +42,6 @@ namespace resolve_variant
 template <typename Geometry>
 struct envelope
 {
-/*
-    template <typename Box>
-    static inline void apply(Geometry const& geometry, Box& box)
-    {
-        concepts::check<Geometry const>();
-        concepts::check<Box>();
-
-        dispatch::envelope<Geometry>::apply(geometry, box);
-    }
-*/
     template <typename Box, typename Strategy>
     static inline void apply(Geometry const& geometry,
                              Box& box,

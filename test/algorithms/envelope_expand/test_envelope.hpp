@@ -78,7 +78,6 @@ void test_envelope(std::string const& wkt,
                    const T& y1, const T& y2,
                    const T& z1 = 0, const T& z2 = 0)
 {
-
     typedef bg::model::box<typename bg::point_type<Geometry>::type > box_type;
     box_type b;
 

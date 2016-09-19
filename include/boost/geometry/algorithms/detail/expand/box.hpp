@@ -5,9 +5,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Distributed under the Boost Software License, Version 1.0.

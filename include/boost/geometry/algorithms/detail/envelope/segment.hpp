@@ -90,36 +90,7 @@ template <bool IsSpherical>
 class compute_mbr_of_segment
 {
 private:
-/*
-    // computes the azimuths of the segment with endpoints (lon1, lat1)
-    // and (lon2, lat2)
-    // radians
-    template <typename CalculationType>
-    static inline void azimuths(CalculationType const& lon1,
-                                CalculationType const& lat1,
-                                CalculationType const& lon2,
-                                CalculationType const& lat2,
-                                CalculationType& a1,
-                                CalculationType& a2)
-    {
-        BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
 
-        CalculationType dlon = lon2 - lon1;
-        CalculationType sin_dlon = sin(dlon);
-        CalculationType cos_dlon = cos(dlon);
-        CalculationType cos_lat1 = cos(lat1);
-        CalculationType cos_lat2 = cos(lat2);
-        CalculationType sin_lat1 = sin(lat1);
-        CalculationType sin_lat2 = sin(lat2);
- 
-        a1 = atan2(sin_dlon * cos_lat2,
-                   cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_dlon);
-
-        a2 = atan2(-sin_dlon * cos_lat1,
-                   cos_lat2 * sin_lat1 - sin_lat2 * cos_lat1 * cos_dlon);
-        a2 += math::pi<CalculationType>();
-    }
-*/
     // degrees or radians
     template <typename CalculationType>
     static inline void swap(CalculationType& lon1,
@@ -158,16 +129,7 @@ private:
 
         return math::abs(lon1 - lon2) > constants::half_period(); // > pi
     }
-/*
-    // radians
-    template <typename CalculationType>
-    static inline CalculationType max_latitude(CalculationType const& azimuth,
-                                               CalculationType const& latitude)
-    {
-        // azimuth and latitude are assumed to be in radians
-        return acos( math::abs(cos(latitude) * sin(azimuth)) );
-    }
-*/
+
     // degrees or radians
     template <typename Units, typename CalculationType, typename Strategy>
     static inline void compute_box_corners(CalculationType& lon1,
@@ -186,20 +148,7 @@ private:
 
         CalculationType a1, a2;
         strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
-/*        if (IsSpherical)
-        {
-            //geometry::strategy::azimuth::azimuth_spherical
-            //        <CalculationType> azimuth_spherical;
-            //azimuth_spherical.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
-            strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
-        }
-        else
-        {
-            geometry::strategy::azimuth::azimuth_geographic
-                    <CalculationType, geometry::formula::thomas_inverse> azimuth_geographic;
-            azimuth_geographic.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
-        }
-*/
+
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);

@@ -863,7 +863,6 @@ void test_envelope_multipoint()
         mp.push_back(P(1-heps, 1-heps));
         tester::apply("mp20", mp, 1-heps, 1-heps, 1, 1);
     }
-
 }
 
 BOOST_AUTO_TEST_CASE( envelope_multipoint )
@@ -1262,8 +1261,6 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
         l.push_back(P(0, 0));
         l.push_back(P(1, 1));
         tester::apply("l12", l, 0, 0, 1, 1);
-    }
-
 }
 
 
@@ -1579,4 +1576,3 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   170, -90, 350, 90); // FAILS NOW
 }
 #endif
-
