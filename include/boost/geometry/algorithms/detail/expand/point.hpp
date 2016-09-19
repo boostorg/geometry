@@ -113,7 +113,7 @@ struct point_loop
     >
 {
     template <typename Box, typename Point, typename Strategy>
-    static inline void apply(Box&, Point const&, Strategy const& strategy) {}
+    static inline void apply(Box&, Point const&, Strategy const&) {}
 };
 
 

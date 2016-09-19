@@ -53,7 +53,10 @@ namespace detail { namespace envelope
 struct envelope_range
 {
     template <typename Iterator, typename Box, typename Strategy>
-    static inline void apply(Iterator first, Iterator last, Box& mbr, Strategy const& strategy)
+    static inline void apply(Iterator first,
+                             Iterator last,
+                             Box& mbr,
+                             Strategy const& strategy)
     {
         typedef typename std::iterator_traits<Iterator>::value_type value_type;
 
@@ -87,7 +90,9 @@ template <typename EnvelopePolicy>
 struct envelope_multi_range
 {
     template <typename MultiRange, typename Box, typename Strategy>
-    static inline void apply(MultiRange const& multirange, Box& mbr, Strategy const& strategy)
+    static inline void apply(MultiRange const& multirange,
+                             Box& mbr,
+                             Strategy const& strategy)
     {
         typedef typename boost::range_iterator
             <
@@ -131,7 +136,9 @@ template <typename EnvelopePolicy>
 struct envelope_multi_range_on_spheroid
 {
     template <typename MultiRange, typename Box, typename Strategy>
-    static inline void apply(MultiRange const& multirange, Box& mbr, Strategy const& strategy)
+    static inline void apply(MultiRange const& multirange,
+                             Box& mbr,
+                             Strategy const& strategy)
     {
         typedef typename boost::range_iterator
             <

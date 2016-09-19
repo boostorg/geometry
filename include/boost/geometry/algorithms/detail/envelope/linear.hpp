@@ -69,6 +69,11 @@ struct envelope<Linestring, linestring_tag, spherical_equatorial_tag>
     : detail::envelope::envelope_linestring_on_spheroid
 {};
 
+template <typename Linestring>
+struct envelope<Linestring, linestring_tag, geographic_tag>
+    : detail::envelope::envelope_linestring_on_spheroid
+{};
+
 
 template <typename MultiLinestring, typename CS_Tag>
 struct envelope
@@ -90,6 +95,15 @@ struct envelope
         >
 {};
 
+template <typename MultiLinestring>
+struct envelope
+    <
+        MultiLinestring, multi_linestring_tag, geographic_tag
+    > : detail::envelope::envelope_multi_range_on_spheroid
+        <
+            detail::envelope::envelope_linestring_on_spheroid
+        >
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

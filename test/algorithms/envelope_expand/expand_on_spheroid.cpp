@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -624,7 +625,7 @@ BOOST_AUTO_TEST_CASE( expand_point_with_height )
 }
 
 
-BOOST_AUTO_TEST_CASE( expand_segment )
+BOOST_AUTO_TEST_CASE( expand_segment_sphere )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 2, coordinate_system_type> point_type;
@@ -703,10 +704,117 @@ BOOST_AUTO_TEST_CASE( expand_segment )
                   10, -90, 100, 45);
 }
 
+BOOST_AUTO_TEST_CASE( expand_segment_spheroid )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::segment<point_type> G;
+    typedef test_expand_on_spheroid tester;
 
-BOOST_AUTO_TEST_CASE( expand_segment_with_height )
+    tester::apply("s01",
+                  from_wkt<B>("BOX(20 20,50 50)"),
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 50, 50);
+
+    tester::apply("s02",
+                  from_wkt<B>("BOX(20 20,50 50)"),
+                  from_wkt<G>("SEGMENT(10 10,40 10)"),
+                  10, 10, 50, 50);
+
+    tester::apply("s03",
+                  from_wkt<B>("BOX(5 5,50 10)"),
+                  from_wkt<G>("SEGMENT(40 10,10 10)"),
+                  5, 5, 50, 10.347587605817935,
+                  4.0 * std::numeric_limits<double>::epsilon());
+
+    // segment ending at the north pole
+    tester::apply("s04",
+                  from_wkt<B>("BOX(5 15,50 50)"),
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  5, 15, 50, 90);
+
+    // segment ending at the north pole
+    tester::apply("s04a",
+                  from_wkt<B>("BOX(5 15,30 30)"),
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  5, 15, 40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05",
+                  from_wkt<B>("BOX(5 15,50 50)"),
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  5, 15, 50, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05a",
+                  from_wkt<B>("BOX(5 15,30 30)"),
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  5, 15, 40, 90);
+
+    // segment passing through the south pole
+    tester::apply("s06",
+                  from_wkt<B>("BOX(5 15,30 40)"),
+                  from_wkt<G>("SEGMENT(-170 -45,10 -30)"),
+                  -170, -90, 30, 40);
+
+    // segment degenerating to the north pole
+    tester::apply("s07",
+                  from_wkt<B>("BOX(5 15,30 40)"),
+                  from_wkt<G>("SEGMENT(10 90,20 90)"),
+                  5, 15, 30, 90);
+
+    // segment degenerating to the south pole
+    tester::apply("s08",
+                  from_wkt<B>("BOX(5 15,30 40)"),
+                  from_wkt<G>("SEGMENT(10 -90,20 -90)"),
+                  5, -90, 30, 40);
+
+    // box degenerating to the south pole
+    tester::apply("s09",
+                  from_wkt<B>("BOX(10 -90,30 -90)"),
+                  from_wkt<G>("SEGMENT(10 -30,100 45)"),
+                  10, -90, 100, 45);
+
+    // box degenerating to the south pole
+    tester::apply("s09a",
+                  from_wkt<B>("BOX(10 -90,130 -90)"),
+                  from_wkt<G>("SEGMENT(10 -30,100 45)"),
+                  10, -90, 100, 45);
+}
+
+BOOST_AUTO_TEST_CASE( expand_segment_sphere_with_height )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::segment<point_type> G;
+    typedef test_expand_on_spheroid tester;
+
+    tester::apply("sh01",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 150,40 40 500)"),
+                  10, 10, 100, 50, 50, 1000);
+
+    tester::apply("sh02",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 60,40 40 1500)"),
+                  10, 10, 60, 50, 50, 1500);
+
+    tester::apply("sh03",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 150,40 40 1500)"),
+                  10, 10, 100, 50, 50, 1500);
+
+    tester::apply("sh04",
+                  from_wkt<B>("BOX(20 20 100,50 50 1000)"),
+                  from_wkt<G>("SEGMENT(10 10 60,40 40 800)"),
+                  10, 10, 60, 50, 50, 1000);
+}
+
+BOOST_AUTO_TEST_CASE( expand_segment_spheroid_with_height )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::box<point_type> B;
     typedef bg::model::segment<point_type> G;

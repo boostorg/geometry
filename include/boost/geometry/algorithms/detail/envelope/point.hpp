@@ -60,7 +60,7 @@ struct envelope_one_point
     }
 
     template <typename Point, typename Box, typename Strategy>
-    static inline void apply(Point const& point, Box& mbr, Strategy strategy)
+    static inline void apply(Point const& point, Box& mbr, Strategy const&)
     {
         apply<min_corner>(point, mbr);
         apply<max_corner>(point, mbr);

@@ -13,6 +13,8 @@
 
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/core/srs.hpp>
+#include <boost/mpl/assert.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -26,7 +28,7 @@ a point on the geodesic that maximizes (or minimizes) the latitude.
 */
 
 template <typename CT>
-class vertex_latitude
+class vertex_latitude_on_sphere
 {
 
 public:
@@ -35,24 +37,28 @@ public:
             typename T1,
             typename T2
             >
-    static inline CT spherical(T1 const& lat1,
-                               T2 const& alp1)
+    static inline CT apply(T1 const& lat1,
+                           T2 const& alp1)
     {
         return std::acos( math::abs(cos(lat1) * sin(alp1)) );
     }
+};
 
+template <typename CT>
+class vertex_latitude_on_spheroid
+{
 
+public:
     template <
             //template <typename, bool, bool, bool, bool, bool> class Inverse,
             typename T1,
-            typename T2,
-            typename Spheroid
+            typename T2
             >
-    static inline CT geographic(T1 const& lat1,
-                                T2 const& alp1,
-                                Spheroid const& spheroid)
+    static inline CT apply(T1 const& lat1,
+                           T2 const& alp1)
     {
 
+        geometry::srs::spheroid<CT> spheroid;
         CT const f = detail::flattening<CT>(spheroid);
 
         CT const e2 = f * (CT(2) - f);
@@ -95,6 +101,27 @@ public:
         return true;
     }
 };
+
+
+template <typename CT, typename CS_Tag>
+struct vertex_latitude
+{
+    BOOST_MPL_ASSERT_MSG
+         (
+             false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM, (types<CS_Tag>)
+         );
+
+};
+
+template <typename CT>
+struct vertex_latitude<CT, spherical_equatorial_tag>
+        : vertex_latitude_on_sphere<CT>
+{};
+
+template <typename CT>
+struct vertex_latitude<CT, geographic_tag>
+        : vertex_latitude_on_spheroid<CT>
+{};
 
 
 }}} // namespace boost::geometry::formula

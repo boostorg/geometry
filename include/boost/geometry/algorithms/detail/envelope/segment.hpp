@@ -86,7 +86,7 @@ struct envelope_one_segment
 // normalized and in radians.
 // The longitudes and latitudes of the endpoints are overridden by
 // those of the box.
-template <bool IsSpherical>
+template <typename CS_Tag>
 class compute_mbr_of_segment
 {
 private:
@@ -163,19 +163,8 @@ private:
 
         if (contains_pi_half(a1, a2))
         {
-            CalculationType p_max;
-
-            if (IsSpherical)
-            {
-                p_max = geometry::formula::vertex_latitude<CalculationType>::
-                                  spherical(lat1_rad, a1);
-            }
-            else
-            {
-                p_max = geometry::formula::vertex_latitude<CalculationType>::
-                                  geographic(lat1_rad, a1,
-                                     geometry::srs::spheroid<CalculationType>());
-            }
+            CalculationType p_max = geometry::formula
+                ::vertex_latitude<CalculationType, CS_Tag>::apply(lat1_rad, a1);
 
             CalculationType const mid_lat = lat1 + lat2;
             if (mid_lat < 0)
@@ -319,7 +308,7 @@ public:
 };
 
 
-template <std::size_t DimensionCount, bool IsSpherical>
+template <std::size_t DimensionCount, typename CS_Tag>
 struct envelope_segment_on_sphere_or_spheroid
 {
     template <typename Point, typename Box, typename Strategy>
@@ -334,7 +323,7 @@ struct envelope_segment_on_sphere_or_spheroid
 
         typedef typename coordinate_system<Point>::type::units units_type;
 
-        compute_mbr_of_segment<IsSpherical>::template apply<units_type>(
+        compute_mbr_of_segment<CS_Tag>::template apply<units_type>(
                     geometry::get<0>(p1_normalized),
                     geometry::get<1>(p1_normalized),
                     geometry::get<0>(p2_normalized),
@@ -367,13 +356,13 @@ struct envelope_segment
 
 template <std::size_t DimensionCount>
 struct envelope_segment<DimensionCount, spherical_equatorial_tag>
-    : envelope_segment_on_sphere_or_spheroid<DimensionCount, true>
+    : envelope_segment_on_sphere_or_spheroid<DimensionCount, spherical_equatorial_tag>
 {};
 
 
 template <std::size_t DimensionCount>
 struct envelope_segment<DimensionCount, geographic_tag>
-    : envelope_segment_on_sphere_or_spheroid<DimensionCount, false>
+    : envelope_segment_on_sphere_or_spheroid<DimensionCount, geographic_tag>
 {};
 
 
@@ -389,19 +378,6 @@ namespace dispatch
 template <typename Segment, typename CS_Tag>
 struct envelope<Segment, segment_tag, CS_Tag>
 {
-/*
-    template <typename Box>
-    static inline void apply(Segment const& segment, Box& mbr)
-    {
-        typename point_type<Segment>::type p[2];
-        detail::assign_point_from_index<0>(segment, p[0]);
-        detail::assign_point_from_index<1>(segment, p[1]);
-        detail::envelope::envelope_segment
-            <
-                dimension<Segment>::value, CS_Tag
-            >::apply(p[0], p[1], mbr);
-    }
-*/
     template <typename Box, typename Strategy>
     static inline void apply(Segment const& segment,
                              Box& mbr,
@@ -415,7 +391,6 @@ struct envelope<Segment, segment_tag, CS_Tag>
                 dimension<Segment>::value, CS_Tag
             >::apply(p[0], p[1], mbr, strategy);
     }
-
 };
 
 } // namespace dispatch

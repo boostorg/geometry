@@ -40,8 +40,8 @@ namespace boost { namespace geometry
 namespace detail { namespace expand
 {
 
-
-struct segment_on_sphere
+template <typename CS_Tag>
+struct segment_on_sphere_or_spheroid
 {
     template <typename Box, typename Segment, typename Strategy>
     static inline void apply(Box& box,
@@ -57,7 +57,7 @@ struct segment_on_sphere
         detail::envelope::envelope_segment_on_sphere_or_spheroid
             <
                 dimension<Segment>::value,
-                true
+                CS_Tag
             >::apply(p[0], p[1], mbrs[0], strategy);
 
         // normalize the box
@@ -110,9 +110,22 @@ struct expand
         StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         spherical_equatorial_tag, spherical_equatorial_tag
-    > : detail::expand::segment_on_sphere
+    > : detail::expand::segment_on_sphere_or_spheroid<spherical_equatorial_tag>
 {};
 
+template
+<
+    typename Box, typename Segment,
+    typename StrategyLess, typename StrategyGreater
+>
+struct expand
+    <
+        Box, Segment,
+        StrategyLess, StrategyGreater,
+        box_tag, segment_tag,
+        geographic_tag, geographic_tag
+    > : detail::expand::segment_on_sphere_or_spheroid<geographic_tag>
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

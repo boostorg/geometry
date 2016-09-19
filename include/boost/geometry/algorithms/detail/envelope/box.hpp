@@ -101,7 +101,7 @@ struct envelope_box
     template<typename BoxIn, typename BoxOut, typename Strategy>
     static inline void apply(BoxIn const& box_in,
                              BoxOut& mbr,
-                             Strategy const& strategy)
+                             Strategy const&)
     {
         envelope_indexed_box
             <
@@ -121,7 +121,7 @@ struct envelope_box_on_spheroid
     template <typename BoxIn, typename BoxOut, typename Strategy>
     static inline void apply(BoxIn const& box_in,
                              BoxOut& mbr,
-                             Strategy const& strategy)
+                             Strategy const&)
     {
         BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
 
