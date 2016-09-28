@@ -684,6 +684,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         sbs.apply(turn_point);
 
         sbs.find_open();
+        sbs.assign_zones(for_operation);
 
         // Unset the startable flag for all 'closed' zones
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
@@ -710,7 +711,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count();
+        cinfo.open_count = sbs.open_count(for_operation);
     }
 }
 

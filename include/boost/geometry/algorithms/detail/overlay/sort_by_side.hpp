@@ -181,11 +181,36 @@ private :
     Point m_p1, m_p2;
 };
 
+// Sorts vectors in counter clockwise order (by default)
 template <bool Reverse1, bool Reverse2, typename Point, typename Compare>
 struct side_sorter
 {
     typedef ranked_point<Point> rp;
 
+private :
+    struct include_union
+    {
+        inline bool operator()(rp const& ranked_point) const
+        {
+            // New candidate if there are no polygons on left side,
+            // but there are on right side
+            return ranked_point.count_left == 0
+                && ranked_point.count_right > 0;
+        }
+    };
+
+    struct include_intersection
+    {
+        inline bool operator()(rp const& ranked_point) const
+        {
+            // New candidate if there are two polygons on right side,
+            // and less on the left side
+            return ranked_point.count_left < 2
+                && ranked_point.count_right >= 2;
+        }
+    };
+
+public :
     inline void set_origin(Point const& origin)
     {
         m_origin = origin;
@@ -292,8 +317,6 @@ struct side_sorter
                     &segment_identifier::source_index
                 >(handled);
         }
-
-        assign_zones();
     }
 
     void reverse()
@@ -334,8 +357,17 @@ struct side_sorter
         }
     }
 
+//private :
+
+    typedef std::vector<rp> container_type;
+    container_type m_ranked_points;
+    Point m_origin;
+
+private :
+
     //! Check how many open spaces there are
-    inline std::size_t open_count() const
+    template <typename Include>
+    inline std::size_t open_count(Include const& include_functor) const
     {
         std::size_t result = 0;
         std::size_t last_rank = 0;
@@ -345,8 +377,7 @@ struct side_sorter
 
             if (ranked_point.rank > last_rank
                 && ranked_point.direction == sort_by_side::dir_to
-                && ranked_point.count_left == 0
-                && ranked_point.count_right > 0)
+                && include_functor(ranked_point))
             {
                 result++;
                 last_rank = ranked_point.rank;
@@ -354,15 +385,6 @@ struct side_sorter
         }
         return result;
     }
-
-//protected :
-
-    typedef std::vector<rp> container_type;
-    container_type m_ranked_points;
-    Point m_origin;
-
-private :
-
 
     std::size_t move(std::size_t index) const
     {
@@ -449,7 +471,8 @@ private :
     }
 
     //! Find closed zones and assign it
-    void assign_zones()
+    template <typename Include>
+    std::size_t assign_zones(Include const& include_functor)
     {
         // Find a starting point (the first rank after an outgoing rank
         // with no polygons on the left side)
@@ -464,8 +487,7 @@ private :
                 max_rank = ranked_point.rank;
             }
             if (ranked_point.direction == sort_by_side::dir_to
-                 && ranked_point.count_left == 0
-                 && ranked_point.count_right > 0)
+                && include_functor(ranked_point))
             {
                 start_rank = ranked_point.rank + 1;
             }
@@ -501,8 +523,7 @@ private :
                 }
 
                 if (ranked_point.direction == sort_by_side::dir_to
-                     && ranked_point.count_left == 0
-                     && ranked_point.count_right > 0)
+                    && include_functor(ranked_point))
                 {
                     rank_at_next_zone = ranked_point.rank + 1;
                     if (rank_at_next_zone > max_rank)
@@ -516,8 +537,25 @@ private :
 
             ranked_point.zone = zone_id;
         }
+        return zone_id;
     }
 
+public :
+    inline std::size_t open_count(operation_type for_operation) const
+    {
+        return for_operation == operation_union
+            ? open_count(include_union())
+            : open_count(include_intersection())
+            ;
+    }
+
+    inline std::size_t assign_zones(operation_type for_operation)
+    {
+        return for_operation == operation_union
+            ? assign_zones(include_union())
+            : assign_zones(include_intersection())
+            ;
+    }
 
 };
 
