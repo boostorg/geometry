@@ -476,7 +476,7 @@ struct traversal
         sbs.apply(turn.point);
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        is_touching = is_union && cinfo.open_count > 1;
+        is_touching = cinfo.open_count > 1;
         if (is_touching)
         {
             if (cinfo.switch_source)
@@ -490,10 +490,14 @@ struct traversal
             }
         }
 #else
-        is_touching = is_union && cinfo.open_count > 1 && ! cinfo.switch_source;
+        is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
 #endif
-        if (is_touching)
+
+        if (is_touching && is_union)
         {
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+            std::cout << "CLUSTER: REVERSE" << std::endl;
+#endif
             sbs.reverse();
         }
 
