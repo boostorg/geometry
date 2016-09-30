@@ -282,6 +282,25 @@ inline CoordinateType longitude_distance_unsigned(CoordinateType const& longitud
     return diff;
 }
 
+template <typename Units, typename CoordinateType>
+inline CoordinateType longitude_distance_directed(CoordinateType const& longitude_a1,
+                                                  CoordinateType const& longitude_a2,
+                                                  CoordinateType const& longitude_b)
+{
+    CoordinateType const c0 = 0;
+    CoordinateType dist_a12 = longitude_distance_signed<Units>(longitude_a1, longitude_a2);
+    CoordinateType dist_a1b = longitude_distance_signed<Units>(longitude_a1, longitude_b);
+    if (dist_a12 < c0)
+    {
+        dist_a12 = -dist_a12;
+        dist_a1b = -dist_a1b;
+    }
+
+    return dist_a1b < c0 ? dist_a1b
+         : dist_a1b > dist_a12 ? dist_a1b - dist_a12
+         : c0;
+}
+
 } // namespace math
 
 
