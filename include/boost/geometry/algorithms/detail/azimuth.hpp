@@ -23,6 +23,7 @@
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 namespace boost { namespace geometry
@@ -69,22 +70,9 @@ struct azimuth<ReturnType, spherical_equatorial_tag>
     template <typename P1, typename P2, typename Sphere>
     static inline ReturnType apply(P1 const& p1, P2 const& p2, Sphere const& /*unused*/)
     {
-        // http://williams.best.vwh.net/avform.htm#Crs
-        ReturnType dlon = get_as_radian<0>(p2) - get_as_radian<0>(p1);
-        ReturnType cos_p2lat = cos(get_as_radian<1>(p2));
-
-        // An optimization which should kick in often for Boxes
-        //if ( math::equals(dlon, ReturnType(0)) )
-        //if ( get<0>(p1) == get<0>(p2) )
-        //{
-        //    return - sin(get_as_radian<1>(p1)) * cos_p2lat);
-        //}
-
-        // "An alternative formula, not requiring the pre-computation of d"
-        // In the formula below dlon is used as "d"
-        return atan2(sin(dlon) * cos_p2lat,
-            cos(get_as_radian<1>(p1)) * sin(get_as_radian<1>(p2))
-            - sin(get_as_radian<1>(p1)) * cos_p2lat * cos(dlon));
+        return geometry::formula::sph_azimuth<ReturnType>(
+                    get_as_radian<0>(p1), get_as_radian<1>(p1),
+                    get_as_radian<0>(p2), get_as_radian<1>(p2));
     }
 
     template <typename P1, typename P2>

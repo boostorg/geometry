@@ -27,22 +27,38 @@ namespace boost { namespace geometry {
     
 namespace formula {
 
+template <typename T>
+static inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z)
+{
+    T const cos_lat = cos(lat);
+    x = cos_lat * cos(lon);
+    y = cos_lat * sin(lon);
+    z = sin(lat);
+}
+
 template <typename Point3d, typename PointSph>
 static inline Point3d sph_to_cart3d(PointSph const& point_sph)
 {
     typedef typename coordinate_type<Point3d>::type calc_t;
 
+    calc_t const lon = get_as_radian<0>(point_sph);
+    calc_t const lat = get_as_radian<1>(point_sph);
+    calc_t x, y, z;
+    sph_to_cart3d(lon, lat, x, y, z);
+
     Point3d res;
-
-    calc_t lon = get_as_radian<0>(point_sph);
-    calc_t lat = get_as_radian<1>(point_sph);
-
-    calc_t const cos_lat = cos(lat);
-    set<0>(res, cos_lat * cos(lon));
-    set<1>(res, cos_lat * sin(lon));
-    set<2>(res, sin(lat));
+    set<0>(res, x);
+    set<1>(res, y);
+    set<2>(res, z);
 
     return res;
+}
+
+template <typename T>
+static inline void cart3d_to_sph(T const& x, T const& y, T const& z, T & lon, T & lat)
+{
+    lon = atan2(y, x);
+    lat = asin(z);
 }
 
 template <typename PointSph, typename Point3d>
@@ -51,14 +67,15 @@ static inline PointSph cart3d_to_sph(Point3d const& point_3d)
     typedef typename coordinate_type<PointSph>::type coord_t;
     typedef typename coordinate_type<Point3d>::type calc_t;
 
-    PointSph res;
-
     calc_t const x = get<0>(point_3d);
     calc_t const y = get<1>(point_3d);
     calc_t const z = get<2>(point_3d);
+    calc_t lonr, latr;
+    cart3d_to_sph(x, y, z, lonr, latr);
 
-    set_from_radian<0>(res, atan2(y, x));
-    set_from_radian<1>(res, asin(z));
+    PointSph res;
+    set_from_radian<0>(res, lonr);
+    set_from_radian<1>(res, latr);
 
     coord_t lon = get<0>(res);
     coord_t lat = get<1>(res);
@@ -87,6 +104,74 @@ static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
     return math::equals(d, c0) ? 0
         : d > c0 ? 1
         : -1; // d < 0
+}
+
+template <typename ReturnType, typename T1, typename T2>
+inline ReturnType sph_azimuth(T1 const& lon1, T1 const& lat1,
+                              T2 const& lon2, T2 const& lat2)
+{
+    // http://williams.best.vwh.net/avform.htm#Crs
+    ReturnType const dlon = lon2 - lon1;
+    
+    // An optimization which should kick in often for Boxes
+    //if ( math::equals(dlon, ReturnType(0)) )
+    //if ( get<0>(p1) == get<0>(p2) )
+    //{
+    //    return - sin(get_as_radian<1>(p1)) * cos_p2lat);
+    //}
+
+    // "An alternative formula, not requiring the pre-computation of d"
+    // In the formula below dlon is used as "d"
+    ReturnType const cos_lat2 = cos(lat2);
+    ReturnType const y = sin(dlon) * cos_lat2;
+    ReturnType const x = cos(lat1) * sin(lat2) - sin(lat1) * cos_lat2 * cos(dlon);
+    return atan2(y, x);
+}
+
+template <typename T>
+inline T sph_azimuth(T const& lon1, T const& lat1, T const& lon2, T const& lat2)
+{
+    return sph_azimuth<T, T, T>(lon1, lat1, lon2, lat2);
+}
+
+template <typename T>
+inline int azimuth_side_value(T const& azi_a1_p, T const& azi_a1_a2)
+{
+    T const pi = math::pi<T>();
+    T const two_pi = math::two_pi<T>();
+
+    // instead of the formula from XTD
+    //calc_t a_diff = asin(sin(azi_a1_p - azi_a1_a2));
+
+    T a_diff = azi_a1_p - azi_a1_a2;
+    // normalize, angle in [-pi, pi]
+    while (a_diff > pi)
+        a_diff -= two_pi;
+    while (a_diff < -pi)
+        a_diff += two_pi;
+
+    // NOTE: in general it shouldn't be required to support the pi/-pi case
+    // because in non-cartesian systems it makes sense to check the side
+    // only "between" the endpoints.
+    // However currently the winding strategy calls the side strategy
+    // for vertical segments to check if the point is "between the endpoints.
+    // This could be avoided since the side strategy is not required for that
+    // because meridian is the shortest path. So a difference of
+    // longitudes would be sufficient (of course normalized to [-pi, pi]).
+
+    // NOTE: with the above said, the pi/-pi check is temporary
+    // however in case if this was required
+    // the geodesics on ellipsoid aren't "symmetrical"
+    // therefore instead of comparing a_diff to pi and -pi
+    // one should probably use inverse azimuths and compare
+    // the difference to 0 as well
+
+    // positive azimuth is on the right side
+    return math::equals(a_diff, 0)
+        || math::equals(a_diff, pi)
+        || math::equals(a_diff, -pi) ? 0
+        : a_diff > 0 ? -1 // right
+        : 1; // left
 }
 
 } // namespace formula
