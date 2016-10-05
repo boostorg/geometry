@@ -226,6 +226,8 @@ void test_all()
     TEST_INT(case_64_multi, 1);
     TEST_INT(case_72_multi, 3);
     TEST_INT(case_107_multi, 2);
+    TEST_INT(case_123_multi, 3);
+    TEST_INT(case_124_multi, 3);
     TEST_INT(case_recursive_boxes_1, 2);
     TEST_INT(case_recursive_boxes_10, 2);
     TEST_INT(case_recursive_boxes_18, 0);
@@ -240,6 +242,8 @@ void test_all()
     TEST_UNION(case_64_multi, 1);
     TEST_UNION(case_72_multi, 0);
     TEST_UNION(case_107_multi, 1);
+    TEST_UNION(case_123_multi, 1);
+    TEST_UNION(case_124_multi, 1);
     TEST_UNION(case_recursive_boxes_1, 1);
     TEST_UNION(case_recursive_boxes_10, 1);
     TEST_UNION(case_recursive_boxes_18, 3);

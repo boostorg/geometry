@@ -28,6 +28,15 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#define TEST_INTERSECTION(caseid, clips, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area)
+
+#define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -133,6 +142,10 @@ void test_areal()
         5, 33, 7.5,
         ignore_validity);
 #endif
+
+    TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
+    TEST_INTERSECTION_IGNORE(case_124_multi, 2, 13, 2.0625);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         8, 97, 47.0, ignore_validity);
