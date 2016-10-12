@@ -145,6 +145,7 @@ void test_areal()
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
     TEST_INTERSECTION_IGNORE(case_124_multi, 2, 13, 2.0625);
+    TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
