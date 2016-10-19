@@ -45,7 +45,19 @@ struct rank_with_rings
     rank_with_rings()
         : rank(0)
     {
+    }
 
+    inline bool all_to() const
+    {
+        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+             it != rings.end(); ++it)
+        {
+            if (it->direction == sort_by_side::dir_from)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
