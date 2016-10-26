@@ -22,9 +22,9 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
-
+#include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-
+#include <boost/iterator/iterator_concepts.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -94,6 +94,16 @@ inline std::ostream& print_geometry_range(std::ostream& os,
     return os;
 }
 
+template <typename Geometry>
+struct test_iterator_concepts
+{
+    typedef bg::segment_iterator<Geometry> iterator;
+    BOOST_CONCEPT_ASSERT(( boost::BidirectionalIteratorConcept<iterator> ));
+    BOOST_CONCEPT_ASSERT(( boost_concepts::ReadableIteratorConcept<iterator> ));
+    BOOST_CONCEPT_ASSERT
+        (( boost_concepts::BidirectionalTraversalConcept<iterator> ));
+};
+
 struct equals
 {
     template <typename Iterator>
@@ -154,6 +164,8 @@ struct test_segment_iterator_of_geometry
                                  std::string const& header)
     {
         typedef bg::segment_iterator<G const> segment_iterator;
+
+        test_iterator_concepts<G const>();
 
         segment_iterator begin = bg::segments_begin(geometry);
         segment_iterator end = bg::segments_end(geometry);

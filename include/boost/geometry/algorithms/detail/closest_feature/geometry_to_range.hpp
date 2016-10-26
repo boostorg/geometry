@@ -63,8 +63,7 @@ private:
             >::apply(geometry, *it_min, strategy);
 
         // check if other elements in the range are closer
-        RangeIterator it = first;
-        for (++it; it != last; ++it)
+        for (RangeIterator it = ++first; it != last; ++it)
         {
             Distance dist = dispatch::distance
                 <
