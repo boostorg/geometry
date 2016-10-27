@@ -50,7 +50,6 @@ class vertex_latitude_on_spheroid
 
 public:
     template <
-            //template <typename, bool, bool, bool, bool, bool> class Inverse,
             typename T1,
             typename T2
             >
@@ -73,6 +72,7 @@ public:
         return vertex_lat;
     }
 
+    /*
     template <typename T>
     inline static void sign_adjastment(CT lat1, CT lat2, CT vertex_lat, T& vrt_result)
     {
@@ -100,6 +100,7 @@ public:
         }
         return true;
     }
+    */
 };
 
 

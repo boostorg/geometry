@@ -2318,8 +2318,8 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
 }
 
 
-// unit test for rings de-activated for now (current implementation
-// for area on the spherical equatorial coordinate system is not complete)
+// unit test for rings that cover more than half of the earth is de-activated
+// for now since these rings are not supported
 // TODO: re-activate once implementation is done
 BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 {
@@ -2329,12 +2329,12 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
-    double const eps = std::numeric_limits<double>::epsilon();
-
     tester::apply("r01cw",
                   from_wkt<G>("POLYGON((0 10,0 45,50 10,0 10))"),
                   0, 10, 50, 45);
 #if 0
+    double const eps = std::numeric_limits<double>::epsilon();
+
     // ring that contains both the north and south poles in its interior
     tester::apply("r01cw-r",
                   from_wkt<G>("POLYGON((0 10,50 10,0 45,0 10))"),
