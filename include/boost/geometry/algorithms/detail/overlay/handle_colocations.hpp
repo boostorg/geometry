@@ -198,7 +198,9 @@ inline signed_size_type add_turn_to_cluster(Turn const& turn,
 
     // Both operations.seg_id/fraction were already part of any cluster, and
     // these clusters are not the same. Merge of two clusters is necessary
+#if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << " TODO: merge " << cid0 << " and " << cid1 << std::endl;
+#endif
     return cid0;
 }
 
@@ -314,11 +316,13 @@ inline void assign_cluster_to_turns(Turns& turns,
             typename ClusterPerSegment::const_iterator it = cluster_per_segment.find(seg_frac);
             if (it != cluster_per_segment.end())
             {
+#if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
                 if (turn.cluster_id != -1
                         && turn.cluster_id != it->second)
                 {
                     std::cout << " CONFLICT " << std::endl;
                 }
+#endif
                 turn.cluster_id = it->second;
                 clusters[turn.cluster_id].turn_indices.insert(turn_index);
             }
@@ -706,7 +710,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count(turns);
+        cinfo.open_count = sbs.open_count();
     }
 }
 

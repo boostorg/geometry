@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP
+#define BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP
 
 
 #include <boost/math/constants/constants.hpp>
@@ -20,9 +20,13 @@
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
+
+#include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/result_direct.hpp>
 
 
 #ifndef BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS
@@ -30,20 +34,8 @@
 #endif
 
 
-namespace boost { namespace geometry { namespace detail
+namespace boost { namespace geometry { namespace formula
 {
-
-template <typename T>
-struct result_direct
-{
-    void set(T const& lo2, T const& la2)
-    {
-        lon2 = lo2;
-        lat2 = la2;
-    }
-    T lon2;
-    T lat2;
-};
 
 /*!
 \brief The solution of the direct problem of geodesics on latlong coordinates, after Vincenty, 1975
@@ -56,12 +48,22 @@ struct result_direct
     - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template <typename CT>
-struct vincenty_direct
+template <
+    typename CT,
+    bool EnableCoordinates = true,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
+>
+class vincenty_direct
 {
-    typedef result_direct<CT> result_type;
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcCoordinates = EnableCoordinates || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
 
 public:
+    typedef result_direct<CT> result_type;
+
     template <typename T, typename Dist, typename Azi, typename Spheroid>
     static inline result_type apply(T const& lo1,
                                     T const& la1,
@@ -76,7 +78,8 @@ public:
 
         if ( math::equals(distance, Dist(0)) || distance < Dist(0) )
         {
-            result.set(lon1, lat1);
+            result.lon2 = lon1;
+            result.lat2 = lat1;
             return result;
         }
 
@@ -141,13 +144,12 @@ public:
                //&& geometry::math::abs(sigma) < pi
                && counter < BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS ); // robustness
 
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             result.lat2
                 = atan2( sin_U1 * cos_sigma + cos_U1 * sin_sigma * cos_azimuth12,
                          one_min_f * math::sqrt(sin_alpha_sqr + math::sqr(sin_U1 * sin_sigma - cos_U1 * cos_sigma * cos_azimuth12))); // (8)
-        }
-
-        {
+            
             CT const lambda = atan2( sin_sigma * sin_azimuth12,
                                      cos_U1 * cos_sigma - sin_U1 * sin_sigma * cos_azimuth12); // (9)
             CT const C = (flattening/CT(16)) * cos_alpha_sqr * ( CT(4) + flattening * ( CT(4) - CT(3) * cos_alpha_sqr ) ); // (10)
@@ -157,21 +159,27 @@ public:
             result.lon2 = lon1 + L;
         }
 
+        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+        {
+            result.reverse_azimuth
+                = atan2(sin_alpha, -sin_U1 * sin_sigma + cos_U1 * cos_sigma * cos_azimuth12); // (12)
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        {
+            typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 2> quantities;
+            quantities::apply(lon1, lat1, result.lon2, result.lat2,
+                              azimuth12, result.reverse_azimuth,
+                              radius_b, flattening,
+                              result.reduced_length, result.geodesic_scale);
+        }
+
         return result;
     }
 
-    /*
-    inline CT azimuth21() const
-    {
-        // NOTE: signs of X and Y are different than in the original paper
-        return is_distance_zero ?
-               CT(0) :
-               atan2(-sin_alpha, sin_U1 * sin_sigma - cos_U1 * cos_sigma * cos_azimuth12); // (12)
-    }
-    */
 };
 
-}}} // namespace boost::geometry::detail
+}}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VINCENTY_DIRECT_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_VINCENTY_DIRECT_HPP

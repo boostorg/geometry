@@ -30,6 +30,18 @@ void test_point_box()
     test_geometry<P, box_t>("POINT(179 1)",  "BOX(170 0, 180 2)", true);
     test_geometry<P, box_t>("POINT(-179 1)", "BOX(170 0, 180 2)", false);
     test_geometry<P, box_t>("POINT(169 1)", "BOX(170 0, 180 2)", false);
+
+    // https://svn.boost.org/trac/boost/ticket/12412
+    test_geometry<P, box_t>("POINT(-0.127592 51.7)", "BOX(-2.08882 51.5034, -0.127592 51.9074)", true);
+    // and related
+    test_geometry<P, box_t>("POINT(-2.08882 51.7)", "BOX(-2.08882 51.5034, -0.127592 51.9074)", true);
+    test_geometry<P, box_t>("POINT(0.127592 51.7)", "BOX(0.127592 51.5034, 2.08882 51.9074)", true);
+    test_geometry<P, box_t>("POINT(2.08882 51.7)", "BOX(0.127592 51.5034, 2.08882 51.9074)", true);
+
+    test_geometry<P, box_t>("POINT(179.08882 1)", "BOX(179.08882 0, 538.127592 2)", true);
+    test_geometry<P, box_t>("POINT(178.127592 1)", "BOX(179.08882 0, 538.127592 2)", true);
+    test_geometry<P, box_t>("POINT(179.08882 1)", "BOX(179.08882 0, 182.127592 2)", true);
+    test_geometry<P, box_t>("POINT(-177.872408 1)", "BOX(179.08882 0, 182.127592 2)", true);
 }
 
 template <typename P>
@@ -54,6 +66,17 @@ void test_box_box()
     test_geometry<box_t, box_t>("BOX(-180 0,-170 1)", "BOX(179 0, 190 1)",  true);
     test_geometry<box_t, box_t>("BOX(-180 0,-170 1)", "BOX(181 0, 190 1)",  false); // invalid?
     test_geometry<box_t, box_t>("BOX(-180 0,-170 1)", "BOX(180 0, 189 1)",  false); // invalid?
+
+    // Related to https://svn.boost.org/trac/boost/ticket/12412
+    test_geometry<box_t, box_t>("BOX(-1.346346 51.6, -0.127592 51.7)", "BOX(-2.08882 51.5034, -0.127592 51.9074)", true);
+    test_geometry<box_t, box_t>("BOX(-2.08882 51.6, -1.346346 51.7)", "BOX(-2.08882 51.5034, -0.127592 51.9074)", true);
+    test_geometry<box_t, box_t>("BOX(0.127592 51.6, 1.346346 51.7)", "BOX(0.127592 51.5034, 2.08882 51.9074)", true);
+    test_geometry<box_t, box_t>("BOX(1.346346 51.6, 2.08882 51.7)", "BOX(0.127592 51.5034, 2.08882 51.9074)", true);
+
+    test_geometry<box_t, box_t>("BOX(179.08882 1, 180.0 1)", "BOX(179.08882 0, 538.127592 2)", true);
+    test_geometry<box_t, box_t>("BOX(177.0 1, 178.127592 1)", "BOX(179.08882 0, 538.127592 2)", true);
+    test_geometry<box_t, box_t>("BOX(179.08882 1, 179.9 1)", "BOX(179.08882 0, 182.127592 2)", true);
+    test_geometry<box_t, box_t>("BOX(-179.9 1, -177.872408 1)", "BOX(179.08882 0, 182.127592 2)", true);
 }
 
 
