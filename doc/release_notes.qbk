@@ -22,6 +22,10 @@
 [heading Boost 1.63]
 [/=================]
 
+[*Improvements]
+
+* Intersection: take care that output is valid (work in progres, not yet finished - but more is valid)
+
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/12289 12289] Avoid warning/compilation error for std::cout
