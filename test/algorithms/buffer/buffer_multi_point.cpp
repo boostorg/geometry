@@ -103,6 +103,7 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
+    double const tolerance = 1.0;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     double const tolerance_multiplier = 1000.0;
 #else
