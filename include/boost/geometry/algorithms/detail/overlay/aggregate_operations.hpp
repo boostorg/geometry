@@ -24,6 +24,8 @@ struct ring_with_direction
 {
     ring_identifier ring_id;
     direction_type direction;
+    bool only_turn_on_ring;
+
 
     inline bool operator<(ring_with_direction const& other) const
     {
@@ -33,7 +35,8 @@ struct ring_with_direction
     }
 
     ring_with_direction()
-        :  direction(dir_unknown)
+        : direction(dir_unknown)
+        , only_turn_on_ring(false)
     {}
 };
 
@@ -80,6 +83,8 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
         segment_identifier const& sid = ranked_point.seg_id;
         rwd.ring_id = ring_identifier(sid.source_index, sid.multi_index, sid.ring_index);
         rwd.direction = ranked_point.direction;
+        rwd.only_turn_on_ring = ranked_point.only_turn_on_ring;
+
 
         aggregation.back().rings.insert(rwd);
     }

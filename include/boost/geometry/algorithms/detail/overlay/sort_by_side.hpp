@@ -37,10 +37,12 @@ struct ranked_point
         , count_left(0)
         , count_right(0)
         , operation(operation_none)
+        , only_turn_on_ring(false)
     {}
 
+    template <typename Op>
     ranked_point(const Point& p, signed_size_type ti, int oi,
-                 direction_type d, operation_type op, segment_identifier sid)
+                 direction_type d, Op op)
         : point(p)
         , rank(0)
         , zone(-1)
@@ -49,8 +51,9 @@ struct ranked_point
         , direction(d)
         , count_left(0)
         , count_right(0)
-        , operation(op)
-        , seg_id(sid)
+        , operation(op.operation)
+        , seg_id(op.seg_id)
+        , only_turn_on_ring(op.enriched.only_turn_on_ring)
     {}
 
     Point point;
@@ -63,6 +66,7 @@ struct ranked_point
     std::size_t count_right;
     operation_type operation;
     segment_identifier seg_id;
+    bool only_turn_on_ring;
 };
 
 struct less_by_turn_index
@@ -227,8 +231,8 @@ public :
                 op.seg_id, point1, point2, point3);
         Point const& point_to = op.fraction.is_one() ? point3 : point2;
 
-        m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op.operation, op.seg_id));
-        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op.operation, op.seg_id));
+        m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op));
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op));
 
         if (is_origin)
         {
