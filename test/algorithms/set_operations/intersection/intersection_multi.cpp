@@ -111,8 +111,7 @@ void test_areal()
         3, 14, 2.85);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi_inv_b",
         case_72_multi[1], case_72_multi[2],
-        3, 16, 6.15,
-        ignore_validity);
+        3, 16, 6.15);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
         5, 33, 9.0);
@@ -144,7 +143,7 @@ void test_areal()
 #endif
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
-    TEST_INTERSECTION_IGNORE(case_124_multi, 2, 13, 2.0625);
+    TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
     TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
@@ -165,7 +164,7 @@ void test_areal()
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        6, 47, 19.0);
+        4, 47, 19.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -253,8 +252,7 @@ void test_areal()
         3, 0, 2.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_34",
         case_recursive_boxes_34[0], case_recursive_boxes_34[1],
-        2, 0, 17.25,
-        ignore_validity);
+        2, 0, 17.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_35",
         case_recursive_boxes_35[0], case_recursive_boxes_35[1],
         1, 0, 20.0,

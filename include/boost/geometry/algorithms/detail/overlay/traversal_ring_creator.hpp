@@ -187,6 +187,18 @@ struct traversal_ring_creator
             return traverse_error_none;
         }
 
+        if (start_turn.cluster_id >= 0)
+        {
+            turn_type const& turn = m_turns[current_turn_index];
+            if (turn.cluster_id == start_turn.cluster_id)
+            {
+                turn_operation_type& op = m_turns[start_turn_index].operations[current_op_index];
+                op.visited.set_finished();
+                m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish (cluster)");
+                return traverse_error_none;
+            }
+        }
+
         std::size_t const max_iterations = 2 + 2 * m_turns.size();
         for (std::size_t i = 0; i <= max_iterations; i++)
         {
