@@ -103,7 +103,6 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
-    double const tolerance = 1.0;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     double const tolerance_multiplier = 1000.0;
 #else
@@ -118,7 +117,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_8000",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(8000),
-            115058661065242.812, tolerance);
+            115058661065242.812, 10.0 * tolerance_multiplier);
 
     // Expectations:
     // 115058672785641.031
