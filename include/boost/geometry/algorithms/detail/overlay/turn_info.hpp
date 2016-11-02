@@ -13,6 +13,7 @@
 #include <boost/array.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
@@ -88,7 +89,7 @@ struct turn_info
 
     Point point;
     method_type method;
-    int cluster_id;
+    signed_size_type cluster_id;
     bool discarded;
     bool colocated;
     bool switch_source; // For u/u turns which can either switch or not

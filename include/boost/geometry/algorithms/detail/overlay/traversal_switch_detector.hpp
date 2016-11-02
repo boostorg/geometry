@@ -71,8 +71,8 @@ struct traversal_switch_detector
     {
         if (turn.cluster_id == -1)
         {
-            // If it is a uu-turn (non clustered), it is never same zone
-            return ! turn.both(operation_union);
+            // If it is a uu/ii-turn (non clustered), it is never same zone
+            return ! (turn.both(operation_union) || turn.both(operation_intersection));
         }
 
         // It is a cluster, check zones of both operations
@@ -110,11 +110,11 @@ struct traversal_switch_detector
         for (set_iterator sit = ring_turn_indices.begin();
              sit != ring_turn_indices.end(); ++sit)
         {
-            int const turn_index = *sit;
+            signed_size_type const turn_index = *sit;
             turn_type const& turn = m_turns[turn_index];
             if (! connects_same_zone(turn))
             {
-                // This is a non clustered uu-turn, or a cluster connecting different 'zones'
+                // This is a non clustered uu/ii-turn, or a cluster connecting different 'zones'
                 continue;
             }
 
@@ -204,7 +204,7 @@ struct traversal_switch_detector
             cinfo.switch_source = regions.size() == 1;
         }
 
-        // Iterate through all uu turns (non-clustered)
+        // Iterate through all uu/ii turns (non-clustered)
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
             turn_type& turn = m_turns[turn_index];
@@ -212,9 +212,9 @@ struct traversal_switch_detector
             if (turn.discarded
                     || turn.blocked()
                     || turn.cluster_id >= 0
-                    || ! turn.both(operation_union))
+                    || ! (turn.both(operation_union) || turn.both(operation_intersection)))
             {
-                // Skip discarded, blocked, non-uu and clustered turns
+                // Skip discarded, blocked, non-uu/ii and clustered turns
                 continue;
             }
 
@@ -242,9 +242,10 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-            if (turn.both(operation_union) && turn.cluster_id < 0)
+            if ((turn.both(operation_union) || turn.both(operation_intersection))
+                 && turn.cluster_id < 0)
             {
-                std::cout << "UU SWITCH RESULT "
+                std::cout << "UU/II SWITCH RESULT "
                              << turn_index << " -> "
                           << turn.switch_source << std::endl;
             }

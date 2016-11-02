@@ -345,6 +345,7 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
+    // Needs self-intersections to solve validity
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
         mysql_23023665_6[0], mysql_23023665_6[1],
         1, -1, 11.812440191387557,
@@ -352,13 +353,11 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
-        1, 0, -1, 54.701340543162523,
-        ignore_validity);
+        1, 0, -1, 54.701340543162523);
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
         mysql_23023665_11[0], mysql_23023665_11[1],
-        1, 0, -1, 35.933385462482065,
-        ignore_validity);
+        1, 0, -1, 35.933385462482065);
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",

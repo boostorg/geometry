@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016.
+// Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,7 +22,8 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
+
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 namespace boost { namespace geometry
 {
@@ -49,7 +50,7 @@ struct azimuth<ReturnType, geographic_tag>
     template <typename P1, typename P2, typename Spheroid>
     static inline ReturnType apply(P1 const& p1, P2 const& p2, Spheroid const& spheroid)
     {
-        return geometry::detail::vincenty_inverse<ReturnType, false, true>().apply
+        return geometry::formula::vincenty_inverse<ReturnType, false, true>().apply
                     ( get_as_radian<0>(p1), get_as_radian<1>(p1),
                       get_as_radian<0>(p2), get_as_radian<1>(p2),
                       spheroid ).azimuth;
