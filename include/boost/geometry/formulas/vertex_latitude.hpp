@@ -53,6 +53,11 @@ public:
             typename T1,
             typename T2
             >
+/*
+ * formula based on paper
+ *   [Wood96] Wood - Vertex Latitudes on Ellipsoid Geodesics, SIAM Rev., 38(4),
+ *            637–644, 1996
+
     static inline CT apply(T1 const& lat1,
                            T2 const& alp1)
     {
@@ -70,6 +75,28 @@ public:
         CT const vertex_lat = std::asin( math::sqrt((e2_sin2 - cos2_sin2)
                                                     / (e2_sin2 - e2 * cos2_sin2)));
         return vertex_lat;
+    }
+*/
+
+    // simpler formula based on Clairaut relation for spheroids
+
+    static inline CT apply(T1 const& lat1,
+                           T2 const& alp1)
+    {
+
+        geometry::srs::spheroid<CT> spheroid;
+        CT const f = detail::flattening<CT>(spheroid);
+
+        CT const one_minus_f = (CT(1) - f);
+
+        //get the reduced latitude
+        CT const bet1 = atan( one_minus_f * tan(lat1) );
+
+        //apply Clairaut relation
+        CT const betv =  vertex_latitude_on_sphere<CT>::apply(bet1, alp1);
+
+        //return the spheroid latitude
+        return atan( tan(betv) / one_minus_f );
     }
 
     /*

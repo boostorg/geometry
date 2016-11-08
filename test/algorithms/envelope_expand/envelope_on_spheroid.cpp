@@ -15,7 +15,7 @@
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_envelope_on_spheroid
+#define BOOST_TEST_MODULE test_envelope_on_sphere_or_spheroid
 #endif
 
 #include <boost/test/included/unit_test.hpp>
@@ -288,7 +288,7 @@ template
     template <typename, bool, bool, bool, bool, bool> class Inverse
                 = bg::formula::thomas_inverse
 >
-struct test_envelope_on_spheroid
+struct test_envelope_on_sphere_or_spheroid
 {
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
@@ -318,7 +318,7 @@ struct test_envelope_on_spheroid
                 >::apply(reversed_case_id, reversed_geometry,
                          lon_min2, lat_min2, height_min2,
                          lon_max2, lat_max2, height_max2,
-                         tolerance);        
+                         tolerance);
         }
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -370,7 +370,7 @@ struct test_envelope_on_spheroid
 
 // special tester for rings
 template <typename Geometry, typename MBR, bool TestReverse>
-struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
+struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 {
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
@@ -394,7 +394,7 @@ struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
                 typename bg::point_type<Geometry>::type, false
             > ccw_ring;
         bg::convert(geometry, ccw_ring);
-            
+
         envelope_on_spheroid_basic_tester
             <
                 MBR
@@ -429,7 +429,7 @@ void test_empty_geometry(std::string const& case_id, std::string const& wkt)
 
     typedef bg::model::point<double, dim, CoordinateSystem> point_type;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<Geometry, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<Geometry, B> tester;
 
     typedef typename bg::coordinate_type<Geometry>::type ct;
     ct high_val = boost::numeric::bounds<ct>::highest();
@@ -456,7 +456,7 @@ void test_envelope_point()
     typedef bg::model::point<double, 2, CoordinateSystem> point_type;
     typedef point_type G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("p01",
                   from_wkt<G>("POINT(10 10)"),
@@ -543,7 +543,7 @@ void test_envelope_point_with_height()
     typedef bg::model::point<double, 3, CoordinateSystem> point_type;
     typedef point_type G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("ph01",
                   from_wkt<G>("POINT(10 10 1256)"),
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     double const eps = std::numeric_limits<double>::epsilon();
 
@@ -576,7 +576,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.34527004614999);
+                  10, 10, 40, 10.345270046149988);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
@@ -748,7 +748,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     double const eps = std::numeric_limits<double>::epsilon();
 
@@ -758,23 +758,23 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.347587605817935);
+                  10, 10, 40, 10.347587605817942);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  10, 10, 40, 10.347587605817935);
+                  10, 10, 40, 10.347587605817942);
 
     tester::apply("s03",
                   from_wkt<G>("SEGMENT(160 10,-170 10)"),
-                  160, 10, 190, 10.347587605817935);
+                  160, 10, 190, 10.347587605817942);
 
     tester::apply("s03a",
                   from_wkt<G>("SEGMENT(-170 10,160 10)"),
-                  160, 10, 190, 10.347587605817935);
+                  160, 10, 190, 10.347587605817942);
 
     tester::apply("s03b",
                   from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
-                  160,  -10.347587605817935, 190, -10);
+                  160,  -10.347587605817942, 190, -10);
 
     tester::apply("s04",
                   from_wkt<G>("SEGMENT(-40 45,140 60)"),
@@ -826,12 +826,12 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.111912243387664, 0, 30,
+                  -179, -88.111912243387607, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990810958016951);
+                  -100, 30, 20, 57.990810958016965);
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
@@ -918,7 +918,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
                   1-heps, 1, 1, 1);
     tester::apply("s104",
                   G(P(2, 1), P(1, 1-heps)),
-                  1, 1-heps, 2, 1.000038327157039);
+                  1, 1-heps, 2, 1.0000383271569036);
     tester::apply("s105",
                   G(P(1, 2), P(1-heps, 1)),
                   1-heps, 1, 1, 2);
@@ -931,7 +931,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid
+    typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
                             typename bg::tag<G>::type,
@@ -947,23 +947,23 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.347587605817935);
+                  10, 10, 40, 10.347587605817942);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  10, 10, 40, 10.347587605817935);
+                  10, 10, 40, 10.347587605817942);
 
     tester::apply("s03",
                   from_wkt<G>("SEGMENT(160 10,-170 10)"),
-                  160, 10, 190, 10.347587605817935);
+                  160, 10, 190, 10.347587605817942);
 
     tester::apply("s03a",
                   from_wkt<G>("SEGMENT(-170 10,160 10)"),
-                  160, 10, 190, 10.347587605817935);
+                  160, 10, 190, 10.347587605817942);
 
     tester::apply("s03b",
                   from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
-                  160,  -10.347587605817935, 190, -10);
+                  160,  -10.347587605817942, 190, -10);
 
     tester::apply("s04",
                   from_wkt<G>("SEGMENT(-40 45,140 60)"),
@@ -1015,12 +1015,12 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.111912243387664, 0, 30,
+                  -179, -88.111912243387607, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990810958016951);
+                  -100, 30, 20, 57.990810958016965);
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
@@ -1089,7 +1089,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid
+    typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
                             typename bg::tag<G>::type,
@@ -1105,23 +1105,23 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.347587099602052);
+                  10, 10, 40, 10.34758709960203);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  10, 10, 40, 10.347587099602052);
+                  10, 10, 40, 10.34758709960203);
 
     tester::apply("s03",
                   from_wkt<G>("SEGMENT(160 10,-170 10)"),
-                  160, 10, 190, 10.347587099602052);
+                  160, 10, 190, 10.34758709960203);
 
     tester::apply("s03a",
                   from_wkt<G>("SEGMENT(-170 10,160 10)"),
-                  160, 10, 190, 10.347587099602052);
+                  160, 10, 190, 10.34758709960203);
 
     tester::apply("s03b",
                   from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
-                  160,  -10.347587099602052, 190, -10);
+                  160,  -10.34758709960203, 190, -10);
 
     tester::apply("s04",
                   from_wkt<G>("SEGMENT(-40 45,140 60)"),
@@ -1168,7 +1168,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.690317839849669, 181, 30);
+                  2, -87.690317839849726, 181, 30);
 
     // very long segment
     tester::apply("s10",
@@ -1178,7 +1178,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990742552280139);
+                  -100, 30, 20, 57.990742552280153);
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
@@ -1247,7 +1247,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid
+    typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
                             typename bg::tag<G>::type,
@@ -1263,23 +1263,23 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.347587628821922);
+                  10, 10, 40, 10.347587628821941);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  10, 10, 40, 10.347587628821922);
+                  10, 10, 40, 10.347587628821941);
 
     tester::apply("s03",
                   from_wkt<G>("SEGMENT(160 10,-170 10)"),
-                  160, 10, 190, 10.347587628821922);
+                  160, 10, 190, 10.347587628821941);
 
     tester::apply("s03a",
                   from_wkt<G>("SEGMENT(-170 10,160 10)"),
-                  160, 10, 190, 10.347587628821922);
+                  160, 10, 190, 10.347587628821941);
 
     tester::apply("s03b",
                   from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
-                  160,  -10.347587628821922, 190, -10);
+                  160,  -10.347587628821941, 190, -10);
 
     tester::apply("s04",
                   from_wkt<G>("SEGMENT(-40 45,140 60)"),
@@ -1331,7 +1331,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.11193623291669, 0, 30,
+                  -179, -88.111936232916634, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -1358,7 +1358,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s15",
                   from_wkt<G>("SEGMENT(50 45,185 45)"),
-                  50, 45, 185, 69.098479136978511);
+                  50, 45, 185, 69.098479136978497);
 
     // segment that lies on the equator
     tester::apply("s16",
@@ -1404,7 +1404,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::segment<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("sh01",
                   from_wkt<G>("SEGMENT(10 10 567,40 40 1356)"),
@@ -1421,7 +1421,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::segment<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("sh01",
                   from_wkt<G>("SEGMENT(10 10 567,40 40 1356)"),
@@ -1438,7 +1438,7 @@ void test_envelope_multipoint()
     typedef bg::model::point<double, 2, CoordinateSystem> P;
     typedef bg::model::multi_point<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multipoint
     test_empty_geometry<CoordinateSystem, G>("mp00", "MULTIPOINT()");
@@ -1590,7 +1590,7 @@ void test_envelope_multipoint_with_height()
     typedef bg::model::point<double, 3, CoordinateSystem> point_type;
     typedef bg::model::multi_point<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multipoint
     test_empty_geometry<CoordinateSystem, G>("mph00", "MULTIPOINT()");
@@ -1621,7 +1621,7 @@ void test_envelope_box()
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::box<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("b01",
                   from_wkt<G>("BOX(10 10,20 20)"),
@@ -1821,7 +1821,7 @@ void test_envelope_box_with_height()
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::box<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("bh01",
                   from_wkt<G>("BOX(10 10 567,20 20 2834)"),
@@ -1849,7 +1849,7 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_linestring )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::linestring<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
@@ -1982,7 +1982,7 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::linestring<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
@@ -2047,7 +2047,7 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     // linestring that crosses the antimeridian
     tester::apply("l06a",
                   from_wkt<G>("LINESTRING(-130 85,-170 84,170 40,160 80)"),
-                  160, 40, 230, 85.026305563151482);
+                  160, 40, 230, 85.02630556315151);
 
     // linestring that goes through the north pole
     tester::apply("l07",
@@ -2116,7 +2116,7 @@ BOOST_AUTO_TEST_CASE( envelope_linestring_sphere_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::linestring<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
@@ -2132,7 +2132,7 @@ BOOST_AUTO_TEST_CASE( envelope_linestring_spheroid_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::linestring<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
@@ -2148,7 +2148,7 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_multilinestring )
     typedef bg::model::point<double, 2, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multilinestring
     test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
@@ -2212,7 +2212,7 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_multilinestring )
     typedef bg::model::point<double, 2, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multilinestring
     test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
@@ -2277,7 +2277,7 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_sphere_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("mlh01",
                   from_wkt<G>("MULTILINESTRING((10 15 1000))"),
@@ -2300,7 +2300,7 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("mlh01",
                   from_wkt<G>("MULTILINESTRING((10 15 1000))"),
@@ -2318,8 +2318,8 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
 }
 
 
-// unit test for rings that cover more than half of the earth is de-activated
-// for now since these rings are not supported
+// unit test for rings de-activated for now (current implementation
+// for area on the spherical equatorial coordinate system is not complete)
 // TODO: re-activate once implementation is done
 BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 {
@@ -2327,14 +2327,14 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     typedef bg::model::point<double, 2, coordinate_system_type> point_type;
     typedef bg::model::polygon<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    //double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("r01cw",
                   from_wkt<G>("POLYGON((0 10,0 45,50 10,0 10))"),
                   0, 10, 50, 45);
 #if 0
-    double const eps = std::numeric_limits<double>::epsilon();
-
     // ring that contains both the north and south poles in its interior
     tester::apply("r01cw-r",
                   from_wkt<G>("POLYGON((0 10,50 10,0 45,0 10))"),
