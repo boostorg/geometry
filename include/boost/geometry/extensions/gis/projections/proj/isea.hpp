@@ -256,7 +256,7 @@ namespace boost { namespace geometry { namespace projections
             /* 10.81231696 */
 
             /* triangle Centers */
-            struct isea_geo icostriangles[] = {
+            static struct isea_geo icostriangles[] = {
                 {0.0, 0.0},
                 {-DEG144, E_RAD},
                 {-DEG72, E_RAD},
