@@ -162,9 +162,10 @@ void test_areal()
         ignore_validity);
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
+    // Should contain 6 output polygons
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        4, 47, 19.0);
+        6, 47, 19.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
