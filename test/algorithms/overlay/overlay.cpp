@@ -314,7 +314,9 @@ struct map_visitor
 template <typename Geometry, bg::overlay_type OverlayType>
 void test_overlay(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        double expected_area, std::size_t expected_hole_count = 0)
+        double expected_area,
+        std::size_t expected_clip_count,
+        std::size_t expected_hole_count)
 {
     Geometry g1;
     bg::read_wkt(wkt1, g1);
@@ -387,8 +389,13 @@ void test_overlay(std::string const& caseid,
 
     BOOST_CHECK_CLOSE(bg::area(result), expected_area, 0.001);
     BOOST_CHECK_MESSAGE((bg::num_interior_rings(result) == expected_hole_count),
-                        "  hole count: detected: " << bg::num_interior_rings(result)
-                        << "  expected: "  << expected_hole_count);
+                        caseid
+                        << " hole count: detected: " << bg::num_interior_rings(result)
+                        << " expected: "  << expected_hole_count);
+    BOOST_CHECK_MESSAGE((result.size() == expected_clip_count),
+                        caseid
+                        << " clip count: detected: " << result.size()
+                        << " expected: "  << expected_clip_count);
 
 #if defined(TEST_WITH_SVG)
     mapper.map(result, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
@@ -397,19 +404,19 @@ void test_overlay(std::string const& caseid,
 #endif
 }
 
-#define TEST_INTERSECTION(caseid, area, holes) (test_overlay<multi_polygon, bg::overlay_intersection>) \
-    ( #caseid "_int", caseid[0], caseid[1], area, holes)
-#define TEST_UNION(caseid, area, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
-    ( #caseid "_union", caseid[0], caseid[1], area, holes)
-#define TEST_DIFFERENCE_A(caseid, area, holes) (test_overlay<multi_polygon, bg::overlay_difference>) \
-    ( #caseid "_diff_a", caseid[0], caseid[1], area, holes)
-#define TEST_DIFFERENCE_B(caseid, area, holes) (test_overlay<multi_polygon, bg::overlay_difference>) \
-    ( #caseid "_diff_b", caseid[1], caseid[0], area, holes)
+#define TEST_INTERSECTION(caseid, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_intersection>) \
+    ( #caseid "_int", caseid[0], caseid[1], area, clips, holes)
+#define TEST_UNION(caseid, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
+    ( #caseid "_union", caseid[0], caseid[1], area, clips, holes)
+#define TEST_DIFFERENCE_A(caseid, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_difference>) \
+    ( #caseid "_diff_a", caseid[0], caseid[1], area, clips, holes)
+#define TEST_DIFFERENCE_B(caseid, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_difference>) \
+    ( #caseid "_diff_b", caseid[1], caseid[0], area, clips, holes)
 
-#define TEST_INTERSECTION_WITH(caseid, index1, index2, area, holes) (test_overlay<multi_polygon, bg::overlay_intersection>) \
-    ( #caseid "_int_" #index1 "_" #index2, caseid[index1], caseid[index2], area, holes)
-#define TEST_UNION_WITH(caseid, index1, index2, area, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
-    ( #caseid "_union" #index1 "_" #index2, caseid[index1], caseid[index2], area, holes)
+#define TEST_INTERSECTION_WITH(caseid, index1, index2, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_intersection>) \
+    ( #caseid "_int_" #index1 "_" #index2, caseid[index1], caseid[index2], area, clips, holes)
+#define TEST_UNION_WITH(caseid, index1, index2, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
+    ( #caseid "_union" #index1 "_" #index2, caseid[index1], caseid[index2], area, clips, holes)
 
 template <typename T>
 void test_all()
@@ -418,34 +425,37 @@ void test_all()
     typedef bg::model::polygon<point_type> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    TEST_UNION(case_multi_simplex, 14.58, 0);
-    TEST_INTERSECTION(case_multi_simplex, 6.42, 0);
+    TEST_UNION(case_multi_simplex, 14.58, 1, 0);
+    TEST_INTERSECTION(case_multi_simplex, 6.42, 2, 0);
 
-    TEST_DIFFERENCE_A(case_multi_simplex, 5.58, 0);
-    TEST_DIFFERENCE_B(case_multi_simplex, 2.58, 0);
+    TEST_DIFFERENCE_A(case_multi_simplex, 5.58, 5, 0);
+    TEST_DIFFERENCE_B(case_multi_simplex, 2.58, 4, 0);
 
     // Contains 5 clusters, needing immediate selection of next turn
-    TEST_UNION_WITH(case_58_multi, 0, 3, 19.8333333, 0);
+    TEST_UNION_WITH(case_58_multi, 0, 3, 19.8333333, 2, 0);
 
     // Contains many clusters, needing to exclude u/u turns
-    TEST_UNION(case_recursive_boxes_3, 56.5, 6);
+    TEST_UNION(case_recursive_boxes_3, 56.5, 17, 6);
 
     // Contains 4 clusters, one of which having 4 turns
-    TEST_UNION(case_recursive_boxes_7, 7.0, 0);
+    TEST_UNION(case_recursive_boxes_7, 7.0, 2, 0);
 
     // Contains 5 clusters, needing immediate selection of next turn
-    TEST_UNION(case_89_multi, 6.0, 0);
+    TEST_UNION(case_89_multi, 6.0, 1, 0);
 
     // Needs ux/next_turn_index==-1 to be filtered out
-    TEST_INTERSECTION(case_77_multi, 9.0, 0);
-    TEST_UNION(case_101_multi, 22.25, 3);
-    TEST_INTERSECTION(case_101_multi, 4.75, 0);
-    TEST_INTERSECTION(case_recursive_boxes_11, 1.0, 0);
-    TEST_UNION(case_recursive_boxes_4, 96.75, 2);
-    TEST_INTERSECTION_WITH(case_58_multi, 6, 2, 13.25, 1);
-    TEST_INTERSECTION_WITH(case_72_multi, 2, 1, 6.15, 1);
-    TEST_UNION(case_recursive_boxes_12, 6.0, 0);
-    TEST_UNION(case_recursive_boxes_13, 10.25, 0);
+    TEST_INTERSECTION(case_77_multi, 9.0, 5, 0);
+    TEST_UNION(case_101_multi, 22.25, 1, 3);
+    TEST_INTERSECTION(case_101_multi, 4.75, 4, 0);
+
+    TEST_INTERSECTION(case_recursive_boxes_11, 1.0, 2, 0);
+    TEST_INTERSECTION(case_recursive_boxes_30, 6.0, 3, 0);
+
+    TEST_UNION(case_recursive_boxes_4, 96.75, 1, 2);
+    TEST_INTERSECTION_WITH(case_58_multi, 6, 2, 13.25, 1, 1);
+    TEST_INTERSECTION_WITH(case_72_multi, 2, 1, 6.15, 3, 1);
+    TEST_UNION(case_recursive_boxes_12, 6.0, 6, 0);
+    TEST_UNION(case_recursive_boxes_13, 10.25, 3, 0);
 
 
 //    std::cout
