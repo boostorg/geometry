@@ -452,8 +452,8 @@ void test_all()
     TEST_INTERSECTION(case_recursive_boxes_30, 6.0, 4, 0);
 
     TEST_UNION(case_recursive_boxes_4, 96.75, 1, 2);
-    TEST_INTERSECTION_WITH(case_58_multi, 6, 2, 13.25, 1, 1);
-    TEST_INTERSECTION_WITH(case_72_multi, 2, 1, 6.15, 3, 1);
+    TEST_INTERSECTION_WITH(case_58_multi, 2, 6, 13.25, 1, 1);
+    TEST_INTERSECTION_WITH(case_72_multi, 1, 2, 6.15, 3, 1);
     TEST_UNION(case_recursive_boxes_12, 6.0, 6, 0);
     TEST_UNION(case_recursive_boxes_13, 10.25, 3, 0);
 
