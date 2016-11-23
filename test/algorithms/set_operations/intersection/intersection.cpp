@@ -334,8 +334,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("case_101",
         case_101[0], case_101[1],
-        0, -1, 6.25,
-        ignore_validity);
+        0, -1, 6.25);
     test_one<Polygon, Polygon, Polygon>("case_102",
         case_102[0], case_102[1],
         0, -1, 3.1875);

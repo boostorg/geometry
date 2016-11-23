@@ -121,7 +121,8 @@ struct traversal_ring_creator
         }
 
         bool is_touching = false;
-        if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
+        if (! m_trav.select_turn(start_turn_index, start_op_index,
+                turn_index, op_index,
                 is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
                 is_start))

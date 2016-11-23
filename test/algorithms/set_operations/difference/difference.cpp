@@ -415,7 +415,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
-            1, 20, 20.096189, ignore_validity);
+            6, 24, 20.096189);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_a",
@@ -527,8 +527,7 @@ void test_all()
         mysql_21965285[0], mysql_21965285[1],
         1, 2, -1, 92.0,
         1, 1, -1, 14.0,
-        1, 2, -1, 92.0 + 14.0,
-        ignore_validity);
+        1, 2, -1, 92.0 + 14.0);
 
     test_one<polygon, polygon, polygon>("mysql_23023665_1",
         mysql_23023665_1[0], mysql_23023665_1[1],

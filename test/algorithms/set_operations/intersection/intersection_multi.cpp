@@ -158,7 +158,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        7, 179, 67.0, // Area from SQL Server
+        8, 179, 67.0, // Area from SQL Server
         ignore_validity);
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
@@ -240,8 +240,7 @@ void test_areal()
         5, 0, 3.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_30",
         case_recursive_boxes_30[0], case_recursive_boxes_30[1],
-        3, 0, 6.0,
-        ignore_validity);
+        4, 0, 6.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_31",
         case_recursive_boxes_31[0], case_recursive_boxes_31[1],
         2, 0, 2.5);

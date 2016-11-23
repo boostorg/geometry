@@ -572,6 +572,32 @@ struct traversal
         return result;
     }
 
+    inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
+                    turn_type const& current_turn,
+                    segment_identifier const& previous_seg_id)
+    {
+        sbs_type sbs;
+
+        // Add this turn to the sort-by-side sorter
+        bool has_origin = false;
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& op = current_turn.operations[i];
+            bool const is_origin = op.seg_id.source_index
+                                   == previous_seg_id.source_index;
+            has_origin = has_origin || is_origin;
+            sbs.add(op, turn_index, i, m_geometry1, m_geometry2, is_origin);
+        }
+
+        if (! has_origin)
+        {
+            return false;
+        }
+
+        sbs.apply(current_turn.point);
+        return analyze_cluster_intersection(turn_index, op_index, sbs);
+    }
+
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
                 turn_type const& start_turn,
                 turn_operation_type const& start_op,
@@ -665,7 +691,7 @@ struct traversal
         return true;
     }
 
-    bool select_turn(signed_size_type start_turn_index,
+    bool select_turn(signed_size_type start_turn_index, int start_op_index,
                      signed_size_type& turn_index,
                      int& op_index,
                      bool& is_touching,
@@ -674,7 +700,29 @@ struct traversal
                      segment_identifier const& previous_seg_id,
                      bool is_start)
     {
-        if (m_turns[turn_index].cluster_id >= 0)
+        turn_type const& current_turn = m_turns[turn_index];
+
+        if (target_operation == operation_intersection
+                && current_turn.both(operation_intersection)
+                && turn_index == start_turn_index)
+        {
+            // Intersection can always be finished if returning at ii
+            op_index = start_op_index;
+            return true;
+        }
+
+        if (current_turn.cluster_id < 0
+            && target_operation == operation_intersection
+            && current_turn.both(operation_intersection))
+        {
+            if (analyze_ii_intersection(turn_index, op_index, current_turn,
+                        previous_seg_id))
+            {
+                return true;
+            }
+        }
+
+        if (current_turn.cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index, is_touching,
                     start_turn_index, previous_seg_id, is_start))
@@ -689,8 +737,6 @@ struct traversal
         }
         else
         {
-            turn_type const& current_turn = m_turns[turn_index];
-
             op_index = starting_operation_index(current_turn);
             if (op_index == -1)
             {
