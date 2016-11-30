@@ -332,6 +332,13 @@ void test_areal()
         case_81[0], case_81[1],
         0, -1, 0.0);
 
+    test_one<Polygon, Polygon, Polygon>("case_101",
+        case_101[0], case_101[1],
+        0, -1, 6.25);
+    test_one<Polygon, Polygon, Polygon>("case_102",
+        case_102[0], case_102[1],
+        0, -1, 3.1875);
+
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
         0, -1, 0.0);

@@ -89,7 +89,7 @@ struct turn_info
 
     Point point;
     method_type method;
-    signed_size_type cluster_id;
+    signed_size_type cluster_id; // For multiple turns on same location, >= 0. Else -1
     bool discarded;
     bool colocated;
     bool switch_source; // For u/u turns which can either switch or not
