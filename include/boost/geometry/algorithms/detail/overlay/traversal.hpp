@@ -702,23 +702,28 @@ struct traversal
     {
         turn_type const& current_turn = m_turns[turn_index];
 
-        if (target_operation == operation_intersection
-                && current_turn.both(operation_intersection)
-                && turn_index == start_turn_index)
+        if (target_operation == operation_intersection)
         {
-            // Intersection can always be finished if returning at ii
-            op_index = start_op_index;
-            return true;
-        }
+            bool const back_at_start_cluster
+                    = current_turn.cluster_id >= 0
+                    && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
 
-        if (current_turn.cluster_id < 0
-            && target_operation == operation_intersection
-            && current_turn.both(operation_intersection))
-        {
-            if (analyze_ii_intersection(turn_index, op_index, current_turn,
-                        previous_seg_id))
+            if (turn_index == start_turn_index || back_at_start_cluster)
             {
+                // Intersection can always be finished if returning
+                turn_index = start_turn_index;
+                op_index = start_op_index;
                 return true;
+            }
+
+            if (current_turn.cluster_id < 0
+                && current_turn.both(operation_intersection))
+            {
+                if (analyze_ii_intersection(turn_index, op_index, current_turn,
+                            previous_seg_id))
+                {
+                    return true;
+                }
             }
         }
 

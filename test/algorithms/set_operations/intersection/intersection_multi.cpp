@@ -146,9 +146,11 @@ void test_areal()
     TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
     TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
 
+    // #1 needs self-turns to make valid
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         8, 97, 47.0, ignore_validity);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
         1, 50, 90.0); // Area from SQL Server
@@ -263,6 +265,8 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_37",
         case_recursive_boxes_37[0], case_recursive_boxes_37[1],
         2, 0, 1.0);
+
+    TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.00);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
