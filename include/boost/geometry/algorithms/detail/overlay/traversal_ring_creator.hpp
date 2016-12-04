@@ -121,7 +121,8 @@ struct traversal_ring_creator
         }
 
         bool is_touching = false;
-        if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
+        if (! m_trav.select_turn(start_turn_index, start_op_index,
+                turn_index, op_index,
                 is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
                 is_start))
@@ -185,6 +186,18 @@ struct traversal_ring_creator
             start_op.visited.set_finished();
             m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish");
             return traverse_error_none;
+        }
+
+        if (start_turn.cluster_id >= 0)
+        {
+            turn_type const& turn = m_turns[current_turn_index];
+            if (turn.cluster_id == start_turn.cluster_id)
+            {
+                turn_operation_type& op = m_turns[start_turn_index].operations[current_op_index];
+                op.visited.set_finished();
+                m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish (cluster)");
+                return traverse_error_none;
+            }
         }
 
         std::size_t const max_iterations = 2 + 2 * m_turns.size();

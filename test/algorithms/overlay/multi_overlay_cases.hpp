@@ -328,11 +328,15 @@ static std::string case_100_multi[2] =
     "MULTIPOLYGON(((1 1,1 2,2 2,2 1,1 1)),((1 2,0 1,0 3,1 4,1 2)))"
 };
 
-static std::string case_101_multi[2] =
+static std::string case_101_multi[4] =
 {
     // interior ring / union
     "MULTIPOLYGON(((7 2,7 3,8 2,7 2)),((9 3,9 4,10 3,9 3)),((10 1,10 0,8 0,8 1,9 2,10 2,10 1)),((9 3,9 2,8 2,8 3,7 3,7 4,8 4,9 3)),((8 4,8 7,9 6,9 4,8 4)))",
-    "MULTIPOLYGON(((5 1,5 2,6 3,6 4,7 5,6 5,7 6,8 6,8 5,9 5,10 5,10 1,8 1,7 0,5 0,5 1),(9 5,8 4,9 4,9 5),(8 1,8 3,7 3,7 2,6 2,7 1,8 1),(5 1,5.5 0.5,6 1,5 1),(8.5 2.5,9 2,9 3,8.5 2.5)))"
+    "MULTIPOLYGON(((5 1,5 2,6 3,6 4,7 5,6 5,7 6,8 6,8 5,9 5,10 5,10 1,8 1,7 0,5 0,5 1),(9 5,8 4,9 4,9 5),(8 1,8 3,7 3,7 2,6 2,7 1,8 1),(5 1,5.5 0.5,6 1,5 1),(8.5 2.5,9 2,9 3,8.5 2.5)))",
+
+    // inverse versions
+    "MULTIPOLYGON(((4 -1,4 8,11 8,11 -1,4 -1),(7 2,8 2,7 3,7 2),(9 3,10 3,9 4,9 3),(10 1,10 2,9 2,8 1,8 0,10 0,10 1),(9 3,8 4,7 4,7 3,8 3,8 2,9 2,9 3),(8 4,9 4,9 6,8 7,8 4)))",
+    "MULTIPOLYGON(((4 -1,4 8,11 8,11 -1,4 -1),(5 1,5 0,7 0,8 1,10 1,10 5,9 5,8 5,8 6,7 6,6 5,7 5,6 4,6 3,5 2,5 1)),((9 5,9 4,8 4,9 5)),((8 1,7 1,6 2,7 2,7 3,8 3,8 1)),((5 1,6 1,5.5 0.5,5 1)),((8.5 2.5,9 3,9 2,8.5 2.5)))"
 };
 
 static std::string case_102_multi[4] =
@@ -341,7 +345,7 @@ static std::string case_102_multi[4] =
     "MULTIPOLYGON(((0 2,0 7,5 7,5 2,0 2),(4 3,4 6,1 6,2 5,1 5,1 4,3 4,4 3)),((3 4,3 5,4 5,3 4)),((2 5,3 6,3 5,2 4,2 5)))",
     "MULTIPOLYGON(((0 2,0 7,5 7,5 2,0 2),(2 4,3 5,2 5,2 4),(4 4,3 4,3 3,4 4),(4 5,4 6,3 6,4 5)))",
 
-    /* inverse versions (first was already having an interior, so outer ring is just removed */
+    // inverse versions (first was already having an interior, so outer ring is just removed
     "MULTIPOLYGON(((4 3,3 4,1 4,1 5,2 5,1 6,4 6,4 3),(3 4,4 5,3 5,3 4),(2 5,2 4,3 5,3 6,2 5)))",
     "MULTIPOLYGON(((-1 1,-1 8,6 8,6 1,-1 1),(0 2,5 2,5 7,0 7,0 2)),((2 4,2 5,3 5,2 4)),((4 4,3 3,3 4,4 4)),((4 5,3 6,4 6,4 5)))"
 };
@@ -381,7 +385,7 @@ static std::string case_107_multi[4] =
     "MULTIPOLYGON(((6 8,7 9,7 7,8 7,7 6,6 6,6 8)),((6.5 9.5,7 10,7 9,6 9,6 10,6.5 9.5)))",
     "MULTIPOLYGON(((5 7,6 8,6 10,7 9,8 10,8 8,7 8,6 7,6 6,5 7)))",
 
-    /* inverse versions */
+    // inverse versions
     "MULTIPOLYGON(((5 5,5 11,9 11,9 5,5 5),(6 8,6 6,7 6,8 7,7 7,7 9,6 8),(6.5 9.5,6 10,6 9,7 9,7 10,6.5 9.5)))",
     "MULTIPOLYGON(((4 5,4 11,9 11,9 5,4 5),(5 7,6 6,6 7,7 8,8 8,8 10,7 9,6 10,6 8,5 7)))"
 };
@@ -496,6 +500,27 @@ static std::string case_122_multi[2] =
 {
     "MULTIPOLYGON(((10 8,10 10,12 10,12 8,10 8)),((10 4,10 7,12 7,12 4,10 4)),((7 5,7 8,9 8,9 5,7 5)))",
     "MULTIPOLYGON(((7 3,7 6,9 6,9 5,11 5,11 3,7 3)),((10 6,10 9,12 9,12 6,10 6)),((7 7,7 10,10 10,9 9,9 7,7 7)))"
+};
+
+static std::string case_123_multi[2] =
+{
+    // Intersection: one cluster with 3 zones, intersection -> no holes
+    "MULTIPOLYGON(((1 0,1 1,1.5 0.5,2 0.5,2 0,1 0)),((0 1,1 2,2 2,2 1,0 1)))",
+    "MULTIPOLYGON(((1 0,1 2,2 2,2 0,1 0)),((0 1,0 2,1 1,0 1)))"
+};
+
+static std::string case_124_multi[2] =
+{
+    // Intersection: one cluster with 3 zones, intersection -> one hole
+    "MULTIPOLYGON(((1 0,1 1,0 1,1 2,2 2,2 0,1 0),(1.5 0.5,1.75 1,1 1,1.5 0.5)))",
+    "MULTIPOLYGON(((1 0,1 2,2 2,2 0,1 0)),((0 1,0 2,1 1,0 1)))"
+};
+
+static std::string case_125_multi[2] =
+{
+    // Intersection: one cluster with 3 zones, intersection -> one hole (filled with other polygon)
+    "MULTIPOLYGON(((1 0,1 1,0 1,1 2,2 2,2 0,1 0),(1.5 0.5,1.75 1,1 1,1.5 0.5)),((1 1,1.5 0.9,1.25 0.8,1 1)))",
+    "MULTIPOLYGON(((1 0,1 2,2 2,2 0,1 0)),((0 1,0 2,1 1,0 1)))"
 };
 
 static std::string case_recursive_boxes_1[2] =
@@ -794,6 +819,13 @@ static std::string case_recursive_boxes_38[2] =
     // Smaller version of 29, removing generated lower interior in a union
     "MULTIPOLYGON(((2 3,2 4,1 4,2 5,4 5,4 4,3 4,3 3,2 3)),((3 3,4 3,4 1,5 1,5 0,3 0,3 2,2 2,3 3)),((1 2,0 2,0 3,1 3,1 2)),((1 1,0 1,1 2,2 2,2 1,1 1)))",
     "MULTIPOLYGON(((2 2,4 2,4 1,2 1,2 2)),((0 4,0 5,1 4,0 4)),((2 3,2 4,4 4,4 3,2 3)),((2 2,1 2,1 3,2 3,2 2)),((1 2,0 2,0 3,1 3,0.5 2.5,1 2)))"
+};
+
+static std::string case_recursive_boxes_39[2] =
+{
+    // Needs check for back at start during traversal
+    "MULTIPOLYGON(((3 8,2 8,2 9,3 9,3 8)),((4 8,4 9,5 9,5 8,4 8)),((6 9,6 10,7 10,7 9,6 9)),((5 6,4 6,4 7,6 7,6 5,5 5,5 6)),((4 7,3 7,3 8,4 8,4 7)),((7 8,8 8,8 7,6 7,6 8,7 8)))",
+    "MULTIPOLYGON(((3 7,3 6,2 6,2 7,3 7)),((4 8,4 7,3 7,3 8,4 8)),((6 10,7 10,7 9,5 9,5 10,6 10)),((5 8,4 8,4 9,5 9,5 8)),((5 8,6 8,6 7,5 7,5 8)))"
 };
 
 static std::string pie_21_7_21_0_3[2] =
