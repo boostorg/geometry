@@ -132,6 +132,56 @@ struct traversal_switch_detector
         }
     }
 
+    void check_turns_per_ring(ring_identifier const& ring_id,
+            std::set<signed_size_type> const& ring_turn_indices)
+    {
+        bool only_turn_on_ring = true;
+        if (ring_turn_indices.size() > 1)
+        {
+            // More turns on this ring. Only leave only_turn_on_ring true
+            // if they are all of the same cluster
+            int cluster_id = -1;
+            for (set_iterator sit = ring_turn_indices.begin();
+                 sit != ring_turn_indices.end(); ++sit)
+            {
+                turn_type const& turn = m_turns[*sit];
+                if (turn.cluster_id == -1)
+                {
+                    // Unclustered turn - and there are 2 or more turns
+                    // so the ring has different turns
+                    only_turn_on_ring = false;
+                    break;
+                }
+
+                // Clustered turn, check if it is the first or same as previous
+                if (cluster_id == -1)
+                {
+                    cluster_id = turn.cluster_id;
+                }
+                else if (turn.cluster_id != cluster_id)
+                {
+                    only_turn_on_ring = false;
+                    break;
+                }
+            }
+        }
+
+        // Assign result to matching operation (a turn is always on two rings)
+        for (set_iterator sit = ring_turn_indices.begin();
+             sit != ring_turn_indices.end(); ++sit)
+        {
+            turn_type& turn = m_turns[*sit];
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+                if (ring_id_by_seg_id(op.seg_id) == ring_id)
+                {
+                    op.enriched.only_turn_on_ring = only_turn_on_ring;
+                }
+            }
+        }
+    }
+
     void propagate_region(ring_identifier const& ring_id, int region_id)
     {
         std::map<ring_identifier, std::set<signed_size_type> >::const_iterator it = m_turns_per_ring.find(ring_id);
@@ -168,6 +218,7 @@ struct traversal_switch_detector
              = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
         {
             create_region(it->first, it->second);
+            check_turns_per_ring(it->first, it->second);
         }
 
         // Now that all regions are filled, assign switch_source property

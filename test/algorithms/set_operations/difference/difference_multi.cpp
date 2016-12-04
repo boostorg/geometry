@@ -23,6 +23,11 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#define TEST_DIFFERENCE(caseid, clips1, points1, area1, clips2, points2, area2) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2)
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -85,6 +90,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
+
+    TEST_DIFFERENCE(case_123_multi, 1, 4, 0.25, 2, 9, 0.625);
+    TEST_DIFFERENCE(case_124_multi, 1, 4, 0.25, 2, 9, 0.4375);
 
     {
         ut_settings settings;
@@ -153,12 +161,15 @@ void test_areal()
             ignore_validity);
 #endif
 
+#if 1
+    // Regression (intersections valid): outputs two duplicate triangles in A
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
             5, 23, 4.75,
             5, 40, 12.75,
             5, 48, 4.75 + 12.75);
+#endif
 
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",

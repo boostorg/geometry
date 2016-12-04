@@ -38,6 +38,7 @@ struct enrichment_info
         , count_left(0)
         , count_right(0)
         , zone(-1)
+        , only_turn_on_ring(false)
     {}
 
     // vertex to which is free travel after this IP,
@@ -57,6 +58,7 @@ struct enrichment_info
     std::size_t count_left;
     std::size_t count_right;
     signed_size_type zone; // open zone, in cluster
+    bool only_turn_on_ring; // True if it is the only turn on a ring (for clusters)
 };
 
 

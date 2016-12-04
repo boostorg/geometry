@@ -29,6 +29,10 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 
+#define TEST_UNION(caseid, clips, holes, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -176,6 +180,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_122_multi",
        case_122_multi[0], case_122_multi[1],
        1, 1, 28, 29.5);
+
+    TEST_UNION(case_123_multi, 1, 0, 11, 2.75);
+    TEST_UNION(case_124_multi, 1, 0, 9, 2.75);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
