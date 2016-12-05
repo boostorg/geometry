@@ -9,6 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#define BOOST_GEOMETRY_TEST_GEO_INTERSECTION_TEST_SIMILAR
 #include "segment_intersection_sph.hpp"
 
 
