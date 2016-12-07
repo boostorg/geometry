@@ -153,8 +153,8 @@ struct traversal
         }
     }
 
-  inline bool is_visited(turn_type const& /*turn*/, turn_operation_type const& op,
-                         signed_size_type /*turn_index*/, int /*op_index*/) const
+    inline bool is_visited(turn_type const& , turn_operation_type const& op,
+                         signed_size_type , int) const
     {
         return op.visited.visited();
     }
@@ -444,16 +444,34 @@ struct traversal
 
         if (selected_rank > 0)
         {
+            std::size_t selected_index = sbs.m_ranked_points.size();
             for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
             {
                 typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+
                 if (ranked_point.rank == selected_rank)
                 {
-                    // Take the first turn from this rank
-                    turn_index = ranked_point.turn_index;
-                    op_index = ranked_point.operation_index;
-                    return true;
+                    turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
+
+                    if (ranked_op.visited.finalized())
+                    {
+                        // This direction is already traveled before, the same
+                        // cannot be traveled again
+                        return false;
+                    }
+
+                    // Take the last turn from this rank
+                    selected_index = i;
                 }
+            }
+
+            if (selected_index < sbs.m_ranked_points.size())
+            {
+                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[selected_index];
+                turn_index = ranked_point.turn_index;
+                op_index = ranked_point.operation_index;
+                return true;
             }
         }
 

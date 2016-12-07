@@ -294,16 +294,16 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
-                1, 4, 70368744177664);
+                1, 4, 70368744177664.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_b",
                 ticket_10747_b[0], ticket_10747_b[1],
-                1, 4, 7036874417766400);
+                1, 4, 7036874417766400.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_c",
                 ticket_10747_c[0], ticket_10747_c[1],
-                1, 4, 17592186044416);
+                1, 4, 17592186044416.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_d",
                 ticket_10747_d[0], ticket_10747_d[1],
-                1, 4, 703687777321);
+                1, 4, 703687777321.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
                 ticket_10747_e[0], ticket_10747_e[1],
                 1, 4, 7.0368748575710959e-15);
@@ -828,7 +828,7 @@ void test_ticket_10868(std::string const& wkt_out)
 
     test_one<polygon_type, polygon_type, polygon_type>("ticket_10868",
         ticket_10868[0], ticket_10868[1],
-        1, 7, 20266195244586);
+        1, 7, 20266195244586.0);
 }
 
 int test_main(int, char* [])
