@@ -19,6 +19,20 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.63]
+[/=================]
+
+[*Improvements]
+
+* Intersection: take care that output is valid (work in progres, not yet finished - but more is valid)
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/12289 12289] Avoid warning/compilation error for std::cout
+* [@https://svn.boost.org/trac/boost/ticket/12412 12412] Invalid result of covered_by() with geographic Points and Boxes
+* [@https://svn.boost.org/trac/boost/ticket/12413 12413] rtree::remove() not working properly with geographic Points
+
+[/=================]
 [heading Boost 1.62]
 [/=================]
 
@@ -30,13 +44,8 @@
 * Rename namespace concept to concepts to avoid conflicts with the newest compilers
 * New spherical intersection strategy used in relational and set operations for spherical and geographic Geometries (previously cartesian intersection strategy was used for all coordinate systems).
 
-[*Solved tickets]
-
 * [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different
 * [@https://svn.boost.org/trac/boost/ticket/12287 12287] Invalid result of rtree.query() for contains() predicate
-* [@https://svn.boost.org/trac/boost/ticket/12289 12289] Avoid warning/compilation error for std::cout
-* [@https://svn.boost.org/trac/boost/ticket/12412 12412] Invalid result of covered_by() with geographic Points and Boxes
-* [@https://svn.boost.org/trac/boost/ticket/12413 12413] rtree::remove() not working properly with geographic Points
 
 [/=================]
 [heading Boost 1.61]

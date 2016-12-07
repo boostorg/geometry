@@ -285,8 +285,6 @@ TREEVIEW_WIDTH         = 250
 #---------------------------------------------------------------------------
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
-XML_SCHEMA             = 
-XML_DTD                = 
 XML_PROGRAMLISTING     = NO
 
 #---------------------------------------------------------------------------
@@ -328,3 +326,5 @@ SKIP_FUNCTION_MACROS   = YES
 # Configuration::additions related to the search engine   
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO
+
+HAVE_DOT               = NO

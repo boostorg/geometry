@@ -161,23 +161,22 @@ void test_areal()
             ignore_validity);
 #endif
 
-#if 0
-    // Regression (intersections valid): fails to output two triangles in A
+#if 1
+    // Regression (intersections valid): outputs two duplicate triangles in A
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
             5, 23, 4.75,
             5, 40, 12.75,
             5, 48, 4.75 + 12.75);
+#endif
 
-    // Regression (intersections valid): fails to output one triangle in A
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
         case_102_multi[0], case_102_multi[1],
             2, 8, 0.75,
             6, 25, 3.75,
             6, 27, 0.75 + 3.75);
-#endif
 
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
