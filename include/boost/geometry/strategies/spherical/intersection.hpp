@@ -170,9 +170,10 @@ struct relate_ecef_segments
                                     Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
     {
         // For now create it using default constructor. In the future it could
-        // be stored in strategy. However then apply() wouldn't be static and
-        // all relops and setops would have to take the strategy or model.
-        CalcPolicy const calc_policy;
+        //  be stored in strategy. However then apply() wouldn't be static and
+        //  all relops and setops would have to take the strategy or model.
+        // Initialize explicitly to prevent compiler errors in case of PoD type
+        CalcPolicy const calc_policy = CalcPolicy();
 
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
