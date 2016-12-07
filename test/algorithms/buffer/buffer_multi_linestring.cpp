@@ -101,11 +101,11 @@ void test_all()
         double mikado_tolerance = 30.0;
 #endif
 
-        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125, 41751.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125.0, 41751.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253, 79610.0, same_distance, true, 10 * mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253.0, 79610.0, same_distance, true, 10 * mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
@@ -113,11 +113,11 @@ void test_all()
         // msvc        29151950611
         // clang/linux 29151950612
         // mingw       29151950711
-        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950650, 96375.0, same_distance, true, 10 * mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950650.0, 96375.0, same_distance, true, 10 * mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169, 59772.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169.0, 59772.0, same_distance, true, mikado_tolerance);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
