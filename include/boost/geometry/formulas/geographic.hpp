@@ -168,7 +168,7 @@ inline Point3d projected_to_surface(Point3d const& direction, Spheroid const& sp
 {
     typedef typename coordinate_type<Point3d>::type coord_t;
 
-    coord_t const c0 = 0;
+    //coord_t const c0 = 0;
     coord_t const c2 = 2;
     coord_t const c4 = 4;
 

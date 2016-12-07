@@ -1036,9 +1036,9 @@ private:
                                             bool check_sin_beta = true)
     {
         bool ok = converge_07_one_geod(sin_beta, t, geodesics.geod1, geodesics.vertex1, lon_sph,
-                                       result.lon1, result.k1_diff, check_sin_beta, 1)
+                                       result.lon1, result.k1_diff, check_sin_beta)
                && converge_07_one_geod(sin_beta, t, geodesics.geod2, geodesics.vertex2, lon_sph,
-                                       result.lon2, result.k2_diff, check_sin_beta, 2);
+                                       result.lon2, result.k2_diff, check_sin_beta);
 
         if (!ok)
         {
@@ -1059,8 +1059,7 @@ private:
                                             typename geodesic_type::vertex_data const& vertex,
                                             CT const& lon_sph,
                                             CT & lon, CT & k_diff,
-                                            bool check_sin_beta,
-                                            int id) // TEMP
+                                            bool check_sin_beta)
     {
         using math::detail::bounded;
         CT const c1 = 1;
