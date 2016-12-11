@@ -26,7 +26,8 @@
 template <typename S, typename P>
 void test_default_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
                            char m, std::size_t expected_count,
-                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                           int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -45,13 +46,14 @@ void test_default_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
             void
         >::type strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 template <typename S, typename P>
 void test_great_elliptic(std::string const& s1_wkt, std::string const& s2_wkt,
                          char m, std::size_t expected_count,
-                         std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                         std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                         int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -68,13 +70,14 @@ void test_great_elliptic(std::string const& s1_wkt, std::string const& s2_wkt,
             policy_t
         > strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 /*
 template <typename S, typename P>
 void test_experimental_elliptic(std::string const& s1_wkt, std::string const& s2_wkt,
                                 char m, std::size_t expected_count,
-                                std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                                std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                                int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -91,13 +94,14 @@ void test_experimental_elliptic(std::string const& s1_wkt, std::string const& s2
             policy_t
         > strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 */
 template <typename S, typename P>
 void test_geodesic_vincenty(std::string const& s1_wkt, std::string const& s2_wkt,
                             char m, std::size_t expected_count,
-                            std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                            std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                            int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -117,13 +121,14 @@ void test_geodesic_vincenty(std::string const& s1_wkt, std::string const& s2_wkt
             4
         > strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 template <typename S, typename P>
 void test_geodesic_thomas(std::string const& s1_wkt, std::string const& s2_wkt,
                           char m, std::size_t expected_count,
-                          std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                          std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                          int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -143,13 +148,14 @@ void test_geodesic_thomas(std::string const& s1_wkt, std::string const& s2_wkt,
             2
         > strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 template <typename S, typename P>
 void test_geodesic_andoyer(std::string const& s1_wkt, std::string const& s2_wkt,
                            char m, std::size_t expected_count,
-                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                           int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
     typedef bg::policies::relate::segments_tupled
@@ -169,47 +175,85 @@ void test_geodesic_andoyer(std::string const& s1_wkt, std::string const& s2_wkt,
             1
         > strategy;
 
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 
 struct strategy_base
 {
-    strategy_base(char m_, std::size_t expected_count_, std::string const& wkt1_ = "", std::string const& wkt2_ = "")
-        : m(m_), expected_count(expected_count_), wkt1(wkt1_), wkt2(wkt2_)
+    strategy_base(char m_)
+        : m(m_), expected_count(0), opposite(-1)
     {}
+    strategy_base(char m_, std::string const& wkt1_)
+        : m(m_), expected_count(1), wkt1(wkt1_), opposite(-1)
+    {}
+    strategy_base(char m_, std::string const& wkt1_, std::string const& wkt2_, bool opposite_)
+        : m(m_), expected_count(1), wkt1(wkt1_), opposite(opposite_ ? 1 : 0)
+    {}
+
     char m;
     std::size_t expected_count;
     std::string wkt1, wkt2;
+    int opposite;
 };
 struct strategy_default : strategy_base
 {
-    strategy_default(char m, std::size_t expected_count, std::string const& wkt1 = "", std::string const& wkt2 = "")
-        : strategy_base(m, expected_count, wkt1, wkt2)
+    strategy_default(char m)
+        : strategy_base(m)
+    {}
+    strategy_default(char m, std::string const& wkt1)
+        : strategy_base(m, wkt1)
+    {}
+    strategy_default(char m, std::string const& wkt1, std::string const& wkt2, bool opposite)
+        : strategy_base(m, wkt1, wkt2, opposite)
     {}
 };
 struct geodesic_vincenty : strategy_base
 {
-    geodesic_vincenty(char m, std::size_t expected_count, std::string const& wkt1 = "", std::string const& wkt2 = "")
-        : strategy_base(m, expected_count, wkt1, wkt2)
+    geodesic_vincenty(char m)
+        : strategy_base(m)
+    {}
+    geodesic_vincenty(char m, std::string const& wkt1)
+        : strategy_base(m, wkt1)
+    {}
+    geodesic_vincenty(char m, std::string const& wkt1, std::string const& wkt2, bool opposite)
+        : strategy_base(m, wkt1, wkt2, opposite)
     {}
 };
 struct geodesic_thomas : strategy_base
 {
-    geodesic_thomas(char m, std::size_t expected_count, std::string const& wkt1 = "", std::string const& wkt2 = "")
-        : strategy_base(m, expected_count, wkt1, wkt2)
+    geodesic_thomas(char m)
+        : strategy_base(m)
+    {}
+    geodesic_thomas(char m, std::string const& wkt1)
+        : strategy_base(m, wkt1)
+    {}
+    geodesic_thomas(char m, std::string const& wkt1, std::string const& wkt2, bool opposite)
+        : strategy_base(m, wkt1, wkt2, opposite)
     {}
 };
 struct geodesic_andoyer : strategy_base
 {
-    geodesic_andoyer(char m, std::size_t expected_count, std::string const& wkt1 = "", std::string const& wkt2 = "")
-        : strategy_base(m, expected_count, wkt1, wkt2)
+    geodesic_andoyer(char m)
+        : strategy_base(m)
+    {}
+    geodesic_andoyer(char m, std::string const& wkt1)
+        : strategy_base(m, wkt1)
+    {}
+    geodesic_andoyer(char m, std::string const& wkt1, std::string const& wkt2, bool opposite)
+        : strategy_base(m, wkt1, wkt2, opposite)
     {}
 };
 struct great_elliptic : strategy_base
 {
-    great_elliptic(char m, std::size_t expected_count, std::string const& wkt1 = "", std::string const& wkt2 = "")
-        : strategy_base(m, expected_count, wkt1, wkt2)
+    great_elliptic(char m)
+        : strategy_base(m)
+    {}
+    great_elliptic(char m, std::string const& wkt1)
+        : strategy_base(m, wkt1)
+    {}
+    great_elliptic(char m, std::string const& wkt1, std::string const& wkt2, bool opposite)
+        : strategy_base(m, wkt1, wkt2, opposite)
     {}
 };
 
@@ -284,15 +328,32 @@ void test_strategies(std::string const& s1_wkt, std::string const& s2_wkt,
 
 template <typename S, typename P>
 void test_all_strategies(std::string const& s1_wkt, std::string const& s2_wkt,
-                         char m, std::size_t expected_count,
-                         std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                         char m, std::string const& ip0_wkt = "")
 {
-    test_default_strategy<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
-    test_great_elliptic<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
-    //test_experimental_elliptic<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
-    test_geodesic_vincenty<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
-    test_geodesic_thomas<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
-    test_geodesic_andoyer<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt, ip1_wkt);
+    std::size_t expected_count = ip0_wkt.empty() ? 0 : 1;
+    
+    test_default_strategy<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+    test_great_elliptic<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+    //test_experimental_elliptic<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+    test_geodesic_vincenty<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+    test_geodesic_thomas<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+    test_geodesic_andoyer<S, P>(s1_wkt, s2_wkt, m, expected_count, ip0_wkt);
+}
+
+template <typename S, typename P>
+void test_all_strategies(std::string const& s1_wkt, std::string const& s2_wkt,
+                         char m,
+                         std::string const& ip0_wkt, std::string const& ip1_wkt,
+                         bool opposite)
+{
+    int opposite_id = opposite ? 1 : 0;
+
+    test_default_strategy<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
+    test_great_elliptic<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
+    //test_experimental_elliptic<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
+    test_geodesic_vincenty<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
+    test_geodesic_thomas<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
+    test_geodesic_andoyer<S, P>(s1_wkt, s2_wkt, m, 2, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 #endif // BOOST_GEOMETRY_TEST_STRATEGIES_SEGMENT_INTERSECTION_GEO_HPP

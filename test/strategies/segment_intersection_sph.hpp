@@ -26,6 +26,14 @@
 #include <boost/geometry/policies/relate/intersection_points.hpp>
 #include <boost/geometry/policies/relate/tupled.hpp>
 
+template <typename T>
+bool equals_relaxed_val(T const& v1, T const& v2, T const& eps_scale)
+{
+    T relaxed_eps = std::numeric_limits<T>::epsilon()
+        * bg::math::detail::greatest(c1, bg::math::abs(v1), bg::math::abs(v2))
+        * eps_scale;
+    return bg::math::abs(v1 - v2) <= relaxed_eps;
+}
 
 template <typename P1, typename P2, typename T>
 bool equals_relaxed(P1 const& p1, P2 const& p2, T const& eps_scale)
@@ -51,7 +59,8 @@ template <typename S1, typename S2, typename Strategy, typename P>
 void test_strategy_one(S1 const& s1, S2 const& s2,
                        Strategy const& strategy,
                        char m, std::size_t expected_count,
-                       P const& ip0 = P(), P const& ip1 = P())
+                       P const& ip0 = P(), P const& ip1 = P(),
+                       int opposite_id = -1)
 {
     typedef typename Strategy::return_type return_type;
 
@@ -101,6 +110,13 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
                             "IP1: " << std::setprecision(16) << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
     }
+
+    if (opposite_id >= 0)
+    {
+        bool opposite = opposite_id != 0;
+        BOOST_CHECK_MESSAGE(opposite == boost::get<1>(res).opposite,
+                            bg::wkt(s1) << " and " << bg::wkt(s2) << (opposite_id == 0 ? " are not " : " are ") << "opposite" );
+    }
 }
 
 template <typename T>
@@ -116,7 +132,8 @@ template <typename S1, typename S2, typename Strategy, typename P>
 void test_strategy(S1 const& s1, S2 const& s2,
                    Strategy const& strategy,
                    char m, std::size_t expected_count,
-                   P const& ip0 = P(), P const& ip1 = P())
+                   P const& ip0 = P(), P const& ip1 = P(),
+                   int opposite_id = -1)
 {
     S1 s1t = s1;
     S2 s2t = s2;
@@ -124,7 +141,7 @@ void test_strategy(S1 const& s1, S2 const& s2,
     P ip1t = ip1;
 
 #ifndef BOOST_GEOMETRY_TEST_GEO_INTERSECTION_TEST_SIMILAR
-    test_strategy_one(s1t, s2t, strategy, m, expected_count, ip0t, ip1t);
+    test_strategy_one(s1t, s2t, strategy, m, expected_count, ip0t, ip1t, opposite_id);
 #else
     double t = 0;
     for (int i = 0; i < 4; ++i, t += 90)
@@ -138,7 +155,7 @@ void test_strategy(S1 const& s1, S2 const& s2,
         if (expected_count > 1)
             bg::set<0>(ip1t, translated(bg::get<0>(ip1), t));
 
-        test_strategy_one(s1t, s2t, strategy, m, expected_count, ip0t, ip1t);
+        test_strategy_one(s1t, s2t, strategy, m, expected_count, ip0t, ip1t, opposite_id);
     }
 #endif
 }
@@ -147,7 +164,8 @@ template <typename S1, typename S2, typename P, typename Strategy>
 void test_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
                    Strategy const& strategy,
                    char m, std::size_t expected_count,
-                   std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                   std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                   int opposite_id = -1)
 {
     S1 s1;
     S2 s2;
@@ -160,16 +178,17 @@ void test_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
     if (!ip1_wkt.empty())
         bg::read_wkt(ip1_wkt, ip1);
 
-    test_strategy(s1, s2, strategy, m, expected_count, ip0, ip1);
+    test_strategy(s1, s2, strategy, m, expected_count, ip0, ip1, opposite_id);
 }
 
 template <typename S, typename P, typename Strategy>
 void test_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
                    Strategy const& strategy,
                    char m, std::size_t expected_count,
-                   std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
+                   std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
+                   int opposite_id = -1)
 {
-    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
+    test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
 
 #endif // BOOST_GEOMETRY_TEST_STRATEGIES_SEGMENT_INTERSECTION_SPH_HPP
