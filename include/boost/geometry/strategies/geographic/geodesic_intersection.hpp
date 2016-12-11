@@ -47,14 +47,10 @@ namespace boost { namespace geometry
 namespace strategy { namespace intersection
 {
 
-//TODO: Improve the robustness/accuracy/repeatability by
+// CONSIDER: Improvement of the robustness/accuracy/repeatability by
 // moving all segments to 0 longitude
-// switching the segments
-// switching the endpoints
-// BECAUSE: the result calculated by sjoberg intersection strategy
-//          is not consistent when the above are altered
-//          worse than that, the error is a lot greater either for lon or lat 
-//          so make it consistently greater for lat
+// picking latitudes closer to 0
+// etc.
 
 template
 <
@@ -70,7 +66,6 @@ struct relate_geodesic_segments
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
-    // segment_intersection_info cannot outlive relate_ecef_segments
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
     {
@@ -144,7 +139,6 @@ struct relate_geodesic_segments
         point1_t a1, a2;
         point2_t b1, b2;
 
-        // TODO: use indexed_point_view if possible?
         detail::assign_point_from_index<0>(a, a1);
         detail::assign_point_from_index<1>(a, a2);
         detail::assign_point_from_index<0>(b, b1);
@@ -157,7 +151,30 @@ struct relate_geodesic_segments
     template <typename Segment1, typename Segment2, typename RobustPolicy, typename Point1, typename Point2>
     static inline return_type apply(Segment1 const& a, Segment2 const& b,
                                     RobustPolicy const&,
-                                    Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
+                                    Point1 a1, Point1 a2, Point2 b1, Point2 b2)
+    {
+        bool is_a_reversed = get<1>(a1) > get<1>(a2);
+        bool is_b_reversed = get<1>(b1) > get<1>(b2);
+                           
+        if (is_a_reversed)
+        {
+            std::swap(a1, a2);
+        }
+
+        if (is_b_reversed)
+        {
+            std::swap(b1, b2);
+        }
+
+        return apply(a, b, a1, a2, b1, b2, is_a_reversed, is_b_reversed);
+    }
+
+private:
+    // Relate segments a and b
+    template <typename Segment1, typename Segment2, typename Point1, typename Point2>
+    static inline return_type apply(Segment1 const& a, Segment2 const& b,
+                                    Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2,
+                                    bool is_a_reversed, bool is_b_reversed)
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
@@ -261,11 +278,11 @@ struct relate_geodesic_segments
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1);
+                return collinear_one_degenerted<calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
             }
             else if (b_is_point)
             {
-                return collinear_one_degenerted<calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1);
+                return collinear_one_degenerted<calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
             }
             else
             {
@@ -289,50 +306,77 @@ struct relate_geodesic_segments
                     dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
                 }
 
-                segment_ratio<calc_t> ra_from(dist_b1_a1, dist_b1_b2);
-                segment_ratio<calc_t> ra_to(dist_b1_a2, dist_b1_b2);
-                segment_ratio<calc_t> rb_from(dist_a1_b1, dist_a1_a2);
-                segment_ratio<calc_t> rb_to(dist_a1_b2, dist_a1_a2);
-                
-                calc_t const c0 = 0;
-
                 // NOTE: this is probably not needed
-                int const a1_wrt_b = position_value(c0, dist_a1_b1, dist_a1_b2);
-                int const a2_wrt_b = position_value(dist_a1_a2, dist_a1_b1, dist_a1_b2);
-                int const b1_wrt_a = position_value(c0, dist_b1_a1, dist_b1_a2);
-                int const b2_wrt_a = position_value(dist_b1_b2, dist_b1_a1, dist_b1_a2);
+                calc_t const c0 = 0;
+                int a1_on_b = position_value(c0, dist_a1_b1, dist_a1_b2);
+                int a2_on_b = position_value(dist_a1_a2, dist_a1_b1, dist_a1_b2);
+                int b1_on_a = position_value(c0, dist_b1_a1, dist_b1_a2);
+                int b2_on_a = position_value(dist_b1_b2, dist_b1_a1, dist_b1_a2);
 
-                if (a1_wrt_b == 1)
-                {
-                    ra_from.assign(0, dist_b1_b2);
-                    rb_from.assign(0, dist_a1_a2);
-                }
-                else if (a1_wrt_b == 3)
-                {
-                    ra_from.assign(dist_b1_b2, dist_b1_b2);
-                    rb_to.assign(0, dist_a1_a2);
-                }
-
-                if (a2_wrt_b == 1)
-                {
-                    ra_to.assign(0, dist_b1_b2);
-                    rb_from.assign(dist_a1_a2, dist_a1_a2);
-                }
-                else if (a2_wrt_b == 3)
-                {
-                    ra_to.assign(dist_b1_b2, dist_b1_b2);
-                    rb_to.assign(dist_a1_a2, dist_a1_a2);
-                }
-
-                if ((a1_wrt_b < 1 && a2_wrt_b < 1) || (a1_wrt_b > 3 && a2_wrt_b > 3))
+                if ((a1_on_b < 1 && a2_on_b < 1) || (a1_on_b > 3 && a2_on_b > 3))
                 {
                     return Policy::disjoint();
                 }
 
-                bool const opposite = ! same_direction(res_a1_a2.azimuth, res_b1_b2.azimuth);
+                if (a1_on_b == 1)
+                {
+                    dist_b1_a1 = 0;
+                    dist_a1_b1 = 0;
+                }
+                else if (a1_on_b == 3)
+                {
+                    dist_b1_a1 = dist_b1_b2;
+                    dist_a1_b2 = 0;
+                }
+
+                if (a2_on_b == 1)
+                {
+                    dist_b1_a2 = 0;
+                    dist_a1_b1 = dist_a1_a2;
+                }
+                else if (a2_on_b == 3)
+                {
+                    dist_b1_a2 = dist_b1_b2;
+                    dist_a1_b2 = dist_a1_a2;
+                }
+
+                bool opposite = ! same_direction(res_a1_a2.azimuth, res_b1_b2.azimuth);
+
+                // NOTE: If segment was reversed opposite, positions and segment ratios has to be altered
+                if (is_a_reversed)
+                {
+                    // opposite
+                    opposite = ! opposite;
+                    // positions
+                    std::swap(a1_on_b, a2_on_b);
+                    b1_on_a = 4 - b1_on_a;
+                    b2_on_a = 4 - b2_on_a;
+                    // distances for ratios
+                    std::swap(dist_b1_a1, dist_b1_a2);
+                    dist_a1_b1 = dist_a1_a2 - dist_a1_b1;
+                    dist_a1_b2 = dist_a1_a2 - dist_a1_b2;
+                }
+                if (is_b_reversed)
+                {
+                    // opposite
+                    opposite = ! opposite;
+                    // positions
+                    a1_on_b = 4 - a1_on_b;
+                    a2_on_b = 4 - a2_on_b;
+                    std::swap(b1_on_a, b2_on_a);
+                    // distances for ratios
+                    dist_b1_a1 = dist_b1_b2 - dist_b1_a1;
+                    dist_b1_a2 = dist_b1_b2 - dist_b1_a2;
+                    std::swap(dist_a1_b1, dist_a1_b2);
+                }
+
+                segment_ratio<calc_t> ra_from(dist_b1_a1, dist_b1_b2);
+                segment_ratio<calc_t> ra_to(dist_b1_a2, dist_b1_b2);
+                segment_ratio<calc_t> rb_from(dist_a1_b1, dist_a1_a2);
+                segment_ratio<calc_t> rb_to(dist_a1_b2, dist_a1_a2);
 
                 return Policy::segments_collinear(a, b, opposite,
-                    a1_wrt_b, a2_wrt_b, b1_wrt_a, b2_wrt_a,
+                    a1_on_b, a2_on_b, b1_on_a, b2_on_a,
                     ra_from, ra_to, rb_from, rb_to);
             }
         }
@@ -356,6 +400,26 @@ struct relate_geodesic_segments
                                   dist_a1_a2, dist_a1_i1, dist_b1_b2, dist_b1_i1,
                                   ip_flag))
             {
+                // NOTE: If segment was reversed sides and segment ratios has to be altered
+                if (is_a_reversed)
+                {
+                    // sides
+                    sides_reverse_segment<0>(sides);
+                    // distance for ratio
+                    dist_a1_i1 = dist_a1_a2 - dist_a1_i1;
+                    // ip flag
+                    ip_flag_reverse_segment(ip_flag, ipi_at_a1, ipi_at_a2);
+                }
+                if (is_b_reversed)
+                {
+                    // sides
+                    sides_reverse_segment<1>(sides);
+                    // distance for ratio
+                    dist_b1_i1 = dist_b1_b2 - dist_b1_i1;
+                    // ip flag
+                    ip_flag_reverse_segment(ip_flag, ipi_at_b1, ipi_at_b2);
+                }
+
                 // intersects
                 segment_intersection_info
                     <
@@ -378,21 +442,32 @@ struct relate_geodesic_segments
         }
     }
 
-private:
     template <typename CalcT, typename Segment, typename Point1, typename Point2, typename ResultInverse>
     static inline return_type collinear_one_degenerted(Segment const& segment, bool degenerated_a,
                                                        Point1 const& a1, Point1 const& a2,
                                                        Point2 const& b1, Point2 const& b2,
                                                        ResultInverse const& res_a1_a2,
-                                                       ResultInverse const& res_a1_bi)
+                                                       ResultInverse const& res_a1_bi,
+                                                       bool is_other_reversed)
     {
         CalcT dist_1_2, dist_1_o;
-        return ! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_bi, dist_1_2, dist_1_o)
-                ? Policy::disjoint()
-                : Policy::one_degenerate(segment, segment_ratio<CalcT>(dist_1_o, dist_1_2), degenerated_a);
+        if (! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_bi, dist_1_2, dist_1_o))
+        {
+            return Policy::disjoint();
+        }
+
+        // NOTE: If segment was reversed segment ratio has to be altered
+        if (is_other_reversed)
+        {
+            // distance for ratio
+            dist_1_o = dist_1_2 - dist_1_o;
+        }
+        
+        return Policy::one_degenerate(segment, segment_ratio<CalcT>(dist_1_o, dist_1_2), degenerated_a);
     }
 
-    // TODO: instead of the code below test bi against a1 and a2 here?
+    // TODO: instead of checks below test bi against a1 and a2 here?
+    //       in order to make this independent from is_near()
     template <typename Point1, typename Point2, typename ResultInverse, typename CalcT>
     static inline bool calculate_collinear_data(Point1 const& a1, Point1 const& a2, // in
                                                 Point2 const& b1, Point2 const& b2, // in
@@ -572,13 +647,6 @@ private:
             return false;
         }
 
-        // TODO: it's theoretically possible to generate the IP outside the segment,
-        // i.e. the azimuth of the IP should be "smaller" than the azimuth of the endpoints
-        // i.e. the sides has to match, e.g. if one side is -1 and the other is 0
-        // then the side of the IP has to be -1 or 0 as well
-
-        // TODO: consider swapping points at the beginning if lon1 > lon2
-
         typedef Inverse<CalcT, true, true, false, false, false> inverse_dist_azi;
         typedef typename inverse_dist_azi::result_type inverse_result;
 
@@ -691,6 +759,28 @@ private:
         // distance between two angles normalized to (-180, 180]
         CalcT const angle_diff = math::longitude_distance_signed<radian>(azimuth1, azimuth2);
         return math::abs(angle_diff) <= math::half_pi<CalcT>();
+    }
+
+    template <int Which>
+    static inline void sides_reverse_segment(side_info & sides)
+    {
+        // names assuming segment A is reversed (Which == 0)
+        int a1_wrt_b = sides.template get<Which, 0>();
+        int a2_wrt_b = sides.template get<Which, 1>();
+        std::swap(a1_wrt_b, a2_wrt_b);
+        sides.template set<Which>(a1_wrt_b, a2_wrt_b);
+        int b1_wrt_a = sides.template get<1 - Which, 0>();
+        int b2_wrt_a = sides.template get<1 - Which, 1>();
+        sides.template set<1 - Which>(-b1_wrt_a, -b2_wrt_a);
+    }
+
+    static inline void ip_flag_reverse_segment(intersection_point_flag & ip_flag,
+                                               intersection_point_flag const& ipi_at_p1,
+                                               intersection_point_flag const& ipi_at_p2)
+    {
+        ip_flag = ip_flag == ipi_at_p1 ? ipi_at_p2 :
+                  ip_flag == ipi_at_p2 ? ipi_at_p1 :
+                  ip_flag;
     }
 };
 
