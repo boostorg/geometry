@@ -44,6 +44,8 @@
 * Rename namespace concept to concepts to avoid conflicts with the newest compilers
 * New spherical intersection strategy used in relational and set operations for spherical and geographic Geometries (previously cartesian intersection strategy was used for all coordinate systems).
 
+[*Solved tickets]
+
 * [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different
 * [@https://svn.boost.org/trac/boost/ticket/12287 12287] Invalid result of rtree.query() for contains() predicate
 
