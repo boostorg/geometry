@@ -70,14 +70,17 @@ struct self_section_visitor
     RobustPolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
+    std::size_t m_source_index;
 
     inline self_section_visitor(Geometry const& g,
             RobustPolicy const& rp,
-            Turns& turns, InterruptPolicy& ip)
+            Turns& turns, InterruptPolicy& ip,
+            std::size_t source_index)
         : m_geometry(g)
         , m_rescale_policy(rp)
         , m_turns(turns)
         , m_interrupt_policy(ip)
+        , m_source_index(source_index)
     {}
 
     template <typename Section>
@@ -94,8 +97,8 @@ struct self_section_visitor
                         Section, Section,
                         TurnPolicy
                     >::apply(
-                            0, m_geometry, sec1,
-                            0, m_geometry, sec2,
+                            m_source_index, m_geometry, sec1,
+                            m_source_index, m_geometry, sec2,
                             false,
                             m_rescale_policy,
                             m_turns, m_interrupt_policy);
@@ -121,7 +124,8 @@ struct get_turns
             Geometry const& geometry,
             RobustPolicy const& robust_policy,
             Turns& turns,
-            InterruptPolicy& interrupt_policy)
+            InterruptPolicy& interrupt_policy,
+            std::size_t source_index)
     {
         typedef model::box
             <
@@ -143,7 +147,7 @@ struct get_turns
             <
                 Geometry,
                 Turns, TurnPolicy, RobustPolicy, InterruptPolicy
-            > visitor(geometry, robust_policy, turns, interrupt_policy);
+            > visitor(geometry, robust_policy, turns, interrupt_policy, source_index);
 
         try
         {
@@ -213,7 +217,8 @@ struct self_get_turn_points
             Box const& ,
             RobustPolicy const& ,
             Turns& ,
-            InterruptPolicy& )
+            InterruptPolicy& ,
+            std::size_t)
     {
         return true;
     }
@@ -274,7 +279,8 @@ template
 >
 inline void self_turns(Geometry const& geometry,
             RobustPolicy const& robust_policy,
-            Turns& turns, InterruptPolicy& interrupt_policy)
+            Turns& turns, InterruptPolicy& interrupt_policy,
+            std::size_t source_index = 0)
 {
     concepts::check<Geometry const>();
 
@@ -285,7 +291,7 @@ inline void self_turns(Geometry const& geometry,
                 typename tag<Geometry>::type,
                 Geometry,
                 turn_policy
-            >::apply(geometry, robust_policy, turns, interrupt_policy);
+            >::apply(geometry, robust_policy, turns, interrupt_policy, source_index);
 }
 
 
