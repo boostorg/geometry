@@ -220,7 +220,7 @@ inline bool has_self_intersections(Linear const& linear)
         >::apply(linear,
                  detail::no_rescale_policy(),
                  turns,
-                 interrupt_policy);
+                 interrupt_policy, 0);
 
     detail::is_valid::debug_print_turns(turns.begin(), turns.end());
     debug_print_boundary_points(linear);
