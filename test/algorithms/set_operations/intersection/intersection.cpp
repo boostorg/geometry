@@ -42,6 +42,13 @@
 
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
+#define TEST_INTERSECTION(caseid, clips, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area)
+
+#define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
 
 template <typename Polygon>
 void test_areal()
@@ -338,6 +345,9 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("case_102",
         case_102[0], case_102[1],
         0, -1, 3.1875);
+
+    TEST_INTERSECTION_IGNORE(case_103, 0, -1, 3.5);
+    TEST_INTERSECTION_IGNORE(case_104, 0, -1, 3.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],

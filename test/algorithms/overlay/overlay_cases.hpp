@@ -528,6 +528,20 @@ static std::string case_102[2] =
     "POLYGON((3 6,4 5,5 4,3 2,1 4,3 6),(4 5,3 4,3.5 3.5,4 4,4 5))"
 };
 
+static const std::string case_103[2] =
+{
+    // Smaller adapted version of case_126_multi
+    "POLYGON((5 5,5 10,10 10,10 5,5 5),(9 8,7 9,5 8,7 7,9 8))",
+    "POLYGON((0 3,6 3,6 9,0 9,0 3))"
+};
+
+static const std::string case_104[2] =
+{
+    // Same but with hole in second polygon too
+    case_103[0],
+    "POLYGON((0 3,6 3,6 9,0 9,0 3),(2 6,4 7,6 6,4 5,2 6))"
+};
+
 static std::string case_many_situations[2] = {
         "POLYGON((2 6,2 14,10 18,18 14,18 6,16 5,14 4,12 3,10 2,8 3,6 4,4 5,2 6))",
         "POLYGON((2 6,2 7,2 8,2 9,2 10,2 11,2 12,1 14"
