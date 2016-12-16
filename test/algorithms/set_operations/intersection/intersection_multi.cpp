@@ -145,6 +145,7 @@ void test_areal()
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
     TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
     TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
+    TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
 
     // #1 needs self-turns to make valid
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",

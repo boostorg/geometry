@@ -27,6 +27,10 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2)
 
+#define TEST_DIFFERENCE_IGNORE(caseid, clips1, points1, area1, clips2, points2, area2) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2, ignore_validity)
+
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
@@ -93,6 +97,8 @@ void test_areal()
 
     TEST_DIFFERENCE(case_123_multi, 1, 4, 0.25, 2, 9, 0.625);
     TEST_DIFFERENCE(case_124_multi, 1, 4, 0.25, 2, 9, 0.4375);
+    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 4, 0.25, 2, 12, 0.400);
+    TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 22, 16.0, 4, 27, 27.0); // A should have 3 clips, B should have 5 clips
 
     {
         ut_settings settings;
