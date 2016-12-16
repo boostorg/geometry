@@ -174,6 +174,14 @@ struct traversal
                     : seg_id1.multi_index == seg_id2.multi_index;
         }
 
+        // If it is a self-turn, always switch source
+        if (turn.operations[0].seg_id.source_index
+                == turn.operations[1].seg_id.source_index)
+
+        {
+            return true;
+        }
+
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         if (turn.switch_source)
         {
