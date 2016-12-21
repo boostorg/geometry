@@ -505,7 +505,7 @@ struct traversal
 
         sbs_type sbs;
 
-        bool has_origin = false;
+        std::size_t origin_count = 0;
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -521,31 +521,25 @@ struct traversal
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type const& op = cluster_turn.operations[i];
-                bool is_origin = false;
-                if (cluster_turn_index == turn_index)
-                {
-                    // Check if this is the origin
-                    if (OverlayType == overlay_buffer)
-                    {
-                        is_origin = op.seg_id.multi_index == previous_seg_id.multi_index;
-                    }
-                    else
-                    {
-                        is_origin = op.seg_id.source_index
-                                    == previous_seg_id.source_index;
-                    }
-                    if (is_origin)
-                    {
-                        has_origin = true;
-                    }
-                }
+
+                // It is the 'origin' if it traveled over this ring
+                bool const is_origin
+                        = cluster_turn_index == turn_index
+                        && op.seg_id.source_index == previous_seg_id.source_index
+                        && op.seg_id.ring_index == previous_seg_id.ring_index
+                        && op.seg_id.multi_index == previous_seg_id.multi_index;
 
                 sbs.add(op, cluster_turn_index, i, m_geometry1, m_geometry2,
                         is_origin);
+
+                if (is_origin)
+                {
+                    origin_count++;
+                }
             }
         }
 
-        if (! has_origin)
+        if (origin_count != 1u)
         {
             return false;
         }
@@ -605,17 +599,24 @@ struct traversal
         sbs_type sbs;
 
         // Add this turn to the sort-by-side sorter
-        bool has_origin = false;
+        std::size_t origin_count = 0;
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = current_turn.operations[i];
-            bool const is_origin = op.seg_id.source_index
-                                   == previous_seg_id.source_index;
-            has_origin = has_origin || is_origin;
+            // It is the 'origin' if it traveled over this ring
+            bool const is_origin
+                    = op.seg_id.source_index == previous_seg_id.source_index
+                    && op.seg_id.ring_index == previous_seg_id.ring_index
+                    && op.seg_id.multi_index == previous_seg_id.multi_index;
+
+            if (is_origin)
+            {
+                origin_count++;
+            }
             sbs.add(op, turn_index, i, m_geometry1, m_geometry2, is_origin);
         }
 
-        if (! has_origin)
+        if (origin_count != 1u)
         {
             return false;
         }
