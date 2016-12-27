@@ -19,6 +19,18 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.64]
+[/=================]
+
+[*Improvements]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/364 364] within(Linear, Areal) compilation error when arguments use different point types
+
+[*Solved tickets]
+
+[/=================]
 [heading Boost 1.63]
 [/=================]
 
