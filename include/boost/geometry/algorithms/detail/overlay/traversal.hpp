@@ -505,13 +505,12 @@ struct traversal
 
         sbs_type sbs;
 
-        std::size_t origin_count = 0;
-
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type cluster_turn_index = *sit;
             turn_type const& cluster_turn = m_turns[cluster_turn_index];
+            bool const departure_turn = cluster_turn_index == turn_index;
             if (cluster_turn.discarded)
             {
                 // Defensive check, discarded turns should not be in cluster
@@ -520,30 +519,17 @@ struct traversal
 
             for (int i = 0; i < 2; i++)
             {
-                turn_operation_type const& op = cluster_turn.operations[i];
-
-                // It is the 'origin' if it traveled over this ring
-                bool const is_origin
-                        = cluster_turn_index == turn_index
-                        && op.seg_id.source_index == previous_seg_id.source_index
-                        && op.seg_id.ring_index == previous_seg_id.ring_index
-                        && op.seg_id.multi_index == previous_seg_id.multi_index;
-
-                sbs.add(op, cluster_turn_index, i, m_geometry1, m_geometry2,
-                        is_origin);
-
-                if (is_origin)
-                {
-                    origin_count++;
-                }
+                sbs.add(cluster_turn.operations[i],
+                        cluster_turn_index, i, previous_seg_id,
+                        m_geometry1, m_geometry2,
+                        departure_turn);
             }
         }
 
-        if (origin_count != 1u)
+        if (! sbs.has_origin())
         {
             return false;
         }
-
         sbs.apply(turn.point);
 
         bool result = false;
@@ -599,24 +585,15 @@ struct traversal
         sbs_type sbs;
 
         // Add this turn to the sort-by-side sorter
-        std::size_t origin_count = 0;
         for (int i = 0; i < 2; i++)
         {
-            turn_operation_type const& op = current_turn.operations[i];
-            // It is the 'origin' if it traveled over this ring
-            bool const is_origin
-                    = op.seg_id.source_index == previous_seg_id.source_index
-                    && op.seg_id.ring_index == previous_seg_id.ring_index
-                    && op.seg_id.multi_index == previous_seg_id.multi_index;
-
-            if (is_origin)
-            {
-                origin_count++;
-            }
-            sbs.add(op, turn_index, i, m_geometry1, m_geometry2, is_origin);
+            sbs.add(current_turn.operations[i],
+                    turn_index, i, previous_seg_id,
+                    m_geometry1, m_geometry2,
+                    true);
         }
 
-        if (origin_count != 1u)
+        if (! sbs.has_origin())
         {
             return false;
         }

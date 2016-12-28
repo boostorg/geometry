@@ -217,13 +217,13 @@ private :
     };
 
 public :
-    inline void set_origin(Point const& origin)
-    {
-        m_origin = origin;
-    }
+    side_sorter()
+        : m_origin_count(0)
+        , m_origin_segment_distance(0)
+    {}
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+    Point add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             bool is_origin)
@@ -235,10 +235,42 @@ public :
 
         m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op));
         m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op));
-
         if (is_origin)
         {
             m_origin = point1;
+            m_origin_count++;
+        }
+        return point1;
+    }
+
+    template <typename Operation, typename Geometry1, typename Geometry2>
+    void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+            segment_identifier const& departure_seg_id,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            bool check_origin)
+    {
+        Point const point1 = add(op, turn_index, op_index, geometry1, geometry2, false);
+
+        if (check_origin)
+        {
+            bool const is_origin
+                    = op.seg_id.source_index == departure_seg_id.source_index
+                    && op.seg_id.ring_index == departure_seg_id.ring_index
+                    && op.seg_id.multi_index == departure_seg_id.multi_index;
+
+            if (is_origin)
+            {
+                // TODO: calculate segment_distance along ring, so 1 to 36 is short if ring is 37 segments long
+                int const segment_distance = std::abs(departure_seg_id.segment_index - op.seg_id.segment_index);
+                if (m_origin_count == 0 ||
+                        segment_distance < m_origin_segment_distance)
+                {
+                    m_origin = point1;
+                    m_origin_segment_distance = segment_distance;
+                }
+                m_origin_count++;
+            }
         }
     }
 
@@ -363,11 +395,18 @@ public :
         }
     }
 
+    bool has_origin() const
+    {
+        return m_origin_count > 0;
+    }
+
 //private :
 
     typedef std::vector<rp> container_type;
     container_type m_ranked_points;
     Point m_origin;
+    std::size_t m_origin_count;
+    int m_origin_segment_distance;
 
 private :
 
