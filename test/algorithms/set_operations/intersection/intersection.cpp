@@ -363,10 +363,11 @@ void test_areal()
         2, -1, 183.71376870369406);
 
     // Needs self-intersections to solve validity
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
-        mysql_23023665_6[0], mysql_23023665_6[1],
-        1, -1, 11.812440191387557,
-        ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
+#else
+    TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
