@@ -378,6 +378,13 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
                        segment_identifier const& int_seg_0,
                        segment_identifier const& other_seg_1)
 {
+    if (ext_seg_0.source_index == ext_seg_1.source_index)
+    {
+        // External turn is a self-turn, dont discard internal turn for this
+        return false;
+    }
+
+
     // Compares two segment identifiers from two turns (external / one internal)
 
     // From first turn [0], both are from same polygon (multi_index),

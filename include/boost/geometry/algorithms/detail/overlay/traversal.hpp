@@ -175,9 +175,7 @@ struct traversal
         }
 
         // If it is a self-turn, always switch source
-        if (turn.operations[0].seg_id.source_index
-                == turn.operations[1].seg_id.source_index)
-
+        if (turn.self_turn())
         {
             return true;
         }

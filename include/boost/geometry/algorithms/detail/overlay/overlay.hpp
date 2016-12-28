@@ -238,7 +238,7 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
-#if 0
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
         {
             geometry::self_turns<assign_null_policy>(geometry1, robust_policy,
                                                      turns, policy, 0);

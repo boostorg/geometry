@@ -288,9 +288,18 @@ inline void enrich_intersection_points(Turns& turns,
          it != boost::end(turns);
          ++it)
     {
-        if (it->both(detail::overlay::operation_none))
+        turn_type& turn = *it;
+        if (turn.both(detail::overlay::operation_none))
         {
-            it->discarded = true;
+            turn.discarded = true;
+        }
+        if (OverlayType != overlay_buffer
+            && turn.cluster_id >= 0
+            && turn.self_turn())
+        {
+            // Avoid interfering self-turn if there are already clustered turns
+            // TODO: avoid discarding if there are ONLY self-turns
+           turn.discarded = true;
         }
     }
 
