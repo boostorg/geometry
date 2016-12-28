@@ -13,7 +13,9 @@
 #include <map>
 #include <vector>
 
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -261,8 +263,7 @@ public :
 
             if (is_origin)
             {
-                // TODO: calculate segment_distance along ring, so 1 to 36 is short if ring is 37 segments long
-                int const segment_distance = std::abs(departure_seg_id.segment_index - op.seg_id.segment_index);
+                int const segment_distance = calculate_segment_distance(op, departure_seg_id, geometry1, geometry2);
                 if (m_origin_count == 0 ||
                         segment_distance < m_origin_segment_distance)
                 {
@@ -272,6 +273,27 @@ public :
                 m_origin_count++;
             }
         }
+    }
+
+    template <typename Operation, typename Geometry1, typename Geometry2>
+    static int calculate_segment_distance(Operation const& op,
+            segment_identifier const& departure_seg_id,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2)
+    {
+        if (op.seg_id.segment_index >= departure_seg_id.segment_index)
+        {
+            return op.seg_id.segment_index - departure_seg_id.segment_index;
+        }
+        // Take wrap into account
+        // Suppose ring_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2, then distance=10-9+2
+        // Generic function (is this used somewhere else too?)
+        ring_identifier const rid(op.seg_id.source_index, op.seg_id.multi_index, op.seg_id.ring_index);
+        int const segment_count
+                    (op.seg_id.source_index == 0
+                    ? geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry1>::type>::apply(rid, geometry1))
+                    : geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry2>::type>::apply(rid, geometry2)));
+        return ((segment_count - 1) - departure_seg_id.segment_index) + op.seg_id.segment_index;
     }
 
     void apply(Point const& turn_point)
