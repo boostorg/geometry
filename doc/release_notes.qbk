@@ -31,6 +31,8 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
+
 [/=================]
 [heading Boost 1.63]
 [/=================]
