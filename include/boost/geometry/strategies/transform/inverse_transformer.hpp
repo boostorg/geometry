@@ -37,7 +37,7 @@ template
     std::size_t Dimension2
 >
 class inverse_transformer
-    : public ublas_transformer<CalculationType, Dimension1, Dimension2>
+    : public matrix_transformer<CalculationType, Dimension1, Dimension2>
 {
 public :
     template <typename Transformer>
