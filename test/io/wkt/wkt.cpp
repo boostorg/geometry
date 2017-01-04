@@ -240,7 +240,7 @@ void test_all()
                 ",((2 2,2 3,3 3,3 2,2 2))", "bad lexical cast");
 
     test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2,3 3)", "box should have 2");
-    test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2) )", "too much tokens");
+    test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2) )", "too many tokens");
 
     if ( BOOST_GEOMETRY_CONDITION(boost::is_floating_point<T>::type::value
                                || ! boost::is_fundamental<T>::type::value ) )
