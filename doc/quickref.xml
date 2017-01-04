@@ -586,7 +586,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_transform_inverse_transformer">strategy::transform::inverse_transformer</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_transform_map_transformer">strategy::transform::map_transformer</link></member>
-     <member><link linkend="geometry.reference.strategies.strategy_transform_ublas_transformer">strategy::transform::ublas_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_matrix_transformer">strategy::transform::matrix_transformer</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_transform_translate_transformer">strategy::transform::translate_transformer</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_transform_scale_transformer">strategy::transform::scale_transformer</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_transform_rotate_transformer">strategy::transform::rotate_transformer</link></member>

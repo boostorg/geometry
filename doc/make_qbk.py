@@ -135,7 +135,7 @@ strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "side::side_by_triangle", "side::side_by_cross_track", "side::spherical_side_formula"
     , "transform::inverse_transformer", "transform::map_transformer"
     , "transform::rotate_transformer", "transform::scale_transformer"
-    , "transform::translate_transformer", "transform::ublas_transformer"
+    , "transform::translate_transformer", "transform::matrix_transformer"
     ]
     
 views = ["box_view", "segment_view"

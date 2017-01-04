@@ -339,7 +339,7 @@
 [include generated/transform_rotate_transformer.qbk]
 [include generated/transform_scale_transformer.qbk]
 [include generated/transform_translate_transformer.qbk]
-[include generated/transform_ublas_transformer.qbk]
+[include generated/transform_matrix_transformer.qbk]
 [include generated/within_winding.qbk]
 [include generated/within_franklin.qbk]
 [include generated/within_crossings_multiply.qbk]
