@@ -22,27 +22,8 @@
 
 #include <cstddef>
 
-// Remove the ublas checking, otherwise the inverse might fail
-// (while nothing seems to be wrong)
-#ifdef BOOST_UBLAS_TYPE_CHECK
-#undef BOOST_UBLAS_TYPE_CHECK
-#endif
-#define BOOST_UBLAS_TYPE_CHECK 0
-
-#include <boost/numeric/conversion/cast.hpp>
-
-#if defined(__clang__)
-// Avoid warning about unused UBLAS function: boost_numeric_ublas_abs
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
-
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
+#include <boost/qvm/mat.hpp>
+#include <boost/qvm/mat_access.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -85,7 +66,7 @@ class ublas_transformer<CalculationType, 2, 2>
 {
 protected :
     typedef CalculationType ct;
-    typedef boost::numeric::ublas::matrix<ct> matrix_type;
+    typedef boost::qvm::mat<ct, 3, 3> matrix_type;
     matrix_type m_matrix;
 
 public :
@@ -94,11 +75,10 @@ public :
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2)
-        : m_matrix(3, 3)
     {
-        m_matrix(0,0) = m_0_0;   m_matrix(0,1) = m_0_1;   m_matrix(0,2) = m_0_2;
-        m_matrix(1,0) = m_1_0;   m_matrix(1,1) = m_1_1;   m_matrix(1,2) = m_1_2;
-        m_matrix(2,0) = m_2_0;   m_matrix(2,1) = m_2_1;   m_matrix(2,2) = m_2_2;
+        qvm::A<0,0>(m_matrix) = m_0_0;   qvm::A<0,1>(m_matrix) = m_0_1;   qvm::A<0,2>(m_matrix) = m_0_2;
+        qvm::A<1,0>(m_matrix) = m_1_0;   qvm::A<1,1>(m_matrix) = m_1_1;   qvm::A<1,2>(m_matrix) = m_1_2;
+        qvm::A<2,0>(m_matrix) = m_2_0;   qvm::A<2,1>(m_matrix) = m_2_1;   qvm::A<2,2>(m_matrix) = m_2_2;
     }
 
     inline ublas_transformer(matrix_type const& matrix)
@@ -106,7 +86,7 @@ public :
     {}
 
 
-    inline ublas_transformer() : m_matrix(3, 3) {}
+    inline ublas_transformer() {}
 
     template <typename P1, typename P2>
     inline bool apply(P1 const& p1, P2& p2) const
@@ -117,8 +97,8 @@ public :
         ct const& c1 = get<0>(p1);
         ct const& c2 = get<1>(p1);
 
-        ct p2x = c1 * m_matrix(0,0) + c2 * m_matrix(0,1) + m_matrix(0,2);
-        ct p2y = c1 * m_matrix(1,0) + c2 * m_matrix(1,1) + m_matrix(1,2);
+        ct p2x = c1 * qvm::A<0,0>(m_matrix) + c2 * qvm::A<0,1>(m_matrix) + qvm::A<0,2>(m_matrix);
+        ct p2y = c1 * qvm::A<1,0>(m_matrix) + c2 * qvm::A<1,1>(m_matrix) + qvm::A<1,2>(m_matrix);
 
         typedef typename geometry::coordinate_type<P2>::type ct2;
         set<0>(p2, boost::numeric_cast<ct2>(p2x));
@@ -159,7 +139,7 @@ class ublas_transformer<CalculationType, 3, 3>
 {
 protected :
     typedef CalculationType ct;
-    typedef boost::numeric::ublas::matrix<ct> matrix_type;
+    typedef boost::qvm::mat<ct, 4, 4> matrix_type;
     matrix_type m_matrix;
 
 public :
@@ -169,15 +149,14 @@ public :
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2, ct const& m_2_3,
                 ct const& m_3_0, ct const& m_3_1, ct const& m_3_2, ct const& m_3_3
                 )
-        : m_matrix(4, 4)
     {
-        m_matrix(0,0) = m_0_0; m_matrix(0,1) = m_0_1; m_matrix(0,2) = m_0_2; m_matrix(0,3) = m_0_3;
-        m_matrix(1,0) = m_1_0; m_matrix(1,1) = m_1_1; m_matrix(1,2) = m_1_2; m_matrix(1,3) = m_1_3;
-        m_matrix(2,0) = m_2_0; m_matrix(2,1) = m_2_1; m_matrix(2,2) = m_2_2; m_matrix(2,3) = m_2_3;
-        m_matrix(3,0) = m_3_0; m_matrix(3,1) = m_3_1; m_matrix(3,2) = m_3_2; m_matrix(3,3) = m_3_3;
+        qvm::A<0,0>(m_matrix) = m_0_0; qvm::A<0,1>(m_matrix) = m_0_1; qvm::A<0,2>(m_matrix) = m_0_2; qvm::A<0,3>(m_matrix) = m_0_3;
+        qvm::A<1,0>(m_matrix) = m_1_0; qvm::A<1,1>(m_matrix) = m_1_1; qvm::A<1,2>(m_matrix) = m_1_2; qvm::A<1,3>(m_matrix) = m_1_3;
+        qvm::A<2,0>(m_matrix) = m_2_0; qvm::A<2,1>(m_matrix) = m_2_1; qvm::A<2,2>(m_matrix) = m_2_2; qvm::A<2,3>(m_matrix) = m_2_3;
+        qvm::A<3,0>(m_matrix) = m_3_0; qvm::A<3,1>(m_matrix) = m_3_1; qvm::A<3,2>(m_matrix) = m_3_2; qvm::A<3,3>(m_matrix) = m_3_3;
     }
 
-    inline ublas_transformer() : m_matrix(4, 4) {}
+    inline ublas_transformer() {}
 
     template <typename P1, typename P2>
     inline bool apply(P1 const& p1, P2& p2) const

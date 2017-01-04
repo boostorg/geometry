@@ -19,6 +19,21 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.64]
+[/=================]
+
+[*Improvements]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/363 363] Missing includes in geometry/index/parameters.hpp
+* [@https://github.com/boostorg/geometry/issues/364 364] within(Linear, Areal) compilation error when arguments use different point types
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
+
+[/=================]
 [heading Boost 1.63]
 [/=================]
 
@@ -46,8 +61,9 @@
 
 [*Solved tickets]
 
-* [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different
+* [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different (cartesian, affecting rtree)
 * [@https://svn.boost.org/trac/boost/ticket/12287 12287] Invalid result of rtree.query() for contains() predicate
+* [@https://svn.boost.org/trac/boost/ticket/12342 12342] Relational operations not compiling when point types of inputs are different (geographic, affecting rtree)
 
 [/=================]
 [heading Boost 1.61]

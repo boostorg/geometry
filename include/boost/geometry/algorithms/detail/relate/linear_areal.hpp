@@ -1200,7 +1200,7 @@ struct linear_areal
             }
             else
             {
-                point1_type new_qj;
+                point2_type new_qj;
                 geometry::convert(turn.point, new_qj);
 
                 overlay::side_calculator<cs_tag, point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, new_qj, qj);
