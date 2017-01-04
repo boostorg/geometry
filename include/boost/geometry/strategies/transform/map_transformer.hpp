@@ -46,7 +46,7 @@ template
     bool SameScale = true
 >
 class map_transformer
-    : public ublas_transformer<CalculationType, Dimension1, Dimension2>
+    : public matrix_transformer<CalculationType, Dimension1, Dimension2>
 {
     typedef boost::qvm::mat<CalculationType, Dimension1 + 1, Dimension2 + 1> M;
     typedef boost::qvm::mat<CalculationType, 3, 3> matrix33;

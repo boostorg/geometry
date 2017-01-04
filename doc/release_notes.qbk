@@ -24,6 +24,12 @@
 
 [*Improvements]
 
+* matrix transformation is now based on Boost.QVM instead of Boost.Ublas
+
+[*Breaking changes]
+
+* ublas_transformer is renamed to matrix_transformer
+
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/363 363] Missing includes in geometry/index/parameters.hpp

@@ -56,13 +56,13 @@ template
     std::size_t Dimension1,
     std::size_t Dimension2
 >
-class ublas_transformer
+class matrix_transformer
 {
 };
 
 
 template <typename CalculationType>
-class ublas_transformer<CalculationType, 2, 2>
+class matrix_transformer<CalculationType, 2, 2>
 {
 protected :
     typedef CalculationType ct;
@@ -71,7 +71,7 @@ protected :
 
 public :
 
-    inline ublas_transformer(
+    inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2)
@@ -81,12 +81,12 @@ public :
         qvm::A<2,0>(m_matrix) = m_2_0;   qvm::A<2,1>(m_matrix) = m_2_1;   qvm::A<2,2>(m_matrix) = m_2_2;
     }
 
-    inline ublas_transformer(matrix_type const& matrix)
+    inline matrix_transformer(matrix_type const& matrix)
         : m_matrix(matrix)
     {}
 
 
-    inline ublas_transformer() {}
+    inline matrix_transformer() {}
 
     template <typename P1, typename P2>
     inline bool apply(P1 const& p1, P2& p2) const
@@ -113,29 +113,29 @@ public :
 
 // It IS possible to go from 3 to 2 coordinates
 template <typename CalculationType>
-class ublas_transformer<CalculationType, 3, 2> : public ublas_transformer<CalculationType, 2, 2>
+class matrix_transformer<CalculationType, 3, 2> : public matrix_transformer<CalculationType, 2, 2>
 {
     typedef CalculationType ct;
 
 public :
-    inline ublas_transformer(
+    inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2)
-        : ublas_transformer<CalculationType, 2, 2>(
+        : matrix_transformer<CalculationType, 2, 2>(
                     m_0_0, m_0_1, m_0_2,
                     m_1_0, m_1_1, m_1_2,
                     m_2_0, m_2_1, m_2_2)
     {}
 
-    inline ublas_transformer()
-        : ublas_transformer<CalculationType, 2, 2>()
+    inline matrix_transformer()
+        : matrix_transformer<CalculationType, 2, 2>()
     {}
 };
 
 
 template <typename CalculationType>
-class ublas_transformer<CalculationType, 3, 3>
+class matrix_transformer<CalculationType, 3, 3>
 {
 protected :
     typedef CalculationType ct;
@@ -143,7 +143,7 @@ protected :
     matrix_type m_matrix;
 
 public :
-    inline ublas_transformer(
+    inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2, ct const& m_0_3,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2, ct const& m_1_3,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2, ct const& m_2_3,
@@ -156,7 +156,7 @@ public :
         qvm::A<3,0>(m_matrix) = m_3_0; qvm::A<3,1>(m_matrix) = m_3_1; qvm::A<3,2>(m_matrix) = m_3_2; qvm::A<3,3>(m_matrix) = m_3_3;
     }
 
-    inline ublas_transformer() {}
+    inline matrix_transformer() {}
 
     template <typename P1, typename P2>
     inline bool apply(P1 const& p1, P2& p2) const
@@ -201,7 +201,7 @@ class translate_transformer
 
 
 template<typename CalculationType>
-class translate_transformer<CalculationType, 2, 2> : public ublas_transformer<CalculationType, 2, 2>
+class translate_transformer<CalculationType, 2, 2> : public matrix_transformer<CalculationType, 2, 2>
 {
 public :
     // To have translate transformers compatible for 2/3 dimensions, the
@@ -209,7 +209,7 @@ public :
     inline translate_transformer(CalculationType const& translate_x,
                 CalculationType const& translate_y,
                 CalculationType const& = 0)
-        : ublas_transformer<CalculationType, 2, 2>(
+        : matrix_transformer<CalculationType, 2, 2>(
                 1, 0, translate_x,
                 0, 1, translate_y,
                 0, 0, 1)
@@ -218,13 +218,13 @@ public :
 
 
 template <typename CalculationType>
-class translate_transformer<CalculationType, 3, 3> : public ublas_transformer<CalculationType, 3, 3>
+class translate_transformer<CalculationType, 3, 3> : public matrix_transformer<CalculationType, 3, 3>
 {
 public :
     inline translate_transformer(CalculationType const& translate_x,
                 CalculationType const& translate_y,
                 CalculationType const& translate_z)
-        : ublas_transformer<CalculationType, 3, 3>(
+        : matrix_transformer<CalculationType, 3, 3>(
                 1, 0, 0, translate_x,
                 0, 1, 0, translate_y,
                 0, 0, 1, translate_z,
@@ -254,14 +254,14 @@ class scale_transformer
 
 
 template <typename CalculationType>
-class scale_transformer<CalculationType, 2, 2> : public ublas_transformer<CalculationType, 2, 2>
+class scale_transformer<CalculationType, 2, 2> : public matrix_transformer<CalculationType, 2, 2>
 {
 
 public :
     inline scale_transformer(CalculationType const& scale_x,
                 CalculationType const& scale_y,
                 CalculationType const& = 0)
-        : ublas_transformer<CalculationType, 2, 2>(
+        : matrix_transformer<CalculationType, 2, 2>(
                 scale_x, 0,       0,
                 0,       scale_y, 0,
                 0,       0,       1)
@@ -269,7 +269,7 @@ public :
 
 
     inline scale_transformer(CalculationType const& scale)
-        : ublas_transformer<CalculationType, 2, 2>(
+        : matrix_transformer<CalculationType, 2, 2>(
                 scale, 0,     0,
                 0,     scale, 0,
                 0,     0,     1)
@@ -278,13 +278,13 @@ public :
 
 
 template <typename CalculationType>
-class scale_transformer<CalculationType, 3, 3> : public ublas_transformer<CalculationType, 3, 3>
+class scale_transformer<CalculationType, 3, 3> : public matrix_transformer<CalculationType, 3, 3>
 {
 public :
     inline scale_transformer(CalculationType const& scale_x,
                 CalculationType const& scale_y,
                 CalculationType const& scale_z)
-        : ublas_transformer<CalculationType, 3, 3>(
+        : matrix_transformer<CalculationType, 3, 3>(
                 scale_x, 0,       0,       0,
                 0,       scale_y, 0,       0,
                 0,       0,       scale_z, 0,
@@ -293,7 +293,7 @@ public :
 
 
     inline scale_transformer(CalculationType const& scale)
-        : ublas_transformer<CalculationType, 3, 3>(
+        : matrix_transformer<CalculationType, 3, 3>(
                 scale, 0,     0,     0,
                 0,     scale, 0,     0,
                 0,     0,     scale, 0,
@@ -342,11 +342,11 @@ template
     std::size_t Dimension2
 >
 class rad_rotate_transformer
-    : public ublas_transformer<CalculationType, Dimension1, Dimension2>
+    : public matrix_transformer<CalculationType, Dimension1, Dimension2>
 {
 public :
     inline rad_rotate_transformer(CalculationType const& angle)
-        : ublas_transformer<CalculationType, Dimension1, Dimension2>(
+        : matrix_transformer<CalculationType, Dimension1, Dimension2>(
                  cos(angle), sin(angle), 0,
                 -sin(angle), cos(angle), 0,
                  0,          0,          1)
