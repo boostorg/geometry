@@ -359,6 +359,49 @@ void test_all()
                               expected("muu==")("mii++"));
     }
 
+    // 10.03.2015 results different for MinGW and MSVC/GCC
+    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    {
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(12 10, 13 0.3, 14 0.4, 15 0.5)",
+                              expected("mii++")("ccc==")("mux=="));
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(15 0.5, 14 0.4, 13 0.3, 12 10)",
+                              expected("miu+=")("mui=+"));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(12 10, 13 0.3, 14 0.4, 15 0.5)",
+                              expected("mui=+")("mix+="));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(15 0.5, 14 0.4, 13 0.3, 12 10)",
+                              expected("muu==")("ccc==")("mii++"));
+
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(13 0.3, 14 0.4, 15 0.5)",
+                              expected("mii++")("ccc==")("mux=="));
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(15 0.5, 14 0.4, 13 0.3)",
+                              expected("mix+=")("mui=+"));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(13 0.3, 14 0.4, 15 0.5)",
+                              expected("mui=+")("mix+="));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(15 0.5, 14 0.4, 13 0.3)",
+                              expected("mux==")("ccc==")("mii++"));
+
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(12 10, 13 0.3, 14 0.4)",
+                              expected("mii++")("mux=="));
+        test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
+                              "LINESTRING(14 0.4, 13 0.3, 12 10)",
+                              expected("miu+=")("mui=+"));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(12 10, 13 0.3, 14 0.4)",
+                              expected("mui=+")("mix+="));
+        test_geometry<ls, ls>("LINESTRING(20 1, 10 0, 0 0)",
+                              "LINESTRING(14 0.4, 13 0.3, 12 10)",
+                              expected("muu==")("mii++"));
+    }
+
     // TODO:
     //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
     //test_geometry<ls, ls>("LINESTRING(2 0,0 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
