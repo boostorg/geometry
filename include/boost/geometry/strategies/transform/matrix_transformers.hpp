@@ -24,6 +24,7 @@
 
 #include <boost/qvm/mat.hpp>
 #include <boost/qvm/mat_access.hpp>
+#include <boost/qvm/mat_operations.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>

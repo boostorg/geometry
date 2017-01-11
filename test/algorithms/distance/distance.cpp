@@ -18,8 +18,9 @@
 
 #include "test_distance.hpp"
 
-#include <boost/mpl/if.hpp>
 #include <boost/array.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

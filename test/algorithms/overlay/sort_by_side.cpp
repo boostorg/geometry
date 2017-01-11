@@ -116,10 +116,10 @@ std::size_t apply_overlay(std::string const& case_id,
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 
-    typedef std::deque
+    /*typedef std::deque
         <
             typename bg::ring_type<GeometryOut>::type
-        > ring_container_type;
+        > ring_container_type;*/
 
     // Define the clusters, mapping cluster_id -> turns
     typedef std::map
