@@ -401,6 +401,35 @@ struct traversal
         return result;
     }
 
+    inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
+                                       operation_type op_type,
+                                       sort_by_side::direction_type dir) const
+    {
+        typedef std::set<sort_by_side::ring_with_direction>::const_iterator sit_type;
+        for (sit_type it = rwr.rings.begin(); it != rwr.rings.end(); ++it)
+        {
+            sort_by_side::ring_with_direction const& rwd = *it;
+            if (rwd.direction != dir)
+            {
+                return false;
+            }
+            turn_type const& turn = m_turns[rwd.turn_index];
+            if (! turn.both(op_type))
+            {
+                return false;
+            }
+
+            // Check if this is not yet taken
+            turn_operation_type const& op = turn.operations[rwd.operation_index];
+            if (op.visited.finalized())
+            {
+                return false;
+            }
+
+        }
+        return true;
+    }
+
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index,
                 sbs_type const& sbs) const
@@ -410,9 +439,31 @@ struct traversal
 
         std::size_t selected_rank = 0;
 
+        bool has_ii = false;
+        int ii_leaving = 0;
+
         for (std::size_t i = 0; i < aggregation.size(); i++)
         {
             sort_by_side::rank_with_rings const& rwr = aggregation[i];
+
+            if (all_operations_of_type(rwr, operation_intersection, sort_by_side::dir_from))
+            {
+                ii_leaving--;
+            }
+            else if (all_operations_of_type(rwr, operation_intersection, sort_by_side::dir_to))
+            {
+                ii_leaving++;
+                has_ii = true;
+            }
+            else if (all_operations_of_type(rwr, operation_continue, sort_by_side::dir_to))
+            {
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+                if (has_ii)
+                {
+                    selected_rank = rwr.rank;
+                }
+#endif
+            }
 
             if (i > 1
                 && i - 1 == selected_rank
