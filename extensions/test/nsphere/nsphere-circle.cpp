@@ -100,8 +100,8 @@ struct radius_access<custom_circle, 0>
 template <typename S, typename RT, typename CT>
 void check_nsphere(S& to_check, RT radius, CT center_x, CT center_y, CT center_z)
 {
-    BOOST_CONCEPT_ASSERT( (bg::concept::ConstNsphere<S>) );
-    BOOST_CONCEPT_ASSERT( (bg::concept::Nsphere<S>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::ConstNsphere<S>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::Nsphere<S>) );
 
 
     BOOST_CHECK_EQUAL(bg::get_radius<0>(to_check), radius);
