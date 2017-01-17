@@ -26,7 +26,13 @@ namespace strategy { namespace azimuth { namespace services
 */
 template <typename Tag, typename CalculationType>
 struct default_strategy
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_CALCULATION_TYPE
+            , (types<CalculationType>)
+        );
+};
 
 }}} // namespace strategy::azimuth::services
 

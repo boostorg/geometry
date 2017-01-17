@@ -101,7 +101,7 @@ public:
 
     /*
     template <typename T>
-    inline static void sign_adjastment(CT lat1, CT lat2, CT vertex_lat, T& vrt_result)
+    inline static void sign_adjustment(CT lat1, CT lat2, CT vertex_lat, T& vrt_result)
     {
         // signbit returns a non-zero value (true) if the sign is negative;
         // and zero (false) otherwise.

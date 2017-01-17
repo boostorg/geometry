@@ -28,6 +28,7 @@
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/cartesian/azimuth_cartesian.hpp>
 #include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
@@ -35,6 +36,40 @@
 
 namespace boost { namespace geometry
 {
+
+namespace resolve_strategy
+{
+
+template <typename Geometry>
+struct envelope
+{
+    template <typename Box, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Box& box,
+                             Strategy const& strategy)
+    {
+        dispatch::envelope<Geometry>::apply(geometry, box, strategy);
+    }
+
+    template <typename Box>
+    static inline void apply(Geometry const& geometry,
+                             Box& box,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+        typedef typename coordinate_type<point_type>::type coordinate_type;
+
+        typedef typename strategy::azimuth::services::default_strategy
+            <
+                typename cs_tag<point_type>::type,
+                coordinate_type
+            >::type strategy_type;
+
+        dispatch::envelope<Geometry>::apply(geometry, box, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
 
 namespace resolve_variant
 {
@@ -50,7 +85,7 @@ struct envelope
         concepts::check<Geometry const>();
         concepts::check<Box>();
 
-        dispatch::envelope<Geometry>::apply(geometry, box, strategy);
+        resolve_strategy::envelope<Geometry>::apply(geometry, box, strategy);
     }
 };
 
@@ -127,18 +162,7 @@ inline void envelope(Geometry const& geometry, Box& mbr, Strategy& strategy)
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
 {
-    // TODO put this into a resolve_strategy stage
-    //      (and take the return type from resolve_variant)
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename coordinate_type<point_type>::type coordinate_type;
-
-    typedef typename strategy::azimuth::services::default_strategy
-        <
-            typename cs_tag<point_type>::type,
-            coordinate_type
-        >::type strategy_type;
-
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy_type());
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr, default_strategy());
 }
 
 
