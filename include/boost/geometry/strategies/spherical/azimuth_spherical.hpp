@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
 
+#include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 //#include <boost/geometry/formulas/spherical.hpp>
 
@@ -23,11 +24,11 @@ template
 <
     typename CalculationType
 >
-class azimuth_spherical
+class spherical
 {
 public :
 
-    inline azimuth_spherical()
+    inline spherical()
     {}
 
     inline void apply(CalculationType const& lon1_rad,
@@ -54,13 +55,13 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
-    typedef strategy::azimuth::azimuth_spherical<CalculationType> type;
+    typedef strategy::azimuth::spherical<CalculationType> type;
 };
 
 template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>
 {
-    typedef strategy::azimuth::azimuth_spherical<CalculationType> type;
+    typedef strategy::azimuth::spherical<CalculationType> type;
 };
 
 }

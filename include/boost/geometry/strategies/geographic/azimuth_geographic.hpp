@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_GEOGRAPHIC_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_GEOGRAPHIC_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -22,14 +22,22 @@ namespace strategy { namespace azimuth
 template
 <
     typename CalculationType,
+    typename Spheroid = geometry::srs::spheroid<CalculationType>,
     template <typename, bool, bool, bool, bool, bool> class Inverse =
               geometry::formula::thomas_inverse
 >
-class azimuth_geographic
+class geographic
 {
 public :
 
-    inline azimuth_geographic()
+    typedef Spheroid model_type;
+
+    inline geographic()
+        : m_spheroid()
+    {}
+
+    explicit inline geographic(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
     {}
 
     inline void apply(CalculationType const& lon1_rad,
@@ -43,11 +51,13 @@ public :
         typedef typename inverse_type::result_type inverse_result;
         inverse_result i_res = inverse_type::apply(lon1_rad, lat1_rad,
                                                    lon2_rad, lat2_rad,
-                                                   geometry::srs::spheroid<CalculationType>());
+                                                   m_spheroid);
         a1 = i_res.azimuth;
         a2 = i_res.reverse_azimuth;
     }
 
+private :
+    Spheroid m_spheroid;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -58,7 +68,7 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::azimuth::azimuth_geographic<CalculationType> type;
+    typedef strategy::azimuth::geographic<CalculationType> type;
 };
 
 }
@@ -70,4 +80,4 @@ struct default_strategy<geographic_tag, CalculationType>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_GEOGRAPHIC_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP

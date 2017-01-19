@@ -70,13 +70,14 @@ struct test_envelope<Inverse, bg::geographic_tag>
     static inline void apply(Geometry& geometry,
                              Box& detected)
     {
-        bg::strategy::azimuth::azimuth_geographic
-                        <
-                            double,
-                            Inverse
-                        > azimuth_geographic;
+        bg::strategy::envelope::segment_geographic
+                <
+                    double,
+                    bg::srs::spheroid<double>,
+                    Inverse
+                > envelope_segment_geographic_strategy;
 
-        bg::envelope(geometry, detected, azimuth_geographic);
+        bg::envelope(geometry, detected, envelope_segment_geographic_strategy);
     }
 };
 
@@ -741,6 +742,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
                   G(P(1, 2), P(1-heps, 1)),
                   1-heps, 1, 1, 2);
 }
+
 
 BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 {
@@ -2526,3 +2528,4 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   170, -90, 350, 90); // FAILS NOW
 #endif
 }
+

@@ -31,10 +31,10 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 
-#include <boost/geometry/strategies/azimuth.hpp>
-#include <boost/geometry/strategies/cartesian/azimuth_cartesian.hpp>
-#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
-#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/strategies/envelope.hpp>
+#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 
 namespace boost { namespace geometry
 {
@@ -61,7 +61,7 @@ struct expand
         typedef typename point_type<Geometry>::type point_type;
         typedef typename coordinate_type<point_type>::type coordinate_type;
 
-        typedef typename strategy::azimuth::services::default_strategy
+        typedef typename strategy::envelope::services::default_strategy
                 <
                 typename cs_tag<point_type>::type,
                 coordinate_type
