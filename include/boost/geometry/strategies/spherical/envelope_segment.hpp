@@ -12,6 +12,7 @@
 
 #include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 #include <boost/geometry/formulas/envelope_segment.hpp>
+#include <boost/geometry/algorithms/detail/normalize.hpp>
 
 namespace boost { namespace geometry
 {
@@ -31,18 +32,20 @@ public :
     inline void
     apply(Point1 const& point1, Point2 const& point2, Box& box) const
     {
+        Point1 p1_normalized = detail::return_normalized<Point1>(point1);
+        Point2 p2_normalized = detail::return_normalized<Point2>(point2);
 
         geometry::strategy::azimuth::spherical<CalculationType> azimuth_spherical;
 
         typedef typename coordinate_system<Point1>::type::units units_type;
 
-        geometry::formula::envelope_segment<spherical_equatorial_tag>::template apply<units_type>(
-                    geometry::get<0>(point1),
-                    geometry::get<1>(point1),
-                    geometry::get<0>(point2),
-                    geometry::get<1>(point2),
-                    box,
-                    azimuth_spherical);
+        geometry::formula::envelope_segment<spherical_equatorial_tag>
+                ::template apply<units_type>(geometry::get<0>(p1_normalized),
+                                             geometry::get<1>(p1_normalized),
+                                             geometry::get<0>(p2_normalized),
+                                             geometry::get<1>(p2_normalized),
+                                             box,
+                                             azimuth_spherical);
     }
 };
 
@@ -56,6 +59,7 @@ struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
     typedef strategy::envelope::segment_spherical<CalculationType> type;
 };
+
 
 template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>

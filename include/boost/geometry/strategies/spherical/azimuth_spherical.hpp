@@ -58,12 +58,13 @@ struct default_strategy<spherical_equatorial_tag, CalculationType>
     typedef strategy::azimuth::spherical<CalculationType> type;
 };
 
+/*
 template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>
 {
     typedef strategy::azimuth::spherical<CalculationType> type;
 };
-
+*/
 }
 
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

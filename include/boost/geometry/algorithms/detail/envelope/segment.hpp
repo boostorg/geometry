@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -49,8 +49,6 @@
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
-#include <boost/geometry/formulas/vertex_latitude.hpp>
-
 namespace boost { namespace geometry
 {
 
@@ -79,8 +77,9 @@ struct envelope_one_segment
     }
 };
 
-template <std::size_t DimensionCount, typename CS_Tag>
-struct envelope_segment_on_sphere_or_spheroid
+
+template <std::size_t DimensionCount>
+struct envelope_segment
 {
     template <typename Point, typename Box, typename Strategy>
     static inline void apply(Point const& p1,
@@ -89,10 +88,7 @@ struct envelope_segment_on_sphere_or_spheroid
                              Strategy const& strategy)
     {
         // first compute the envelope range for the first two coordinates
-        Point p1_normalized = detail::return_normalized<Point>(p1);
-        Point p2_normalized = detail::return_normalized<Point>(p2);
-
-        strategy.apply(p1_normalized, p2_normalized, mbr);
+        strategy.apply(p1, p2, mbr);
 
         // now compute the envelope range for coordinates of
         // dimension 2 and higher
@@ -109,26 +105,6 @@ struct envelope_segment_on_sphere_or_spheroid
     }
 };
 
-
-
-template <std::size_t DimensionCount, typename CS_Tag>
-struct envelope_segment
-    : envelope_one_segment<0, DimensionCount>
-{};
-
-
-template <std::size_t DimensionCount>
-struct envelope_segment<DimensionCount, spherical_equatorial_tag>
-    : envelope_segment_on_sphere_or_spheroid<DimensionCount, spherical_equatorial_tag>
-{};
-
-
-template <std::size_t DimensionCount>
-struct envelope_segment<DimensionCount, geographic_tag>
-    : envelope_segment_on_sphere_or_spheroid<DimensionCount, geographic_tag>
-{};
-
-
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
 
@@ -138,8 +114,8 @@ namespace dispatch
 {
 
 
-template <typename Segment, typename CS_Tag>
-struct envelope<Segment, segment_tag, CS_Tag>
+template <typename Segment>
+struct envelope<Segment, segment_tag>
 {
     template <typename Box, typename Strategy>
     static inline void apply(Segment const& segment,
@@ -151,7 +127,7 @@ struct envelope<Segment, segment_tag, CS_Tag>
         detail::assign_point_from_index<1>(segment, p[1]);
         detail::envelope::envelope_segment
             <
-                dimension<Segment>::value, CS_Tag
+                dimension<Segment>::value
             >::apply(p[0], p[1], mbr, strategy);
     }
 };

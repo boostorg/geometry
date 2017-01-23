@@ -11,8 +11,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ENVELOPE_SEGMENT_HPP
 
 #include <boost/geometry/formulas/envelope_segment.hpp>
-#include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/algorithms/detail/normalize.hpp>
 
 namespace boost { namespace geometry
 {
@@ -46,22 +46,25 @@ public :
     apply(Point1 const& point1, Point2 const& point2, Box& box) const
     {
 
+        Point1 p1_normalized = detail::return_normalized<Point1>(point1);
+        Point2 p2_normalized = detail::return_normalized<Point2>(point2);
+
         geometry::strategy::azimuth::geographic
                         <
-                            double,
-                            geometry::srs::spheroid<double>,
+                            CalculationType,
+                            geometry::srs::spheroid<CalculationType>,
                             Inverse
                         > azimuth_geographic;
 
         typedef typename coordinate_system<Point1>::type::units units_type;
 
-        geometry::formula::envelope_segment<geometry::geographic_tag>::template apply<units_type>(
-                    geometry::get<0>(point1),
-                    geometry::get<1>(point1),
-                    geometry::get<0>(point2),
-                    geometry::get<1>(point2),
-                    box,
-                    azimuth_geographic);
+        geometry::formula::envelope_segment<geometry::geographic_tag>
+                ::template apply<units_type>(geometry::get<0>(p1_normalized),
+                                             geometry::get<1>(p1_normalized),
+                                             geometry::get<0>(p2_normalized),
+                                             geometry::get<1>(p2_normalized),
+                                             box,
+                                             azimuth_geographic);
     }
 
 private :

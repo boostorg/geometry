@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 
 namespace boost { namespace geometry
 {
@@ -27,7 +28,15 @@ public :
     inline void
     apply(Point1 const& point1, Point2 const& point2, Box& box) const
     {
-        // not implemented
+        geometry::detail::envelope::envelope_one_segment
+                <
+                    0,
+                    dimension<Point1>::value
+                >
+                ::apply(point1,
+                        point2,
+                        box,
+                        strategy::envelope::segment_cartesian<CalculationType>());
     }
 
 };

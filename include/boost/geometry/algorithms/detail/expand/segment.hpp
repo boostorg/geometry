@@ -40,8 +40,7 @@ namespace boost { namespace geometry
 namespace detail { namespace expand
 {
 
-template <typename CS_Tag>
-struct segment_on_sphere_or_spheroid
+struct segment
 {
     template <typename Box, typename Segment, typename Strategy>
     static inline void apply(Box& box,
@@ -54,10 +53,9 @@ struct segment_on_sphere_or_spheroid
         typename point_type<Segment>::type p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
-        detail::envelope::envelope_segment_on_sphere_or_spheroid
+        detail::envelope::envelope_segment
             <
-                dimension<Segment>::value,
-                CS_Tag
+                dimension<Segment>::value
             >::apply(p[0], p[1], mbrs[0], strategy);
 
         // normalize the box
@@ -75,7 +73,6 @@ struct segment_on_sphere_or_spheroid
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
 
 template
 <
@@ -110,7 +107,7 @@ struct expand
         StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         spherical_equatorial_tag, spherical_equatorial_tag
-    > : detail::expand::segment_on_sphere_or_spheroid<spherical_equatorial_tag>
+    > : detail::expand::segment
 {};
 
 template
@@ -124,12 +121,13 @@ struct expand
         StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         geographic_tag, geographic_tag
-    > : detail::expand::segment_on_sphere_or_spheroid<geographic_tag>
+    > : detail::expand::segment
 {};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_SEGMENT_HPP

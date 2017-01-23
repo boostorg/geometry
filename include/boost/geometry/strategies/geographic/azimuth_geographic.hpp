@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 
+#include <boost/geometry/strategies/azimuth.hpp>
+
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 

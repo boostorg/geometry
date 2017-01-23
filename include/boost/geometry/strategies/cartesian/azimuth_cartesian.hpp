@@ -22,24 +22,8 @@ template
 <
     typename CalculationType
 >
-class azimuth_cartesian
-{
-public :
-
-    inline azimuth_cartesian()
-    {}
-
-    inline void apply(CalculationType const& lon1_rad,
-                      CalculationType const& lat1_rad,
-                      CalculationType const& lon2_rad,
-                      CalculationType const& lat2_rad,
-                      CalculationType& a1,
-                      CalculationType& a2) const
-    {
-        // not implemented
-    }
-
-};
+class cartesian
+{};
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
@@ -49,7 +33,7 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<cartesian_tag, CalculationType>
 {
-    typedef strategy::azimuth::azimuth_cartesian<CalculationType> type;
+    typedef strategy::azimuth::cartesian<CalculationType> type;
 };
 
 }

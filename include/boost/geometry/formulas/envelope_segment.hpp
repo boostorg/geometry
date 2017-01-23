@@ -12,6 +12,7 @@
 
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 #include <boost/geometry/geometries/helper_geometry.hpp>
+#include <boost/geometry/formulas/vertex_latitude.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
