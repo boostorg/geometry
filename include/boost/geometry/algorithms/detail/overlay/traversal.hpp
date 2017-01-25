@@ -431,62 +431,19 @@ struct traversal
     }
 
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
-                int& op_index,
-                sbs_type const& sbs) const
+                int& op_index, sbs_type const& sbs) const
     {
         std::vector<sort_by_side::rank_with_rings> aggregation;
-        sort_by_side::aggregate_operations(sbs, aggregation);
+        sort_by_side::aggregate_operations(sbs, aggregation, m_turns);
 
         std::size_t selected_rank = 0;
 
-        bool has_ii = false;
-        int ii_leaving = 0;
+        int incoming_district = 0;
+        std::set<int> outgoing_districts;
 
         for (std::size_t i = 0; i < aggregation.size(); i++)
         {
             sort_by_side::rank_with_rings const& rwr = aggregation[i];
-
-            if (all_operations_of_type(rwr, operation_intersection, sort_by_side::dir_from))
-            {
-                ii_leaving--;
-            }
-            else if (all_operations_of_type(rwr, operation_intersection, sort_by_side::dir_to))
-            {
-                ii_leaving++;
-                has_ii = true;
-            }
-            else if (all_operations_of_type(rwr, operation_continue, sort_by_side::dir_to))
-            {
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-                if (has_ii)
-                {
-                    selected_rank = rwr.rank;
-                }
-#endif
-            }
-
-            if (i > 1
-                && i - 1 == selected_rank
-                && rwr.rings.size() == 1)
-            {
-                sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
-
-                if (rwd.only_turn_on_ring)
-                {
-                    // Find if this arriving ring was leaving previously
-                    sort_by_side::ring_with_direction leaving = rwd;
-                    leaving.direction = sort_by_side::dir_to;
-
-                    sort_by_side::rank_with_rings const& previous = aggregation[i - 1];
-
-                    if (previous.rings.size() == 1
-                        && previous.rings.count(leaving) == 1)
-                    {
-                        // It arrives back - if this is one of the selected, unselect it
-                        selected_rank = 0;
-                    }
-                }
-            }
 
             if (rwr.all_to())
             {
@@ -495,6 +452,47 @@ struct traversal
                     // Take the first (= right) where segments leave,
                     // having the polygon on the right side
                     selected_rank = rwr.rank;
+
+                }
+            }
+
+            {
+                if (incoming_district == 0)
+                {
+                    sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                    turn_type const& turn = m_turns[rwd.turn_index];
+                    incoming_district = turn.operations[0].enriched.region_id;
+                }
+                else
+                {
+                    if (rwr.rings.size() == 1)
+                    {
+                        sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                        turn_type const& turn = m_turns[rwd.turn_index];
+                        if (rwd.direction == sort_by_side::dir_to
+                                && turn.both(operation_intersection))
+                        {
+                            for (int i = 0; i < 2; i++)
+                            {
+                                int const district = turn.operations[i].enriched.region_id;
+                                if (district != incoming_district)
+                                {
+                                    outgoing_districts.insert(district);
+                                }
+                            }
+                        }
+                        else if (! outgoing_districts.empty())
+                        {
+                            for (int i = 0; i < 2; i++)
+                            {
+                                int const district = turn.operations[i].enriched.region_id;
+                                if (outgoing_districts.count(district) == 1)
+                                {
+                                    selected_rank = 0;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -613,15 +611,6 @@ struct traversal
         }
         else
         {
-            if (is_start
-                && turn.both(operation_intersection)
-                && turn.operations[op_index].enriched.only_turn_on_ring)
-            {
-                // For an ii (usually interior ring), only turn on ring,
-                // reverse to take first exit
-                sbs.reverse();
-            }
-
             result = analyze_cluster_intersection(turn_index, op_index, sbs);
         }
         return result;

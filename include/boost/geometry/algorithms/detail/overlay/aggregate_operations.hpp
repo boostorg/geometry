@@ -24,7 +24,7 @@ struct ring_with_direction
 {
     ring_identifier ring_id;
     direction_type direction;
-    bool only_turn_on_ring;
+    bool isolated;
 
     std::size_t turn_index;
     int operation_index;
@@ -38,7 +38,7 @@ struct ring_with_direction
 
     ring_with_direction()
         : direction(dir_unknown)
-        , only_turn_on_ring(false)
+        , isolated(false)
         , turn_index(-1)
         , operation_index(0)
     {}
@@ -68,8 +68,8 @@ struct rank_with_rings
     }
 };
 
-template <typename Sbs>
-inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation)
+template <typename Sbs, typename Turns>
+inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation, Turns const& turns)
 {
     aggregation.clear();
     for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
@@ -85,9 +85,11 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
 
         ring_with_direction rwd;
         segment_identifier const& sid = ranked_point.seg_id;
+        typename boost::range_value<Turns>::type const& turn = turns[ranked_point.turn_index];
+
         rwd.ring_id = ring_identifier(sid.source_index, sid.multi_index, sid.ring_index);
         rwd.direction = ranked_point.direction;
-        rwd.only_turn_on_ring = ranked_point.only_turn_on_ring;
+        rwd.isolated = turn.operations[0].enriched.region_id != turn.operations[1].enriched.region_id;
         rwd.turn_index = ranked_point.turn_index;
         rwd.operation_index = ranked_point.operation_index;
 

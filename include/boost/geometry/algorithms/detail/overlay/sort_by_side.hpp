@@ -41,7 +41,6 @@ struct ranked_point
         , count_left(0)
         , count_right(0)
         , operation(operation_none)
-        , only_turn_on_ring(false)
     {}
 
     template <typename Op>
@@ -57,7 +56,6 @@ struct ranked_point
         , count_right(0)
         , operation(op.operation)
         , seg_id(op.seg_id)
-        , only_turn_on_ring(op.enriched.only_turn_on_ring)
     {}
 
     Point point;
@@ -70,7 +68,6 @@ struct ranked_point
     std::size_t count_right;
     operation_type operation;
     segment_identifier seg_id;
-    bool only_turn_on_ring;
 };
 
 struct less_by_turn_index

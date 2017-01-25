@@ -51,6 +51,16 @@ struct traversal_switch_detector
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
     // For convenience
+    struct merged_ring_properties
+    {
+        signed_size_type region_id;
+        std::set<signed_size_type> turn_indices;
+
+        merged_ring_properties()
+            : region_id(-1)
+        {}
+    };
+    typedef std::map<ring_identifier, merged_ring_properties > merge_map;
     typedef std::set<signed_size_type>::const_iterator set_iterator;
 
     inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -62,134 +72,138 @@ struct traversal_switch_detector
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
-        , m_region_id(0)
     {
-
     }
 
-    static inline bool connects_same_zone(turn_type const& turn)
+    void assign_regions()
+    {
+        for (typename merge_map::const_iterator it
+             = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
+        {
+            ring_identifier const& ring_id = it->first;
+            merged_ring_properties const& properties = it->second;
+
+            for (set_iterator sit = properties.turn_indices.begin();
+                 sit != properties.turn_indices.end(); ++sit)
+            {
+                turn_type& turn = m_turns[*sit];
+
+                for (int i = 0; i < 2; i++)
+                {
+                    turn_operation_type& op = turn.operations[i];
+                    if (ring_id_by_seg_id(op.seg_id) == ring_id)
+                    {
+                        op.enriched.region_id = properties.region_id;
+                    }
+                }
+            }
+        }
+    }
+
+    inline bool connects_same_region(turn_type const& turn) const
     {
         if (turn.cluster_id == -1)
         {
-            // If it is a uu/ii-turn (non clustered), it is never same zone
+            // If it is a uu/ii-turn (non clustered), it is never same region
             return ! (turn.both(operation_union) || turn.both(operation_intersection));
         }
 
-        // It is a cluster, check zones of both operations
-        return turn.operations[0].enriched.zone
-                == turn.operations[1].enriched.zone;
+        if (operation_from_overlay<OverlayType>::value == operation_union)
+        {
+            // It is a cluster, check zones of both operations
+            return turn.operations[0].enriched.zone
+                    == turn.operations[1].enriched.zone;
+        }
+
+        // If a cluster contains an ii/cc it is not same region (for intersection)
+        typename Clusters::const_iterator it = m_clusters.find(turn.cluster_id);
+        if (it == m_clusters.end())
+        {
+            // Should not occur
+            return true;
+        }
+
+        cluster_info const& cinfo = it->second;
+        for (std::set<signed_size_type>::const_iterator sit = cinfo.turn_indices.begin();
+             sit != cinfo.turn_indices.end(); ++sit)
+        {
+            turn_type const& cluster_turn = m_turns[*sit];
+            if (cluster_turn.both(operation_union)
+                   || cluster_turn.both(operation_intersection))
+            {
+                return false;
+            }
+        }
+
+        // It is the same region
+        return false;
     }
+
 
     inline int get_region_id(turn_operation_type const& op) const
     {
-        std::map<ring_identifier, int>::const_iterator it
-                    = m_regions.find(ring_id_by_seg_id(op.seg_id));
-        return it == m_regions.end() ? -1 : it->second;
+        return op.enriched.region_id;
     }
 
-    void create_region(ring_identifier const& ring_id, std::set<signed_size_type> const& ring_turn_indices, int region_id = -1)
+
+    void create_region(signed_size_type& new_region_id, ring_identifier const& ring_id,
+                merged_ring_properties& properties, int region_id = -1)
     {
-        std::map<ring_identifier, int>::const_iterator it = m_regions.find(ring_id);
-        if (it != m_regions.end())
+        if (properties.region_id > 0)
         {
-            // The ring is already gathered in a region, quit
+            // Already handled
             return;
         }
+
+        // Assign new id if this is a new region
         if (region_id == -1)
         {
-            region_id = m_region_id++;
+            region_id = new_region_id++;
         }
 
         // Assign this ring to specified region
-        m_regions[ring_id] = region_id;
+        properties.region_id = region_id;
+
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << " ADD " << ring_id << "  TO REGION " << region_id << std::endl;
 #endif
 
         // Find connecting rings, recursively
-        for (set_iterator sit = ring_turn_indices.begin();
-             sit != ring_turn_indices.end(); ++sit)
+        for (set_iterator sit = properties.turn_indices.begin();
+             sit != properties.turn_indices.end(); ++sit)
         {
             signed_size_type const turn_index = *sit;
             turn_type const& turn = m_turns[turn_index];
-            if (! connects_same_zone(turn))
+            if (! connects_same_region(turn))
             {
                 // This is a non clustered uu/ii-turn, or a cluster connecting different 'zones'
                 continue;
             }
 
-            // This turn connects two rings (interior connected), create the
-            // same region
+            // Union: This turn connects two rings (interior connected), create the region
+            // Intersection: This turn connects two rings, set same regions for these two rings
             for (int op_index = 0; op_index < 2; op_index++)
             {
                 turn_operation_type const& op = turn.operations[op_index];
                 ring_identifier connected_ring_id = ring_id_by_seg_id(op.seg_id);
                 if (connected_ring_id != ring_id)
                 {
-                    propagate_region(connected_ring_id, region_id);
+                    propagate_region(new_region_id, connected_ring_id, region_id);
                 }
             }
         }
     }
 
-    void check_turns_per_ring(ring_identifier const& ring_id,
-            std::set<signed_size_type> const& ring_turn_indices)
+    void propagate_region(signed_size_type& new_region_id,
+            ring_identifier const& ring_id, int region_id)
     {
-        bool only_turn_on_ring = true;
-        if (ring_turn_indices.size() > 1)
-        {
-            // More turns on this ring. Only leave only_turn_on_ring true
-            // if they are all of the same cluster
-            int cluster_id = -1;
-            for (set_iterator sit = ring_turn_indices.begin();
-                 sit != ring_turn_indices.end(); ++sit)
-            {
-                turn_type const& turn = m_turns[*sit];
-                if (turn.cluster_id == -1)
-                {
-                    // Unclustered turn - and there are 2 or more turns
-                    // so the ring has different turns
-                    only_turn_on_ring = false;
-                    break;
-                }
-
-                // Clustered turn, check if it is the first or same as previous
-                if (cluster_id == -1)
-                {
-                    cluster_id = turn.cluster_id;
-                }
-                else if (turn.cluster_id != cluster_id)
-                {
-                    only_turn_on_ring = false;
-                    break;
-                }
-            }
-        }
-
-        // Assign result to matching operation (a turn is always on two rings)
-        for (set_iterator sit = ring_turn_indices.begin();
-             sit != ring_turn_indices.end(); ++sit)
-        {
-            turn_type& turn = m_turns[*sit];
-            for (int i = 0; i < 2; i++)
-            {
-                turn_operation_type& op = turn.operations[i];
-                if (ring_id_by_seg_id(op.seg_id) == ring_id)
-                {
-                    op.enriched.only_turn_on_ring = only_turn_on_ring;
-                }
-            }
-        }
-    }
-
-    void propagate_region(ring_identifier const& ring_id, int region_id)
-    {
-        std::map<ring_identifier, std::set<signed_size_type> >::const_iterator it = m_turns_per_ring.find(ring_id);
+        typename merge_map::iterator it = m_turns_per_ring.find(ring_id);
         if (it != m_turns_per_ring.end())
         {
-            create_region(ring_id, it->second, region_id);
+            create_region(new_region_id, ring_id, it->second, region_id);
         }
     }
+
 
     void iterate()
     {
@@ -199,8 +213,6 @@ struct traversal_switch_detector
 
         // Collect turns per ring
         m_turns_per_ring.clear();
-        m_regions.clear();
-        m_region_id = 1;
 
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
@@ -209,16 +221,20 @@ struct traversal_switch_detector
             for (int op_index = 0; op_index < 2; op_index++)
             {
                 turn_operation_type const& op = turn.operations[op_index];
-                m_turns_per_ring[ring_id_by_seg_id(op.seg_id)].insert(turn_index);
+                m_turns_per_ring[ring_id_by_seg_id(op.seg_id)].turn_indices.insert(turn_index);
             }
         }
 
         // All rings having turns are in the map. Now iterate them
-        for (std::map<ring_identifier, std::set<signed_size_type> >::const_iterator it
-             = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
         {
-            create_region(it->first, it->second);
-            check_turns_per_ring(it->first, it->second);
+            signed_size_type new_region_id = 1;
+            for (typename merge_map::iterator it
+                 = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
+            {
+                create_region(new_region_id, it->first, it->second);
+            }
+
+            assign_regions();
         }
 
         // Now that all regions are filled, assign switch_source property
@@ -326,13 +342,9 @@ private:
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters& m_clusters;
+    merge_map m_turns_per_ring;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-
-    std::map<ring_identifier, int> m_regions;
-    std::map<ring_identifier, std::set<signed_size_type> > m_turns_per_ring;
-    int m_region_id;
-
 };
 
 }} // namespace detail::overlay
