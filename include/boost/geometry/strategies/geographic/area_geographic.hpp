@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -39,7 +39,7 @@ template
     typename Spheroid = void,
     typename CalculationType = void
 >
-class area_geographic
+class geographic
 {
 
     //Select default types in case they are not set
@@ -150,7 +150,7 @@ public :
     typedef PointOfSegment segment_point_type;
     typedef area_sums state_type;
 
-    inline area_geographic(SpheroidType spheroid = SpheroidType())
+    inline geographic(SpheroidType spheroid = SpheroidType())
         :   spheroid_const(spheroid)
     {}
 
@@ -197,7 +197,7 @@ namespace services
 template <typename Point>
 struct default_strategy<geographic_tag, Point>
 {
-    typedef strategy::area::area_geographic<Point> type;
+    typedef strategy::area::geographic<Point> type;
 };
 
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -211,4 +211,4 @@ struct default_strategy<geographic_tag, Point>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_GEOGRAPHIC_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP

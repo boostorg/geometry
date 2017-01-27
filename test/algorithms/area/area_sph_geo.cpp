@@ -39,7 +39,7 @@ void test_spherical_geo()
 
     typedef typename bg::point_type<pt_geo>::type pt_geo_type;
 
-    bg::strategy::area::area_geographic
+    bg::strategy::area::geographic
             <
                 pt_geo_type,
                 bg::formula::vincenty_inverse,
