@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2015.
-// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2017.
+// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -61,19 +61,22 @@ template <typename Geometry1, typename Geometry2,
           typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
 struct disjoint_no_intersections_policy
 {
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    template <typename PiGStrategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, PiGStrategy const& pig_strategy)
     {
         typedef typename point_type<Geometry1>::type point1_type;
         point1_type p;
         geometry::point_on_border(p, g1);
-        return !geometry::covered_by(p, g2);
+
+        return !geometry::covered_by(p, g2, pig_strategy);
     }
 };
 
 template <typename Geometry1, typename Geometry2, typename Tag1>
 struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
 {
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    template <typename PiGStrategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, PiGStrategy const& pig_strategy)
     {
         // TODO: use partition or rtree on g2
         typedef typename boost::range_iterator<Geometry1 const>::type iterator;
@@ -81,7 +84,7 @@ struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
         {
             typedef typename boost::range_value<Geometry1 const>::type value_type;
             if ( ! disjoint_no_intersections_policy<value_type const, Geometry2>
-                    ::apply(*it, g2) )
+                    ::apply(*it, g2, pig_strategy) )
             {
                 return false;
             }
@@ -96,15 +99,22 @@ template<typename Geometry1, typename Geometry2,
                     = disjoint_no_intersections_policy<Geometry1, Geometry2> >
 struct disjoint_linear_areal
 {
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
         // if there are intersections - return false
-        if ( !disjoint_linear<Geometry1, Geometry2>::apply(g1, g2) )
+        if ( !disjoint_linear<Geometry1, Geometry2>::apply(g1, g2, strategy) )
         {
             return false;
         }
 
-        return NoIntersectionsPolicy::apply(g1, g2);
+        typename Strategy::template point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type
+            pig_strategy = strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>();
+
+        return NoIntersectionsPolicy::apply(g1, g2, pig_strategy);
     }
 };
 
@@ -126,16 +136,18 @@ template <typename Segment, typename Polygon>
 class disjoint_segment_areal<Segment, Polygon, polygon_tag>
 {
 private:
-    template <typename InteriorRings>
+    template <typename InteriorRings, typename Strategy>
     static inline
     bool check_interior_rings(InteriorRings const& interior_rings,
-                              Segment const& segment)
+                              Segment const& segment,
+                              Strategy const& strategy)
     {
         typedef typename boost::range_value<InteriorRings>::type ring_type;
 
         typedef unary_disjoint_geometry_to_query_geometry
             <
                 Segment,
+                Strategy,
                 disjoint_range_segment_or_box
                     <
                         ring_type, closure<ring_type>::value, Segment
@@ -147,32 +159,41 @@ private:
                 unary_predicate_type
             >::apply(boost::begin(interior_rings),
                      boost::end(interior_rings),
-                     unary_predicate_type(segment));
+                     unary_predicate_type(segment, strategy));
     }
 
 
 public:
-    static inline bool apply(Segment const& segment, Polygon const& polygon)
+    template <typename IntersectionStrategy>
+    static inline bool apply(Segment const& segment,
+                             Polygon const& polygon,
+                             IntersectionStrategy const& strategy)
     {
         typedef typename geometry::ring_type<Polygon>::type ring;
 
         if ( !disjoint_range_segment_or_box
                  <
                      ring, closure<Polygon>::value, Segment
-                 >::apply(geometry::exterior_ring(polygon), segment) )
+                 >::apply(geometry::exterior_ring(polygon), segment, strategy) )
         {
             return false;
         }
 
-        if ( !check_interior_rings(geometry::interior_rings(polygon), segment) )
+        if ( !check_interior_rings(geometry::interior_rings(polygon), segment, strategy) )
         {
             return false;
         }
+
+        typename IntersectionStrategy::template point_in_geometry_strategy
+            <
+                Segment, Polygon
+            >::type
+            pig_strategy = strategy.template get_point_in_geometry_strategy<Segment, Polygon>();
 
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
-        return !geometry::covered_by(p, polygon);
+        return !geometry::covered_by(p, polygon, pig_strategy);
     }
 };
 
@@ -180,13 +201,14 @@ public:
 template <typename Segment, typename MultiPolygon>
 struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 {
-    static inline
-    bool apply(Segment const& segment, MultiPolygon const& multipolygon)
+    template <typename IntersectionStrategy>
+    static inline bool apply(Segment const& segment, MultiPolygon const& multipolygon,
+                             IntersectionStrategy const& strategy)
     {
         return multirange_constant_size_geometry
             <
                 MultiPolygon, Segment
-            >::apply(multipolygon, segment);
+            >::apply(multipolygon, segment, strategy);
     }
 };
 
@@ -194,20 +216,29 @@ struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 template <typename Segment, typename Ring>
 struct disjoint_segment_areal<Segment, Ring, ring_tag>
 {
-    static inline bool apply(Segment const& segment, Ring const& ring)
+    template <typename IntersectionStrategy>
+    static inline bool apply(Segment const& segment,
+                             Ring const& ring,
+                             IntersectionStrategy const& strategy)
     {
         if ( !disjoint_range_segment_or_box
                  <
                      Ring, closure<Ring>::value, Segment
-                 >::apply(ring, segment) )
+                 >::apply(ring, segment, strategy) )
         {
             return false;
         }
 
+        typename IntersectionStrategy::template point_in_geometry_strategy
+            <
+                Segment, Ring
+            >::type
+            pig_strategy = strategy.template get_point_in_geometry_strategy<Segment, Ring>();
+
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
-        
-        return !geometry::covered_by(p, ring);        
+
+        return !geometry::covered_by(p, ring, pig_strategy);        
     }
 };
 
@@ -231,14 +262,15 @@ struct disjoint<Linear, Areal, 2, linear_tag, areal_tag, false>
 
 template <typename Areal, typename Linear>
 struct disjoint<Areal, Linear, 2, areal_tag, linear_tag, false>
-{    
-    static inline
-    bool apply(Areal const& areal, Linear const& linear)
+{
+    template <typename Strategy>
+    static inline bool apply(Areal const& areal, Linear const& linear,
+                             Strategy const& strategy)
     {
         return detail::disjoint::disjoint_linear_areal
             <
                 Linear, Areal
-            >::apply(linear, areal);
+            >::apply(linear, areal, strategy);
     }
 };
 
@@ -246,12 +278,14 @@ struct disjoint<Areal, Linear, 2, areal_tag, linear_tag, false>
 template <typename Areal, typename Segment>
 struct disjoint<Areal, Segment, 2, areal_tag, segment_tag, false>
 {
-    static inline bool apply(Areal const& g1, Segment const& g2)
+    template <typename Strategy>
+    static inline bool apply(Areal const& g1, Segment const& g2,
+                             Strategy const& strategy)
     {
         return detail::disjoint::disjoint_segment_areal
             <
                 Segment, Areal
-            >::apply(g2, g1);
+            >::apply(g2, g1, strategy);
     }
 };
 
