@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016.
-// Modifications copyright (c) 2013-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2016, 2017.
+// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -314,6 +314,7 @@ struct winding_calculate_count<Point, CalculationType, cartesian_tag>
 \ingroup strategies
 \tparam Point \tparam_point
 \tparam PointOfSegment \tparam_segment_point
+\tparam SideStrategy Side strategy
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
 \note The implementation is inspired by terralib http://www.terralib.org (LGPL)
@@ -329,6 +330,10 @@ template
 <
     typename Point,
     typename PointOfSegment = Point,
+    typename SideStrategy = typename strategy::side::services::default_strategy
+                                <
+                                    typename cs_tag<Point>::type
+                                >::type,
     typename CalculationType = void
 >
 class winding
@@ -339,14 +344,7 @@ class winding
             PointOfSegment,
             CalculationType
         >::type calculation_type;
-
-
-    typedef typename strategy::side::services::default_strategy
-        <
-            typename cs_tag<Point>::type
-        >::type strategy_side_type;
-
-
+    
     /*! subclass to keep state */
     class counter
     {
@@ -371,7 +369,6 @@ class winding
 
     };
 
-
     static inline int check_segment(Point const& point,
                 PointOfSegment const& seg1, PointOfSegment const& seg2,
                 counter& state, bool& eq1, bool& eq2)
@@ -390,16 +387,22 @@ class winding
     }
 
 
-public :
+public:
+    winding()
+    {}
+
+    winding(SideStrategy const& side_strategy)
+        : m_side_strategy(side_strategy)
+    {}
 
     // Typedefs and static methods to fulfill the concept
     typedef Point point_type;
     typedef PointOfSegment segment_point_type;
     typedef counter state_type;
 
-    static inline bool apply(Point const& point,
-                PointOfSegment const& s1, PointOfSegment const& s2,
-                counter& state)
+    inline bool apply(Point const& point,
+                      PointOfSegment const& s1, PointOfSegment const& s2,
+                      counter& state) const
     {
         typedef typename cs_tag<Point>::type cs_t;
 
@@ -418,7 +421,7 @@ public :
             else // count == 2 || count == -2
             {
                 // 1 left, -1 right
-                side = strategy_side_type::apply(s1, s2, point);
+                side = m_side_strategy.apply(s1, s2, point);
             }
             
             if (side == 0)
@@ -445,6 +448,9 @@ public :
     {
         return state.code();
     }
+
+private:
+    SideStrategy m_side_strategy;
 };
 
 
@@ -453,29 +459,26 @@ public :
 namespace services
 {
 
-// Register using "areal_tag" for ring, polygon, multi-polygon
-template <typename AnyTag, typename Point, typename Geometry>
-struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, cartesian_tag, cartesian_tag, Point, Geometry>
-{
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename AnyTag, typename Point, typename Geometry>
-struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, spherical_tag, Point, Geometry>
-{
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-// TODO: use linear_tag and pointlike_tag the same way how areal_tag is used
-
 template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, cartesian_tag, cartesian_tag, Point, Geometry>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
 template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, spherical_tag, spherical_tag, Point, Geometry>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
@@ -488,34 +491,30 @@ struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, spherical_tag, sph
 }} // namespace strategy::within
 
 
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 namespace strategy { namespace covered_by { namespace services
 {
 
-// Register using "areal_tag" for ring, polygon, multi-polygon
-template <typename AnyTag, typename Point, typename Geometry>
-struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, cartesian_tag, cartesian_tag, Point, Geometry>
-{
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename AnyTag, typename Point, typename Geometry>
-struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, spherical_tag, Point, Geometry>
-{
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-// TODO: use linear_tag and pointlike_tag the same way how areal_tag is used
-
 template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, cartesian_tag, cartesian_tag, Point, Geometry>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
 template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, spherical_tag, spherical_tag, Point, Geometry>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
