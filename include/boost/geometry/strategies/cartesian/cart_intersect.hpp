@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017.
+// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -33,13 +33,14 @@
 #include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-// Temporary / will be Strategy as template parameter
-#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
-
-#include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
+#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/within.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -61,10 +62,38 @@ namespace strategy { namespace intersection
 /*!
     \see http://mathworld.wolfram.com/Line-LineIntersection.html
  */
-template <typename Policy, typename CalculationType = void>
+template <typename CalculationType = void>
 struct relate_cartesian_segments
 {
-    typedef typename Policy::return_type return_type;
+    typedef side::side_by_triangle<CalculationType> side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+    {
+        return side_strategy_type();
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                side_strategy_type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type();
+    }
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
@@ -144,9 +173,16 @@ struct relate_cartesian_segments
 
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename RobustPolicy>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                RobustPolicy const& robust_policy)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const& policy, RobustPolicy const& robust_policy)
     {
         // type them all as in Segment1 - TODO reconsider this, most precise?
         typedef typename geometry::point_type<Segment1>::type point_type;
@@ -169,18 +205,25 @@ struct relate_cartesian_segments
         geometry::recalculate(b0_rob, b0, robust_policy);
         geometry::recalculate(b1_rob, b1, robust_policy);
 
-        return apply(a, b, robust_policy, a0_rob, a1_rob, b0_rob, b1_rob);
+        return apply(a, b, policy, robust_policy, a0_rob, a1_rob, b0_rob, b1_rob);
     }
 
     // The main entry-routine, calculating intersections of segments a / b
     // NOTE: Robust* types may be the same as Segments' point types
-    template <typename Segment1, typename Segment2,
-              typename RobustPolicy,
-              typename RobustPoint1, typename RobustPoint2>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-            RobustPolicy const& /*robust_policy*/,
-            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
-            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy,
+        typename RobustPoint1,
+        typename RobustPoint2
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const&, RobustPolicy const& /*robust_policy*/,
+              RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+              RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
@@ -197,14 +240,9 @@ struct relate_cartesian_segments
                 ;
         }
 
-        typedef typename select_calculation_type
-            <Segment1, Segment2, CalculationType>::type coordinate_type;
-
-        typedef side::side_by_triangle<coordinate_type> side;
-
         side_info sides;
-        sides.set<0>(side::apply(robust_b1, robust_b2, robust_a1),
-                     side::apply(robust_b1, robust_b2, robust_a2));
+        sides.set<0>(side_strategy_type::apply(robust_b1, robust_b2, robust_a1),
+                     side_strategy_type::apply(robust_b1, robust_b2, robust_a2));
 
         if (sides.same<0>())
         {
@@ -212,8 +250,8 @@ struct relate_cartesian_segments
             return Policy::disjoint();
         }
 
-        sides.set<1>(side::apply(robust_a1, robust_a2, robust_b1),
-                     side::apply(robust_a1, robust_a2, robust_b2));
+        sides.set<1>(side_strategy_type::apply(robust_a1, robust_a2, robust_b1),
+                     side_strategy_type::apply(robust_a1, robust_a2, robust_b2));
         
         if (sides.same<1>())
         {
@@ -230,16 +268,16 @@ struct relate_cartesian_segments
             >::type robust_coordinate_type;
 
         typedef typename segment_ratio_type
-        <
-            typename geometry::point_type<Segment1>::type, // TODO: most precise point?
-            RobustPolicy
-        >::type ratio_type;
+            <
+                typename geometry::point_type<Segment1>::type, // TODO: most precise point?
+                RobustPolicy
+            >::type ratio_type;
 
         segment_intersection_info
-        <
-            coordinate_type,
-            ratio_type
-        > sinfo;
+            <
+                typename select_calculation_type<Segment1, Segment2, CalculationType>::type,
+                ratio_type
+            > sinfo;
 
         sinfo.dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
         sinfo.dx_b = get<1, 0>(b) - get<0, 0>(b);
@@ -303,14 +341,14 @@ struct relate_cartesian_segments
 
                 if (collinear_use_first.first)
                 {
-                    return relate_collinear<0, ratio_type>(a, b,
+                    return relate_collinear<0, Policy, ratio_type>(a, b,
                             robust_a1, robust_a2, robust_b1, robust_b2,
                             a_is_point, b_is_point);
                 }
                 else
                 {
                     // Y direction contains larger segments (maybe dx is zero)
-                    return relate_collinear<1, ratio_type>(a, b,
+                    return relate_collinear<1, Policy, ratio_type>(a, b,
                             robust_a1, robust_a2, robust_b1, robust_b2,
                             a_is_point, b_is_point);
                 }
@@ -358,33 +396,35 @@ private:
     template
     <
         std::size_t Dimension,
+        typename Policy,
         typename RatioType,
         typename Segment1,
         typename Segment2,
         typename RobustPoint1,
         typename RobustPoint2
     >
-    static inline return_type relate_collinear(Segment1 const& a,
-            Segment2 const& b,
-            RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
-            RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
-            bool a_is_point, bool b_is_point)
+    static inline typename Policy::return_type
+        relate_collinear(Segment1 const& a,
+                         Segment2 const& b,
+                         RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
+                         RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
+                         bool a_is_point, bool b_is_point)
     {
         if (a_is_point)
         {
-            return relate_one_degenerate<RatioType>(a,
+            return relate_one_degenerate<Policy, RatioType>(a,
                 get<Dimension>(robust_a1),
                 get<Dimension>(robust_b1), get<Dimension>(robust_b2),
                 true);
         }
         if (b_is_point)
         {
-            return relate_one_degenerate<RatioType>(b,
+            return relate_one_degenerate<Policy, RatioType>(b,
                 get<Dimension>(robust_b1),
                 get<Dimension>(robust_a1), get<Dimension>(robust_a2),
                 false);
         }
-        return relate_collinear<RatioType>(a, b,
+        return relate_collinear<Policy, RatioType>(a, b,
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
                                 get<Dimension>(robust_b1),
@@ -394,17 +434,17 @@ private:
     /// Relate segments known collinear
     template
     <
+        typename Policy,
         typename RatioType,
         typename Segment1,
         typename Segment2,
         typename RobustType1,
         typename RobustType2
     >
-    static inline return_type relate_collinear(Segment1 const& a
-            , Segment2 const& b
-            , RobustType1 oa_1, RobustType1 oa_2
-            , RobustType2 ob_1, RobustType2 ob_2
-            )
+    static inline typename Policy::return_type
+        relate_collinear(Segment1 const& a, Segment2 const& b,
+                         RobustType1 oa_1, RobustType1 oa_2,
+                         RobustType2 ob_1, RobustType2 ob_2)
     {
         // Calculate the ratios where a starts in b, b starts in a
         //         a1--------->a2         (2..7)
@@ -496,17 +536,16 @@ private:
     /// Relate segments where one is degenerate
     template
     <
+        typename Policy,
         typename RatioType,
         typename DegenerateSegment,
         typename RobustType1,
         typename RobustType2
     >
-    static inline return_type relate_one_degenerate(
-            DegenerateSegment const& degenerate_segment
-            , RobustType1 d
-            , RobustType2 s1, RobustType2 s2
-            , bool a_degenerate
-            )
+    static inline typename Policy::return_type
+        relate_one_degenerate(DegenerateSegment const& degenerate_segment,
+                              RobustType1 d, RobustType2 s1, RobustType2 s2,
+                              bool a_degenerate)
     {
         // Calculate the ratios where ds starts in s
         //         a1--------->a2         (2..6)
@@ -546,10 +585,10 @@ private:
 namespace services
 {
 
-template <typename Policy, typename CalculationType>
-struct default_strategy<cartesian_tag, Policy, CalculationType>
+template <typename CalculationType>
+struct default_strategy<cartesian_tag, CalculationType>
 {
-    typedef relate_cartesian_segments<Policy, CalculationType> type;
+    typedef relate_cartesian_segments<CalculationType> type;
 };
 
 } // namespace services
@@ -557,6 +596,69 @@ struct default_strategy<cartesian_tag, Policy, CalculationType>
 
 
 }} // namespace strategy::intersection
+
+namespace strategy
+{
+
+namespace within { namespace services
+{
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+}} // within::services
+
+namespace covered_by { namespace services
+{
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+{
+    typedef strategy::intersection::relate_cartesian_segments<> type;
+};
+
+}} // within::services
+
+} // strategy
 
 }} // namespace boost::geometry
 
