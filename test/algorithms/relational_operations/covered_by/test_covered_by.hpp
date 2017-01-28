@@ -4,6 +4,11 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,14 +22,13 @@
 
 #include <boost/variant/variant.hpp>
 
-#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
-
 #include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,

@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,14 +57,11 @@ void test_spherical_strategy_one(S1 const& s1, S2 const& s2, char m, std::size_t
                         >,
                     bg::policies::relate::segments_direction
                 > policy_t;
-    typedef bg::strategy::intersection::relate_spherical_segments
-        <
-            policy_t
-        > strategy_t;
-    typedef typename strategy_t::return_type return_type;
+    typedef bg::strategy::intersection::relate_spherical_segments<> strategy_t;
+    typedef typename policy_t::return_type return_type;
 
     // NOTE: robust policy is currently ignored
-    return_type res = strategy_t::apply(s1, s2, 0);
+    return_type res = strategy_t::apply(s1, s2, policy_t(), 0);
 
     size_t const res_count = boost::get<0>(res).count;
     char const res_method = boost::get<1>(res).how;

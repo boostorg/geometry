@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2016, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -52,8 +52,11 @@
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/iterators/point_reverse_iterator.hpp>
 
+#include <boost/geometry/strategies/strategies.hpp>
+
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/copy_on_dereference_geometries.hpp>
+
 
 namespace bg = ::boost::geometry;
 namespace ba = ::boost::assign;

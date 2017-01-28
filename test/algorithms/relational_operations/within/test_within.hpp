@@ -4,14 +4,14 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_WITHIN_HPP
 #define BOOST_GEOMETRY_TEST_WITHIN_HPP
@@ -21,23 +21,13 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-
-#include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
-
 #include <boost/geometry/io/wkt/read.hpp>
-
-#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
-#include <boost/geometry/strategies/cartesian/box_in_box.hpp>
-#include <boost/geometry/strategies/agnostic/point_in_point.hpp>
-#include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
-#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
-#include <boost/geometry/strategies/agnostic/relate.hpp>
-
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
