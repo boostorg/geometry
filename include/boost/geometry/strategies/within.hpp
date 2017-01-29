@@ -22,6 +22,7 @@
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/tag_cast.hpp>

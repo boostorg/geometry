@@ -19,6 +19,7 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/relate.hpp>
 
 

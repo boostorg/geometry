@@ -285,9 +285,6 @@ struct covered_by
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        typedef typename point_type<Geometry1>::type point_type1;
-        typedef typename point_type<Geometry2>::type point_type2;
-
         typedef typename strategy::covered_by::services::default_strategy
             <
                 Geometry1,
