@@ -22,7 +22,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/iterator/iterator_concepts.hpp>
@@ -56,6 +55,9 @@
 
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/copy_on_dereference_geometries.hpp>
+
+// At the end because of conflicts with Boost.QVM
+#include <boost/assign/list_of.hpp>
 
 
 namespace bg = ::boost::geometry;
