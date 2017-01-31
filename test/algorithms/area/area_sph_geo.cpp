@@ -61,7 +61,7 @@ void test_spherical_geo()
     // calculations splitted for ttmath
     std::string poly = "POLYGON((0 0,0 90,90 0,0 0))";
 
-    bg::strategy::area::area_spherical
+    bg::strategy::area::spherical
         <
             typename bg::point_type<pt>::type
         > strategy_unary(1.0);
@@ -74,7 +74,7 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, expected, 0.0001);
 
     // With strategy, radius 2 -> 4 pi r^2
-    bg::strategy::area::area_spherical
+    bg::strategy::area::spherical
         <
             typename bg::point_type<pt>::type
         > strategy(2.0);
@@ -96,7 +96,7 @@ void test_spherical_geo()
     // With (spherical) Earth strategy
     poly = "POLYGON((-178.7858 70.7852, 177.4758 71.2333, 179.7436 71.5733, -178.7858 70.7852))";
 
-    bg::strategy::area::area_spherical
+    bg::strategy::area::spherical
         <
             typename bg::point_type<pt>::type
         > spherical_earth(6373);
@@ -373,7 +373,7 @@ void test_spherical_geo()
             }
             bg::correct(aurha);
         }*/
-        bg::strategy::area::area_spherical
+        bg::strategy::area::spherical
             <
                 typename bg::point_type<pt>::type
             > area_spherical(6372.795);

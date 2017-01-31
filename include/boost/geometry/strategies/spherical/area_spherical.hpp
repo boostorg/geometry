@@ -31,7 +31,7 @@ template
     bool LongSegment = false,
     typename CalculationType = void
 >
-class area_spherical
+class spherical
 {
 typedef typename boost::mpl::if_c
     <
@@ -94,11 +94,11 @@ public :
     typedef excess_sum state_type;
     typedef geometry::srs::sphere<CT> sphere_type;
 
-    inline area_spherical(sphere_type sphere = sphere_type())
+    inline spherical(sphere_type sphere = sphere_type())
         : m_sphere(sphere)
     {}
 
-    inline area_spherical(CT radius) //backward compatibility
+    inline spherical(CT radius) //backward compatibility
         : m_sphere()
     {
         m_sphere.set_radius<0>(radius);
@@ -140,14 +140,14 @@ namespace services
 template <typename Point>
 struct default_strategy<spherical_equatorial_tag, Point>
 {
-    typedef strategy::area::area_spherical<Point> type;
+    typedef strategy::area::spherical<Point> type;
 };
 
 // Note: spherical polar coordinate system requires "get_as_radian_equatorial"
 template <typename Point>
 struct default_strategy<spherical_polar_tag, Point>
 {
-    typedef strategy::area::area_spherical<Point> type;
+    typedef strategy::area::spherical<Point> type;
 };
 
 } // namespace services

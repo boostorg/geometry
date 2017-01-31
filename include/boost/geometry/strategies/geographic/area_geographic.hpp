@@ -24,7 +24,6 @@ namespace strategy { namespace area
 \brief Geographic area calculation by trapezoidal rule plus integral
 approximation that gives the ellipsoidal correction
 
-}
 
 */
 
