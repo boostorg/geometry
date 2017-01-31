@@ -70,14 +70,14 @@ struct test_envelope<Inverse, bg::geographic_tag>
     static inline void apply(Geometry& geometry,
                              Box& detected)
     {
-        bg::strategy::envelope::segment_geographic
+        bg::strategy::envelope::geographic_segment
                 <
                     double,
                     bg::srs::spheroid<double>,
                     Inverse
-                > envelope_segment_geographic_strategy;
+                > envelope_geographic_segment_strategy;
 
-        bg::envelope(geometry, detected, envelope_segment_geographic_strategy);
+        bg::envelope(geometry, detected, envelope_geographic_segment_strategy);
     }
 };
 

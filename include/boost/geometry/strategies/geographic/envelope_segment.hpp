@@ -10,9 +10,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ENVELOPE_SEGMENT_HPP
 
-#include <boost/geometry/formulas/envelope_segment.hpp>
-#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 
 namespace boost { namespace geometry
 {
@@ -27,17 +27,17 @@ template
         template <typename, bool, bool, bool, bool, bool> class Inverse =
                  geometry::formula::thomas_inverse
 >
-class segment_geographic
+class geographic_segment
 {
 public :
 
     typedef Spheroid model_type;
 
-    inline segment_geographic()
+    inline geographic_segment()
         : m_spheroid()
     {}
 
-    explicit inline segment_geographic(Spheroid const& spheroid)
+    explicit inline geographic_segment(Spheroid const& spheroid)
         : m_spheroid(spheroid)
     {}
 
@@ -58,13 +58,14 @@ public :
 
         typedef typename coordinate_system<Point1>::type::units units_type;
 
-        geometry::formula::envelope_segment<geometry::geographic_tag>
+        detail::envelope::envelope_segment_impl<geographic_tag>
                 ::template apply<units_type>(geometry::get<0>(p1_normalized),
                                              geometry::get<1>(p1_normalized),
                                              geometry::get<0>(p2_normalized),
                                              geometry::get<1>(p2_normalized),
                                              box,
                                              azimuth_geographic);
+
     }
 
 private :
@@ -79,7 +80,7 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::envelope::segment_geographic<CalculationType> type;
+    typedef strategy::envelope::geographic_segment<CalculationType> type;
 };
 
 }

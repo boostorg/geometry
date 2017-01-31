@@ -10,8 +10,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_ENVELOPE_SEGMENT_HPP
 
+#include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
-#include <boost/geometry/formulas/envelope_segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
 namespace boost { namespace geometry
@@ -21,11 +21,11 @@ namespace strategy { namespace envelope
 {
 
 template<typename CalculationType>
-class segment_spherical
+class spherical_segment
 {
 public :
 
-    inline segment_spherical()
+    inline spherical_segment()
     {}
 
     template <typename Point1, typename Point2, typename Box>
@@ -39,14 +39,15 @@ public :
 
         typedef typename coordinate_system<Point1>::type::units units_type;
 
-        geometry::formula::envelope_segment<spherical_equatorial_tag>
+        geometry::detail::envelope::envelope_segment_impl<spherical_equatorial_tag>
                 ::template apply<units_type>(geometry::get<0>(p1_normalized),
                                              geometry::get<1>(p1_normalized),
                                              geometry::get<0>(p2_normalized),
                                              geometry::get<1>(p2_normalized),
                                              box,
                                              azimuth_spherical);
-    }
+
+  }
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -57,14 +58,14 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
-    typedef strategy::envelope::segment_spherical<CalculationType> type;
+    typedef strategy::envelope::spherical_segment<CalculationType> type;
 };
 
 
 template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>
 {
-    typedef strategy::envelope::segment_spherical<CalculationType> type;
+    typedef strategy::envelope::spherical_segment<CalculationType> type;
 };
 
 }

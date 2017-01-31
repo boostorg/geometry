@@ -20,7 +20,7 @@ namespace strategy { namespace envelope
 {
 
 template<typename CalculationType>
-class segment_cartesian
+class cartesian_segment
 {
 public :
 
@@ -36,7 +36,7 @@ public :
                 ::apply(point1,
                         point2,
                         box,
-                        strategy::envelope::segment_cartesian<CalculationType>());
+                        strategy::envelope::cartesian_segment<CalculationType>());
     }
 
 };
@@ -49,7 +49,7 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<cartesian_tag, CalculationType>
 {
-    typedef strategy::envelope::segment_cartesian<CalculationType> type;
+    typedef strategy::envelope::cartesian_segment<CalculationType> type;
 };
 
 }
