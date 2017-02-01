@@ -488,6 +488,7 @@ struct traversal
                             if (outgoing_districts.count(district) == 1)
                             {
                                 selected_rank = 0;
+                                outgoing_districts.erase(district);
                             }
                         }
                     }
