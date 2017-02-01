@@ -430,6 +430,20 @@ struct traversal
         return true;
     }
 
+    inline bool get_isolated_region_id(int& region_id, turn_type const& turn, int incoming_region_id) const
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& op = turn.operations[i];
+            region_id = op.enriched.region_id;
+            if (region_id != incoming_region_id)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
@@ -471,13 +485,10 @@ struct traversal
                     if (rwd.direction == sort_by_side::dir_to
                             && turn.both(operation_intersection))
                     {
-                        for (int i = 0; i < 2; i++)
+                        int region_id = -1;
+                        if (get_isolated_region_id(region_id, turn, incoming_region_id))
                         {
-                            int const region_id = turn.operations[i].enriched.region_id;
-                            if (region_id != incoming_region_id)
-                            {
-                                outgoing_region_ids.insert(region_id);
-                            }
+                            outgoing_region_ids.insert(region_id);
                         }
                     }
                     else if (! outgoing_region_ids.empty())
