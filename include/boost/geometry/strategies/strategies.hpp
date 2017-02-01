@@ -58,7 +58,6 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
-//#include <boost/geometry/strategies/spherical/area_huiller.hpp>
 #include <boost/geometry/strategies/spherical/area_spherical.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
