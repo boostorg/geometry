@@ -430,15 +430,48 @@ struct traversal
         return true;
     }
 
-    inline bool get_isolated_region_id(int& region_id, turn_type const& turn, int incoming_region_id) const
+    inline bool get_isolated_region_id(int& region_id, std::set<int>& visited,
+                    int incoming_region_id, int turn_index) const
     {
+        turn_type const& turn = m_turns[turn_index];
+
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
             region_id = op.enriched.region_id;
             if (region_id != incoming_region_id)
             {
-                return true;
+                // Check the type of isolation
+                signed_size_type const destination_turn_index = op.enriched.travels_to_ip_index;
+                if (turn_index == destination_turn_index)
+                {
+                    // It travels to itself, so is isolated
+                    return true;
+                }
+                if (turn.cluster_id >= 0)
+                {
+                    turn_type const& destination_turn = m_turns[destination_turn_index];
+                    if (destination_turn.cluster_id == turn.cluster_id)
+                    {
+                        // It travels to same cluster, so is isolated
+                        return true;
+                    }
+                }
+
+                if (visited.count(destination_turn_index) > 0)
+                {
+                    // Avoid infinite recursion
+                    return false;
+                }
+
+                // Recursive check if travels to an isolated turn
+                int other_region_id = 0;
+                visited.insert(destination_turn_index);
+                if (get_isolated_region_id(other_region_id, visited,
+                            region_id, destination_turn_index))
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -485,7 +518,9 @@ struct traversal
                             && turn.both(operation_intersection))
                     {
                         int region_id = -1;
-                        if (get_isolated_region_id(region_id, turn, incoming_region_id))
+                        std::set<int> visited;
+                        visited.insert(turn_index);
+                        if (get_isolated_region_id(region_id, visited, incoming_region_id, turn_index))
                         {
                             outgoing_region_ids.insert(region_id);
                         }
