@@ -466,7 +466,6 @@ struct traversal
                     // Take the first (= right) where segments leave,
                     // having the polygon on the right side
                     selected_rank = rwr.rank;
-
                 }
             }
 
@@ -474,7 +473,7 @@ struct traversal
             {
                 sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                 turn_type const& turn = m_turns[rwd.turn_index];
-                incoming_region_id = turn.operations[0].enriched.region_id;
+                incoming_region_id = turn.operations[op_index].enriched.region_id;
             }
             else
             {
