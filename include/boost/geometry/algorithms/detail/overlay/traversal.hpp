@@ -456,40 +456,38 @@ struct traversal
                 }
             }
 
+            if (incoming_district == 0)
             {
-                if (incoming_district == 0)
+                sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                turn_type const& turn = m_turns[rwd.turn_index];
+                incoming_district = turn.operations[0].enriched.region_id;
+            }
+            else
+            {
+                if (rwr.rings.size() == 1)
                 {
                     sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                     turn_type const& turn = m_turns[rwd.turn_index];
-                    incoming_district = turn.operations[0].enriched.region_id;
-                }
-                else
-                {
-                    if (rwr.rings.size() == 1)
+                    if (rwd.direction == sort_by_side::dir_to
+                            && turn.both(operation_intersection))
                     {
-                        sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
-                        turn_type const& turn = m_turns[rwd.turn_index];
-                        if (rwd.direction == sort_by_side::dir_to
-                                && turn.both(operation_intersection))
+                        for (int i = 0; i < 2; i++)
                         {
-                            for (int i = 0; i < 2; i++)
+                            int const district = turn.operations[i].enriched.region_id;
+                            if (district != incoming_district)
                             {
-                                int const district = turn.operations[i].enriched.region_id;
-                                if (district != incoming_district)
-                                {
-                                    outgoing_districts.insert(district);
-                                }
+                                outgoing_districts.insert(district);
                             }
                         }
-                        else if (! outgoing_districts.empty())
+                    }
+                    else if (! outgoing_districts.empty())
+                    {
+                        for (int i = 0; i < 2; i++)
                         {
-                            for (int i = 0; i < 2; i++)
+                            int const district = turn.operations[i].enriched.region_id;
+                            if (outgoing_districts.count(district) == 1)
                             {
-                                int const district = turn.operations[i].enriched.region_id;
-                                if (outgoing_districts.count(district) == 1)
-                                {
-                                    selected_rank = 0;
-                                }
+                                selected_rank = 0;
                             }
                         }
                     }
