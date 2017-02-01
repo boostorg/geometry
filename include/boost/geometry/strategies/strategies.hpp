@@ -7,6 +7,7 @@
 // This file was modified by Oracle on 2014-2016.
 // Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -57,7 +58,7 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
-#include <boost/geometry/strategies/spherical/area_huiller.hpp>
+#include <boost/geometry/strategies/spherical/area_spherical.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
@@ -65,6 +66,7 @@
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
+#include <boost/geometry/strategies/geographic/area_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
