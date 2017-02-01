@@ -66,8 +66,8 @@ struct rank_with_rings
     }
 };
 
-template <typename Sbs, typename Turns>
-inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation, Turns const& turns)
+template <typename Sbs>
+inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation)
 {
     aggregation.clear();
     for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
@@ -83,7 +83,6 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
 
         ring_with_direction rwd;
         segment_identifier const& sid = ranked_point.seg_id;
-        typename boost::range_value<Turns>::type const& turn = turns[ranked_point.turn_index];
 
         rwd.ring_id = ring_identifier(sid.source_index, sid.multi_index, sid.ring_index);
         rwd.direction = ranked_point.direction;

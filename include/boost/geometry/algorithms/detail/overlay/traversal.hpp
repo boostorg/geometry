@@ -448,7 +448,7 @@ struct traversal
                 int& op_index, sbs_type const& sbs) const
     {
         std::vector<sort_by_side::rank_with_rings> aggregation;
-        sort_by_side::aggregate_operations(sbs, aggregation, m_turns);
+        sort_by_side::aggregate_operations(sbs, aggregation);
 
         std::size_t selected_rank = 0;
 
