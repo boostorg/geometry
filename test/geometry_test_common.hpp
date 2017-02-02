@@ -50,12 +50,6 @@
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 
-
-#if defined(BOOST_INTEL_CXX_VERSION)
-#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
-#endif
-
-
 #include <boost/foreach.hpp>
 
 #include <string_from_type.hpp>

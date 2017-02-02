@@ -13,6 +13,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/aggregate_operations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -139,10 +140,10 @@ struct traversal
         {
             for (int i = 0; i < 2; i++)
             {
-                turn_operation_type& op = turn.operations[i];
-                if (op.visited.none())
+                turn_operation_type& turn_op = turn.operations[i];
+                if (turn_op.visited.none())
                 {
-                    op.visited.set_visited();
+                    turn_op.visited.set_visited();
                 }
             }
         }
@@ -152,8 +153,8 @@ struct traversal
         }
     }
 
-    inline bool is_visited(turn_type const& turn, turn_operation_type const& op,
-                           signed_size_type turn_index, int op_index) const
+    inline bool is_visited(turn_type const& , turn_operation_type const& op,
+                         signed_size_type , int) const
     {
         return op.visited.visited();
     }
@@ -162,39 +163,30 @@ struct traversal
                               segment_identifier const& seg_id1,
                               segment_identifier const& seg_id2) const
     {
-        if (target_operation == operation_intersection)
-        {
-            // For intersections always switch sources
-            return seg_id1.source_index != seg_id2.source_index;
-        }
-        else if (target_operation == operation_union)
-        {
-            // For uu, only switch sources if indicated
-            turn_type const& turn = m_turns[turn_index];
+        // For uu/ii, only switch sources if indicated
+        turn_type const& turn = m_turns[turn_index];
 
-            if (OverlayType == overlay_buffer)
-            {
-                // Buffer does not use source_index (always 0)
-                return turn.switch_source
-                        ? seg_id1.multi_index != seg_id2.multi_index
-                        : seg_id1.multi_index == seg_id2.multi_index;
-            }
+        if (OverlayType == overlay_buffer)
+        {
+            // Buffer does not use source_index (always 0)
+            return turn.switch_source
+                    ? seg_id1.multi_index != seg_id2.multi_index
+                    : seg_id1.multi_index == seg_id2.multi_index;
+        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-            if (turn.switch_source == 1)
-            {
-                std::cout << "Switch source at " << turn_index << std::endl;
-            }
-            else
-            {
-                std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
-            }
-#endif
-            return turn.switch_source
-                    ? seg_id1.source_index != seg_id2.source_index
-                    : seg_id1.source_index == seg_id2.source_index;
+        if (turn.switch_source)
+        {
+            std::cout << "Switch source at " << turn_index << std::endl;
         }
-        return false;
+        else
+        {
+            std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
+        }
+#endif
+        return turn.switch_source
+                ? seg_id1.source_index != seg_id2.source_index
+                : seg_id1.source_index == seg_id2.source_index;
     }
 
     inline
@@ -273,10 +265,6 @@ struct traversal
                 segment_identifier const& seg_id,
                 int& selected_op_index) const
     {
-        // For "ii", take the other one (alternate)
-        //           UNLESS the other one is already visited
-        // For "uu", take the same one (see above);
-
         bool result = false;
 
         for (int i = 0; i < 2; i++)
@@ -347,13 +335,10 @@ struct traversal
         return true;
     }
 
-    inline bool select_from_cluster(signed_size_type& turn_index,
+    inline bool select_from_cluster_union(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
         sbs_type const& sbs, bool is_touching) const
     {
-        bool const is_union = target_operation == operation_union;
-        bool const is_intersection = target_operation == operation_intersection;
-
         std::size_t selected_rank = 0;
         std::size_t min_rank = 0;
         bool result = false;
@@ -386,11 +371,8 @@ struct traversal
                 && (ranked_point.rank > min_rank
                     || ranked_turn.both(operation_continue)))
             {
-                if ((is_union
-                     && ranked_op.enriched.count_left == 0
+                if (ranked_op.enriched.count_left == 0
                      && ranked_op.enriched.count_right > 0)
-                || (is_intersection
-                     && ranked_op.enriched.count_right == 2))
                 {
                     if (result && ranked_point.turn_index != start_turn_index)
                     {
@@ -400,16 +382,6 @@ struct traversal
 
                     turn_index = ranked_point.turn_index;
                     op_index = ranked_point.operation_index;
-
-                    if (is_intersection
-                        && ranked_turn.both(operation_intersection)
-                        && ranked_op.visited.finalized())
-                    {
-                        // Override:
-                        // For a ii turn, even though one operation might be selected,
-                        // it should take the other one if the first one is used in a completed ring
-                        op_index = 1 - ranked_point.operation_index;
-                    }
 
                     result = true;
                     selected_rank = ranked_point.rank;
@@ -423,10 +395,94 @@ struct traversal
         return result;
     }
 
+    inline bool analyze_cluster_intersection(signed_size_type& turn_index,
+                int& op_index,
+                sbs_type const& sbs) const
+    {
+        std::vector<sort_by_side::rank_with_rings> aggregation;
+        sort_by_side::aggregate_operations(sbs, aggregation);
+
+        std::size_t selected_rank = 0;
+
+        for (std::size_t i = 0; i < aggregation.size(); i++)
+        {
+            sort_by_side::rank_with_rings const& rwr = aggregation[i];
+
+            if (i > 1
+                && i - 1 == selected_rank
+                && rwr.rings.size() == 1)
+            {
+                sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+
+                if (rwd.only_turn_on_ring)
+                {
+                    // Find if this arriving ring was leaving previously
+                    sort_by_side::ring_with_direction leaving = rwd;
+                    leaving.direction = sort_by_side::dir_to;
+
+                    sort_by_side::rank_with_rings const& previous = aggregation[i - 1];
+
+                    if (previous.rings.size() == 1
+                        && previous.rings.count(leaving) == 1)
+                    {
+                        // It arrives back - if this is one of the selected, unselect it
+                        selected_rank = 0;
+                    }
+                }
+            }
+
+            if (rwr.all_to())
+            {
+                if (selected_rank == 0)
+                {
+                    // Take the first (= right) where segments leave,
+                    // having the polygon on the right side
+                    selected_rank = rwr.rank;
+                }
+            }
+        }
+
+        if (selected_rank > 0)
+        {
+            std::size_t selected_index = sbs.m_ranked_points.size();
+            for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+            {
+                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+
+                if (ranked_point.rank == selected_rank)
+                {
+                    turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
+                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
+
+                    if (ranked_op.visited.finalized())
+                    {
+                        // This direction is already traveled before, the same
+                        // cannot be traveled again
+                        return false;
+                    }
+
+                    // Take the last turn from this rank
+                    selected_index = i;
+                }
+            }
+
+            if (selected_index < sbs.m_ranked_points.size())
+            {
+                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[selected_index];
+                turn_index = ranked_point.turn_index;
+                op_index = ranked_point.operation_index;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, bool& is_touching,
             signed_size_type start_turn_index,
-            segment_identifier const& previous_seg_id) const
+            segment_identifier const& previous_seg_id,
+            bool is_start) const
     {
         bool const is_union = target_operation == operation_union;
 
@@ -488,30 +544,76 @@ struct traversal
 
         sbs.apply(turn.point);
 
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        is_touching = is_union && cinfo.open_count > 1;
-        if (is_touching)
+        bool result = false;
+
+        if (is_union)
         {
-            if (cinfo.switch_source)
+    #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+            is_touching = cinfo.open_count > 1;
+            if (is_touching)
             {
-                is_touching = false;
-                std::cout << "CLUSTER: SWITCH SOURCES at " << turn_index << std::endl;
+                if (cinfo.switch_source)
+                {
+                    is_touching = false;
+                    std::cout << "CLUSTER: SWITCH SOURCES at " << turn_index << std::endl;
+                }
+                else
+                {
+                    std::cout << "CLUSTER: CONTINUE at " << turn_index << std::endl;
+                }
             }
-            else
+    #else
+            is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
+    #endif
+
+            if (is_touching)
             {
-                std::cout << "CLUSTER: CONTINUE at " << turn_index << std::endl;
+                sbs.reverse();
             }
+
+            result = select_from_cluster_union(turn_index, op_index, start_turn_index, sbs,
+                                       is_touching);
         }
-#else
-        is_touching = is_union && cinfo.open_count > 1 && ! cinfo.switch_source;
-#endif
-        if (is_touching)
+        else
         {
-            sbs.reverse();
+            if (is_start
+                && turn.both(operation_intersection)
+                && turn.operations[op_index].enriched.only_turn_on_ring)
+            {
+                // For an ii (usually interior ring), only turn on ring,
+                // reverse to take first exit
+                sbs.reverse();
+            }
+
+            result = analyze_cluster_intersection(turn_index, op_index, sbs);
+        }
+        return result;
+    }
+
+    inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
+                    turn_type const& current_turn,
+                    segment_identifier const& previous_seg_id)
+    {
+        sbs_type sbs;
+
+        // Add this turn to the sort-by-side sorter
+        bool has_origin = false;
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& op = current_turn.operations[i];
+            bool const is_origin = op.seg_id.source_index
+                                   == previous_seg_id.source_index;
+            has_origin = has_origin || is_origin;
+            sbs.add(op, turn_index, i, m_geometry1, m_geometry2, is_origin);
         }
 
-        return select_from_cluster(turn_index, op_index, start_turn_index, sbs,
-                                   is_touching);
+        if (! has_origin)
+        {
+            return false;
+        }
+
+        sbs.apply(current_turn.point);
+        return analyze_cluster_intersection(turn_index, op_index, sbs);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -607,7 +709,7 @@ struct traversal
         return true;
     }
 
-    bool select_turn(signed_size_type start_turn_index,
+    bool select_turn(signed_size_type start_turn_index, int start_op_index,
                      signed_size_type& turn_index,
                      int& op_index,
                      bool& is_touching,
@@ -616,10 +718,37 @@ struct traversal
                      segment_identifier const& previous_seg_id,
                      bool is_start)
     {
-        if (m_turns[turn_index].cluster_id >= 0)
+        turn_type const& current_turn = m_turns[turn_index];
+
+        if (target_operation == operation_intersection)
+        {
+            bool const back_at_start_cluster
+                    = current_turn.cluster_id >= 0
+                    && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
+
+            if (turn_index == start_turn_index || back_at_start_cluster)
+            {
+                // Intersection can always be finished if returning
+                turn_index = start_turn_index;
+                op_index = start_op_index;
+                return true;
+            }
+
+            if (current_turn.cluster_id < 0
+                && current_turn.both(operation_intersection))
+            {
+                if (analyze_ii_intersection(turn_index, op_index, current_turn,
+                            previous_seg_id))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (current_turn.cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index, is_touching,
-                    start_turn_index, previous_seg_id))
+                    start_turn_index, previous_seg_id, is_start))
             {
                 return false;
             }
@@ -631,8 +760,6 @@ struct traversal
         }
         else
         {
-            turn_type const& current_turn = m_turns[turn_index];
-
             op_index = starting_operation_index(current_turn);
             if (op_index == -1)
             {

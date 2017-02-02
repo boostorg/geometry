@@ -305,6 +305,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 << " Expected: " << expected_area
                 << " Detected: " << area
                 << " Diff: " << difference
+                << " Tol: " << tolerance
                 << std::setprecision(3)
                 << " , " << 100.0 * (difference / expected_area) << "%"
             );

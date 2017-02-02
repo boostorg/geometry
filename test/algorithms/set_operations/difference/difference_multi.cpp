@@ -23,6 +23,11 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#define TEST_DIFFERENCE(caseid, clips1, points1, area1, clips2, points2, area2) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2)
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -85,6 +90,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
+
+    TEST_DIFFERENCE(case_123_multi, 1, 4, 0.25, 2, 9, 0.625);
+    TEST_DIFFERENCE(case_124_multi, 1, 4, 0.25, 2, 9, 0.4375);
 
     {
         ut_settings settings;

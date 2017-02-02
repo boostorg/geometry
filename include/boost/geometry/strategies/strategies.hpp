@@ -7,6 +7,7 @@
 // This file was modified by Oracle on 2014-2016.
 // Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library

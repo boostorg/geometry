@@ -54,7 +54,7 @@ void test_distance(
 #if !defined(BOOST_MSVC)
     BOOST_CONCEPT_ASSERT
         (
-            (bg::concept::PointSegmentDistanceStrategy<strategy_type, Point, Point>)
+            (bg::concepts::PointSegmentDistanceStrategy<strategy_type, Point, Point>)
         );
 #endif
 

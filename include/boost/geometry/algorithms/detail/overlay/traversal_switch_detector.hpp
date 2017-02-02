@@ -71,8 +71,8 @@ struct traversal_switch_detector
     {
         if (turn.cluster_id == -1)
         {
-            // If it is a uu-turn (non clustered), it is never same zone
-            return ! turn.both(operation_union);
+            // If it is a uu/ii-turn (non clustered), it is never same zone
+            return ! (turn.both(operation_union) || turn.both(operation_intersection));
         }
 
         // It is a cluster, check zones of both operations
@@ -114,7 +114,7 @@ struct traversal_switch_detector
             turn_type const& turn = m_turns[turn_index];
             if (! connects_same_zone(turn))
             {
-                // This is a non clustered uu-turn, or a cluster connecting different 'zones'
+                // This is a non clustered uu/ii-turn, or a cluster connecting different 'zones'
                 continue;
             }
 
@@ -127,6 +127,56 @@ struct traversal_switch_detector
                 if (connected_ring_id != ring_id)
                 {
                     propagate_region(connected_ring_id, region_id);
+                }
+            }
+        }
+    }
+
+    void check_turns_per_ring(ring_identifier const& ring_id,
+            std::set<signed_size_type> const& ring_turn_indices)
+    {
+        bool only_turn_on_ring = true;
+        if (ring_turn_indices.size() > 1)
+        {
+            // More turns on this ring. Only leave only_turn_on_ring true
+            // if they are all of the same cluster
+            int cluster_id = -1;
+            for (set_iterator sit = ring_turn_indices.begin();
+                 sit != ring_turn_indices.end(); ++sit)
+            {
+                turn_type const& turn = m_turns[*sit];
+                if (turn.cluster_id == -1)
+                {
+                    // Unclustered turn - and there are 2 or more turns
+                    // so the ring has different turns
+                    only_turn_on_ring = false;
+                    break;
+                }
+
+                // Clustered turn, check if it is the first or same as previous
+                if (cluster_id == -1)
+                {
+                    cluster_id = turn.cluster_id;
+                }
+                else if (turn.cluster_id != cluster_id)
+                {
+                    only_turn_on_ring = false;
+                    break;
+                }
+            }
+        }
+
+        // Assign result to matching operation (a turn is always on two rings)
+        for (set_iterator sit = ring_turn_indices.begin();
+             sit != ring_turn_indices.end(); ++sit)
+        {
+            turn_type& turn = m_turns[*sit];
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+                if (ring_id_by_seg_id(op.seg_id) == ring_id)
+                {
+                    op.enriched.only_turn_on_ring = only_turn_on_ring;
                 }
             }
         }
@@ -168,6 +218,7 @@ struct traversal_switch_detector
              = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
         {
             create_region(it->first, it->second);
+            check_turns_per_ring(it->first, it->second);
         }
 
         // Now that all regions are filled, assign switch_source property
@@ -204,7 +255,7 @@ struct traversal_switch_detector
             cinfo.switch_source = regions.size() == 1;
         }
 
-        // Iterate through all uu turns (non-clustered)
+        // Iterate through all uu/ii turns (non-clustered)
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
             turn_type& turn = m_turns[turn_index];
@@ -212,9 +263,9 @@ struct traversal_switch_detector
             if (turn.discarded
                     || turn.blocked()
                     || turn.cluster_id >= 0
-                    || ! turn.both(operation_union))
+                    || ! (turn.both(operation_union) || turn.both(operation_intersection)))
             {
-                // Skip discarded, blocked, non-uu and clustered turns
+                // Skip discarded, blocked, non-uu/ii and clustered turns
                 continue;
             }
 
@@ -242,9 +293,10 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-            if (turn.both(operation_union) && turn.cluster_id < 0)
+            if ((turn.both(operation_union) || turn.both(operation_intersection))
+                 && turn.cluster_id < 0)
             {
-                std::cout << "UU SWITCH RESULT "
+                std::cout << "UU/II SWITCH RESULT "
                              << turn_index << " -> "
                           << turn.switch_source << std::endl;
             }

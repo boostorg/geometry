@@ -294,16 +294,16 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
-                1, 4, 70368744177664);
+                1, 4, 70368744177664.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_b",
                 ticket_10747_b[0], ticket_10747_b[1],
-                1, 4, 7036874417766400);
+                1, 4, 7036874417766400.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_c",
                 ticket_10747_c[0], ticket_10747_c[1],
-                1, 4, 17592186044416);
+                1, 4, 17592186044416.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_d",
                 ticket_10747_d[0], ticket_10747_d[1],
-                1, 4, 703687777321);
+                1, 4, 703687777321.0);
     test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
                 ticket_10747_e[0], ticket_10747_e[1],
                 1, 4, 7.0368748575710959e-15);
@@ -332,6 +332,13 @@ void test_areal()
         case_81[0], case_81[1],
         0, -1, 0.0);
 
+    test_one<Polygon, Polygon, Polygon>("case_101",
+        case_101[0], case_101[1],
+        0, -1, 6.25);
+    test_one<Polygon, Polygon, Polygon>("case_102",
+        case_102[0], case_102[1],
+        0, -1, 3.1875);
+
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
         0, -1, 0.0);
@@ -345,6 +352,7 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
+    // Needs self-intersections to solve validity
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
         mysql_23023665_6[0], mysql_23023665_6[1],
         1, -1, 11.812440191387557,
@@ -352,13 +360,11 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
-        1, 0, -1, 54.701340543162523,
-        ignore_validity);
+        1, 0, -1, 54.701340543162523);
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
         mysql_23023665_11[0], mysql_23023665_11[1],
-        1, 0, -1, 35.933385462482065,
-        ignore_validity);
+        1, 0, -1, 35.933385462482065);
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",
@@ -822,7 +828,7 @@ void test_ticket_10868(std::string const& wkt_out)
 
     test_one<polygon_type, polygon_type, polygon_type>("ticket_10868",
         ticket_10868[0], ticket_10868[1],
-        1, 7, 20266195244586);
+        1, 7, 20266195244586.0);
 }
 
 int test_main(int, char* [])

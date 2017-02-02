@@ -97,10 +97,7 @@ public :
 
         typename Backtrack::state_type state;
 
-        for (int pass = 0; pass < 2; pass++)
-        {
-            trav.iterate(rings, finalized_ring_size, state, pass);
-        }
+        trav.iterate(rings, finalized_ring_size, state);
     }
 };
 

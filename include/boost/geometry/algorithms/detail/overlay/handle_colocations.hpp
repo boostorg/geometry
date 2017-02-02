@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
@@ -396,6 +397,8 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
     bool const same_multi1 = ! Reverse1
                              && ext_seg_1.multi_index == other_seg_1.multi_index;
 
+    boost::ignore_unused(same_multi1);
+
     return same_multi0
             && same_multi1
             && ! is_interior<Reverse0>(ext_seg_0)
@@ -684,6 +687,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         sbs.apply(turn_point);
 
         sbs.find_open();
+        sbs.assign_zones(for_operation);
 
         // Unset the startable flag for all 'closed' zones
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
@@ -710,7 +714,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count(turns);
+        cinfo.open_count = sbs.open_count(for_operation);
     }
 }
 
