@@ -61,7 +61,7 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
-#include <boost/geometry/strategies/spherical/area_huiller.hpp>
+#include <boost/geometry/strategies/spherical/area_spherical.hpp>
 #include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
@@ -71,6 +71,7 @@
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
+#include <boost/geometry/strategies/geographic/area_geographic.hpp>
 #include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
