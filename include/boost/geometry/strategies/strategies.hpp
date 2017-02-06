@@ -24,11 +24,13 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
+#include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp> // for backward compatibility
 #include <boost/geometry/strategies/side.hpp>
@@ -36,6 +38,7 @@
 #include <boost/geometry/strategies/within.hpp>
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/azimuth_cartesian.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_round.hpp>
@@ -53,23 +56,28 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
+#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/spherical/area_spherical.hpp>
+#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
+#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
 #include <boost/geometry/strategies/geographic/area_geographic.hpp>
+#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
+#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 //#include <boost/geometry/strategies/geographic/side_andoyer.hpp>
 //#include <boost/geometry/strategies/geographic/side_thomas.hpp>
 //#include <boost/geometry/strategies/geographic/side_vincenty.hpp>
