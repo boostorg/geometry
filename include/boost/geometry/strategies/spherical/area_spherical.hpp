@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 
 #include <boost/geometry/formulas/area_formulas.hpp>
+#include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
 
 namespace boost { namespace geometry
@@ -60,7 +61,7 @@ protected :
         inline CT area(SphereType sphere) const
         {
             CT result;
-            CT radius = sphere.get_radius<0>();
+            CT radius = geometry::get_radius<0>(sphere);
 
             // Encircles pole
             if(m_crosses_prime_meridian % 2 == 1)
