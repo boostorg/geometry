@@ -61,22 +61,28 @@ template <typename Geometry1, typename Geometry2,
           typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
 struct disjoint_no_intersections_policy
 {
-    template <typename PiGStrategy>
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, PiGStrategy const& pig_strategy)
+    /*!
+    \tparam Strategy point_in_geometry strategy
+    */
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
         typedef typename point_type<Geometry1>::type point1_type;
         point1_type p;
         geometry::point_on_border(p, g1);
 
-        return !geometry::covered_by(p, g2, pig_strategy);
+        return !geometry::covered_by(p, g2, strategy);
     }
 };
 
 template <typename Geometry1, typename Geometry2, typename Tag1>
 struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
 {
-    template <typename PiGStrategy>
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, PiGStrategy const& pig_strategy)
+    /*!
+    \tparam Strategy point_in_geometry strategy
+    */
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
         // TODO: use partition or rtree on g2
         typedef typename boost::range_iterator<Geometry1 const>::type iterator;
@@ -84,7 +90,7 @@ struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
         {
             typedef typename boost::range_value<Geometry1 const>::type value_type;
             if ( ! disjoint_no_intersections_policy<value_type const, Geometry2>
-                    ::apply(*it, g2, pig_strategy) )
+                    ::apply(*it, g2, strategy) )
             {
                 return false;
             }
@@ -99,6 +105,9 @@ template<typename Geometry1, typename Geometry2,
                     = disjoint_no_intersections_policy<Geometry1, Geometry2> >
 struct disjoint_linear_areal
 {
+    /*!
+    \tparam Strategy relate (segments intersection) strategy
+    */
     template <typename Strategy>
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
@@ -108,13 +117,9 @@ struct disjoint_linear_areal
             return false;
         }
 
-        typename Strategy::template point_in_geometry_strategy
-            <
-                Geometry1, Geometry2
-            >::type
-            pig_strategy = strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>();
-
-        return NoIntersectionsPolicy::apply(g1, g2, pig_strategy);
+        return NoIntersectionsPolicy
+                ::apply(g1, g2,
+                        strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>());
     }
 };
 
@@ -184,16 +189,11 @@ public:
             return false;
         }
 
-        typename IntersectionStrategy::template point_in_geometry_strategy
-            <
-                Segment, Polygon
-            >::type
-            pig_strategy = strategy.template get_point_in_geometry_strategy<Segment, Polygon>();
-
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
-        return !geometry::covered_by(p, polygon, pig_strategy);
+        return !geometry::covered_by(p, polygon,
+                    strategy.template get_point_in_geometry_strategy<Segment, Polygon>());
     }
 };
 
@@ -229,16 +229,11 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
             return false;
         }
 
-        typename IntersectionStrategy::template point_in_geometry_strategy
-            <
-                Segment, Ring
-            >::type
-            pig_strategy = strategy.template get_point_in_geometry_strategy<Segment, Ring>();
-
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
-        return !geometry::covered_by(p, ring, pig_strategy);        
+        return !geometry::covered_by(p, ring,
+                    strategy.template get_point_in_geometry_strategy<Segment, Ring>());
     }
 };
 

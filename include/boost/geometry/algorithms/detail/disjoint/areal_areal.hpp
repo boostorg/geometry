@@ -42,8 +42,11 @@ namespace detail { namespace disjoint
 template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct check_each_ring_for_within_call_covered_by
 {
-    template <typename Point, typename PiGStrategy>
-    static inline bool apply(Point const& p, Geometry const& g, PiGStrategy const& strategy)
+    /*!
+    \tparam Strategy point_in_geometry strategy
+    */
+    template <typename Point, typename Strategy>
+    static inline bool apply(Point const& p, Geometry const& g, Strategy const& strategy)
     {
         return geometry::covered_by(p, g, strategy);
     }
@@ -52,26 +55,29 @@ struct check_each_ring_for_within_call_covered_by
 template <typename Geometry>
 struct check_each_ring_for_within_call_covered_by<Geometry, box_tag>
 {
-    template <typename Point, typename PiGStrategy>
-    static inline bool apply(Point const& p, Geometry const& g, PiGStrategy const& )
+    template <typename Point, typename Strategy>
+    static inline bool apply(Point const& p, Geometry const& g, Strategy const& )
     {
         return geometry::covered_by(p, g);
     }
 };
 
 
-template<typename Geometry, typename PiGStrategy>
+/*!
+\tparam Strategy point_in_geometry strategy
+*/
+template<typename Geometry, typename Strategy>
 struct check_each_ring_for_within
 {
     bool not_disjoint;
     Geometry const& m_geometry;
-    PiGStrategy const& m_pig_strategy;
+    Strategy const& m_strategy;
 
     inline check_each_ring_for_within(Geometry const& g,
-                                      PiGStrategy const& pig_strategy)
+                                      Strategy const& strategy)
         : not_disjoint(false)
         , m_geometry(g)
-        , m_pig_strategy(pig_strategy)
+        , m_strategy(strategy)
     {}
 
     template <typename Range>
@@ -83,21 +89,23 @@ struct check_each_ring_for_within
                   && check_each_ring_for_within_call_covered_by
                         <
                             Geometry
-                        >::apply(pt, m_geometry, m_pig_strategy) );
+                        >::apply(pt, m_geometry, m_strategy) );
     }
 };
 
 
-
-template <typename FirstGeometry, typename SecondGeometry, typename PiGStrategy>
+/*!
+\tparam Strategy point_in_geometry strategy
+*/
+template <typename FirstGeometry, typename SecondGeometry, typename Strategy>
 inline bool rings_containing(FirstGeometry const& geometry1,
                              SecondGeometry const& geometry2,
-                             PiGStrategy const& pig_strategy)
+                             Strategy const& strategy)
 {
     check_each_ring_for_within
         <
-            FirstGeometry, PiGStrategy
-        > checker(geometry1, pig_strategy);
+            FirstGeometry, Strategy
+        > checker(geometry1, strategy);
     geometry::detail::for_each_range(geometry2, checker);
     return checker.not_disjoint;
 }
@@ -107,6 +115,9 @@ inline bool rings_containing(FirstGeometry const& geometry1,
 template <typename Geometry1, typename Geometry2>
 struct general_areal
 {
+    /*!
+    \tparam Strategy relate (segments intersection) strategy
+    */
     template <typename Strategy>
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,

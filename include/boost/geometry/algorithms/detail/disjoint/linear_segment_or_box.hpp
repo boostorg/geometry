@@ -83,18 +83,12 @@ struct disjoint_range_segment_or_box
         }
         else if ( count == 1 )
         {
-            typename Strategy::template point_in_geometry_strategy
-                <
-                    Range, SegmentOrBox
-                >::type
-                pig_strategy = strategy.template get_point_in_geometry_strategy<Range, SegmentOrBox>();
-
             return dispatch::disjoint
                 <
                     point_type, SegmentOrBox
                 >::apply(geometry::range::front<view_type const>(view),
                          segment_or_box,
-                         pig_strategy);
+                         strategy.template get_point_in_geometry_strategy<Range, SegmentOrBox>());
         }
         else
         {
