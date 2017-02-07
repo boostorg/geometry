@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -32,11 +33,7 @@ class vertex_latitude_on_sphere
 {
 
 public:
-
-    template <
-            typename T1,
-            typename T2
-            >
+    template<typename T1, typename T2>
     static inline CT apply(T1 const& lat1,
                            T2 const& alp1)
     {
@@ -49,20 +46,15 @@ class vertex_latitude_on_spheroid
 {
 
 public:
-    template <
-            typename T1,
-            typename T2
-            >
 /*
  * formula based on paper
  *   [Wood96] Wood - Vertex Latitudes on Ellipsoid Geodesics, SIAM Rev., 38(4),
  *            637–644, 1996
-
+    template <typename T1, typename T2, typename Spheroid>
     static inline CT apply(T1 const& lat1,
-                           T2 const& alp1)
+                           T2 const& alp1,
+                           Spheroid const& spheroid)
     {
-
-        geometry::srs::spheroid<CT> spheroid;
         CT const f = detail::flattening<CT>(spheroid);
 
         CT const e2 = f * (CT(2) - f);
@@ -79,12 +71,11 @@ public:
 */
 
     // simpler formula based on Clairaut relation for spheroids
-
+    template <typename T1, typename T2, typename Spheroid>
     static inline CT apply(T1 const& lat1,
-                           T2 const& alp1)
+                           T2 const& alp1,
+                           Spheroid const& spheroid)
     {
-
-        geometry::srs::spheroid<CT> spheroid;
         CT const f = detail::flattening<CT>(spheroid);
 
         CT const one_minus_f = (CT(1) - f);

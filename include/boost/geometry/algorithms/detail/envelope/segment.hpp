@@ -54,6 +54,32 @@ namespace boost { namespace geometry
 namespace detail { namespace envelope
 {
 
+template <typename CalculationType, typename CS_Tag>
+struct envelope_segment_call_vertex_latitude
+{
+    template <typename T1, typename T2, typename Strategy>
+    static inline CalculationType apply(T1 const& lat1,
+                                        T2 const& alp1,
+                                        Strategy const& )
+    {
+        return geometry::formula::vertex_latitude<CalculationType, CS_Tag>
+            ::apply(lat1, alp1);
+    }
+};
+
+template <typename CalculationType>
+struct envelope_segment_call_vertex_latitude<CalculationType, geographic_tag>
+{
+    template <typename T1, typename T2, typename Strategy>
+    static inline CalculationType apply(T1 const& lat1,
+                                        T2 const& alp1,
+                                        Strategy const& strategy)
+    {
+        return geometry::formula::vertex_latitude<CalculationType, geographic_tag>
+            ::apply(lat1, alp1, strategy.model());
+    }
+};
+
 template <typename CS_Tag>
 class envelope_segment_impl
 {
@@ -91,9 +117,9 @@ private:
                                             CoordinateType const& lon2)
     {
         typedef math::detail::constants_on_spheroid
-                <
+            <
                 CoordinateType, Units
-                > constants;
+            > constants;
 
         return math::abs(lon1 - lon2) > constants::half_period(); // > pi
     }
@@ -131,8 +157,8 @@ private:
 
         if (contains_pi_half(a1, a2))
         {
-            CalculationType p_max = geometry::formula
-                    ::vertex_latitude<CalculationType, CS_Tag>::apply(lat1_rad, a1);
+            CalculationType p_max = envelope_segment_call_vertex_latitude
+                <CalculationType, CS_Tag>::apply(lat1_rad, a1, strategy);
 
             CalculationType const mid_lat = lat1 + lat2;
             if (mid_lat < 0)
@@ -140,7 +166,7 @@ private:
                 // update using min latitude
                 CalculationType const lat_min_rad = -p_max;
                 CalculationType const lat_min
-                        = math::from_radian<Units>(lat_min_rad);
+                    = math::from_radian<Units>(lat_min_rad);
 
                 if (lat1 > lat_min)
                 {
@@ -152,7 +178,7 @@ private:
                 // update using max latitude
                 CalculationType const lat_max_rad = p_max;
                 CalculationType const lat_max
-                        = math::from_radian<Units>(lat_max_rad);
+                    = math::from_radian<Units>(lat_max_rad);
 
                 if (lat2 < lat_max)
                 {
@@ -170,9 +196,9 @@ private:
                              Strategy const& strategy)
     {
         typedef math::detail::constants_on_spheroid
-                <
+            <
                 CalculationType, Units
-                > constants;
+            > constants;
 
         bool is_pole1 = math::equals(math::abs(lat1), constants::max_latitude());
         bool is_pole2 = math::equals(math::abs(lat2), constants::max_latitude());
@@ -243,33 +269,33 @@ public:
         typedef typename coordinate_type<Box>::type box_coordinate_type;
 
         typedef typename helper_geometry
-                <
+            <
                 Box, box_coordinate_type, Units
-                >::type helper_box_type;
+            >::type helper_box_type;
 
         helper_box_type radian_mbr;
 
         apply<Units>(lon1, lat1, lon2, lat2, strategy);
 
         geometry::set
-                <
+            <
                 min_corner, 0
-                >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
 
         geometry::set
-                <
+            <
                 min_corner, 1
-                >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
 
         geometry::set
-                <
+            <
                 max_corner, 0
-                >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
 
         geometry::set
-                <
+            <
                 max_corner, 1
-                >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
 
         transform_units(radian_mbr, mbr);
     }
@@ -286,12 +312,12 @@ struct envelope_one_segment
     {
         envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr, strategy);
         detail::expand::point_loop
-                <
+            <
                 strategy::compare::default_strategy,
                 strategy::compare::default_strategy,
                 Dimension,
                 DimensionCount
-                >::apply(mbr, p2, strategy);
+            >::apply(mbr, p2, strategy);
     }
 };
 
@@ -344,9 +370,9 @@ struct envelope<Segment, segment_tag>
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
         detail::envelope::envelope_segment
-                <
-                dimension<Segment>::value
-                >::apply(p[0], p[1], mbr, strategy);
+            <
+               dimension<Segment>::value
+            >::apply(p[0], p[1], mbr, strategy);
     }
 };
 

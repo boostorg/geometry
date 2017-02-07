@@ -2,6 +2,7 @@
 
 // Copyright (c) 2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,6 +13,7 @@
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
 
 namespace boost { namespace geometry
@@ -22,15 +24,14 @@ namespace strategy { namespace envelope
 
 template
 <
-        typename CalculationType,
-        typename Spheroid = geometry::srs::spheroid<CalculationType>,
-        template <typename, bool, bool, bool, bool, bool> class Inverse =
-                 geometry::formula::thomas_inverse
+    typename CalculationType,
+    typename Spheroid = geometry::srs::spheroid<CalculationType>,
+    template <typename, bool, bool, bool, bool, bool> class Inverse =
+        geometry::formula::thomas_inverse
 >
 class geographic_segment
 {
-public :
-
+public:
     typedef Spheroid model_type;
 
     inline geographic_segment()
@@ -42,33 +43,33 @@ public :
     {}
 
     template <typename Point1, typename Point2, typename Box>
-    inline void
-    apply(Point1 const& point1, Point2 const& point2, Box& box) const
+    inline void apply(Point1 const& point1, Point2 const& point2, Box& box) const
     {
-
         Point1 p1_normalized = detail::return_normalized<Point1>(point1);
         Point2 p2_normalized = detail::return_normalized<Point2>(point2);
 
         geometry::strategy::azimuth::geographic
-                        <
-                            CalculationType,
-                            geometry::srs::spheroid<CalculationType>,
-                            Inverse
-                        > azimuth_geographic;
+            <
+                CalculationType,
+                Spheroid,
+                Inverse
+            > azimuth_geographic(m_spheroid);
 
         typedef typename coordinate_system<Point1>::type::units units_type;
 
-        detail::envelope::envelope_segment_impl<geographic_tag>
-                ::template apply<units_type>(geometry::get<0>(p1_normalized),
-                                             geometry::get<1>(p1_normalized),
-                                             geometry::get<0>(p2_normalized),
-                                             geometry::get<1>(p2_normalized),
-                                             box,
-                                             azimuth_geographic);
+        detail::envelope::envelope_segment_impl
+            <
+                geographic_tag
+            >::template apply<units_type>(geometry::get<0>(p1_normalized),
+                                          geometry::get<1>(p1_normalized),
+                                          geometry::get<0>(p2_normalized),
+                                          geometry::get<1>(p2_normalized),
+                                          box,
+                                          azimuth_geographic);
 
     }
 
-private :
+private:
     Spheroid m_spheroid;
 };
 

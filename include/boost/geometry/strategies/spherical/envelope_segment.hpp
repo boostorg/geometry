@@ -11,8 +11,9 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_ENVELOPE_SEGMENT_HPP
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
-#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/strategies/envelope.hpp>
+#include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
 
 namespace boost { namespace geometry
 {
