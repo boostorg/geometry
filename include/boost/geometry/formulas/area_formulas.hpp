@@ -559,8 +559,8 @@ public:
                                 - ( floor( get_as_radian<0>(p2) / two_pi )
                                   * two_pi );
 
-        CT max_lon = std::max(p1_lon, p2_lon);
-        CT min_lon = std::min(p1_lon, p2_lon);
+        CT max_lon = (std::max)(p1_lon, p2_lon);
+        CT min_lon = (std::min)(p1_lon, p2_lon);
 
         if(max_lon > pi && min_lon < pi && max_lon - min_lon > pi)
         {
