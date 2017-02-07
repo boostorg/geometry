@@ -68,8 +68,7 @@ struct relate_geodesic_segments
 
     static inline side_strategy_type get_side_strategy()
     {
-        // TODO: pass m_strategy
-        return side_strategy_type(Spheroid());
+        return side_strategy_type(m_spheroid);
     }
 
     template <typename Geometry1, typename Geometry2>
@@ -92,7 +91,7 @@ struct relate_geodesic_segments
             <
                 Geometry1, Geometry2
             >::type strategy_type;
-        return strategy_type();
+        return strategy_type(get_side_strategy());
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
@@ -160,6 +159,10 @@ struct relate_geodesic_segments
         intersection_point_flag ip_flag;
     };
 
+    relate_geodesic_segments(Spheroid const& spheroid = Spheroid())
+        : m_spheroid(spheroid)
+    {}
+
     // Relate segments a and b
     template
     <
@@ -168,9 +171,9 @@ struct relate_geodesic_segments
         typename Policy,
         typename RobustPolicy
     >
-    static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const& policy, RobustPolicy const& robust_policy)
+    inline typename Policy::return_type apply(Segment1 const& a, Segment2 const& b,
+                                              Policy const& policy,
+                                              RobustPolicy const& robust_policy) const
     {
         typedef typename point_type<Segment1>::type point1_t;
         typedef typename point_type<Segment2>::type point2_t;
@@ -195,10 +198,9 @@ struct relate_geodesic_segments
         typename Point1,
         typename Point2
     >
-    static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const&, RobustPolicy const&,
-              Point1 a1, Point1 a2, Point2 b1, Point2 b2)
+    inline typename Policy::return_type apply(Segment1 const& a, Segment2 const& b,
+                                              Policy const&, RobustPolicy const&,
+                                              Point1 a1, Point1 a2, Point2 b1, Point2 b2) const
     {
         bool is_a_reversed = get<1>(a1) > get<1>(a2);
         bool is_b_reversed = get<1>(b1) > get<1>(b2);
@@ -226,10 +228,10 @@ private:
         typename Point1,
         typename Point2
     >
-    static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2,
-              bool is_a_reversed, bool is_b_reversed)
+    inline typename Policy::return_type apply(Segment1 const& a, Segment2 const& b,
+                                              Point1 const& a1, Point1 const& a2,
+                                              Point2 const& b1, Point2 const& b2,
+                                              bool is_a_reversed, bool is_b_reversed) const
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
@@ -237,14 +239,10 @@ private:
         typedef typename select_calculation_type
             <Segment1, Segment2, CalculationType>::type calc_t;
 
-        // For now create it using default constructor. In the future it could
-        // be stored in strategy. However then apply() wouldn't be static and
-        // all relops and setops would have to take the strategy or model.
-        Spheroid spheroid_in;
         // normalized spheroid
         srs::spheroid<calc_t> spheroid(calc_t(1),
-                                       calc_t(get_radius<2>(spheroid_in)) // b/a
-                                        / calc_t(get_radius<0>(spheroid_in)));
+                                       calc_t(get_radius<2>(m_spheroid)) // b/a
+                                        / calc_t(get_radius<0>(m_spheroid)));
 
         // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;
@@ -838,6 +836,9 @@ private:
                   ip_flag == ipi_at_p2 ? ipi_at_p1 :
                   ip_flag;
     }
+
+private:
+    Spheroid m_spheroid;
 };
 
 
