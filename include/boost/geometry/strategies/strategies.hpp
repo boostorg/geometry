@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -29,10 +29,13 @@
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/convex_hull.hpp>
+#include <boost/geometry/strategies/covered_by.hpp>
+#include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp> // for backward compatibility
+#include <boost/geometry/strategies/relate.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -51,6 +54,7 @@
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_box_box.hpp>
@@ -89,8 +93,6 @@
 #include <boost/geometry/strategies/agnostic/point_in_point.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
-
-#include <boost/geometry/strategies/agnostic/relate.hpp>
 
 #include <boost/geometry/strategies/strategy_transform.hpp>
 

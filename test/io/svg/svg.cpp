@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -29,7 +29,8 @@
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/io/svg/write.hpp>
 
-#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
+
 
 template <typename R, typename T>
 inline void push_back_square(R & rng, T const& mi, T const& ma)

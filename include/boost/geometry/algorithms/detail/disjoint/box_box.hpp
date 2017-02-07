@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2016.
-// Modifications copyright (c) 2013-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2017.
+// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -52,6 +52,12 @@ template
 >
 struct box_box
 {
+    template <typename Strategy>
+    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const&)
+    {
+        return apply(box1, box2);
+    }
+
     static inline bool apply(Box1 const& box1, Box2 const& box2)
     {
         if (get<max_corner, Dimension>(box1) < get<min_corner, Dimension>(box2))
@@ -84,6 +90,12 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount, CSTag>
 template <typename Box1, typename Box2, std::size_t DimensionCount>
 struct box_box<Box1, Box2, 0, DimensionCount, spherical_tag>
 {
+    template <typename Strategy>
+    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const&)
+    {
+        return apply(box1, box2);
+    }
+
     static inline bool apply(Box1 const& box1, Box2 const& box2)
     {
         typedef typename geometry::select_most_precise

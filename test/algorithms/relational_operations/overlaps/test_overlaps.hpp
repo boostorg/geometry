@@ -3,9 +3,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -27,14 +26,33 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 
+struct no_strategy {};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+bool call_overlaps(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   Strategy const& strategy)
+{
+    return bg::overlaps(geometry1, geometry2, strategy);
+}
+
 template <typename Geometry1, typename Geometry2>
+bool call_overlaps(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   no_strategy)
+{
+    return bg::overlaps(geometry1, geometry2);
+}
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
 void test_geometry(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
                    std::string const& wkt1,
                    std::string const& wkt2,
-                   bool expected)
+                   bool expected,
+                   Strategy const& strategy)
 {
-    bool detected = bg::overlaps(geometry1, geometry2);
+    bool detected = call_overlaps(geometry1, geometry2, strategy);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "overlaps: " << wkt1
@@ -42,11 +60,11 @@ void test_geometry(Geometry1 const& geometry1,
         << " -> Expected: " << expected
         << " detected: " << detected);
 
-    detected = bg::overlaps(geometry2, geometry1);
+    detected = call_overlaps(geometry2, geometry1, strategy);
 
     BOOST_CHECK_MESSAGE(detected == expected,
-        "overlaps: " << wkt1
-        << " with " << wkt2
+        "overlaps: " << wkt2
+        << " with " << wkt1
         << " -> Expected: " << expected
         << " detected: " << detected);
 }
@@ -62,7 +80,14 @@ void test_geometry(std::string const& wkt1,
     bg::read_wkt(wkt1, geometry1);
     bg::read_wkt(wkt2, geometry2);
 
-    test_geometry(geometry1, geometry2, wkt1, wkt2, expected);
+    test_geometry(geometry1, geometry2, wkt1, wkt2, expected, no_strategy());
+
+    typedef typename bg::strategy::relate::services::default_strategy
+        <
+            Geometry1, Geometry2
+        >::type strategy_type;
+
+    test_geometry(geometry1, geometry2, wkt1, wkt2, expected, strategy_type());
 }
 
 

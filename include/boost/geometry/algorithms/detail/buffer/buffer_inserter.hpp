@@ -2,6 +2,10 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -854,6 +858,7 @@ template
     typename JoinStrategy,
     typename EndStrategy,
     typename PointStrategy,
+    typename IntersectionStrategy,
     typename RobustPolicy,
     typename VisitPiecesPolicy
 >
@@ -863,6 +868,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
         PointStrategy const& point_strategy,
+        IntersectionStrategy const& intersection_strategy,
         RobustPolicy const& robust_policy,
         VisitPiecesPolicy& visit_pieces_policy
     )
@@ -872,9 +878,10 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     typedef detail::buffer::buffered_piece_collection
     <
         typename geometry::ring_type<GeometryOutput>::type,
+        IntersectionStrategy,
         RobustPolicy
     > collection_type;
-    collection_type collection(robust_policy);
+    collection_type collection(intersection_strategy, robust_policy);
     collection_type const& const_collection = collection;
 
     bool const areal = boost::is_same
@@ -961,6 +968,7 @@ template
     typename JoinStrategy,
     typename EndStrategy,
     typename PointStrategy,
+    typename IntersectionStrategy,
     typename RobustPolicy
 >
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
@@ -969,13 +977,14 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
         PointStrategy const& point_strategy,
+        IntersectionStrategy const& intersection_strategy,
         RobustPolicy const& robust_policy)
 {
     detail::buffer::visit_pieces_default_policy visitor;
     buffer_inserter<GeometryOutput>(geometry_input, out,
         distance_strategy, side_strategy, join_strategy,
         end_strategy, point_strategy,
-        robust_policy, visitor);
+        intersection_strategy, robust_policy, visitor);
 }
 #endif // DOXYGEN_NO_DETAIL
 

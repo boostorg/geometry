@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -238,10 +238,10 @@ namespace within { namespace services
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
+        BoxContained, BoxContaining,
         box_tag, box_tag,
-        box_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        BoxContained, BoxContaining
+        areal_tag, areal_tag,
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::box_in_box<BoxContained, BoxContaining> type;
@@ -251,10 +251,10 @@ struct default_strategy
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
+        BoxContained, BoxContaining,
         box_tag, box_tag,
-        box_tag, areal_tag,
-        spherical_tag, spherical_tag,
-        BoxContained, BoxContaining
+        areal_tag, areal_tag,
+        spherical_tag, spherical_tag
     >
 {
     typedef within::box_in_box<BoxContained, BoxContaining> type;
@@ -269,10 +269,10 @@ namespace covered_by { namespace services
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
+        BoxContained, BoxContaining,
         box_tag, box_tag,
-        box_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        BoxContained, BoxContaining
+        areal_tag, areal_tag,
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::box_in_box
@@ -286,10 +286,10 @@ struct default_strategy
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
+        BoxContained, BoxContaining,
         box_tag, box_tag,
-        box_tag, areal_tag,
-        spherical_tag, spherical_tag,
-        BoxContained, BoxContaining
+        areal_tag, areal_tag,
+        spherical_tag, spherical_tag
     >
 {
     typedef within::box_in_box

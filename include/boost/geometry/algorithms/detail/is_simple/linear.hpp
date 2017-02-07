@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -47,6 +48,8 @@
 #include <boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
+
+#include <boost/geometry/strategies/intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -214,10 +217,16 @@ inline bool has_self_intersections(Linear const& linear)
             is_acceptable_turn<Linear>
         > interrupt_policy(predicate);
 
+    typedef typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<Linear>::type
+        >::type strategy_type;
+
     detail::self_get_turn_points::get_turns
         <
             turn_policy
         >::apply(linear,
+                 strategy_type(),
                  detail::no_rescale_policy(),
                  turns,
                  interrupt_policy);

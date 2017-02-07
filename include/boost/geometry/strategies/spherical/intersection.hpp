@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -32,9 +32,14 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
-#include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
+#include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
+#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/spherical/ssf.hpp>
+#include <boost/geometry/strategies/within.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -68,10 +73,38 @@ namespace strategy { namespace intersection
 // For now, intersection points near the endpoints are checked explicitly if needed (if the IP is near the endpoint)
 // to generate precise result for them. Only the crossing (i) case may suffer from lower precision.
 
-template <typename Policy, typename CalculationType = void>
+template <typename CalculationType = void>
 struct relate_spherical_segments
 {
-    typedef typename Policy::return_type return_type;
+    typedef side::spherical_side_formula<CalculationType> side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+    {
+        return side_strategy_type();
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                side_strategy_type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type();
+    }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -137,9 +170,16 @@ struct relate_spherical_segments
     };
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename RobustPolicy>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                                    RobustPolicy const& robust_policy)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const& policy, RobustPolicy const& robust_policy)
     {
         typedef typename point_type<Segment1>::type point1_t;
         typedef typename point_type<Segment2>::type point2_t;
@@ -152,14 +192,23 @@ struct relate_spherical_segments
         detail::assign_point_from_index<0>(b, b1);
         detail::assign_point_from_index<1>(b, b2);
 
-        return apply(a, b, robust_policy, a1, a2, b1, b2);
+        return apply(a, b, policy, robust_policy, a1, a2, b1, b2);
     }
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename RobustPolicy, typename Point1, typename Point2>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                                    RobustPolicy const&,
-                                    Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy,
+        typename Point1,
+        typename Point2
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const&, RobustPolicy const&,
+              Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
@@ -275,12 +324,12 @@ struct relate_spherical_segments
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<calc_t>(a, true, b1, b2, a1, a2, b1v, b2v, norm2, a1v);
+                return collinear_one_degenerted<Policy, calc_t>(a, true, b1, b2, a1, a2, b1v, b2v, norm2, a1v);
             }
             else if (b_is_point)
             {
                 // b2 used to be consistent with (degenerated) checks above (is it needed?)
-                return collinear_one_degenerted<calc_t>(b, false, a1, a2, b1, b2, a1v, a2v, norm1, b1v);
+                return collinear_one_degenerted<Policy, calc_t>(b, false, a1, a2, b1, b2, a1v, a2v, norm1, b1v);
             }
             else
             {
@@ -385,12 +434,13 @@ struct relate_spherical_segments
     }
 
 private:
-    template <typename CalcT, typename Segment, typename Point1, typename Point2, typename Vec3d>
-    static inline return_type collinear_one_degenerted(Segment const& segment, bool degenerated_a,
-                                                       Point1 const& a1, Point1 const& a2,
-                                                       Point2 const& b1, Point2 const& b2,
-                                                       Vec3d const& v1, Vec3d const& v2, Vec3d const& norm,
-                                                       Vec3d const& vother)
+    template <typename Policy, typename CalcT, typename Segment, typename Point1, typename Point2, typename Vec3d>
+    static inline typename Policy::return_type
+        collinear_one_degenerted(Segment const& segment, bool degenerated_a,
+                                 Point1 const& a1, Point1 const& a2,
+                                 Point2 const& b1, Point2 const& b2,
+                                 Vec3d const& v1, Vec3d const& v2, Vec3d const& norm,
+                                 Vec3d const& vother)
     {
         CalcT dist_1_2, dist_1_o;
         return ! calculate_collinear_data(a1, a2, b1, b2, v1, v2, norm, vother, dist_1_2, dist_1_o)
@@ -671,22 +721,22 @@ private:
 namespace services
 {
 
-/*template <typename Policy, typename CalculationType>
-struct default_strategy<spherical_polar_tag, Policy, CalculationType>
+/*template <typename CalculationType>
+struct default_strategy<spherical_polar_tag, CalculationType>
 {
-    typedef relate_spherical_segments<Policy, CalculationType> type;
+    typedef relate_spherical_segments<CalculationType> type;
 };*/
 
-template <typename Policy, typename CalculationType>
-struct default_strategy<spherical_equatorial_tag, Policy, CalculationType>
+template <typename CalculationType>
+struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
-    typedef relate_spherical_segments<Policy, CalculationType> type;
+    typedef relate_spherical_segments<CalculationType> type;
 };
 
-template <typename Policy, typename CalculationType>
-struct default_strategy<geographic_tag, Policy, CalculationType>
+template <typename CalculationType>
+struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef relate_spherical_segments<Policy, CalculationType> type;
+    typedef relate_spherical_segments<CalculationType> type;
 };
 
 } // namespace services
@@ -694,6 +744,71 @@ struct default_strategy<geographic_tag, Policy, CalculationType>
 
 
 }} // namespace strategy::intersection
+
+
+namespace strategy
+{
+
+namespace within { namespace services
+{
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+}} // within::services
+
+namespace covered_by { namespace services
+{
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
+struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, spherical_tag, spherical_tag>
+{
+    typedef strategy::intersection::relate_spherical_segments<> type;
+};
+
+}} // within::services
+
+} // strategy
+
 
 }} // namespace boost::geometry
 

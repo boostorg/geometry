@@ -3,9 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2015, 2016.
-// Modifications copyright (c) 2013-2016 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2013, 2015, 2016, 2017.
+// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -27,12 +26,41 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/variant/variant.hpp>
 
+
+struct no_strategy {};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+void check_touches(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected,
+                   Strategy const& strategy)
+{
+    bool detected = bg::touches(geometry1, geometry2, strategy);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "touches: " << wkt1
+        << " with " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+
+    detected = bg::touches(geometry2, geometry1, strategy);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "touches: " << wkt2
+        << " with " << wkt1
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+}
+
 template <typename Geometry1, typename Geometry2>
 void check_touches(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
                    std::string const& wkt1,
                    std::string const& wkt2,
-                   bool expected)
+                   bool expected,
+                   no_strategy = no_strategy())
 {
     bool detected = bg::touches(geometry1, geometry2);
 
@@ -45,8 +73,8 @@ void check_touches(Geometry1 const& geometry1,
     detected = bg::touches(geometry2, geometry1);
 
     BOOST_CHECK_MESSAGE(detected == expected,
-        "touches: " << wkt1
-        << " with " << wkt2
+        "touches: " << wkt2
+        << " with " << wkt1
         << " -> Expected: " << expected
         << " detected: " << detected);
 }
@@ -64,10 +92,16 @@ void test_touches(std::string const& wkt1,
     boost::variant<Geometry1> v1(geometry1);
     boost::variant<Geometry2> v2(geometry2);
 
-    check_touches(geometry1, geometry2, wkt1, wkt2, expected);
-    check_touches(v1, geometry2, wkt1, wkt2, expected);
-    check_touches(geometry1, v2, wkt1, wkt2, expected);
-    check_touches(v1, v2, wkt1, wkt2, expected);
+    typedef typename bg::strategy::relate::services::default_strategy
+        <
+            Geometry1, Geometry2
+        >::type strategy_type;
+
+    check_touches(geometry1, geometry2, wkt1, wkt2, expected, no_strategy());
+    check_touches(geometry1, geometry2, wkt1, wkt2, expected, strategy_type());
+    check_touches(v1, geometry2, wkt1, wkt2, expected, no_strategy());
+    check_touches(geometry1, v2, wkt1, wkt2, expected, no_strategy());
+    check_touches(v1, v2, wkt1, wkt2, expected, no_strategy());
 }
 
 template <typename Geometry1, typename Geometry2>

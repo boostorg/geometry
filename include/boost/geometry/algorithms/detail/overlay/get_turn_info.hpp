@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -19,7 +19,6 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/strategies/intersection_strategies.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -930,6 +929,7 @@ struct get_turn_info
         typename Point1,
         typename Point2,
         typename TurnInfo,
+        typename IntersectionStrategy,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -939,13 +939,19 @@ struct get_turn_info
                 bool /*is_p_first*/, bool /*is_p_last*/,
                 bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& tp_model,
+                IntersectionStrategy const& intersection_strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
-            inters_info;
+        typedef intersection_info
+            <
+                Point1, Point2,
+                typename TurnInfo::point_type,
+                IntersectionStrategy,
+                RobustPolicy
+            > inters_info;
 
-        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
+        inters_info inters(pi, pj, pk, qi, qj, qk, intersection_strategy, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -991,9 +997,12 @@ struct get_turn_info
                         <
                             typename inters_info::cs_tag,
                             typename inters_info::robust_point2_type,
-                            typename inters_info::robust_point1_type
+                            typename inters_info::robust_point1_type,
+                            typename inters_info::side_strategy_type
                         > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
-                                            inters.rpi(), inters.rpj(), inters.rpk());
+                                            inters.rpi(), inters.rpj(), inters.rpk(),
+                                            inters.get_side_strategy());
+
                     policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                 tp, inters.i_info(), inters.d_info(),
                                 swapped_side_calc);

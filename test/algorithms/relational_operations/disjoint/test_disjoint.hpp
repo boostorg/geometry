@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -25,15 +29,34 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 
-template <typename G1, typename G2>
+struct no_strategy {};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+bool call_disjoint(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   Strategy const& strategy)
+{
+    return bg::disjoint(geometry1, geometry2, strategy);
+}
+
+template <typename Geometry1, typename Geometry2>
+bool call_disjoint(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   no_strategy)
+{
+    return bg::disjoint(geometry1, geometry2);
+}
+
+template <typename G1, typename G2, typename Strategy>
 void check_disjoint(std::string const& id,
                     std::string const& wkt1,
                     std::string const& wkt2,
                     G1 const& g1,
                     G2 const& g2,
-                    bool expected)
+                    bool expected,
+                    Strategy const& strategy)
 {
-    bool detected = bg::disjoint(g1, g2);
+    bool detected = call_disjoint(g1, g2, strategy);
     if (id.empty())
     {
         BOOST_CHECK_MESSAGE(detected == expected,
@@ -65,10 +88,17 @@ void test_disjoint(std::string const& id,
     boost::variant<G1> v1(g1);
     boost::variant<G2> v2(g2);
 
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected);
-    check_disjoint(id, wkt1, wkt2, v1, g2, expected);
-    check_disjoint(id, wkt1, wkt2, g1, v2, expected);
-    check_disjoint(id, wkt1, wkt2, v1, v2, expected);
+    typedef typename bg::strategy::disjoint::services::default_strategy
+        <
+            G1, G2
+        >::type strategy_type;
+
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategy_type());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, no_strategy());
 }
 
 template <typename G1, typename G2>

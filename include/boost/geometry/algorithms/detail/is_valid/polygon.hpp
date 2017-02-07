@@ -246,10 +246,8 @@ protected:
 
         geometry::partition
             <
-                geometry::model::box<typename point_type<Polygon>::type>,
-                expand_box,
-                overlaps_box
-            >::apply(ring_iterators, item_visitor);
+                geometry::model::box<typename point_type<Polygon>::type>
+            >::apply(ring_iterators, item_visitor, expand_box(), overlaps_box());
 
         if (item_visitor.items_overlap)
         {
