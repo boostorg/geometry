@@ -1,6 +1,7 @@
 // Boost.Geometry
 
 // Copyright (c) 2016, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -26,6 +27,18 @@
 namespace boost { namespace geometry {
     
 namespace formula {
+
+template <typename T>
+struct result_spherical
+{
+    result_spherical()
+        : azimuth(0)
+        , reverse_azimuth(0)
+    {}
+
+    T azimuth;
+    T reverse_azimuth;
+};
 
 template <typename T>
 static inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z)
@@ -106,13 +119,19 @@ static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
         : -1; // d < 0
 }
 
-template <typename ReturnType, typename T1, typename T2>
-inline ReturnType sph_azimuth(T1 const& lon1, T1 const& lat1,
-                              T2 const& lon2, T2 const& lat2)
+template <typename CT, bool ReverseAzimuth, typename T1, typename T2>
+static inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
+                                                     T1 const& lat1,
+                                                     T2 const& lon2,
+                                                     T2 const& lat2)
 {
+    typedef result_spherical<CT> result_type;
+    result_type result;
+
     // http://williams.best.vwh.net/avform.htm#Crs
-    ReturnType const dlon = lon2 - lon1;
-    
+    // https://en.wikipedia.org/wiki/Great-circle_navigation
+    CT dlon = lon2 - lon1;
+
     // An optimization which should kick in often for Boxes
     //if ( math::equals(dlon, ReturnType(0)) )
     //if ( get<0>(p1) == get<0>(p2) )
@@ -120,18 +139,42 @@ inline ReturnType sph_azimuth(T1 const& lon1, T1 const& lat1,
     //    return - sin(get_as_radian<1>(p1)) * cos_p2lat);
     //}
 
-    // "An alternative formula, not requiring the pre-computation of d"
-    // In the formula below dlon is used as "d"
-    ReturnType const cos_lat2 = cos(lat2);
-    ReturnType const y = sin(dlon) * cos_lat2;
-    ReturnType const x = cos(lat1) * sin(lat2) - sin(lat1) * cos_lat2 * cos(dlon);
-    return atan2(y, x);
+    CT const cos_dlon = cos(dlon);
+    CT const sin_dlon = sin(dlon);
+    CT const cos_lat1 = cos(lat1);
+    CT const cos_lat2 = cos(lat2);
+    CT const sin_lat1 = sin(lat1);
+    CT const sin_lat2 = sin(lat2);
+
+    {
+        // "An alternative formula, not requiring the pre-computation of d"
+        // In the formula below dlon is used as "d"
+        CT const y = sin_dlon * cos_lat2;
+        CT const x = cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_dlon;
+        result.azimuth = atan2(y, x);
+    }
+
+    if (ReverseAzimuth)
+    {
+        CT const y = sin_dlon * cos_lat1;
+        CT const x = sin_lat2 * cos_lat1 * cos_dlon - cos_lat2 * sin_lat1;
+        result.reverse_azimuth = atan2(y, x);
+    }
+
+    return result;
+}
+
+template <typename ReturnType, typename T1, typename T2>
+inline ReturnType spherical_azimuth(T1 const& lon1, T1 const& lat1,
+                                    T2 const& lon2, T2 const& lat2)
+{
+    return spherical_azimuth<ReturnType, false>(lon1, lat1, lon2, lat2).azimuth;
 }
 
 template <typename T>
-inline T sph_azimuth(T const& lon1, T const& lat1, T const& lon2, T const& lat2)
+inline T spherical_azimuth(T const& lon1, T const& lat1, T const& lon2, T const& lat2)
 {
-    return sph_azimuth<T, T, T>(lon1, lat1, lon2, lat2);
+    return spherical_azimuth<T, false>(lon1, lat1, lon2, lat2).azimuth;
 }
 
 template <typename T>

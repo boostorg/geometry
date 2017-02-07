@@ -3,15 +3,19 @@
 
 // Copyright (c) 2015-2016, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/thomas_inverse.hpp>
+#include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_envelope_on_spheroid
+#define BOOST_TEST_MODULE test_envelope_on_sphere_or_spheroid
 #endif
 
 #include <boost/test/included/unit_test.hpp>
@@ -46,8 +50,42 @@
 
 #include "test_envelope_expand_on_spheroid.hpp"
 
+template <
+          template <typename, bool, bool, bool, bool, bool> class Inverse,
+          typename CS_Tag
+        >
+struct test_envelope
+{
+    template <typename Geometry, typename Box>
+    static inline void apply(Geometry& geometry, Box& detected)
+    {
+        bg::envelope(geometry, detected);
+    }
+};
 
-template <typename MBR>
+template <template <typename, bool, bool, bool, bool, bool> class Inverse>
+struct test_envelope<Inverse, bg::geographic_tag>
+{
+    template <typename Geometry, typename Box>
+    static inline void apply(Geometry& geometry,
+                             Box& detected)
+    {
+        bg::strategy::envelope::geographic_segment
+                <
+                    double,
+                    bg::srs::spheroid<double>,
+                    Inverse
+                > envelope_geographic_segment_strategy;
+
+        bg::envelope(geometry, detected, envelope_geographic_segment_strategy);
+    }
+};
+
+template <
+            typename MBR,
+            template <typename, bool, bool, bool, bool, bool> class Inverse =
+              bg::formula::thomas_inverse
+          >
 class envelope_on_spheroid_basic_tester
 {
 private:
@@ -126,7 +164,9 @@ private:
         std::string const units_str = units2string<box_units_type>();
 
         Box detected;
-        bg::envelope(geometry, detected);
+        test_envelope<Inverse,
+                      typename bg::cs_tag<Geometry>::type
+                >::apply(geometry, detected);
 
         Box expected;
         initialize_box<Box>::apply(expected,
@@ -245,9 +285,11 @@ template
     typename Geometry,
     typename MBR,
     typename Tag = typename bg::tag<Geometry>::type,
-    bool TestReverse = test_reverse_geometry<Geometry>::value
+    bool TestReverse = test_reverse_geometry<Geometry>::value,
+    template <typename, bool, bool, bool, bool, bool> class Inverse
+                = bg::formula::thomas_inverse
 >
-struct test_envelope_on_spheroid
+struct test_envelope_on_sphere_or_spheroid
 {
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
@@ -259,7 +301,7 @@ struct test_envelope_on_spheroid
     {
         envelope_on_spheroid_basic_tester
             <
-                MBR
+                MBR, Inverse
             >::apply(case_id, geometry,
                      lon_min1, lat_min1, height_min1,
                      lon_max1, lat_max1, height_max1,
@@ -273,11 +315,11 @@ struct test_envelope_on_spheroid
             bg::reverse(reversed_geometry);
             envelope_on_spheroid_basic_tester
                 <
-                    MBR
+                    MBR, Inverse
                 >::apply(reversed_case_id, reversed_geometry,
                          lon_min2, lat_min2, height_min2,
                          lon_max2, lat_max2, height_max2,
-                         tolerance);        
+                         tolerance);
         }
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -329,7 +371,7 @@ struct test_envelope_on_spheroid
 
 // special tester for rings
 template <typename Geometry, typename MBR, bool TestReverse>
-struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
+struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 {
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
@@ -353,7 +395,7 @@ struct test_envelope_on_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
                 typename bg::point_type<Geometry>::type, false
             > ccw_ring;
         bg::convert(geometry, ccw_ring);
-            
+
         envelope_on_spheroid_basic_tester
             <
                 MBR
@@ -388,7 +430,7 @@ void test_empty_geometry(std::string const& case_id, std::string const& wkt)
 
     typedef bg::model::point<double, dim, CoordinateSystem> point_type;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<Geometry, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<Geometry, B> tester;
 
     typedef typename bg::coordinate_type<Geometry>::type ct;
     ct high_val = boost::numeric::bounds<ct>::highest();
@@ -415,7 +457,7 @@ void test_envelope_point()
     typedef bg::model::point<double, 2, CoordinateSystem> point_type;
     typedef point_type G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("p01",
                   from_wkt<G>("POINT(10 10)"),
@@ -502,7 +544,7 @@ void test_envelope_point_with_height()
     typedef bg::model::point<double, 3, CoordinateSystem> point_type;
     typedef point_type G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("ph01",
                   from_wkt<G>("POINT(10 10 1256)"),
@@ -519,13 +561,13 @@ BOOST_AUTO_TEST_CASE( envelope_point_with_height )
 }
 
 
-BOOST_AUTO_TEST_CASE( envelope_segment )
+BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::segment<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     double const eps = std::numeric_limits<double>::epsilon();
 
@@ -535,7 +577,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.34527004614999);
+                  10, 10, 40, 10.345270046149988);
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
@@ -702,13 +744,669 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 }
 
 
-BOOST_AUTO_TEST_CASE( envelope_segment_with_height )
+BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    double const eps = std::numeric_limits<double>::epsilon();
+
+    tester::apply("s01",
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 40, 40);
+
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(10 10,40 10)"),
+                  10, 10, 40, 10.347587605817942);
+
+    tester::apply("s02a",
+                  from_wkt<G>("SEGMENT(40 10,10 10)"),
+                  10, 10, 40, 10.347587605817942);
+
+    tester::apply("s03",
+                  from_wkt<G>("SEGMENT(160 10,-170 10)"),
+                  160, 10, 190, 10.347587605817942);
+
+    tester::apply("s03a",
+                  from_wkt<G>("SEGMENT(-170 10,160 10)"),
+                  160, 10, 190, 10.347587605817942);
+
+    tester::apply("s03b",
+                  from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
+                  160,  -10.347587605817942, 190, -10);
+
+    tester::apply("s04",
+                  from_wkt<G>("SEGMENT(-40 45,140 60)"),
+                  -40, 45, 140, 90);
+
+    tester::apply("s04a",
+                  from_wkt<G>("SEGMENT(-40 45,140 25)"),
+                  -40, 25, 140, 90);
+
+    // segment ending at the north pole
+    tester::apply("s05",
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  40, 45, 40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05a",
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  40, 45, 40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s06",
+                  from_wkt<G>("SEGMENT(-40 45,80 90)"),
+                  -40, 45, -40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s06a",
+                  from_wkt<G>("SEGMENT(70 90,-40 45)"),
+                  -40, 45, -40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s07",
+                  from_wkt<G>("SEGMENT(40 -45,80 90)"),
+                  40, -45, 40, 90);
+
+    // segment passing through the south pole
+    tester::apply("s08",
+                  from_wkt<G>("SEGMENT(-170 -45,10 -30)"),
+                  -170, -90, 10, -30);
+
+    tester::apply("s09",
+                  from_wkt<G>("SEGMENT(1 -45,179 30)"),
+                  1, -85.392785243526134, 179, 30,
+                  3 * eps);
+
+    tester::apply("s09a",
+                  from_wkt<G>("SEGMENT(2 -45,181 30)"),
+                  2, -87.689300911353811, 181, 30);
+
+    // very long segment
+    tester::apply("s10",
+                  from_wkt<G>("SEGMENT(0 -45,181 30)"),
+                  -179, -88.111912243387607, 0, 30,
+                  2.0 * eps);
+
+    tester::apply("s11",
+                  from_wkt<G>("SEGMENT(260 30,20 45)"),
+                  -100, 30, 20, 57.990810958016965);
+
+    tester::apply("s11a",
+                  from_wkt<G>("SEGMENT(260 45,20 30)"),
+                  -100, 30, 20, 49.537982311875638);
+
+    // segment degenerating to the north pole
+    tester::apply("s12",
+                  from_wkt<G>("SEGMENT(10 90,20 90)"),
+                  0, 90, 0, 90);
+
+    // segment degenerating to the south pole
+    tester::apply("s13",
+                  from_wkt<G>("SEGMENT(10 -90,20 -90)"),
+                  0, -90, 0, -90);
+
+    tester::apply("s14",
+                  from_wkt<G>("SEGMENT(20 20,10 30)"),
+                  10, 20, 20, 30);//48.87458730907602);
+
+    tester::apply("s15",
+                  from_wkt<G>("SEGMENT(50 45,185 45)"),
+                  50, 45, 185, 69.098479073903178);
+
+    // segment that lies on the equator
+    tester::apply("s16",
+                  from_wkt<G>("SEGMENT(0 0,50 0)"),
+                  0, 0, 50, 0);
+
+    // segment that lies on the equator
+    tester::apply("s16a",
+                  from_wkt<G>("SEGMENT(-50 0,50 0)"),
+                  -50, 0, 50, 0);
+
+    // segment that lies on the equator and touches antimeridian
+    tester::apply("s16b",
+                  from_wkt<G>("SEGMENT(50 0,180 0)"),
+                  50, 0, 180, 0);
+
+    // segment that lies on the equator and crosses antimeridian
+    tester::apply("s16c",
+                  from_wkt<G>("SEGMENT(-170 0,160 0)"),
+                  160, 0, 190, 0);
+
+    tester::apply("s17",
+                  from_wkt<G>("SEGMENT(140 10, -140 80)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s17-r",
+                  from_wkt<G>("SEGMENT(-140 80, 140 10)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s18",
+                  from_wkt<G>("SEGMENT(20 10, 100 80)"),
+                  20, 10, 100, 80);
+
+    tester::apply("s18-r",
+                  from_wkt<G>("SEGMENT(100 80, 20 10)"),
+                  20, 10, 100, 80);
+
+    // segment connecting the north and south pole
+    //
+    // this should be forbidden actually, as it is not well-defined
+    // with this test we demonstrate that the algorithm still returns
+    // something meaningful
+    tester::apply("s99",
+                  from_wkt<G>("SEGMENT(10 90,20 -90)"),
+                  0, -90, 0, 90);
+
+    // https://svn.boost.org/trac/boost/ticket/12106
+    tester::apply("s100_ticket_12106",
+                  G(P(11.488323611111111, 53.687086666666673), P(11.488324166666667, 53.687086666666673)),
+                  11.488323611111111, 53.687086666666673, 11.488324166666667, 53.687086666666673);
+
+    double const heps = eps / 2;
+
+    tester::apply("s101",
+                  G(P(1, 1), P(1-heps, 1-heps)),
+                  1-heps, 1-heps, 1, 1);
+    tester::apply("s102",
+                  G(P(1, 1), P(1, 1-heps)),
+                  1, 1-heps, 1, 1);
+    tester::apply("s103",
+                  G(P(1, 1), P(1-heps, 1)),
+                  1-heps, 1, 1, 1);
+    tester::apply("s104",
+                  G(P(2, 1), P(1, 1-heps)),
+                  1, 1-heps, 2, 1.0000383271569036);
+    tester::apply("s105",
+                  G(P(1, 2), P(1-heps, 1)),
+                  1-heps, 1, 1, 2);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
+{
+
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid
+                          <
+                            G, B,
+                            typename bg::tag<G>::type,
+                            test_reverse_geometry<G>::value,
+                            bg::formula::thomas_inverse
+                          > tester;
+
+    double const eps = std::numeric_limits<double>::epsilon();
+
+    tester::apply("s01",
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 40, 40);
+
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(10 10,40 10)"),
+                  10, 10, 40, 10.347587605817942);
+
+    tester::apply("s02a",
+                  from_wkt<G>("SEGMENT(40 10,10 10)"),
+                  10, 10, 40, 10.347587605817942);
+
+    tester::apply("s03",
+                  from_wkt<G>("SEGMENT(160 10,-170 10)"),
+                  160, 10, 190, 10.347587605817942);
+
+    tester::apply("s03a",
+                  from_wkt<G>("SEGMENT(-170 10,160 10)"),
+                  160, 10, 190, 10.347587605817942);
+
+    tester::apply("s03b",
+                  from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
+                  160,  -10.347587605817942, 190, -10);
+
+    tester::apply("s04",
+                  from_wkt<G>("SEGMENT(-40 45,140 60)"),
+                  -40, 45, 140, 90);
+
+    tester::apply("s04a",
+                  from_wkt<G>("SEGMENT(-40 45,140 25)"),
+                  -40, 25, 140, 90);
+
+    // segment ending at the north pole
+    tester::apply("s05",
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  40, 45, 40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05a",
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  40, 45, 40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s06",
+                  from_wkt<G>("SEGMENT(-40 45,80 90)"),
+                  -40, 45, -40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s06a",
+                  from_wkt<G>("SEGMENT(70 90,-40 45)"),
+                  -40, 45, -40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s07",
+                  from_wkt<G>("SEGMENT(40 -45,80 90)"),
+                  40, -45, 40, 90);
+
+    // segment passing through the south pole
+    tester::apply("s08",
+                  from_wkt<G>("SEGMENT(-170 -45,10 -30)"),
+                  -170, -90, 10, -30);
+
+    tester::apply("s09",
+                  from_wkt<G>("SEGMENT(1 -45,179 30)"),
+                  1, -85.392785243526134, 179, 30,
+                  3 * eps);
+
+    tester::apply("s09a",
+                  from_wkt<G>("SEGMENT(2 -45,181 30)"),
+                  2, -87.689300911353811, 181, 30);
+
+    // very long segment
+    tester::apply("s10",
+                  from_wkt<G>("SEGMENT(0 -45,181 30)"),
+                  -179, -88.111912243387607, 0, 30,
+                  2.0 * eps);
+
+    tester::apply("s11",
+                  from_wkt<G>("SEGMENT(260 30,20 45)"),
+                  -100, 30, 20, 57.990810958016965);
+
+    tester::apply("s11a",
+                  from_wkt<G>("SEGMENT(260 45,20 30)"),
+                  -100, 30, 20, 49.537982311875638);
+
+    // segment degenerating to the north pole
+    tester::apply("s12",
+                  from_wkt<G>("SEGMENT(10 90,20 90)"),
+                  0, 90, 0, 90);
+
+    // segment degenerating to the south pole
+    tester::apply("s13",
+                  from_wkt<G>("SEGMENT(10 -90,20 -90)"),
+                  0, -90, 0, -90);
+
+    tester::apply("s14",
+                  from_wkt<G>("SEGMENT(20 20,10 30)"),
+                  10, 20, 20, 30);//48.87458730907602);
+
+    tester::apply("s15",
+                  from_wkt<G>("SEGMENT(50 45,185 45)"),
+                  50, 45, 185, 69.098479073903178);
+
+    // segment that lies on the equator
+    tester::apply("s16",
+                  from_wkt<G>("SEGMENT(0 0,50 0)"),
+                  0, 0, 50, 0);
+
+    // segment that lies on the equator
+    tester::apply("s16a",
+                  from_wkt<G>("SEGMENT(-50 0,50 0)"),
+                  -50, 0, 50, 0);
+
+    // segment that lies on the equator and touches antimeridian
+    tester::apply("s16b",
+                  from_wkt<G>("SEGMENT(50 0,180 0)"),
+                  50, 0, 180, 0);
+
+    // segment that lies on the equator and crosses antimeridian
+    tester::apply("s16c",
+                  from_wkt<G>("SEGMENT(-170 0,160 0)"),
+                  160, 0, 190, 0);
+
+    tester::apply("s17",
+                  from_wkt<G>("SEGMENT(140 10, -140 80)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s17-r",
+                  from_wkt<G>("SEGMENT(-140 80, 140 10)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s18",
+                  from_wkt<G>("SEGMENT(20 10, 100 80)"),
+                  20, 10, 100, 80);
+
+    tester::apply("s18-r",
+                  from_wkt<G>("SEGMENT(100 80, 20 10)"),
+                  20, 10, 100, 80);
+
+}
+
+BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
+{
+
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid
+                          <
+                            G, B,
+                            typename bg::tag<G>::type,
+                            test_reverse_geometry<G>::value,
+                            bg::formula::andoyer_inverse
+                          > tester;
+
+    double const eps = std::numeric_limits<double>::epsilon();
+
+    tester::apply("s01",
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 40, 40);
+
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(10 10,40 10)"),
+                  10, 10, 40, 10.34758709960203);
+
+    tester::apply("s02a",
+                  from_wkt<G>("SEGMENT(40 10,10 10)"),
+                  10, 10, 40, 10.34758709960203);
+
+    tester::apply("s03",
+                  from_wkt<G>("SEGMENT(160 10,-170 10)"),
+                  160, 10, 190, 10.34758709960203);
+
+    tester::apply("s03a",
+                  from_wkt<G>("SEGMENT(-170 10,160 10)"),
+                  160, 10, 190, 10.34758709960203);
+
+    tester::apply("s03b",
+                  from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
+                  160,  -10.34758709960203, 190, -10);
+
+    tester::apply("s04",
+                  from_wkt<G>("SEGMENT(-40 45,140 60)"),
+                  -40, 45, 140, 90);
+
+    tester::apply("s04a",
+                  from_wkt<G>("SEGMENT(-40 45,140 25)"),
+                  -40, 25, 140, 90);
+
+    // segment ending at the north pole
+    tester::apply("s05",
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  40, 45, 40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05a",
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  40, 45, 40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s06",
+                  from_wkt<G>("SEGMENT(-40 45,80 90)"),
+                  -40, 45, -40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s06a",
+                  from_wkt<G>("SEGMENT(70 90,-40 45)"),
+                  -40, 45, -40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s07",
+                  from_wkt<G>("SEGMENT(40 -45,80 90)"),
+                  40, -45, 40, 90);
+
+    // segment passing through the south pole
+    tester::apply("s08",
+                  from_wkt<G>("SEGMENT(-170 -45,10 -30)"),
+                  -170, -90, 10, -30);
+
+    tester::apply("s09",
+                  from_wkt<G>("SEGMENT(1 -45,179 30)"),
+                  1, -85.394745211091248, 179, 30,
+                  3 * eps);
+
+    tester::apply("s09a",
+                  from_wkt<G>("SEGMENT(2 -45,181 30)"),
+                  2, -87.690317839849726, 181, 30);
+
+    // very long segment
+    tester::apply("s10",
+                  from_wkt<G>("SEGMENT(0 -45,181 30)"),
+                  -179, -88.112710413182171, 0, 30,
+                  2.0 * eps);
+
+    tester::apply("s11",
+                  from_wkt<G>("SEGMENT(260 30,20 45)"),
+                  -100, 30, 20, 57.990742552280153);
+
+    tester::apply("s11a",
+                  from_wkt<G>("SEGMENT(260 45,20 30)"),
+                  -100, 30, 20, 49.537900160184797);
+
+    // segment degenerating to the north pole
+    tester::apply("s12",
+                  from_wkt<G>("SEGMENT(10 90,20 90)"),
+                  0, 90, 0, 90);
+
+    // segment degenerating to the south pole
+    tester::apply("s13",
+                  from_wkt<G>("SEGMENT(10 -90,20 -90)"),
+                  0, -90, 0, -90);
+
+    tester::apply("s14",
+                  from_wkt<G>("SEGMENT(20 20,10 30)"),
+                  10, 20, 20, 30);//48.87458730907602);
+
+    tester::apply("s15",
+                  from_wkt<G>("SEGMENT(50 45,185 45)"),
+                  50, 45, 185, 69.09844689340845);
+
+    // segment that lies on the equator
+    tester::apply("s16",
+                  from_wkt<G>("SEGMENT(0 0,50 0)"),
+                  0, 0, 50, 0);
+
+    // segment that lies on the equator
+    tester::apply("s16a",
+                  from_wkt<G>("SEGMENT(-50 0,50 0)"),
+                  -50, 0, 50, 0);
+
+    // segment that lies on the equator and touches antimeridian
+    tester::apply("s16b",
+                  from_wkt<G>("SEGMENT(50 0,180 0)"),
+                  50, 0, 180, 0);
+
+    // segment that lies on the equator and crosses antimeridian
+    tester::apply("s16c",
+                  from_wkt<G>("SEGMENT(-170 0,160 0)"),
+                  160, 0, 190, 0);
+
+    tester::apply("s17",
+                  from_wkt<G>("SEGMENT(140 10, -140 80)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s17-r",
+                  from_wkt<G>("SEGMENT(-140 80, 140 10)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s18",
+                  from_wkt<G>("SEGMENT(20 10, 100 80)"),
+                  20, 10, 100, 80);
+
+    tester::apply("s18-r",
+                  from_wkt<G>("SEGMENT(100 80, 20 10)"),
+                  20, 10, 100, 80);
+
+}
+
+BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
+{
+
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid
+                          <
+                            G, B,
+                            typename bg::tag<G>::type,
+                            test_reverse_geometry<G>::value,
+                            bg::formula::vincenty_inverse
+                          > tester;
+
+    double const eps = std::numeric_limits<double>::epsilon();
+
+    tester::apply("s01",
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 40, 40);
+
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(10 10,40 10)"),
+                  10, 10, 40, 10.347587628821941);
+
+    tester::apply("s02a",
+                  from_wkt<G>("SEGMENT(40 10,10 10)"),
+                  10, 10, 40, 10.347587628821941);
+
+    tester::apply("s03",
+                  from_wkt<G>("SEGMENT(160 10,-170 10)"),
+                  160, 10, 190, 10.347587628821941);
+
+    tester::apply("s03a",
+                  from_wkt<G>("SEGMENT(-170 10,160 10)"),
+                  160, 10, 190, 10.347587628821941);
+
+    tester::apply("s03b",
+                  from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
+                  160,  -10.347587628821941, 190, -10);
+
+    tester::apply("s04",
+                  from_wkt<G>("SEGMENT(-40 45,140 60)"),
+                  -40, 45, 140, 90);
+
+    tester::apply("s04a",
+                  from_wkt<G>("SEGMENT(-40 45,140 25)"),
+                  -40, 25, 140, 90);
+
+    // segment ending at the north pole
+    tester::apply("s05",
+                  from_wkt<G>("SEGMENT(40 45,80 90)"),
+                  40, 45, 40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s05a",
+                  from_wkt<G>("SEGMENT(80 90,40 45)"),
+                  40, 45, 40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s06",
+                  from_wkt<G>("SEGMENT(-40 45,80 90)"),
+                  -40, 45, -40, 90);
+
+    // segment starting at the north pole
+    tester::apply("s06a",
+                  from_wkt<G>("SEGMENT(70 90,-40 45)"),
+                  -40, 45, -40, 90);
+
+    // segment ending at the north pole
+    tester::apply("s07",
+                  from_wkt<G>("SEGMENT(40 -45,80 90)"),
+                  40, -45, 40, 90);
+
+    // segment passing through the south pole
+    tester::apply("s08",
+                  from_wkt<G>("SEGMENT(-170 -45,10 -30)"),
+                  -170, -90, 10, -30);
+
+    tester::apply("s09",
+                  from_wkt<G>("SEGMENT(1 -45,179 30)"),
+                  1, -85.392840929577218, 179, 30,
+                  3 * eps);
+
+    tester::apply("s09a",
+                  from_wkt<G>("SEGMENT(2 -45,181 30)"),
+                  2, -87.689330275867817, 181, 30);
+
+    // very long segment
+    tester::apply("s10",
+                  from_wkt<G>("SEGMENT(0 -45,181 30)"),
+                  -179, -88.111936232916634, 0, 30,
+                  2.0 * eps);
+
+    tester::apply("s11",
+                  from_wkt<G>("SEGMENT(260 30,20 45)"),
+                  -100, 30, 20, 57.990810647057032);
+
+    tester::apply("s11a",
+                  from_wkt<G>("SEGMENT(260 45,20 30)"),
+                  -100, 30, 20, 49.537981887172577);
+
+    // segment degenerating to the north pole
+    tester::apply("s12",
+                  from_wkt<G>("SEGMENT(10 90,20 90)"),
+                  0, 90, 0, 90);
+
+    // segment degenerating to the south pole
+    tester::apply("s13",
+                  from_wkt<G>("SEGMENT(10 -90,20 -90)"),
+                  0, -90, 0, -90);
+
+    tester::apply("s14",
+                  from_wkt<G>("SEGMENT(20 20,10 30)"),
+                  10, 20, 20, 30);//48.87458730907602);
+
+    tester::apply("s15",
+                  from_wkt<G>("SEGMENT(50 45,185 45)"),
+                  50, 45, 185, 69.098479136978497);
+
+    // segment that lies on the equator
+    tester::apply("s16",
+                  from_wkt<G>("SEGMENT(0 0,50 0)"),
+                  0, 0, 50, 0);
+
+    // segment that lies on the equator
+    tester::apply("s16a",
+                  from_wkt<G>("SEGMENT(-50 0,50 0)"),
+                  -50, 0, 50, 0);
+
+    // segment that lies on the equator and touches antimeridian
+    tester::apply("s16b",
+                  from_wkt<G>("SEGMENT(50 0,180 0)"),
+                  50, 0, 180, 0);
+
+    // segment that lies on the equator and crosses antimeridian
+    tester::apply("s16c",
+                  from_wkt<G>("SEGMENT(-170 0,160 0)"),
+                  160, 0, 190, 0);
+
+    tester::apply("s17",
+                  from_wkt<G>("SEGMENT(140 10, -140 80)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s17-r",
+                  from_wkt<G>("SEGMENT(-140 80, 140 10)"),
+                  140, 10, 220, 80);
+
+    tester::apply("s18",
+                  from_wkt<G>("SEGMENT(20 10, 100 80)"),
+                  20, 10, 100, 80);
+
+    tester::apply("s18-r",
+                  from_wkt<G>("SEGMENT(100 80, 20 10)"),
+                  20, 10, 100, 80);
+
+}
+
+BOOST_AUTO_TEST_CASE( envelope_segment_sphere_with_height )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::segment<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("sh01",
                   from_wkt<G>("SEGMENT(10 10 567,40 40 1356)"),
@@ -719,6 +1417,22 @@ BOOST_AUTO_TEST_CASE( envelope_segment_with_height )
                   10, 10, 567, 40, 40, 1356);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_height )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::segment<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("sh01",
+                  from_wkt<G>("SEGMENT(10 10 567,40 40 1356)"),
+                  10, 10, 567, 40, 40, 1356);
+
+    tester::apply("sh02",
+                  from_wkt<G>("SEGMENT(10 10 1356,40 40 567)"),
+                  10, 10, 567, 40, 40, 1356);
+}
 
 template <typename CoordinateSystem>
 void test_envelope_multipoint()
@@ -726,7 +1440,7 @@ void test_envelope_multipoint()
     typedef bg::model::point<double, 2, CoordinateSystem> P;
     typedef bg::model::multi_point<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multipoint
     test_empty_geometry<CoordinateSystem, G>("mp00", "MULTIPOINT()");
@@ -878,7 +1592,7 @@ void test_envelope_multipoint_with_height()
     typedef bg::model::point<double, 3, CoordinateSystem> point_type;
     typedef bg::model::multi_point<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multipoint
     test_empty_geometry<CoordinateSystem, G>("mph00", "MULTIPOINT()");
@@ -909,7 +1623,7 @@ void test_envelope_box()
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::box<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("b01",
                   from_wkt<G>("BOX(10 10,20 20)"),
@@ -1109,7 +1823,7 @@ void test_envelope_box_with_height()
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::box<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("bh01",
                   from_wkt<G>("BOX(10 10 567,20 20 2834)"),
@@ -1131,13 +1845,13 @@ BOOST_AUTO_TEST_CASE( envelope_box_with_height )
 }
 
 
-BOOST_AUTO_TEST_CASE( envelope_linestring )
+BOOST_AUTO_TEST_CASE( envelope_sphere_linestring )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 2, coordinate_system_type> P;
     typedef bg::model::linestring<P> G;
     typedef bg::model::box<P> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
@@ -1264,14 +1978,147 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
     }
 }
 
+BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::linestring<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
-BOOST_AUTO_TEST_CASE( envelope_linestring_with_height )
+    // empty linestring
+    test_empty_geometry<coordinate_system_type, G>("l00", "LINESTRING()");
+
+    tester::apply("l01",
+                  from_wkt<G>("LINESTRING(10 15)"),
+                  10, 15, 10, 15);
+
+    tester::apply("l01a",
+                  from_wkt<G>("LINESTRING(370 15)"),
+                  10, 15, 10, 15);
+
+    tester::apply("l01b",
+                  from_wkt<G>("LINESTRING(370 90)"),
+                  0, 90, 0, 90);
+
+    tester::apply("l02",
+                  from_wkt<G>("LINESTRING(10 10,20 20,10 30)"),
+                  10, 10, 20, 30);
+
+    // linestring that circles the entire globe
+    tester::apply("l03",
+                  from_wkt<G>("LINESTRING(-185 0,-170 25,-50 10,10 10,20 20,100 5,180 15)"),
+                  -180, 0, 180, 25.322173172331812,
+                  4.0 * std::numeric_limits<double>::epsilon());
+
+    // linestring that crosses the antimeridian but staying close to it
+    tester::apply("l04",
+                  from_wkt<G>("LINESTRING(-170 10,170 45,160 5,-160 25)"),
+                  160, 5, 200, 45);
+
+    // linestring that goes through the north pole (twice)
+    tester::apply("l05",
+                  from_wkt<G>("LINESTRING(-170 80,10 60,20 80,-160 30)"),
+                  -170, 30, 20, 90);
+
+    // linestring that goes through the north pole (three times)
+    tester::apply("l05a",
+                  from_wkt<G>("LINESTRING(-170 80,10 60,20 80,-160 30,-150 30,30 70)"),
+                  -170, 30, 30, 90);
+
+    // linestring that goes through the north pole (four times)
+    tester::apply("l05b",
+                  from_wkt<G>("LINESTRING(-170 80,10 60,20 80,-160 30,-150 30,30 70,40 85,-140 25)"),
+                  -170, 25, 40, 90);
+
+    // linestring that goes through the north pole (five times)
+    tester::apply("l05c",
+                  from_wkt<G>("LINESTRING(-170 80,10 60,20 80,-160 30,-150 30,30 70,40 85,-140 25,-130 25,50 45)"),
+                  -170, 25, 50, 90);
+
+    // linestring that goes through the north pole (five times)
+    tester::apply("l05d",
+                  from_wkt<G>("LINESTRING(-170 80,10 60,20 80,-160 30,-150 30,30 70,40 85,-140 25,-130 25,50 45,185 45)"),
+                  -170, 25, 185, 90);
+
+    // linestring that crosses the antimeridian
+    tester::apply("l06",
+                  from_wkt<G>("LINESTRING(-160 85,-170 80,170 40,160 80)"),
+                  160, 40, 200, 85);
+
+    // linestring that crosses the antimeridian
+    tester::apply("l06a",
+                  from_wkt<G>("LINESTRING(-130 85,-170 84,170 40,160 80)"),
+                  160, 40, 230, 85.02630556315151);
+
+    // linestring that goes through the north pole
+    tester::apply("l07",
+                  from_wkt<G>("LINESTRING(-160 40,-170 90,-140 40,-50 30)"),
+                  -160, 30, -50, 90);
+
+    // linestring that degenerates to the north pole
+    tester::apply("l08",
+                  from_wkt<G>("LINESTRING(-40 90,-30 90,-140 90,10 90)"),
+                  0, 90, 0, 90);
+
+    // linestring with duplicate points
+    tester::apply("l09",
+                  from_wkt<G>("LINESTRING(-40 20,-40 20,-140 85,-10 5,-10 5)"),
+                  -140, 5, -10, 85);
+
+    // linestring with duplicate points
+    tester::apply("l09a",
+                  from_wkt<G>("LINESTRING(-40 20,320 20,-140 85,-10 5,350 5)"),
+                  -140, 5, -10, 85);
+
+    // linestring that lies on the equator
+    tester::apply("l10",
+                  from_wkt<G>("LINESTRING(0 0,50 0)"),
+                  0, 0, 50, 0);
+
+    // linestring that lies on the equator
+    tester::apply("l10a",
+                  from_wkt<G>("LINESTRING(-50 0,50 0)"),
+                  -50, 0, 50, 0);
+
+    // linestring that lies on the equator and touches antimeridian
+    tester::apply("l10b",
+                  from_wkt<G>("LINESTRING(50 0,180 0)"),
+                  50, 0, 180, 0);
+
+    // linestring that lies on the equator and crosses antimeridian
+    tester::apply("l10c",
+                  from_wkt<G>("LINESTRING(-170 0,160 0)"),
+                  160, 0, 190, 0);
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double heps = eps / 2;
+
+    {
+        G l;
+        l.push_back(P(1, 1));
+        l.push_back(P(1-heps, 1-heps));
+        tester::apply("l11", l, 1-heps, 1-heps, 1, 1);
+    }
+
+    {
+        G l;
+        l.push_back(P(0, 0));
+        l.push_back(P(1-heps, 1-heps));
+        l.push_back(P(0, 0));
+        l.push_back(P(1, 1));
+        tester::apply("l12", l, 0, 0, 1, 1);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE( envelope_linestring_sphere_with_height )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::linestring<point_type> G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty linestring
     test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
@@ -1281,14 +2128,29 @@ BOOST_AUTO_TEST_CASE( envelope_linestring_with_height )
                   10, 15, 30, 30, 35, 434);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_linestring_spheroid_with_height )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::linestring<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
-BOOST_AUTO_TEST_CASE( envelope_multilinestring )
+    // empty linestring
+    test_empty_geometry<coordinate_system_type, G>("lh00", "LINESTRING()");
+
+    tester::apply("lh01",
+                  from_wkt<G>("LINESTRING(10 15 30,20 25 434,30 35 186)"),
+                  10, 15, 30, 30, 35, 434);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_sphere_multilinestring )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 2, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     // empty multilinestring
     test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
@@ -1346,14 +2208,101 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring )
                   10, 25, 260, 80.07385383411011);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_spheroid_multilinestring )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
-BOOST_AUTO_TEST_CASE( envelope_multilinestring_with_height )
+    // empty multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00", "MULTILINESTRING()");
+
+    // invalid multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00a",
+                                                   "MULTILINESTRING(())");
+
+    // invalid multilinestring
+    test_empty_geometry<coordinate_system_type, G>("ml00b",
+                                                   "MULTILINESTRING((),())");
+
+    // invalid multilinestring
+    tester::apply("ml00c",
+                  from_wkt<G>("MULTILINESTRING((10 15),(),())"),
+                  10, 15, 10, 15);
+
+    // invalid multilinestring
+    tester::apply("ml00d",
+                  from_wkt<G>("MULTILINESTRING((),(10 15),())"),
+                  10, 15, 10, 15);
+
+    tester::apply("ml01",
+                  from_wkt<G>("MULTILINESTRING((10 15))"),
+                  10, 15, 10, 15);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    tester::apply("ml01a",
+                  from_wkt<G>("MULTILINESTRING((),(),(10 15),())"),
+                  10, 15, 10, 15);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+
+    tester::apply("ml02",
+                  from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
+                  -180, 25, 180, 80);
+
+    tester::apply("ml03",
+                  from_wkt<G>("MULTILINESTRING((-150 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
+                  -150, 25, 200, 80);
+
+    tester::apply("ml04",
+                  from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80))"),
+                  -150, 35, 100, 80.082544902477267);
+
+    tester::apply("ml04a",
+                  from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80),(170 25,-160 80))"),
+                  10, 25, 260, 80.082544902477267);
+
+    tester::apply("ml05",
+                  from_wkt<G>("MULTILINESTRING((-140 40,-100 80),(10 35,100 80))"),
+                  -140, 35, 100, 80.082544902477267);
+
+    tester::apply("ml05a",
+                  from_wkt<G>("MULTILINESTRING((-140 40,-100 80),(10 35,100 80),(170 25,-160 80))"),
+                  10, 25, 260, 80.082544902477267);
+}
+
+
+BOOST_AUTO_TEST_CASE( envelope_multilinestring_sphere_with_height )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
     typedef bg::model::point<double, 3, coordinate_system_type> point_type;
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
-    typedef test_envelope_on_spheroid<G, B> tester;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("mlh01",
+                  from_wkt<G>("MULTILINESTRING((10 15 1000))"),
+                  10, 15, 1000, 10, 15, 1000);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+    tester::apply("mlh01a",
+                  from_wkt<G>("MULTILINESTRING((),(),(10 15 1000),())"),
+                  10, 15, 1000, 10, 15, 1000);
+#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+
+    tester::apply("mlh02",
+                  from_wkt<G>("MULTILINESTRING((-170 40 400,-100 80 300),(-10 25 600,10 35 700,120 45 450))"),
+                  -10, 25, 300, 260, 80, 700);
+}
+
+BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
+{
+    typedef bg::cs::geographic<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 3, coordinate_system_type> point_type;
+    typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
     tester::apply("mlh01",
                   from_wkt<G>("MULTILINESTRING((10 15 1000))"),
@@ -1371,21 +2320,23 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_with_height )
 }
 
 
-#if 0
 // unit test for rings de-activated for now (current implementation
 // for area on the spherical equatorial coordinate system is not complete)
 // TODO: re-activate once implementation is done
 BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 {
-    typedef deg_cw_ring_type G;
-    typedef test_envelope_on_spheroid<G, deg_box_type> tester;
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::polygon<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
-    double const eps = std::numeric_limits<double>::epsilon();
+    //double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("r01cw",
                   from_wkt<G>("POLYGON((0 10,0 45,50 10,0 10))"),
                   0, 10, 50, 45);
-
+#if 0
     // ring that contains both the north and south poles in its interior
     tester::apply("r01cw-r",
                   from_wkt<G>("POLYGON((0 10,50 10,0 45,0 10))"),
@@ -1575,5 +2526,6 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     tester::apply("r21cw-r",
                   from_wkt<G>("POLYGON((-10 0,-10 -90,170 0,170 90,-10 0))"),
                   170, -90, 350, 90); // FAILS NOW
-}
 #endif
+}
+

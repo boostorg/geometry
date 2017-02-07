@@ -62,10 +62,20 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
                        P const& ip0 = P(), P const& ip1 = P(),
                        int opposite_id = -1)
 {
-    typedef typename Strategy::return_type return_type;
+    typedef typename bg::coordinate_type<P>::type coord_t;
+    typedef bg::policies::relate::segments_tupled
+                <
+                    bg::policies::relate::segments_intersection_points
+                        <
+                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
+                        >,
+                    bg::policies::relate::segments_direction
+                > policy_t;
+
+    typedef typename policy_t::return_type return_type;
 
     // NOTE: robust policy is currently ignored
-    return_type res = strategy.apply(s1, s2, 0);
+    return_type res = strategy.apply(s1, s2, policy_t(), 0);
 
     size_t const res_count = boost::get<0>(res).count;
     char const res_method = boost::get<1>(res).how;

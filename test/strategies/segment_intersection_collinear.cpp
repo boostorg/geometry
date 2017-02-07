@@ -5,6 +5,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// Copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -85,19 +88,21 @@ static void test_segment_intersection(std::string const& case_id,
         >::type
     > result_type;
 
+    typedef bg::policies::relate::segments_intersection_points
+        <
+            result_type
+        > points_policy_type;
+
     // Get the intersection point (or two points)
     result_type is
-        = bg::strategy::intersection::relate_cartesian_segments
-        <
-            bg::policies::relate::segments_intersection_points<result_type>
-        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
+        = bg::strategy::intersection::relate_cartesian_segments<>
+            ::apply(s12, s34, points_policy_type(), rescale_policy, p1, p2, p3, p4);
 
     // Get just a character for Left/Right/intersects/etc, purpose is more for debugging
     bg::policies::relate::direction_type dir
-        = bg::strategy::intersection::relate_cartesian_segments
-        <
-            bg::policies::relate::segments_direction
-        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
+        = bg::strategy::intersection::relate_cartesian_segments<>
+            ::apply(s12, s34, bg::policies::relate::segments_direction(),
+                    rescale_policy, p1, p2, p3, p4);
 
     std::size_t expected_count =
         check(is, 0, expected_x1, expected_y1)
@@ -143,12 +148,15 @@ static void test_segment_ratio(std::string const& case_id,
         ratio_type
     > result_type;
 
+    typedef bg::policies::relate::segments_intersection_points
+        <
+            result_type
+        > points_policy_type;
+
     // Get the intersection point (or two points)
     result_type is
-        = bg::strategy::intersection::relate_cartesian_segments
-        <
-            bg::policies::relate::segments_intersection_points<result_type>
-        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
+        = bg::strategy::intersection::relate_cartesian_segments<>
+            ::apply(s12, s34, points_policy_type(), rescale_policy, p1, p2, p3, p4);
 
     ratio_type expected_a1(expected_pair_a1.first, expected_pair_a1.second);
     ratio_type expected_a2(expected_pair_a2.first, expected_pair_a2.second);

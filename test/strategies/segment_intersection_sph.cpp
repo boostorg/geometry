@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -21,20 +21,7 @@ void test_spherical_strategy(std::string const& s1_wkt, std::string const& s2_wk
                              char m, std::size_t expected_count,
                              std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-    typedef bg::strategy::intersection::relate_spherical_segments
-        <
-            policy_t
-        > strategy_t;
-    strategy_t strategy;
+    bg::strategy::intersection::relate_spherical_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
 }

@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -38,6 +42,7 @@ template
     typename Geometry2,
     typename Turns,
     typename Clusters,
+    typename IntersectionStrategy,
     typename RobustPolicy,
     typename Visitor,
     typename Backtrack
@@ -56,17 +61,17 @@ struct traversal_ring_creator
 
     inline traversal_ring_creator(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
+            IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy, Visitor& visitor)
         : m_trav(geometry1, geometry2, turns, clusters, robust_policy,visitor)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
+        , m_intersection_strategy(intersection_strategy)
         , m_robust_policy(robust_policy)
         , m_visitor(visitor)
-        , m_has_uu(false)
     {
-
     }
 
     template <typename Ring>
@@ -123,7 +128,8 @@ struct traversal_ring_creator
         }
 
         bool is_touching = false;
-        if (! m_trav.select_turn(start_turn_index, turn_index, op_index,
+        if (! m_trav.select_turn(start_turn_index, start_op_index,
+                turn_index, op_index,
                 is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
                 is_start))
@@ -187,6 +193,18 @@ struct traversal_ring_creator
             start_op.visited.set_finished();
             m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish");
             return traverse_error_none;
+        }
+
+        if (start_turn.cluster_id >= 0)
+        {
+            turn_type const& turn = m_turns[current_turn_index];
+            if (turn.cluster_id == start_turn.cluster_id)
+            {
+                turn_operation_type& op = m_turns[start_turn_index].operations[current_op_index];
+                op.visited.set_finished();
+                m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish (cluster)");
+                return traverse_error_none;
+            }
         }
 
         std::size_t const max_iterations = 2 + 2 * m_turns.size();
@@ -269,56 +287,29 @@ struct traversal_ring_creator
                 rings, ring, m_turns, start_turn,
                 m_turns[turn_index].operations[op_index],
                 traverse_error,
-                m_geometry1, m_geometry2, m_robust_policy,
+                m_geometry1, m_geometry2,
+                m_intersection_strategy, m_robust_policy,
                 state, m_visitor);
         }
     }
 
     template <typename Rings>
     void iterate(Rings& rings, std::size_t& finalized_ring_size,
-                 typename Backtrack::state_type& state,
-                 int pass)
+                 typename Backtrack::state_type& state)
     {
-        if (pass == 1)
-        {
-            if (target_operation == operation_intersection)
-            {
-                // Second pass currently only used for uu
-                return;
-            }
-            if (! m_has_uu)
-            {
-                // There is no uu found in first pass
-                return;
-            }
-        }
-
-        // Iterate through all unvisited points
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
-            turn_type const& start_turn = m_turns[turn_index];
+            turn_type const& turn = m_turns[turn_index];
 
-            if (start_turn.discarded || start_turn.blocked())
+            if (turn.discarded || turn.blocked())
             {
                 // Skip discarded and blocked turns
                 continue;
             }
-            if (target_operation == operation_union)
-            {
-                if (start_turn.both(operation_union))
-                {
-                    // Start with a uu-turn only in the second pass
-                    m_has_uu = true;
-                    if (pass == 0)
-                    {
-                        continue;
-                    }
-                }
-            }
 
             for (int op_index = 0; op_index < 2; op_index++)
             {
-                traverse_with_operation(start_turn, turn_index, op_index,
+                traverse_with_operation(turn, turn_index, op_index,
                         rings, finalized_ring_size, state);
             }
         }
@@ -331,12 +322,9 @@ private:
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters const& m_clusters;
+    IntersectionStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
-
-    // Next member is only used for operation union
-    bool m_has_uu;
-
 };
 
 }} // namespace detail::overlay

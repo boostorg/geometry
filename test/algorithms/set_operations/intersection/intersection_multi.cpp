@@ -28,6 +28,15 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#define TEST_INTERSECTION(caseid, clips, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area)
+
+#define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -102,15 +111,13 @@ void test_areal()
         3, 14, 2.85);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi_inv_b",
         case_72_multi[1], case_72_multi[2],
-        3, 16, 6.15,
-        ignore_validity);
+        3, 16, 6.15);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
         5, 33, 9.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
-        1, 16, 22.0,
-        ignore_validity);
+        1, 16, 22.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
         4, 22, 4.75);
@@ -119,8 +126,7 @@ void test_areal()
         3, 26, 19.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi_inv_b",
         case_102_multi[1], case_102_multi[2],
-        3, 25, 3.75,
-        ignore_validity);
+        3, 25, 3.75, ignore_validity);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         2, 10, 1.5);
@@ -135,24 +141,30 @@ void test_areal()
         5, 33, 7.5,
         ignore_validity);
 #endif
+
+    TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
+    TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
+    TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
+
+    // #1 needs self-turns to make valid
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-        8, 97, 47.0,
-        ignore_validity);
+        8, 97, 47.0, ignore_validity);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-        1, 50, 90.0, // Area from SQL Server
-        ignore_validity);
+        1, 50, 90.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        8, 174, 67.0, // Area from SQL Server
+        8, 179, 67.0, // Area from SQL Server
         ignore_validity);
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
+    // Should contain 6 output polygons
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
         6, 47, 19.0);
@@ -242,8 +254,7 @@ void test_areal()
         3, 0, 2.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_34",
         case_recursive_boxes_34[0], case_recursive_boxes_34[1],
-        2, 0, 17.25,
-        ignore_validity);
+        2, 0, 17.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_35",
         case_recursive_boxes_35[0], case_recursive_boxes_35[1],
         1, 0, 20.0,
@@ -254,6 +265,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_37",
         case_recursive_boxes_37[0], case_recursive_boxes_37[1],
         2, 0, 1.0);
+
+    TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.00);
+    TEST_INTERSECTION(case_recursive_boxes_40, 1, 0, 1.00);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

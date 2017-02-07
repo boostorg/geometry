@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -208,21 +208,19 @@ private:
 };
 
 
-template <typename Policy, typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
+template <typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
 struct relate_great_elliptic_segments
     : relate_ecef_segments
         <
-            Policy,
             relate_great_elliptic_segments_calc_policy<Spheroid>,
             CalculationType
         >
 {};
 
-template <typename Policy, typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
+template <typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
 struct relate_experimental_elliptic_segments
     : relate_ecef_segments
         <
-            Policy,
             relate_experimental_elliptic_segments_calc_policy<Spheroid>,
             CalculationType
         >

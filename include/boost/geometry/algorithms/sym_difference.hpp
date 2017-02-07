@@ -2,10 +2,11 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -276,14 +277,10 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
     concepts::check<Geometry2 const>();
     concepts::check<GeometryOut>();
 
-    typedef intersection_strategies
+    typedef typename strategy::intersection::services::default_strategy
         <
-            typename cs_tag<GeometryOut>::type,
-            Geometry1,
-            Geometry2,
-            typename geometry::point_type<GeometryOut>::type,
-            RobustPolicy
-        > strategy_type;
+            typename cs_tag<GeometryOut>::type
+        >::type strategy_type;
 
     return sym_difference_insert<GeometryOut>(geometry1, geometry2, robust_policy, out, strategy_type());
 }

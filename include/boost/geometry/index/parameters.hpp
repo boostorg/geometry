@@ -11,7 +11,13 @@
 #ifndef BOOST_GEOMETRY_INDEX_PARAMETERS_HPP
 #define BOOST_GEOMETRY_INDEX_PARAMETERS_HPP
 
+
 #include <limits>
+
+#include <boost/mpl/assert.hpp>
+
+#include <boost/geometry/index/detail/exception.hpp>
+
 
 namespace boost { namespace geometry { namespace index {
 

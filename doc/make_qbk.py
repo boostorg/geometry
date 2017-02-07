@@ -23,8 +23,12 @@ else:
 
 if 'DOXYGEN_XML2QBK' in os.environ:
     doxygen_xml2qbk_cmd = os.environ['DOXYGEN_XML2QBK']
+elif '--doxygen-xml2qbk' in sys.argv:
+    doxygen_xml2qbk_cmd = sys.argv[sys.argv.index('--doxygen-xml2qbk')+1]
 else:
     doxygen_xml2qbk_cmd = 'doxygen_xml2qbk'
+os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.path.dirname(doxygen_xml2qbk_cmd)
+doxygen_xml2qbk_cmd = os.path.basename(doxygen_xml2qbk_cmd)
 
 cmd = doxygen_xml2qbk_cmd
 cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
@@ -131,7 +135,7 @@ strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "side::side_by_triangle", "side::side_by_cross_track", "side::spherical_side_formula"
     , "transform::inverse_transformer", "transform::map_transformer"
     , "transform::rotate_transformer", "transform::scale_transformer"
-    , "transform::translate_transformer", "transform::ublas_transformer"
+    , "transform::translate_transformer", "transform::matrix_transformer"
     ]
     
 views = ["box_view", "segment_view"

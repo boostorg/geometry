@@ -96,7 +96,7 @@ public:
 
         CT const d = acos(cos_d); // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
-        
+
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
             CT const K = math::sqr(sin_lat1-sin_lat2);

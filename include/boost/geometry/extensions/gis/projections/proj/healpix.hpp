@@ -84,14 +84,14 @@ namespace boost { namespace geometry { namespace projections
             typedef struct {
                 double x, y;
             } Point;
-            double rot[7][2][2] = {{{1, 0},{0, 1}}, {{ 0,-1},{ 1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0, 1},{-1, 0}}, {{ 0, 1},{-1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0,-1},{ 1, 0}}};
+            static double rot[7][2][2] = {{{1, 0},{0, 1}}, {{ 0,-1},{ 1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0, 1},{-1, 0}}, {{ 0, 1},{-1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0,-1},{ 1, 0}}};
 
             /**
              * Returns the sign of the double.
              * @param v the parameter whose sign is returned.
              * @return 1 for positive number, -1 for negative, and 0 for zero.
              **/
-            double pj_sign (double v) {
+            inline double pj_sign (double v) {
                 return v > 0 ? 1 : (v < 0 ? -1 : 0);
             }
             /**
@@ -168,7 +168,7 @@ namespace boost { namespace geometry { namespace projections
              * @param north_square the position of the north polar square (rHEALPix only)
              * @param south_square the position of the south polar square (rHEALPix only)
              **/
-            int in_image(double x, double y, int proj, int north_square, int south_square) {
+            inline int in_image(double x, double y, int proj, int north_square, int south_square) {
                 if (proj == 0) {
                     double healpixVertsJit[][2] = {
                         {-1.0*geometry::math::pi<double>()- EPS, geometry::math::pi<double>()/4.0},
@@ -236,7 +236,7 @@ namespace boost { namespace geometry { namespace projections
              * Return the HEALPix projection of the longitude-latitude point lp on
              * the unit sphere.
             **/
-            void healpix_sphere(double const& lp_lam, double const& lp_phi, double& xy_x, double& xy_y) {
+            inline void healpix_sphere(double const& lp_lam, double const& lp_phi, double& xy_x, double& xy_y) {
                 double lam = lp_lam;
                 double phi = lp_phi;
                 double phi0 = asin(2.0/3.0);
@@ -261,7 +261,7 @@ namespace boost { namespace geometry { namespace projections
             /**
              * Return the inverse of healpix_sphere().
             **/
-            void healpix_sphere_inverse(double const& xy_x, double const& xy_y, double& lp_lam, double& lp_phi) {
+            inline void healpix_sphere_inverse(double const& xy_x, double const& xy_y, double& lp_lam, double& lp_phi) {
 
                 double x = xy_x;
                 double y = xy_y;

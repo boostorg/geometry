@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -54,7 +54,6 @@ namespace strategy { namespace intersection
 
 template
 <
-    typename Policy,
     typename Spheroid = srs::spheroid<double>,
     template <typename, bool, bool, bool, bool, bool> class Inverse = formula::andoyer_inverse,
     unsigned int Order = 2,
@@ -62,7 +61,39 @@ template
 >
 struct relate_geodesic_segments
 {
-    typedef typename Policy::return_type return_type;
+    typedef side::detail::by_azimuth
+        <
+            Inverse, Spheroid, CalculationType
+        > side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+    {
+        // TODO: pass m_strategy
+        return side_strategy_type(Spheroid());
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                side_strategy_type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type();
+    }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -130,9 +161,16 @@ struct relate_geodesic_segments
     };
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename RobustPolicy>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                                    RobustPolicy const& robust_policy)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const& policy, RobustPolicy const& robust_policy)
     {
         typedef typename point_type<Segment1>::type point1_t;
         typedef typename point_type<Segment2>::type point2_t;
@@ -144,14 +182,23 @@ struct relate_geodesic_segments
         detail::assign_point_from_index<0>(b, b1);
         detail::assign_point_from_index<1>(b, b2);
 
-        return apply(a, b, robust_policy, a1, a2, b1, b2);
+        return apply(a, b, policy, robust_policy, a1, a2, b1, b2);
     }
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename RobustPolicy, typename Point1, typename Point2>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                                    RobustPolicy const&,
-                                    Point1 a1, Point1 a2, Point2 b1, Point2 b2)
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename Policy,
+        typename RobustPolicy,
+        typename Point1,
+        typename Point2
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Policy const&, RobustPolicy const&,
+              Point1 a1, Point1 a2, Point2 b1, Point2 b2)
     {
         bool is_a_reversed = get<1>(a1) > get<1>(a2);
         bool is_b_reversed = get<1>(b1) > get<1>(b2);
@@ -166,15 +213,23 @@ struct relate_geodesic_segments
             std::swap(b1, b2);
         }
 
-        return apply(a, b, a1, a2, b1, b2, is_a_reversed, is_b_reversed);
+        return apply<Policy>(a, b, a1, a2, b1, b2, is_a_reversed, is_b_reversed);
     }
 
 private:
     // Relate segments a and b
-    template <typename Segment1, typename Segment2, typename Point1, typename Point2>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b,
-                                    Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2,
-                                    bool is_a_reversed, bool is_b_reversed)
+    template
+    <
+        typename Policy,
+        typename Segment1,
+        typename Segment2,
+        typename Point1,
+        typename Point2
+    >
+    static inline typename Policy::return_type
+        apply(Segment1 const& a, Segment2 const& b,
+              Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2,
+              bool is_a_reversed, bool is_b_reversed)
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
@@ -278,11 +333,11 @@ private:
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
+                return collinear_one_degenerted<Policy, calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
             }
             else if (b_is_point)
             {
-                return collinear_one_degenerted<calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
+                return collinear_one_degenerted<Policy, calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
             }
             else
             {
@@ -442,13 +497,14 @@ private:
         }
     }
 
-    template <typename CalcT, typename Segment, typename Point1, typename Point2, typename ResultInverse>
-    static inline return_type collinear_one_degenerted(Segment const& segment, bool degenerated_a,
-                                                       Point1 const& a1, Point1 const& a2,
-                                                       Point2 const& b1, Point2 const& b2,
-                                                       ResultInverse const& res_a1_a2,
-                                                       ResultInverse const& res_a1_bi,
-                                                       bool is_other_reversed)
+    template <typename Policy, typename CalcT, typename Segment, typename Point1, typename Point2, typename ResultInverse>
+    static inline typename Policy::return_type
+        collinear_one_degenerted(Segment const& segment, bool degenerated_a,
+                                 Point1 const& a1, Point1 const& a2,
+                                 Point2 const& b1, Point2 const& b2,
+                                 ResultInverse const& res_a1_a2,
+                                 ResultInverse const& res_a1_bi,
+                                 bool is_other_reversed)
     {
         CalcT dist_1_2, dist_1_o;
         if (! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_bi, dist_1_2, dist_1_o))

@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -123,10 +123,18 @@ void check_geometry_range(Geometry1 const& g1,
                           std::string const& wkt2,
                           Expected const& expected)
 {
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry1>::type
+        >::type strategy_type;
+
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
 
-    typedef typename bg::segment_ratio_type<point_type, robust_policy_type>::type segment_ratio_type;
+    typedef typename bg::segment_ratio_type
+        <
+            point_type, robust_policy_type
+        >::type segment_ratio_type;
 
     typedef bg::detail::overlay::turn_info
         <
@@ -144,16 +152,21 @@ void check_geometry_range(Geometry1 const& g1,
 
     std::vector<turn_info> turns;
     interrupt_policy_t interrupt_policy;
+    strategy_type strategy;
     robust_policy_type robust_policy;
     
     // Don't switch the geometries
-    typedef bg::detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy_t> turn_policy_t;
+    typedef bg::detail::get_turns::get_turn_info_type
+        <
+            Geometry1, Geometry2, assign_policy_t
+        > turn_policy_t;
+
     bg::dispatch::get_turns
         <
             typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
             Geometry1, Geometry2, false, false,
             turn_policy_t
-        >::apply(0, g1, 1, g2, robust_policy, turns, interrupt_policy);
+        >::apply(0, g1, 1, g2, strategy, robust_policy, turns, interrupt_policy);
 
     bool ok = boost::size(expected) == turns.size();
 

@@ -216,8 +216,17 @@ void test_all()
         case_100[0], case_100[1],
         1, 7, 3.125,
         1, 7, 16.0,
-        1, 13, 16.0 + 3.125,
-        ignore_validity);
+        1, 13, 16.0 + 3.125);
+
+    test_one<polygon, polygon, polygon>("case_101",
+        case_101[0], case_101[1],
+        3, 17, 13.75,
+        1, 4, 1.0);
+
+    test_one<polygon, polygon, polygon>("case_102",
+        case_102[0], case_102[1],
+        4, 18, 1.5,
+        3, 15, 4.0625);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
@@ -516,41 +525,34 @@ void test_all()
     // also mysql_23023665
     test_one<polygon, polygon, polygon>("mysql_21965285",
         mysql_21965285[0], mysql_21965285[1],
-        1, 2 - correction_for_invalidity, -1, 92.0,
+        1, 2, -1, 92.0,
         1, 1, -1, 14.0,
-        1, 2, -1, 92.0 + 14.0,
-        ignore_validity);
+        1, 2, -1, 92.0 + 14.0);
 
     test_one<polygon, polygon, polygon>("mysql_23023665_1",
         mysql_23023665_1[0], mysql_23023665_1[1],
-        1, 2 - correction_for_invalidity, -1, 92.0,
+        1, 2, -1, 92.0,
         1, 1, -1, 142.5,
         ignore_validity);
 
     test_one<polygon, polygon, polygon>("mysql_23023665_2",
         mysql_23023665_2[0], mysql_23023665_2[1],
-        1, 2 - correction_for_invalidity, -1, 96.0,
+        1, 2, -1, 96.0,
         1, 1, -1, 16.0,
         ignore_validity);
 
     test_one<polygon, polygon, polygon>("mysql_23023665_3",
         mysql_23023665_3[0], mysql_23023665_3[1],
-        1, 2 - correction_for_invalidity, -1, 225.0,
+        1, 2, -1, 225.0,
         1, 1, -1, 66.0,
         ignore_validity);
-
-//    Case mysql_23023665_4 is not yet included!
-//    test_one<polygon, polygon, polygon>("mysql_23023665_4",
-//        mysql_23023665_4[0], mysql_23023665_4[1],
-//        1, 1, -1, 1.5,
-//        1, 2, -1, 219.0,
-//        1, 2, -1, 1.5 + 219.0);
 
     test_one<polygon, polygon, polygon>("mysql_23023665_5",
         mysql_23023665_5[0], mysql_23023665_5[1],
         2 - correction_for_invalidity, 2 - correction_for_invalidity, -1, 165.23735,
         2, 2, -1, 105.73735,
         ignore_validity);
+
     test_one<polygon, polygon, polygon>("mysql_23023665_6",
         mysql_23023665_6[0], mysql_23023665_6[1],
         2, 2, -1, 105.68756,

@@ -37,10 +37,12 @@ struct ranked_point
         , count_left(0)
         , count_right(0)
         , operation(operation_none)
+        , only_turn_on_ring(false)
     {}
 
+    template <typename Op>
     ranked_point(const Point& p, signed_size_type ti, int oi,
-                 direction_type d, operation_type op, segment_identifier sid)
+                 direction_type d, Op op)
         : point(p)
         , rank(0)
         , zone(-1)
@@ -49,8 +51,9 @@ struct ranked_point
         , direction(d)
         , count_left(0)
         , count_right(0)
-        , operation(op)
-        , seg_id(sid)
+        , operation(op.operation)
+        , seg_id(op.seg_id)
+        , only_turn_on_ring(op.enriched.only_turn_on_ring)
     {}
 
     Point point;
@@ -63,6 +66,7 @@ struct ranked_point
     std::size_t count_right;
     operation_type operation;
     segment_identifier seg_id;
+    bool only_turn_on_ring;
 };
 
 struct less_by_turn_index
@@ -181,11 +185,36 @@ private :
     Point m_p1, m_p2;
 };
 
+// Sorts vectors in counter clockwise order (by default)
 template <bool Reverse1, bool Reverse2, typename Point, typename Compare>
 struct side_sorter
 {
     typedef ranked_point<Point> rp;
 
+private :
+    struct include_union
+    {
+        inline bool operator()(rp const& ranked_point) const
+        {
+            // New candidate if there are no polygons on left side,
+            // but there are on right side
+            return ranked_point.count_left == 0
+                && ranked_point.count_right > 0;
+        }
+    };
+
+    struct include_intersection
+    {
+        inline bool operator()(rp const& ranked_point) const
+        {
+            // New candidate if there are two polygons on right side,
+            // and less on the left side
+            return ranked_point.count_left < 2
+                && ranked_point.count_right >= 2;
+        }
+    };
+
+public :
     inline void set_origin(Point const& origin)
     {
         m_origin = origin;
@@ -202,8 +231,8 @@ struct side_sorter
                 op.seg_id, point1, point2, point3);
         Point const& point_to = op.fraction.is_one() ? point3 : point2;
 
-        m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op.operation, op.seg_id));
-        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op.operation, op.seg_id));
+        m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op));
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op));
 
         if (is_origin)
         {
@@ -292,8 +321,6 @@ struct side_sorter
                     &segment_identifier::source_index
                 >(handled);
         }
-
-        assign_zones();
     }
 
     void reverse()
@@ -334,37 +361,7 @@ struct side_sorter
         }
     }
 
-    //! Check how many open spaces there are
-    template <typename Turns>
-    std::size_t open_count(Turns const& turns) const
-    {
-        typedef typename boost::range_value<Turns>::type turn_type;
-        typedef typename turn_type::turn_operation_type turn_operation_type;
-
-        std::size_t result = 0;
-        std::size_t last_rank = 0;
-        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
-        {
-            rp const& ranked_point = m_ranked_points[i];
-
-            if (ranked_point.rank > last_rank
-                && ranked_point.direction == sort_by_side::dir_to)
-            {
-                // TODO: take count-left / count_right from rank itself
-                turn_type const& ranked_turn = turns[ranked_point.turn_index];
-                turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
-                if (ranked_op.enriched.count_left == 0
-                     && ranked_op.enriched.count_right > 0)
-                {
-                    result++;
-                    last_rank = ranked_point.rank;
-                }
-            }
-        }
-        return result;
-    }
-
-//protected :
+//private :
 
     typedef std::vector<rp> container_type;
     container_type m_ranked_points;
@@ -372,6 +369,26 @@ struct side_sorter
 
 private :
 
+    //! Check how many open spaces there are
+    template <typename Include>
+    inline std::size_t open_count(Include const& include_functor) const
+    {
+        std::size_t result = 0;
+        std::size_t last_rank = 0;
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            rp const& ranked_point = m_ranked_points[i];
+
+            if (ranked_point.rank > last_rank
+                && ranked_point.direction == sort_by_side::dir_to
+                && include_functor(ranked_point))
+            {
+                result++;
+                last_rank = ranked_point.rank;
+            }
+        }
+        return result;
+    }
 
     std::size_t move(std::size_t index) const
     {
@@ -458,7 +475,8 @@ private :
     }
 
     //! Find closed zones and assign it
-    void assign_zones()
+    template <typename Include>
+    std::size_t assign_zones(Include const& include_functor)
     {
         // Find a starting point (the first rank after an outgoing rank
         // with no polygons on the left side)
@@ -473,8 +491,7 @@ private :
                 max_rank = ranked_point.rank;
             }
             if (ranked_point.direction == sort_by_side::dir_to
-                 && ranked_point.count_left == 0
-                 && ranked_point.count_right > 0)
+                && include_functor(ranked_point))
             {
                 start_rank = ranked_point.rank + 1;
             }
@@ -510,8 +527,7 @@ private :
                 }
 
                 if (ranked_point.direction == sort_by_side::dir_to
-                     && ranked_point.count_left == 0
-                     && ranked_point.count_right > 0)
+                    && include_functor(ranked_point))
                 {
                     rank_at_next_zone = ranked_point.rank + 1;
                     if (rank_at_next_zone > max_rank)
@@ -525,8 +541,25 @@ private :
 
             ranked_point.zone = zone_id;
         }
+        return zone_id;
     }
 
+public :
+    inline std::size_t open_count(operation_type for_operation) const
+    {
+        return for_operation == operation_union
+            ? open_count(include_union())
+            : open_count(include_intersection())
+            ;
+    }
+
+    inline std::size_t assign_zones(operation_type for_operation)
+    {
+        return for_operation == operation_union
+            ? assign_zones(include_union())
+            : assign_zones(include_intersection())
+            ;
+    }
 
 };
 

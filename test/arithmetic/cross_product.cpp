@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,7 +11,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/cross_product.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 
@@ -53,9 +54,11 @@ template <typename P>
 void test_4d()
 {
     P p1;
-    bg::assign_values(p1, 20, 30, 10, 15);
+    bg::assign_values(p1, 20, 30, 10);
+    bg::set<3>(p1, 15);
     P p2;
-    bg::assign_values(p2, 45, 70, 20, 35);
+    bg::assign_values(p2, 45, 70, 20);
+    bg::set<3>(p2, 35);
     P c = bg::cross_product(p1, p2);
 }
 #endif
@@ -71,9 +74,9 @@ int test_main(int, char* [])
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
 #ifdef TEST_FAIL_CROSS_PRODUCT
-    test_4d<bg::model::point<int, 3, bg::cs::cartesian> >();
-    test_4d<bg::model::point<float, 3, bg::cs::cartesian> >();
-    test_4d<bg::model::point<double, 3, bg::cs::cartesian> >();
+    test_4d<bg::model::point<int, 4, bg::cs::cartesian> >();
+    test_4d<bg::model::point<float, 4, bg::cs::cartesian> >();
+    test_4d<bg::model::point<double, 4, bg::cs::cartesian> >();
 #endif
 
     return 0;

@@ -103,11 +103,10 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
-    double const tolerance = 1.0;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    double const tolerance_multiplier = 1000.0;
+    double const tolerance = 1000.0;
 #else
-    double const tolerance_multiplier = 1.0;
+    double const tolerance = 1.0;
 #endif
 
     // Area should be somewhat larger (~>) than pi*distance^2
@@ -118,7 +117,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_8000",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(8000),
-            115058661065242.812, tolerance);
+            115058661065242.812, 10.0 * tolerance);
 
     // Expectations:
     // 115058672785641.031
@@ -128,7 +127,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(83585),
-            115058672785660, 25.0 * tolerance_multiplier);
+            115058672785660.0, 25.0 * tolerance);
 
     // Takes about 7 seconds in release mode
     // Expectations:
@@ -139,7 +138,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_250k",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(250000),
-            115058672879977, 75.0 * tolerance_multiplier);
+            115058672879977.0, 75.0 * tolerance);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Takes about 110 seconds in release mode
@@ -159,7 +158,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_2",
             mysql_report_2015_02_25_2, join, end_flat,
             distance_strategy(5666962), side_strategy, point_circle(46641),
-            100891031341795, 3.0 * tolerance_multiplier);
+            100891031341795.0, 3.0 * tolerance);
 
     // Multipoint b with large distances/many points
     // Area ~> pi * 10x
@@ -173,7 +172,7 @@ void test_many_points_per_circle()
             "multipoint_b_50k",
             multipoint_b, join, end_flat,
             distance_strategy(1000000), side_strategy, point_circle(50000),
-            3141871558227, 10.0 * tolerance_multiplier);
+            3141871558227.0, 10.0 * tolerance);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Tests optimization min/max radius

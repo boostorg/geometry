@@ -170,6 +170,11 @@ struct test_distance_of_geometries
     : public test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 {};
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+#define ENABLE_IF_DEBUG(ID) ID
+#else
+#define ENABLE_IF_DEBUG(ID)
+#endif
 
 template <typename Geometry1, typename Geometry2>
 class test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
@@ -184,7 +189,7 @@ private:
         typename Strategy
     >
     static inline
-    void base_test(std::string const& header,
+    void base_test(std::string const& ENABLE_IF_DEBUG(header),
                    G1 const& g1, G2 const& g2,
                    DistanceType const& expected_distance,
                    ComparableDistanceType const& expected_comparable_distance,

@@ -356,7 +356,7 @@ inline void test_integer(bool check_types)
 
     comparable_type comparable;
     cdistance_type cdistance = comparable.apply(p, b);
-    BOOST_CHECK_EQUAL(cdistance, 11589696996311540);
+    BOOST_CHECK_EQUAL(cdistance, 11589696996311540.0);
 
     distance_type distance2 = sqrt(distance_type(cdistance));
     BOOST_CHECK_CLOSE(distance, distance2, 0.001);

@@ -29,20 +29,9 @@ void test_default_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
                            std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                            int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
     typename bg::strategy::intersection::services::default_strategy
         <
             bg::geographic_tag,
-            policy_t,
             void
         >::type strategy;
 
@@ -55,20 +44,7 @@ void test_great_elliptic(std::string const& s1_wkt, std::string const& s2_wkt,
                          std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                          int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
-    bg::strategy::intersection::relate_great_elliptic_segments
-        <
-            policy_t
-        > strategy;
+    bg::strategy::intersection::relate_great_elliptic_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -79,20 +55,7 @@ void test_experimental_elliptic(std::string const& s1_wkt, std::string const& s2
                                 std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                                 int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
-    bg::strategy::intersection::relate_experimental_elliptic_segments
-        <
-            policy_t
-        > strategy;
+    bg::strategy::intersection::relate_experimental_elliptic_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -103,19 +66,8 @@ void test_geodesic_vincenty(std::string const& s1_wkt, std::string const& s2_wkt
                             std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                             int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
     bg::strategy::intersection::relate_geodesic_segments
         <
-            policy_t,
             bg::srs::spheroid<double>,
             bg::formula::vincenty_inverse,
             4
@@ -130,19 +82,8 @@ void test_geodesic_thomas(std::string const& s1_wkt, std::string const& s2_wkt,
                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                           int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
     bg::strategy::intersection::relate_geodesic_segments
         <
-            policy_t,
             bg::srs::spheroid<double>,
             bg::formula::thomas_inverse,
             2
@@ -157,19 +98,8 @@ void test_geodesic_andoyer(std::string const& s1_wkt, std::string const& s2_wkt,
                            std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                            int opposite_id = -1)
 {
-    typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
-
     bg::strategy::intersection::relate_geodesic_segments
         <
-            policy_t,
             bg::srs::spheroid<double>,
             bg::formula::andoyer_inverse,
             1

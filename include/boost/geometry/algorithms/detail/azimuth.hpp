@@ -2,9 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017.
+// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -70,9 +71,9 @@ struct azimuth<ReturnType, spherical_equatorial_tag>
     template <typename P1, typename P2, typename Sphere>
     static inline ReturnType apply(P1 const& p1, P2 const& p2, Sphere const& /*unused*/)
     {
-        return geometry::formula::sph_azimuth<ReturnType>(
-                    get_as_radian<0>(p1), get_as_radian<1>(p1),
-                    get_as_radian<0>(p2), get_as_radian<1>(p2));
+        return geometry::formula::spherical_azimuth<ReturnType, false>
+                    ( get_as_radian<0>(p1), get_as_radian<1>(p1),
+                      get_as_radian<0>(p2), get_as_radian<1>(p2)).azimuth;
     }
 
     template <typename P1, typename P2>
