@@ -4,11 +4,12 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -129,8 +130,10 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \details \details_calc{envelope,\det_envelope}.
 \tparam Geometry \tparam_geometry
 \tparam Box \tparam_box
+\tparam Strategy \tparam_strategy{Envelope}
 \param geometry \param_geometry
 \param mbr \param_box \param_set{envelope}
+\param strategy \param_strategy{envelope}
 
 \qbk{[include reference/algorithms/envelope.qbk]}
 \qbk{
@@ -185,7 +188,7 @@ template<typename Box, typename Geometry>
 inline Box return_envelope(Geometry const& geometry)
 {
     Box mbr;
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr);
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr, default_strategy());
     return mbr;
 }
 
