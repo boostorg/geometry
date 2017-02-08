@@ -147,6 +147,7 @@ private:
         {
             std::swap(lat1, lat2);
             std::swap(lat1_rad, lat2_rad);
+            std::swap(a1, a2);
         }
 
         if (math::equals(a1, a2))
