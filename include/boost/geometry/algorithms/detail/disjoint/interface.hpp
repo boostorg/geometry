@@ -59,9 +59,17 @@ struct disjoint
                              Geometry2 const& geometry2,
                              default_strategy)
     {
+        typedef typename point_type<Geometry1>::type point_type;
+
         typedef typename strategy::disjoint::services::default_strategy
             <
-                Geometry1, Geometry2
+                Geometry1, Geometry2,
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                geometry::topological_dimension<Geometry1>::value,
+                geometry::topological_dimension<Geometry2>::value,
+                typename cs_tag<Geometry1>::type,
+                typename cs_tag<Geometry2>::type
             >::type strategy_type;
 
         return dispatch::disjoint

@@ -68,6 +68,7 @@
 
 #include <boost/geometry/strategies/spherical/area_spherical.hpp>
 #include <boost/geometry/strategies/spherical/azimuth_spherical.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
