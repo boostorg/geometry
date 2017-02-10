@@ -940,7 +940,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::thomas_inverse
                           > tester;
@@ -1098,7 +1098,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::andoyer_inverse
                           > tester;
@@ -1256,7 +1256,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::vincenty_inverse
                           > tester;
