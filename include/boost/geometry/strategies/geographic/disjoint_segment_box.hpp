@@ -9,8 +9,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_HPP
 
 
 #include <cstddef>
@@ -38,8 +38,26 @@ namespace boost { namespace geometry { namespace strategy { namespace disjoint
 // It seems to be more appropriate to implement the opposite of it
 // e.g. intersection::segment_box because in disjoint() algorithm
 // other strategies that are used are intersection and covered_by strategies.
-struct segment_box_spherical
+template
+<
+    typename CalculationType,
+    typename Spheroid = geometry::srs::spheroid<CalculationType>,
+    template <typename, bool, bool, bool, bool, bool> class Inverse =
+        geometry::formula::thomas_inverse
+>
+struct segment_box_geographic
 {
+public:
+    typedef Spheroid model_type;
+
+    inline segment_box_geographic()
+        : m_spheroid()
+    {}
+
+    explicit inline segment_box_geographic(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
+    {}
+
     template <typename Segment, typename Box>
     struct point_in_geometry_strategy
         : services::default_strategy
@@ -59,15 +77,21 @@ struct segment_box_spherical
     }
 
     template <typename Segment, typename Box>
-    static inline bool apply(Segment const& segment, Box const& box)
+    inline bool apply(Segment const& segment, Box const& box) const
     {
-        typedef typename point_type<Segment>::type segment_point_type;
-        typedef typename coordinate_type<segment_point_type>::type CT;
-        geometry::strategy::azimuth::spherical<CT> azimuth_strategy;
+        geometry::strategy::azimuth::geographic
+            <
+                CalculationType,
+                Spheroid,
+                Inverse
+            > azimuth_geographic(m_spheroid);
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <Segment, Box, spherical_equatorial_tag>::apply(segment, box, azimuth_strategy);
+                <Segment, Box, geographic_tag>::apply(segment, box, azimuth_geographic);
     }
+
+private:
+    Spheroid m_spheroid;
 };
 
 
@@ -79,17 +103,22 @@ namespace services
 
 template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
-                        spherical_equatorial_tag, spherical_equatorial_tag>
+                        geographic_tag, geographic_tag>
 {
-    typedef segment_box_spherical type;
+    typedef typename point_type<Linear>::type linear_point_type;
+    typedef typename coordinate_type<linear_point_type>::type CalculationType;
+    typedef segment_box_geographic<CalculationType> type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
-                        spherical_equatorial_tag, spherical_equatorial_tag>
+                        geographic_tag, geographic_tag>
 {
-    typedef segment_box_spherical type;
+    typedef typename point_type<Linear>::type linear_point_type;
+    typedef typename coordinate_type<linear_point_type>::type CalculationType;
+    typedef segment_box_geographic<CalculationType> type;
 };
+
 
 } // namespace services
 
@@ -100,5 +129,4 @@ struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
 }}}} // namespace boost::geometry::strategy::disjoint
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_HPP
-
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_HPP

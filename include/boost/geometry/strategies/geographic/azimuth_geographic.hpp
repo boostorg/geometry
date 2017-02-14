@@ -63,6 +63,20 @@ public :
         a2 = i_res.reverse_azimuth;
     }
 
+    inline void apply(CalculationType const& lon1_rad,
+                      CalculationType const& lat1_rad,
+                      CalculationType const& lon2_rad,
+                      CalculationType const& lat2_rad,
+                      CalculationType& a1) const
+    {
+        typedef Inverse<CalculationType, false, true, true, false, false> inverse_type;
+        typedef typename inverse_type::result_type inverse_result;
+        inverse_result i_res = inverse_type::apply(lon1_rad, lat1_rad,
+                                                   lon2_rad, lat2_rad,
+                                                   m_spheroid);
+        a1 = i_res.azimuth;
+    }
+
 private :
     Spheroid m_spheroid;
 };

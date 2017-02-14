@@ -79,6 +79,7 @@
 
 #include <boost/geometry/strategies/geographic/area_geographic.hpp>
 #include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>

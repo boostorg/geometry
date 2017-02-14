@@ -59,8 +59,6 @@ struct disjoint
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        typedef typename point_type<Geometry1>::type point_type;
-
         typedef typename strategy::disjoint::services::default_strategy
             <
                 Geometry1, Geometry2,
