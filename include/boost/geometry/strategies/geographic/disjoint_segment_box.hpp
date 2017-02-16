@@ -87,7 +87,7 @@ public:
             > azimuth_geographic(m_spheroid);
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <Segment, Box, geographic_tag>::apply(segment, box, azimuth_geographic);
+                <geographic_tag>::apply(segment, box, azimuth_geographic);
     }
 
 private:

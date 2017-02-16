@@ -38,9 +38,51 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
-template <typename Segment, typename Box, typename CS_Tag>
+template <typename CT, typename CS_Tag>
+struct disjoint_segment_box_call_vertex_longitude{
+
+    template <typename Strategy>
+    static inline CT apply(CT lat1,
+                           CT lat2,
+                           CT vertex_lat,
+                           CT lon2_minus_lon1,
+                           CT,
+                           Strategy)
+    {
+        return formula::vertex_longitude<CT, CS_Tag>
+                ::apply(lat1,
+                        lat2,
+                        vertex_lat,
+                        lon2_minus_lon1);
+    }
+};
+
+template <typename CT>
+struct disjoint_segment_box_call_vertex_longitude<CT, geographic_tag>{
+
+    template <typename Strategy>
+    static inline CT apply(CT lat1,
+                           CT lat2,
+                           CT vertex_lat,
+                           CT,
+                           CT alp1,
+                           Strategy azimuth_strategy)
+    {
+        return formula::vertex_longitude<CT, geographic_tag>
+                ::apply(lat1,
+                        lat2,
+                        vertex_lat,
+                        alp1,
+                        azimuth_strategy.model());
+    }
+};
+
+
+template <typename CS_Tag>
 struct disjoint_segment_box_sphere_or_spheroid
 {
+private:
+
     template <typename CT>
     static inline void swap(CT& lon1,
                             CT& lat1,
@@ -52,13 +94,14 @@ struct disjoint_segment_box_sphere_or_spheroid
     }
 
 
-    template <typename CT>
+    template <typename CT, typename Strategy>
     static inline CT compute_vertex_lon(CT lon1,
                                         CT lat1,
                                         CT lon2,
                                         CT lat2,
                                         CT vertex_lat,
-                                        CT alp1)
+                                        CT alp1,
+                                        Strategy azimuth_strategy)
     {
         if (vertex_lat == lat1)
         {
@@ -68,21 +111,21 @@ struct disjoint_segment_box_sphere_or_spheroid
         {
             return lon2;
         }
-        if (lat1 == lat2)
-        {
-            return formula::vertex_longitude<CT, CS_Tag>
-                    ::apply(lat1, lat2, vertex_lat, lon2 - lon1, alp1)
-                    + lon2;
-        }
-        else
-        {
-            return formula::vertex_longitude<CT, CS_Tag>
-                    ::apply(lat1, lat2, vertex_lat, lon2 - lon1, alp1)
-                    + lon2;
-        }
+
+        return disjoint_segment_box_call_vertex_longitude<CT, CS_Tag>
+                ::apply(lat1,
+                        lat2,
+                        vertex_lat,
+                        lon2 - lon1,
+                        alp1,
+                        azimuth_strategy)
+                + lon2;
+
     }
 
-    template <typename Strategy>
+public:
+
+    template <typename Segment, typename Box, typename Strategy>
     static inline bool apply(Segment const& segment,
                              Box const& box,
                              Strategy const& azimuth_strategy)
@@ -90,20 +133,15 @@ struct disjoint_segment_box_sphere_or_spheroid
         assert_dimension_equal<Segment, Box>();
 
         typedef typename point_type<Segment>::type segment_point_type;
+        typedef typename cs_tag<Segment>::type segment_cs_type;
+
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
-        bool contains_p0 = geometry::covered_by(p0, box);
-        bool contains_p1 = geometry::covered_by(p1, box);
+        // Test simple case of intersection first
 
-        // Test simple cases first
-
-        if (contains_p0 && contains_p1)
-        {
-            return true;
-        }
-        if (contains_p0 != contains_p1)
+        if (geometry::covered_by(p0, box) != geometry::covered_by(p1, box))
         {
             return false;
         }
@@ -142,32 +180,33 @@ struct disjoint_segment_box_sphere_or_spheroid
 
         bool b0(alp1 > a_b0), b1(alp1 > a_b1), b2(alp1 > a_b2), b3(alp1 > a_b3);
 
-/*
-        std::cout << b0 << b1 << b2 << b3 << (b0 & b1 & b2 & b3)
-                     << !(b0 & b1 & b2 & b3)
-                     << (b0 | b1 | b2 | b3)
-                     << std::endl;
-*/
-
+        // if the box is above (below) the segment in northern (southern)
+        // hemisphere respectively then there is not intersection
         if (~(b0 & b1 & b2 & b3) & (b0 | b1 | b2 | b3))
         {
             return false;
         }
 
-        // Test intersection by testing the vertex of the geodesic
+        // The only case not covered by the angle test above
+        // Test intersection by testing if the vertex of the geodesic segment
+        // is covered by the box
 
         geometry::model::box<segment_point_type> box_seg;
 
         //Do not compute alp1 twice, pass the already computed alp1 to envelope_segment_impl
-        geometry::detail::envelope::envelope_segment_impl<typename cs_tag<Segment>::type>
-                ::template apply<geometry::radian>(lon1, lat1, lon2, lat2,
-                                                   box_seg, azimuth_strategy, alp1);
+        geometry::detail::envelope::envelope_segment_impl<segment_cs_type>
+                ::template apply<geometry::radian>(lon1, lat1,
+                                                   lon2, lat2,
+                                                   box_seg,
+                                                   azimuth_strategy,
+                                                   alp1);
 
         CT vertex_lat = geometry::get<geometry::max_corner, 1>(box_seg) * math::d2r<CT>();
-        //std::cout << "vrt_lat=" << math::from_radian<degree>(vertex_lat) << std::endl;
-
-        CT vertex_lon = compute_vertex_lon(lon1, lat1, lon2, lat2, vertex_lat, alp1);
-        //std::cout << "vrt_lon=" << math::from_radian<degree>(vertex_lon) << std::endl;
+        CT vertex_lon = compute_vertex_lon(lon1, lat1,
+                                           lon2, lat2,
+                                           vertex_lat,
+                                           alp1,
+                                           azimuth_strategy);
 
         segment_point_type p_vertex_deg(vertex_lon * math::r2d<CT>(),
                                         vertex_lat * math::r2d<CT>());
@@ -184,7 +223,9 @@ struct disjoint_segment_box_sphere_or_spheroid
 struct disjoint_segment_box
 {
     template <typename Segment, typename Box, typename Strategy>
-    static inline bool apply(Segment const& segment, Box const& box, Strategy const& strategy)
+    static inline bool apply(Segment const& segment,
+                             Box const& box,
+                             Strategy const& strategy)
     {
         return strategy.apply(segment, box);
     }

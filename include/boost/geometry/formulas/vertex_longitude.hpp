@@ -37,8 +37,7 @@ public:
     static inline CT apply(T const lat1,
                            T const lat2,
                            T const lat3,
-                           T const dlon,
-                           T const)
+                           T const dlon)
     {
         //https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points
         CT const A = sin(lat1) * cos(lat2) * cos(lat3) * sin(dlon);
@@ -52,9 +51,6 @@ public:
 template <typename CT>
 class vertex_longitude_on_spheroid
 {
-
-public:
-
     template<typename T>
     static inline void normalize(T& x, T& y)
     {
@@ -63,16 +59,16 @@ public:
         y /= h;
     }
 
-    template <typename T>
+public:
+
+    template <typename T, typename Spheroid>
     static inline CT apply(T const lat1,
                            T const lat2,
                            T const lat3,
-                           T const,
-                           T const alp1)
+                           T const alp1,
+                           Spheroid const spheroid)
     {
         // Constants
-
-        geometry::srs::spheroid<CT> spheroid;
         CT const f = detail::flattening<CT>(spheroid);
 
         // First, compute longitude on auxiliary sphere
@@ -111,7 +107,7 @@ public:
         //CT const omg2 = asin(tan(bet2) * sin_alp0 / cos_alp0);
 
         CT const omg3 = vertex_longitude_on_sphere<CT>
-                            ::apply(bet1, bet2, bet3, omg2 - omg1, CT());
+                            ::apply(bet1, bet2, bet3, omg2 - omg1);
 
         // Second, compute the ellipsodal longitude
 

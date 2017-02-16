@@ -66,7 +66,7 @@ struct segment_box_spherical
         geometry::strategy::azimuth::spherical<CT> azimuth_strategy;
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <Segment, Box, spherical_equatorial_tag>::apply(segment, box, azimuth_strategy);
+                <spherical_equatorial_tag>::apply(segment, box, azimuth_strategy);
     }
 };
 

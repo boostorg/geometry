@@ -8,6 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -18,6 +20,8 @@
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 
@@ -62,6 +66,12 @@ void disjoint_tests_1()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
                                                              "SEGMENT(1 2, 5 5)",
                                                              false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(1 2, 3 2)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(0 0, 4 0)",
+                                                             true);
 }
 
 template <typename P>
@@ -75,10 +85,16 @@ void disjoint_tests_2(bool expected_result)
 template <typename P>
 void disjoint_tests_3(bool expected_result)
 {
-    //3. 4.42986, 100. 5.
-    //3. 4.416, 100. 5.
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(3. 4.42, 100. 5.)",
                                                              "SEGMENT(2 2.9, 100 2.9)",
+                                                             expected_result);
+}
+
+template <typename P>
+void disjoint_tests_4(bool expected_result)
+{
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1. 1.,3. 3.)",
+                                                             "SEGMENT(0. 0.99999999, 2. 0.99999999)",
                                                              expected_result);
 }
 
@@ -138,6 +154,9 @@ void test_all()
     disjoint_tests_3<point>(true);
     disjoint_tests_3<sph_point>(true);
     disjoint_tests_3<geo_point>(false);
+
+    disjoint_tests_4<sph_point>(false);
+    disjoint_tests_4<geo_point>(false);
 
     disjoint_tests_with_strategy<geo_point, CT>(false);
 }
