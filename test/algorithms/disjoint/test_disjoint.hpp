@@ -25,6 +25,8 @@ void test_disjoint(std::string const& wkt1,
     bg::read_wkt(wkt2, geometry2);
 
     BOOST_CHECK_EQUAL(bg::disjoint(geometry1, geometry2), expected_result);
+    //reverse
+    BOOST_CHECK_EQUAL(bg::disjoint(geometry2, geometry1), expected_result);
 }
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
@@ -40,5 +42,8 @@ void test_disjoint_strategy(std::string const& wkt1,
     bg::read_wkt(wkt2, geometry2);
 
     BOOST_CHECK_EQUAL(bg::disjoint(geometry1, geometry2, strategy),
+                      expected_result);
+    //reverse
+    BOOST_CHECK_EQUAL(bg::disjoint(geometry2, geometry1, strategy),
                       expected_result);
 }

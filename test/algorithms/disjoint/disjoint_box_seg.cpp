@@ -80,21 +80,30 @@ void disjoint_tests_2(bool expected_result)
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
                                                              "SEGMENT(1 0.999, 10 0.999)",
                                                              expected_result);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(10 0.999, 1 0.999)",
+                                                             expected_result);
 }
 
 template <typename P>
 void disjoint_tests_3(bool expected_result)
 {
-    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(3. 4.42, 100. 5.)",
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(3 4.42, 100 5)",
                                                              "SEGMENT(2 2.9, 100 2.9)",
+                                                             expected_result);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(3 4.42, 100 5)",
+                                                             "SEGMENT(100 2.9, 2 2.9)",
                                                              expected_result);
 }
 
 template <typename P>
 void disjoint_tests_4(bool expected_result)
 {
-    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1. 1.,3. 3.)",
-                                                             "SEGMENT(0. 0.99999999, 2. 0.99999999)",
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(0 0.99999999, 2 0.99999999)",
+                                                             expected_result);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(2 0.99999999, 0 0.99999999)",
                                                              expected_result);
 }
 
@@ -102,25 +111,25 @@ template <typename P, typename CT>
 void disjoint_tests_with_strategy(bool expected_result)
 {
     bg::strategy::disjoint::segment_box_geographic
-                    <
-                        CT,
-                        bg::srs::spheroid<CT>,
-                        bg::formula::andoyer_inverse
-                    > geographic_andoyer;
+            <
+            CT,
+            bg::srs::spheroid<CT>,
+            bg::formula::andoyer_inverse
+            > geographic_andoyer;
 
     bg::strategy::disjoint::segment_box_geographic
-                    <
-                        CT,
-                        bg::srs::spheroid<CT>,
-                        bg::formula::thomas_inverse
-                    > geographic_thomas;
+            <
+            CT,
+            bg::srs::spheroid<CT>,
+            bg::formula::thomas_inverse
+            > geographic_thomas;
 
     bg::strategy::disjoint::segment_box_geographic
-                    <
-                        CT,
-                        bg::srs::spheroid<CT>,
-                        bg::formula::vincenty_inverse
-                    > geographic_vincenty;
+            <
+            CT,
+            bg::srs::spheroid<CT>,
+            bg::formula::vincenty_inverse
+            > geographic_vincenty;
 
     test_disjoint_strategy<bg::model::box<P>, bg::model::segment<P> >
             ("BOX(1 1,3 3)", "SEGMENT(1 0.999, 10 0.999)",
@@ -138,9 +147,9 @@ void test_all()
 {
     typedef bg::model::d2::point_xy<CT> point;
     typedef bg::model::point<CT, 2,
-                       bg::cs::spherical_equatorial<bg::degree> > sph_point;
+            bg::cs::spherical_equatorial<bg::degree> > sph_point;
     typedef bg::model::point<CT, 2,
-                       bg::cs::geographic<bg::degree> > geo_point;
+            bg::cs::geographic<bg::degree> > geo_point;
 
     disjoint_tests_1<point>();
     disjoint_tests_1<sph_point>();

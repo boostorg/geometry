@@ -137,13 +137,8 @@ private:
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
 
-        //CalculationType lon1_rad = math::as_radian<Units>(lon1);
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
-        //CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
-
-        //CalculationType a1, a2;
-        //strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
 
         if (lat1 > lat2)
         {
@@ -250,8 +245,6 @@ private:
             lon1 += constants::period();
             swap(lon1, lat1, lon2, lat2);
         }
-
-        //compute_box_corners<Units>(lon1, lat1, lon2, lat2, strategy);
     }
 
     template <
