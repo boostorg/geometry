@@ -36,18 +36,11 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
 
-
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
-
-    ut_settings ignore_validity_for_self;
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    ignore_validity_for_self.test_validity = false;
-#endif
-
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
@@ -117,7 +110,7 @@ void test_areal()
         3, 14, 2.85);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi_inv_b",
         case_72_multi[1], case_72_multi[2],
-        3, 16, 6.15, ignore_validity_for_self);
+        3, 16, 6.15);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
         5, 33, 9.0);
@@ -156,6 +149,12 @@ void test_areal()
 #else
     TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
 #endif
+    TEST_INTERSECTION(case_127_multi, 3, 19, 24.0);
+
+#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // With self-intersections, one hole is missed
+    TEST_INTERSECTION(case_128_multi, 2, 26, 75.5);
+#endif
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
@@ -165,13 +164,13 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-        1, 50, 90.0, ignore_validity_for_self); // Area from SQL Server
+        1, 50, 90.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 10, 168, 67.0);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 10, 172, 67.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 179, 67.0);
 #endif
@@ -281,11 +280,8 @@ void test_areal()
 
     TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.0);
     TEST_INTERSECTION(case_recursive_boxes_40, 1, 0, 1.0);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_INTERSECTION(case_recursive_boxes_41, 1, 0, 23.5);
-#else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_41, 1, 0, 23.5);
-#endif
+    TEST_INTERSECTION(case_recursive_boxes_42, 1, 29, 95.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

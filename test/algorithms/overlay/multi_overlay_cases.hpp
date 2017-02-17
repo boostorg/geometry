@@ -530,6 +530,19 @@ static std::string case_126_multi[2] =
     "MULTIPOLYGON(((0 3,6 3,6 9,0 9,0 3),(2 6,4 7,6 6,4 5,2 6)),((6 9,6 11,8 11,8 9,6 9)))"
 };
 
+static std::string case_127_multi[2] =
+{
+    // Intersection/validity with ii at (4 4), and both have self intersections at (5 5)
+    "MULTIPOLYGON(((0 0,0 5,3 5,3 4,4 4,4 5,5 5,5 0,0 0)),((5 5,5 6,6 6,6 5,5 5)))",
+    "MULTIPOLYGON(((0 0,0 5,5 5,5 4,4 4,4 3,5 3,5 0,0 0)),((5 5,5 7,7 7,7 5,5 5)))"
+};
+
+static std::string case_128_multi[2] =
+{
+    // Contains isolated areas of two types
+    "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(4 8,6 7,8 8,6 9,4 8),(1 2,2 0,3 2,2 4,1 2)))",
+    "MULTIPOLYGON(((0 0,0 10,11 10,11 0,0 0),(2 9,0 8,2 7,4 8,2 9),(5 5,5 0,10 5,5 5)))"
+};
 
 static std::string case_recursive_boxes_1[2] =
 {
@@ -847,6 +860,13 @@ static std::string case_recursive_boxes_41[2] =
     // Smaller version of 35 for validity checks
     "MULTIPOLYGON(((0 2,0 5,5 5,5 1,5 0,3 0,0 0,0 2),(0 2,1 2,1 3,0 2),(2 4,1 4,2 3,2 4)))",
     "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0),(2 3,2 4,1 4,1 3,2 3)))"
+};
+
+static std::string case_recursive_boxes_42[2] =
+{
+    // Smaller version of 2 for validity checks
+    "MULTIPOLYGON(((0 0,0 10,6 10,6 9,7 9,7 10,10 10,10 0,0 0),(6 9,5 9,5 8,6 8,6 9),(7 6,8 6,8 7,7 7,7 6),(8 7,9 7,9 8,8 8,8 7)))",
+    "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(6 7,7 7,7 8,6 8,6 7)))"
 };
 
 static std::string pie_21_7_21_0_3[2] =
