@@ -506,7 +506,7 @@ struct traversal
             {
                 sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                 turn_type const& turn = m_turns[rwd.turn_index];
-                incoming_region_id = turn.operations[op_index].enriched.region_id;
+                incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
             }
             else
             {
