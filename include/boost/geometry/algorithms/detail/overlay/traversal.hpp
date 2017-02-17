@@ -519,8 +519,8 @@ struct traversal
                     {
                         int region_id = -1;
                         std::set<int> visited;
-                        visited.insert(turn_index);
-                        if (get_isolated_region_id(region_id, visited, incoming_region_id, turn_index))
+                        visited.insert(rwd.turn_index);
+                        if (get_isolated_region_id(region_id, visited, incoming_region_id, rwd.turn_index))
                         {
                             outgoing_region_ids.insert(region_id);
                         }
