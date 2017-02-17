@@ -430,51 +430,77 @@ struct traversal
         return true;
     }
 
-    inline bool get_isolated_region_id(int& region_id, std::set<int>& visited,
-                    int incoming_region_id, int turn_index) const
+    inline bool is_isolated_region(std::set<int>& visited,
+            turn_operation_type const& op,
+            turn_type const& splitting_turn, int splitting_turn_index,
+            int incoming_region_id, int original_region_id,
+            int level = 1) const
     {
-        turn_type const& turn = m_turns[turn_index];
 
-        for (int i = 0; i < 2; i++)
+        signed_size_type const destination_turn_index = op.enriched.travels_to_ip_index;
+
+        turn_type const& destination_turn = m_turns[destination_turn_index];
+
+        if (destination_turn_index == splitting_turn_index)
         {
-            turn_operation_type const& op = turn.operations[i];
-            region_id = op.enriched.region_id;
-            if (region_id != incoming_region_id)
+            // It travels to itself, OK
+            return true;
+        }
+        if (destination_turn.cluster_id >= 0)
+        {
+            if (destination_turn.cluster_id == splitting_turn.cluster_id)
             {
-                // Check the type of isolation
-                signed_size_type const destination_turn_index = op.enriched.travels_to_ip_index;
-                if (turn_index == destination_turn_index)
-                {
-                    // It travels to itself, so is isolated
-                    return true;
-                }
-                if (turn.cluster_id >= 0)
-                {
-                    turn_type const& destination_turn = m_turns[destination_turn_index];
-                    if (destination_turn.cluster_id == turn.cluster_id)
-                    {
-                        // It travels to same cluster, so is isolated
-                        return true;
-                    }
-                }
-
-                if (visited.count(destination_turn_index) > 0)
-                {
-                    // Avoid infinite recursion
-                    return false;
-                }
-
-                // Recursive check if travels to an isolated turn
-                int other_region_id = 0;
-                visited.insert(destination_turn_index);
-                if (get_isolated_region_id(other_region_id, visited,
-                            region_id, destination_turn_index))
-                {
-                    return true;
-                }
+                // It travels to same cluster, OK
+                return true;
             }
         }
-        return false;
+
+        if (op.enriched.region_id == incoming_region_id
+                || op.enriched.region_id == original_region_id)
+        {
+            return false;
+        }
+
+        if (visited.count(destination_turn_index) > 0)
+        {
+            return true;
+        }
+        visited.insert(destination_turn_index);
+
+        // Check both turns
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& destination_op = destination_turn.operations[i];
+            if (destination_op.operation != operation_continue
+                    && destination_op.operation != target_operation)
+            {
+                continue;
+            }
+
+            // Recursively continue, either continue searching for incoming_region_id,
+            // or, a level deeper, to this region_id
+            bool sub_isolated = true;
+            if (op.enriched.region_id == destination_op.enriched.region_id)
+            {
+                sub_isolated = is_isolated_region(visited, destination_op,
+                                               splitting_turn, splitting_turn_index,
+                                               incoming_region_id, original_region_id,
+                                               level + 1);
+
+            }
+            else
+            {
+                sub_isolated = is_isolated_region(visited, destination_op,
+                                               destination_turn, destination_turn_index,
+                                               op.enriched.region_id, original_region_id,
+                                               level + 1);
+            }
+            if (! sub_isolated)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
@@ -517,12 +543,17 @@ struct traversal
                     if (rwd.direction == sort_by_side::dir_to
                             && turn.both(operation_intersection))
                     {
-                        int region_id = -1;
-                        std::set<int> visited;
-                        visited.insert(rwd.turn_index);
-                        if (get_isolated_region_id(region_id, visited, incoming_region_id, rwd.turn_index))
+
+                        turn_operation_type const& op = turn.operations[rwd.operation_index];
+                        if (op.enriched.region_id != incoming_region_id)
                         {
-                            outgoing_region_ids.insert(region_id);
+                            std::set<int> visited;
+                            visited.insert(rwd.turn_index);
+                            if (is_isolated_region(visited, op, turn, rwd.turn_index,
+                                                   incoming_region_id, incoming_region_id))
+                            {
+                                outgoing_region_ids.insert(op.enriched.region_id);
+                            }
                         }
                     }
                     else if (! outgoing_region_ids.empty())

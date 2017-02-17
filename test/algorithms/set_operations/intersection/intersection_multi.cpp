@@ -150,11 +150,7 @@ void test_areal()
     TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
 #endif
     TEST_INTERSECTION(case_127_multi, 3, 19, 24.0);
-
-#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    // With self-intersections, one hole is missed
     TEST_INTERSECTION(case_128_multi, 2, 26, 75.5);
-#endif
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
@@ -280,7 +276,7 @@ void test_areal()
 
     TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.0);
     TEST_INTERSECTION(case_recursive_boxes_40, 1, 0, 1.0);
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_41, 1, 0, 23.5);
+    TEST_INTERSECTION(case_recursive_boxes_41, 1, 0, 23.5);
     TEST_INTERSECTION(case_recursive_boxes_42, 1, 29, 95.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
