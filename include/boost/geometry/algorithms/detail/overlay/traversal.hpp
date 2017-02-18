@@ -431,9 +431,10 @@ struct traversal
     }
 
     inline bool is_isolated_region(std::set<int>& visited,
+            std::set<int> const& visited_regions,
             turn_operation_type const& op,
             turn_type const& splitting_turn, int splitting_turn_index,
-            int incoming_region_id, int original_region_id,
+            int incoming_region_id,
             int level = 1) const
     {
 
@@ -455,8 +456,8 @@ struct traversal
             }
         }
 
-        if (op.enriched.region_id == incoming_region_id
-                || op.enriched.region_id == original_region_id)
+        if (visited_regions.count(op.enriched.region_id) > 0
+                || op.enriched.region_id == incoming_region_id)
         {
             return false;
         }
@@ -482,17 +483,17 @@ struct traversal
             bool sub_isolated = true;
             if (op.enriched.region_id == destination_op.enriched.region_id)
             {
-                sub_isolated = is_isolated_region(visited, destination_op,
+                sub_isolated = is_isolated_region(visited, visited_regions, destination_op,
                                                splitting_turn, splitting_turn_index,
-                                               incoming_region_id, original_region_id,
+                                               incoming_region_id,
                                                level + 1);
 
             }
             else
             {
-                sub_isolated = is_isolated_region(visited, destination_op,
+                sub_isolated = is_isolated_region(visited, visited_regions, destination_op,
                                                destination_turn, destination_turn_index,
-                                               op.enriched.region_id, original_region_id,
+                                               op.enriched.region_id,
                                                level + 1);
             }
             if (! sub_isolated)
@@ -504,7 +505,7 @@ struct traversal
     }
 
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
-                int& op_index, sbs_type const& sbs) const
+                int& op_index, std::set<int> const& visited_regions, sbs_type const& sbs) const
     {
         std::vector<sort_by_side::rank_with_rings> aggregation;
         sort_by_side::aggregate_operations(sbs, aggregation);
@@ -549,8 +550,13 @@ struct traversal
                         {
                             std::set<int> visited;
                             visited.insert(rwd.turn_index);
-                            if (is_isolated_region(visited, op, turn, rwd.turn_index,
-                                                   incoming_region_id, incoming_region_id))
+
+                            // Create a local copy
+                            std::set<int> incoming_regions = visited_regions;
+                            incoming_regions.insert(incoming_region_id);
+
+                            if (is_isolated_region(visited, incoming_regions, op, turn, rwd.turn_index,
+                                                   incoming_region_id))
                             {
                                 outgoing_region_ids.insert(op.enriched.region_id);
                             }
@@ -610,6 +616,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index, bool& is_touching,
+            std::set<int> const& visited_regions,
             signed_size_type start_turn_index,
             segment_identifier const& previous_seg_id,
             bool is_start) const
@@ -686,12 +693,13 @@ struct traversal
         }
         else
         {
-            result = analyze_cluster_intersection(turn_index, op_index, sbs);
+            result = analyze_cluster_intersection(turn_index, op_index, visited_regions, sbs);
         }
         return result;
     }
 
     inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
+                    std::set<int> const& visited_regions,
                     turn_type const& current_turn,
                     segment_identifier const& previous_seg_id)
     {
@@ -712,7 +720,10 @@ struct traversal
         }
 
         sbs.apply(current_turn.point);
-        return analyze_cluster_intersection(turn_index, op_index, sbs);
+
+        bool result = analyze_cluster_intersection(turn_index, op_index, visited_regions, sbs);
+
+        return result;
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -815,6 +826,7 @@ struct traversal
                      int previous_op_index,
                      signed_size_type previous_turn_index,
                      segment_identifier const& previous_seg_id,
+                     std::set<int> const& visited_regions,
                      bool is_start)
     {
         turn_type const& current_turn = m_turns[turn_index];
@@ -836,8 +848,8 @@ struct traversal
             if (current_turn.cluster_id < 0
                 && current_turn.both(operation_intersection))
             {
-                if (analyze_ii_intersection(turn_index, op_index, current_turn,
-                            previous_seg_id))
+                if (analyze_ii_intersection(turn_index, op_index,
+                            visited_regions, current_turn, previous_seg_id))
                 {
                     return true;
                 }
@@ -847,7 +859,7 @@ struct traversal
         if (current_turn.cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index, is_touching,
-                    start_turn_index, previous_seg_id, is_start))
+                    visited_regions, start_turn_index, previous_seg_id, is_start))
             {
                 return false;
             }
