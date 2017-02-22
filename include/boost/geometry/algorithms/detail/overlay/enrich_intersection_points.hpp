@@ -19,7 +19,9 @@
 #  include <iostream>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <boost/geometry/io/wkt/wkt.hpp>
-#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#  if ! defined(BOOST_GEOMETRY_DEBUG_IDENTIFIER)
+#    define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+  #endif
 #endif
 
 #include <boost/range.hpp>
@@ -145,7 +147,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
              it != boost::end(operations);
              ++it)
         {
-            op_type& op = turns[it->turn_index]
+            op_type const& op = turns[it->turn_index]
                 .operations[it->operation_index];
 
             std::cout << it->turn_index
