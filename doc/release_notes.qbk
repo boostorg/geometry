@@ -6,8 +6,8 @@
   Copyright (c) 2009-2016 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2016 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015, 2016.
-  Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015, 2017.
+  Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -38,6 +38,7 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
+* [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 
 [/=================]
 [heading Boost 1.63]
