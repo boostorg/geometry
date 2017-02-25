@@ -2,8 +2,8 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2017.
+// Modifications copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -117,10 +117,13 @@ enum segment_relation_code
  */
 
 
-template <typename Ring, typename RobustPolicy>
+template <typename Ring, typename IntersectionStrategy, typename RobustPolicy>
 struct buffered_piece_collection
 {
-    typedef buffered_piece_collection<Ring, RobustPolicy> this_type;
+    typedef buffered_piece_collection
+        <
+            Ring, IntersectionStrategy, RobustPolicy
+        > this_type;
 
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
@@ -303,7 +306,7 @@ struct buffered_piece_collection
 
     cluster_type m_clusters;
 
-
+    IntersectionStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
 
     struct redundant_turn
@@ -314,8 +317,10 @@ struct buffered_piece_collection
         }
     };
 
-    buffered_piece_collection(RobustPolicy const& robust_policy)
+    buffered_piece_collection(IntersectionStrategy const& intersection_strategy,
+                              RobustPolicy const& robust_policy)
         : m_first_piece_index(-1)
+        , m_intersection_strategy(intersection_strategy)
         , m_robust_policy(robust_policy)
     {}
 
@@ -512,10 +517,11 @@ struct buffered_piece_collection
         geometry::partition
             <
                 robust_box_type,
-                turn_get_box, turn_in_original_ovelaps_box,
-                original_get_box, original_ovelaps_box,
-                include_turn_policy, detail::partition::include_all_policy
-            >::apply(m_turns, robust_originals, visitor);
+                include_turn_policy,
+                detail::partition::include_all_policy
+            >::apply(m_turns, robust_originals, visitor,
+                     turn_get_box(), turn_in_original_ovelaps_box(),
+                     original_get_box(), original_ovelaps_box());
 
         bool const deflate = distance_strategy.negative();
 
@@ -767,15 +773,17 @@ struct buffered_piece_collection
                     piece_vector_type,
                     buffered_ring_collection<buffered_ring<Ring> >,
                     turn_vector_type,
+                    IntersectionStrategy,
                     RobustPolicy
-                > visitor(m_pieces, offsetted_rings, m_turns, m_robust_policy);
+                > visitor(m_pieces, offsetted_rings, m_turns,
+                          m_intersection_strategy, m_robust_policy);
 
             geometry::partition
                 <
-                    robust_box_type,
-                    detail::section::get_section_box,
-                    detail::section::overlaps_section_box
-                >::apply(monotonic_sections, visitor);
+                    robust_box_type
+                >::apply(monotonic_sections, visitor,
+                         detail::section::get_section_box(),
+                         detail::section::overlaps_section_box());
         }
 
         insert_rescaled_piece_turns();
@@ -795,10 +803,10 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    robust_box_type,
-                    turn_get_box, turn_ovelaps_box,
-                    piece_get_box, piece_ovelaps_box
-                >::apply(m_turns, m_pieces, visitor);
+                    robust_box_type
+                >::apply(m_turns, m_pieces, visitor,
+                         turn_get_box(), turn_ovelaps_box(),
+                         piece_get_box(), piece_ovelaps_box());
 
         }
     }
@@ -1354,7 +1362,8 @@ struct buffered_piece_collection
         traversed_rings.clear();
         buffer_overlay_visitor visitor;
         traverser::apply(offsetted_rings, offsetted_rings,
-                        m_robust_policy, m_turns, traversed_rings,
+                        m_intersection_strategy, m_robust_policy,
+                        m_turns, traversed_rings,
                         m_clusters, visitor);
     }
 

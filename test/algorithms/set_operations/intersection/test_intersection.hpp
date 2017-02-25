@@ -175,17 +175,12 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     if (! settings.debug)
     {
         // Check _inserter behaviour with stratey
-        typedef bg::intersection_strategies
+        typedef typename bg::strategy::intersection::services::default_strategy
             <
-                typename bg::cs_tag<point_type>::type,
-                G1,
-                G2,
-                point_type,
-                typename bg::rescale_policy_type<point_type>::type,
-                CalculationType
-            > strategy;
+                typename bg::cs_tag<point_type>::type
+            >::type strategy_type;
         result_type clip;
-        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy_type());
     }
 
     typename bg::default_area_result<G1>::type length_or_area = 0;

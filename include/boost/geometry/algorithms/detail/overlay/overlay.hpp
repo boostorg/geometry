@@ -3,10 +3,11 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -185,7 +186,7 @@ struct overlay
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
                 RobustPolicy const& robust_policy,
                 OutputIterator out,
-                Strategy const& ,
+                Strategy const& strategy,
                 Visitor& visitor)
     {
         bool const is_empty1 = geometry::is_empty(geometry1);
@@ -233,8 +234,8 @@ std::cout << "get turns" << std::endl;
         geometry::get_turns
             <
                 Reverse1, Reverse2,
-                assign_null_policy
-            >(geometry1, geometry2, robust_policy, turns, policy);
+                detail::overlay::assign_null_policy
+            >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
         visitor.visit_turns(1, turns);
 
@@ -273,6 +274,7 @@ std::cout << "traverse" << std::endl;
         traverse<Reverse1, Reverse2, Geometry1, Geometry2, OverlayType>::apply
                 (
                     geometry1, geometry2,
+                    strategy,
                     robust_policy,
                     turns, rings,
                     clusters,

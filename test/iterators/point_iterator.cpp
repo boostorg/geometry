@@ -51,6 +51,8 @@
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/iterators/point_reverse_iterator.hpp>
 
+#include <boost/geometry/strategies/strategies.hpp>
+
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/copy_on_dereference_geometries.hpp>
 

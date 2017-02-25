@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -47,6 +48,11 @@ class has_valid_self_turns
 private:
     typedef typename point_type<Geometry>::type point_type;
 
+    typedef typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<Geometry>::type
+        >::type intersection_strategy_type;
+
     typedef typename geometry::rescale_policy_type
         <
             point_type
@@ -76,6 +82,8 @@ public:
     {
         boost::ignore_unused(visitor);
 
+        intersection_strategy_type intersection_strategy;
+
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
@@ -85,6 +93,7 @@ public:
             > interrupt_policy;
 
         geometry::self_turns<turn_policy>(geometry,
+                                          intersection_strategy,
                                           robust_policy,
                                           turns,
                                           interrupt_policy);

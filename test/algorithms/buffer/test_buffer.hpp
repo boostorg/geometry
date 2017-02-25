@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -97,8 +97,10 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 
 
 
-template <typename Geometry, typename RescalePolicy>
-std::size_t count_self_ips(Geometry const& geometry, RescalePolicy const& rescale_policy)
+template <typename Geometry, typename Strategy, typename RescalePolicy>
+std::size_t count_self_ips(Geometry const& geometry,
+                           Strategy const& strategy,
+                           RescalePolicy const& rescale_policy)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef bg::detail::overlay::turn_info
@@ -113,7 +115,7 @@ std::size_t count_self_ips(Geometry const& geometry, RescalePolicy const& rescal
     bg::self_turns
         <
             bg::detail::overlay::assign_null_policy
-        >(geometry, rescale_policy, turns, policy);
+        >(geometry, strategy, rescale_policy, turns, policy);
 
     return turns.size();
 }
@@ -217,10 +219,15 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry>::type
+        >::type strategy_type;
 
     // Enlarge the box to get a proper rescale policy
     bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
 
+    strategy_type strategy;
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(envelope);
 
@@ -233,6 +240,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         join_strategy,
                         end_strategy,
                         point_strategy,
+                        strategy,
                         rescale_policy,
                         visitor);
 
@@ -262,6 +270,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     bg::model::box<point_type> envelope_output;
     bg::assign_values(envelope_output, 0, 0, 1,  1);
     bg::envelope(buffered, envelope_output);
+
     rescale_policy_type rescale_policy_output
             = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
 
@@ -316,7 +325,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             try
             {
                 bool has_self_ips = bg::detail::overlay::has_self_intersections(
-                                        buffered, rescale_policy_output, false);
+                                        buffered, strategy, rescale_policy_output, false);
                 // Be sure resulting polygon does not contain
                 // self-intersections
                 BOOST_CHECK_MESSAGE
@@ -372,9 +381,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         std::size_t count = 0;
         if (bg::detail::overlay::has_self_intersections(buffered,
-                rescale_policy_output, false))
+                strategy, rescale_policy_output, false))
         {
-            count = count_self_ips(buffered, rescale_policy_output);
+            count = count_self_ips(buffered, strategy, rescale_policy_output);
         }
 
         *self_ip_count += count;

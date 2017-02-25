@@ -2,10 +2,11 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -214,14 +215,10 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
             Geometry2
         >::type rescale_policy_type;
 
-    typedef intersection_strategies
+    typename strategy::intersection::services::default_strategy
         <
-            typename cs_tag<GeometryOut>::type,
-            Geometry1,
-            Geometry2,
-            typename geometry::point_type<GeometryOut>::type,
-            rescale_policy_type
-        > strategy;
+            typename cs_tag<GeometryOut>::type
+        >::type strategy;
 
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
@@ -229,7 +226,7 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     return dispatch::union_insert
            <
                Geometry1, Geometry2, GeometryOut
-           >::apply(geometry1, geometry2, robust_policy, out, strategy());
+           >::apply(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 
