@@ -321,6 +321,20 @@ struct equals<P1, P2, point_tag, point_tag, DimensionCount, Reverse>
     : detail::equals::point_point<0, DimensionCount>
 {};
 
+template <typename MultiPoint1, typename MultiPoint2, std::size_t DimensionCount, bool Reverse>
+struct equals<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<MultiPoint1, MultiPoint2>
+{};
+
+template <typename MultiPoint, typename Point, std::size_t DimensionCount, bool Reverse>
+struct equals<MultiPoint, Point, multi_point_tag, point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<MultiPoint, Point>
+{};
+
+template <typename MultiPoint, typename Point, std::size_t DimensionCount, bool Reverse>
+struct equals<Point, MultiPoint, point_tag, multi_point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<Point, MultiPoint>
+{};
 
 template <typename Box1, typename Box2, std::size_t DimensionCount, bool Reverse>
 struct equals<Box1, Box2, box_tag, box_tag, DimensionCount, Reverse>
