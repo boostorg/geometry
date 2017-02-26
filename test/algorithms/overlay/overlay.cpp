@@ -3,6 +3,10 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -359,6 +363,13 @@ void test_overlay(std::string const& caseid,
             OverlayType
         > overlay;
 
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry>::type
+        >::type strategy_type;
+
+    strategy_type strategy;
+
     typedef typename bg::rescale_overlay_policy_type
     <
         Geometry,
@@ -368,15 +379,6 @@ void test_overlay(std::string const& caseid,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef bg::intersection_strategies
-    <
-        typename bg::cs_tag<Geometry>::type,
-        Geometry,
-        Geometry,
-        typename bg::point_type<Geometry>::type,
-        rescale_policy_type
-    > strategy;
-
 #if defined(TEST_WITH_SVG)
     map_visitor<svg_mapper> visitor(mapper);
 #else
@@ -385,7 +387,7 @@ void test_overlay(std::string const& caseid,
 
     Geometry result;
     overlay::apply(g1, g2, robust_policy, std::back_inserter(result),
-                   strategy(), visitor);
+                   strategy, visitor);
 
     BOOST_CHECK_CLOSE(bg::area(result), expected_area, 0.001);
     BOOST_CHECK_MESSAGE((bg::num_interior_rings(result) == expected_hole_count),

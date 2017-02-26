@@ -2,6 +2,10 @@
 
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -59,8 +63,9 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Geometry, typename RobustPolicy>
+template <typename Geometry, typename Strategy, typename RobustPolicy>
 inline bool has_self_intersections(Geometry const& geometry,
+        Strategy const& strategy,
         RobustPolicy const& robust_policy,
         bool throw_on_self_intersection = true)
 {
@@ -73,7 +78,7 @@ inline bool has_self_intersections(Geometry const& geometry,
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
-    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, robust_policy, turns, policy);
+    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, strategy, robust_policy, turns, policy);
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;
@@ -132,11 +137,16 @@ inline bool has_self_intersections(Geometry const& geometry,
     typedef typename geometry::rescale_policy_type<point_type>::type
         rescale_policy_type;
 
+    typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<Geometry>::type
+        >::type strategy;
+
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
-    return has_self_intersections(geometry, robust_policy,
-                throw_on_self_intersection);
+    return has_self_intersections(geometry, strategy, robust_policy,
+                                  throw_on_self_intersection);
 }
 
 

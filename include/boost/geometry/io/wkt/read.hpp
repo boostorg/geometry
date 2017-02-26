@@ -203,7 +203,7 @@ inline void check_end(Iterator& it,
 {
     if (it != end)
     {
-        throw read_wkt_exception("Too much tokens", it, end, wkt);
+        throw read_wkt_exception("Too many tokens", it, end, wkt);
     }
 }
 

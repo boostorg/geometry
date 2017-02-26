@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -42,6 +42,8 @@
 #include <boost/geometry/algorithms/detail/is_valid/debug_validity_phase.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
+
+#include <boost/geometry/strategies/intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -109,10 +111,10 @@ private:
 
         geometry::partition
             <
-                geometry::model::box<typename point_type<MultiPolygon>::type>,
-                typename base::expand_box,
-                typename base::overlaps_box
-            >::apply(polygon_iterators, item_visitor);
+                geometry::model::box<typename point_type<MultiPolygon>::type>
+            >::apply(polygon_iterators, item_visitor,
+                     typename base::expand_box(),
+                     typename base::overlaps_box());
 
         if (item_visitor.items_overlap)
         {

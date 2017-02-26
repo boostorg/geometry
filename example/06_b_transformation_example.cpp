@@ -144,9 +144,7 @@ int main()
 
         // Compose matrix for the two transformation
         // Create transformer attached to the transformation matrix
-        ublas_transformer<double, 2, 2>
-                combined(boost::numeric::ublas::prod(rotate.matrix(), translate.matrix()));
-                //combined(rotate.matrix());
+        matrix_transformer<double, 2, 2> combined(rotate.matrix() * translate.matrix());
 
         // Apply transformation to subject geometry point-by-point
         model::polygon<point_2d> g4;

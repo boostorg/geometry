@@ -518,7 +518,7 @@ inline T scaled_epsilon(T const& value)
 }
 
 
-// Maybe replace this by boost equals or boost ublas numeric equals or so
+// Maybe replace this by boost equals or so
 
 /*!
     \brief returns true if both arguments are equal.

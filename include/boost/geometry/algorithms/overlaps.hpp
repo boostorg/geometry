@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -113,8 +113,8 @@ struct box_box_loop<DimensionCount, DimensionCount>
 
 struct box_box
 {
-    template <typename Box1, typename Box2>
-    static inline bool apply(Box1 const& b1, Box2 const& b2)
+    template <typename Box1, typename Box2, typename Strategy>
+    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& /*strategy*/)
     {
         bool overlaps = true;
         bool within1 = true;
@@ -137,7 +137,6 @@ struct box_box
 }} // namespace detail::overlaps
 #endif // DOXYGEN_NO_DETAIL
 
-//struct not_implemented_for_this_geometry_type : public boost::false_type {};
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -175,6 +174,35 @@ struct overlaps<Box1, Box2, box_tag, box_tag>
 \ingroup overlaps
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
+\tparam Strategy \tparam_strategy{Overlaps}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy \param_strategy{overlaps}
+\return \return_check2{overlap}
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/overlaps.qbk]}
+*/
+template <typename Geometry1, typename Geometry2, typename Strategy>
+inline bool overlaps(Geometry1 const& geometry1,
+                     Geometry2 const& geometry2,
+                     Strategy const& strategy)
+{
+    concepts::check<Geometry1 const>();
+    concepts::check<Geometry2 const>();
+
+    return dispatch::overlaps
+        <
+            Geometry1,
+            Geometry2
+        >::apply(geometry1, geometry2, strategy);
+}
+
+/*!
+\brief \brief_check2{overlap}
+\ingroup overlaps
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_check2{overlap}
@@ -187,11 +215,17 @@ inline bool overlaps(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
 
+    typedef typename strategy::relate::services::default_strategy
+            <
+                Geometry1,
+                Geometry2
+            >::type strategy_type;
+
     return dispatch::overlaps
         <
             Geometry1,
             Geometry2
-        >::apply(geometry1, geometry2);
+        >::apply(geometry1, geometry2, strategy_type());
 }
 
 }} // namespace boost::geometry

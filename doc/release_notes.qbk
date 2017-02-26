@@ -1,13 +1,13 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2016 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2016 Bruno Lalande, Paris, France.
-  Copyright (c) 2009-2016 Mateusz Loskot <mateusz@loskot.net>, London, UK.
-  Copyright (c) 2011-2016 Adam Wulkiewicz, Lodz, Poland.
+  Copyright (c) 2009-2017 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
+  Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015, 2016.
-  Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015, 2017.
+  Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,6 +17,28 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.64]
+[/=================]
+
+[*Improvements]
+
+* matrix transformation is now based on Boost.QVM instead of Boost.Ublas
+
+[*Breaking changes]
+
+* ublas_transformer is renamed to matrix_transformer
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/363 363] Missing includes in geometry/index/parameters.hpp
+* [@https://github.com/boostorg/geometry/issues/364 364] within(Linear, Areal) compilation error when arguments use different point types
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
+* [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 
 [/=================]
 [heading Boost 1.63]
@@ -44,8 +66,11 @@
 * Rename namespace concept to concepts to avoid conflicts with the newest compilers
 * New spherical intersection strategy used in relational and set operations for spherical and geographic Geometries (previously cartesian intersection strategy was used for all coordinate systems).
 
-* [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/12189 12189] Relational operations not compiling when point types of inputs are different (cartesian, affecting rtree)
 * [@https://svn.boost.org/trac/boost/ticket/12287 12287] Invalid result of rtree.query() for contains() predicate
+* [@https://svn.boost.org/trac/boost/ticket/12342 12342] Relational operations not compiling when point types of inputs are different (geographic, affecting rtree)
 
 [/=================]
 [heading Boost 1.61]
