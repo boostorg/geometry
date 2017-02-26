@@ -687,7 +687,7 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
 \param strategy \param_strategy{touches}
 \return \return_check2{touch each other}
 
-\qbk{distinguish,two geometries}
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/touches.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>

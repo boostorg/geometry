@@ -601,8 +601,8 @@ struct equals<
 \param strategy \param_strategy{equals}
 \return \return_check2{are spatially equal}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/equals.qbk]}
-
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool equals(Geometry1 const& geometry1,
@@ -631,7 +631,6 @@ inline bool equals(Geometry1 const& geometry1,
 \return \return_check2{are spatially equal}
 
 \qbk{[include reference/algorithms/equals.qbk]}
-
  */
 template <typename Geometry1, typename Geometry2>
 inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
