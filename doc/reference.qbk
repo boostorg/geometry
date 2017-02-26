@@ -1,15 +1,16 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2014 Barend Gehrels, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
-  Copyright (c) 2009-2014 Bruno Lalande, Paris, France.
-  Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+  Copyright (c) 2009-2017 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
+  Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2014.
-  Modifications copyright (c) 2014, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2014, 2017.
+  Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -94,10 +95,15 @@
 [include generated/covered_by.qbk]
 [endsect]
 
+[section:crosses crosses]
 [include generated/crosses.qbk]
+[endsect]
 
 [include generated/difference.qbk]
+
+[section:disjoint disjoint]
 [include generated/disjoint.qbk]
+[endsect]
 
 [section:distance distance]
 [include generated/distance.qbk]
@@ -107,8 +113,13 @@
 [include generated/envelope.qbk]
 [endsect]
 
+[section:equals equals]
 [include generated/equals.qbk]
+[endsect]
+
+[section:expand expand]
 [include generated/expand.qbk]
+[endsect]
 
 [section:for_each for_each]
 [include generated/for_each.qbk]
@@ -143,16 +154,21 @@
 [include generated/num_points.qbk]
 [include generated/num_segments.qbk]
 
-
+[section:overlaps overlaps]
 [include generated/overlaps.qbk]
+[endsect]
 
 [section:perimeter perimeter]
 [include generated/perimeter.qbk]
 [endsect]
 
+[section:relate relate]
 [include generated/relate.qbk]
+[endsect]
 
+[section:relation relation]
 [include generated/relation.qbk]
+[endsect]
 
 [include generated/reverse.qbk]
 
@@ -317,7 +333,7 @@
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
 [include generated/area_surveyor.qbk]
-[include generated/area_huiller.qbk]
+[/include generated/area_huiller.qbk]
 [include generated/buffer_join_round.qbk]
 [include generated/buffer_join_miter.qbk]
 [include generated/buffer_end_round.qbk]
@@ -339,7 +355,7 @@
 [include generated/transform_rotate_transformer.qbk]
 [include generated/transform_scale_transformer.qbk]
 [include generated/transform_translate_transformer.qbk]
-[include generated/transform_ublas_transformer.qbk]
+[include generated/transform_matrix_transformer.qbk]
 [include generated/within_winding.qbk]
 [include generated/within_franklin.qbk]
 [include generated/within_crossings_multiply.qbk]

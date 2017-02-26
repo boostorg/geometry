@@ -3,6 +3,10 @@
 
 // Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -104,7 +108,7 @@ template
 std::size_t apply_overlay(std::string const& case_id,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
-            Strategy const& )
+            Strategy const& strategy)
 {
     using namespace boost::geometry;
 
@@ -116,10 +120,10 @@ std::size_t apply_overlay(std::string const& case_id,
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 
-    typedef std::deque
+    /*typedef std::deque
         <
             typename bg::ring_type<GeometryOut>::type
-        > ring_container_type;
+        > ring_container_type;*/
 
     // Define the clusters, mapping cluster_id -> turns
     typedef std::map
@@ -135,7 +139,7 @@ std::size_t apply_overlay(std::string const& case_id,
         <
             Reverse1, Reverse2,
             detail::overlay::assign_null_policy
-        >(geometry1, geometry2, robust_policy, turns, policy);
+        >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
     typename Strategy::side_strategy_type side_strategy;
     cluster_type clusters;
@@ -185,18 +189,16 @@ void test_sort_by_side(std::string const& case_id,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef bg::intersection_strategies
-    <
-        typename bg::cs_tag<Geometry>::type,
-        Geometry,
-        Geometry,
-        typename bg::point_type<Geometry>::type,
-        rescale_policy_type
-    > strategy;
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry>::type
+        >::type strategy_type;
+
+    strategy_type strategy;
 
     std::size_t open_count = apply_overlay<OverlayType, false, false, false, geometry_out>(case_id, g1, g2,
                     robust_policy,
-                   strategy());
+                    strategy);
 
     BOOST_CHECK_MESSAGE(open_count == expected_open_count,
                         "  caseid="  << case_id

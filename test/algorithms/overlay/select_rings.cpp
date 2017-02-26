@@ -7,9 +7,12 @@
 
 #include <geometry_test_common.hpp>
 
-#include <algorithms/test_overlay.hpp>
-
+#include <boost/foreach.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/typeof/typeof.hpp>
+
+#include <algorithms/test_overlay.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
@@ -21,9 +24,6 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
-#include <boost/tuple/tuple.hpp>
-
 
 
 template

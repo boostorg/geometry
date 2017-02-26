@@ -18,6 +18,7 @@ project boost-geometry-test
         <toolset>msvc:<asynch-exceptions>on
         <toolset>msvc:<cxxflags>/bigobj
         <toolset>clang:<cxxflags>-Wno-unneeded-internal-declaration # supress warning by Boost.None
+		<toolset>intel:<define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
         <define>BOOST_NO_AUTO_PTR # disable the deprecated std::auto_ptr support in SmartPtr and Core
     ;

@@ -140,10 +140,10 @@ struct traversal
         {
             for (int i = 0; i < 2; i++)
             {
-                turn_operation_type& op = turn.operations[i];
-                if (op.visited.none())
+                turn_operation_type& turn_op = turn.operations[i];
+                if (turn_op.visited.none())
                 {
-                    op.visited.set_visited();
+                    turn_op.visited.set_visited();
                 }
             }
         }

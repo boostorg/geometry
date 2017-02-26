@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015-2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -219,10 +219,10 @@ namespace within { namespace services
 template <typename Point, typename Box>
 struct default_strategy
     <
+        Point, Box,
         point_tag, box_tag,
-        point_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        Point, Box
+        pointlike_tag, areal_tag,
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::point_in_box<Point, Box> type;
@@ -232,10 +232,10 @@ struct default_strategy
 template <typename Point, typename Box>
 struct default_strategy
     <
+        Point, Box,
         point_tag, box_tag,
-        point_tag, areal_tag,
-        spherical_tag, spherical_tag,
-        Point, Box
+        pointlike_tag, areal_tag,
+        spherical_tag, spherical_tag
     >
 {
     typedef within::point_in_box<Point, Box> type;
@@ -252,10 +252,10 @@ namespace covered_by { namespace services
 template <typename Point, typename Box>
 struct default_strategy
     <
+        Point, Box,
         point_tag, box_tag,
-        point_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        Point, Box
+        pointlike_tag, areal_tag,
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::point_in_box
@@ -269,10 +269,10 @@ struct default_strategy
 template <typename Point, typename Box>
 struct default_strategy
     <
+        Point, Box,
         point_tag, box_tag,
-        point_tag, areal_tag,
-        spherical_tag, spherical_tag,
-        Point, Box
+        pointlike_tag, areal_tag,
+        spherical_tag, spherical_tag
     >
 {
     typedef within::point_in_box

@@ -37,7 +37,7 @@ int test_main(int, char* [])
     std::clog << bg::distance(p3, p4) << std::endl;
 
 #ifndef BOOST_NO_CXX11_HDR_ARRAY 
-    std::array<double, 3> p5{13,14,15};
+    std::array<double, 3> p5{{13,14,15}};
     std::clog << bg::distance(p4, p5) << std::endl;
 #endif //BOOST_NO_CXX11_HDR_ARRAY 
 

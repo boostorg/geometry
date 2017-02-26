@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017.
+// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -51,10 +51,11 @@ struct intersection
         typedef typename boost::range_value<GeometryOut>::type OneOut;
 
         intersection_insert
-        <
-            Geometry1, Geometry2, OneOut,
-            overlay_intersection
-        >::apply(geometry1, geometry2, robust_policy, range::back_inserter(geometry_out), strategy);
+            <
+                Geometry1, Geometry2, OneOut,
+                overlay_intersection
+            >::apply(geometry1, geometry2, robust_policy,
+                     range::back_inserter(geometry_out), strategy);
 
         return true;
     }
@@ -84,11 +85,12 @@ struct intersection
         GeometryOut& out,
         Strategy const& strategy)
     {
-        return intersection<
-                   Geometry2, Geometry1,
-                   Tag2, Tag1,
-                   false
-               >::apply(g2, g1, robust_policy, out, strategy);
+        return intersection
+            <
+                Geometry2, Geometry1,
+                Tag2, Tag1,
+                false
+            >::apply(g2, g1, robust_policy, out, strategy);
     }
 };
 
@@ -114,29 +116,26 @@ struct intersection
         concepts::check<Geometry2 const>();
         
         typedef typename geometry::rescale_overlay_policy_type
-        <
-            Geometry1,
-            Geometry2
-        >::type rescale_policy_type;
+            <
+                Geometry1,
+                Geometry2
+            >::type rescale_policy_type;
         
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
                                                                 geometry2);
         
-        typedef intersection_strategies
-        <
-            typename cs_tag<Geometry1>::type,
-            Geometry1,
-            Geometry2,
-            typename geometry::point_type<Geometry1>::type,
-            rescale_policy_type
-        > strategy;
+        typedef typename strategy::relate::services::default_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
         
         return dispatch::intersection
-        <
-            Geometry1,
-            Geometry2
-        >::apply(geometry1, geometry2, robust_policy, geometry_out, strategy());
+            <
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, robust_policy, geometry_out,
+                     strategy_type());
     }
 };
 
