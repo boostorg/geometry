@@ -272,6 +272,7 @@ struct self_get_turn_points
     \tparam Turns type of intersection container
                 (e.g. vector of "intersection/turn point"'s)
     \param geometry geometry
+    \param strategy strategy to be used
     \param robust_policy policy to handle robustness issues
     \param turns container which will contain intersection points
     \param interrupt_policy policy determining if process is stopped

@@ -1,9 +1,10 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-  Copyright (c) 2009-2015 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2017 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
+  Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,8 +13,8 @@
 
 [library Geometry
     [quickbook 1.5]
-    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz], [Wulkiewicz, Adam], [Karavelas, Menelaos]]
-    [copyright 2009-2015 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates]
+    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz], [Wulkiewicz, Adam], [Karavelas, Menelaos], [Fisikopoulos, Vissarion]]
+    [copyright 2009-2017 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates]
     [purpose Documentation of Boost.Geometry library]
     [license
         Distributed under the Boost Software License, Version 1.0.

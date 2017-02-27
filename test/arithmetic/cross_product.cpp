@@ -11,6 +11,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/arithmetic/cross_product.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
@@ -60,6 +62,7 @@ void test_4d()
     bg::assign_values(p2, 45, 70, 20);
     bg::set<3>(p2, 35);
     P c = bg::cross_product(p1, p2);
+    boost::ignore_unused(c);
 }
 #endif
 

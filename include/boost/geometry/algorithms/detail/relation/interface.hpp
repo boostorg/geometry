@@ -175,6 +175,7 @@ struct relation
 \param strategy \param_strategy{relation}
 \return The DE-9IM matrix expressing the relation between geometries.
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/relation.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>

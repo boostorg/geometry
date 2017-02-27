@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -77,6 +77,14 @@ struct is_valid_linestring
         }
         return ! has_spikes<Linestring, closed>::apply(linestring, visitor);
     }
+
+    template <typename VisitPolicy, typename Strategy>
+    static inline bool apply(Linestring const& linestring,
+                             VisitPolicy& visitor,
+                             Strategy const&)
+    {
+        return apply(linestring, visitor);
+    }
 };
 
 
@@ -142,9 +150,10 @@ private:
     };
 
 public:
-    template <typename VisitPolicy>
+    template <typename VisitPolicy, typename Strategy>
     static inline bool apply(MultiLinestring const& multilinestring,
-                             VisitPolicy& visitor)
+                             VisitPolicy& visitor,
+                             Strategy const&)
     {
         if (BOOST_GEOMETRY_CONDITION(
                 AllowEmptyMultiGeometries && boost::empty(multilinestring)))

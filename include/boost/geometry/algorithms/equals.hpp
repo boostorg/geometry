@@ -138,24 +138,32 @@ struct segment_segment
 
 struct area_check
 {
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return geometry::math::equals(
-                geometry::area(geometry1),
-                geometry::area(geometry2));
+            geometry::area(geometry1,
+                           strategy.template get_area_strategy<Geometry1>()),
+            geometry::area(geometry2,
+                           strategy.template get_area_strategy<Geometry2>()));
     }
 };
 
 
 struct length_check
 {
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return geometry::math::equals(
-                geometry::length(geometry1),
-                geometry::length(geometry2));
+            geometry::length(geometry1,
+                             strategy.template get_distance_strategy<Geometry1>()),
+            geometry::length(geometry2,
+                             strategy.template get_distance_strategy<Geometry2>()));
     }
 };
 
@@ -184,9 +192,11 @@ template <typename TrivialCheck>
 struct equals_by_collection
 {
     template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const&)
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
-        if (! TrivialCheck::apply(geometry1, geometry2))
+        if (! TrivialCheck::apply(geometry1, geometry2, strategy))
         {
             return false;
         }
@@ -321,6 +331,20 @@ struct equals<P1, P2, point_tag, point_tag, DimensionCount, Reverse>
     : detail::equals::point_point<0, DimensionCount>
 {};
 
+template <typename MultiPoint1, typename MultiPoint2, std::size_t DimensionCount, bool Reverse>
+struct equals<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<MultiPoint1, MultiPoint2>
+{};
+
+template <typename MultiPoint, typename Point, std::size_t DimensionCount, bool Reverse>
+struct equals<MultiPoint, Point, multi_point_tag, point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<MultiPoint, Point>
+{};
+
+template <typename MultiPoint, typename Point, std::size_t DimensionCount, bool Reverse>
+struct equals<Point, MultiPoint, point_tag, multi_point_tag, DimensionCount, Reverse>
+    : detail::equals::equals_by_relate<Point, MultiPoint>
+{};
 
 template <typename Box1, typename Box2, std::size_t DimensionCount, bool Reverse>
 struct equals<Box1, Box2, box_tag, box_tag, DimensionCount, Reverse>
@@ -601,8 +625,8 @@ struct equals<
 \param strategy \param_strategy{equals}
 \return \return_check2{are spatially equal}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/equals.qbk]}
-
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool equals(Geometry1 const& geometry1,
@@ -631,7 +655,6 @@ inline bool equals(Geometry1 const& geometry1,
 \return \return_check2{are spatially equal}
 
 \qbk{[include reference/algorithms/equals.qbk]}
-
  */
 template <typename Geometry1, typename Geometry2>
 inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)

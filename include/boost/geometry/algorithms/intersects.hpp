@@ -97,7 +97,7 @@ inline bool intersects(Geometry const& geometry)
 \param strategy \param_strategy{intersects}
 \return \return_check2{intersect each other}
 
-\qbk{distinguish,two geometries}
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/intersects.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>

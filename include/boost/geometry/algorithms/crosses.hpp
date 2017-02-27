@@ -228,6 +228,7 @@ namespace resolve_variant
 \param strategy \param_strategy{crosses}
 \return \return_check2{crosses}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/crosses.qbk]}
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>

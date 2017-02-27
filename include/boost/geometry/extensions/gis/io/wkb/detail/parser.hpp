@@ -15,6 +15,8 @@
 #include <iterator>
 #include <limits>
 
+#include <boost/geometry/core/exception.hpp>
+
 #include <boost/concept_check.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/is_integral.hpp>
@@ -32,6 +34,23 @@
 
 namespace boost { namespace geometry
 {
+
+/*!
+\brief Read WKB Exception
+\ingroup core
+\details The read_wkb_exception is thrown when there is an error in wkb parsing
+ */
+class read_wkb_exception : public geometry::exception
+{
+public:
+
+    inline read_wkb_exception() {}
+
+    virtual char const* what() const throw()
+    {
+        return "Boost.Geometry Read WKB exception";
+    }
+};
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace wkb
@@ -191,9 +210,12 @@ struct point_container_parser
         {
             return false;
         }
-
+        
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        BOOST_GEOMETRY_ASSERT(num_points <= boost::uint32_t( (std::numeric_limits<size_type>::max)() ) );
+        if(num_points > (std::numeric_limits<boost::uint32_t>::max)() )
+        {
+            throw boost::geometry::read_wkb_exception();
+        }
 
         size_type const container_size = static_cast<size_type>(num_points);
         size_type const point_size = dimension<point_type>::value * sizeof(double);
@@ -237,7 +259,11 @@ struct linestring_parser
             return false;
         }
 
-        BOOST_GEOMETRY_ASSERT(it != end);
+        if(it == end)
+        {
+            throw boost::geometry::read_wkb_exception();
+        }
+        
         return point_container_parser<L>::parse(it, end, linestring, order);
     }
 };
@@ -259,15 +285,15 @@ struct polygon_parser
         {
             return false;
         }
-
-        typedef typename ring_type<Polygon>::type ring_type;
+        
+        typedef typename boost::geometry::ring_return_type<Polygon>::type ring_type;
 
         std::size_t rings_parsed = 0;
         while (rings_parsed < num_rings && it != end)
         {
             if (0 == rings_parsed)
             {
-                ring_type& ring0 = exterior_ring(polygon);
+                ring_type ring0 = exterior_ring(polygon);
                 if (!point_container_parser<ring_type>::parse(it, end, ring0, order))
                 {
                     return false;
@@ -275,19 +301,16 @@ struct polygon_parser
             }
             else
             {
-                interior_rings(polygon).resize(rings_parsed);
-                ring_type& ringN = interior_rings(polygon).back();
+                boost::geometry::range::resize(interior_rings(polygon), rings_parsed);
+                ring_type ringN = boost::geometry::range::back(interior_rings(polygon));
+                
                 if (!point_container_parser<ring_type>::parse(it, end, ringN, order))
                 {
                     return false;
                 }
             }
-            ++rings_parsed;
-        }
 
-        if (num_rings != rings_parsed)
-        {
-            return false;
+            ++rings_parsed;
         }
 
         return true;

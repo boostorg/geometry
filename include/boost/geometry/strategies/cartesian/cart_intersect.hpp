@@ -34,6 +34,8 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
+#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
@@ -92,6 +94,39 @@ struct relate_cartesian_segments
             <
                 Geometry1, Geometry2
             >::type strategy_type;
+        return strategy_type();
+    }
+
+    template <typename Geometry>
+    struct area_strategy
+    {
+        typedef area::surveyor
+            <
+                typename point_type<Geometry>::type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry>
+    static inline typename area_strategy<Geometry>::type get_area_strategy()
+    {
+        typedef typename area_strategy<Geometry>::type strategy_type;
+        return strategy_type();
+    }
+
+    template <typename Geometry>
+    struct distance_strategy
+    {
+        typedef distance::pythagoras
+            <
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry>
+    static inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    {
+        typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type();
     }
 

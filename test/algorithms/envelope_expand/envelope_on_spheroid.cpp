@@ -578,7 +578,11 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
                   10, 10, 40, 10.345270046149988);
-
+/*
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(1 2,70 1)"),
+                  1, 1, 70, 2.01);
+*/
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
                   10, 10, 40, 10.34527004614999);
@@ -645,7 +649,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.07047433509489, 0, 30,
+                  -179, -87.636599837048323, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -654,7 +658,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 49.43962741846035);
+                  -100, 30, 20, 57.931955940092337);
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -828,7 +832,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.111912243387607, 0, 30,
+                  -179, -87.689300911353797, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -837,7 +841,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 49.537982311875638);
+                  -100, 30, 20, 57.990810958016965);
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -936,7 +940,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::thomas_inverse
                           > tester;
@@ -1017,7 +1021,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.111912243387607, 0, 30,
+                  -179, -87.689300911353797, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -1026,7 +1030,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 49.537982311875638);
+                  -100, 30, 20, 57.990810958016965);
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1094,7 +1098,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::andoyer_inverse
                           > tester;
@@ -1175,7 +1179,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.112710413182171, 0, 30,
+                  -179, -87.69031783984974, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -1184,7 +1188,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 49.537900160184797);
+                  -100, 30, 20, 57.990742552280118);
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1252,7 +1256,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::vincenty_inverse
                           > tester;
@@ -1333,7 +1337,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.111936232916634, 0, 30,
+                  -179, -87.689330275867832, 0, 30,
                   2.0 * eps);
 
     tester::apply("s11",
@@ -1342,7 +1346,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 49.537981887172577);
+                  -100, 30, 20, 57.990810647057032);
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1875,7 +1879,7 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_linestring )
     // linestring that circles the entire globe
     tester::apply("l03",
                   from_wkt<G>("LINESTRING(-185 0,-170 25,-50 10,10 10,20 20,100 5,180 15)"),
-                  -180, 0, 180, 25.15036418555258,
+                  -180, 0, 180, 33.587539971516854,
                   4.0 * std::numeric_limits<double>::epsilon());
 
     // linestring that crosses the antimeridian but staying close to it
@@ -1931,12 +1935,12 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_linestring )
     // linestring with duplicate points
     tester::apply("l09",
                   from_wkt<G>("LINESTRING(-40 20,-40 20,-140 85,-10 5,-10 5)"),
-                  -140, 5, -10, 85);
+                  -140, 5, -10, 86.184540574427757);
 
     // linestring with duplicate points
     tester::apply("l09a",
                   from_wkt<G>("LINESTRING(-40 20,320 20,-140 85,-10 5,350 5)"),
-                  -140, 5, -10, 85);
+                  -140, 5, -10, 86.184540574427757);
 
     // linestring that lies on the equator
     tester::apply("l10",
@@ -2008,7 +2012,7 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     // linestring that circles the entire globe
     tester::apply("l03",
                   from_wkt<G>("LINESTRING(-185 0,-170 25,-50 10,10 10,20 20,100 5,180 15)"),
-                  -180, 0, 180, 25.322173172331812,
+                  -180, 0, 180, 33.702476580413318,
                   4.0 * std::numeric_limits<double>::epsilon());
 
     // linestring that crosses the antimeridian but staying close to it
@@ -2064,12 +2068,12 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     // linestring with duplicate points
     tester::apply("l09",
                   from_wkt<G>("LINESTRING(-40 20,-40 20,-140 85,-10 5,-10 5)"),
-                  -140, 5, -10, 85);
+                  -140, 5, -10, 86.18564770636192);
 
     // linestring with duplicate points
     tester::apply("l09a",
                   from_wkt<G>("LINESTRING(-40 20,320 20,-140 85,-10 5,350 5)"),
-                  -140, 5, -10, 85);
+                  -140, 5, -10, 86.18564770636192);
 
     // linestring that lies on the equator
     tester::apply("l10",
@@ -2185,11 +2189,11 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_multilinestring )
 
     tester::apply("ml02",
                   from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
-                  -180, 25, 180, 80);
+                  -180, 25, 180, 81.113793608034072);
 
     tester::apply("ml03",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
-                  -150, 25, 200, 80);
+                  -150, 25, 200, 81.113793608034072);
 
     tester::apply("ml04",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80))"),
@@ -2249,11 +2253,11 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_multilinestring )
 
     tester::apply("ml02",
                   from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
-                  -180, 25, 180, 80);
+                  -180, 25, 180, 81.115885076701147);
 
     tester::apply("ml03",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
-                  -150, 25, 200, 80);
+                  -150, 25, 200, 81.115885076701147);
 
     tester::apply("ml04",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80))"),

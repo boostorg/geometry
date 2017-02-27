@@ -180,6 +180,7 @@ struct overlaps<Box1, Box2, box_tag, box_tag>
 \param strategy \param_strategy{overlaps}
 \return \return_check2{overlap}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/overlaps.qbk]}
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
