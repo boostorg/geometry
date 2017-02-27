@@ -392,12 +392,12 @@ struct relate_ecef_segments
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<Policy, calc_t>(a, true, b1, b2, a1, a2, b1v, b2v, plane2, a1v);
+                return collinear_one_degenerated<Policy, calc_t>(a, true, b1, b2, a1, a2, b1v, b2v, plane2, a1v);
             }
             else if (b_is_point)
             {
                 // b2 used to be consistent with (degenerated) checks above (is it needed?)
-                return collinear_one_degenerted<Policy, calc_t>(b, false, a1, a2, b1, b2, a1v, a2v, plane1, b1v);
+                return collinear_one_degenerated<Policy, calc_t>(b, false, a1, a2, b1, b2, a1v, a2v, plane1, b1v);
             }
             else
             {
@@ -505,12 +505,12 @@ struct relate_ecef_segments
 private:
     template <typename Policy, typename CalcT, typename Segment, typename Point1, typename Point2, typename Vec3d, typename Plane>
     static inline typename Policy::return_type
-        collinear_one_degenerted(Segment const& segment, bool degenerated_a,
-                                 Point1 const& a1, Point1 const& a2,
-                                 Point2 const& b1, Point2 const& b2,
-                                 Vec3d const& v1, Vec3d const& v2,
-                                 Plane const& plane,
-                                 Vec3d const& vother)
+        collinear_one_degenerated(Segment const& segment, bool degenerated_a,
+                                  Point1 const& a1, Point1 const& a2,
+                                  Point2 const& b1, Point2 const& b2,
+                                  Vec3d const& v1, Vec3d const& v2,
+                                  Plane const& plane,
+                                  Vec3d const& vother)
     {
         CalcT dist_1_2, dist_1_o;
         return ! calculate_collinear_data(a1, a2, b1, b2, v1, v2, plane, vother, dist_1_2, dist_1_o)

@@ -32,6 +32,8 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
+#include <boost/geometry/strategies/geographic/area_geographic.hpp>
+#include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/side_detail.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
@@ -92,6 +94,41 @@ struct relate_geodesic_segments
                 Geometry1, Geometry2
             >::type strategy_type;
         return strategy_type(get_side_strategy());
+    }
+
+    template <typename Geometry>
+    struct area_strategy
+    {
+        typedef area::geographic
+            <
+                typename point_type<Geometry>::type,
+                Inverse,
+                Order,
+                true,
+                false,
+                Spheroid,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry>
+    static inline typename area_strategy<Geometry>::type get_area_strategy()
+    {
+        typedef typename area_strategy<Geometry>::type strategy_type;
+        return strategy_type(m_spheroid);
+    }
+
+    template <typename Geometry>
+    struct distance_strategy
+    {
+        typedef distance::geographic<Inverse, Spheroid, CalculationType> type;
+    };
+
+    template <typename Geometry>
+    static inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    {
+        typedef typename distance_strategy<Geometry>::type strategy_type;
+        return strategy_type(m_spheroid);
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
@@ -240,9 +277,7 @@ private:
             <Segment1, Segment2, CalculationType>::type calc_t;
 
         // normalized spheroid
-        srs::spheroid<calc_t> spheroid(calc_t(1),
-                                       calc_t(get_radius<2>(m_spheroid)) // b/a
-                                        / calc_t(get_radius<0>(m_spheroid)));
+        srs::spheroid<calc_t> spheroid = normalized_spheroid<calc_t>(m_spheroid);
 
         // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;
@@ -331,11 +366,11 @@ private:
         {
             if (a_is_point)
             {
-                return collinear_one_degenerted<Policy, calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
+                return collinear_one_degenerated<Policy, calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
             }
             else if (b_is_point)
             {
-                return collinear_one_degenerted<Policy, calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
+                return collinear_one_degenerated<Policy, calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
             }
             else
             {
@@ -497,12 +532,12 @@ private:
 
     template <typename Policy, typename CalcT, typename Segment, typename Point1, typename Point2, typename ResultInverse>
     static inline typename Policy::return_type
-        collinear_one_degenerted(Segment const& segment, bool degenerated_a,
-                                 Point1 const& a1, Point1 const& a2,
-                                 Point2 const& b1, Point2 const& b2,
-                                 ResultInverse const& res_a1_a2,
-                                 ResultInverse const& res_a1_bi,
-                                 bool is_other_reversed)
+        collinear_one_degenerated(Segment const& segment, bool degenerated_a,
+                                  Point1 const& a1, Point1 const& a2,
+                                  Point2 const& b1, Point2 const& b2,
+                                  ResultInverse const& res_a1_a2,
+                                  ResultInverse const& res_a1_bi,
+                                  bool is_other_reversed)
     {
         CalcT dist_1_2, dist_1_o;
         if (! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_bi, dist_1_2, dist_1_o))
@@ -835,6 +870,14 @@ private:
         ip_flag = ip_flag == ipi_at_p1 ? ipi_at_p2 :
                   ip_flag == ipi_at_p2 ? ipi_at_p1 :
                   ip_flag;
+    }
+
+    template <typename CalcT, typename Spheroid>
+    static inline srs::spheroid<CalcT> normalized_spheroid(Spheroid const& spheroid)
+    {
+        return srs::spheroid<CalcT>(CalcT(1),
+                                    CalcT(get_radius<2>(spheroid)) // b/a
+                                    / CalcT(get_radius<0>(spheroid)));
     }
 
 private:
