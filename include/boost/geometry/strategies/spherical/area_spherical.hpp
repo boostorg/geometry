@@ -11,9 +11,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 
+
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/strategies/area.hpp>
+
 
 namespace boost { namespace geometry
 {

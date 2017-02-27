@@ -38,6 +38,8 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/spherical/area_spherical.hpp>
+#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
@@ -103,6 +105,41 @@ struct relate_spherical_segments
             <
                 Geometry1, Geometry2
             >::type strategy_type;
+        return strategy_type();
+    }
+
+    template <typename Geometry>
+    struct area_strategy
+    {
+        typedef area::spherical
+            <
+                typename point_type<Geometry>::type,
+                false,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry>
+    static inline typename area_strategy<Geometry>::type get_area_strategy()
+    {
+        typedef typename area_strategy<Geometry>::type strategy_type;
+        return strategy_type();
+    }
+
+    template <typename Geometry>
+    struct distance_strategy
+    {
+        typedef distance::haversine
+            <
+                typename coordinate_type<Geometry>::type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry>
+    static inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    {
+        typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type();
     }
 
