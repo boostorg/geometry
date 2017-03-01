@@ -25,7 +25,7 @@
 #include <cstddef>
 
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/core/radian_access_box_segment.hpp>
+#include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
