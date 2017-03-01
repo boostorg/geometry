@@ -1,24 +1,16 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry
 
-// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2017 Oracle and/or its affiliates.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef BOOST_GEOMETRY_CORE_RADIAN_ACCESS_HPP
-#define BOOST_GEOMETRY_CORE_RADIAN_ACCESS_HPP
+#ifndef BOOST_GEOMETRY_CORE_RADIAN_ACCESS_BOX_SEGMENT_HPP
+#define BOOST_GEOMETRY_CORE_RADIAN_ACCESS_BOX_SEGMENT_HPP
 
 
 #include <cstddef>
@@ -42,8 +34,8 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template<std::size_t Dimension, typename Geometry>
-struct degree_radian_converter
+template<std::size_t Index, std::size_t Dimension, typename Geometry>
+struct degree_radian_converter_box_segment
 {
     typedef typename fp_coordinate_type<Geometry>::type coordinate_type;
 
@@ -52,13 +44,13 @@ struct degree_radian_converter
         return boost::numeric_cast
             <
                 coordinate_type
-            >(geometry::get<Dimension>(geometry)
+            >(geometry::get<Index, Dimension>(geometry)
               * math::d2r<coordinate_type>());
     }
 
     static inline void set(Geometry& geometry, coordinate_type const& radians)
     {
-        geometry::set<Dimension>(geometry, boost::numeric_cast
+        geometry::set<Index, Dimension>(geometry, boost::numeric_cast
             <
                 coordinate_type
             >(radians * math::r2d<coordinate_type>()));
@@ -68,19 +60,19 @@ struct degree_radian_converter
 
 
 // Default, radian (or any other coordinate system) just works like "get"
-template <std::size_t Dimension, typename Geometry, typename DegreeOrRadian>
-struct radian_access
+template <std::size_t Index, std::size_t Dimension, typename Geometry, typename DegreeOrRadian>
+struct radian_access_box_segment
 {
     typedef typename fp_coordinate_type<Geometry>::type coordinate_type;
 
     static inline coordinate_type get(Geometry const& geometry)
     {
-        return geometry::get<Dimension>(geometry);
+        return geometry::get<Index, Dimension>(geometry);
     }
 
     static inline void set(Geometry& geometry, coordinate_type const& radians)
     {
-        geometry::set<Dimension>(geometry, radians);
+        geometry::set<Index, Dimension>(geometry, radians);
     }
 };
 
@@ -90,20 +82,22 @@ struct radian_access
 template
 <
     typename Geometry,
-    template<typename> class CoordinateSystem
+    template<typename> class CoordinateSystem,
+    std::size_t Index
 >
-struct radian_access<0, Geometry, CoordinateSystem<degree> >
-    : degree_radian_converter<0, Geometry>
+struct radian_access_box_segment<Index, 0, Geometry, CoordinateSystem<degree> >
+    : degree_radian_converter_box_segment<Index, 0, Geometry>
 {};
 
 
 template
 <
     typename Geometry,
-    template<typename> class CoordinateSystem
+    template<typename> class CoordinateSystem,
+    std::size_t Index
 >
-struct radian_access<1, Geometry, CoordinateSystem<degree> >
-    : degree_radian_converter<1, Geometry>
+struct radian_access_box_segment<Index, 1, Geometry, CoordinateSystem<degree> >
+    : degree_radian_converter_box_segment<Index, 1, Geometry>
 {};
 
 
@@ -123,10 +117,10 @@ struct radian_access<1, Geometry, CoordinateSystem<degree> >
 \note Only applicable to coordinate systems templatized by units,
     e.g. spherical or geographic coordinate systems
 */
-template <std::size_t Dimension, typename Geometry>
+template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
 {
-    return detail::radian_access<Dimension, Geometry,
+    return detail::radian_access_box_segment<Index, Dimension, Geometry,
             typename coordinate_system<Geometry>::type>::get(geometry);
 }
 
@@ -142,11 +136,11 @@ inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const&
 \note Only applicable to coordinate systems templatized by units,
     e.g. spherical or geographic coordinate systems
 */
-template <std::size_t Dimension, typename Geometry>
+template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set_from_radian(Geometry& geometry,
             typename fp_coordinate_type<Geometry>::type const& radians)
 {
-    detail::radian_access<Dimension, Geometry,
+    detail::radian_access_box_segment<Index, Dimension, Geometry,
             typename coordinate_system<Geometry>::type>::set(geometry, radians);
 }
 
@@ -154,4 +148,4 @@ inline void set_from_radian(Geometry& geometry,
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_CORE_RADIAN_ACCESS_HPP
+#endif // BOOST_GEOMETRY_CORE_RADIAN_ACCESS_BOX_SEGMENT_HPP

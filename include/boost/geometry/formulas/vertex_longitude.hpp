@@ -34,10 +34,10 @@ class vertex_longitude_on_sphere
 public:
 
     template <typename T>
-    static inline CT apply(T const lat1,
-                           T const lat2,
-                           T const lat3,
-                           T const dlon)
+    static inline CT apply(T const& lat1, //segment point 1
+                           T const& lat2, //segment point 2
+                           T const& lat3, //vertex latitude
+                           T const& dlon)
     {
         //https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points
         CT const A = sin(lat1) * cos(lat2) * cos(lat3) * sin(dlon);
@@ -62,42 +62,59 @@ class vertex_longitude_on_spheroid
 public:
 
     template <typename T, typename Spheroid>
-    static inline CT apply(T const lat1,
-                           T const lat2,
-                           T const lat3,
-                           T const alp1,
-                           Spheroid const spheroid)
+    static inline CT apply(T const& lat1, //segment point 1
+                           T const& lat2, //segment point 2
+                           T const& lat3, //vertex latitude
+                           T const& alp1,
+                           Spheroid const& spheroid)
     {
+
         // Constants
+        CT const C0 = CT(0);
+        CT const C2 = CT(2);
+        CT const half_pi = math::pi<CT>() / C2;
+        if (math::equals(lat1, half_pi)
+           || math::equals(lat2, half_pi)
+           || math::equals(lat1, -half_pi)
+           || math::equals(lat2, -half_pi))
+        {
+            // one segment point is the pole
+            return C0;
+        }
+
+        // More constants
         CT const f = detail::flattening<CT>(spheroid);
+        CT const C1 = CT(1);
 
         // First, compute longitude on auxiliary sphere
 
-        CT const bet1 = atan((CT(1) - f) * tan(lat1));
-        CT const bet2 = atan((CT(1) - f) * tan(lat2));
-        CT const bet3 = atan((CT(1) - f) * tan(lat3));
+        CT const one_minus_f = C1 - f;
+        CT const bet1 = atan(one_minus_f * tan(lat1));
+        CT const bet2 = atan(one_minus_f * tan(lat2));
+        CT const bet3 = atan(one_minus_f * tan(lat3));
 
         CT const cos_bet1 = cos(bet1);
         CT const cos_bet2 = cos(bet2);
-        CT const sin_bet1 = math::sqrt(CT(1) - math::sqr(cos_bet1));
-        CT const sin_bet2 = math::sqrt(CT(1) - math::sqr(cos_bet2));
+        CT const sin_bet1 = math::sqrt(C1 - math::sqr(cos_bet1));
+        CT const sin_bet2 = math::sqrt(C1 - math::sqr(cos_bet2));
 
         CT const sin_alp1 = sin(alp1);
         CT const sin_alp0 = sin_alp1 * cos_bet1;
+        BOOST_ASSERT(cos_bet2 != C0);
         CT const sin_alp2 = sin_alp1 * cos_bet1 / cos_bet2;
 
-        CT const cos_alp0 = math::sqrt(CT(1) - math::sqr(sin_alp0));
-        CT const cos_alp1 = math::sqrt(CT(1) - math::sqr(sin_alp1));
-        CT const cos_alp2 = math::sqrt(CT(1) - math::sqr(sin_alp2));
+        CT const cos_alp0 = math::sqrt(C1 - math::sqr(sin_alp0));
+        CT const cos_alp1 = math::sqrt(C1 - math::sqr(sin_alp1));
+        CT const cos_alp2 = math::sqrt(C1 - math::sqr(sin_alp2));
 
         CT const sig1 = atan2(sin_bet1, cos_alp1 * cos_bet1);
         CT const sig2 = atan2(sin_bet2, cos_alp2 * cos_bet2);
 
         CT const cos_sig1 = cos(sig1);
-        CT const sin_sig1 = math::sqrt(CT(1) - math::sqr(cos_sig1));
+        CT const sin_sig1 = math::sqrt(C1 - math::sqr(cos_sig1));
 
         CT const cos_sig2 = cos(sig2);
-        CT const sin_sig2 = math::sqrt(CT(1) - math::sqr(cos_sig2));
+        CT const sin_sig2 = math::sqrt(C1 - math::sqr(cos_sig2));
 
         CT const omg1 = atan2(sin_alp0 * sin_sig1, cos_sig1);
         CT const omg2 = atan2(sin_alp0 * sin_sig2, cos_sig2);
@@ -113,12 +130,12 @@ public:
 
         CT const e2 = f * (CT(2) - f);
 
-        CT ep = math::sqrt(e2 / (CT(1.0) - e2));
+        CT ep = math::sqrt(e2 / (C1 - e2));
         CT k2 = math::sqr(ep * cos_alp0);
-        CT sqrt_k2_plus_one = math::sqrt(CT(1) + k2);
-        CT eps = (sqrt_k2_plus_one - CT(1)) / (sqrt_k2_plus_one + CT(1));
+        CT sqrt_k2_plus_one = math::sqrt(C1 + k2);
+        CT eps = (sqrt_k2_plus_one - C1) / (sqrt_k2_plus_one + C1);
         CT eps2 = eps * eps;
-        CT n = f / (CT(2) - f);
+        CT n = f / (C2 - f);
 
         // Order 2 approximation
         CT c0 = 0.5;

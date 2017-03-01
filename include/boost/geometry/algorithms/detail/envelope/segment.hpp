@@ -247,11 +247,12 @@ private:
         }
     }
 
-    template <
-            typename Units,
-            typename CalculationType,
-            typename Box
-            >
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box
+    >
     static inline void create_box(CalculationType lon1,
                                   CalculationType lat1,
                                   CalculationType lon2,
@@ -332,12 +333,13 @@ private:
     }
 
 public:
-    template <
-              typename Units,
-              typename CalculationType,
-              typename Box,
-              typename Strategy
-            >
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box,
+        typename Strategy
+    >
     static inline void apply(CalculationType lon1,
                              CalculationType lat1,
                              CalculationType lon2,
@@ -349,12 +351,13 @@ public:
         create_box<Units>(lon1, lat1, lon2, lat2, mbr);
     }
 
-    template <
-              typename Units,
-              typename CalculationType,
-              typename Box,
-              typename Strategy
-             >
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box,
+        typename Strategy
+    >
     static inline void apply(CalculationType lon1,
                              CalculationType lat1,
                              CalculationType lon2,

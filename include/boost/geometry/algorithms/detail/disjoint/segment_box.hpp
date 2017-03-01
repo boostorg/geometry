@@ -25,9 +25,12 @@
 #include <cstddef>
 
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/radian_access_box_segment.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
 namespace boost { namespace geometry
@@ -39,13 +42,14 @@ namespace detail { namespace disjoint
 {
 
 template <typename CT, typename CS_Tag>
-struct disjoint_segment_box_call_vertex_longitude{
+struct disjoint_segment_box_call_vertex_longitude
+{
 
     template <typename Strategy>
-    static inline CT apply(CT lat1,
-                           CT lat2,
-                           CT vertex_lat,
-                           CT lon2_minus_lon1,
+    static inline CT apply(CT const& lat1,
+                           CT const& lat2,
+                           CT const& vertex_lat,
+                           CT const& lon2_minus_lon1,
                            CT,
                            Strategy)
     {
@@ -58,15 +62,16 @@ struct disjoint_segment_box_call_vertex_longitude{
 };
 
 template <typename CT>
-struct disjoint_segment_box_call_vertex_longitude<CT, geographic_tag>{
+struct disjoint_segment_box_call_vertex_longitude<CT, geographic_tag>
+{
 
     template <typename Strategy>
-    static inline CT apply(CT lat1,
-                           CT lat2,
-                           CT vertex_lat,
+    static inline CT apply(CT const& lat1,
+                           CT const& lat2,
+                           CT const& vertex_lat,
                            CT,
-                           CT alp1,
-                           Strategy azimuth_strategy)
+                           CT const& alp1,
+                           Strategy const& azimuth_strategy)
     {
         return formula::vertex_longitude<CT, geographic_tag>
                 ::apply(lat1,
@@ -95,13 +100,13 @@ private:
 
 
     template <typename CT, typename Strategy>
-    static inline CT compute_vertex_lon(CT lon1,
-                                        CT lat1,
-                                        CT lon2,
-                                        CT lat2,
-                                        CT vertex_lat,
-                                        CT alp1,
-                                        Strategy azimuth_strategy)
+    static inline CT compute_vertex_lon(CT const& lon1,
+                                        CT const& lat1,
+                                        CT const& lon2,
+                                        CT const& lat2,
+                                        CT const& vertex_lat,
+                                        CT const& alp1,
+                                        Strategy const& azimuth_strategy)
     {
         if (vertex_lat == lat1)
         {
@@ -167,10 +172,10 @@ public:
 
         CT alp1, a_b0, a_b1, a_b2, a_b3;
 
-        CT b_lon_min = geometry::get<geometry::min_corner, 0>(box) * math::d2r<CT>();
-        CT b_lat_min = geometry::get<geometry::min_corner, 1>(box) * math::d2r<CT>();
-        CT b_lon_max = geometry::get<geometry::max_corner, 0>(box) * math::d2r<CT>();
-        CT b_lat_max = geometry::get<geometry::max_corner, 1>(box) * math::d2r<CT>();
+        CT b_lon_min = geometry::get_as_radian<geometry::min_corner, 0>(box);
+        CT b_lat_min = geometry::get_as_radian<geometry::min_corner, 1>(box);
+        CT b_lon_max = geometry::get_as_radian<geometry::max_corner, 0>(box);
+        CT b_lat_max = geometry::get_as_radian<geometry::max_corner, 1>(box);
 
         azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_min, a_b0);
@@ -178,11 +183,14 @@ public:
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_max, a_b3);
 
-        bool b0(alp1 > a_b0), b1(alp1 > a_b1), b2(alp1 > a_b2), b3(alp1 > a_b3);
+        bool b0 = alp1 > a_b0;
+        bool b1 = alp1 > a_b1;
+        bool b2 = alp1 > a_b2;
+        bool b3 = alp1 > a_b3;
 
         // if the box is above (below) the segment in northern (southern)
         // hemisphere respectively then there is not intersection
-        if (~(b0 & b1 & b2 & b3) & (b0 | b1 | b2 | b3))
+        if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
             return false;
         }
@@ -201,17 +209,24 @@ public:
                                                    azimuth_strategy,
                                                    alp1);
 
-        CT vertex_lat = geometry::get<geometry::max_corner, 1>(box_seg) * math::d2r<CT>();
+        CT vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
         CT vertex_lon = compute_vertex_lon(lon1, lat1,
                                            lon2, lat2,
                                            vertex_lat,
                                            alp1,
                                            azimuth_strategy);
 
-        segment_point_type p_vertex_deg(vertex_lon * math::r2d<CT>(),
-                                        vertex_lat * math::r2d<CT>());
+        segment_point_type p_vertex_rad;
+        geometry::set_from_radian<0>(p_vertex_rad, vertex_lon);
+        geometry::set_from_radian<1>(p_vertex_rad, vertex_lat);
 
-        if (geometry::covered_by(p_vertex_deg, box))
+        Box box_rad;
+        geometry::set_from_radian<geometry::min_corner, 0>(box_rad, b_lon_min);
+        geometry::set_from_radian<geometry::min_corner, 1>(box_rad, b_lat_min);
+        geometry::set_from_radian<geometry::max_corner, 0>(box_rad, b_lon_max);
+        geometry::set_from_radian<geometry::max_corner, 1>(box_rad, b_lat_max);
+
+        if (geometry::covered_by(p_vertex_rad, box_rad))
         {
             return false;
         }
