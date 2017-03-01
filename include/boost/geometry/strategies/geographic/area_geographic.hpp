@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,6 +12,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 
 #include <boost/geometry/formulas/area_formulas.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
@@ -87,8 +89,8 @@ protected :
         inline spheroid_constants(SpheroidType spheroid)
             : m_spheroid(spheroid)
             , m_a2(math::sqr(get_radius<0>(spheroid)))
-            , m_e2(detail::flattening<CT>(spheroid)
-                 * (CT(2.0) - CT(detail::flattening<CT>(spheroid))))
+            , m_e2(formula::flattening<CT>(spheroid)
+                 * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
             , m_c2((m_a2 / CT(2.0)) +

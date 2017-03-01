@@ -24,7 +24,8 @@ void normalize_deg(double & deg)
         deg += 360.0;
 }
 
-void check_one(double result, double expected, double reference, double reference_error, bool normalize = false)
+void check_one(double result, double expected, double reference, double reference_error,
+               bool normalize = false, bool check_reference_only = false)
 {
     if (normalize)
     {
@@ -33,18 +34,29 @@ void check_one(double result, double expected, double reference, double referenc
         normalize_deg(reference);
     }
 
-    double res_max = (std::max)(bg::math::abs(result), bg::math::abs(expected));
-    if (res_max > 100 * std::numeric_limits<double>::epsilon())
+    if (! check_reference_only)
     {
-        BOOST_CHECK_CLOSE(result, expected, 0.001);
-    }
-    else if (res_max > 10 * std::numeric_limits<double>::epsilon())
-    {
-        BOOST_CHECK_CLOSE(result, expected, 0.1);
-    }
-    else if (res_max > std::numeric_limits<double>::epsilon())
-    {
-        BOOST_CHECK_CLOSE(result, expected, 10);
+        double eps = std::numeric_limits<double>::epsilon();
+        double abs_result = bg::math::abs(result);
+        double abs_expected = bg::math::abs(expected);
+        double res_max = (std::max)(abs_result, abs_expected);
+        double res_min = (std::min)(abs_result, abs_expected);
+        if (res_min <= eps) // including 0
+        {
+            BOOST_CHECK(abs_result <= 10 * eps && abs_expected <= 10 * eps);
+        }
+        else if (res_max > 100 * eps)
+        {
+            BOOST_CHECK_CLOSE(result, expected, 0.1);
+        }
+        else if (res_max > 10 * eps)
+        {
+            BOOST_CHECK_CLOSE(result, expected, 10);
+        }
+        else if (res_max > eps)
+        {
+            BOOST_CHECK_CLOSE(result, expected, 1000);
+        }
     }
 
     // NOTE: in some cases it probably will be necessary to normalize
@@ -52,7 +64,6 @@ void check_one(double result, double expected, double reference, double referenc
     double ref_diff = bg::math::abs(result - reference);
     double ref_max = (std::max)(bg::math::abs(result), bg::math::abs(reference));
     bool is_ref_close = ref_diff <= reference_error || ref_diff <= reference_error * ref_max;
-
     BOOST_CHECK_MESSAGE((is_ref_close), std::setprecision(16) << "{" << result << "} and {" << reference << "} not close enough.");
 }
 
