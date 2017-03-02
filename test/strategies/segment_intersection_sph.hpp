@@ -29,6 +29,7 @@
 template <typename T>
 bool equals_relaxed_val(T const& v1, T const& v2, T const& eps_scale)
 {
+    T const c1 = 1;
     T relaxed_eps = std::numeric_limits<T>::epsilon()
         * bg::math::detail::greatest(c1, bg::math::abs(v1), bg::math::abs(v2))
         * eps_scale;
