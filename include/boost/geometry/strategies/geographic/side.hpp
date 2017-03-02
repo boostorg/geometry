@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_DETAIL_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_DETAIL_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_HPP
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -36,9 +36,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
 
 /*!
 \brief Check at which side of a segment a point lies
@@ -51,10 +48,13 @@ namespace detail
 template <template<typename, bool, bool, bool, bool, bool> class InverseFormula,
           typename Model,
           typename CalculationType = void>
-class by_azimuth
+class geographic
 {
 public:
-    by_azimuth(Model const& model = Model())
+    geographic()
+    {}
+
+    explicit geographic(Model const& model)
         : m_model(model)
     {}
 
@@ -96,8 +96,6 @@ private:
     Model m_model;
 };
 
-} // detail
-#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace strategy::side
 
@@ -105,4 +103,4 @@ private:
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_DETAIL_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_HPP
