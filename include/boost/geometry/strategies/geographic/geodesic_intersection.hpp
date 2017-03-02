@@ -34,7 +34,7 @@
 
 #include <boost/geometry/strategies/geographic/area_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/side_detail.hpp>
+#include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
@@ -63,12 +63,12 @@ template
 >
 struct relate_geodesic_segments
 {
-    typedef side::detail::by_azimuth
+    typedef side::geographic
         <
             Inverse, Spheroid, CalculationType
         > side_strategy_type;
 
-    static inline side_strategy_type get_side_strategy()
+    inline side_strategy_type get_side_strategy()
     {
         return side_strategy_type(m_spheroid);
     }
@@ -86,7 +86,7 @@ struct relate_geodesic_segments
     };
 
     template <typename Geometry1, typename Geometry2>
-    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+    inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
         get_point_in_geometry_strategy()
     {
         typedef typename point_in_geometry_strategy
@@ -112,7 +112,7 @@ struct relate_geodesic_segments
     };
 
     template <typename Geometry>
-    static inline typename area_strategy<Geometry>::type get_area_strategy()
+    inline typename area_strategy<Geometry>::type get_area_strategy()
     {
         typedef typename area_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
@@ -125,7 +125,7 @@ struct relate_geodesic_segments
     };
 
     template <typename Geometry>
-    static inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    inline typename distance_strategy<Geometry>::type get_distance_strategy()
     {
         typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
@@ -872,8 +872,8 @@ private:
                   ip_flag;
     }
 
-    template <typename CalcT, typename Spheroid>
-    static inline srs::spheroid<CalcT> normalized_spheroid(Spheroid const& spheroid)
+    template <typename CalcT, typename SpheroidT>
+    static inline srs::spheroid<CalcT> normalized_spheroid(SpheroidT const& spheroid)
     {
         return srs::spheroid<CalcT>(CalcT(1),
                                     CalcT(get_radius<2>(spheroid)) // b/a
