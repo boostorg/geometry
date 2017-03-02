@@ -29,6 +29,8 @@
 [*Breaking changes]
 
 * ublas_transformer is renamed to matrix_transformer
+* explicit modifier is added to constructors of rtree index::dynamic_* parameters
+* strategy::area::huiller replaced by strategy::area::spherical
 
 [*Solved issues]
 
