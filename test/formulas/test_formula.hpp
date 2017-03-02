@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -43,7 +43,9 @@ void check_one(double result, double expected, double reference, double referenc
         double res_min = (std::min)(abs_result, abs_expected);
         if (res_min <= eps) // including 0
         {
-            BOOST_CHECK(abs_result <= 10 * eps && abs_expected <= 10 * eps);
+            bool is_same = abs_result <= 10 * eps && abs_expected <= 10 * eps;
+            BOOST_CHECK_MESSAGE((is_same),
+                std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
         else if (res_max > 100 * eps)
         {
@@ -64,7 +66,7 @@ void check_one(double result, double expected, double reference, double referenc
     double ref_diff = bg::math::abs(result - reference);
     double ref_max = (std::max)(bg::math::abs(result), bg::math::abs(reference));
     bool is_ref_close = ref_diff <= reference_error || ref_diff <= reference_error * ref_max;
-    BOOST_CHECK_MESSAGE((is_ref_close), std::setprecision(16) << "{" << result << "} and {" << reference << "} not close enough.");
+    BOOST_CHECK_MESSAGE((is_ref_close), std::setprecision(20) << "result {" << result << "} and reference {" << reference << "} not close enough.");
 }
 
 #endif // BOOST_GEOMETRY_TEST_FORMULA_HPP

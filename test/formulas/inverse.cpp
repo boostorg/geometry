@@ -39,25 +39,25 @@ void test_all(expected_results const& results)
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
 
-    bg::formula::result_inverse<double> result;
+    bg::formula::result_inverse<double> result_v, result_t, result_a;
 
     typedef bg::formula::vincenty_inverse<double, true, true, true, true, true> vi_t;
-    result = vi_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
-    result.azimuth *= r2d;
-    result.reverse_azimuth *= r2d;
-    check_inverse(result, results.vincenty, results.karney, 0.00000001);
+    result_v = vi_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_v.azimuth *= r2d;
+    result_v.reverse_azimuth *= r2d;
+    check_inverse(result_v, results.vincenty, results.reference, 0.0000001);
 
     typedef bg::formula::thomas_inverse<double, true, true, true, true, true> th_t;
-    result = th_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
-    result.azimuth *= r2d;
-    result.reverse_azimuth *= r2d;
-    check_inverse(result, results.thomas, results.karney, 0.0000001);
+    result_t = th_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_t.azimuth *= r2d;
+    result_t.reverse_azimuth *= r2d;
+    check_inverse(result_t, results.thomas, results.reference, 0.00001);
 
     typedef bg::formula::andoyer_inverse<double, true, true, true, true, true> an_t;
-    result = an_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
-    result.azimuth *= r2d;
-    result.reverse_azimuth *= r2d;
-    check_inverse(result, results.andoyer, results.karney, 0.0001);
+    result_a = an_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_a.azimuth *= r2d;
+    result_a.reverse_azimuth *= r2d;
+    check_inverse(result_a, results.andoyer, results.reference, 0.001);
 }
 
 int test_main(int, char*[])
