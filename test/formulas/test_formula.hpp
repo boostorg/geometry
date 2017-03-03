@@ -43,8 +43,8 @@ void check_one(double result, double expected, double reference, double referenc
         double res_min = (std::min)(abs_result, abs_expected);
         if (res_min <= eps) // including 0
         {
-            bool is_same = abs_result <= 10 * eps && abs_expected <= 10 * eps;
-            BOOST_CHECK_MESSAGE((is_same),
+            bool is_close = abs_result <= 30 * eps && abs_expected <= 30 * eps;
+            BOOST_CHECK_MESSAGE((is_close),
                 std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
         else if (res_max > 100 * eps)
