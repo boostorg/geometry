@@ -25,10 +25,17 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Spherical area calculation by trapezoidal rule
+\brief Spherical area calculation
+\ingroup strategies
+\details Calculates area on the surface of a sphere using the trapezoidal rule
+\tparam PointOfSegment \tparam_segment_point
+\tparam LongSegment Enables special handling of long segments
+\tparam CalculationType \tparam_calculation
 
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
 }
-
 */
 template
 <

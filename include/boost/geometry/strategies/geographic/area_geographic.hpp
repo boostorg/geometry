@@ -23,12 +23,26 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Geographic area calculation by trapezoidal rule plus integral
-approximation that gives the ellipsoidal correction
+\brief Geographic area calculation
+\ingroup strategies
+\details Geographic area calculation by trapezoidal rule plus integral
+         approximation that gives the ellipsoidal correction
+\tparam PointOfSegment \tparam_segment_point
+\tparam Inverse Formula used to calculate azimuths
+\tparam SeriesOrder The order of approximation of the geodesic integral
+\tparam ExpandEpsN Switch between two kinds of approximation (series in eps and n v.s. series in k^2 and e'^2)
+\tparam LongSegment Enables special handling of long segments
+\tparam Spheroid The spheroid model
+\tparam CalculationType \tparam_calculation
+\author See
+- Danielsen JS, The area under the geodesic. Surv Rev 30(232): 61–66, 1989
+- Charles F.F Karney, Algorithms for geodesics, 2011 https://arxiv.org/pdf/1109.4448.pdf
 
-
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
+}
 */
-
 template
 <
     typename PointOfSegment,
