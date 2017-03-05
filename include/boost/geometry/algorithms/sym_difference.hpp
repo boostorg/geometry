@@ -521,6 +521,7 @@ struct sym_difference<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARI
 \param output_collection the output collection
 \param strategy \param_strategy{sym_difference}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/sym_difference.qbk]}
 */
 template

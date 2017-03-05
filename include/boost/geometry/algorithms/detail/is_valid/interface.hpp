@@ -136,6 +136,7 @@ multi-geometries with no elements,
 linear geometries containing spikes,
 areal geometries with duplicate (consecutive) points}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/is_valid.qbk]}
 */
 template <typename Geometry, typename Strategy>
@@ -180,7 +181,7 @@ inline bool is_valid(Geometry const& geometry)
     linear geometries containing spikes,
     areal geometries with duplicate (consecutive) points}
 
-\qbk{distinguish,with failure value}
+\qbk{distinguish,with failure value and strategy}
 \qbk{[include reference/algorithms/is_valid_with_failure.qbk]}
 */
 template <typename Geometry, typename Strategy>
@@ -230,7 +231,7 @@ inline bool is_valid(Geometry const& geometry, validity_failure_type& failure)
     linear geometries containing spikes,
     areal geometries with duplicate (consecutive) points}
 
-\qbk{distinguish,with message}
+\qbk{distinguish,with message and strategy}
 \qbk{[include reference/algorithms/is_valid_with_message.qbk]}
 */
 template <typename Geometry, typename Strategy>
