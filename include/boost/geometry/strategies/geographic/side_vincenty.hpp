@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,7 +17,7 @@
 
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 
-#include <boost/geometry/strategies/geographic/side_detail.hpp>
+#include <boost/geometry/strategies/geographic/side.hpp>
 
 
 namespace boost { namespace geometry
@@ -36,12 +36,15 @@ namespace strategy { namespace side
  */
 template <typename Model, typename CalculationType = void>
 class vincenty
-    : public detail::by_azimuth<geometry::formula::vincenty_inverse, Model, CalculationType>
+    : public side::geographic<formula::vincenty_inverse, Model, CalculationType>
 {
-    typedef detail::by_azimuth<geometry::formula::vincenty_inverse, Model, CalculationType> base_t;
+    typedef side::geographic<formula::vincenty_inverse, Model, CalculationType> base_t;
 
 public:
-    vincenty(Model const& model = Model())
+    vincenty()
+    {}
+
+    explicit vincenty(Model const& model)
         : base_t(model)
     {}
 };

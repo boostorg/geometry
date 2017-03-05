@@ -211,6 +211,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/strategies/agnostic \
                          ../../../../boost/geometry/strategies/cartesian \
                          ../../../../boost/geometry/strategies/spherical \
+                         ../../../../boost/geometry/strategies/geographic \
                          ../../../../boost/geometry/strategies/transform \
                          ../../../../boost/geometry/util \
                          ../../../../boost/geometry/views \

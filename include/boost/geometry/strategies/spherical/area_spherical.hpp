@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,9 +11,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
 
+
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/strategies/area.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -21,10 +25,17 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Spherical area calculation by trapezoidal rule
+\brief Spherical area calculation
+\ingroup strategies
+\details Calculates area on the surface of a sphere using the trapezoidal rule
+\tparam PointOfSegment \tparam_segment_point
+\tparam LongSegment Enables special handling of long segments
+\tparam CalculationType \tparam_calculation
 
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
 }
-
 */
 template
 <
@@ -102,7 +113,7 @@ public :
     inline spherical(CT radius) //backward compatibility
         : m_sphere()
     {
-        m_sphere.set_radius<0>(radius);
+        geometry::set_radius<0>(m_sphere, radius);
     }
 
     inline void apply(PointOfSegment const& p1,

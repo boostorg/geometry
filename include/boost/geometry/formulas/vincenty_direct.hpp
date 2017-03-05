@@ -23,9 +23,8 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
-
 #include <boost/geometry/formulas/differential_quantities.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
 
 
@@ -85,7 +84,7 @@ public:
 
         CT const radius_a = CT(get_radius<0>(spheroid));
         CT const radius_b = CT(get_radius<2>(spheroid));
-        CT const flattening = geometry::detail::flattening<CT>(spheroid);
+        CT const flattening = formula::flattening<CT>(spheroid);
 
         CT const sin_azimuth12 = sin(azimuth12);
         CT const cos_azimuth12 = cos(azimuth12);

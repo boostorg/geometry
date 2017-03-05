@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,6 +12,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 
 #include <boost/geometry/formulas/area_formulas.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
@@ -21,12 +23,26 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Geographic area calculation by trapezoidal rule plus integral
-approximation that gives the ellipsoidal correction
+\brief Geographic area calculation
+\ingroup strategies
+\details Geographic area calculation by trapezoidal rule plus integral
+         approximation that gives the ellipsoidal correction
+\tparam PointOfSegment \tparam_segment_point
+\tparam Inverse Formula used to calculate azimuths
+\tparam SeriesOrder The order of approximation of the geodesic integral
+\tparam ExpandEpsN Switch between two kinds of approximation (series in eps and n v.s. series in k^2 and e'^2)
+\tparam LongSegment Enables special handling of long segments
+\tparam Spheroid The spheroid model
+\tparam CalculationType \tparam_calculation
+\author See
+- Danielsen JS, The area under the geodesic. Surv Rev 30(232): 61–66, 1989
+- Charles F.F Karney, Algorithms for geodesics, 2011 https://arxiv.org/pdf/1109.4448.pdf
 
-
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
+}
 */
-
 template
 <
     typename PointOfSegment,
@@ -87,8 +103,8 @@ protected :
         inline spheroid_constants(SpheroidType spheroid)
             : m_spheroid(spheroid)
             , m_a2(math::sqr(get_radius<0>(spheroid)))
-            , m_e2(detail::flattening<CT>(spheroid)
-                 * (CT(2.0) - CT(detail::flattening<CT>(spheroid))))
+            , m_e2(formula::flattening<CT>(spheroid)
+                 * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
             , m_c2((m_a2 / CT(2.0)) +

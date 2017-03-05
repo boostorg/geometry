@@ -160,10 +160,13 @@ inline void expand(Box& box, Geometry const& geometry,
 \ingroup expand
 \tparam Box type of the box
 \tparam Geometry \tparam_geometry
+\tparam Strategy \tparam_strategy{expand}
 \param box box to be expanded using another geometry, mutable
 \param geometry \param_geometry geometry which envelope (bounding box)
+\param strategy \param_strategy{expand}
 will be added to the box
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/expand.qbk]}
  */
 template <typename Box, typename Geometry, typename Strategy>

@@ -50,6 +50,7 @@
 
 #include "test_envelope_expand_on_spheroid.hpp"
 
+
 template <
           template <typename, bool, bool, bool, bool, bool> class Inverse,
           typename CS_Tag
@@ -152,11 +153,54 @@ private:
         BOOST_CHECK_MESSAGE(same_boxes, stream.str());
     }
 
-    template <typename Box, typename Geometry>
+    template
+    <
+        typename Geometry, typename Box,
+        typename T1, typename T2, typename T3, typename T4
+    >
+    static inline void check_message(bool same_boxes,
+                                     std::string const& case_id,
+                                     std::string const& units_str,
+                                     Geometry const& geometry,
+                                     T1 const& lon_min, T2 const& lat_min, double height_min,
+                                     T3 const& lon_max, T4 const& lat_max, double height_max,
+                                     Box const& detected)
+    {
+        std::ostringstream stream;
+        stream << "case ID: " << case_id << ", "
+               << "MBR units: " << units_str << "; "
+               << "geometry: ";
+
+        write_geometry<Geometry>::apply(stream, geometry);
+
+        stream << std::setprecision(17);
+
+        stream << "; " << "expected: ";
+        
+        if (BOOST_GEOMETRY_CONDITION(bg::dimension<Box>::value == 2))
+        {
+            stream << "(" << lon_min << " " << lat_min
+                   << ", " << lon_max << " " << lat_max << ")";
+        }
+        else
+        {
+            stream << "(" << lon_min << " " << lat_min << " " << height_min
+                   << ", " << lon_max << " " << lat_max << " " << height_max << ")";
+        }
+        stream << ", " << "detected: " << bg::dsv(detected);
+
+        BOOST_CHECK_MESSAGE(same_boxes, stream.str());
+    }
+
+    template
+    <
+        typename Box, typename Geometry,
+        typename T1, typename T2, typename T3, typename T4
+    >
     static inline void base_test(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min, double height_min,
-        double lon_max, double lat_max, double height_max,
+        T1 const& lon_min, T2 const& lat_min, double height_min,
+        T3 const& lon_max, T4 const& lat_max, double height_max,
         double tolerance)
     {
         typedef typename bg::coordinate_system<Box>::type::units box_units_type;
@@ -168,27 +212,40 @@ private:
                       typename bg::cs_tag<Geometry>::type
                 >::apply(geometry, detected);
 
-        Box expected;
-        initialize_box<Box>::apply(expected,
-                                   lon_min, lat_min, height_min,
-                                   lon_max, lat_max, height_max);
-
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "geometry: ";
         write_geometry<Geometry>::apply(std::cout, geometry);
 
         std::cout << std::endl
                   << "MBR units: " << units_str
-                  << std::endl
-                  << "expected: " << bg::dsv(expected)
-                  << std::endl
+                  << std::endl;
+        std::cout << "expected: ";
+        if (BOOST_GEOMETRY_CONDITION(bg::dimension<Box>::value == 2))
+        {
+            std::cout << "(" << lon_min << " " << lat_min
+                      << ", " << lon_max << " " << lat_max << ")";
+        }
+        else
+        {
+            std::cout << "(" << lon_min << " " << lat_min << " " << height_min
+                      << ", " << lon_max << " " << lat_max << " " << height_max << ")";
+        }
+        std::cout << std::endl
                   << "detected: " << bg::dsv(detected)
                   << std::endl << std::endl;
 #endif
 
-        check_message(box_equals<Box>::apply(detected, expected, tolerance),
+        bool check = box_check_equals<Box>::apply(detected,
+                                                  lon_min, lat_min, height_min,
+                                                  lon_max, lat_max, height_max,
+                                                  tolerance);
+
+        check_message(check,
                       case_id, units_str,
-                      geometry, expected, detected);
+                      geometry,
+                      lon_min, lat_min, height_min,
+                      lon_max, lat_max, height_max,
+                      detected);
 
         // if valid box is expected, check the validity
         if (lon_min <= lon_max && lat_min <= lat_max && height_min <= height_max)
@@ -201,11 +258,15 @@ private:
     }
 
 public:
-    template <typename Geometry>
+    template
+    <
+        typename Geometry,
+        typename T1, typename T2, typename T3, typename T4
+    >
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min, double height_min,
-        double lon_max, double lat_max, double height_max,
+        T1 const& lon_min, T2 const& lat_min, double height_min,
+        T3 const& lon_max, T4 const& lat_max, double height_max,
         double tolerance)
     {
         typedef other_system_info
@@ -291,12 +352,14 @@ template
 >
 struct test_envelope_on_sphere_or_spheroid
 {
+    template <typename T1, typename T2, typename T3, typename T4,
+              typename T5, typename T6, typename T7, typename T8>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min1, double lat_min1, double height_min1,
-        double lon_max1, double lat_max1, double height_max1,
-        double lon_min2, double lat_min2, double height_min2,
-        double lon_max2, double lat_max2, double height_max2,
+        T1 const& lon_min1, T2 const& lat_min1, double height_min1,
+        T3 const& lon_max1, T4 const& lat_max1, double height_max1,
+        T5 const& lon_min2, T6 const& lat_min2, double height_min2,
+        T7 const& lon_max2, T8 const& lat_max2, double height_max2,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         envelope_on_spheroid_basic_tester
@@ -328,12 +391,14 @@ struct test_envelope_on_sphere_or_spheroid
 #endif
     }
 
+    template <typename T1, typename T2, typename T3, typename T4,
+              typename T5, typename T6, typename T7, typename T8>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min1, double lat_min1,
-        double lon_max1, double lat_max1,
-        double lon_min2, double lat_min2,
-        double lon_max2, double lat_max2,
+        T1 const& lon_min1, T2 const& lat_min1,
+        T3 const& lon_max1, T4 const& lat_max1,
+        T5 const& lon_min2, T6 const& lat_min2,
+        T7 const& lon_max2, T8 const& lat_max2,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, geometry,
@@ -342,10 +407,11 @@ struct test_envelope_on_sphere_or_spheroid
               tolerance);
     }
 
+    template <typename T1, typename T2, typename T3, typename T4>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min, double height_min,
-        double lon_max, double lat_max, double height_max,
+        T1 const& lon_min, T2 const& lat_min, double height_min,
+        T3 const& lon_max, T4 const& lat_max, double height_max,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, geometry,
@@ -356,10 +422,11 @@ struct test_envelope_on_sphere_or_spheroid
               tolerance);
     }
 
+    template <typename T1, typename T2, typename T3, typename T4>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
+        T1 const& lon_min, T2 const& lat_min,
+        T3 const& lon_max, T4 const& lat_max,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, geometry,
@@ -373,13 +440,15 @@ struct test_envelope_on_sphere_or_spheroid
 template <typename Geometry, typename MBR, bool TestReverse>
 struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReverse>
 {
+    template <typename T1, typename T2, typename T3, typename T4,
+              typename T5, typename T6, typename T7, typename T8>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min1, double lat_min1,
-        double lon_max1, double lat_max1,
-        double lon_min2, double lat_min2,
-        double lon_max2, double lat_max2,
-        double tolerance = std::numeric_limits<double>::epsilon())
+        T1 const& lon_min1, T2 const& lat_min1,
+        T3 const& lon_max1, T4 const& lat_max1,
+        T5 const& lon_min2, T6 const& lat_min2,
+        T7 const& lon_max2, T8 const& lat_max2,
+        double const& tolerance = std::numeric_limits<double>::epsilon())
     {
         envelope_on_spheroid_basic_tester
             <
@@ -409,10 +478,11 @@ struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReve
 #endif
     }
 
+    template <typename T1, typename T2, typename T3, typename T4>
     static inline void apply(std::string const& case_id,
         Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
+        T1 const& lon_min, T2 const& lat_min,
+        T3 const& lon_max, T4 const& lat_max,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
         apply(case_id, geometry,
@@ -822,26 +892,24 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 
     tester::apply("s09",
                   from_wkt<G>("SEGMENT(1 -45,179 30)"),
-                  1, -85.392785243526134, 179, 30,
-                  3 * eps);
+                  1, rng(-85.392785243526134, -85.392785243525253), 179, 30);
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.689300911353811, 181, 30);
+                  2, rng(-87.689300911353811, -87.689300911353371), 181, 30);
 
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -87.689300911353797, 0, 30,
-                  2.0 * eps);
+                  -179, rng(-87.689300911353797, -87.689300911353385), 0, 30);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990810958016965);
+                  -100, 30, 20, rng(57.990810958016482, 57.990810958016965));
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 57.990810958016965);
+                  -100, 30, 20, rng(57.990810958016453, 57.990810958016965));
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -859,7 +927,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 
     tester::apply("s15",
                   from_wkt<G>("SEGMENT(50 45,185 45)"),
-                  50, 45, 185, 69.098479073903178);
+                  50, 45, 185, rng(69.098479073902851, 69.098479073903178));
 
     // segment that lies on the equator
     tester::apply("s16",
@@ -924,7 +992,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
                   1-heps, 1, 1, 1);
     tester::apply("s104",
                   G(P(2, 1), P(1, 1-heps)),
-                  1, 1-heps, 2, 1.0000383271569036);
+                  1, 1-heps, 2, rng(1.0000383271568751, 1.0000383271569036));
     tester::apply("s105",
                   G(P(1, 2), P(1-heps, 1)),
                   1-heps, 1, 1, 2);
@@ -940,12 +1008,10 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::thomas_inverse
                           > tester;
-
-    double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("s01",
                   from_wkt<G>("SEGMENT(10 10,40 40)"),
@@ -1011,26 +1077,24 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
 
     tester::apply("s09",
                   from_wkt<G>("SEGMENT(1 -45,179 30)"),
-                  1, -85.392785243526134, 179, 30,
-                  3 * eps);
+                  1, rng(-85.392785243526134, -85.392785243525253), 179, 30);
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.689300911353811, 181, 30);
+                  2, rng(-87.689300911353811, -87.689300911353371), 181, 30);
 
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -87.689300911353797, 0, 30,
-                  2.0 * eps);
+                  -179, rng(-87.689300911353797, -87.689300911353385), 0, 30);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990810958016965);
+                  -100, 30, 20, rng(57.990810958016482, 57.990810958016965));
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 57.990810958016965);
+                  -100, 30, 20, rng(57.990810958016453, 57.990810958016965));
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1048,7 +1112,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
 
     tester::apply("s15",
                   from_wkt<G>("SEGMENT(50 45,185 45)"),
-                  50, 45, 185, 69.098479073903178);
+                  50, 45, 185, rng(69.098479073902851, 69.098479073903178));
 
     // segment that lies on the equator
     tester::apply("s16",
@@ -1098,12 +1162,10 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::andoyer_inverse
                           > tester;
-
-    double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("s01",
                   from_wkt<G>("SEGMENT(10 10,40 40)"),
@@ -1169,26 +1231,24 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s09",
                   from_wkt<G>("SEGMENT(1 -45,179 30)"),
-                  1, -85.394745211091248, 179, 30,
-                  3 * eps);
+                  1, rng(-85.394745211091248, -85.394745211090353), 179, 30);
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.690317839849726, 181, 30);
+                  2, rng(-87.690317839849726, -87.690317839849271), 181, 30);
 
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -87.69031783984974, 0, 30,
-                  2.0 * eps);
+                  -179, rng(-87.69031783984974, -87.690317839849271), 0, 30);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990742552280153);
+                  -100, 30, 20, rng(57.990742552279649, 57.990742552280153));
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 57.990742552280118);
+                  -100, 30, 20, rng(57.99074255227962, 57.990742552280118));
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1206,7 +1266,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
 
     tester::apply("s15",
                   from_wkt<G>("SEGMENT(50 45,185 45)"),
-                  50, 45, 185, 69.09844689340845);
+                  50, 45, 185, rng(69.098446893408124, 69.09844689340845));
 
     // segment that lies on the equator
     tester::apply("s16",
@@ -1256,12 +1316,10 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
     typedef test_envelope_on_sphere_or_spheroid
                           <
                             G, B,
-                            typename bg::tag<G>::type,
+                            bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
                             bg::formula::vincenty_inverse
                           > tester;
-
-    double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("s01",
                   from_wkt<G>("SEGMENT(10 10,40 40)"),
@@ -1269,23 +1327,23 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s02",
                   from_wkt<G>("SEGMENT(10 10,40 10)"),
-                  10, 10, 40, 10.347587628821941);
+                  10, 10, 40, rng(10.347587628821937, 10.347587628821941));
 
     tester::apply("s02a",
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  10, 10, 40, 10.347587628821941);
+                  10, 10, 40, rng(10.347587628821937, 10.347587628821941));
 
     tester::apply("s03",
                   from_wkt<G>("SEGMENT(160 10,-170 10)"),
-                  160, 10, 190, 10.347587628821941);
+                  160, 10, 190, rng(10.347587628821937, 10.347587628821941));
 
     tester::apply("s03a",
                   from_wkt<G>("SEGMENT(-170 10,160 10)"),
-                  160, 10, 190, 10.347587628821941);
+                  160, 10, 190, rng(10.347587628821937, 10.347587628821941));
 
     tester::apply("s03b",
                   from_wkt<G>("SEGMENT(-170 -10,160 -10)"),
-                  160,  -10.347587628821941, 190, -10);
+                  160, rng(-10.347587628821941, -10.347587628821937), 190, -10);
 
     tester::apply("s04",
                   from_wkt<G>("SEGMENT(-40 45,140 60)"),
@@ -1327,26 +1385,24 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s09",
                   from_wkt<G>("SEGMENT(1 -45,179 30)"),
-                  1, -85.392840929577218, 179, 30,
-                  3 * eps);
+                  1, rng(-85.392840929577218, -85.392840929576352), 179, 30);
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.689330275867817, 181, 30);
+                  2, rng(-87.689330275867817, -87.689330275867405), 181, 30);
 
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -87.689330275867832, 0, 30,
-                  2.0 * eps);
+                  -179, rng(-87.689330275867832, -87.689330275867405), 0, 30);
 
     tester::apply("s11",
                   from_wkt<G>("SEGMENT(260 30,20 45)"),
-                  -100, 30, 20, 57.990810647057032);
+                  -100, 30, 20, rng(57.990810647056549, 57.990810647057032));
 
     tester::apply("s11a",
                   from_wkt<G>("SEGMENT(260 45,20 30)"),
-                  -100, 30, 20, 57.990810647057032);
+                  -100, 30, 20, rng(57.990810647056541, 57.990810647057032));
 
     // segment degenerating to the north pole
     tester::apply("s12",
@@ -1364,7 +1420,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
 
     tester::apply("s15",
                   from_wkt<G>("SEGMENT(50 45,185 45)"),
-                  50, 45, 185, 69.098479136978497);
+                  50, 45, 185, rng(69.098479136978156, 69.098479136978497));
 
     // segment that lies on the equator
     tester::apply("s16",
@@ -2012,8 +2068,7 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     // linestring that circles the entire globe
     tester::apply("l03",
                   from_wkt<G>("LINESTRING(-185 0,-170 25,-50 10,10 10,20 20,100 5,180 15)"),
-                  -180, 0, 180, 33.702476580413318,
-                  4.0 * std::numeric_limits<double>::epsilon());
+                  -180, 0, 180, rng(33.702476580412359, 33.702476580413318));
 
     // linestring that crosses the antimeridian but staying close to it
     tester::apply("l04",
@@ -2261,19 +2316,19 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_multilinestring )
 
     tester::apply("ml04",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80))"),
-                  -150, 35, 100, 80.082544902477267);
+                  -150, 35, 100, rng(80.07385383411011, 80.082544902477267));
 
     tester::apply("ml04a",
                   from_wkt<G>("MULTILINESTRING((-150 40,-100 80),(10 35,100 80),(170 25,-160 80))"),
-                  10, 25, 260, 80.082544902477267);
+                  10, 25, 260, rng(80.07385383411011, 80.082544902477267));
 
     tester::apply("ml05",
                   from_wkt<G>("MULTILINESTRING((-140 40,-100 80),(10 35,100 80))"),
-                  -140, 35, 100, 80.082544902477267);
+                  -140, 35, 100, rng(80.07385383411011, 80.082544902477267));
 
     tester::apply("ml05a",
                   from_wkt<G>("MULTILINESTRING((-140 40,-100 80),(10 35,100 80),(170 25,-160 80))"),
-                  10, 25, 260, 80.082544902477267);
+                  10, 25, 260, rng(80.07385383411011, 80.082544902477267));
 }
 
 

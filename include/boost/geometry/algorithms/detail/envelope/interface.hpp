@@ -135,6 +135,7 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \param mbr \param_box \param_set{envelope}
 \param strategy \param_strategy{envelope}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/envelope.qbk]}
 \qbk{
 [heading Example]
@@ -142,7 +143,7 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 }
 */
 template<typename Geometry, typename Box, typename Strategy>
-inline void envelope(Geometry const& geometry, Box& mbr, Strategy& strategy)
+inline void envelope(Geometry const& geometry, Box& mbr, Strategy const& strategy)
 {
     resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy);
 }
@@ -168,6 +169,32 @@ inline void envelope(Geometry const& geometry, Box& mbr)
     resolve_variant::envelope<Geometry>::apply(geometry, mbr, default_strategy());
 }
 
+
+/*!
+\brief \brief_calc{envelope}
+\ingroup envelope
+\details \details_calc{return_envelope,\det_envelope}. \details_return{envelope}
+\tparam Box \tparam_box
+\tparam Geometry \tparam_geometry
+\tparam Strategy \tparam_strategy{Envelope}
+\param geometry \param_geometry
+\param strategy \param_strategy{envelope}
+\return \return_calc{envelope}
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/envelope.qbk]}
+\qbk{
+[heading Example]
+[return_envelope] [return_envelope_output]
+}
+*/
+template<typename Box, typename Geometry, typename Strategy>
+inline Box return_envelope(Geometry const& geometry, Strategy const& strategy)
+{
+    Box mbr;
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy);
+    return mbr;
+}
 
 /*!
 \brief \brief_calc{envelope}

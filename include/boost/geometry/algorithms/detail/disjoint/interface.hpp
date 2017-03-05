@@ -203,6 +203,7 @@ struct disjoint
 \param strategy \param_strategy{disjoint}
 \return \return_check2{are disjoint}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/disjoint.qbk]}
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>

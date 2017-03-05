@@ -375,6 +375,7 @@ struct relate<
 \param strategy \param_strategy{relate}
 \return true if the relation is compatible with the mask, false otherwise.
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/relate.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Mask, typename Strategy>

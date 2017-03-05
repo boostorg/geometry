@@ -14,12 +14,11 @@
 
 #include <boost/geometry/core/radius.hpp>
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
-
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>

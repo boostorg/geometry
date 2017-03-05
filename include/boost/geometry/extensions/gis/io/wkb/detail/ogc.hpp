@@ -68,12 +68,10 @@ struct geometry_type_ogc
     {
         point      = 1,
         linestring = 2,
-        polygon    = 3
-
-        // TODO: Not implemented
-        //multipoint = 4,
-        //multilinestring = 5,
-        //multipolygon = 6,
+        polygon    = 3,
+        multipoint = 4,
+        multilinestring = 5,
+        multipolygon = 6,
         //collection = 7
     };
 };
@@ -167,6 +165,21 @@ struct geometry_type<Geometry, CheckPolicy, linestring_tag>
 template <typename Geometry, typename CheckPolicy>
 struct geometry_type<Geometry, CheckPolicy, polygon_tag>
     : geometry_type_impl<Geometry, geometry_type_ogc::polygon>
+{};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, multi_point_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::multipoint>
+{};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, multi_linestring_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::multilinestring>
+{};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, multi_polygon_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::multipolygon>
 {};
 
 }} // namespace detail::wkb

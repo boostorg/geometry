@@ -237,23 +237,28 @@ private:
     }
 
 
-    template <typename VisitPolicy>
+    template <typename VisitPolicy, typename Strategy>
     struct per_polygon
     {
-        per_polygon(VisitPolicy& policy) : m_policy(policy) {}
+        per_polygon(VisitPolicy& policy, Strategy const& strategy)
+            : m_policy(policy)
+            , m_strategy(strategy)
+        {}
 
         template <typename Polygon>
         inline bool apply(Polygon const& polygon) const
         {
-            return base::apply(polygon, m_policy);
+            return base::apply(polygon, m_policy, m_strategy);
         }
 
         VisitPolicy& m_policy;
+        Strategy const& m_strategy;
     };
 public:
-    template <typename VisitPolicy>
+    template <typename VisitPolicy, typename Strategy>
     static inline bool apply(MultiPolygon const& multipolygon,
-                             VisitPolicy& visitor)
+                             VisitPolicy& visitor,
+                             Strategy const& strategy)
     {
         typedef debug_validity_phase<MultiPolygon> debug_phase;
 
@@ -268,11 +273,11 @@ public:
 
         if (! detail::check_iterator_range
                   <
-                      per_polygon<VisitPolicy>,
+                      per_polygon<VisitPolicy, Strategy>,
                       false // do not check for empty multipolygon (done above)
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon),
-                           per_polygon<VisitPolicy>(visitor)))
+                           per_polygon<VisitPolicy, Strategy>(visitor, strategy)))
         {
             return false;
         }
@@ -285,7 +290,7 @@ public:
 
         std::deque<typename has_valid_turns::turn_type> turns;
         bool has_invalid_turns =
-            ! has_valid_turns::apply(multipolygon, turns, visitor);
+            ! has_valid_turns::apply(multipolygon, turns, visitor, strategy);
         debug_print_turns(turns.begin(), turns.end());
 
         if (has_invalid_turns)
