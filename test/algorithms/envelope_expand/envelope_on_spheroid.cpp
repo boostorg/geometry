@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2016, Oracle and/or its affiliates.
+// Copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -10,9 +10,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#include <boost/geometry/formulas/andoyer_inverse.hpp>
-#include <boost/geometry/formulas/thomas_inverse.hpp>
-#include <boost/geometry/formulas/vincenty_inverse.hpp>
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_envelope_on_sphere_or_spheroid
@@ -51,10 +48,7 @@
 #include "test_envelope_expand_on_spheroid.hpp"
 
 
-template <
-          template <typename, bool, bool, bool, bool, bool> class Inverse,
-          typename CS_Tag
-        >
+template <typename FormulaPolicy, typename CS_Tag>
 struct test_envelope
 {
     template <typename Geometry, typename Box>
@@ -64,8 +58,8 @@ struct test_envelope
     }
 };
 
-template <template <typename, bool, bool, bool, bool, bool> class Inverse>
-struct test_envelope<Inverse, bg::geographic_tag>
+template <typename FormulaPolicy>
+struct test_envelope<FormulaPolicy, bg::geographic_tag>
 {
     template <typename Geometry, typename Box>
     static inline void apply(Geometry& geometry,
@@ -73,20 +67,16 @@ struct test_envelope<Inverse, bg::geographic_tag>
     {
         bg::strategy::envelope::geographic_segment
                 <
-                    double,
+                    FormulaPolicy,
                     bg::srs::spheroid<double>,
-                    Inverse
+                    double                                        
                 > envelope_geographic_segment_strategy;
 
         bg::envelope(geometry, detected, envelope_geographic_segment_strategy);
     }
 };
 
-template <
-            typename MBR,
-            template <typename, bool, bool, bool, bool, bool> class Inverse =
-              bg::formula::thomas_inverse
-          >
+template <typename MBR, typename FormulaPolicy = bg::strategy::thomas>
 class envelope_on_spheroid_basic_tester
 {
 private:
@@ -208,9 +198,8 @@ private:
         std::string const units_str = units2string<box_units_type>();
 
         Box detected;
-        test_envelope<Inverse,
-                      typename bg::cs_tag<Geometry>::type
-                >::apply(geometry, detected);
+        test_envelope<FormulaPolicy, typename bg::cs_tag<Geometry>::type>
+            ::apply(geometry, detected);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "geometry: ";
@@ -347,8 +336,7 @@ template
     typename MBR,
     typename Tag = typename bg::tag<Geometry>::type,
     bool TestReverse = test_reverse_geometry<Geometry>::value,
-    template <typename, bool, bool, bool, bool, bool> class Inverse
-                = bg::formula::thomas_inverse
+    typename FormulaPolicy = bg::strategy::thomas
 >
 struct test_envelope_on_sphere_or_spheroid
 {
@@ -364,7 +352,7 @@ struct test_envelope_on_sphere_or_spheroid
     {
         envelope_on_spheroid_basic_tester
             <
-                MBR, Inverse
+                MBR, FormulaPolicy
             >::apply(case_id, geometry,
                      lon_min1, lat_min1, height_min1,
                      lon_max1, lat_max1, height_max1,
@@ -378,7 +366,7 @@ struct test_envelope_on_sphere_or_spheroid
             bg::reverse(reversed_geometry);
             envelope_on_spheroid_basic_tester
                 <
-                    MBR, Inverse
+                    MBR, FormulaPolicy
                 >::apply(reversed_case_id, reversed_geometry,
                          lon_min2, lat_min2, height_min2,
                          lon_max2, lat_max2, height_max2,
@@ -1010,7 +998,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_thomas )
                             G, B,
                             bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
-                            bg::formula::thomas_inverse
+                            bg::strategy::thomas
                           > tester;
 
     tester::apply("s01",
@@ -1164,7 +1152,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
                             G, B,
                             bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
-                            bg::formula::andoyer_inverse
+                            bg::strategy::andoyer
                           > tester;
 
     tester::apply("s01",
@@ -1318,7 +1306,7 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
                             G, B,
                             bg::tag<G>::type,
                             test_reverse_geometry<G>::value,
-                            bg::formula::vincenty_inverse
+                            bg::strategy::vincenty
                           > tester;
 
     tester::apply("s01",
