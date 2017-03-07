@@ -13,8 +13,9 @@
 
 
 #include <boost/geometry/core/srs.hpp>
-#include <boost/geometry/formulas/andoyer_inverse.hpp>
+
 #include <boost/geometry/strategies/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_void.hpp>
@@ -28,9 +29,8 @@ namespace strategy { namespace azimuth
 
 template
 <
-    template <typename, bool, bool, bool, bool, bool> class Inverse =
-              geometry::formula::andoyer_inverse,
-    typename Spheroid = geometry::srs::spheroid<double>,
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class geographic
@@ -62,7 +62,7 @@ public :
                 boost::is_void<CalculationType>, T, CalculationType
             >::type calc_t;            
 
-        typedef Inverse<calc_t, false, true, true, false, false> inverse_type;
+        typedef typename FormulaPolicy::template inverse<calc_t, false, true, true, false, false> inverse_type;
         typedef typename inverse_type::result_type inverse_result;
         inverse_result i_res = inverse_type::apply(calc_t(lon1_rad), calc_t(lat1_rad),
                                                    calc_t(lon2_rad), calc_t(lat2_rad),
@@ -85,8 +85,8 @@ struct default_strategy<geographic_tag, CalculationType>
 {
     typedef strategy::azimuth::geographic
         <
-            geometry::formula::andoyer_inverse,
-            geometry::srs::spheroid<double>,
+            strategy::andoyer,
+            srs::spheroid<double>,
             CalculationType
         > type;
 };

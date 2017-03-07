@@ -16,7 +16,6 @@
 
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
-#include <boost/geometry/formulas/andoyer_inverse.hpp>
 
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 
@@ -35,7 +34,7 @@ namespace strategy { namespace area
 \details Geographic area calculation by trapezoidal rule plus integral
          approximation that gives the ellipsoidal correction
 \tparam PointOfSegment \tparam_segment_point
-\tparam Inverse Formula used to calculate azimuths
+\tparam FormulaPolicy Formula used to calculate azimuths
 \tparam SeriesOrder The order of approximation of the geodesic integral
 \tparam Spheroid The spheroid model
 \tparam CalculationType \tparam_calculation
@@ -51,9 +50,8 @@ namespace strategy { namespace area
 template
 <
     typename PointOfSegment,
-    template <typename, bool, bool, bool, bool, bool> class Inverse =
-              geometry::formula::andoyer_inverse,
-    std::size_t SeriesOrder = strategy::default_order<Inverse>::value,
+    typename FormulaPolicy = strategy::andoyer,
+    std::size_t SeriesOrder = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -170,7 +168,7 @@ public :
                 > area_formulas;
 
             typename area_formulas::return_type_ellipsoidal result =
-                     area_formulas::template ellipsoidal<Inverse>
+                     area_formulas::template ellipsoidal<FormulaPolicy::template inverse>
                                              (p1, p2, m_spheroid_constants);
 
             state.m_excess_sum += result.spherical_term;

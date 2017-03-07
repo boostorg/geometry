@@ -57,8 +57,8 @@ namespace strategy { namespace intersection
 
 template
 <
-    template <typename, bool, bool, bool, bool, bool> class Inverse = formula::andoyer_inverse,
-    unsigned int Order = strategy::default_order<Inverse>::value,
+    typename FormulaPolicy = strategy::andoyer,
+    unsigned int Order = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -66,7 +66,7 @@ struct geographic_segments
 {
     typedef side::geographic
         <
-            Inverse, Spheroid, CalculationType
+            FormulaPolicy, Spheroid, CalculationType
         > side_strategy_type;
 
     inline side_strategy_type get_side_strategy()
@@ -103,7 +103,7 @@ struct geographic_segments
         typedef area::geographic
             <
                 typename point_type<Geometry>::type,
-                Inverse,
+                FormulaPolicy,
                 Order,
                 Spheroid,
                 CalculationType
@@ -120,7 +120,12 @@ struct geographic_segments
     template <typename Geometry>
     struct distance_strategy
     {
-        typedef distance::geographic<Inverse, Spheroid, CalculationType> type;
+        typedef distance::geographic
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            > type;
     };
 
     template <typename Geometry>
@@ -306,7 +311,7 @@ private:
         // this would require to reimplement inverse strategy to allow
         // calculation of distance if needed, probably also storing intermediate
         // results somehow inside an object.
-        typedef Inverse<calc_t, true, true, false, false, false> inverse_dist_azi;
+        typedef typename FormulaPolicy::template inverse<calc_t, true, true, false, false, false> inverse_dist_azi;
         typedef typename inverse_dist_azi::result_type inverse_result;
 
         // TODO: no need to call inverse formula if we know that the points are equal
@@ -725,8 +730,8 @@ private:
         // nor any andpoint lies on the other geodesic
         // So the endpoints should lie on the opposite sides of both geodesics
 
-        bool const ok = formula::sjoberg_intersection<CalcT, Inverse, Order>::apply(
-                                a1_lon, a1_lat, a2_lon, a2_lat, res_a1_a2.azimuth,
+        bool const ok = formula::sjoberg_intersection<CalcT, FormulaPolicy::template inverse, Order>
+                        ::apply(a1_lon, a1_lat, a2_lon, a2_lat, res_a1_a2.azimuth,
                                 b1_lon, b1_lat, b2_lon, b2_lat, res_b1_b2.azimuth,
                                 lon, lat, spheroid);
 
@@ -735,7 +740,7 @@ private:
             return false;
         }
 
-        typedef Inverse<CalcT, true, true, false, false, false> inverse_dist_azi;
+        typedef typename FormulaPolicy::template inverse<CalcT, true, true, false, false, false> inverse_dist_azi;
         typedef typename inverse_dist_azi::result_type inverse_result;
 
         inverse_result const res_a1_ip = inverse_dist_azi::apply(a1_lon, a1_lat, lon, lat, spheroid);

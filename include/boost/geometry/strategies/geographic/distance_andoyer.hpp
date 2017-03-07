@@ -15,9 +15,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_DETAIL_HPP
 
 
-#include <boost/geometry/formulas/andoyer_inverse.hpp>
-
 #include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,18 +45,18 @@ are about the same as Vincenty. In my (Barend's) testcases the results didn't di
 */
 template
 <
-    typename Spheroid,
+    typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class andoyer
     : public strategy::distance::geographic
         <
-            formula::andoyer_inverse, Spheroid, CalculationType
+            strategy::andoyer, Spheroid, CalculationType
         >
 {
     typedef strategy::distance::geographic
         <
-            formula::andoyer_inverse, Spheroid, CalculationType
+            strategy::andoyer, Spheroid, CalculationType
         > base_type;
 
 public :
