@@ -76,8 +76,12 @@ namespace strategy { namespace intersection
 // For now, intersection points near the endpoints are checked explicitly if needed (if the IP is near the endpoint)
 // to generate precise result for them. Only the crossing (i) case may suffer from lower precision.
 
-template <typename CalcPolicy, typename CalculationType = void>
-struct relate_ecef_segments
+template
+<
+    typename CalcPolicy,
+    typename CalculationType = void
+>
+struct ecef_segments
 {
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
@@ -115,7 +119,6 @@ struct relate_ecef_segments
         typedef area::spherical
             <
                 typename point_type<Geometry>::type,
-                false,
                 CalculationType
             > type;
     };
@@ -787,7 +790,7 @@ private:
     }
 };
 
-struct relate_spherical_segments_calc_policy
+struct spherical_segments_calc_policy
 {
     template <typename Point, typename Point3d>
     static Point from_cart3d(Point3d const& point_3d)
@@ -860,11 +863,14 @@ struct relate_spherical_segments_calc_policy
 };
 
 
-template <typename CalculationType = void>
-struct relate_spherical_segments
-    : relate_ecef_segments
+template
+<
+    typename CalculationType = void
+>
+struct spherical_segments
+    : ecef_segments
         <
-            relate_spherical_segments_calc_policy,
+            spherical_segments_calc_policy,
             CalculationType
         >
 {};
@@ -877,13 +883,13 @@ namespace services
 /*template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>
 {
-    typedef relate_spherical_segments<CalculationType> type;
+    typedef spherical_segments<CalculationType> type;
 };*/
 
 template <typename CalculationType>
 struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
-    typedef relate_spherical_segments<CalculationType> type;
+    typedef spherical_segments<CalculationType> type;
 };
 
 template <typename CalculationType>
@@ -894,7 +900,7 @@ struct default_strategy<geographic_tag, CalculationType>
     // not great elliptic arcs (the origin not in the center of the coordinate
     // system) then there may be problems with consistency of the side and
     // intersection strategies.
-    typedef relate_spherical_segments<CalculationType> type;
+    typedef spherical_segments<CalculationType> type;
 };
 
 } // namespace services
@@ -913,25 +919,25 @@ namespace within { namespace services
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 }} // within::services
@@ -942,25 +948,25 @@ namespace covered_by { namespace services
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::intersection::relate_spherical_segments<> type;
+    typedef strategy::intersection::spherical_segments<> type;
 };
 
 }} // within::services

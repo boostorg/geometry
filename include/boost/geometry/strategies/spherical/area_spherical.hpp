@@ -29,7 +29,6 @@ namespace strategy { namespace area
 \ingroup strategies
 \details Calculates area on the surface of a sphere using the trapezoidal rule
 \tparam PointOfSegment \tparam_segment_point
-\tparam LongSegment Enables special handling of long segments
 \tparam CalculationType \tparam_calculation
 
 \qbk{
@@ -40,11 +39,13 @@ namespace strategy { namespace area
 template
 <
     typename PointOfSegment,
-    bool LongSegment = false,
     typename CalculationType = void
 >
 class spherical
 {
+    // Enables special handling of long segments
+    static const bool LongSegment = false;
+
 typedef typename boost::mpl::if_c
     <
         boost::is_void<CalculationType>::type::value,
@@ -106,19 +107,23 @@ public :
     typedef excess_sum state_type;
     typedef geometry::srs::sphere<CT> sphere_type;
 
-    inline spherical(sphere_type sphere = sphere_type())
-        : m_sphere(sphere)
+    // For backward compatibility reasons the radius is set to 1
+    inline spherical()
+        : m_sphere(1.0)
     {}
 
-    inline spherical(CT radius) //backward compatibility
-        : m_sphere()
-    {
-        geometry::set_radius<0>(m_sphere, radius);
-    }
+    template <typename T>
+    explicit inline spherical(geometry::srs::sphere<T> const& sphere)
+        : m_sphere(geometry::get_radius<0>(sphere))
+    {}
+
+    explicit inline spherical(CT const& radius)
+        : m_sphere(radius)
+    {}
 
     inline void apply(PointOfSegment const& p1,
-                PointOfSegment const& p2,
-                excess_sum& state) const
+                      PointOfSegment const& p2,
+                      excess_sum& state) const
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {

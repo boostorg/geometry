@@ -24,10 +24,10 @@ namespace strategy { namespace envelope
 
 template
 <
-    typename CalculationType,
-    typename Spheroid = geometry::srs::spheroid<CalculationType>,
     template <typename, bool, bool, bool, bool, bool> class Inverse =
-        geometry::formula::thomas_inverse
+        geometry::formula::andoyer_inverse,
+    typename Spheroid = geometry::srs::spheroid<double>,
+    typename CalculationType = void
 >
 class geographic_segment
 {
@@ -50,9 +50,9 @@ public:
 
         geometry::strategy::azimuth::geographic
             <
-                CalculationType,
+                Inverse,
                 Spheroid,
-                Inverse
+                CalculationType
             > azimuth_geographic(m_spheroid);
 
         typedef typename coordinate_system<Point1>::type::units units_type;
@@ -81,7 +81,12 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::envelope::geographic_segment<CalculationType> type;
+    typedef strategy::envelope::geographic_segment
+        <
+            geometry::formula::andoyer_inverse,
+            geometry::srs::spheroid<double>,
+            CalculationType
+        > type;
 };
 
 }

@@ -34,6 +34,7 @@
 
 #include <boost/geometry/strategies/geographic/area_geographic.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
@@ -56,12 +57,12 @@ namespace strategy { namespace intersection
 
 template
 <
-    typename Spheroid = srs::spheroid<double>,
     template <typename, bool, bool, bool, bool, bool> class Inverse = formula::andoyer_inverse,
-    unsigned int Order = 2,
+    unsigned int Order = strategy::default_order<Inverse>::value,
+    typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-struct relate_geodesic_segments
+struct geographic_segments
 {
     typedef side::geographic
         <
@@ -104,8 +105,6 @@ struct relate_geodesic_segments
                 typename point_type<Geometry>::type,
                 Inverse,
                 Order,
-                true,
-                false,
                 Spheroid,
                 CalculationType
             > type;
@@ -196,7 +195,7 @@ struct relate_geodesic_segments
         intersection_point_flag ip_flag;
     };
 
-    relate_geodesic_segments(Spheroid const& spheroid = Spheroid())
+    explicit geographic_segments(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
 

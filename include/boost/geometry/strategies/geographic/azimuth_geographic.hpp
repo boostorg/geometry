@@ -11,9 +11,14 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 
+
+#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/strategies/azimuth.hpp>
 
-#include <boost/geometry/formulas/thomas_inverse.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_void.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -23,10 +28,10 @@ namespace strategy { namespace azimuth
 
 template
 <
-    typename CalculationType,
-    typename Spheroid = geometry::srs::spheroid<CalculationType>,
     template <typename, bool, bool, bool, bool, bool> class Inverse =
-              geometry::formula::thomas_inverse
+              geometry::formula::andoyer_inverse,
+    typename Spheroid = geometry::srs::spheroid<double>,
+    typename CalculationType = void
 >
 class geographic
 {
@@ -47,17 +52,20 @@ public :
         return m_spheroid;
     }
 
-    inline void apply(CalculationType const& lon1_rad,
-                      CalculationType const& lat1_rad,
-                      CalculationType const& lon2_rad,
-                      CalculationType const& lat2_rad,
-                      CalculationType& a1,
-                      CalculationType& a2) const
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1, T& a2) const
     {
-        typedef Inverse<CalculationType, false, true, true, false, false> inverse_type;
+        typedef typename boost::mpl::if_
+            <
+                boost::is_void<CalculationType>, T, CalculationType
+            >::type calc_t;            
+
+        typedef Inverse<calc_t, false, true, true, false, false> inverse_type;
         typedef typename inverse_type::result_type inverse_result;
-        inverse_result i_res = inverse_type::apply(lon1_rad, lat1_rad,
-                                                   lon2_rad, lat2_rad,
+        inverse_result i_res = inverse_type::apply(calc_t(lon1_rad), calc_t(lat1_rad),
+                                                   calc_t(lon2_rad), calc_t(lat2_rad),
                                                    m_spheroid);
         a1 = i_res.azimuth;
         a2 = i_res.reverse_azimuth;
@@ -75,7 +83,12 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::azimuth::geographic<CalculationType> type;
+    typedef strategy::azimuth::geographic
+        <
+            geometry::formula::andoyer_inverse,
+            geometry::srs::spheroid<double>,
+            CalculationType
+        > type;
 };
 
 }

@@ -2,6 +2,7 @@
 
 // Copyright (c) 2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -21,7 +22,10 @@ namespace boost { namespace geometry
 namespace strategy { namespace envelope
 {
 
-template<typename CalculationType>
+template
+<
+    typename CalculationType = void
+>
 class spherical_segment
 {
 public :

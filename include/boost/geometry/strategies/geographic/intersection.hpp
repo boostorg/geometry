@@ -25,10 +25,10 @@ namespace strategy { namespace intersection
 {
 
 template <typename Spheroid>
-struct relate_great_elliptic_segments_calc_policy
-    : relate_spherical_segments_calc_policy
+struct great_elliptic_segments_calc_policy
+    : spherical_segments_calc_policy
 {
-    explicit relate_great_elliptic_segments_calc_policy(Spheroid const& spheroid = Spheroid())
+    explicit great_elliptic_segments_calc_policy(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
 
@@ -117,9 +117,9 @@ private:
 };
 
 template <typename Spheroid>
-struct relate_experimental_elliptic_segments_calc_policy
+struct experimental_elliptic_segments_calc_policy
 {
-    explicit relate_experimental_elliptic_segments_calc_policy(Spheroid const& spheroid = Spheroid())
+    explicit experimental_elliptic_segments_calc_policy(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
 
@@ -208,20 +208,28 @@ private:
 };
 
 
-template <typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
-struct relate_great_elliptic_segments
-    : relate_ecef_segments
+template
+<
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
+struct great_elliptic_segments
+    : ecef_segments
         <
-            relate_great_elliptic_segments_calc_policy<Spheroid>,
+            great_elliptic_segments_calc_policy<Spheroid>,
             CalculationType
         >
 {};
 
-template <typename Spheroid = srs::spheroid<double>, typename CalculationType = void>
-struct relate_experimental_elliptic_segments
-    : relate_ecef_segments
+template
+<
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
+struct experimental_elliptic_segments
+    : ecef_segments
         <
-            relate_experimental_elliptic_segments_calc_policy<Spheroid>,
+            experimental_elliptic_segments_calc_policy<Spheroid>,
             CalculationType
         >
 {};
