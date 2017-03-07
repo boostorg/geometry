@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
 
 
 #include <boost/geometry/strategies/azimuth.hpp>
@@ -84,4 +84,4 @@ struct default_strategy<spherical_polar_tag, CalculationType>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP

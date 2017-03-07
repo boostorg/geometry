@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_CARTESIAN_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_CARTESIAN_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_HPP
 
 #include <boost/geometry/core/tags.hpp>
 
@@ -46,4 +46,4 @@ struct default_strategy<cartesian_tag, CalculationType>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_CARTESIAN_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AZIMUTH_HPP

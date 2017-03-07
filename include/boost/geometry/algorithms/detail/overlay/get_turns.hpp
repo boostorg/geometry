@@ -45,7 +45,6 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
-#include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 

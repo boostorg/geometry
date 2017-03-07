@@ -39,7 +39,7 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/strategies/spherical/area_spherical.hpp>
+#include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>

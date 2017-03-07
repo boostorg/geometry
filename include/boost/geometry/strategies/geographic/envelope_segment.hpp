@@ -14,7 +14,7 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
-#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
 
 namespace boost { namespace geometry
 {
