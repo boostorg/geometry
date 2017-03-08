@@ -83,7 +83,7 @@ template <typename P>
 void test_vincenty()
 {
     typename geo_strategies<P>::vincenty_type vincenty;
-    test_with_strategy<P>(1116828.8624 + 1116161.625, vincenty);
+    test_with_strategy<P>(1116825.857 + 1116159.144, vincenty);
 }
 
 template <typename P>

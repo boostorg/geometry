@@ -189,8 +189,8 @@ private:
 };
 
 
-template <typename Linear>
-inline bool has_self_intersections(Linear const& linear)
+template <typename Linear, typename Strategy>
+inline bool has_self_intersections(Linear const& linear, Strategy const& strategy)
 {
     typedef typename point_type<Linear>::type point_type;
 
@@ -217,16 +217,11 @@ inline bool has_self_intersections(Linear const& linear)
             is_acceptable_turn<Linear>
         > interrupt_policy(predicate);
 
-    typedef typename strategy::intersection::services::default_strategy
-        <
-            typename cs_tag<Linear>::type
-        >::type strategy_type;
-
     detail::self_get_turn_points::get_turns
         <
             turn_policy
         >::apply(linear,
-                 strategy_type(),
+                 strategy,
                  detail::no_rescale_policy(),
                  turns,
                  interrupt_policy);
@@ -252,8 +247,19 @@ struct is_simple_linestring
             && ! detail::is_valid::has_spikes
                     <
                         Linestring, closed
-                    >::apply(linestring, policy)
-            && ! (CheckSelfIntersections && has_self_intersections(linestring));
+                    >::apply(linestring, policy);
+    }
+};
+
+template <typename Linestring>
+struct is_simple_linestring<Linestring, true>
+{
+    template <typename Strategy>
+    static inline bool apply(Linestring const& linestring,
+                             Strategy const& strategy)
+    {
+        return is_simple_linestring<Linestring, false>::apply(linestring)
+            && ! has_self_intersections(linestring, strategy);
     }
 };
 
@@ -261,7 +267,9 @@ struct is_simple_linestring
 template <typename MultiLinestring>
 struct is_simple_multilinestring
 {
-    static inline bool apply(MultiLinestring const& multilinestring)
+    template <typename Strategy>
+    static inline bool apply(MultiLinestring const& multilinestring,
+                             Strategy const& strategy)
     {
         // check each of the linestrings for simplicity
         // but do not compute self-intersections yet; these will be
@@ -281,7 +289,7 @@ struct is_simple_multilinestring
             return false;
         }
 
-        return ! has_self_intersections(multilinestring);
+        return ! has_self_intersections(multilinestring, strategy);
     }
 };
 
