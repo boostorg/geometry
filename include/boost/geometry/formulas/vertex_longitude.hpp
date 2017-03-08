@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_FORMULAS_MAXIMUM_LONGITUDE_HPP
 
 #include <boost/geometry/formulas/spherical.hpp>
-#include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/core/srs.hpp>
 #include <boost/mpl/assert.hpp>
 
@@ -83,7 +83,7 @@ public:
         }
 
         // More constants
-        CT const f = detail::flattening<CT>(spheroid);
+        CT const f = flattening<CT>(spheroid);
         CT const C1 = CT(1);
 
         // First, compute longitude on auxiliary sphere
