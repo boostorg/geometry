@@ -18,6 +18,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/spherical.hpp>
 
@@ -25,6 +26,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/side.hpp>
 //#include <boost/geometry/strategies/concepts/side_concept.hpp>
 
@@ -41,20 +43,23 @@ namespace strategy { namespace side
 \brief Check at which side of a segment a point lies
          left of segment (> 0), right of segment (< 0), on segment (0)
 \ingroup strategies
-\tparam InverseFormula Geodesic inverse solution formula.
-\tparam Model Reference model of coordinate system.
+\tparam FormulaPolicy Geodesic solution formula policy.
+\tparam Spheroid Reference model of coordinate system.
 \tparam CalculationType \tparam_calculation
  */
-template <template<typename, bool, bool, bool, bool, bool> class InverseFormula,
-          typename Model,
-          typename CalculationType = void>
+template
+<
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
 class geographic
 {
 public:
     geographic()
     {}
 
-    explicit geographic(Model const& model)
+    explicit geographic(Spheroid const& model)
         : m_model(model)
     {}
 
@@ -70,7 +75,8 @@ public:
                     >::type
             >::type calc_t;
 
-        typedef InverseFormula<calc_t, false, true, false, false, false> inverse_formula;
+        typedef typename FormulaPolicy::template inverse
+                    <calc_t, false, true, false, false, false> inverse_formula;
 
         calc_t a1p = azimuth<calc_t, inverse_formula>(p1, p, m_model);
         calc_t a12 = azimuth<calc_t, inverse_formula>(p1, p2, m_model);
@@ -84,7 +90,8 @@ private:
               typename Point1,
               typename Point2,
               typename ModelT>
-    static inline ResultType azimuth(Point1 const& point1, Point2 const& point2, ModelT const& model)
+    static inline ResultType azimuth(Point1 const& point1, Point2 const& point2,
+                                     ModelT const& model)
     {
         return InverseFormulaType::apply(get_as_radian<0>(point1),
                                          get_as_radian<1>(point1),
@@ -93,7 +100,7 @@ private:
                                          model).azimuth;
     }
 
-    Model m_model;
+    Spheroid m_model;
 };
 
 

@@ -40,10 +40,9 @@ namespace boost { namespace geometry { namespace strategy { namespace disjoint
 // other strategies that are used are intersection and covered_by strategies.
 template
 <
-    typename CalculationType,
-    typename Spheroid = geometry::srs::spheroid<CalculationType>,
-    template <typename, bool, bool, bool, bool, bool> class Inverse =
-        geometry::formula::thomas_inverse
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
 >
 struct segment_box_geographic
 {
@@ -81,9 +80,9 @@ public:
     {
         geometry::strategy::azimuth::geographic
             <
-                CalculationType,
+                FormulaPolicy,
                 Spheroid,
-                Inverse
+                CalculationType
             > azimuth_geographic(m_spheroid);
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
@@ -105,18 +104,18 @@ template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
                         geographic_tag, geographic_tag>
 {
-    typedef typename point_type<Linear>::type linear_point_type;
-    typedef typename coordinate_type<linear_point_type>::type CalculationType;
-    typedef segment_box_geographic<CalculationType> type;
+    //typedef typename point_type<Linear>::type linear_point_type;
+    //typedef typename coordinate_type<linear_point_type>::type CalculationType;
+    typedef segment_box_geographic<> type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
                         geographic_tag, geographic_tag>
 {
-    typedef typename point_type<Linear>::type linear_point_type;
-    typedef typename coordinate_type<linear_point_type>::type CalculationType;
-    typedef segment_box_geographic<CalculationType> type;
+    //typedef typename point_type<Linear>::type linear_point_type;
+    //typedef typename coordinate_type<linear_point_type>::type CalculationType;
+    typedef segment_box_geographic<> type;
 };
 
 

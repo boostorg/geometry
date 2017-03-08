@@ -21,7 +21,7 @@ void test_spherical_strategy(std::string const& s1_wkt, std::string const& s2_wk
                              char m, std::size_t expected_count,
                              std::string const& ip0_wkt = "", std::string const& ip1_wkt = "")
 {
-    bg::strategy::intersection::relate_spherical_segments<> strategy;
+    bg::strategy::intersection::spherical_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt);
 }

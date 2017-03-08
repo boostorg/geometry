@@ -14,13 +14,8 @@
 
 #include "segment_intersection_sph.hpp"
 
-
-#include <boost/geometry/formulas/andoyer_inverse.hpp>
-#include <boost/geometry/formulas/thomas_inverse.hpp>
-#include <boost/geometry/formulas/vincenty_inverse.hpp>
-
 #include <boost/geometry/strategies/geographic/intersection.hpp>
-#include <boost/geometry/strategies/geographic/geodesic_intersection.hpp>
+#include <boost/geometry/strategies/geographic/intersection_elliptic.hpp>
 
 
 template <typename S, typename P>
@@ -31,8 +26,7 @@ void test_default_strategy(std::string const& s1_wkt, std::string const& s2_wkt,
 {
     typename bg::strategy::intersection::services::default_strategy
         <
-            bg::geographic_tag,
-            void
+            bg::geographic_tag
         >::type strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
@@ -44,7 +38,7 @@ void test_great_elliptic(std::string const& s1_wkt, std::string const& s2_wkt,
                          std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                          int opposite_id = -1)
 {
-    bg::strategy::intersection::relate_great_elliptic_segments<> strategy;
+    bg::strategy::intersection::great_elliptic_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -55,7 +49,7 @@ void test_experimental_elliptic(std::string const& s1_wkt, std::string const& s2
                                 std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                                 int opposite_id = -1)
 {
-    bg::strategy::intersection::relate_experimental_elliptic_segments<> strategy;
+    bg::strategy::intersection::experimental_elliptic_segments<> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -66,12 +60,7 @@ void test_geodesic_vincenty(std::string const& s1_wkt, std::string const& s2_wkt
                             std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                             int opposite_id = -1)
 {
-    bg::strategy::intersection::relate_geodesic_segments
-        <
-            bg::srs::spheroid<double>,
-            bg::formula::vincenty_inverse,
-            4
-        > strategy;
+    bg::strategy::intersection::geographic_segments<bg::strategy::vincenty, 4> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -82,12 +71,7 @@ void test_geodesic_thomas(std::string const& s1_wkt, std::string const& s2_wkt,
                           std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                           int opposite_id = -1)
 {
-    bg::strategy::intersection::relate_geodesic_segments
-        <
-            bg::srs::spheroid<double>,
-            bg::formula::thomas_inverse,
-            2
-        > strategy;
+    bg::strategy::intersection::geographic_segments<bg::strategy::thomas, 2> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }
@@ -98,12 +82,7 @@ void test_geodesic_andoyer(std::string const& s1_wkt, std::string const& s2_wkt,
                            std::string const& ip0_wkt = "", std::string const& ip1_wkt = "",
                            int opposite_id = -1)
 {
-    bg::strategy::intersection::relate_geodesic_segments
-        <
-            bg::srs::spheroid<double>,
-            bg::formula::andoyer_inverse,
-            1
-        > strategy;
+    bg::strategy::intersection::geographic_segments<bg::strategy::andoyer, 1> strategy;
 
     test_strategy<S, S, P>(s1_wkt, s2_wkt, strategy, m, expected_count, ip0_wkt, ip1_wkt, opposite_id);
 }

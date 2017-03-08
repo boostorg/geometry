@@ -15,8 +15,6 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SIDE_VINCENTY_HPP
 
 
-#include <boost/geometry/formulas/vincenty_inverse.hpp>
-
 #include <boost/geometry/strategies/geographic/side.hpp>
 
 
@@ -31,20 +29,24 @@ namespace strategy { namespace side
 \brief Check at which side of a segment a point lies
          left of segment (> 0), right of segment (< 0), on segment (0)
 \ingroup strategies
-\tparam Model Reference model of coordinate system.
+\tparam Spheroid Reference model of coordinate system.
 \tparam CalculationType \tparam_calculation
  */
-template <typename Model, typename CalculationType = void>
+template
+<
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
 class vincenty
-    : public side::geographic<formula::vincenty_inverse, Model, CalculationType>
+    : public side::geographic<strategy::vincenty, Spheroid, CalculationType>
 {
-    typedef side::geographic<formula::vincenty_inverse, Model, CalculationType> base_t;
+    typedef side::geographic<strategy::vincenty, Spheroid, CalculationType> base_t;
 
 public:
     vincenty()
     {}
 
-    explicit vincenty(Model const& model)
+    explicit vincenty(Spheroid const& model)
         : base_t(model)
     {}
 };
