@@ -2,6 +2,7 @@
 
 // Copyright (c) 2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,8 +11,11 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 
-#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -19,7 +23,10 @@ namespace boost { namespace geometry
 namespace strategy { namespace envelope
 {
 
-template<typename CalculationType>
+template
+<
+    typename CalculationType = void
+>
 class cartesian_segment
 {
 public :

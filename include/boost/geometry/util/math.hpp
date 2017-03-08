@@ -71,6 +71,19 @@ inline T const& greatest(T const& v1, T const& v2, T const& v3, T const& v4, T c
 }
 
 
+template <typename T>
+inline T bounded(T const& v, T const& lower, T const& upper)
+{
+    return (std::min)((std::max)(v, lower), upper);
+}
+
+template <typename T>
+inline T bounded(T const& v, T const& lower)
+{
+    return (std::max)(v, lower);
+}
+
+
 template <typename T,
           bool IsFloatingPoint = boost::is_floating_point<T>::value>
 struct abs

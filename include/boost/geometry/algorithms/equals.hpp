@@ -138,24 +138,32 @@ struct segment_segment
 
 struct area_check
 {
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return geometry::math::equals(
-                geometry::area(geometry1),
-                geometry::area(geometry2));
+            geometry::area(geometry1,
+                           strategy.template get_area_strategy<Geometry1>()),
+            geometry::area(geometry2,
+                           strategy.template get_area_strategy<Geometry2>()));
     }
 };
 
 
 struct length_check
 {
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return geometry::math::equals(
-                geometry::length(geometry1),
-                geometry::length(geometry2));
+            geometry::length(geometry1,
+                             strategy.template get_distance_strategy<Geometry1>()),
+            geometry::length(geometry2,
+                             strategy.template get_distance_strategy<Geometry2>()));
     }
 };
 
@@ -184,9 +192,11 @@ template <typename TrivialCheck>
 struct equals_by_collection
 {
     template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const&)
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
-        if (! TrivialCheck::apply(geometry1, geometry2))
+        if (! TrivialCheck::apply(geometry1, geometry2, strategy))
         {
             return false;
         }

@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -208,17 +208,20 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > pt_sph;
     typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > pt_geo;
 
+    // mean Earth's radius^2
+    double r2 = bg::math::sqr(bg::get_radius<0>(bg::srs::sphere<double>()));
+
     test_ccw<pt_crt>();
     test_ccw<pt_sph>();
     test_ccw<pt_geo>();
 
     test_open<pt_crt>(2.0);
-    test_open<pt_sph>(24726179921.523518);
-    test_open<pt_geo >(24615760871.487991);
+    test_open<pt_sph>(24726179921.523518 / r2);
+    test_open<pt_geo >(24615492936.977146);
 
     test_open_ccw<pt_crt>(2.0);
-    test_open_ccw<pt_sph>(24726179921.523518);
-    test_open_ccw<pt_geo >(24615760871.487991);
+    test_open_ccw<pt_sph>(24726179921.523518 / r2);
+    test_open_ccw<pt_geo >(24615492936.977146);
 
     test_poles_ccw<pt_crt>();
     test_poles_ccw<pt_sph>();

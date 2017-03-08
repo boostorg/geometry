@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -70,6 +70,18 @@ inline void check_input_validity(std::string const& caseid, int case_index,
 }
 #endif
 
+template <typename Range>
+inline std::size_t num_points(Range const& rng, bool add_for_open = false)
+{
+    std::size_t result = 0;
+    for (typename boost::range_iterator<Range const>::type it = boost::begin(rng);
+            it != boost::end(rng); ++it)
+    {
+        result += bg::num_points(*it, add_for_open);
+    }
+    return result;
+}
+
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         int expected_count, int expected_hole_count,
@@ -82,7 +94,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     // Declare output (vector of rings or multi_polygon)
     typedef typename setop_output_type<OutputType>::type result_type;
-    result_type clip;
+    result_type clip, clip_s;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     std::cout << "*** UNION " << caseid << std::endl;
@@ -93,7 +105,15 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     check_input_validity(caseid, 1, g2);
 #endif
 
+    // Check normal behaviour
     bg::union_(g1, g2, clip);
+
+    // Check strategy passed explicitly
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<OutputType>::type
+        >::type strategy_type;
+    bg::union_(g1, g2, clip_s, strategy_type());
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
@@ -177,6 +197,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 #endif
 
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
+
+    BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
 
 #if defined(TEST_WITH_SVG)
     {

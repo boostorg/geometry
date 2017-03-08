@@ -725,7 +725,7 @@ BOOST_AUTO_TEST_CASE( expand_segment_spheroid )
     tester::apply("s03",
                   from_wkt<B>("BOX(5 5,50 10)"),
                   from_wkt<G>("SEGMENT(40 10,10 10)"),
-                  5, 5, 50, 10.347587605817935,
+                  5, 5, 50, 10.347587099602029,
                   4.0 * std::numeric_limits<double>::epsilon());
 
     // segment ending at the north pole

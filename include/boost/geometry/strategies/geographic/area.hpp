@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,9 +11,16 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 
+
+#include <boost/geometry/core/srs.hpp>
+
 #include <boost/geometry/formulas/area_formulas.hpp>
-#include <boost/geometry/formulas/thomas_inverse.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
+
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+
 #include <boost/math/special_functions/atanh.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -21,25 +29,38 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Geographic area calculation by trapezoidal rule plus integral
-approximation that gives the ellipsoidal correction
+\brief Geographic area calculation
+\ingroup strategies
+\details Geographic area calculation by trapezoidal rule plus integral
+         approximation that gives the ellipsoidal correction
+\tparam PointOfSegment \tparam_segment_point
+\tparam FormulaPolicy Formula used to calculate azimuths
+\tparam SeriesOrder The order of approximation of the geodesic integral
+\tparam Spheroid The spheroid model
+\tparam CalculationType \tparam_calculation
+\author See
+- Danielsen JS, The area under the geodesic. Surv Rev 30(232): 61–66, 1989
+- Charles F.F Karney, Algorithms for geodesics, 2011 https://arxiv.org/pdf/1109.4448.pdf
 
-
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
+}
 */
-
 template
 <
     typename PointOfSegment,
-    template <typename, bool, bool, bool, bool, bool> class Inverse =
-              geometry::formula::thomas_inverse,
-    std::size_t SeriesOrder = 2,
-    bool ExpandEpsN = true,
-    bool LongSegment = false,
-    typename Spheroid = void,
+    typename FormulaPolicy = strategy::andoyer,
+    std::size_t SeriesOrder = strategy::default_order<FormulaPolicy>::value,
+    typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class geographic
 {
+    // Switch between two kinds of approximation(series in eps and n v.s.series in k ^ 2 and e'^2)
+    static const bool ExpandEpsN = true;
+    // LongSegment Enables special handling of long segments
+    static const bool LongSegment = false;
 
     //Select default types in case they are not set
 
@@ -53,42 +74,22 @@ class geographic
             >::type,
         CalculationType
     >::type CT;
-/*
-    typedef typename boost::mpl::if_c
-    <
-        boost::is_void<Strategy>::type::value,
-        typename geometry::formula::thomas_inverse
-            <
-                CT,
-                false,
-                true,
-                true
-            >,
-        Strategy
-    >::type AzimuthStrategy;
-*/
-    typedef typename boost::mpl::if_c
-    <
-        boost::is_void<Spheroid>::type::value,
-        geometry::srs::spheroid<CT>,
-        Spheroid
-    >::type SpheroidType;
 
 protected :
     struct spheroid_constants
     {
-        SpheroidType m_spheroid;
+        Spheroid m_spheroid;
         CT const m_a2;  // squared equatorial radius
         CT const m_e2;  // squared eccentricity
         CT const m_ep2; // squared second eccentricity
         CT const m_ep;  // second eccentricity
         CT const m_c2;  // authalic radius
 
-        inline spheroid_constants(SpheroidType spheroid)
+        inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
             , m_a2(math::sqr(get_radius<0>(spheroid)))
-            , m_e2(detail::flattening<CT>(spheroid)
-                 * (CT(2.0) - CT(detail::flattening<CT>(spheroid))))
+            , m_e2(formula::flattening<CT>(spheroid)
+                 * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
             , m_c2((m_a2 / CT(2.0)) +
@@ -149,24 +150,26 @@ public :
     typedef PointOfSegment segment_point_type;
     typedef area_sums state_type;
 
-    inline geographic(SpheroidType spheroid = SpheroidType())
-        :   spheroid_const(spheroid)
+    explicit inline geographic(Spheroid const& spheroid = Spheroid())
+        : m_spheroid_constants(spheroid)
     {}
 
     inline void apply(PointOfSegment const& p1,
-                PointOfSegment const& p2,
-                area_sums& state) const
+                      PointOfSegment const& p2,
+                      area_sums& state) const
     {
 
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
 
-            typedef geometry::formula::area_formulas<CT, SeriesOrder,
-                    ExpandEpsN> area_formulas;
+            typedef geometry::formula::area_formulas
+                <
+                    CT, SeriesOrder, ExpandEpsN
+                > area_formulas;
 
             typename area_formulas::return_type_ellipsoidal result =
-                     area_formulas::template ellipsoidal<Inverse>
-                                             (p1, p2, spheroid_const);
+                     area_formulas::template ellipsoidal<FormulaPolicy::template inverse>
+                                             (p1, p2, m_spheroid_constants);
 
             state.m_excess_sum += result.spherical_term;
             state.m_correction_sum += result.ellipsoidal_term;
@@ -179,11 +182,11 @@ public :
 
     inline return_type result(area_sums const& state) const
     {
-        return state.area(spheroid_const);
+        return state.area(m_spheroid_constants);
     }
 
 private:
-    spheroid_constants spheroid_const;
+    spheroid_constants m_spheroid_constants;
 
 };
 
