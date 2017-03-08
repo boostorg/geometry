@@ -64,8 +64,11 @@ namespace strategy { namespace intersection
 /*!
     \see http://mathworld.wolfram.com/Line-LineIntersection.html
  */
-template <typename CalculationType = void>
-struct relate_cartesian_segments
+template
+<
+    typename CalculationType = void
+>
+struct cartesian_segments
 {
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
@@ -623,7 +626,7 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<cartesian_tag, CalculationType>
 {
-    typedef relate_cartesian_segments<CalculationType> type;
+    typedef cartesian_segments<CalculationType> type;
 };
 
 } // namespace services
@@ -641,25 +644,25 @@ namespace within { namespace services
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 }} // within::services
@@ -670,25 +673,25 @@ namespace covered_by { namespace services
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, linear_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
 struct default_strategy<Geometry1, Geometry2, AnyTag1, AnyTag2, polygonal_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::intersection::relate_cartesian_segments<> type;
+    typedef strategy::intersection::cartesian_segments<> type;
 };
 
 }} // within::services

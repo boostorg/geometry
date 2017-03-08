@@ -8,11 +8,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
+
 
 #include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
+
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_void.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -22,7 +27,7 @@ namespace strategy { namespace azimuth
 
 template
 <
-    typename CalculationType
+    typename CalculationType = void
 >
 class spherical
 {
@@ -31,15 +36,20 @@ public :
     inline spherical()
     {}
 
-    inline void apply(CalculationType const& lon1_rad,
-                      CalculationType const& lat1_rad,
-                      CalculationType const& lon2_rad,
-                      CalculationType const& lat2_rad,
-                      CalculationType& a1,
-                      CalculationType& a2) const
+    template <typename T>
+    static inline void apply(T const& lon1_rad, T const& lat1_rad,
+                             T const& lon2_rad, T const& lat2_rad,
+                             T& a1, T& a2)
     {
-        geometry::formula::result_spherical<CalculationType> result = geometry::formula::
-            spherical_azimuth<CalculationType, true>(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
+        typedef typename boost::mpl::if_
+            <
+                boost::is_void<CalculationType>, T, CalculationType
+            >::type calc_t;
+
+        geometry::formula::result_spherical<calc_t>
+            result = geometry::formula::spherical_azimuth<calc_t, true>(
+                        calc_t(lon1_rad), calc_t(lat1_rad),
+                        calc_t(lon2_rad), calc_t(lat2_rad));
 
         a1 = result.azimuth;
         a2 = result.reverse_azimuth;
@@ -74,4 +84,4 @@ struct default_strategy<spherical_polar_tag, CalculationType>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_SPHERICAL_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
