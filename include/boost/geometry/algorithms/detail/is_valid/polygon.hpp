@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -170,7 +172,7 @@ protected:
         item_visitor_type() : items_overlap(false) {}
 
         template <typename Item1, typename Item2>
-        inline void apply(Item1 const& item1, Item2 const& item2)
+        inline bool apply(Item1 const& item1, Item2 const& item2)
         {
             if (! items_overlap
                 && (geometry::within(*points_begin(*item1), *item2)
@@ -178,7 +180,9 @@ protected:
                 )
             {
                 items_overlap = true;
+                return false; // interrupt
             }
+            return true;
         }
     };
     // structs for partition -- end

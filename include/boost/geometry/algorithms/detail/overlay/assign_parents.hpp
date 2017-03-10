@@ -115,7 +115,6 @@ struct assign_visitor
     RingMap& m_ring_map;
     bool m_check_for_orientation;
 
-
     inline assign_visitor(Geometry1 const& g1, Geometry2 const& g2, Collection const& c,
                 RingMap& map, bool check)
         : m_geometry1(g1)
@@ -126,13 +125,13 @@ struct assign_visitor
     {}
 
     template <typename Item>
-    inline void apply(Item const& outer, Item const& inner, bool first = true)
+    inline bool apply(Item const& outer, Item const& inner, bool first = true)
     {
         if (first && outer.abs_area < inner.abs_area)
         {
             // Apply with reversed arguments
             apply(inner, outer, false);
-            return;
+            return true;
         }
 
         if (m_check_for_orientation
@@ -155,6 +154,8 @@ struct assign_visitor
                 }
             }
         }
+
+        return true;
     }
 };
 

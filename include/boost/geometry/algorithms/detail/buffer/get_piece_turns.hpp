@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -272,7 +273,7 @@ public:
     {}
 
     template <typename Section>
-    inline void apply(Section const& section1, Section const& section2,
+    inline bool apply(Section const& section1, Section const& section2,
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
@@ -285,12 +286,14 @@ public:
           || is_adjacent(piece1, piece2)
           || is_on_same_convex_ring(piece1, piece2)
           || detail::disjoint::disjoint_box_box(section1.bounding_box,
-                    section2.bounding_box) )
+                                                section2.bounding_box) )
         {
-            return;
+            return true;
         }
 
         calculate_turns(piece1, piece2, section1, section2);
+
+        return true;
     }
 };
 
