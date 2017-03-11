@@ -109,7 +109,7 @@ inline void expand_with_elements(Box& total, IteratorVector const& input,
 template <typename IteratorVector, typename VisitPolicy>
 inline bool handle_one(IteratorVector const& input, VisitPolicy& visitor)
 {
-    if (boost::size(input) == 0)
+    if (boost::empty(input))
     {
         return true;
     }
@@ -153,7 +153,7 @@ inline bool handle_two(IteratorVector1 const& input1,
             IteratorVector2 const
         >::type iterator_type2;
 
-    if (boost::size(input1) == 0 || boost::size(input2) == 0)
+    if (boost::empty(input1) || boost::empty(input2))
     {
         return true;
     }
@@ -319,7 +319,7 @@ public :
                             input, lower, upper, exceeding,
                             overlaps_policy);
 
-        if (boost::size(exceeding) > 0)
+        if (! boost::empty(exceeding))
         {
             // Get the box of exceeding-only
             Box exceeding_box = get_new_box(exceeding, expand_policy);
@@ -447,7 +447,7 @@ public :
                             input2, lower2, upper2, exceeding2,
                             overlaps_policy2);
 
-        if (boost::size(exceeding1) > 0)
+        if (! boost::empty(exceeding1))
         {
             // All exceeding from 1 with 2:
 
@@ -497,7 +497,7 @@ public :
             }
         }
 
-        if (boost::size(exceeding2) > 0)
+        if (! boost::empty(exceeding2))
         {
             // All exceeding from 2 with lower and upper of 1:
             if (recurse_ok(lower1, upper1, exceeding2, min_elements, level))
