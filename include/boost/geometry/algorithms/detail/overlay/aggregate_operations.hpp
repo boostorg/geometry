@@ -52,18 +52,29 @@ struct rank_with_rings
     {
     }
 
-    inline bool all_to() const
+    inline bool all_equal(direction_type dir_type) const
     {
         for (std::set<ring_with_direction>::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
-            if (it->direction == sort_by_side::dir_from)
+            if (it->direction != dir_type)
             {
                 return false;
             }
         }
         return true;
     }
+
+    inline bool all_to() const
+    {
+        return all_equal(sort_by_side::dir_to);
+    }
+
+    inline bool all_from() const
+    {
+        return all_equal(sort_by_side::dir_from);
+    }
+
 };
 
 template <typename Sbs>

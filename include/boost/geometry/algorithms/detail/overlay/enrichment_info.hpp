@@ -39,6 +39,7 @@ struct enrichment_info
         , count_right(0)
         , zone(-1)
         , region_id(-1)
+        , isolated(false)
     {}
 
     // vertex to which is free travel after this IP,
@@ -59,6 +60,7 @@ struct enrichment_info
     std::size_t count_right;
     signed_size_type zone; // open zone, in cluster
     signed_size_type region_id;
+    bool isolated;
 };
 
 

@@ -442,19 +442,6 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             segment_identifier const& seg_0 = turn.operations[0].seg_id;
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
 
-            if (turn.both(operation_intersection)
-                    && Reverse0 == Reverse1)
-            {
-                if (   is_interior<Reverse0>(seg_0)
-                    && is_interior<Reverse1>(seg_1))
-                {
-                    // ii touch with, two interior rings
-                    discard_ie_turn(turn, ids_to_remove, *it);
-                }
-
-                continue;
-            }
-
             if (! (turn.both(operation_union)
                    || turn.combination(operation_union, operation_blocked)))
             {

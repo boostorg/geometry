@@ -133,11 +133,38 @@ struct traversal
         }
     }
 
+    //! Sets visited for ALL truns traveling to the same turn (TODO: in same direction)
+    inline void set_visited_in_cluster(signed_size_type cluster_id,
+                                       signed_size_type next_turn_index)
+    {
+        typename Clusters::const_iterator mit = m_clusters.find(cluster_id);
+        BOOST_ASSERT(mit != m_clusters.end());
+
+        cluster_info const& cinfo = mit->second;
+        std::set<signed_size_type> const& ids = cinfo.turn_indices;
+
+        for (typename std::set<signed_size_type>::const_iterator it = ids.begin();
+             it != ids.end(); ++it)
+        {
+            signed_size_type const turn_index = *it;
+            turn_type& turn = m_turns[turn_index];
+
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+                if (op.visited.none()
+                    && get_next_turn_index(op) == next_turn_index)
+                {
+                    op.visited.set_visited();
+                }
+            }
+        }
+    }
     inline void set_visited(turn_type& turn, turn_operation_type& op)
     {
-        // On "continue", set "visited" for ALL directions in this turn
         if (op.operation == detail::overlay::operation_continue)
         {
+            // On "continue", all go in same direction so set "visited" for ALL
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type& turn_op = turn.operations[i];
@@ -150,6 +177,11 @@ struct traversal
         else
         {
             op.visited.set_visited();
+        }
+        if (turn.cluster_id >= 0
+                && target_operation == operation_intersection)
+        {
+            set_visited_in_cluster(turn.cluster_id, get_next_turn_index(op));
         }
     }
 
@@ -430,80 +462,6 @@ struct traversal
         return true;
     }
 
-    inline bool is_isolated_region(std::set<int>& visited,
-            std::set<int> const& visited_regions,
-            turn_operation_type const& op,
-            turn_type const& splitting_turn, int splitting_turn_index,
-            int incoming_region_id,
-            int level = 1) const
-    {
-
-        signed_size_type const destination_turn_index = op.enriched.travels_to_ip_index;
-
-        turn_type const& destination_turn = m_turns[destination_turn_index];
-
-        if (destination_turn_index == splitting_turn_index)
-        {
-            // It travels to itself, OK
-            return true;
-        }
-        if (destination_turn.cluster_id >= 0)
-        {
-            if (destination_turn.cluster_id == splitting_turn.cluster_id)
-            {
-                // It travels to same cluster, OK
-                return true;
-            }
-        }
-
-        if (visited_regions.count(op.enriched.region_id) > 0
-                || op.enriched.region_id == incoming_region_id)
-        {
-            return false;
-        }
-
-        if (visited.count(destination_turn_index) > 0)
-        {
-            return true;
-        }
-        visited.insert(destination_turn_index);
-
-        // Check both turns
-        for (int i = 0; i < 2; i++)
-        {
-            turn_operation_type const& destination_op = destination_turn.operations[i];
-            if (destination_op.operation != operation_continue
-                    && destination_op.operation != target_operation)
-            {
-                continue;
-            }
-
-            // Recursively continue, either continue searching for incoming_region_id,
-            // or, a level deeper, to this region_id
-            bool sub_isolated = true;
-            if (op.enriched.region_id == destination_op.enriched.region_id)
-            {
-                sub_isolated = is_isolated_region(visited, visited_regions, destination_op,
-                                               splitting_turn, splitting_turn_index,
-                                               incoming_region_id,
-                                               level + 1);
-
-            }
-            else
-            {
-                sub_isolated = is_isolated_region(visited, visited_regions, destination_op,
-                                               destination_turn, destination_turn_index,
-                                               op.enriched.region_id,
-                                               level + 1);
-            }
-            if (! sub_isolated)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, std::set<int> const& visited_regions, sbs_type const& sbs) const
     {
@@ -528,6 +486,13 @@ struct traversal
                     selected_rank = rwr.rank;
                 }
             }
+            if (rwr.all_from()
+                    && selected_rank > 0
+                    && outgoing_region_ids.empty())
+            {
+                // Incoming
+                break;
+            }
 
             if (incoming_region_id == 0)
             {
@@ -546,20 +511,10 @@ struct traversal
                     {
 
                         turn_operation_type const& op = turn.operations[rwd.operation_index];
-                        if (op.enriched.region_id != incoming_region_id)
+                        if (op.enriched.region_id != incoming_region_id
+                                && op.enriched.isolated)
                         {
-                            std::set<int> visited;
-                            visited.insert(rwd.turn_index);
-
-                            // Create a local copy
-                            std::set<int> incoming_regions = visited_regions;
-                            incoming_regions.insert(incoming_region_id);
-
-                            if (is_isolated_region(visited, incoming_regions, op, turn, rwd.turn_index,
-                                                   incoming_region_id))
-                            {
-                                outgoing_region_ids.insert(op.enriched.region_id);
-                            }
+                            outgoing_region_ids.insert(op.enriched.region_id);
                         }
                     }
                     else if (! outgoing_region_ids.empty())
