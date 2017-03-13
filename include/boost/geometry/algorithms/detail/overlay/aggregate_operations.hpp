@@ -77,13 +77,26 @@ struct rank_with_rings
 
 };
 
-template <typename Sbs>
-inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation)
+template <typename Sbs, typename Turns>
+inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation,
+                                 Turns const& turns)
 {
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
+
     aggregation.clear();
     for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
     {
         typename Sbs::rp const& ranked_point = sbs.m_ranked_points[i];
+
+        turn_type const& turn = turns[ranked_point.turn_index];
+        turn_operation_type const& op = turn.operations[ranked_point.operation_index];
+        if (op.visited.finalized())
+        {
+            // Skip finalized operations in aggregation
+            // to avoid selecting them
+            continue;
+        }
 
         if (aggregation.empty() || aggregation.back().rank != ranked_point.rank)
         {

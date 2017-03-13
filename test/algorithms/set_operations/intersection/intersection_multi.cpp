@@ -151,7 +151,7 @@ void test_areal()
 #endif
     TEST_INTERSECTION(case_127_multi, 3, 19, 24.0);
     TEST_INTERSECTION(case_128_multi, 2, 26, 75.5);
-    TEST_INTERSECTION(case_129_multi, 1, 16, 20.5);
+    TEST_INTERSECTION(case_129_multi, 1, 20, 20.5);
     TEST_INTERSECTION(case_130_multi, 2, 30, 39.0);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
@@ -170,7 +170,7 @@ void test_areal()
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 10, 180, 67.0);
 #else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 179, 67.0);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
 #endif
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
