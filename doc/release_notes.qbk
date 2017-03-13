@@ -43,6 +43,10 @@
 * [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 * [@https://svn.boost.org/trac/boost/ticket/12885 12885] Use BOOST_THROW_EXCEPTION instead of throw
 
+[*Bugfixes]
+
+* Fix distance_measure in get_turn_info
+
 [/=================]
 [heading Boost 1.63]
 [/=================]
