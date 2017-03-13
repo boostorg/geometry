@@ -227,6 +227,55 @@ inline void create_map(Turns const& turns,
     }
 }
 
+template <typename Point1, typename Point2>
+inline typename geometry::coordinate_type<Point1>::type
+        distance_measure(Point1 const& a, Point2 const& b)
+{
+    // TODO: use comparable distance for point-point instead - but that
+    // causes currently cycling include problems
+    typedef typename geometry::coordinate_type<Point1>::type ctype;
+    ctype const dx = get<0>(a) - get<0>(b);
+    ctype const dy = get<1>(a) - get<1>(b);
+    return dx * dx + dy * dy;
+}
+
+template <typename Turns>
+inline void calculate_remaining_distance(Turns& turns)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type op_type;
+
+    for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
+         ++it)
+    {
+        turn_type& turn = *it;
+        if (! turn.both(detail::overlay::operation_continue))
+        {
+           continue;
+        }
+
+        op_type& op0 = turn.operations[0];
+        op_type& op1 = turn.operations[1];
+
+        if (op0.remaining_distance != 0
+         || op1.remaining_distance != 0)
+        {
+            continue;
+        }
+
+        int const to_index0 = op0.get_next_turn_index();
+        int const to_index1 = op1.get_next_turn_index();
+        if (to_index1 >= 0
+                && to_index1 >= 0
+                && to_index0 != to_index1)
+        {
+            op0.remaining_distance = distance_measure(turn.point, turns[to_index0].point);
+            op1.remaining_distance = distance_measure(turn.point, turns[to_index1].point);
+        }
+    }
+}
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
@@ -280,6 +329,7 @@ inline void enrich_intersection_points(Turns& turns,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
 
+    bool has_cc = false;
     bool const has_colocations
         = detail::overlay::handle_colocations<Reverse1, Reverse2>(turns,
         clusters, geometry1, geometry2);
@@ -294,6 +344,10 @@ inline void enrich_intersection_points(Turns& turns,
         if (turn.both(detail::overlay::operation_none))
         {
             turn.discarded = true;
+        }
+        if (turn.both(detail::overlay::operation_continue))
+        {
+            has_cc = true;
         }
         if (OverlayType != overlay_buffer
             && turn.cluster_id >= 0
@@ -344,6 +398,11 @@ inline void enrich_intersection_points(Turns& turns,
     {
         detail::overlay::gather_cluster_properties<Reverse1, Reverse2>(
                 clusters, turns, for_operation, geometry1, geometry2);
+    }
+
+    if (has_cc)
+    {
+        detail::overlay::calculate_remaining_distance(turns);
     }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH

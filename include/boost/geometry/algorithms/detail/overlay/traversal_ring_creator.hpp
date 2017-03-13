@@ -310,10 +310,26 @@ struct traversal_ring_creator
                 continue;
             }
 
-            for (int op_index = 0; op_index < 2; op_index++)
+            if (turn.both(operation_continue))
             {
+                // Traverse only one turn, the one with the SMALLEST remaining distance
+                // to avoid skipping a turn in between, which can happen in rare cases
+                // (e.g. #130)
+                turn_operation_type const& op0 = turn.operations[0];
+                turn_operation_type const& op1 = turn.operations[1];
+                int const op_index
+                        = op0.remaining_distance <= op1.remaining_distance ? 0 : 1;
+
                 traverse_with_operation(turn, turn_index, op_index,
                         rings, finalized_ring_size, state);
+            }
+            else
+            {
+                for (int op_index = 0; op_index < 2; op_index++)
+                {
+                    traverse_with_operation(turn, turn_index, op_index,
+                            rings, finalized_ring_size, state);
+                }
             }
         }
     }
