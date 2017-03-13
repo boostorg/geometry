@@ -80,7 +80,6 @@ struct traversal_ring_creator
                 signed_size_type& turn_index,
                 int& op_index,
                 Ring& current_ring,
-                std::set<int>& visited_regions,
                 bool is_start)
     {
         int const previous_op_index = op_index;
@@ -133,7 +132,7 @@ struct traversal_ring_creator
                 turn_index, op_index,
                 is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
-                visited_regions, is_start))
+                is_start))
         {
             return is_start
                 ? traverse_error_no_next_ip_at_start
@@ -158,7 +157,6 @@ struct traversal_ring_creator
             m_robust_policy);
 
         // Register the visit
-        visited_regions.insert(op.enriched.region_id);
         m_trav.set_visited(current_turn, op);
         m_visitor.visit_traverse(m_turns, current_turn, op, "Visit");
 
@@ -177,12 +175,11 @@ struct traversal_ring_creator
 
         signed_size_type current_turn_index = start_turn_index;
         int current_op_index = start_op_index;
-        std::set<int> visited_regions;
 
         traverse_error_type error = travel_to_next_turn(start_turn_index,
                     start_op_index,
                     current_turn_index, current_op_index,
-                    ring, visited_regions, true);
+                    ring, true);
 
         if (error != traverse_error_none)
         {
@@ -225,7 +222,7 @@ struct traversal_ring_creator
             // Below three reasons to stop.
             error = travel_to_next_turn(start_turn_index, start_op_index,
                     current_turn_index, current_op_index,
-                    ring, visited_regions, false);
+                    ring, false);
 
             if (error != traverse_error_none)
             {
