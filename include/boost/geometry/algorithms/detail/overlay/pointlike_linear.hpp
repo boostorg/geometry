@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -156,12 +158,14 @@ private:
         {}
 
         template <typename Item1, typename Item2>
-        inline void apply(Item1 const& item1, Item2 const& item2)
+        inline bool apply(Item1 const& item1, Item2 const& item2)
         {
             action_selector_pl_l
                 <
                     PointOut, overlay_intersection
                 >::apply(item1, Policy::apply(item1, item2, m_strategy), m_oit);
+
+            return true;
         }
 
     private:

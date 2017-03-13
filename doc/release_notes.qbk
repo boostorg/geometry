@@ -1,10 +1,10 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2016 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2016 Bruno Lalande, Paris, France.
-  Copyright (c) 2009-2016 Mateusz Loskot <mateusz@loskot.net>, London, UK.
-  Copyright (c) 2011-2016 Adam Wulkiewicz, Lodz, Poland.
+  Copyright (c) 2009-2017 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
+  Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
   This file was modified by Oracle on 2015, 2017.
   Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
@@ -29,6 +29,8 @@
 [*Breaking changes]
 
 * ublas_transformer is renamed to matrix_transformer
+* explicit modifier is added to constructors of rtree index::dynamic_* parameters
+* strategy::area::huiller replaced by strategy::area::spherical
 
 [*Solved issues]
 
@@ -39,6 +41,10 @@
 
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
 * [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
+
+[*Bugfixes]
+
+* Fix distance_measure in get_turn_info
 
 [/=================]
 [heading Boost 1.63]

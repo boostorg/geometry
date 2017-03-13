@@ -1,10 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -24,134 +24,49 @@ void test_geo_strategies()
 {
     std::string poly = "POLYGON((52 0, 41 -74, -23 -43, -26 28, 52 0))";
 
-    typedef bg::model::point<CT, 2,
-            bg::cs::geographic<bg::degree> > pt_geo;
+    typedef bg::model::point<CT, 2, bg::cs::geographic<bg::degree> > pt_geo;
 
-    typedef typename bg::point_type<pt_geo>::type pt_geo_type;
+    bg::strategy::area::geographic<pt_geo> geographic_default;
 
-    bg::strategy::area::geographic
-            <pt_geo_type> geographic_default;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 1>
+        geographic_andoyer1;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 2>
+        geographic_andoyer2;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 3>
+        geographic_andoyer3;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 4>
+        geographic_andoyer4;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 5>
+        geographic_andoyer5;
 
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::andoyer_inverse,
-                1,
-                true
-            > geographic_andoyer1;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::andoyer_inverse,
-                2,
-                true
-            > geographic_andoyer2;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::andoyer_inverse,
-                3,
-                true
-            > geographic_andoyer3;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::andoyer_inverse,
-                4,
-                true
-            > geographic_andoyer4;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::andoyer_inverse,
-                5,
-                true
-            > geographic_andoyer5;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 1>
+        geographic_thomas1;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 2>
+        geographic_thomas2;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 3>
+        geographic_thomas3;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 4>
+        geographic_thomas4;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 5>
+        geographic_thomas5;
 
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::thomas_inverse,
-                1,
-                true
-            > geographic_thomas1;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::thomas_inverse,
-                2,
-                true
-            > geographic_thomas2;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::thomas_inverse,
-                3,
-                true
-            > geographic_thomas3;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::thomas_inverse,
-                4,
-                true
-            > geographic_thomas4;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::thomas_inverse,
-                5,
-                true
-            > geographic_thomas5;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 1>
+        geographic_vincenty1;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 2>
+        geographic_vincenty2;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 3>
+        geographic_vincenty3;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 4>
+        geographic_vincenty4;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 5>
+        geographic_vincenty5;
 
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                1,
-                true
-            > geographic_vincenty1;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                2,
-                true
-            > geographic_vincenty2;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                3,
-                true
-            > geographic_vincenty3;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                4,
-                true
-            > geographic_vincenty4;
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                5,
-                true
-            > geographic_vincenty5;
-
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                5
-            > geographic_vincenty5_default;
-
-    bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse
-            > geographic_vincenty_default;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer>
+        geographic_andoyer_default;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas>
+        geographic_thomas_default;
+    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty>
+        geographic_vincenty_default;
 
     bg::model::polygon<pt_geo> geometry_geo;
 
@@ -164,12 +79,12 @@ void test_geo_strategies()
     CT err = 0.0000001;
 
     CT area_default = bg::area(geometry_geo);
-    BOOST_CHECK_CLOSE(area_default, 63316536092341.266, err);
+    BOOST_CHECK_CLOSE(area_default, 63316309346280.18, err);
     area = bg::area(geometry_geo, geographic_default);
-    BOOST_CHECK_CLOSE(area, 63316536092341.266, err);
+    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
 
     CT area_less_accurate = bg::area(geometry_geo, geographic_andoyer1);
-    BOOST_CHECK_CLOSE(area_less_accurate, 63316309346280.18, err);
+    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
     area = bg::area(geometry_geo, geographic_andoyer2);
     BOOST_CHECK_CLOSE(area, 63316309224306.5, err);
     area = bg::area(geometry_geo, geographic_andoyer3);
@@ -201,13 +116,15 @@ void test_geo_strategies()
     CT area_most_accurate = bg::area(geometry_geo, geographic_vincenty5);
     BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
 
-    area = bg::area(geometry_geo, geographic_vincenty5_default);
-    BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
+    area = bg::area(geometry_geo, geographic_andoyer_default);
+    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
+    area = bg::area(geometry_geo, geographic_thomas_default);
+    BOOST_CHECK_CLOSE(area, 63316536092341.266, err);
     area = bg::area(geometry_geo, geographic_vincenty_default);
-    BOOST_CHECK_CLOSE(area, 63316536351824.93, err);
+    BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
 
     BOOST_CHECK_CLOSE(area_most_accurate, area_less_accurate, .001);
-    BOOST_CHECK_CLOSE(area_most_accurate, area_default, .000001);
+    BOOST_CHECK_CLOSE(area_most_accurate, area_default, .001);
 /*
     // timings and accuracy
     std::cout.precision(25);

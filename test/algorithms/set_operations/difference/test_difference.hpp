@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016, 2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -131,20 +131,28 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     boost::ignore_unused<coordinate_type>();
 
-    bg::model::multi_polygon<OutputType> result;
+    bg::model::multi_polygon<OutputType> result, result_s;
+
+    typedef typename bg::strategy::relate::services::default_strategy
+        <
+            G1, G2
+        >::type strategy_type;
 
     if (sym)
     {
         bg::sym_difference(g1, g2, result);
+        bg::sym_difference(g1, g2, result_s, strategy_type());
     }
     else
     {
         bg::difference(g1, g2, result);
+        bg::difference(g1, g2, result_s, strategy_type());
     }
 
     if (settings.remove_spikes)
     {
         bg::remove_spikes(result);
+        bg::remove_spikes(result_s);
     }
 
     std::ostringstream return_string;
@@ -233,6 +241,8 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     }
 
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
+
+    BOOST_CHECK_EQUAL(bg::num_points(result), bg::num_points(result_s));
 #endif
 
 

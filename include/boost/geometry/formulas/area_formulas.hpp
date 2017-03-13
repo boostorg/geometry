@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 #define BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 
-#include <boost/geometry/algorithms/detail/flattening.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry { namespace formula
@@ -429,7 +429,7 @@ public:
         // Constants
 
         CT const ep = spheroid_const.m_ep;
-        CT const f = geometry::detail::flattening<CT>(spheroid_const.m_spheroid);
+        CT const f = formula::flattening<CT>(spheroid_const.m_spheroid);
         CT const one_minus_f = CT(1) - f;
         std::size_t const series_order_plus_one = SeriesOrder + 1;
         std::size_t const series_order_plus_two = SeriesOrder + 2;

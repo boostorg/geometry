@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -31,30 +31,28 @@ void test_spherical_geo()
 
     //Geographic
 
-    typedef typename bg::model::point<
-                                        ct,
-                                        2,
-                                        bg::cs::geographic<bg::degree>
-                                     > pt_geo;
+    typedef typename bg::model::point
+        <
+            ct, 2, bg::cs::geographic<bg::degree>
+        > pt_geo;
 
     typedef typename bg::point_type<pt_geo>::type pt_geo_type;
 
     bg::strategy::area::geographic
-            <
-                pt_geo_type,
-                bg::formula::vincenty_inverse,
-                5
-            > area_geographic;
+        <
+            pt_geo_type,
+            bg::strategy::vincenty,
+            5
+        > area_geographic;
 
     bg::model::polygon<pt_geo> geometry_geo;
 
     //Spherical
 
-    typedef typename bg::model::point<
-                                        ct,
-                                        2,
-                                        bg::cs::spherical_equatorial<bg::degree>
-                                     > pt;
+    typedef typename bg::model::point
+        <
+            ct, 2, bg::cs::spherical_equatorial<bg::degree>
+        > pt;
     bg::model::polygon<pt> geometry;
 
     // unit-sphere has area of 4-PI. Polygon covering 1/8 of it:
@@ -202,6 +200,9 @@ void test_spherical_geo()
     area = bg::area(geometry_geo, area_geographic);
     BOOST_CHECK_CLOSE(area, 133353077343.10347, 0.0001);
 
+    // mean Earth's radius^2
+    double r2 = bg::math::sqr(bg::get_radius<0>(bg::srs::sphere<double>()));
+
     // around 0 meridian
     {
         std::string poly1 = "POLYGON((-10 0,-10 10,0 10,0 0,-10 0))";
@@ -215,7 +216,7 @@ void test_spherical_geo()
         ct area3 = bg::area(geometry);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1233204227903.1848, 0.001);
+        BOOST_CHECK_CLOSE(area1 * r2, 1233204227903.1848, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -239,7 +240,7 @@ void test_spherical_geo()
         ct area3 = bg::area(geometry);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1237986107636.0261, 0.001);
+        BOOST_CHECK_CLOSE(area1 * r2, 1237986107636.0261, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -272,7 +273,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1233204227903.1833, 0.001);
+        BOOST_CHECK_CLOSE(area1 * r2, 1233204227903.1833, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);
@@ -310,7 +311,7 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1237986107636.0247, 0.001);
+        BOOST_CHECK_CLOSE(area1 * r2, 1237986107636.0247, 0.001);
         //geographic
         bg::read_wkt(poly1, geometry_geo);
         area1 = bg::area(geometry_geo, area_geographic);

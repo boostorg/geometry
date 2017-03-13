@@ -643,7 +643,7 @@ struct collinear : public base_turn_handler
         // causes currently cycling include problems
         typedef typename geometry::coordinate_type<Point1>::type ctype;
         ctype const dx = get<0>(a) - get<0>(b);
-        ctype const dy = get<1>(b) - get<1>(b);
+        ctype const dy = get<1>(a) - get<1>(b);
         return dx * dx + dy * dy;
     }
 };

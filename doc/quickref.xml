@@ -10,10 +10,10 @@
   Copyright (c) 2009-2015 Bruno Lalande, Paris, France.
   Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2014, 2015.
-  Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
-
+  This file was modified by Oracle on 2014, 2015, 2017.
+  Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -521,7 +521,8 @@
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_area_surveyor">strategy::area::surveyor</link></member>
-     <member><link linkend="geometry.reference.strategies.strategy_area_huiller">strategy::area::huiller</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_area_spherical">strategy::area::spherical</link></member>
+     <!--member><link linkend="geometry.reference.strategies.strategy_area_geographic">strategy::area::geographic</link></member-->
     </simplelist>
    </entry>
    <entry valign="top">

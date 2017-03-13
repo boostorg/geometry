@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2016, 2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
@@ -45,7 +45,6 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
-#include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
@@ -422,6 +421,7 @@ struct section_visitor
     {
         if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box))
         {
+            // false if interrupted
             return get_turns_in_sections
                     <
                         Geometry1,
@@ -429,13 +429,12 @@ struct section_visitor
                         Reverse1, Reverse2,
                         Section, Section,
                         TurnPolicy
-                    >::apply(
-                            m_source_id1, m_geometry1, sec1,
-                            m_source_id2, m_geometry2, sec2,
-                            false,
-                            m_intersection_strategy,
-                            m_rescale_policy,
-                            m_turns, m_interrupt_policy);
+                    >::apply(m_source_id1, m_geometry1, sec1,
+                             m_source_id2, m_geometry2, sec2,
+                             false,
+                             m_intersection_strategy,
+                             m_rescale_policy,
+                             m_turns, m_interrupt_policy);
         }
         return true;
     }
