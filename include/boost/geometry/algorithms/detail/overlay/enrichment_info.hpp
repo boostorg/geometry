@@ -42,6 +42,11 @@ struct enrichment_info
         , isolated(false)
     {}
 
+    inline signed_size_type get_next_turn_index() const
+    {
+        return next_ip_index == -1 ? travels_to_ip_index : next_ip_index;
+    }
+
     // vertex to which is free travel after this IP,
     // so from "segment_index+1" to "travels_to_vertex_index", without IP-s,
     // can be -1

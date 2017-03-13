@@ -153,7 +153,7 @@ struct traversal
             {
                 turn_operation_type& op = turn.operations[i];
                 if (op.visited.none()
-                    && get_next_turn_index(op) == next_turn_index)
+                    && op.get_next_turn_index() == next_turn_index)
                 {
                     op.visited.set_visited();
                 }
@@ -181,7 +181,7 @@ struct traversal
         if (turn.cluster_id >= 0
                 && target_operation == operation_intersection)
         {
-            set_visited_in_cluster(turn.cluster_id, get_next_turn_index(op));
+            set_visited_in_cluster(turn.cluster_id, op.get_next_turn_index());
         }
     }
 
@@ -227,14 +227,6 @@ struct traversal
                 : seg_id1.source_index == seg_id2.source_index;
     }
 
-    inline
-    signed_size_type get_next_turn_index(turn_operation_type const& op) const
-    {
-        return op.enriched.next_ip_index == -1
-                ? op.enriched.travels_to_ip_index
-                : op.enriched.next_ip_index;
-    }
-
     inline bool traverse_possible(signed_size_type turn_index) const
     {
         if (turn_index == -1)
@@ -268,7 +260,7 @@ struct traversal
         {
             turn_operation_type const& op = turn.operations[i];
 
-            signed_size_type const next_turn_index = get_next_turn_index(op);
+            signed_size_type const next_turn_index = op.get_next_turn_index();
 
             if (! result && traverse_possible(next_turn_index))
             {
