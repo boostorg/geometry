@@ -42,6 +42,10 @@
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
 * [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 
+[*Bugfixes]
+
+* Fix distance_measure in get_turn_info
+
 [/=================]
 [heading Boost 1.63]
 [/=================]
