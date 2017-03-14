@@ -55,6 +55,18 @@ public :
         a2 = result.reverse_azimuth;
     }
 
+    inline void apply(CalculationType const& lon1_rad,
+                      CalculationType const& lat1_rad,
+                      CalculationType const& lon2_rad,
+                      CalculationType const& lat2_rad,
+                      CalculationType& a1) const
+    {
+        geometry::formula::result_spherical<CalculationType> result = geometry::formula::
+            spherical_azimuth<CalculationType, true>(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
+
+        a1 = result.azimuth;
+    }
+
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

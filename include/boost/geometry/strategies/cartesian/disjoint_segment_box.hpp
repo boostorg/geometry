@@ -8,8 +8,9 @@
 // This file was modified by Oracle on 2013-2017.
 // Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -293,16 +294,14 @@ struct segment_box
 namespace services
 {
 
-// Currently used in all coordinate systems
-
 template <typename Linear, typename Box, typename LinearTag>
-struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2>
+struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2, cartesian_tag, cartesian_tag>
 {
     typedef disjoint::segment_box type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
-struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1>
+struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1, cartesian_tag, cartesian_tag>
 {
     typedef disjoint::segment_box type;
 };
