@@ -425,11 +425,11 @@ void test_specific()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double>, true, true>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<double>, false, false>();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float>, true, true>();
 
 #if defined(HAVE_TTMATH)

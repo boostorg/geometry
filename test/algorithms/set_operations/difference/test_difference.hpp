@@ -131,29 +131,47 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     boost::ignore_unused<coordinate_type>();
 
-    bg::model::multi_polygon<OutputType> result, result_s;
+    bg::model::multi_polygon<OutputType> result;
 
-    typedef typename bg::strategy::relate::services::default_strategy
-        <
-            G1, G2
-        >::type strategy_type;
 
     if (sym)
     {
         bg::sym_difference(g1, g2, result);
-        bg::sym_difference(g1, g2, result_s, strategy_type());
     }
     else
     {
         bg::difference(g1, g2, result);
-        bg::difference(g1, g2, result_s, strategy_type());
     }
 
     if (settings.remove_spikes)
     {
         bg::remove_spikes(result);
-        bg::remove_spikes(result_s);
     }
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    {
+        bg::model::multi_polygon<OutputType> result_s;
+        typedef typename bg::strategy::relate::services::default_strategy
+            <
+                G1, G2
+            >::type strategy_type;
+        if (sym)
+        {
+            bg::sym_difference(g1, g2, result_s, strategy_type());
+        }
+        else
+        {
+            bg::difference(g1, g2, result_s, strategy_type());
+        }
+
+        if (settings.remove_spikes)
+        {
+            bg::remove_spikes(result_s);
+        }
+        BOOST_CHECK_EQUAL(bg::num_points(result), bg::num_points(result_s));
+    }
+#endif
+
 
     std::ostringstream return_string;
     return_string << bg::wkt(result);
@@ -175,7 +193,8 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
     difference_output(caseid, g1, g2, result);
 
-#ifndef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+#if ! (defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) \
+    || defined(BOOST_GEOMETRY_DEBUG_ASSEMBLE))
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
@@ -241,8 +260,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     }
 
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
-
-    BOOST_CHECK_EQUAL(bg::num_points(result), bg::num_points(result_s));
 #endif
 
 

@@ -170,9 +170,9 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     }
 
     typedef typename setop_output_type<OutputType>::type result_type;
+    typedef typename bg::point_type<G1>::type point_type;
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    typedef typename bg::point_type<G1>::type point_type;
     if (! settings.debug)
     {
         // Check _inserter behaviour with stratey

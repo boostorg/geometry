@@ -484,13 +484,13 @@ void test_all()
 
     test_areal<ring, polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
     test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 #endif
