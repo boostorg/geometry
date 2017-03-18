@@ -331,7 +331,7 @@ inline void enrich_intersection_points(Turns& turns,
 
     bool has_cc = false;
     bool const has_colocations
-        = detail::overlay::handle_colocations<Reverse1, Reverse2>(turns,
+        = detail::overlay::handle_colocations<Reverse1, Reverse2, OverlayType>(turns,
         clusters, geometry1, geometry2);
 
     // Discard none turns, if any

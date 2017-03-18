@@ -237,6 +237,9 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("102",
                 case_102[0], case_102[1], 1, 1, 17, 8.75);
 
+    test_one<Polygon, Polygon, Polygon>("105",
+                case_105[0], case_105[1], 1, 0, 5, 100);
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],
