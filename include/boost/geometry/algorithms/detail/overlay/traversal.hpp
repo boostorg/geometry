@@ -250,11 +250,14 @@ struct traversal
     {
         // For "cc", take either one, but if there is a starting one,
         //           take that one. If next is dead end, skip that one.
+        // If both are valid candidates, take the one with minimal remaining
+        // distance (important for #mysql_23023665 in buffer).
+
+        // Initialize with 0, automatically assigned on first result
+        typename turn_operation_type::comparable_distance_type
+                min_remaining_distance = 0;
 
         bool result = false;
-
-        typename turn_operation_type::comparable_distance_type
-                max_remaining_distance = 0;
 
         for (int i = 0; i < 2; i++)
         {
@@ -262,27 +265,18 @@ struct traversal
 
             signed_size_type const next_turn_index = op.enriched.get_next_turn_index();
 
-            if (! result && traverse_possible(next_turn_index))
+            if (! traverse_possible(next_turn_index))
             {
-                max_remaining_distance = op.remaining_distance;
-                selected_op_index = i;
-                debug_traverse(turn, op, " Candidate");
-                result = true;
+                continue;
             }
 
-            if (result)
+            if (! result
+                || next_turn_index == start_turn_index
+                || op.remaining_distance < min_remaining_distance)
             {
-                if (next_turn_index == start_turn_index)
-                {
-                    selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate cc override (start)");
-                }
-                else if (op.remaining_distance > max_remaining_distance)
-                {
-                    max_remaining_distance = op.remaining_distance;
-                    selected_op_index = i;
-                    debug_traverse(turn, op, " Candidate cc override (remaining)");
-                }
+                selected_op_index = i;
+                min_remaining_distance = op.remaining_distance;
+                result = true;
             }
         }
 
