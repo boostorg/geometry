@@ -97,6 +97,11 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
             // to avoid selecting them
             continue;
         }
+        if (! (op.operation == operation_intersection || op.operation == operation_continue))
+        {
+            // Don't consider union/blocked
+            continue;
+        }
 
         if (aggregation.empty() || aggregation.back().rank != ranked_point.rank)
         {

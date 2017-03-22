@@ -897,6 +897,14 @@ static std::string case_recursive_boxes_44[2] =
     "MULTIPOLYGON(((2 1,2 2,3 2,3 1,2 1)),((1 0,0 0,0 1,2 1,2 0,1 0)))"
 };
 
+static std::string case_recursive_boxes_45[2] =
+{
+    // Needs discarding u/x turns in aggregations (for clusters for intersections)
+    // This case did go wrong, don't make it smaller, it also depends on the order of turns
+    "MULTIPOLYGON(((5 2,5 3,4 3,4 6,6 6,6 5,8 5,8 1,5 1,5 2)),((4 7,4 6,1 6,1 4,0 4,0 7,2 7,2 8,3 8,3 7,4 7)),((3 3,2 3,2 5,3 5,3 3)),((3 3,4 3,4 0,3 0,3 1,2 1,2 2,3 2,3 3)),((1 1,2 1,2 0,1 0,1 1)),((1 1,0 1,0 2,1 2,1 1)),((2 3,2 2,1 2,1 3,2 3)))",
+    "MULTIPOLYGON(((5 1,4 1,4 2,7 2,7 1,5 1)),((7 6,7 4,6 4,6 3,4 3,4 4,3 4,3 5,6 5,6 6,3 6,3 8,2 8,2 9,7 9,7 6)),((3 4,3 2,1 2,1 1,0 1,0 4,1 4,1 3,2 3,2 4,3 4)),((4 1,4 0,2 0,2 1,4 1)),((2 4,1 4,1 5,2 5,2 4)))"
+};
+
 
 static std::string pie_21_7_21_0_3[2] =
 {
