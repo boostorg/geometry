@@ -345,6 +345,13 @@ inline void enrich_intersection_points(Turns& turns,
         {
             turn.discarded = true;
         }
+        if (for_operation == detail::overlay::operation_intersection
+                && turn.both(detail::overlay::operation_union))
+        {
+            // For intersections, remove uu to avoid the need to travel
+            // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
+            turn.discarded = true;
+        }
         if (turn.both(detail::overlay::operation_continue))
         {
             has_cc = true;
