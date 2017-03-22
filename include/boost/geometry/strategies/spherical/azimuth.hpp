@@ -55,14 +55,20 @@ public :
         a2 = result.reverse_azimuth;
     }
 
-    inline void apply(CalculationType const& lon1_rad,
-                      CalculationType const& lat1_rad,
-                      CalculationType const& lon2_rad,
-                      CalculationType const& lat2_rad,
-                      CalculationType& a1) const
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1) const
     {
-        geometry::formula::result_spherical<CalculationType> result = geometry::formula::
-            spherical_azimuth<CalculationType, true>(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
+         typedef typename boost::mpl::if_
+            <
+                boost::is_void<CalculationType>, T, CalculationType
+            >::type calc_t;
+
+        geometry::formula::result_spherical<calc_t>
+            result = geometry::formula::spherical_azimuth<calc_t, false>(
+                        calc_t(lon1_rad), calc_t(lat1_rad),
+                        calc_t(lon2_rad), calc_t(lat2_rad));
 
         a1 = result.azimuth;
     }
