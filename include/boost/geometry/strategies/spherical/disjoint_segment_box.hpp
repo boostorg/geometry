@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
+#include <boost/geometry/strategies/spherical/azimuth.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint

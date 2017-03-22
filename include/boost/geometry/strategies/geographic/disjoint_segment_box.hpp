@@ -30,6 +30,9 @@
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
 {
