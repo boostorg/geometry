@@ -197,15 +197,6 @@ inline void create_map(Turns const& turns,
             continue;
         }
 
-        if (for_operation == operation_intersection
-            && turn.cluster_id == -1
-            && turn.both(operation_union))
-        {
-            // Only include uu turns if part of cluster (to block potential paths),
-            // otherwise they can block possibly viable paths
-            continue;
-        }
-
         std::size_t op_index = 0;
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
@@ -334,7 +325,7 @@ inline void enrich_intersection_points(Turns& turns,
         = detail::overlay::handle_colocations<Reverse1, Reverse2, OverlayType>(turns,
         clusters, geometry1, geometry2);
 
-    // Discard none turns, if any
+    // Discard turns not part of target overlay
     for (typename boost::range_iterator<Turns>::type
             it = boost::begin(turns);
          it != boost::end(turns);
@@ -352,10 +343,7 @@ inline void enrich_intersection_points(Turns& turns,
             // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
             turn.discarded = true;
         }
-        if (turn.both(detail::overlay::operation_continue))
-        {
-            has_cc = true;
-        }
+
         if (OverlayType != overlay_buffer
             && turn.cluster_id >= 0
             && turn.self_turn())
@@ -363,6 +351,12 @@ inline void enrich_intersection_points(Turns& turns,
             // Avoid interfering self-turn if there are already clustered turns
             // TODO: avoid discarding if there are ONLY self-turns
            turn.discarded = true;
+        }
+
+        if (! turn.discarded
+            && turn.both(detail::overlay::operation_continue))
+        {
+            has_cc = true;
         }
     }
 
