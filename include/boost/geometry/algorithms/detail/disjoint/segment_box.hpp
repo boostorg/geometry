@@ -28,10 +28,14 @@
 #include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
+#include <boost/geometry/algorithms/detail/envelope/segment.hpp>
+#include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
+
+#include <boost/geometry/geometries/box.hpp>
 
 namespace boost { namespace geometry
 {
@@ -146,7 +150,7 @@ public:
 
         // Test simple case of intersection first
 
-        if (geometry::covered_by(p0, box) != geometry::covered_by(p1, box))
+        if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
         {
             return false;
         }
@@ -226,12 +230,7 @@ public:
         geometry::set_from_radian<geometry::max_corner, 0>(box_rad, b_lon_max);
         geometry::set_from_radian<geometry::max_corner, 1>(box_rad, b_lat_max);
 
-        if (geometry::covered_by(p_vertex_rad, box_rad))
-        {
-            return false;
-        }
-
-        return true;
+        return disjoint_point_box(p_vertex_rad, box_rad);
     }
 };
 
