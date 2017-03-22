@@ -171,13 +171,16 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 
     typedef typename setop_output_type<OutputType>::type result_type;
 
+    typedef typename bg::point_type<G1>::type point_type;
+    boost::ignore_unused<point_type>();
+
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     if (! settings.debug)
     {
         // Check _inserter behaviour with stratey
         typedef typename bg::strategy::intersection::services::default_strategy
             <
-                typename bg::cs_tag<typename bg::point_type<G1>::type>::type
+                typename bg::cs_tag<point_type>::type
             >::type strategy_type;
         result_type clip;
         bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy_type());
