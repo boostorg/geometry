@@ -473,14 +473,12 @@ struct traversal
         {
             sort_by_side::rank_with_rings const& rwr = aggregation[i];
 
-            if (rwr.all_to())
+            if (rwr.all_to()
+                    && selected_rank == 0)
             {
-                if (selected_rank == 0)
-                {
-                    // Take the first (= right) where segments leave,
-                    // having the polygon on the right side
-                    selected_rank = rwr.rank;
-                }
+                // Take the first (= right) where segments leave,
+                // having the polygon on the right side
+                selected_rank = rwr.rank;
             }
             if (rwr.all_from()
                     && selected_rank > 0
