@@ -355,7 +355,7 @@ void test_areal()
     TEST_INTERSECTION_IGNORE(case_104, 0, -1, 3.0);
 #endif
 
-    TEST_INTERSECTION(case_105, 34, 1, 76.0);
+    TEST_INTERSECTION(case_105, 1, 34, 76.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
