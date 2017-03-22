@@ -380,8 +380,8 @@ public :
         }
     }
 
-    template <typename Mapper, typename Geometry, typename RescalePolicy>
-    void map_self_ips(Mapper& mapper, Geometry const& geometry, RescalePolicy const& rescale_policy)
+    template <typename Mapper, typename Geometry, typename Strategy, typename RescalePolicy>
+    void map_self_ips(Mapper& mapper, Geometry const& geometry, Strategy const& strategy, RescalePolicy const& rescale_policy)
     {
         typedef bg::detail::overlay::turn_info
         <
@@ -395,7 +395,7 @@ public :
         bg::self_turns
             <
                 bg::detail::overlay::assign_null_policy
-            >(geometry, rescale_policy, turns, policy);
+            >(geometry, strategy, rescale_policy, turns, policy);
 
         BOOST_FOREACH(turn_info const& turn, turns)
         {
