@@ -162,10 +162,8 @@ private :
 
     //              If you want to see travel information
                     << std::endl
-                    << " nxt " << it->operations[0].enriched.travels_to_ip_index
-                    << "/" << it->operations[1].enriched.travels_to_ip_index
-                    << " or " << it->operations[0].enriched.next_ip_index
-                    << "/" << it->operations[1].enriched.next_ip_index
+                    << " nxt " << it->operations[0].enriched.get_next_turn_index()
+                    << "/" << it->operations[1].enriched.get_next_turn_index()
                     //<< " frac " << it->operations[0].fraction
 
     //                If you want to see (robust)point coordinates (e.g. to find duplicates)
