@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -27,7 +28,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include "test_disjoint.hpp"
+#include "test_disjoint_seg_box.hpp"
 
 namespace bg = boost::geometry;
 
@@ -72,6 +73,16 @@ void disjoint_tests_1()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
                                                              "SEGMENT(0 0, 4 0)",
                                                              true);
+
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(2 2, 4 4)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(4 4, 2 2)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
+                                                             "SEGMENT(1.5 1.5, 2 2)",
+                                                             false);
 }
 
 template <typename P>
