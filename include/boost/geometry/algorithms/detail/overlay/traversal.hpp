@@ -37,9 +37,13 @@ namespace detail { namespace overlay
 template <typename Turn, typename Operation>
 #ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
 inline void debug_traverse(Turn const& turn, Operation op,
-                std::string const& header)
+                std::string const& header, bool condition = true)
 {
-    std::cout << header
+    if (! condition)
+    {
+        return;
+    }
+    std::cout << " " << header
         << " at " << op.seg_id
         << " meth: " << method_char(turn.method)
         << " op: " << operation_char(op.operation)
@@ -55,7 +59,7 @@ inline void debug_traverse(Turn const& turn, Operation op,
     }
 }
 #else
-inline void debug_traverse(Turn const& , Operation, const char*)
+inline void debug_traverse(Turn const& , Operation, const char*, bool = true)
 {
 }
 #endif
@@ -274,6 +278,12 @@ struct traversal
                 || next_turn_index == start_turn_index
                 || op.remaining_distance < min_remaining_distance)
             {
+                debug_traverse(turn, op, "First candidate cc", ! result);
+                debug_traverse(turn, op, "Candidate cc override (start)",
+                    result && next_turn_index == start_turn_index);
+                debug_traverse(turn, op, "Candidate cc override (remaining)",
+                    result && op.remaining_distance < min_remaining_distance);
+
                 selected_op_index = i;
                 min_remaining_distance = op.remaining_distance;
                 result = true;
@@ -300,7 +310,7 @@ struct traversal
                 && (! result || select_source(turn_index, op.seg_id, seg_id)))
             {
                 selected_op_index = i;
-                debug_traverse(turn, op, " Candidate");
+                debug_traverse(turn, op, "Candidate");
                 result = true;
             }
         }
@@ -329,7 +339,7 @@ struct traversal
         }
         if (result)
         {
-           debug_traverse(turn, turn.operations[selected_op_index], " Accepted");
+           debug_traverse(turn, turn.operations[selected_op_index], "Accepted");
         }
 
         return result;
