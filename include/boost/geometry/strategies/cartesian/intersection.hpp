@@ -36,6 +36,7 @@
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
@@ -131,6 +132,14 @@ struct cartesian_segments
     {
         typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type();
+    }
+
+    typedef envelope::cartesian_segment<CalculationType>
+        envelope_strategy_type;
+
+    static inline envelope_strategy_type get_envelope_strategy()
+    {
+        return envelope_strategy_type();
     }
 
     template <typename CoordinateType, typename SegmentRatio>
