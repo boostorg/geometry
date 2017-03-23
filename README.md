@@ -5,7 +5,7 @@ Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.co
 [![Licence](https://img.shields.io/badge/license-boost-4480cc.png)](http://www.boost.org/LICENSE_1_0.txt)
 [![Documentation](https://img.shields.io/badge/-documentation-4480cc.png)](http://boost.org/libs/geometry)
 [![Wiki](https://img.shields.io/badge/-wiki-4480cc.png)](https://github.com/boostorg/geometry/wiki)
-[![Mailing List](https://img.shields.io/badge/-mailing list-4eb899.png)](http://lists.boost.org/geometry/)
+[![Mailing List](https://img.shields.io/badge/-mailing%20list-4eb899.png)](http://lists.boost.org/geometry/)
 [![Chat](https://badges.gitter.im/boostorg/geometry.png)](https://gitter.im/boostorg/geometry?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Test results
