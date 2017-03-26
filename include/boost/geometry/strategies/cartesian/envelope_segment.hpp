@@ -14,6 +14,7 @@
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 
