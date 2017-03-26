@@ -303,6 +303,46 @@ void test_specific()
     }
 
     {
+        // Ticket 12751 (Volker)
+        // Spikes in a-b and b-a, failure in symmetric difference
+
+        ut_settings settings;
+        settings.sym_difference = false;
+        settings.test_validity = false;
+        settings.remove_spikes = true;
+
+        std::string a_min_b =
+            test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_1",
+                ticket_12751[0], ticket_12751[1],
+                1, 14, 2781965.0,
+                1, 4, 597.0,
+                settings);
+
+        // Testing consistency of testcase itself
+        BOOST_CHECK_EQUAL(a_min_b, ticket_12751[2]);
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_2",
+            ticket_12751[2], ticket_12751[3],
+            1, 18, 2537992.5,
+            2, 11, 294963.5,
+            settings);
+    }
+
+    {
+        // Ticket 12752 (Volker)
+        // Spikes in a-b and b-a, failure in symmetric difference
+
+        ut_settings settings;
+        settings.sym_difference = false;
+        settings.test_validity = false;
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_12752",
+            ticket_12752[0], ticket_12752[1],
+            3, 22, 2776692.0,
+            3, 11, 7893.0,
+            settings);
+    }
+    {
         ut_settings settings;
         settings.test_validity = true;
 
