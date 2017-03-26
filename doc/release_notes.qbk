@@ -36,6 +36,7 @@
 
 * [@https://github.com/boostorg/geometry/issues/363 363] Missing includes in geometry/index/parameters.hpp
 * [@https://github.com/boostorg/geometry/issues/364 364] within(Linear, Areal) compilation error when arguments use different point types
+* [@https://github.com/boostorg/geometry/issues/370 370] Buffer Seg Faults with Ring as Input
 
 [*Solved tickets]
 
