@@ -20,7 +20,8 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
@@ -37,30 +38,65 @@ namespace detail { namespace overlay
 template
 <
     typename Item,
+    typename InnerGeometry,
     typename Geometry1, typename Geometry2,
     typename RingCollection
 >
-static inline bool within_selected_input(Item const& item2, ring_identifier const& ring_id,
+static inline bool within_selected_input(Item const& item2,
+        InnerGeometry const& inner_geometry,
+        ring_identifier const& outer_id,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
         RingCollection const& collection)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
 
-    switch (ring_id.source_index)
+    // NOTE: range_in_geometry first checks the item2.point and then
+    // if this point is on boundary it checks points of inner_geometry
+    // ring until a point inside/outside other geometry ring is found
+    switch (outer_id.source_index)
     {
         case 0 :
-            return geometry::within(item2.point,
-                get_ring<tag1>::apply(ring_id, geometry1));
-            break;
+            return range_in_geometry(item2.point, inner_geometry,
+                get_ring<tag1>::apply(outer_id, geometry1)) >= 0;
         case 1 :
-            return geometry::within(item2.point,
-                get_ring<tag2>::apply(ring_id, geometry2));
-            break;
+            return range_in_geometry(item2.point, inner_geometry,
+                get_ring<tag2>::apply(outer_id, geometry2)) >= 0;
         case 2 :
-            return geometry::within(item2.point,
-                get_ring<void>::apply(ring_id, collection));
-            break;
+            return range_in_geometry(item2.point, inner_geometry,
+                get_ring<void>::apply(outer_id, collection)) >= 0;
+    }
+    return false;
+}
+
+template
+<
+    typename Item,
+    typename Geometry1, typename Geometry2,
+    typename RingCollection
+>
+static inline bool within_selected_input(Item const& item2,
+        ring_identifier const& inner_id, ring_identifier const& outer_id,
+        Geometry1 const& geometry1, Geometry2 const& geometry2,
+        RingCollection const& collection)
+{
+    typedef typename geometry::tag<Geometry1>::type tag1;
+    typedef typename geometry::tag<Geometry2>::type tag2;
+
+    switch (inner_id.source_index)
+    {
+        case 0 :
+            return within_selected_input(item2,
+               get_ring<tag1>::apply(inner_id, geometry1),
+               outer_id, geometry1, geometry2, collection);
+        case 1 :
+            return within_selected_input(item2,
+               get_ring<tag2>::apply(inner_id, geometry2),
+               outer_id, geometry1, geometry2, collection);
+        case 2 :
+            return within_selected_input(item2,
+                get_ring<void>::apply(inner_id, collection),
+                outer_id, geometry1, geometry2, collection);
     }
     return false;
 }
@@ -140,8 +176,9 @@ struct assign_visitor
         {
             ring_info_type& inner_in_map = m_ring_map[inner.id];
 
-            if (geometry::within(inner_in_map.point, outer.envelope)
-               && within_selected_input(inner_in_map, outer.id, m_geometry1, m_geometry2, m_collection)
+            if (geometry::covered_by(inner_in_map.point, outer.envelope)
+               && within_selected_input(inner_in_map, inner.id, outer.id,
+                                        m_geometry1, m_geometry2, m_collection)
                )
             {
                 // Assign a parent if there was no earlier parent, or the newly
@@ -216,6 +253,10 @@ inline void assign_parents(Geometry1 const& geometry1,
                             item.envelope);
                     break;
             }
+
+            // Expand envelope slightly
+            expand_by_epsilon(item.envelope);
+
             if (item.real_area > 0)
             {
                 count_positive++;

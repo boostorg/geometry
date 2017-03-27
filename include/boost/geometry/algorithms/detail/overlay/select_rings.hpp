@@ -3,6 +3,10 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,9 +22,10 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
@@ -221,7 +226,6 @@ struct decide<overlay_intersection>
     }
 };
 
-
 template
 <
     overlay_type OverlayType,
@@ -264,10 +268,10 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         switch(id.source_index)
         {
             case 0 :
-                info.within_other = geometry::within(it->second.point, geometry2);
+                info.within_other = range_in_geometry(it->second.point, geometry1, geometry2) >= 0;
                 break;
             case 1 :
-                info.within_other = geometry::within(it->second.point, geometry1);
+                info.within_other = range_in_geometry(it->second.point, geometry2, geometry1) >= 0;
                 break;
         }
 

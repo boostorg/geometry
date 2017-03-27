@@ -2,10 +2,10 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -235,7 +235,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         return entered;
     }
 
-    template
+    /*template
     <
         typename Point,
         typename Geometry,
@@ -246,6 +246,11 @@ struct action_selector<overlay_intersection, RemoveSpikes>
             RobustPolicy const& )
     {
         return geometry::covered_by(point, geometry);
+    }*/
+
+    static inline bool included(int inside_value)
+    {
+        return inside_value >= 0;
     }
 
 };
@@ -319,7 +324,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         return ! normal_action::is_entered(entered);
     }
 
-    template
+    /*template
     <
         typename Point,
         typename Geometry,
@@ -330,6 +335,11 @@ struct action_selector<overlay_difference, RemoveSpikes>
         RobustPolicy const& robust_policy)
     {
         return ! normal_action::included(point, geometry, robust_policy);
+    }*/
+
+    static inline bool included(int inside_value)
+    {
+        return ! normal_action::included(inside_value);
     }
 
 };
@@ -403,7 +413,7 @@ class follow
 
 public :
 
-    template
+    /*template
     <
         typename Point,
         typename Geometry,
@@ -417,6 +427,14 @@ public :
             <
                 OverlayType, RemoveSpikes
             >::included(point, geometry, robust_policy);
+    }*/
+
+    static inline bool included(int inside_value)
+    {
+        return following::action_selector
+            <
+                OverlayType, RemoveSpikes
+            >::included(inside_value);
     }
 
     template
