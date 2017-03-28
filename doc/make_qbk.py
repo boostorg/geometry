@@ -11,7 +11,7 @@
 #  http://www.boost.org/LICENSE_1_0.txt)
 # ============================================================================
 
-import os, sys
+import os, sys, shutil
 
 script_dir = os.path.dirname(__file__)
 os.chdir(os.path.abspath(script_dir))
@@ -45,10 +45,11 @@ def run_command(command):
     if os.system(command) != 0:
         raise Exception("Error running %s" % command)
 
-def remove_all_files(dir):
-    if os.path.exists(dir):
-        for f in os.listdir(dir):
-            os.remove(dir+f)
+def remove_all_files(dir_relpath):
+    if os.path.exists(dir_relpath):
+        dir_abspath = os.path.join(os.getcwd(), dir_relpath)
+        print("Boost.Geometry is cleaning Doxygen files in %s" % dir_abspath)
+        shutil.rmtree(dir_abspath, ignore_errors=True)
 
 def call_doxygen():
     os.chdir("doxy")
@@ -189,6 +190,13 @@ class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 os.chdir("index")
 execfile("make_qbk.py")
 os.chdir("..")
+
+# Clean up generated intermediate files
+if "--release-build" in sys.argv:
+    remove_all_files("doxy/doxygen_output/xml/")
+    remove_all_files("doxy/doxygen_output/html_by_doxygen/")
+    remove_all_files("index/xml/")
+    remove_all_files("index/html_by_doxygen/")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
 if "--release-build" not in sys.argv:
