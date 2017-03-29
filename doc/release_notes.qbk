@@ -41,6 +41,7 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/11930 11930] Inaccuracy of area::huiller strategy
+* [@https://svn.boost.org/trac/boost/ticket/11931 11931] Wrong spherical area with pole encircling polygons
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
 * [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 * [@https://svn.boost.org/trac/boost/ticket/12885 12885] Use BOOST_THROW_EXCEPTION instead of throw
