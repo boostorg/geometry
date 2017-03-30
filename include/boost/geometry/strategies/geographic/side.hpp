@@ -64,7 +64,7 @@ public:
     {}
 
     template <typename P1, typename P2, typename P>
-    inline int apply(P1 const& p1, P2 const& p2, P const& p)
+    inline int apply(P1 const& p1, P2 const& p2, P const& p) const
     {
         typedef typename promote_floating_point
             <
