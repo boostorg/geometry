@@ -69,7 +69,7 @@ struct geographic_segments
             FormulaPolicy, Spheroid, CalculationType
         > side_strategy_type;
 
-    inline side_strategy_type get_side_strategy()
+    inline side_strategy_type get_side_strategy() const
     {
         return side_strategy_type(m_spheroid);
     }
@@ -88,7 +88,7 @@ struct geographic_segments
 
     template <typename Geometry1, typename Geometry2>
     inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+        get_point_in_geometry_strategy() const
     {
         typedef typename point_in_geometry_strategy
             <
@@ -111,7 +111,7 @@ struct geographic_segments
     };
 
     template <typename Geometry>
-    inline typename area_strategy<Geometry>::type get_area_strategy()
+    inline typename area_strategy<Geometry>::type get_area_strategy() const
     {
         typedef typename area_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
@@ -129,7 +129,7 @@ struct geographic_segments
     };
 
     template <typename Geometry>
-    inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    inline typename distance_strategy<Geometry>::type get_distance_strategy() const
     {
         typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
