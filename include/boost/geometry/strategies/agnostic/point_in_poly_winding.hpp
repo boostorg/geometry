@@ -391,7 +391,7 @@ public:
     winding()
     {}
 
-    winding(SideStrategy const& side_strategy)
+    explicit winding(SideStrategy const& side_strategy)
         : m_side_strategy(side_strategy)
     {}
 
