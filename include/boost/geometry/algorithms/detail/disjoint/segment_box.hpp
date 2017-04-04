@@ -45,48 +45,6 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
-template <typename CT, typename CS_Tag>
-struct disjoint_segment_box_call_vertex_longitude
-{
-
-    template <typename Strategy>
-    static inline CT apply(CT const& lat1,
-                           CT const& lat2,
-                           CT const& vertex_lat,
-                           CT const& lon2_minus_lon1,
-                           CT,
-                           Strategy)
-    {
-        return formula::vertex_longitude<CT, CS_Tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        lon2_minus_lon1);
-    }
-};
-
-template <typename CT>
-struct disjoint_segment_box_call_vertex_longitude<CT, geographic_tag>
-{
-
-    template <typename Strategy>
-    static inline CT apply(CT const& lat1,
-                           CT const& lat2,
-                           CT const& vertex_lat,
-                           CT,
-                           CT const& alp1,
-                           Strategy const& azimuth_strategy)
-    {
-        return formula::vertex_longitude<CT, geographic_tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        alp1,
-                        azimuth_strategy.model());
-    }
-};
-
-
 template <typename CS_Tag>
 struct disjoint_segment_box_sphere_or_spheroid
 {
@@ -102,35 +60,6 @@ private:
         std::swap(lat1, lat2);
     }
 
-
-    template <typename CT, typename Strategy>
-    static inline CT compute_vertex_lon(CT const& lon1,
-                                        CT const& lat1,
-                                        CT const& lon2,
-                                        CT const& lat2,
-                                        CT const& vertex_lat,
-                                        CT const& alp1,
-                                        Strategy const& azimuth_strategy)
-    {
-        if (vertex_lat == lat1)
-        {
-            return lon1;
-        }
-        if (vertex_lat == lat2)
-        {
-            return lon2;
-        }
-
-        return disjoint_segment_box_call_vertex_longitude<CT, CS_Tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        lon2 - lon1,
-                        alp1,
-                        azimuth_strategy)
-                + lon2;
-
-    }
 
 public:
 
@@ -214,15 +143,20 @@ public:
                                                    alp1);
 
         CT vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
-        CT vertex_lon = compute_vertex_lon(lon1, lat1,
-                                           lon2, lat2,
-                                           vertex_lat,
-                                           alp1,
-                                           azimuth_strategy);
+        CT vertex_lon = geometry::formula::vertex_longitude<CT, CS_Tag>::apply(lon1, lat1,
+                                                            lon2, lat2,
+                                                            vertex_lat,
+                                                            alp1,
+                                                            azimuth_strategy);
 
         segment_point_type p_vertex_rad;
         geometry::set_from_radian<0>(p_vertex_rad, vertex_lon);
         geometry::set_from_radian<1>(p_vertex_rad, vertex_lat);
+
+        std::cout << "vertex=" <<  vertex_lon * math::r2d<CT>()
+                      << " , " <<  vertex_lat * math::r2d<CT>()
+                     << std::endl;
+
 
         Box box_rad;
         geometry::set_from_radian<geometry::min_corner, 0>(box_rad, b_lon_min);
