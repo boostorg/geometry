@@ -142,7 +142,35 @@ public:
                                                    azimuth_strategy,
                                                    alp1);
 
-        CT vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
+        CT vertex_lat;
+        if (lat1 < CT(0) && lat2 < CT(0))
+        {
+            vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(box);
+        }
+        if (lat1 > CT(0) && lat2 > CT(0))
+        {
+            vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box);
+        }
+        if (lat1 > CT(0) && lat2 < CT(0))
+        {
+            if (lat1 > -lat2)
+            {
+                vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box);
+            } else {
+                vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(box);
+            }
+        }
+        if (lat1 < CT(0) && lat2 > CT(0))
+        {
+            if (-lat1 < lat2)
+            {
+                vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box);
+            } else {
+                vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(box);
+            }
+        }
+
+
         CT vertex_lon = geometry::formula::vertex_longitude<CT, CS_Tag>::apply(lon1, lat1,
                                                             lon2, lat2,
                                                             vertex_lat,
@@ -153,9 +181,9 @@ public:
         geometry::set_from_radian<0>(p_vertex_rad, vertex_lon);
         geometry::set_from_radian<1>(p_vertex_rad, vertex_lat);
 
-        std::cout << "vertex=" <<  vertex_lon * math::r2d<CT>()
-                      << " , " <<  vertex_lat * math::r2d<CT>()
-                     << std::endl;
+        //std::cout << "vertex=" <<  vertex_lon * math::r2d<CT>()
+        //              << " , " <<  vertex_lat * math::r2d<CT>()
+        //             << std::endl;
 
 
         Box box_rad;

@@ -45,7 +45,13 @@ public:
         CT const A = sin(lat1) * cos(lat2) * cos(lat3) * sin(dlon);
         CT const B = sin(lat1) * cos(lat2) * cos(lat3) * cos(dlon)
                 - cos(lat1) * sin(lat2) * cos(lat3);
-        CT const dlon_max = atan2(B, A);
+        CT dlon_max = atan2(B, A);
+
+        if (lat1 > lat2 || (math::equals(lat1, lat2) && lat1 < CT(0)))
+        {
+            dlon_max -= math::pi<CT>();
+        }
+
         return dlon_max;
     }
 };
@@ -67,7 +73,7 @@ public:
     static inline CT apply(T const& lat1, //segment point 1
                            T const& lat2, //segment point 2
                            T const& lat3, //vertex latitude
-                           T const& alp1,
+                           T& alp1,
                            Spheroid const& spheroid)
     {
         // We assume that segment points lay on different side w.r.t.
@@ -165,11 +171,6 @@ public:
 
         CT dlon_max = omg3 - f * sin_alp0 * I3;
 
-        if (lat1 > lat2)
-        {
-            dlon_max -= math::pi<CT>();
-        }
-
         return dlon_max;
     }
 
@@ -214,7 +215,7 @@ struct compute_vertex_lon<CT, geographic_tag>
                            CT const& lat2,
                            CT const& vertex_lat,
                            CT,
-                           CT const& alp1,
+                           CT& alp1,
                            Strategy const& azimuth_strategy)
     {
         return vertex_longitude_on_spheroid<CT>
@@ -233,43 +234,70 @@ class vertex_longitude
 {
 public :
     template <typename Strategy>
-    static inline CT apply(CT const& lon1,
-                           CT const& lat1,
-                           CT const& lon2,
-                           CT const& lat2,
+    static inline CT apply(CT& lon1,
+                           CT& lat1,
+                           CT& lon2,
+                           CT& lat2,
                            CT const& vertex_lat,
-                           CT const& alp1,
+                           CT& alp1,
                            Strategy const& azimuth_strategy)
     {
-        CT c0 = 0;
+        CT const c0 = 0;
+
+        //Assume that if both point have the same latitude then
+        //the first point has smaller longitude
+        if (math::equals(lat1, lat2))
+        {
+            BOOST_ASSERT(lon1 < lon2);
+        }
 
         //Assert that input data are meaningful
+        //Also assume that the first point is closer to equator
         if (lat1 >= c0 && lat2 >= c0)
         {
-            BOOST_ASSERT(vertex_lat >= lat1 && vertex_lat >= lat2);
+            BOOST_ASSERT((vertex_lat > lat1 && vertex_lat > lat2) ||
+                         math::equals(vertex_lat, lat1) ||
+                         math::equals(vertex_lat, lat2));
+            BOOST_ASSERT(lat1 <= lat2);
         }
         if (lat1 <= c0 && lat2 <= c0)
         {
-            BOOST_ASSERT(vertex_lat <= lat1 && vertex_lat <= lat2);
+            BOOST_ASSERT((vertex_lat < lat1 && vertex_lat < lat2) ||
+                         math::equals(vertex_lat, lat1) ||
+                         math::equals(vertex_lat, lat2));
+            BOOST_ASSERT(lat1 >= lat2);
         }
 
-        if (vertex_lat == lat1)
+        //Vertex is a segment's point
+        if (math::equals(vertex_lat, lat1))
         {
             return lon1;
         }
-        if (vertex_lat == lat2)
+        if (math::equals(vertex_lat, lat2))
         {
             return lon2;
         }
 
-        return compute_vertex_lon<CT, CS_Tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        lon2 - lon1,
-                        alp1,
-                        azimuth_strategy)
-                + lon2;
+        //Segment lay on meridian
+        if (math::equals(lon1, lon2))
+        {
+            return std::max(lat1, lat2);
+        }
+
+        CT vertex_lon = compute_vertex_lon<CT, CS_Tag>::apply(lat1,
+                                                           lat2,
+                                                           vertex_lat,
+                                                           lon2 - lon1,
+                                                           alp1,
+                                                           azimuth_strategy)
+                                                    + lon2;
+        if (lon1 > lon2) //descending segment
+        {
+            vertex_lon += math::pi<CT>();
+        }
+
+        return vertex_lon;
+
 
     }
 };

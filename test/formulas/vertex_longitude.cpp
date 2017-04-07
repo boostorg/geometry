@@ -13,6 +13,7 @@
 
 #include "test_formula.hpp"
 #include "vertex_longitude_cases.hpp"
+#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 #include <boost/geometry/formulas/vertex_longitude.hpp>
@@ -43,8 +44,48 @@ CT test_vrt_lon(CT lon1r,
     typedef FormulaPolicy<CT, false, true, false, false, false> formula;
     CT a1 = formula::apply(lon1r, lat1r, lon2r, lat2r, spheroid).azimuth;
 
-    CT vertex_lat = bg::formula::vertex_latitude<CT, bg::geographic_tag>
-                            ::apply(lat1r, a1, spheroid);
+    //CT vertex_lat = bg::formula::vertex_latitude<CT, bg::geographic_tag>
+    //                        ::apply(lat1r, a1, spheroid);
+
+    typedef bg::model::point<CT, 2,
+                       bg::cs::geographic<bg::radian> > geo_point;
+
+    bg::model::segment<geo_point> segment(geo_point(lon1r, lat1r),
+                                          geo_point(lon2r, lat2r));
+    bg::model::box<geo_point> box;
+
+    bg::envelope(segment, box);
+
+    std::cout << "envelope(segment):" << bg::dsv(box) << std::endl;
+
+    CT vertex_lat;
+    if (lat1r < CT(0) && lat2r < CT(0))
+    {
+        vertex_lat = bg::get_as_radian<bg::min_corner, 1>(box);
+    }
+    if (lat1r > CT(0) && lat2r > CT(0))
+    {
+        vertex_lat = bg::get_as_radian<bg::max_corner, 1>(box);
+    }
+    if (lat1r > CT(0) && lat2r < CT(0))
+    {
+        if (lat1r > -lat2r)
+        {
+            vertex_lat = bg::get_as_radian<bg::max_corner, 1>(box);
+        } else {
+            vertex_lat = bg::get_as_radian<bg::min_corner, 1>(box);
+        }
+    }
+    if (lat1r < CT(0) && lat2r > CT(0))
+    {
+        if (-lat1r < lat2r)
+        {
+            vertex_lat = bg::get_as_radian<bg::max_corner, 1>(box);
+        } else {
+            vertex_lat = bg::get_as_radian<bg::min_corner, 1>(box);
+        }
+    }
+
 
     bg::strategy::azimuth::geographic<> azimuth_geographic;
 
@@ -62,7 +103,6 @@ CT test_vrt_lon(CT lon1r,
 void test_all(expected_results const& results)
 {
     double const d2r = bg::math::d2r<double>();
-    double const r2d = bg::math::r2d<double>();
 
     double lon1r = results.p1.lon * d2r;
     double lat1r = results.p1.lat * d2r;
@@ -98,11 +138,11 @@ void test_all(expected_results const& results)
     check_one(res_sh, results.spherical * d2r, res_vi, 1);
 }
 
-
 int test_main(int, char*[])
 {
 
     for (size_t i = 0; i < expected_size; ++i)
+    //for (size_t i = expected_size-2; i < expected_size; ++i)
     {
         test_all(expected[i]);
     }
