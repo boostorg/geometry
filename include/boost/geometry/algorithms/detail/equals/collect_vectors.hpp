@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -320,6 +320,19 @@ struct range_collect_vectors
 
     static inline void apply(Collection& collection, Range const& range)
     {
+        typedef typename geometry::closeable_view
+            <
+                Range const,
+                geometry::closure<Range>::value
+            >::type closed_range_type;
+
+        apply_impl(collection, closed_range_type(range));
+    }
+
+private:
+    template <typename ClosedRange>
+    static inline void apply_impl(Collection& collection, ClosedRange const& range)
+    {
         if (boost::size(range) < 2)
         {
             return;
@@ -328,7 +341,7 @@ struct range_collect_vectors
         typedef typename boost::range_size<Collection>::type collection_size_t;
         collection_size_t c_old_size = boost::size(collection);
 
-        typedef typename boost::range_iterator<Range const>::type iterator;
+        typedef typename boost::range_iterator<ClosedRange const>::type iterator;
 
         bool is_first = true;
         iterator it = boost::begin(range);
