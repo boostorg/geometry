@@ -38,6 +38,8 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/views/detail/normalized_view.hpp>
+
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
@@ -320,18 +322,17 @@ struct range_collect_vectors
 
     static inline void apply(Collection& collection, Range const& range)
     {
-        typedef typename geometry::closeable_view
+        typedef geometry::detail::normalized_view
             <
-                Range const,
-                geometry::closure<Range>::value
-            >::type closed_range_type;
+                Range const
+            > normalized_range_type;
 
-        apply_impl(collection, closed_range_type(range));
+        apply_impl(collection, normalized_range_type(range));
     }
 
 private:
-    template <typename ClosedRange>
-    static inline void apply_impl(Collection& collection, ClosedRange const& range)
+    template <typename NormalizedRange>
+    static inline void apply_impl(Collection& collection, NormalizedRange const& range)
     {
         if (boost::size(range) < 2)
         {
@@ -341,7 +342,7 @@ private:
         typedef typename boost::range_size<Collection>::type collection_size_t;
         collection_size_t c_old_size = boost::size(collection);
 
-        typedef typename boost::range_iterator<ClosedRange const>::type iterator;
+        typedef typename boost::range_iterator<NormalizedRange const>::type iterator;
 
         bool is_first = true;
         iterator it = boost::begin(range);
