@@ -269,6 +269,14 @@ protected:
             }
         }
 
+        // prepare strategy
+        typedef typename std::iterator_traits<RingIterator>::value_type inter_ring_type;
+        typename Strategy::template point_in_geometry_strategy
+            <
+                inter_ring_type, ExteriorRing
+            >::type const in_exterior_strategy
+            = strategy.template get_point_in_geometry_strategy<inter_ring_type, ExteriorRing>();
+
         signed_size_type ring_index = 0;
         for (RingIterator it = rings_first; it != rings_beyond;
              ++it, ++ring_index)
@@ -276,7 +284,7 @@ protected:
             // do not examine interior rings that have turns with the
             // exterior ring
             if (ring_indices.find(ring_index) == ring_indices.end()
-                && ! geometry::covered_by(range::front(*it), exterior_ring))
+                && ! geometry::covered_by(range::front(*it), exterior_ring, in_exterior_strategy))
             {
                 return visitor.template apply<failure_interior_rings_outside>();
             }
@@ -305,20 +313,19 @@ protected:
         }
 
         // prepare strategies
-        typedef typename std::iterator_traits<RingIterator>::value_type ring_type;
         typedef typename Strategy::template point_in_geometry_strategy
             <
-                ring_type, ring_type
-            >::type within_strategy_type;
-        within_strategy_type const within_strategy
-            = strategy.template get_point_in_geometry_strategy<ring_type, ring_type>();
+                inter_ring_type, inter_ring_type
+            >::type in_interior_strategy_type;
+        in_interior_strategy_type const in_interior_strategy
+            = strategy.template get_point_in_geometry_strategy<inter_ring_type, inter_ring_type>();
         typedef typename Strategy::envelope_strategy_type envelope_strategy_type;
         envelope_strategy_type const envelope_strategy
             = strategy.get_envelope_strategy();
 
         // call partition to check if interior rings are disjoint from
         // each other
-        item_visitor_type<within_strategy_type> item_visitor(within_strategy);
+        item_visitor_type<in_interior_strategy_type> item_visitor(in_interior_strategy);
 
         geometry::partition
             <
