@@ -40,6 +40,7 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/11899 11899] boost::geometry::equals doesn't handle open polygons
 * [@https://svn.boost.org/trac/boost/ticket/11930 11930] Inaccuracy of area::huiller strategy
 * [@https://svn.boost.org/trac/boost/ticket/11931 11931] Wrong spherical area with pole encircling polygons
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer

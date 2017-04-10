@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014.
 // Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
@@ -111,6 +112,43 @@ void test_multilinestring_multilinestring()
 }
 
 template <typename P>
+void test_polygons()
+{
+    typedef bg::model::polygon<P, true, true> poly_cw_c;
+    typedef bg::model::polygon<P, true, false> poly_cw_o;
+    typedef bg::model::polygon<P, false, true> poly_ccw_c;
+    typedef bg::model::polygon<P, false, false> poly_ccw_o;
+    typedef bg::model::box<P> box;
+
+    std::string wkt1 = "POLYGON((-18 1, -23 1, -23 -3, -18 -3))";
+    std::string wkt2 = "POLYGON((-23 1, -23 -3, -18 -3, -18 1))";
+
+    test_geometry<poly_cw_c, poly_cw_c>("polys_cw_c_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_cw_o>("polys_cw_c_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_ccw_c>("polys_cw_c_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_ccw_o>("polys_cw_c_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, box>("polys_cw_c_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_cw_o, poly_cw_c>("polys_cw_o_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_cw_o>("polys_cw_o_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_ccw_c>("polys_cw_o_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_ccw_o>("polys_cw_o_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, box>("polys_cw_o_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_ccw_c, poly_cw_c>("polys_ccw_c_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_cw_o>("polys_ccw_c_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_ccw_c>("polys_ccw_c_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_ccw_o>("polys_ccw_c_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, box>("polys_cw_o_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_ccw_o, poly_cw_c>("polys_ccw_o_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_cw_o>("polys_ccw_o_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_ccw_c>("polys_ccw_o_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_ccw_o>("polys_ccw_o_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, box>("polys_ccw_o_box", wkt1, wkt2, true, true);
+}
+
+template <typename P>
 void test_all()
 {
     typedef bg::model::box<P> box;
@@ -195,6 +233,7 @@ void test_all()
     test_linestring_linestring<P>();
     test_linestring_multilinestring<P>();
     test_multilinestring_multilinestring<P>();
+    test_polygons<P>();
 }
 
 
