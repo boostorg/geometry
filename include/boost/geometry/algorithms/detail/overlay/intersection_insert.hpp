@@ -364,7 +364,7 @@ struct intersection_of_linestring_with_areal
                 // if needed analyse points of a linestring
                 // NOTE: range_in_geometry checks points of a linestring
                 // until a point inside/outside areal is found
-                inside_value = overlay::range_in_geometry(linestring, areal);
+                inside_value = overlay::range_in_geometry(linestring, areal, strategy);
             }
             // add point to the output if conditions are met
             if (inside_value != 0 && follower::included(inside_value))
@@ -389,7 +389,7 @@ struct intersection_of_linestring_with_areal
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
-                    turns, robust_policy, out
+                    turns, robust_policy, out, strategy
                 );
     }
 };
