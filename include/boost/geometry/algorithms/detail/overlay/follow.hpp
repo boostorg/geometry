@@ -246,7 +246,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
 
     static inline bool included(int inside_value)
     {
-        return inside_value >= 0;
+        return inside_value >= 0; // covered_by
     }
 
 };

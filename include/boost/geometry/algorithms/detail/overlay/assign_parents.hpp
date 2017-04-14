@@ -59,6 +59,7 @@ static inline bool within_selected_input(Item const& item2,
     // ring until a point inside/outside other geometry ring is found
     switch (outer_id.source_index)
     {
+        // covered_by
         case 0 :
             return range_in_geometry(item2.point, inner_geometry,
                 get_ring<tag1>::apply(outer_id, geometry1), strategy) >= 0;

@@ -269,15 +269,16 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         // a point lying on the ring
         switch(id.source_index)
         {
+            // within
             case 0 :
                 info.within_other = range_in_geometry(it->second.point,
                                                       geometry1, geometry2,
-                                                      strategy) >= 0;
+                                                      strategy) > 0;
                 break;
             case 1 :
                 info.within_other = range_in_geometry(it->second.point,
                                                       geometry2, geometry1,
-                                                      strategy) >= 0;
+                                                      strategy) > 0;
                 break;
         }
 
