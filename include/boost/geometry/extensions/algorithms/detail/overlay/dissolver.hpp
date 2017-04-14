@@ -298,7 +298,8 @@ struct dissolver_generic
         typedef typename geometry::point_type<value_type>::type point_type;
         typedef model::box<point_type> box_type;
 
-        // TODO: create and use envelope strategy
+        typename Strategy::envelope_strategy_type const
+            envelope_strategy = strategy.get_envelope_strategy();
         typename Strategy::template area_strategy<value_type>::type const
             area_strategy = strategy.template get_area_strategy<value_type>();
 
@@ -308,7 +309,7 @@ struct dissolver_generic
             ++it, ++index)
         {
             helper.push_back(dissolve_helper<box_type>(index,
-                    geometry::return_envelope<box_type>(*it),
+                    geometry::return_envelope<box_type>(*it, envelope_strategy),
                     geometry::area(*it, area_strategy),
                     source));
         }
