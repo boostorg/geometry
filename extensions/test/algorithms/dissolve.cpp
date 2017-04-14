@@ -276,6 +276,10 @@ void test_all()
         0, 11, 25.6158412);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    test_one<polygon, polygon>("pentagram_rev",
+        "POLYGON((5 0,7.5 9,0.5 3.5,9.5 3.5,2.5 9,5 0))",
+        0, 11, 25.6158412);
+
     // Poygons contain too many polygons
 
     // CCW polygons should turn CW after dissolve
@@ -286,11 +290,21 @@ void test_all()
         "POLYGON((2 8,2 4,4 4,4 6,0 6,0 0,8 0,8 8,2 8))",
         0, 12, 64); // TODO: should have the same, 7, 60. The polygon is dissolved (splitted) but the extra polygon is still on top of the other
 
+    // https://svn.boost.org/trac/boost/ticket/10713
     test_one<polygon, polygon>("ticket_10713",
         "POLYGON((-0.7189743518829346 4.1308121681213379, 0.0831791982054710 4.1034231185913086, 0.1004156470298767 4.1107301712036133, 0.1044322624802589 4.1026973724365234, 0.0831791982054710 4.1034231185913086, -0.7711903452873230 3.7412264347076416, -0.7189743518829346 4.1308121681213379))",
         0, 8, 0.157052766);
-#endif
 
+    // Reported by Artem Pavlenko at gitter
+    // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
+    test_one<polygon, polygon>("artem1",
+        "POLYGON((36.9121 2.03883,26.2052 54.353,60.0781 64.2202,96.2171 55.9826,71.1506 39.8365,5.72552 94.1523,4.06819 13.9054,59.7155 44.5877,60.9243 16.4597,48.8696 93.039,36.9121 2.03883))",
+        0, 0, 0); // TODO: expected
+    // https://gitter.im/boostorg/geometry?at=58ef6a2b69a692963ea83a6d
+    test_one<polygon, polygon>("artem2",
+        "POLYGON((337 176,602 377,294 372,581 166,453 449,337 176))",
+        0, 0, 0); // TODO: expected
+#endif
 
     // Multi-geometries
     {
