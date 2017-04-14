@@ -528,6 +528,22 @@ static std::string case_102[2] =
     "POLYGON((3 6,4 5,5 4,3 2,1 4,3 6),(4 5,3 4,3.5 3.5,4 4,4 5))"
 };
 
+static std::string case_103[2] =
+{
+    // intersection
+    // all points of [1] the same as some points of [0]
+    "POLYGON((0 0,0 1,1 1,1 0,0 0))",
+    "POLYGON((0 0,0 1,1 0,0 0))"
+};
+
+static std::string case_104[2] =
+{
+    // union in hole
+    // all points of [1] the same as some points of [0]
+    "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))",
+    "POLYGON((1 1,1 9,9 9,9 1,1 1))"
+};
+
 static std::string case_many_situations[2] = {
         "POLYGON((2 6,2 14,10 18,18 14,18 6,16 5,14 4,12 3,10 2,8 3,6 4,4 5,2 6))",
         "POLYGON((2 6,2 7,2 8,2 9,2 10,2 11,2 12,1 14"
