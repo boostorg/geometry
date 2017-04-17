@@ -290,7 +290,7 @@ namespace boost { namespace geometry { namespace projections
         class aea_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<aea_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -300,7 +300,7 @@ namespace boost { namespace geometry { namespace projections
         class leac_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<leac_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }

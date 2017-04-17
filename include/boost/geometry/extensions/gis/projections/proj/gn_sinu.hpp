@@ -341,7 +341,7 @@ namespace boost { namespace geometry { namespace projections
         class gn_sinu_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<gn_sinu_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -351,7 +351,7 @@ namespace boost { namespace geometry { namespace projections
         class sinu_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     if (par.es)
                         return new base_v_fi<sinu_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
@@ -364,7 +364,7 @@ namespace boost { namespace geometry { namespace projections
         class eck6_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<eck6_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -374,7 +374,7 @@ namespace boost { namespace geometry { namespace projections
         class mbtfps_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<mbtfps_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }

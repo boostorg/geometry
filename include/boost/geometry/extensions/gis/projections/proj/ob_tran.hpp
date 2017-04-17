@@ -57,10 +57,10 @@ namespace boost { namespace geometry { namespace projections
 
             static const double TOL = 1e-10;
 
-            template <typename Geographic, typename Cartesian>
+            template <typename Geographic, typename Cartesian, typename Parameters>
             struct par_ob_tran
             {
-                boost::shared_ptr<projection<Geographic, Cartesian> > link;
+                boost::shared_ptr<base_v<Geographic, Cartesian, Parameters> > link;
                 double    lamp;
                 double    cphip, sphip;
             };
@@ -74,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                par_ob_tran<Geographic, Cartesian> m_proj_parm;
+                par_ob_tran<Geographic, Cartesian, Parameters> m_proj_parm;
 
                 inline base_ob_tran_oblique(const Parameters& par)
                     : base_t_fi<base_ob_tran_oblique<Geographic, Cartesian, Parameters>,
@@ -129,7 +129,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                par_ob_tran<Geographic, Cartesian> m_proj_parm;
+                par_ob_tran<Geographic, Cartesian, Parameters> m_proj_parm;
 
                 inline base_ob_tran_transverse(const Parameters& par)
                     : base_t_fi<base_ob_tran_transverse<Geographic, Cartesian, Parameters>,
@@ -173,7 +173,7 @@ namespace boost { namespace geometry { namespace projections
 
             // General Oblique Transformation
             template <typename Geographic, typename Cartesian, typename Parameters>
-            double setup_ob_tran(Parameters& par, par_ob_tran<Geographic, Cartesian>& proj_parm, bool create = true)
+            double setup_ob_tran(Parameters& par, par_ob_tran<Geographic, Cartesian, Parameters>& proj_parm, bool create = true)
             {
                 double phip;
                 Parameters pj;
@@ -327,9 +327,9 @@ namespace boost { namespace geometry { namespace projections
         class ob_tran_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    detail::ob_tran::par_ob_tran<Geographic, Cartesian> proj_parm;
+                    detail::ob_tran::par_ob_tran<Geographic, Cartesian, Parameters> proj_parm;
                     Parameters p = par;
                     double phip = setup_ob_tran(p, proj_parm, false);
 

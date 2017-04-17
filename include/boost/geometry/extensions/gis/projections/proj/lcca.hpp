@@ -185,7 +185,7 @@ namespace boost { namespace geometry { namespace projections
         class lcca_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<lcca_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }

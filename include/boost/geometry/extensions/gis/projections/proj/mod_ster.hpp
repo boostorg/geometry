@@ -426,7 +426,7 @@ namespace boost { namespace geometry { namespace projections
         class mil_os_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<mil_os_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -436,7 +436,7 @@ namespace boost { namespace geometry { namespace projections
         class lee_os_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<lee_os_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -446,7 +446,7 @@ namespace boost { namespace geometry { namespace projections
         class gs48_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<gs48_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -456,7 +456,7 @@ namespace boost { namespace geometry { namespace projections
         class alsk_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<alsk_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
@@ -466,7 +466,7 @@ namespace boost { namespace geometry { namespace projections
         class gs50_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<gs50_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }

@@ -50,9 +50,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct tmerc {};
+    struct utm {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tmerc
+    namespace detail
     {
+        namespace tmerc
+        {
 
             static const double EPS10 = 1.e-10;
             static const double FC1 = 1.;
@@ -282,111 +287,131 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::tmerc
-    #endif // doxygen
+        } // namespace tmerc
 
-    /*!
-        \brief Transverse Mercator projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_tmerc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline tmerc_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Transverse Mercator projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_tmerc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tmerc_ellipsoid : public tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tmerc_ellipsoid(const Parameters& par) : tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Transverse Mercator projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_tmerc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Transverse Mercator projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_tmerc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tmerc_spheroid : public tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tmerc_spheroid(const Parameters& par) : tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Universal Transverse Mercator (UTM) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Projection parameters
-         - zone: UTM Zone (integer)
-         - south: Denotes southern hemisphere UTM zone (boolean)
-        \par Example
-        \image html ex_utm.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct utm_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline utm_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Universal Transverse Mercator (UTM) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Projection parameters
+             - zone: UTM Zone (integer)
+             - south: Denotes southern hemisphere UTM zone (boolean)
+            \par Example
+            \image html ex_utm.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct utm_ellipsoid : public tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline utm_ellipsoid(const Parameters& par) : tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                tmerc::setup_utm(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Universal Transverse Mercator (UTM) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Projection parameters
-         - zone: UTM Zone (integer)
-         - south: Denotes southern hemisphere UTM zone (boolean)
-        \par Example
-        \image html ex_utm.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct utm_spheroid : public detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline utm_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Universal Transverse Mercator (UTM) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Projection parameters
+             - zone: UTM Zone (integer)
+             - south: Denotes southern hemisphere UTM zone (boolean)
+            \par Example
+            \image html ex_utm.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct utm_spheroid : public tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline utm_spheroid(const Parameters& par) : tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                tmerc::setup_utm(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        template <typename Geographic, typename Cartesian, typename Parameters>
+        struct static_projection_type<projections::tmerc, srs_sphere_tag, Geographic, Cartesian, Parameters>
+        {
+            typedef tmerc_spheroid<Geographic, Cartesian, Parameters> type;
+        };
 
-        // Factory entry(s)
+        template <typename Geographic, typename Cartesian, typename Parameters>
+        struct static_projection_type<projections::tmerc, srs_spheroid_tag, Geographic, Cartesian, Parameters>
+        {
+            typedef tmerc_ellipsoid<Geographic, Cartesian, Parameters> type;
+        };
+
+        template <typename Geographic, typename Cartesian, typename Parameters>
+        struct static_projection_type<projections::utm, srs_sphere_tag, Geographic, Cartesian, Parameters>
+        {
+            typedef utm_spheroid<Geographic, Cartesian, Parameters> type;
+        };
+
+        template <typename Geographic, typename Cartesian, typename Parameters>
+        struct static_projection_type<projections::utm, srs_spheroid_tag, Geographic, Cartesian, Parameters>
+        {
+            typedef utm_ellipsoid<Geographic, Cartesian, Parameters> type;
+        };
+
+        // Factory entry(s) - dynamic projection
         template <typename Geographic, typename Cartesian, typename Parameters>
         class tmerc_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     if (par.es)
                         return new base_v_fi<tmerc_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
@@ -399,7 +424,7 @@ namespace boost { namespace geometry { namespace projections
         class utm_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     if (par.es)
                         return new base_v_fi<utm_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
@@ -416,13 +441,14 @@ namespace boost { namespace geometry { namespace projections
         }
 
     } // namespace detail
+
     // Create EPSG specializations
     // (Proof of Concept, only for some)
 
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2000, LatLongRadian, Cartesian, Parameters>
     {
-        typedef tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=tmerc +lat_0=0 +lon_0=-62 +k=0.9995000000000001 +x_0=400000 +y_0=0 +ellps=clrk80 +units=m";
@@ -433,7 +459,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2001, LatLongRadian, Cartesian, Parameters>
     {
-        typedef tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=tmerc +lat_0=0 +lon_0=-62 +k=0.9995000000000001 +x_0=400000 +y_0=0 +ellps=clrk80 +units=m";
@@ -444,7 +470,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2002, LatLongRadian, Cartesian, Parameters>
     {
-        typedef tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=tmerc +lat_0=0 +lon_0=-62 +k=0.9995000000000001 +x_0=400000 +y_0=0 +ellps=clrk80 +towgs84=725,685,536,0,0,0,0 +units=m";
@@ -455,7 +481,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2003, LatLongRadian, Cartesian, Parameters>
     {
-        typedef tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=tmerc +lat_0=0 +lon_0=-62 +k=0.9995000000000001 +x_0=400000 +y_0=0 +ellps=clrk80 +towgs84=72,213.7,93,0,0,0,0 +units=m";
@@ -466,7 +492,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2039, LatLongRadian, Cartesian, Parameters>
     {
-        typedef tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::tmerc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m";
@@ -477,7 +503,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<29118, LatLongRadian, Cartesian, Parameters>
     {
-        typedef utm_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::utm_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=utm +zone=18 +ellps=GRS67 +units=m";
@@ -488,7 +514,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<29119, LatLongRadian, Cartesian, Parameters>
     {
-        typedef utm_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::utm_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=utm +zone=19 +ellps=GRS67 +units=m";

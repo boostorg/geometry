@@ -3,6 +3,10 @@
 // Copyright (c) 2012 Krzysztof Czainski
 // Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -15,7 +19,6 @@
 
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/projection_point_type.hpp>
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -33,10 +36,11 @@ namespace boost { namespace geometry { namespace projections
 
 //@{
 template <typename Projection, typename Parameters>
-inline projection
+inline base_v
         <
             typename detail::projection_point_type<Projection, geographic_tag>::type
           , typename detail::projection_point_type<Projection, cartesian_tag>::type
+          , Parameters
         >* new_projection(Parameters const& par)
 {
     return new detail::base_v_fi

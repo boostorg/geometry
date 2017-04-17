@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -20,6 +24,9 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_fwd.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_inv.hpp>
 
+#include <boost/mpl/assert.hpp>
+
+
 namespace boost { namespace geometry { namespace projections
 {
 
@@ -27,6 +34,14 @@ namespace boost { namespace geometry { namespace projections
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
+
+template <typename Prj, typename CSTag, typename LL, typename XY, typename P>
+struct static_projection_type
+{
+    BOOST_MPL_ASSERT_MSG((false),
+        NOT_IMPLEMENTED_FOR_THIS_PROJECTION_OR_CSTAG,
+        (Prj, CSTag));
+};
 
 // Base-template-forward
 template <typename Prj, typename LL, typename XY, typename P>

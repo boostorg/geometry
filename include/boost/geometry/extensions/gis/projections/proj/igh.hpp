@@ -53,10 +53,10 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace igh
     {
 
-            template <typename Geographic, typename Cartesian>
+            template <typename Geographic, typename Cartesian, typename Parameters>
             struct par_igh
             {
-                boost::shared_ptr<projection<Geographic, Cartesian> > pj[12];
+                boost::shared_ptr<base_v<Geographic, Cartesian, Parameters> > pj[12];
                 double dy0;
             };
 
@@ -79,7 +79,7 @@ namespace boost { namespace geometry { namespace projections
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
             template <template <typename, typename, typename> class Entry, typename Parameters, typename Geographic, typename Cartesian>
-            inline void do_setup(int n, Parameters const& par, par_igh<Geographic, Cartesian>& proj_parm, double x_0, double y_0, double lon_0)
+            inline void do_setup(int n, Parameters const& par, par_igh<Geographic, Cartesian, Parameters>& proj_parm, double x_0, double y_0, double lon_0)
             {
                 Entry<Geographic, Cartesian, Parameters> entry;
                 proj_parm.pj[n-1].reset(entry.create_new(par));
@@ -97,7 +97,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                par_igh<Geographic, Cartesian> m_proj_parm;
+                par_igh<Geographic, Cartesian, Parameters> m_proj_parm;
 
                 inline base_igh_spheroid(const Parameters& par)
                     : base_t_fi<base_igh_spheroid<Geographic, Cartesian, Parameters>,
@@ -205,7 +205,7 @@ namespace boost { namespace geometry { namespace projections
 
             // Interrupted Goode Homolosine
             template <typename Geographic, typename Cartesian, typename Parameters>
-            void setup_igh(Parameters& par, par_igh<Geographic, Cartesian>& proj_parm)
+            void setup_igh(Parameters& par, par_igh<Geographic, Cartesian, Parameters>& proj_parm)
             {
             /*
               Zones:
@@ -294,7 +294,7 @@ namespace boost { namespace geometry { namespace projections
         class igh_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
         {
             public :
-                virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
                     return new base_v_fi<igh_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }

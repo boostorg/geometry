@@ -2,6 +2,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -116,6 +120,9 @@
 #include <boost/geometry/extensions/gis/projections/proj/wink2.hpp>
 
 namespace boost { namespace geometry { namespace projections
+{
+
+namespace detail
 {
 
 template <typename LatLong, typename Cartesian, typename Parameters = parameters>
@@ -250,9 +257,9 @@ public:
         m_registry[name].reset(sub);
     }
 
-    inline projection<LatLong, Cartesian>* create_new(Parameters const& parameters)
+    inline detail::base_v<LatLong, Cartesian, Parameters>* create_new(Parameters const& parameters) const
     {
-        typename prj_registry::iterator it = m_registry.find(parameters.name);
+        typename prj_registry::const_iterator it = m_registry.find(parameters.name);
         if (it != m_registry.end())
         {
             return it->second->create_new(parameters);
@@ -261,6 +268,8 @@ public:
         return 0;
     }
 };
+
+} // namespace detail
 
 }}} // namespace boost::geometry::projections
 
