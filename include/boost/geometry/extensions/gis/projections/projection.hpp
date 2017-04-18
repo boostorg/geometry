@@ -16,8 +16,7 @@
 
 #include <string>
 
-#include <boost/geometry/core/srs.hpp>
-
+#include <boost/geometry/extensions/gis/projections/ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
@@ -58,8 +57,6 @@ struct static_proj4
     typedef Proj proj_type;
     typedef Model model_type;
 
-    // Default spheroid/sphere in meters and no additional parameters
-    // spheroid -> WGS84, sphere -> average radius of WGS84
     static_proj4()
     {}
 
@@ -181,7 +178,8 @@ private:
         // TODO: temporary, later fill parameters manually
         // Reason: currently init() throws exception
         // when there is no ellipsoid definition in the string
-        std::stringstream ss(params.str);
+        std::stringstream ss;        
+        ss << params.str;
         ss << std::setprecision(12)
            << " +a=" << geometry::get_radius<0>(params.model)
            << " +b=" << geometry::get_radius<2>(params.model);
