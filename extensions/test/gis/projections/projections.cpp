@@ -40,6 +40,8 @@
 #include <test_common/test_point.hpp>
 
 
+namespace bgp = bg::projections;
+
 inline void check(double v, double ve, std::string const& name, std::string const& axis)
 {
     // (non-existing) BOOST_CHECK_CLOSE_MESSAGE(v, ve, 0.001, "\n" << name << " " << axis << " -> " << v << " != " << ve);
@@ -60,13 +62,10 @@ void test_forward(std::string const& name,
     ll.lon(lon);
     ll.lat(lat);
 
-    bg::projections::parameters params = bg::projections::detail::pj_init_plus(parameters);
-    bg::projections::factory<lonlat_type, P, bg::projections::parameters> pf;
-
-    boost::shared_ptr<bg::projections::projection<lonlat_type, P> > prj(pf.create_new(params));
+    bgp::projection<lonlat_type, P> prj((bgp::proj4(parameters)));
 
     P xy;
-    prj->forward(ll, xy);
+    prj.forward(ll, xy);
 
     //std::cout << std::setprecision(16) << bg::get<0>(xy) << " " << bg::get<1>(xy) << std::endl;
 
@@ -88,13 +87,10 @@ void test_inverse(std::string const& name,
     bg::set<0>(xy, x);
     bg::set<1>(xy, y);
 
-    bg::projections::parameters params = bg::projections::detail::pj_init_plus(parameters);
-    bg::projections::factory<lonlat_type, P, bg::projections::parameters> pf;
-
-    boost::shared_ptr<bg::projections::projection<lonlat_type, P> > prj(pf.create_new(params));
+    bgp::projection<lonlat_type, P> prj((bgp::proj4(parameters)));
 
     lonlat_type ll;
-    prj->inverse(xy, ll);
+    prj.inverse(xy, ll);
 
     //std::cout << std::setprecision(16) << bg::get<0>(ll) << " " << bg::get<1>(ll) << std::endl;
 

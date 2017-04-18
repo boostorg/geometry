@@ -36,14 +36,15 @@
 #include <test_common/test_point.hpp>
 
 
-template <typename Prj, typename P1, typename P2>
+namespace bgp = bg::projections;
+
+template <typename Prj, typename Model, typename P1, typename P2>
 void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    bg::projections::parameters par = bg::projections::detail::pj_init_plus(parameters);
-    Prj prj(par);
+    bgp::projection<P1, P2, bgp::static_proj4<Prj, Model> > prj((bgp::static_proj4<Prj, Model>(parameters)));
 
     P1 ll;
     ll.lon(lon);
@@ -63,7 +64,7 @@ void test_all()
     typedef bg::model::ll::point<bg::degree, coord_type> point_type;
 
     // aea
-    test_one<bg::projections::aea_ellipsoid<point_type, P>, point_type, P>
+    test_one<bgp::aea, bgp::ellps::WGS84, point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }

@@ -37,17 +37,15 @@
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <test_common/test_point.hpp>
 
+namespace bgp = bg::projections;
+
 template <int E, typename P1, typename P2>
 void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    typedef bg::projections::epsg_traits<E, P1, P2> epsg_traits;
-    bg::projections::parameters par = bg::projections::detail::pj_init_plus(epsg_traits::par());
-
-    typedef typename epsg_traits::type prj_type;
-    prj_type prj(par);
-
+    bgp::projection<P1, P2, bgp::static_epsg<E> > prj;
+    
     P1 ll;
     ll.lon(lon);
     ll.lat(lat);

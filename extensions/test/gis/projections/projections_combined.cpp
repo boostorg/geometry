@@ -31,19 +31,19 @@
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 
 
-template <template <typename, typename, typename> class Projection, typename GeoPoint>
-void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
+namespace bgp = bg::projections;
+
+template <typename Proj, typename Model, typename GeoPoint>
+void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
         std::string const& parameters, int deviation = 1)
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef Projection<GeoPoint, cartesian_point_type, bg::projections::parameters> projection_type;
+    typedef bgp::projection<GeoPoint, cartesian_point_type, bgp::static_proj4<Proj, Model> > projection_type;
 
     try
     {
-        bg::projections::parameters par = bg::projections::detail::pj_init_plus(parameters);
-
-        projection_type prj(par);
+        projection_type prj((bgp::static_proj4<Proj, Model>(parameters)));
 
         cartesian_point_type xy1, xy2;
         prj.forward(geo_point1, xy1);
@@ -55,7 +55,7 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 
         int const difference = std::abs(distance_expected - distance_found);
         BOOST_CHECK_MESSAGE(difference <= 1 || difference == deviation,
-                " projection: " << projection_type::get_name()
+                " id: " << id
                 << " distance found: " << distance_found
                 << " expected: " << distance_expected);
 
@@ -68,11 +68,11 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
     }
     catch(bg::projections::proj_exception const& e)
     {
-        std::cout << "Exception in " << projection_type::get_name() << " : " << e.code() << std::endl;
+        std::cout << "Exception in " << id << " : " << e.code() << std::endl;
     }
     catch(...)
     {
-        std::cout << "Exception (unknown) in " << projection_type::get_name() << std::endl;
+        std::cout << "Exception (unknown) in " << id << std::endl;
     }
 }
 
@@ -94,22 +94,22 @@ void test_all()
     geo_point_type denver = bg::make<geo_point_type>(-104.88, 39.76);
 
     // IGH (internally using moll/sinu)
-    test_forward<bg::projections::igh_spheroid>(amsterdam, utrecht, "+ellps=sphere +units=m", 5);
-    test_forward<bg::projections::igh_spheroid>(aspen, denver, "+ellps=sphere +units=m", 3);
-    test_forward<bg::projections::igh_spheroid>(auckland, wellington, "+ellps=sphere +units=m", 152);
-    test_forward<bg::projections::igh_spheroid>(anchorage, juneau, "+ellps=sphere +units=m", 28);
+    test_forward<bgp::igh, bgp::ellps::sphere>("igh-au", amsterdam, utrecht, "+ellps=sphere +units=m", 5);
+    test_forward<bgp::igh, bgp::ellps::sphere>("igh-ad", aspen, denver, "+ellps=sphere +units=m", 3);
+    test_forward<bgp::igh, bgp::ellps::sphere>("igh-aw", auckland, wellington, "+ellps=sphere +units=m", 152);
+    test_forward<bgp::igh, bgp::ellps::sphere>("igh-aj", anchorage, juneau, "+ellps=sphere +units=m", 28);
 
     // Using moll
-    test_forward<bg::projections::ob_tran_oblique>(amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<bg::projections::ob_tran_transverse>(amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<bg::projections::ob_tran_oblique>(aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    test_forward<bg::projections::ob_tran_transverse>(aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
 
     // Using sinu
-    test_forward<bg::projections::ob_tran_oblique>(amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<bg::projections::ob_tran_transverse>(amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<bg::projections::ob_tran_oblique>(aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
-    test_forward<bg::projections::ob_tran_transverse>(aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
+    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
+    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
 
 }
 
