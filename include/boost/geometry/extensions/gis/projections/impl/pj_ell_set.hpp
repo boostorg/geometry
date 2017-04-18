@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -38,10 +42,13 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_param.hpp>
+#include <boost/geometry/extensions/gis/projections/parameters.hpp>
+
 
 namespace boost { namespace geometry { namespace projections {
 
@@ -55,7 +62,8 @@ static const double RV4 = .06944444444444444444; /* 5/72 */
 static const double RV6 = .04243827160493827160; /* 55/1296 */
 
 /* initialize geographic shape parameters */
-inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
+template <typename BGParams>
+inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
 {
     double b = 0.0;
     double e = 0.0;
@@ -110,6 +118,59 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
         }     /* else es == 0. and sphere of radius a */
         if (!b)
             b = a * sqrt(1. - es);
+        /* following options turn ellipsoid into equivalent sphere */
+        if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
+            a *= 1. - es * (SIXTH + es * (RA4 + es * RA6));
+            es = 0.;
+        } else if (pj_param(parameters, "bR_V").i) { /* sphere--vol. of ellipsoid */
+            a *= 1. - es * (SIXTH + es * (RV4 + es * RV6));
+            es = 0.;
+        } else if (pj_param(parameters, "bR_a").i) { /* sphere--arithmetic mean */
+            a = .5 * (a + b);
+            es = 0.;
+        } else if (pj_param(parameters, "bR_g").i) { /* sphere--geometric mean */
+            a = sqrt(a * b);
+            es = 0.;
+        } else if (pj_param(parameters, "bR_h").i) { /* sphere--harmonic mean */
+            a = 2. * a * b / (a + b);
+            es = 0.;
+        } else {
+            int i = pj_param(parameters, "tR_lat_a").i;
+            if (i || /* sphere--arith. */
+                pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
+                double tmp;
+
+                tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
+                if (geometry::math::abs(tmp) > geometry::math::half_pi<double>()) {
+                    throw proj_exception(-11);
+                }
+                tmp = 1. - es * tmp * tmp;
+                a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
+                    sqrt(1. - es) / tmp;
+                es = 0.;
+            }
+        }
+    }
+
+    /* some remaining checks */
+    if (es < 0.)
+        { throw proj_exception(-12); }
+    if (a <= 0.)
+        { throw proj_exception(-13); }
+}
+
+// TODO: change result type to CalculationType
+// TODO: move common ellipsoid->sphere code into one function
+template <typename Proj, typename Model>
+inline void pj_ell_set(static_proj4<Proj, Model> const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
+{
+    a = geometry::get_radius<0>(bg_params.model);
+    double b = geometry::get_radius<2>(bg_params.model);
+    es = 0.;
+    if (a != b)
+    {
+        es = formula::eccentricity_sqr<double>(bg_params.model);
+
         /* following options turn ellipsoid into equivalent sphere */
         if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
             a *= 1. - es * (SIXTH + es * (RA4 + es * RA6));

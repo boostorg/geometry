@@ -32,58 +32,6 @@
 namespace boost { namespace geometry { namespace projections
 {
 
-struct default_dynamic {};
-
-struct proj4
-{
-    explicit proj4(std::string const& s)
-        : str(s)
-    {}
-
-    std::string str;
-};
-
-struct epsg
-{
-    explicit epsg(int c)
-        : code(c)
-    {}
-
-    int code;
-};
-
-template <typename Proj, typename Model = srs::spheroid<double> >
-struct static_proj4
-{
-    typedef Proj proj_type;
-    typedef Model model_type;
-
-    static_proj4()
-    {}
-
-    explicit static_proj4(Model const& m)
-        : model(m)
-    {}
-
-    explicit static_proj4(std::string const& s)
-        : str(s)
-    {}
-
-    static_proj4(Model const& m, std::string const& s)
-        : model(m), str(s)
-    {}
-
-    Model model;
-    std::string str;
-};
-
-template <int Code>
-struct static_epsg
-{
-    static const int code = Code;
-};
-
-
 /*!
     \brief Representation of projection
     \details Either dynamic or static projection representation
@@ -104,12 +52,23 @@ template <typename LL, typename XY>
 class projection<LL, XY, default_dynamic>
 {
 public:
+    /*!
+    \ingroup projection
+    \brief Initializes a projection as a string, using the format with + and =
+    \details The projection can be initialized with a string (with the same format as the PROJ4 package) for
+      convenient initialization from, for example, the command line
+    \par Example
+        <tt>+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000</tt>
+        for the Madagascar projection.
+    \note Parameters are described in the group
+    */
     explicit projection(proj4 const& params)
-        : m_ptr(create(detail::pj_init_plus(params.str)))
+        : m_ptr(create(detail::pj_init_plus(default_dynamic(), params.str)))
     {}
 
     explicit projection(epsg const& params)
-        : m_ptr(create(detail::pj_init_plus(detail::code_to_string(params.code), false)))
+        : m_ptr(create(detail::pj_init_plus(default_dynamic(),
+                                detail::code_to_string(params.code), false)))
     {}
 
     typedef LL geographic_point_type; ///< latlong point type
@@ -184,16 +143,7 @@ public:
 private:
     static projections::parameters get_parameters(static_proj4<Proj, Model> const& params)
     {
-        // TODO: temporary, later fill parameters manually
-        // Reason: currently init() throws exception
-        // when there is no ellipsoid definition in the string
-        std::stringstream ss;        
-        ss << params.str;
-        ss << std::setprecision(12)
-           << " +a=" << geometry::get_radius<0>(params.model)
-           << " +b=" << geometry::get_radius<2>(params.model);
-
-        return detail::pj_init_plus(ss.str());
+        return detail::pj_init_plus(params, params.str);
     }
 
     projection_type m_proj;
@@ -215,7 +165,7 @@ class projection<LL, XY, static_epsg<Code> >
 
 public:
     projection()
-        : m_proj(detail::pj_init_plus(epsg_traits::par(), false))
+        : m_proj(detail::pj_init_plus(static_epsg<Code>(), epsg_traits::par(), false))
     {}
 
     typedef LL geographic_point_type; ///< latlong point type

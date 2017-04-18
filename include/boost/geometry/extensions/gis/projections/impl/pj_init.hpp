@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -40,10 +44,12 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/range.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/range.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 
 #include <boost/geometry/extensions/gis/projections/impl/pj_datum_set.hpp>
@@ -64,6 +70,49 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
+template <typename BGParams>
+inline void pj_push_defaults(BGParams const& bg_params, parameters& pin)
+{
+    pin.params.push_back(pj_mkparam("ellps=WGS84"));
+
+    if (pin.name == "aea")
+    {
+        pin.params.push_back(pj_mkparam("lat_1=29.5"));
+        pin.params.push_back(pj_mkparam("lat_2=45.5 "));
+    }
+    else if (pin.name == "lcc")
+    {
+        pin.params.push_back(pj_mkparam("lat_1=33"));
+        pin.params.push_back(pj_mkparam("lat_2=45"));
+    }
+    else if (pin.name == "lagrng")
+    {
+        pin.params.push_back(pj_mkparam("W=2"));
+    }
+}
+
+template <typename Proj, typename Model>
+inline void pj_push_defaults(static_proj4<Proj, Model> const& bg_params, parameters& pin)
+{
+    // always set in the model
+    //pin.params.push_back(pj_mkparam("ellps=WGS84"));
+
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::aea>::value)))
+    {
+        pin.params.push_back(pj_mkparam("lat_1=29.5"));
+        pin.params.push_back(pj_mkparam("lat_2=45.5 "));
+    }
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::lcc>::value)))
+    {
+        pin.params.push_back(pj_mkparam("lat_1=33"));
+        pin.params.push_back(pj_mkparam("lat_2=45"));
+    }
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::lagrng>::value)))
+    {
+        pin.params.push_back(pj_mkparam("W=2"));
+    }
+}
+
 /************************************************************************/
 /*                              pj_init()                               */
 /*                                                                      */
@@ -72,8 +121,8 @@ namespace detail
 /*      called to do the initial allocation so it can be created        */
 /*      large enough to hold projection specific parameters.            */
 /************************************************************************/
-template <typename R>
-inline parameters pj_init(R const& arguments, bool use_defaults = true)
+template <typename BGParams, typename R>
+inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool use_defaults = true)
 {
     parameters pin;
     for (std::vector<std::string>::const_iterator it = boost::begin(arguments);
@@ -101,20 +150,7 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
     {
         // proj4 gets defaults from "proj_def.dat", file of 94/02/23 with a few defaults.
         // Here manually
-        if (pin.name == "lcc")
-        {
-            pin.params.push_back(pj_mkparam("lat_1=33"));
-            pin.params.push_back(pj_mkparam("lat_2=45"));
-        }
-        else if (pin.name == "aea")
-        {
-            pin.params.push_back(pj_mkparam("lat_1=29.5"));
-            pin.params.push_back(pj_mkparam("lat_2=45.5 "));
-        }
-        else
-        {
-            //<general>ellps=WGS84
-        }
+        pj_push_defaults(bg_params, pin);
         //curr = get_defaults(&arguments, curr, name);
     }
 
@@ -128,7 +164,7 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
     pj_datum_set(pin.params, pin);
 
     /* set ellipsoid/sphere parameters */
-    pj_ell_set(pin.params, pin.a, pin.es);
+    pj_ell_set(bg_params, pin.params, pin.a, pin.es);
 
     pin.a_orig = pin.a;
     pin.es_orig = pin.es;
@@ -271,8 +307,8 @@ inline parameters pj_init(R const& arguments, bool use_defaults = true)
 /*      individual arguments preceeded by '+', such as "+proj=utm       */
 /*      +zone=11 +ellps=WGS84".                                         */
 /************************************************************************/
-
-inline parameters pj_init_plus(std::string const& definition, bool use_defaults = true)
+template <typename BGParams>
+inline parameters pj_init_plus(BGParams const& bg_params, std::string const& definition, bool use_defaults = true)
 {
     const char* sep = " +";
 
@@ -309,7 +345,7 @@ inline parameters pj_init_plus(std::string const& definition, bool use_defaults 
     {
         boost::trim(*it);
     }*/
-    return pj_init(arguments, use_defaults);
+    return pj_init(bg_params, arguments, use_defaults);
 }
 
 } // namespace detail

@@ -2,6 +2,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,54 +15,80 @@
 
 
 #include <string>
-#include <vector>
+
+#include <boost/geometry/core/srs.hpp>
 
 
-#include <boost/geometry/extensions/gis/projections/impl/pj_init.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
-
-
-namespace boost { namespace geometry { namespace projections {
-
-template <typename R>
-inline parameters init(const R& arguments)
+namespace boost { namespace geometry { namespace projections
 {
-    return detail::pj_init(arguments);
-}
 
-/*!
-\ingroup projection
-\brief Initializes a projection as a string, using the format with + and =
-\details The projection can be initialized with a string (with the same format as the PROJ4 package) for
-  convenient initialization from, for example, the command line
-\par Example
-    <tt>+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000</tt>
-    for the Madagascar projection.
-\note Parameters are described in the group
-*/
-inline parameters init(const std::string& arguments)
+
+struct default_dynamic {};
+
+
+struct proj4
 {
-    return detail::pj_init_plus(arguments);
-}
+    explicit proj4(const char* s)
+        : str(s)
+    {}
 
-/*!
-\ingroup projection
-\brief Overload using a const char*
-*/
-inline parameters init(const char* arguments)
+    explicit proj4(std::string const& s)
+        : str(s)
+    {}
+
+    std::string str;
+};
+
+
+struct epsg
 {
-    return detail::pj_init_plus(arguments);
-}
+    explicit epsg(int c)
+        : code(c)
+    {}
+
+    int code;
+};
 
 
-// todo:
-/*
-parameters init(const std::map<std::string, std::string>& arguments)
+template <typename Proj, typename Model = srs::spheroid<double> >
+struct static_proj4
 {
-    return detail::pj_init_plus(arguments);
-}
-*/
+    typedef Proj proj_type;
+    typedef Model model_type;
 
+    static_proj4()
+    {}
+
+    explicit static_proj4(Model const& m)
+        : model(m)
+    {}
+
+    explicit static_proj4(std::string const& s)
+        : str(s)
+    {}
+
+    explicit static_proj4(const char* s)
+        : str(s)
+    {}
+
+    static_proj4(Model const& m, std::string const& s)
+        : model(m), str(s)
+    {}
+
+    static_proj4(Model const& m, const char* s)
+        : model(m), str(s)
+    {}
+
+    Model model;
+    std::string str;
+};
+
+
+template <int Code>
+struct static_epsg
+{
+    static const int code = Code;
+};
 
 
 }}} // namespace boost::geometry::projections
