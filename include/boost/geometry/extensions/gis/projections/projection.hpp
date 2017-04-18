@@ -105,22 +105,12 @@ class projection<LL, XY, default_dynamic>
 {
 public:
     explicit projection(proj4 const& params)
-        : m_ptr(factory().create_new(projections::init(params.str)))
-    {
-        if (m_ptr.get() == NULL)
-        {
-            BOOST_THROW_EXCEPTION(proj_exception());
-        }
-    }
+        : m_ptr(create(detail::pj_init_plus(params.str)))
+    {}
 
     explicit projection(epsg const& params)
-        : m_ptr(factory().create_new(projections::init(params.code)))
-    {
-        if (m_ptr.get() == NULL)
-        {
-            BOOST_THROW_EXCEPTION(proj_exception());
-        }
-    }
+        : m_ptr(create(detail::pj_init_plus(detail::code_to_string(params.code), false)))
+    {}
 
     typedef LL geographic_point_type; ///< latlong point type
     typedef XY cartesian_point_type;  ///< xy point type
@@ -138,10 +128,18 @@ public:
     }
 
 private:
-    static detail::factory<LL, XY> const& factory()
+    static projections::detail::base_v<LL, XY>* create(parameters const& pj_params)
     {
         static detail::factory<LL, XY> fac;
-        return fac;
+
+        projections::detail::base_v<LL, XY>* result = fac.create_new(pj_params);
+
+        if (result == NULL)
+        {
+            BOOST_THROW_EXCEPTION(proj_exception());
+        }
+
+        return result;
     }
 
     boost::shared_ptr<projections::detail::base_v<LL, XY> > m_ptr;
@@ -195,7 +193,7 @@ private:
            << " +a=" << geometry::get_radius<0>(params.model)
            << " +b=" << geometry::get_radius<2>(params.model);
 
-        return projections::init(ss.str());
+        return detail::pj_init_plus(ss.str());
     }
 
     projection_type m_proj;
@@ -217,7 +215,7 @@ class projection<LL, XY, static_epsg<Code> >
 
 public:
     projection()
-        : m_proj(projections::init(epsg_traits::par()))
+        : m_proj(detail::pj_init_plus(epsg_traits::par(), false))
     {}
 
     typedef LL geographic_point_type; ///< latlong point type
