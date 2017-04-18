@@ -267,20 +267,6 @@ namespace boost { namespace geometry { namespace projections
         }
 
     } // namespace detail
-    // Create EPSG specializations
-    // (Proof of Concept, only for some)
-
-    template<typename LatLongRadian, typename Cartesian, typename Parameters>
-    struct epsg_traits<4326, LatLongRadian, Cartesian, Parameters>
-    {
-        typedef detail::longlat_other<LatLongRadian, Cartesian, Parameters> type;
-        static inline std::string par()
-        {
-            return "+proj=longlat +ellps=WGS84 +datum=WGS84";
-        }
-    };
-
-
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

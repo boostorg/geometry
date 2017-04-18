@@ -247,20 +247,6 @@ namespace boost { namespace geometry { namespace projections
         }
 
     } // namespace detail
-    // Create EPSG specializations
-    // (Proof of Concept, only for some)
-
-    template<typename LatLongRadian, typename Cartesian, typename Parameters>
-    struct epsg_traits<2805, LatLongRadian, Cartesian, Parameters>
-    {
-        typedef detail::lcc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
-        static inline std::string par()
-        {
-            return "+proj=lcc +lat_1=42.68333333333333 +lat_2=41.71666666666667 +lat_0=41 +lon_0=-71.5 +x_0=200000 +y_0=750000 +ellps=GRS80 +units=m";
-        }
-    };
-
-
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

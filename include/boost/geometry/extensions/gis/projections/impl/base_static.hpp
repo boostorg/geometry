@@ -21,6 +21,8 @@
 
 #include <string>
 
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/pj_fwd.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_inv.hpp>
 

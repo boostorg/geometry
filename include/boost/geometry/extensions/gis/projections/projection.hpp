@@ -19,6 +19,7 @@
 #include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/extensions/gis/projections/epsg.hpp>
+#include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -194,19 +195,20 @@ private:
 template <typename LL, typename XY, int Code>
 class projection<LL, XY, static_epsg<Code> >
 {
-    typedef epsg_traits
+    typedef detail::epsg_traits<Code> epsg_traits;
+
+    typedef typename detail::static_projection_type
         <
-            Code,
+            typename epsg_traits::type,
+            typename epsg_traits::srs_tag,
             LL,
             XY,
             parameters
-        > epsg_traits_type;
-
-    typedef typename epsg_traits_type::type projection_type;
+        >::type projection_type;
 
 public:
     projection()
-        : m_proj(projections::init(epsg_traits_type::par()))
+        : m_proj(projections::init(epsg_traits::par()))
     {}
 
     typedef LL geographic_point_type; ///< latlong point type
