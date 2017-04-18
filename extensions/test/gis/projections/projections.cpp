@@ -62,7 +62,7 @@ void test_forward(std::string const& name,
     ll.lon(lon);
     ll.lat(lat);
 
-    bgp::projection<lonlat_type, P> prj((bgp::proj4(parameters)));
+    bgp::projection<lonlat_type, P> prj = bgp::proj4(parameters);
 
     P xy;
     prj.forward(ll, xy);
@@ -87,7 +87,7 @@ void test_inverse(std::string const& name,
     bg::set<0>(xy, x);
     bg::set<1>(xy, y);
 
-    bgp::projection<lonlat_type, P> prj((bgp::proj4(parameters)));
+    bgp::projection<lonlat_type, P> prj = bgp::proj4(parameters);
 
     lonlat_type ll;
     prj.inverse(xy, ll);

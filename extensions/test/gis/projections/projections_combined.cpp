@@ -43,7 +43,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 
     try
     {
-        projection_type prj((bgp::static_proj4<Proj, Model>(parameters)));
+        projection_type prj = bgp::static_proj4<Proj, Model>(parameters);
 
         cartesian_point_type xy1, xy2;
         prj.forward(geo_point1, xy1);

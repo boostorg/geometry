@@ -136,7 +136,8 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 
     try
     {
-        bg::projections::parameters par = bg::projections::detail::pj_init_plus(parameters);
+        bg::projections::default_dynamic bgp; //TODO: TEMP
+        bg::projections::parameters par = bg::projections::detail::pj_init_plus(bgp, parameters);
 
         projection_type prj(par);
 
