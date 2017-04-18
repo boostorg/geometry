@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/core/exception.hpp>
 #include <boost/math/constants/constants.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -163,15 +164,19 @@ struct parameters : public detail::pj_const_pod
     std::vector<detail::pvalue> params;
 };
 
-// TODO: derived from boost::exception / make more for forward/inverse/init/setup
-class proj_exception
+// TODO: make more for forward/inverse/init/setup
+class proj_exception : public geometry::exception
 {
 public:
-
     proj_exception(int code = 0)
         : m_code(code)
+    {}
+
+    virtual char const* what() const throw()
     {
+        return "Boost.Geometry Projection exception";
     }
+
     int code() const { return m_code; }
 private :
     int m_code;
