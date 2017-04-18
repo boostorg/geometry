@@ -62,11 +62,11 @@ public:
         for the Madagascar projection.
     \note Parameters are described in the group
     */
-    explicit projection(proj4 const& params)
+    projection(proj4 const& params)
         : m_ptr(create(detail::pj_init_plus(default_dynamic(), params.str)))
     {}
 
-    explicit projection(epsg const& params)
+    projection(epsg const& params)
         : m_ptr(create(detail::pj_init_plus(default_dynamic(),
                                 detail::code_to_string(params.code), false)))
     {}
@@ -121,7 +121,7 @@ public:
         : m_proj(get_parameters(static_proj4<Proj, Model>()))
     {}
 
-    explicit projection(static_proj4<Proj, Model> const& params)
+    projection(static_proj4<Proj, Model> const& params)
         : m_proj(get_parameters(params))
     {}
 
