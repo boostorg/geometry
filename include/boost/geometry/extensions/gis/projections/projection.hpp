@@ -26,6 +26,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/throw_exception.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -105,11 +106,21 @@ class projection<LL, XY, default_dynamic>
 public:
     explicit projection(proj4 const& params)
         : m_ptr(factory().create_new(projections::init(params.str)))
-    {}
+    {
+        if (m_ptr.get() == NULL)
+        {
+            BOOST_THROW_EXCEPTION(proj_exception());
+        }
+    }
 
     explicit projection(epsg const& params)
         : m_ptr(factory().create_new(projections::init(params.code)))
-    {}
+    {
+        if (m_ptr.get() == NULL)
+        {
+            BOOST_THROW_EXCEPTION(proj_exception());
+        }
+    }
 
     typedef LL geographic_point_type; ///< latlong point type
     typedef XY cartesian_point_type;  ///< xy point type
