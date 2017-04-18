@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct bipc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bipc
+    namespace detail
     {
+        namespace bipc
+        {
 
             static const double EPS = 1e-10;
             static const double EPS10 = 1e-10;
@@ -212,35 +216,33 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::bipc
-    #endif // doxygen
+        } // namespace bipc
 
-    /*!
-        \brief Bipolar conic of western hemisphere projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-        \par Projection parameters
-         - ns (boolean)
-        \par Example
-        \image html ex_bipc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline bipc_spheroid(const Parameters& par) : detail::bipc::base_bipc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Bipolar conic of western hemisphere projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+            \par Projection parameters
+             - ns (boolean)
+            \par Example
+            \image html ex_bipc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::bipc::setup_bipc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline bipc_spheroid(const Parameters& par) : detail::bipc::base_bipc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::bipc::setup_bipc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::bipc, bipc_spheroid, bipc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

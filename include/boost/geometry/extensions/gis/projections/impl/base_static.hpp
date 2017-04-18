@@ -43,6 +43,18 @@ struct static_projection_type
         (Prj, CSTag));
 };
 
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(PROJ, P_SPHERE, P_SPHEROID) \
+template <typename LL, typename XY, typename P> \
+struct static_projection_type<PROJ, srs_sphere_tag, LL, XY, P> \
+{ \
+    typedef P_SPHERE<LL, XY, P> type; \
+}; \
+template <typename LL, typename XY, typename P> \
+struct static_projection_type<PROJ, srs_spheroid_tag, LL, XY, P> \
+{ \
+    typedef P_SPHEROID<LL, XY, P> type; \
+}; \
+
 // Base-template-forward
 template <typename Prj, typename LL, typename XY, typename P>
 struct base_t_f

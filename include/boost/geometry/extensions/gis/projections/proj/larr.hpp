@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct larr {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace larr
+    namespace detail
     {
+        namespace larr
+        {
 
             static const double SIXTH = .16666666666666666;
 
@@ -86,34 +90,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::larr
-    #endif // doxygen
+        } // namespace larr
 
-    /*!
-        \brief Larrivee projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_larr.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct larr_spheroid : public detail::larr::base_larr_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline larr_spheroid(const Parameters& par) : detail::larr::base_larr_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Larrivee projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_larr.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct larr_spheroid : public detail::larr::base_larr_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::larr::setup_larr(this->m_par);
-        }
-    };
+            inline larr_spheroid(const Parameters& par) : detail::larr::base_larr_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::larr::setup_larr(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::larr, larr_spheroid, larr_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

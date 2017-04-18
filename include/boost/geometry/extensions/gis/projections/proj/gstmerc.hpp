@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct gstmerc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gstmerc
+    namespace detail
     {
+        namespace gstmerc
+        {
 
             struct par_gstmerc
             {
@@ -125,38 +129,36 @@ namespace boost { namespace geometry { namespace projections
                 /*fprintf(stderr,"a  (m) =%16.4f\ne      =%16.13f\nl0(rad)=%16.13f\np0(rad)=%16.13f\nk0     =%16.4f\nX0  (m)=%16.4f\nY0  (m)=%16.4f\n\nlC(rad)=%16.13f\npC(rad)=%16.13f\nc      =%16.13f\nn1     =%16.13f\nn2 (m) =%16.4f\nXS (m) =%16.4f\nYS (m) =%16.4f\n", par.a, par.e, par.lam0, par.phi0, par.k0, par.x0, par.y0, proj_parm.lamc, proj_parm.phic, proj_parm.c, proj_parm.n1, proj_parm.n2, proj_parm.XS +par.x0, proj_parm.YS + par.y0);*/
             }
 
-        }} // namespace detail::gstmerc
-    #endif // doxygen
+        } // namespace gstmerc
 
-    /*!
-        \brief Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin
-         - lon_0: Central meridian
-         - k_0: Scale factor
-        \par Example
-        \image html ex_gstmerc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_0: Latitude of origin
+             - lon_0: Central meridian
+             - k_0: Scale factor
+            \par Example
+            \image html ex_gstmerc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::gstmerc::setup_gstmerc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::gstmerc::setup_gstmerc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gstmerc, gstmerc_spheroid, gstmerc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

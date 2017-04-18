@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct vandg {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg
+    namespace detail
     {
+        namespace vandg
+        {
 
             static const double TOL = 1.e-10;
             static const double THIRD = .33333333333333333333;
@@ -158,33 +162,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::vandg
-    #endif // doxygen
+        } // namespace vandg
 
-    /*!
-        \brief van der Grinten (I) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-        \par Example
-        \image html ex_vandg.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct vandg_spheroid : public detail::vandg::base_vandg_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline vandg_spheroid(const Parameters& par) : detail::vandg::base_vandg_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief van der Grinten (I) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+            \par Example
+            \image html ex_vandg.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct vandg_spheroid : public detail::vandg::base_vandg_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::vandg::setup_vandg(this->m_par);
-        }
-    };
+            inline vandg_spheroid(const Parameters& par) : detail::vandg::base_vandg_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::vandg::setup_vandg(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::vandg, vandg_spheroid, vandg_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

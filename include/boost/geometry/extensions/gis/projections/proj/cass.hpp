@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct cass {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cass
+    namespace detail
     {
+        namespace cass
+        {
 
             static const double EPS10 = 1e-10;
             static const double C1 = .16666666666666666666;
@@ -174,56 +178,54 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::cass
-    #endif // doxygen
+        } // namespace cass
 
-    /*!
-        \brief Cassini projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_cass.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Cassini projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_cass.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::cass::setup_cass(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::cass::setup_cass(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Cassini projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_cass.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct cass_spheroid : public detail::cass::base_cass_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Cassini projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_cass.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct cass_spheroid : public detail::cass::base_cass_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::cass::setup_cass(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::cass::setup_cass(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::cass, cass_spheroid, cass_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
@@ -252,7 +254,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2066, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=11.25217861111111 +lon_0=-60.68600888888889 +x_0=37718.66159325 +y_0=36209.91512952 +a=6378293.645208759 +b=6356617.987679838 +to_meter=0.201166195164";
@@ -263,7 +265,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2099, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=25.38236111111111 +lon_0=50.76138888888889 +x_0=100000 +y_0=100000 +ellps=helmert +units=m";
@@ -274,7 +276,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2314, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=10.44166666666667 +lon_0=-61.33333333333334 +x_0=86501.46392052001 +y_0=65379.0134283 +a=6378293.645208759 +b=6356617.987679838 +to_meter=0.3047972654";
@@ -285,7 +287,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3068, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=52.41864827777778 +lon_0=13.62720366666667 +x_0=40000 +y_0=10000 +ellps=bessel +datum=potsdam +units=m";
@@ -296,7 +298,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3140, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=-18 +lon_0=178 +x_0=109435.392 +y_0=141622.272 +a=6378306.3696 +b=6356571.996 +towgs84=51,391,-36,0,0,0,0 +to_meter=0.201168";
@@ -307,7 +309,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3366, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=22.31213333333334 +lon_0=114.1785555555556 +x_0=40243.57775604237 +y_0=19069.93351512578 +a=6378293.645208759 +b=6356617.987679838 +units=m";
@@ -318,7 +320,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3377, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=2.121679744444445 +lon_0=103.4279362361111 +x_0=-14810.562 +y_0=8758.32 +ellps=GRS80 +units=m";
@@ -329,7 +331,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3378, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=2.682347636111111 +lon_0=101.9749050416667 +x_0=3673.785 +y_0=-4240.573 +ellps=GRS80 +units=m";
@@ -340,7 +342,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3379, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=3.769388088888889 +lon_0=102.3682989833333 +x_0=-7368.228 +y_0=6485.858 +ellps=GRS80 +units=m";
@@ -351,7 +353,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3380, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=3.68464905 +lon_0=101.3891079138889 +x_0=-34836.161 +y_0=56464.049 +ellps=GRS80 +units=m";
@@ -362,7 +364,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3381, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=4.9762852 +lon_0=103.070275625 +x_0=19594.245 +y_0=3371.895 +ellps=GRS80 +units=m";
@@ -373,7 +375,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3382, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=5.421517541666667 +lon_0=100.3443769638889 +x_0=-23.414 +y_0=62.283 +ellps=GRS80 +units=m";
@@ -384,7 +386,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3383, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=5.964672713888889 +lon_0=100.6363711111111 +x_0=0 +y_0=0 +ellps=GRS80 +units=m";
@@ -395,7 +397,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3384, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=4.859063022222222 +lon_0=100.8154105861111 +x_0=-1.769 +y_0=133454.779 +ellps=GRS80 +units=m";
@@ -406,7 +408,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3385, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=5.972543658333334 +lon_0=102.2952416694444 +x_0=13227.851 +y_0=8739.894 +ellps=GRS80 +units=m";
@@ -417,7 +419,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3407, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=22.31213333333334 +lon_0=114.1785555555556 +x_0=40243.57775604237 +y_0=19069.93351512578 +a=6378293.645208759 +b=6356617.987679838 +to_meter=0.3047972654";
@@ -428,7 +430,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<24500, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=1.287646666666667 +lon_0=103.8530022222222 +x_0=30000 +y_0=30000 +a=6377304.063 +b=6356103.038993155 +towgs84=-11,851,5,0,0,0,0 +units=m";
@@ -439,7 +441,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<28191, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=31.73409694444445 +lon_0=35.21208055555556 +x_0=170251.555 +y_0=126867.909 +a=6378300.789 +b=6356566.435 +towgs84=-275.722,94.7824,340.894,-8.001,-4.42,-11.821,1 +units=m";
@@ -450,7 +452,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<28193, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=31.73409694444445 +lon_0=35.21208055555556 +x_0=170251.555 +y_0=1126867.909 +a=6378300.789 +b=6356566.435 +towgs84=-275.722,94.7824,340.894,-8.001,-4.42,-11.821,1 +units=m";
@@ -461,7 +463,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<30200, LatLongRadian, Cartesian, Parameters>
     {
-        typedef cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::cass_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=cass +lat_0=10.44166666666667 +lon_0=-61.33333333333334 +x_0=86501.46392051999 +y_0=65379.0134283 +a=6378293.645208759 +b=6356617.987679838 +to_meter=0.201166195164";

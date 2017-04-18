@@ -382,30 +382,9 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        struct static_projection_type<projections::tmerc, srs_sphere_tag, Geographic, Cartesian, Parameters>
-        {
-            typedef tmerc_spheroid<Geographic, Cartesian, Parameters> type;
-        };
-
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        struct static_projection_type<projections::tmerc, srs_spheroid_tag, Geographic, Cartesian, Parameters>
-        {
-            typedef tmerc_ellipsoid<Geographic, Cartesian, Parameters> type;
-        };
-
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        struct static_projection_type<projections::utm, srs_sphere_tag, Geographic, Cartesian, Parameters>
-        {
-            typedef utm_spheroid<Geographic, Cartesian, Parameters> type;
-        };
-
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        struct static_projection_type<projections::utm, srs_spheroid_tag, Geographic, Cartesian, Parameters>
-        {
-            typedef utm_ellipsoid<Geographic, Cartesian, Parameters> type;
-        };
-
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::tmerc, tmerc_spheroid, tmerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::utm, utm_spheroid, utm_ellipsoid)
+        
         // Factory entry(s) - dynamic projection
         template <typename Geographic, typename Cartesian, typename Parameters>
         class tmerc_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>

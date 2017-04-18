@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct poly {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace poly
+    namespace detail
     {
+        namespace poly
+        {
 
             static const double TOL = 1e-10;
             static const double CONV = 1e-10;
@@ -204,56 +208,54 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::poly
-    #endif // doxygen
+        } // namespace poly
 
-    /*!
-        \brief Polyconic (American) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_poly.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Polyconic (American) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_poly.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::poly::setup_poly(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::poly::setup_poly(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Polyconic (American) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_poly.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct poly_spheroid : public detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Polyconic (American) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_poly.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct poly_spheroid : public detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::poly::setup_poly(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::poly::setup_poly(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::poly, poly_spheroid, poly_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

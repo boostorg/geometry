@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct eqc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eqc
+    namespace detail
     {
+        namespace eqc
+        {
 
             struct par_eqc
             {
@@ -99,36 +103,34 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::eqc
-    #endif // doxygen
+        } // namespace eqc
 
-    /*!
-        \brief Equidistant Cylindrical (Plate Caree) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-         - lat_0: Latitude of origin
-        \par Example
-        \image html ex_eqc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct eqc_spheroid : public detail::eqc::base_eqc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline eqc_spheroid(const Parameters& par) : detail::eqc::base_eqc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Equidistant Cylindrical (Plate Caree) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+             - lat_0: Latitude of origin
+            \par Example
+            \image html ex_eqc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct eqc_spheroid : public detail::eqc::base_eqc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::eqc::setup_eqc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline eqc_spheroid(const Parameters& par) : detail::eqc::base_eqc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::eqc::setup_eqc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eqc, eqc_spheroid, eqc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

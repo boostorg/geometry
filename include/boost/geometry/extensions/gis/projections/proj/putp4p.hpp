@@ -47,9 +47,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct putp4p {};
+    struct weren {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp4p
+    namespace detail
     {
+        namespace putp4p
+        {
 
             struct par_putp4p
             {
@@ -125,54 +130,53 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::putp4p
-    #endif // doxygen
+        } // namespace putp4p
 
-    /*!
-        \brief Putnins P4' projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_putp4p.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Putnins P4' projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_putp4p.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::putp4p::setup_putp4p(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::putp4p::setup_putp4p(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Werenskiold I projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_weren.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Werenskiold I projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_weren.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::putp4p::setup_weren(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::putp4p::setup_weren(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::putp4p, putp4p_spheroid, putp4p_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::weren, weren_spheroid, weren_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

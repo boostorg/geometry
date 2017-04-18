@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct somerc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace somerc
+    namespace detail
     {
+        namespace somerc
+        {
 
             static const double EPS = 1.e-10;
             static const int NITER = 6;
@@ -147,35 +151,33 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.kR = par.k0 * sqrt(par.one_es) / (1. - sp * sp);
             }
 
-        }} // namespace detail::somerc
-    #endif // doxygen
+        } // namespace somerc
 
-    /*!
-        \brief Swiss. Obl. Mercator projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Ellipsoid
-         - For CH1903
-        \par Example
-        \image html ex_somerc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Swiss. Obl. Mercator projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Ellipsoid
+             - For CH1903
+            \par Example
+            \image html ex_somerc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::somerc::setup_somerc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::somerc::setup_somerc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
-
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::somerc, somerc_ellipsoid, somerc_ellipsoid)
+    
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
         class somerc_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>

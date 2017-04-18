@@ -45,9 +45,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct mbt_fps {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbt_fps
+    namespace detail
     {
+        namespace mbt_fps
+        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -117,33 +121,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0;
             }
 
-        }} // namespace detail::mbt_fps
-    #endif // doxygen
+        } // namespace mbt_fps
 
-    /*!
-        \brief McBryde-Thomas Flat-Pole Sine (No. 2) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_mbt_fps.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct mbt_fps_spheroid : public detail::mbt_fps::base_mbt_fps_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline mbt_fps_spheroid(const Parameters& par) : detail::mbt_fps::base_mbt_fps_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief McBryde-Thomas Flat-Pole Sine (No. 2) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_mbt_fps.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct mbt_fps_spheroid : public detail::mbt_fps::base_mbt_fps_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::mbt_fps::setup_mbt_fps(this->m_par);
-        }
-    };
+            inline mbt_fps_spheroid(const Parameters& par) : detail::mbt_fps::base_mbt_fps_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::mbt_fps::setup_mbt_fps(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mbt_fps, mbt_fps_spheroid, mbt_fps_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

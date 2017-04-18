@@ -45,9 +45,16 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct kav5 {};
+    struct qua_aut {};
+    struct mbt_s {};
+    struct fouc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace sts
+    namespace detail
     {
+        namespace sts
+        {
 
             struct par_sts
             {
@@ -151,96 +158,97 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm, 2., 2., 1);
             }
 
-        }} // namespace detail::sts
-    #endif // doxygen
+        } // namespace sts
 
-    /*!
-        \brief Kavraisky V projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_kav5.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct kav5_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Kavraisky V projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_kav5.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct kav5_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::sts::setup_kav5(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::sts::setup_kav5(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Quartic Authalic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_qua_aut.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Quartic Authalic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_qua_aut.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::sts::setup_qua_aut(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::sts::setup_qua_aut(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief McBryde-Thomas Flat-Polar Sine (No. 1) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_mbt_s.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief McBryde-Thomas Flat-Polar Sine (No. 1) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_mbt_s.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::sts::setup_mbt_s(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::sts::setup_mbt_s(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Foucaut projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_fouc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct fouc_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Foucaut projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_fouc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct fouc_spheroid : public detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::sts::setup_fouc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::sts::setup_fouc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::kav5, kav5_spheroid, kav5_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::qua_aut, qua_aut_spheroid, qua_aut_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mbt_s, mbt_s_spheroid, mbt_s_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::fouc, fouc_spheroid, fouc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

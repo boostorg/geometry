@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct collg {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace collg
+    namespace detail
     {
+        namespace collg
+        {
 
             static const double FXC = 1.12837916709551257390;
             static const double FYC = 1.77245385090551602729;
@@ -109,33 +113,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::collg
-    #endif // doxygen
+        } // namespace collg
 
-    /*!
-        \brief Collignon projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_collg.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct collg_spheroid : public detail::collg::base_collg_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Collignon projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_collg.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct collg_spheroid : public detail::collg::base_collg_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::collg::setup_collg(this->m_par);
-        }
-    };
+            inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::collg::setup_collg(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::collg, collg_spheroid, collg_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

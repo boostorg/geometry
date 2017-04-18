@@ -45,9 +45,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct urm5 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urm5
+    namespace detail
     {
+        namespace urm5
+        {
 
             struct par_urm5
             {
@@ -103,38 +107,36 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::urm5
-    #endif // doxygen
+        } // namespace urm5
 
-    /*!
-        \brief Urmaev V projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-         - no inverse
-        \par Projection parameters
-         - n (real)
-         - q (real)
-         - alpha: Alpha (degrees)
-        \par Example
-        \image html ex_urm5.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Urmaev V projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+             - no inverse
+            \par Projection parameters
+             - n (real)
+             - q (real)
+             - alpha: Alpha (degrees)
+            \par Example
+            \image html ex_urm5.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::urm5, urm5_spheroid, urm5_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -47,9 +47,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct putp6 {};
+    struct putp6p {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp6
+    namespace detail
     {
+        namespace putp6
+        {
 
             static const double EPS = 1e-10;
             static const int NITER = 10;
@@ -148,54 +153,53 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::putp6
-    #endif // doxygen
+        } // namespace putp6
 
-    /*!
-        \brief Putnins P6 projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_putp6.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct putp6_spheroid : public detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline putp6_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Putnins P6 projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_putp6.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct putp6_spheroid : public detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::putp6::setup_putp6(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline putp6_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::putp6::setup_putp6(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Putnins P6' projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_putp6p.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct putp6p_spheroid : public detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline putp6p_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Putnins P6' projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_putp6p.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct putp6p_spheroid : public detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::putp6::setup_putp6p(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline putp6p_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::putp6::setup_putp6p(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::putp6, putp6_spheroid, putp6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::putp6p, putp6p_spheroid, putp6p_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

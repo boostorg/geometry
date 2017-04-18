@@ -49,9 +49,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct eqdc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eqdc
+    namespace detail
     {
+        namespace eqdc
+        {
 
             static const double EPS10 = 1.e-10;
 
@@ -172,37 +176,35 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::eqdc
-    #endif // doxygen
+        } // namespace eqdc
 
-    /*!
-        \brief Equidistant Conic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-         - lat_2: Latitude of second standard parallel (degrees)
-        \par Example
-        \image html ex_eqdc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Equidistant Conic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+             - lat_2: Latitude of second standard parallel (degrees)
+            \par Example
+            \image html ex_eqdc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::eqdc::setup_eqdc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::eqdc::setup_eqdc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eqdc, eqdc_ellipsoid, eqdc_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

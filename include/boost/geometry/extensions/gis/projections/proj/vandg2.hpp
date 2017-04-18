@@ -46,9 +46,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct vandg2 {};
+    struct vandg3 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg2
+    namespace detail
     {
+        namespace vandg2
+        {
 
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
@@ -126,56 +131,55 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::vandg2
-    #endif // doxygen
+        } // namespace vandg2
 
-    /*!
-        \brief van der Grinten II projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_vandg2.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief van der Grinten II projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_vandg2.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::vandg2::setup_vandg2(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::vandg2::setup_vandg2(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief van der Grinten III projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_vandg3.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief van der Grinten III projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_vandg3.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::vandg2::setup_vandg3(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::vandg2::setup_vandg3(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::vandg2, vandg2_spheroid, vandg2_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::vandg3, vandg3_spheroid, vandg3_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

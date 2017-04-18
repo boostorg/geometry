@@ -48,9 +48,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct bonne {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bonne
+    namespace detail
     {
+        namespace bonne
+        {
 
             static const double EPS10 = 1e-10;
 
@@ -186,60 +190,58 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::bonne
-    #endif // doxygen
+        } // namespace detail::bonne
 
-    /*!
-        \brief Bonne (Werner lat_1=90) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-        \par Example
-        \image html ex_bonne.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct bonne_ellipsoid : public detail::bonne::base_bonne_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline bonne_ellipsoid(const Parameters& par) : detail::bonne::base_bonne_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Bonne (Werner lat_1=90) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+            \par Example
+            \image html ex_bonne.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct bonne_ellipsoid : public detail::bonne::base_bonne_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline bonne_ellipsoid(const Parameters& par) : detail::bonne::base_bonne_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Bonne (Werner lat_1=90) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-        \par Example
-        \image html ex_bonne.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct bonne_spheroid : public detail::bonne::base_bonne_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline bonne_spheroid(const Parameters& par) : detail::bonne::base_bonne_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Bonne (Werner lat_1=90) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+            \par Example
+            \image html ex_bonne.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct bonne_spheroid : public detail::bonne::base_bonne_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline bonne_spheroid(const Parameters& par) : detail::bonne::base_bonne_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::bonne, bonne_spheroid, bonne_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

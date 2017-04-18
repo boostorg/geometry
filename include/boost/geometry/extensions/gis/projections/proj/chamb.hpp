@@ -48,9 +48,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct chamb {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace chamb
+    namespace detail
     {
+        namespace chamb
+        {
 
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
@@ -195,41 +199,39 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::chamb
-    #endif // doxygen
+        } // namespace chamb
 
-    /*!
-        \brief Chamberlin Trimetric projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Projection parameters
-         - lat_1: Latitude of control point 1 (degrees)
-         - lon_1: Longitude of control point 1 (degrees)
-         - lat_2: Latitude of control point 2 (degrees)
-         - lon_2: Longitude of control point 2 (degrees)
-         - lat_3: Latitude of control point 3 (degrees)
-         - lon_3: Longitude of control point 3 (degrees)
-        \par Example
-        \image html ex_chamb.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Chamberlin Trimetric projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Projection parameters
+             - lat_1: Latitude of control point 1 (degrees)
+             - lon_1: Longitude of control point 1 (degrees)
+             - lat_2: Latitude of control point 2 (degrees)
+             - lon_2: Longitude of control point 2 (degrees)
+             - lat_3: Latitude of control point 3 (degrees)
+             - lon_3: Longitude of control point 3 (degrees)
+            \par Example
+            \image html ex_chamb.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::chamb, chamb_spheroid, chamb_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

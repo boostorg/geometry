@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct boggs {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace boggs
+    namespace detail
     {
+        namespace boggs
+        {
 
             static const int NITER = 20;
             static const double EPS = 1e-7;
@@ -109,34 +113,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::boggs
-    #endif // doxygen
+        } // namespace detail::boggs
 
-    /*!
-        \brief Boggs Eumorphic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - no inverse
-         - Spheroid
-        \par Example
-        \image html ex_boggs.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Boggs Eumorphic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - no inverse
+             - Spheroid
+            \par Example
+            \image html ex_boggs.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::boggs::setup_boggs(this->m_par);
-        }
-    };
+            inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::boggs::setup_boggs(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::boggs, boggs_spheroid, boggs_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -45,9 +45,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct putp2 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp2
+    namespace detail
     {
+        namespace putp2
+        {
 
             static const double C_x = 1.89490;
             static const double C_y = 1.71848;
@@ -119,33 +123,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::putp2
-    #endif // doxygen
+        } // namespace putp2
 
-    /*!
-        \brief Putnins P2 projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_putp2.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct putp2_spheroid : public detail::putp2::base_putp2_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline putp2_spheroid(const Parameters& par) : detail::putp2::base_putp2_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Putnins P2 projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_putp2.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct putp2_spheroid : public detail::putp2::base_putp2_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::putp2::setup_putp2(this->m_par);
-        }
-    };
+            inline putp2_spheroid(const Parameters& par) : detail::putp2::base_putp2_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::putp2::setup_putp2(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::putp2, putp2_spheroid, putp2_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

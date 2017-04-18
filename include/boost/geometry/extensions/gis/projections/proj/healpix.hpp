@@ -56,9 +56,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct healpix {};
+    struct rhealpix {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace healpix
+    namespace detail
     {
+        namespace healpix
+        {
 
             static const double EPS = 1e-15;
 
@@ -706,102 +711,101 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::healpix
-    #endif // doxygen
+        } // namespace healpix
 
-    /*!
-        \brief HEALPix projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_healpix.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief HEALPix projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_healpix.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief HEALPix projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_healpix.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief HEALPix projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_healpix.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief rHEALPix projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - north_square (integer)
-         - south_square (integer)
-        \par Example
-        \image html ex_rhealpix.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief rHEALPix projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - north_square (integer)
+             - south_square (integer)
+            \par Example
+            \image html ex_rhealpix.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief rHEALPix projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - north_square (integer)
-         - south_square (integer)
-        \par Example
-        \image html ex_rhealpix.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief rHEALPix projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - north_square (integer)
+             - south_square (integer)
+            \par Example
+            \image html ex_rhealpix.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::healpix, healpix_spheroid, healpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

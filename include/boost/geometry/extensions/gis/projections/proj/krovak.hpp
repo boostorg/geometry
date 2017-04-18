@@ -49,9 +49,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct krovak {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace krovak
+    namespace detail
     {
+        namespace krovak
+        {
 
             struct par_krovak
             {
@@ -283,38 +287,36 @@ namespace boost { namespace geometry { namespace projections
                 /* always the same */
             }
 
-        }} // namespace detail::krovak
-    #endif // doxygen
+        } // namespace krovak
 
-    /*!
-        \brief Krovak projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Ellipsoid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-         - lat_0: Latitude of origin
-         - lon_0: Central meridian
-         - k: Scale factor on the pseudo standard parallel
-        \par Example
-        \image html ex_krovak.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Krovak projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Ellipsoid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+             - lat_0: Latitude of origin
+             - lon_0: Central meridian
+             - k: Scale factor on the pseudo standard parallel
+            \par Example
+            \image html ex_krovak.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::krovak, krovak_ellipsoid, krovak_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

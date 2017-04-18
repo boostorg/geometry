@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct ortho {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ortho
+    namespace detail
     {
+        namespace ortho
+        {
 
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
@@ -174,33 +178,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::ortho
-    #endif // doxygen
+        } // namespace ortho
 
-    /*!
-        \brief Orthographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-        \par Example
-        \image html ex_ortho.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Orthographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+            \par Example
+            \image html ex_ortho.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::ortho, ortho_spheroid, ortho_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

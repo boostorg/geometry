@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct cc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cc
+    namespace detail
     {
+        namespace cc
+        {
 
             static const double EPS10 = 1.e-10;
 
@@ -103,33 +107,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::cc
-    #endif // doxygen
+        } // namespace cc
 
-    /*!
-        \brief Central Cylindrical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_cc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct cc_spheroid : public detail::cc::base_cc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline cc_spheroid(const Parameters& par) : detail::cc::base_cc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Central Cylindrical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_cc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct cc_spheroid : public detail::cc::base_cc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::cc::setup_cc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline cc_spheroid(const Parameters& par) : detail::cc::base_cc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::cc::setup_cc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::cc, cc_spheroid, cc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

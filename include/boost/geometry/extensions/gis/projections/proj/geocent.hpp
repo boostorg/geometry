@@ -50,9 +50,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct geocent {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace geocent
+    namespace detail
     {
+        namespace geocent
+        {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -100,30 +104,28 @@ namespace boost { namespace geometry { namespace projections
                 par.y0 = 0.0;
             }
 
-        }} // namespace detail::geocent
-    #endif // doxygen
+        } // namespace geocent
 
-    /*!
-        \brief Geocentric projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_geocent.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct geocent_other : public detail::geocent::base_geocent_other<Geographic, Cartesian, Parameters>
-    {
-        inline geocent_other(const Parameters& par) : detail::geocent::base_geocent_other<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Geocentric projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Example
+            \image html ex_geocent.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct geocent_other : public detail::geocent::base_geocent_other<Geographic, Cartesian, Parameters>
         {
-            detail::geocent::setup_geocent(this->m_par);
-        }
-    };
+            inline geocent_other(const Parameters& par) : detail::geocent::base_geocent_other<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::geocent::setup_geocent(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::geocent, geocent_other, geocent_other)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -47,9 +47,15 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct moll {};
+    struct wag4 {};
+    struct wag5 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace moll
+    namespace detail
     {
+        namespace moll
+        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -151,75 +157,75 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.C_p = 3.00896;
             }
 
-        }} // namespace detail::moll
-    #endif // doxygen
+        } // namespace moll
 
-    /*!
-        \brief Mollweide projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_moll.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct moll_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Mollweide projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_moll.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct moll_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::moll::setup_moll(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::moll::setup_moll(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Wagner IV projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_wag4.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wag4_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Wagner IV projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_wag4.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wag4_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::moll::setup_wag4(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::moll::setup_wag4(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Wagner V projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_wag5.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wag5_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Wagner V projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_wag5.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wag5_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::moll::setup_wag5(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::moll::setup_wag5(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::moll, moll_spheroid, moll_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag4, wag4_spheroid, wag4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag5, wag5_spheroid, wag5_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

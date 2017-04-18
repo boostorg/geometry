@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct crast {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace crast
+    namespace detail
     {
+        namespace crast
+        {
 
             static const double XM = 0.97720502380583984317;
             static const double RXM = 1.02332670794648848847;
@@ -99,33 +103,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::crast
-    #endif // doxygen
+        } // namespace crast
 
-    /*!
-        \brief Craster Parabolic (Putnins P4) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_crast.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct crast_spheroid : public detail::crast::base_crast_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline crast_spheroid(const Parameters& par) : detail::crast::base_crast_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Craster Parabolic (Putnins P4) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_crast.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct crast_spheroid : public detail::crast::base_crast_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::crast::setup_crast(this->m_par);
-        }
-    };
+            inline crast_spheroid(const Parameters& par) : detail::crast::base_crast_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::crast::setup_crast(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::crast, crast_spheroid, crast_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

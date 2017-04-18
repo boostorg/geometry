@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct tcea {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tcea
+    namespace detail
     {
+        namespace tcea
+        {
 
             struct par_tcea
             {
@@ -104,33 +108,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::tcea
-    #endif // doxygen
-
-    /*!
-        \brief Transverse Cylindrical Equal Area projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_tcea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<Geographic, Cartesian, Parameters>(par)
+        } // namespace tcea
+    
+        /*!
+            \brief Transverse Cylindrical Equal Area projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_tcea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::tcea::setup_tcea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::tcea::setup_tcea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::tcea, tcea_spheroid, tcea_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

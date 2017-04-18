@@ -49,9 +49,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct igh {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace igh
+    namespace detail
     {
+        namespace igh
+        {
 
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct par_igh
@@ -261,33 +265,31 @@ namespace boost { namespace geometry { namespace projections
                     par.es = 0.;
             }
 
-        }} // namespace detail::igh
-    #endif // doxygen
+        } // namespace igh
 
-    /*!
-        \brief Interrupted Goode Homolosine projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_igh.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct igh_spheroid : public detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Interrupted Goode Homolosine projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_igh.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct igh_spheroid : public detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::igh::setup_igh(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::igh::setup_igh(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::igh, igh_spheroid, igh_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

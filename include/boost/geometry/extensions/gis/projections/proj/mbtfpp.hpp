@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct mbtfpp {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbtfpp
+    namespace detail
     {
+        namespace mbtfpp
+        {
 
             static const double CS_ = .95257934441568037152;
             static const double FXC = .92582009977255146156;
@@ -112,33 +116,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::mbtfpp
-    #endif // doxygen
+        } // namespace mbtfpp
 
-    /*!
-        \brief McBride-Thomas Flat-Polar Parabolic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_mbtfpp.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct mbtfpp_spheroid : public detail::mbtfpp::base_mbtfpp_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline mbtfpp_spheroid(const Parameters& par) : detail::mbtfpp::base_mbtfpp_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief McBride-Thomas Flat-Polar Parabolic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_mbtfpp.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct mbtfpp_spheroid : public detail::mbtfpp::base_mbtfpp_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::mbtfpp::setup_mbtfpp(this->m_par);
-        }
-    };
+            inline mbtfpp_spheroid(const Parameters& par) : detail::mbtfpp::base_mbtfpp_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::mbtfpp::setup_mbtfpp(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mbtfpp, mbtfpp_spheroid, mbtfpp_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

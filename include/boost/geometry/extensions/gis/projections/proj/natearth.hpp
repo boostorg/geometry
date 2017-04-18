@@ -57,9 +57,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct natearth {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace natearth
+    namespace detail
     {
+        namespace natearth
+        {
 
             static const double A0 = 0.8707;
             static const double A1 = -0.131979;
@@ -151,33 +155,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0;
             }
 
-        }} // namespace detail::natearth
-    #endif // doxygen
+        } // namespace natearth
 
-    /*!
-        \brief Natural Earth projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_natearth.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Natural Earth projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_natearth.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::natearth::setup_natearth(this->m_par);
-        }
-    };
+            inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::natearth::setup_natearth(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::natearth, natearth_spheroid, natearth_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

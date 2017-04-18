@@ -48,9 +48,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct stere {};
+    struct ups {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace stere
+    namespace detail
     {
+        namespace stere
+        {
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
@@ -356,108 +361,107 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::stere
-    #endif // doxygen
+        } // namespace stere
 
-    /*!
-        \brief Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_stere.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Stereographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_stere.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_stere.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct stere_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Stereographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_stere.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct stere_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Universal Polar Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - south: Denotes southern hemisphere UTM zone (boolean)
-        \par Example
-        \image html ex_ups.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Universal Polar Stereographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - south: Denotes southern hemisphere UTM zone (boolean)
+            \par Example
+            \image html ex_ups.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Universal Polar Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - south: Denotes southern hemisphere UTM zone (boolean)
-        \par Example
-        \image html ex_ups.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct ups_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Universal Polar Stereographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - south: Denotes southern hemisphere UTM zone (boolean)
+            \par Example
+            \image html ex_ups.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct ups_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::stere, stere_spheroid, stere_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::ups, ups_spheroid, ups_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

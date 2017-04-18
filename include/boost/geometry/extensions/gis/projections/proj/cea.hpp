@@ -48,9 +48,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct cea {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cea
+    namespace detail
     {
+        namespace cea
+        {
 
             static const double EPS = 1e-10;
 
@@ -162,60 +166,58 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::cea
-    #endif // doxygen
+        } // namespace cea
 
-    /*!
-        \brief Equal Area Cylindrical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_cea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Equal Area Cylindrical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_cea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::cea::setup_cea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::cea::setup_cea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Equal Area Cylindrical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_cea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct cea_spheroid : public detail::cea::base_cea_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Equal Area Cylindrical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_cea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct cea_spheroid : public detail::cea::base_cea_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::cea::setup_cea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::cea::setup_cea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::cea, cea_spheroid, cea_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

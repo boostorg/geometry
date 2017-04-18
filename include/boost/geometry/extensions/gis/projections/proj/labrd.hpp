@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct labrd {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace labrd
+    namespace detail
     {
+        namespace labrd
+        {
 
             static const double EPS = 1.e-10;
 
@@ -187,37 +191,35 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.Cd = 6. * proj_parm.Ca * proj_parm.Cb;
             }
 
-        }} // namespace detail::labrd
-    #endif // doxygen
+        } // namespace labrd
 
-    /*!
-        \brief Laborde projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Special for Madagascar
-        \par Projection parameters
-         - no_rot: No rotation (boolean)
-         - azi: Azimuth (or Gamma) (degrees)
-        \par Example
-        \image html ex_labrd.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Laborde projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Special for Madagascar
+            \par Projection parameters
+             - no_rot: No rotation (boolean)
+             - azi: Azimuth (or Gamma) (degrees)
+            \par Example
+            \image html ex_labrd.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::labrd, labrd_ellipsoid, labrd_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct mill {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mill
+    namespace detail
     {
+        namespace mill
+        {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -92,33 +96,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::mill
-    #endif // doxygen
+        } // namespace mill
 
-    /*!
-        \brief Miller Cylindrical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_mill.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct mill_spheroid : public detail::mill::base_mill_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline mill_spheroid(const Parameters& par) : detail::mill::base_mill_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Miller Cylindrical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_mill.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct mill_spheroid : public detail::mill::base_mill_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::mill::setup_mill(this->m_par);
-        }
-    };
+            inline mill_spheroid(const Parameters& par) : detail::mill::base_mill_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::mill::setup_mill(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mill, mill_spheroid, mill_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

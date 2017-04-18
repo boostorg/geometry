@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct goode {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace goode
+    namespace detail
     {
+        namespace goode
+        {
 
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
@@ -115,33 +119,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::goode
-    #endif // doxygen
+        } // namespace goode
 
-    /*!
-        \brief Goode Homolosine projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_goode.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct goode_spheroid : public detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Goode Homolosine projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_goode.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct goode_spheroid : public detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::goode::setup_goode(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::goode::setup_goode(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::goode, goode_spheroid, goode_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

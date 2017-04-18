@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct wag7 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag7
+    namespace detail
     {
+        namespace wag7
+        {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -88,34 +92,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::wag7
-    #endif // doxygen
+        } // namespace wag7
 
-    /*!
-        \brief Wagner VII projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_wag7.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wag7_spheroid : public detail::wag7::base_wag7_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wag7_spheroid(const Parameters& par) : detail::wag7::base_wag7_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Wagner VII projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_wag7.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wag7_spheroid : public detail::wag7::base_wag7_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::wag7::setup_wag7(this->m_par);
-        }
-    };
+            inline wag7_spheroid(const Parameters& par) : detail::wag7::base_wag7_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::wag7::setup_wag7(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag7, wag7_spheroid, wag7_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

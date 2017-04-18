@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lagrng {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lagrng
+    namespace detail
     {
+        namespace lagrng
+        {
 
             static const double TOL = 1e-10;
 
@@ -114,37 +118,35 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::lagrng
-    #endif // doxygen
+        } // namespace lagrng
 
-    /*!
-        \brief Lagrange projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Projection parameters
-         - W (real)
-         - lat_1: Latitude of first standard parallel (degrees)
-        \par Example
-        \image html ex_lagrng.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lagrange projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Projection parameters
+             - W (real)
+             - lat_1: Latitude of first standard parallel (degrees)
+            \par Example
+            \image html ex_lagrng.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lagrng, lagrng_spheroid, lagrng_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct oea {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace oea
+    namespace detail
     {
+        namespace oea
+        {
 
             struct par_oea
             {
@@ -138,37 +142,35 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::oea
-    #endif // doxygen
+        } // namespace oea
 
-    /*!
-        \brief Oblated Equal Area projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-        \par Projection parameters
-         - n (real)
-         - m (real)
-         - theta: Theta (degrees)
-        \par Example
-        \image html ex_oea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct oea_spheroid : public detail::oea::base_oea_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline oea_spheroid(const Parameters& par) : detail::oea::base_oea_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Oblated Equal Area projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+            \par Projection parameters
+             - n (real)
+             - m (real)
+             - theta: Theta (degrees)
+            \par Example
+            \image html ex_oea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct oea_spheroid : public detail::oea::base_oea_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::oea::setup_oea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline oea_spheroid(const Parameters& par) : detail::oea::base_oea_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::oea::setup_oea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::oea, oea_spheroid, oea_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

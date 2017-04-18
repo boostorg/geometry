@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lsat {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lsat
+    namespace detail
     {
+        namespace lsat
+        {
 
             static const double TOL = 1e-7;
             static const double PI_HALFPI = 4.71238898038468985766;
@@ -254,37 +258,35 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.c3 /= 45.;
             }
 
-        }} // namespace detail::lsat
-    #endif // doxygen
+        } // namespace lsat
 
-    /*!
-        \brief Space oblique for LANDSAT projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lsat (integer)
-         - path (integer)
-        \par Example
-        \image html ex_lsat.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Space oblique for LANDSAT projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lsat (integer)
+             - path (integer)
+            \par Example
+            \image html ex_lsat.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lsat, lsat_ellipsoid, lsat_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

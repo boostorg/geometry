@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct denoy {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace denoy
+    namespace detail
     {
+        namespace denoy
+        {
 
             static const double C0 = 0.95;
             static const double C1 = -.08333333333333333333;
@@ -93,34 +97,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::denoy
-    #endif // doxygen
+        } // namespace denoy
 
-    /*!
-        \brief Denoyer Semi-Elliptical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - no inverse
-         - Spheroid
-        \par Example
-        \image html ex_denoy.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Denoyer Semi-Elliptical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - no inverse
+             - Spheroid
+            \par Example
+            \image html ex_denoy.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::denoy::setup_denoy(this->m_par);
-        }
-    };
+            inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::denoy::setup_denoy(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::denoy, denoy_spheroid, denoy_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

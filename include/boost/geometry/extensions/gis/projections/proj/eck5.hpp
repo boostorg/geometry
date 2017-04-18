@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct eck5 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck5
+    namespace detail
     {
+        namespace eck5
+        {
 
             static const double XF = 0.44101277172455148219;
             static const double RXF = 2.26750802723822639137;
@@ -96,33 +100,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::eck5
-    #endif // doxygen
+        } // namespace eck5
 
-    /*!
-        \brief Eckert V projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_eck5.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct eck5_spheroid : public detail::eck5::base_eck5_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline eck5_spheroid(const Parameters& par) : detail::eck5::base_eck5_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Eckert V projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_eck5.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct eck5_spheroid : public detail::eck5::base_eck5_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::eck5::setup_eck5(this->m_par);
-        }
-    };
+            inline eck5_spheroid(const Parameters& par) : detail::eck5::base_eck5_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::eck5::setup_eck5(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eck5, eck5_spheroid, eck5_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

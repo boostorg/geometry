@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct loxim {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace loxim
+    namespace detail
     {
+        namespace loxim
+        {
 
             static const double EPS = 1e-8;
 
@@ -122,35 +126,33 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::loxim
-    #endif // doxygen
+        } // namespace loxim
 
-    /*!
-        \brief Loximuthal projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-        \par Example
-        \image html ex_loxim.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Loximuthal projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+            \par Example
+            \image html ex_loxim.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::loxim, loxim_spheroid, loxim_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct august {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace august
+    namespace detail
     {
+        namespace august
+        {
 
             static const double M = 1.333333333333333;
 
@@ -93,34 +97,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::august
-    #endif // doxygen
+        } // namespace august
 
-    /*!
-        \brief August Epicycloidal projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_august.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct august_spheroid : public detail::august::base_august_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline august_spheroid(const Parameters& par) : detail::august::base_august_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief August Epicycloidal projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_august.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct august_spheroid : public detail::august::base_august_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::august::setup_august(this->m_par);
-        }
-    };
+            inline august_spheroid(const Parameters& par) : detail::august::base_august_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::august::setup_august(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::august, august_spheroid, august_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

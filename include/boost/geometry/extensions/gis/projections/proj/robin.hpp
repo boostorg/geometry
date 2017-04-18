@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct robin {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace robin
+    namespace detail
     {
+        namespace robin
+        {
 
             static const double FXC = 0.8487;
             static const double FYC = 1.3523;
@@ -202,33 +206,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::robin
-    #endif // doxygen
+        } // namespace robin
 
-    /*!
-        \brief Robinson projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_robin.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct robin_spheroid : public detail::robin::base_robin_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Robinson projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_robin.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct robin_spheroid : public detail::robin::base_robin_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::robin::setup_robin(this->m_par);
-        }
-    };
+            inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::robin::setup_robin(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::robin, robin_spheroid, robin_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct rpoly {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rpoly
+    namespace detail
     {
+        namespace rpoly
+        {
 
             static const double EPS = 1e-9;
 
@@ -111,36 +115,34 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::rpoly
-    #endif // doxygen
+        } // namespace rpoly
 
-    /*!
-        \brief Rectangular Polyconic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - no inverse
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_rpoly.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Rectangular Polyconic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - no inverse
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_rpoly.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::rpoly::setup_rpoly(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::rpoly::setup_rpoly(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::rpoly, rpoly_spheroid, rpoly_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -48,9 +48,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct tpeqd {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tpeqd
+    namespace detail
     {
+        namespace tpeqd
+        {
 
             struct par_tpeqd
             {
@@ -157,38 +161,36 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::tpeqd
-    #endif // doxygen
+        } // namespace tpeqd
 
-    /*!
-        \brief Two Point Equidistant projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-         - lon_1 (degrees)
-         - lat_2: Latitude of second standard parallel (degrees)
-         - lon_2 (degrees)
-        \par Example
-        \image html ex_tpeqd.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Two Point Equidistant projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+             - lon_1 (degrees)
+             - lat_2: Latitude of second standard parallel (degrees)
+             - lon_2 (degrees)
+            \par Example
+            \image html ex_tpeqd.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::tpeqd, tpeqd_spheroid, tpeqd_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

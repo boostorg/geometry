@@ -52,9 +52,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct aitoff {};
+    struct wintri {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aitoff
+    namespace detail
     {
+        namespace aitoff
+        {
 
             struct par_aitoff
             {
@@ -212,56 +217,55 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::aitoff
-    #endif // doxygen
+        } // namespace aitoff
 
-    /*!
-        \brief Aitoff projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-        \par Example
-        \image html ex_aitoff.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Aitoff projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+            \par Example
+            \image html ex_aitoff.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Winkel Tripel projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-        \par Example
-        \image html ex_wintri.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Winkel Tripel projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+            \par Example
+            \image html ex_wintri.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aitoff, aitoff_spheroid, aitoff_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wintri, wintri_spheroid, wintri_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct wink1 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wink1
+    namespace detail
     {
+        namespace wink1
+        {
 
             struct par_wink1
             {
@@ -99,35 +103,33 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::wink1
-    #endif // doxygen
+        } // namespace wink1
 
-    /*!
-        \brief Winkel I projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_wink1.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Winkel I projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_wink1.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::wink1::setup_wink1(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::wink1::setup_wink1(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wink1, wink1_spheroid, wink1_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

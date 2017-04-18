@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct gall {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gall
+    namespace detail
     {
+        namespace gall
+        {
 
             static const double YF = 1.70710678118654752440;
             static const double XF = 0.70710678118654752440;
@@ -97,33 +101,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::gall
-    #endif // doxygen
+        } // namespace gall
 
-    /*!
-        \brief Gall (Gall Stereographic) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-        \par Example
-        \image html ex_gall.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gall_spheroid : public detail::gall::base_gall_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline gall_spheroid(const Parameters& par) : detail::gall::base_gall_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Gall (Gall Stereographic) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+            \par Example
+            \image html ex_gall.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct gall_spheroid : public detail::gall::base_gall_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::gall::setup_gall(this->m_par);
-        }
-    };
+            inline gall_spheroid(const Parameters& par) : detail::gall::base_gall_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::gall::setup_gall(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gall, gall_spheroid, gall_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct rouss {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rouss
+    namespace detail
     {
+        namespace rouss
+        {
 
             struct par_rouss
             {
@@ -169,33 +173,31 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.D11 = R_R0_4 * t * (37. + t2 * 44.)/(96. * N0);
             }
 
-        }} // namespace detail::rouss
-    #endif // doxygen
+        } // namespace rouss
 
-    /*!
-        \brief Roussilhe Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Ellipsoid
-        \par Example
-        \image html ex_rouss.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Roussilhe Stereographic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Ellipsoid
+            \par Example
+            \image html ex_rouss.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::rouss, rouss_ellipsoid, rouss_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

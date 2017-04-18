@@ -45,9 +45,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct fahey {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fahey
+    namespace detail
     {
+        namespace fahey
+        {
 
             static const double TOL = 1e-6;
 
@@ -96,33 +100,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::fahey
-    #endif // doxygen
+        } // namespace fahey
 
-    /*!
-        \brief Fahey projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_fahey.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct fahey_spheroid : public detail::fahey::base_fahey_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline fahey_spheroid(const Parameters& par) : detail::fahey::base_fahey_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Fahey projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_fahey.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct fahey_spheroid : public detail::fahey::base_fahey_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::fahey::setup_fahey(this->m_par);
-        }
-    };
+            inline fahey_spheroid(const Parameters& par) : detail::fahey::base_fahey_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::fahey::setup_fahey(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::fahey, fahey_spheroid, fahey_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

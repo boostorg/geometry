@@ -52,9 +52,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lcc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcc
+    namespace detail
     {
+        namespace lcc
+        {
 
             static const double EPS10 = 1.e-10;
 
@@ -194,38 +198,36 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::lcc
-    #endif // doxygen
+        } // namespace lcc
 
-    /*!
-        \brief Lambert Conformal Conic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_1: Latitude of first standard parallel (degrees)
-         - lat_2: Latitude of second standard parallel (degrees)
-         - lat_0: Latitude of origin
-        \par Example
-        \image html ex_lcc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lambert Conformal Conic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_1: Latitude of first standard parallel (degrees)
+             - lat_2: Latitude of second standard parallel (degrees)
+             - lat_0: Latitude of origin
+            \par Example
+            \image html ex_lcc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::lcc::setup_lcc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::lcc::setup_lcc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lcc, lcc_ellipsoid, lcc_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
@@ -251,7 +253,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2805, LatLongRadian, Cartesian, Parameters>
     {
-        typedef lcc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::lcc_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=lcc +lat_1=42.68333333333333 +lat_2=41.71666666666667 +lat_0=41 +lon_0=-71.5 +x_0=200000 +y_0=750000 +ellps=GRS80 +units=m";

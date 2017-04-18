@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct gnom {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gnom
+    namespace detail
     {
+        namespace gnom
+        {
 
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
@@ -186,33 +190,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::gnom
-    #endif // doxygen
+        } // namespace gnom
 
-    /*!
-        \brief Gnomonic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-        \par Example
-        \image html ex_gnom.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gnom_spheroid : public detail::gnom::base_gnom_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline gnom_spheroid(const Parameters& par) : detail::gnom::base_gnom_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Gnomonic projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+            \par Example
+            \image html ex_gnom.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct gnom_spheroid : public detail::gnom::base_gnom_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::gnom::setup_gnom(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline gnom_spheroid(const Parameters& par) : detail::gnom::base_gnom_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::gnom::setup_gnom(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gnom, gnom_spheroid, gnom_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

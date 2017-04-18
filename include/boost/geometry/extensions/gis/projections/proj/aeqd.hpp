@@ -53,9 +53,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct aeqd {};
+    struct aeqd_guam {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aeqd
+    namespace detail
     {
+        namespace aeqd
+        {
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
@@ -372,87 +377,86 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::aeqd
-    #endif // doxygen
+        } // namespace aeqd
 
-    /*!
-        \brief Azimuthal Equidistant projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin (degrees)
-         - guam (boolean)
-        \par Example
-        \image html ex_aeqd.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Azimuthal Equidistant projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_0: Latitude of origin (degrees)
+             - guam (boolean)
+            \par Example
+            \image html ex_aeqd.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Azimuthal Equidistant projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin (degrees)
-         - guam (boolean)
-        \par Example
-        \image html ex_aeqd.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct aeqd_guam : public detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>
-    {
-        inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Azimuthal Equidistant projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_0: Latitude of origin (degrees)
+             - guam (boolean)
+            \par Example
+            \image html ex_aeqd.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct aeqd_guam : public detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Azimuthal Equidistant projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin (degrees)
-         - guam (boolean)
-        \par Example
-        \image html ex_aeqd.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Azimuthal Equidistant projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_0: Latitude of origin (degrees)
+             - guam (boolean)
+            \par Example
+            \image html ex_aeqd.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aeqd, aeqd_spheroid, aeqd_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

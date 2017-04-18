@@ -51,9 +51,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct sterea {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace sterea
+    namespace detail
     {
+        namespace sterea
+        {
 
             static const double DEL_TOL = 1.e-14;
             static const int MAX_ITER = 10;
@@ -137,34 +141,32 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.R2 = 2. * R;
             }
 
-        }} // namespace detail::sterea
-    #endif // doxygen
+        } // namespace sterea
 
-    /*!
-        \brief Oblique Stereographic Alternative projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_sterea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Oblique Stereographic Alternative projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_sterea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::sterea, sterea_ellipsoid, sterea_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
@@ -190,7 +192,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2036, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=46.5 +lon_0=-66.5 +k=0.999912 +x_0=2500000 +y_0=7500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m";
@@ -201,7 +203,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2171, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=50.625 +lon_0=21.08333333333333 +k=0.9998 +x_0=4637000 +y_0=5647000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -212,7 +214,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2172, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=53.00194444444445 +lon_0=21.50277777777778 +k=0.9998 +x_0=4603000 +y_0=5806000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -223,7 +225,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2173, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=53.58333333333334 +lon_0=17.00833333333333 +k=0.9998 +x_0=3501000 +y_0=5999000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -234,7 +236,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2174, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=51.67083333333333 +lon_0=16.67222222222222 +k=0.9998 +x_0=3703000 +y_0=5627000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -245,7 +247,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2200, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=46.5 +lon_0=-66.5 +k=0.999912 +x_0=300000 +y_0=800000 +a=6378135 +b=6356750.304921594 +units=m";
@@ -256,7 +258,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2290, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=47.25 +lon_0=-63 +k=0.999912 +x_0=700000 +y_0=400000 +a=6378135 +b=6356750.304921594 +units=m";
@@ -267,7 +269,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2291, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=47.25 +lon_0=-63 +k=0.999912 +x_0=400000 +y_0=800000 +a=6378135 +b=6356750.304921594 +units=m";
@@ -278,7 +280,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2292, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=47.25 +lon_0=-63 +k=0.999912 +x_0=400000 +y_0=800000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m";
@@ -289,7 +291,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2953, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=46.5 +lon_0=-66.5 +k=0.999912 +x_0=2500000 +y_0=7500000 +ellps=GRS80 +units=m";
@@ -300,7 +302,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<2954, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=47.25 +lon_0=-63 +k=0.999912 +x_0=400000 +y_0=800000 +ellps=GRS80 +units=m";
@@ -311,7 +313,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3120, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=50.625 +lon_0=21.08333333333333 +k=0.9998 +x_0=4637000 +y_0=5467000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -322,7 +324,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<3328, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=52.16666666666666 +lon_0=19.16666666666667 +k=0.999714 +x_0=500000 +y_0=500000 +ellps=krass +towgs84=33.4,-146.6,-76.3,-0.359,-0.053,0.844,-0.84 +units=m";
@@ -333,7 +335,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<22780, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=34.2 +lon_0=39.15 +k=0.9995341 +x_0=0 +y_0=0 +a=6378249.2 +b=6356515 +units=m";
@@ -344,7 +346,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<28991, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=0 +y_0=0 +ellps=bessel +units=m";
@@ -355,7 +357,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<28992, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m";
@@ -366,7 +368,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<31600, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=45.9 +lon_0=25.39246588888889 +k=0.9996667 +x_0=500000 +y_0=500000 +ellps=intl +units=m";
@@ -377,7 +379,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<31700, LatLongRadian, Cartesian, Parameters>
     {
-        typedef sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::sterea_ellipsoid<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=sterea +lat_0=46 +lon_0=25 +k=0.99975 +x_0=500000 +y_0=500000 +ellps=krass +units=m";

@@ -52,6 +52,11 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lonlat {};
+    struct latlon {};
+    struct latlong {};
+    struct longlat {};
+
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace latlong
     {
@@ -131,84 +136,85 @@ namespace boost { namespace geometry { namespace projections
                     par.y0 = 0.0;
             }
 
-        }} // namespace detail::latlong
-    #endif // doxygen
+        } // namespace latlong
 
-    /*!
-        \brief Lat/long (Geodetic) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_lonlat.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lonlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
-    {
-        inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lat/long (Geodetic) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Example
+            \image html ex_lonlat.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lonlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
         {
-            detail::latlong::setup_lonlat(this->m_par);
-        }
-    };
+            inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::latlong::setup_lonlat(this->m_par);
+            }
+        };
 
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_latlon.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct latlon_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
-    {
-        inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lat/long (Geodetic alias) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Example
+            \image html ex_latlon.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct latlon_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
         {
-            detail::latlong::setup_latlon(this->m_par);
-        }
-    };
+            inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::latlong::setup_latlon(this->m_par);
+            }
+        };
 
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_latlong.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct latlong_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
-    {
-        inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lat/long (Geodetic alias) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Example
+            \image html ex_latlong.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct latlong_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
         {
-            detail::latlong::setup_latlong(this->m_par);
-        }
-    };
+            inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::latlong::setup_latlong(this->m_par);
+            }
+        };
 
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_longlat.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct longlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
-    {
-        inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lat/long (Geodetic alias) projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Example
+            \image html ex_longlat.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct longlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
         {
-            detail::latlong::setup_longlat(this->m_par);
-        }
-    };
+            inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::latlong::setup_longlat(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lonlat, lonlat_other, lonlat_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::latlon, latlon_other, latlon_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::latlong, latlong_other, latlong_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::longlat, longlat_other, longlat_other)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
@@ -267,7 +273,7 @@ namespace boost { namespace geometry { namespace projections
     template<typename LatLongRadian, typename Cartesian, typename Parameters>
     struct epsg_traits<4326, LatLongRadian, Cartesian, Parameters>
     {
-        typedef longlat_other<LatLongRadian, Cartesian, Parameters> type;
+        typedef detail::longlat_other<LatLongRadian, Cartesian, Parameters> type;
         static inline std::string par()
         {
             return "+proj=longlat +ellps=WGS84 +datum=WGS84";

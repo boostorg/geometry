@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lcca {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcca
+    namespace detail
     {
+        namespace lcca
+        {
 
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
@@ -149,36 +153,34 @@ namespace boost { namespace geometry { namespace projections
                 boost::ignore_unused(tan20);
             }
 
-        }} // namespace detail::lcca
-    #endif // doxygen
+        } // namespace lcca
 
-    /*!
-        \brief Lambert Conformal Conic Alternative projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Conic
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin
-        \par Example
-        \image html ex_lcca.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lcca_ellipsoid : public detail::lcca::base_lcca_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline lcca_ellipsoid(const Parameters& par) : detail::lcca::base_lcca_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lambert Conformal Conic Alternative projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Conic
+             - Spheroid
+             - Ellipsoid
+            \par Projection parameters
+             - lat_0: Latitude of origin
+            \par Example
+            \image html ex_lcca.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lcca_ellipsoid : public detail::lcca::base_lcca_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::lcca::setup_lcca(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline lcca_ellipsoid(const Parameters& par) : detail::lcca::base_lcca_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::lcca::setup_lcca(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lcca, lcca_ellipsoid, lcca_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

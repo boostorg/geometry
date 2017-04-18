@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct wag3 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag3
+    namespace detail
     {
+        namespace wag3
+        {
 
             static const double TWOTHIRD = 0.6666666666666666666667;
 
@@ -104,35 +108,33 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::wag3
-    #endif // doxygen
+        } // namespace wag3
 
-    /*!
-        \brief Wagner III projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Projection parameters
-         - lat_ts: Latitude of true scale (degrees)
-        \par Example
-        \image html ex_wag3.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Wagner III projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Projection parameters
+             - lat_ts: Latitude of true scale (degrees)
+            \par Example
+            \image html ex_wag3.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::wag3::setup_wag3(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::wag3::setup_wag3(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag3, wag3_spheroid, wag3_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

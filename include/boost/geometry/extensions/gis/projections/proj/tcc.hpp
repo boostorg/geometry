@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct tcc {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tcc
+    namespace detail
     {
+        namespace tcc
+        {
 
             static const double EPS10 = 1.e-10;
 
@@ -96,34 +100,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::tcc
-    #endif // doxygen
+        } // namespace tcc
 
-    /*!
-        \brief Transverse Central Cylindrical projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_tcc.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Transverse Central Cylindrical projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Cylindrical
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_tcc.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::tcc::setup_tcc(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::tcc::setup_tcc(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::tcc, tcc_spheroid, tcc_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

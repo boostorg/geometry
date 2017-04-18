@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct nell_h {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nell_h
+    namespace detail
     {
+        namespace nell_h
+        {
 
             static const int NITER = 9;
             static const double EPS = 1e-7;
@@ -110,33 +114,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::nell_h
-    #endif // doxygen
+        } // namespace nell_h
 
-    /*!
-        \brief Nell-Hammer projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_nell_h.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline nell_h_spheroid(const Parameters& par) : detail::nell_h::base_nell_h_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Nell-Hammer projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_nell_h.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::nell_h::setup_nell_h(this->m_par);
-        }
-    };
+            inline nell_h_spheroid(const Parameters& par) : detail::nell_h::base_nell_h_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::nell_h::setup_nell_h(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::nell_h, nell_h_spheroid, nell_h_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

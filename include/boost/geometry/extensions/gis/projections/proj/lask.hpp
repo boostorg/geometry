@@ -44,9 +44,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct lask {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lask
+    namespace detail
     {
+        namespace lask
+        {
 
             static const double a10 = 0.975534;
             static const double a12 = -0.119161;
@@ -100,34 +104,32 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::lask
-    #endif // doxygen
+        } // namespace lask
 
-    /*!
-        \brief Laskowski projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Example
-        \image html ex_lask.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct lask_spheroid : public detail::lask::base_lask_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Laskowski projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Example
+            \image html ex_lask.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct lask_spheroid : public detail::lask::base_lask_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::lask::setup_lask(this->m_par);
-        }
-    };
+            inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::lask::setup_lask(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lask, lask_spheroid, lask_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

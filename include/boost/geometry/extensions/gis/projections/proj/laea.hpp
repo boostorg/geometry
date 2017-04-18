@@ -49,9 +49,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct laea {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace laea
+    namespace detail
     {
+        namespace laea
+        {
 
             static const double EPS10 = 1.e-10;
             static const int NITER = 20;
@@ -334,56 +338,54 @@ namespace boost { namespace geometry { namespace projections
                 }
             }
 
-        }} // namespace detail::laea
-    #endif // doxygen
+        } // namespace laea
 
-    /*!
-        \brief Lambert Azimuthal Equal Area projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_laea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lambert Azimuthal Equal Area projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_laea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<Geographic, Cartesian, Parameters>
         {
-            detail::laea::setup_laea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::laea::setup_laea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Lambert Azimuthal Equal Area projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Example
-        \image html ex_laea.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct laea_spheroid : public detail::laea::base_laea_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Lambert Azimuthal Equal Area projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+             - Ellipsoid
+            \par Example
+            \image html ex_laea.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct laea_spheroid : public detail::laea::base_laea_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::laea::setup_laea(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::laea::setup_laea(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::laea, laea_spheroid, laea_ellipsoid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

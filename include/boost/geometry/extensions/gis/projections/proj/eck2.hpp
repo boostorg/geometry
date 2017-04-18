@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct eck2 {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck2
+    namespace detail
     {
+        namespace eck2
+        {
 
             static const double FXC = 0.46065886596178063902;
             static const double FYC = 1.44720250911653531871;
@@ -108,33 +112,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::eck2
-    #endif // doxygen
+        } // namespace eck2
 
-    /*!
-        \brief Eckert II projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_eck2.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct eck2_spheroid : public detail::eck2::base_eck2_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline eck2_spheroid(const Parameters& par) : detail::eck2::base_eck2_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Eckert II projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_eck2.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct eck2_spheroid : public detail::eck2::base_eck2_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::eck2::setup_eck2(this->m_par);
-        }
-    };
+            inline eck2_spheroid(const Parameters& par) : detail::eck2::base_eck2_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::eck2::setup_eck2(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eck2, eck2_spheroid, eck2_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

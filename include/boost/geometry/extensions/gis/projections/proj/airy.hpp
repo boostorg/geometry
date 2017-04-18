@@ -50,9 +50,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct airy {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace airy
+    namespace detail
     {
+        namespace airy
+        {
 
             static const double EPS = 1.e-10;
             static const int N_POLE = 0;
@@ -173,37 +177,35 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::airy
-    #endif // doxygen
+        } // namespace airy
 
-    /*!
-        \brief Airy projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Miscellaneous
-         - Spheroid
-         - no inverse
-        \par Projection parameters
-         - no_cut: Do not cut at hemisphere limit (boolean)
-         - lat_b (degrees)
-        \par Example
-        \image html ex_airy.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct airy_spheroid : public detail::airy::base_airy_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Airy projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Miscellaneous
+             - Spheroid
+             - no inverse
+            \par Projection parameters
+             - no_cut: Do not cut at hemisphere limit (boolean)
+             - lat_b (degrees)
+            \par Example
+            \image html ex_airy.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct airy_spheroid : public detail::airy::base_airy_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::airy::setup_airy(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::airy::setup_airy(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::airy, airy_spheroid, airy_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

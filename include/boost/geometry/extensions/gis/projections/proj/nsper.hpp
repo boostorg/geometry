@@ -47,9 +47,14 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct nsper {};
+    struct tpers {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nsper
+    namespace detail
     {
+        namespace nsper
+        {
 
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
@@ -237,60 +242,59 @@ namespace boost { namespace geometry { namespace projections
                 setup(par, proj_parm);
             }
 
-        }} // namespace detail::nsper
-    #endif // doxygen
+        } // namespace nsper
 
-    /*!
-        \brief Near-sided perspective projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-        \par Projection parameters
-         - h: Height
-        \par Example
-        \image html ex_nsper.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Near-sided perspective projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+            \par Projection parameters
+             - h: Height
+            \par Example
+            \image html ex_nsper.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::nsper::setup_nsper(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::nsper::setup_nsper(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    /*!
-        \brief Tilted perspective projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-        \par Projection parameters
-         - tilt: Tilt, or Omega (real)
-         - azi: Azimuth (or Gamma) (real)
-         - h: Height
-        \par Example
-        \image html ex_tpers.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Tilted perspective projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Azimuthal
+             - Spheroid
+            \par Projection parameters
+             - tilt: Tilt, or Omega (real)
+             - azi: Azimuth (or Gamma) (real)
+             - h: Height
+            \par Example
+            \image html ex_tpers.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::nsper::setup_tpers(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::nsper::setup_tpers(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::nsper, nsper_spheroid, nsper_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::tpers, tpers_spheroid, tpers_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

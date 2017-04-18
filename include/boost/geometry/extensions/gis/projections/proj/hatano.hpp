@@ -46,9 +46,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct hatano {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace hatano
+    namespace detail
     {
+        namespace hatano
+        {
 
             static const int NITER = 20;
             static const double EPS = 1e-7;
@@ -130,33 +134,31 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0.;
             }
 
-        }} // namespace detail::hatano
-    #endif // doxygen
+        } // namespace hatano
 
-    /*!
-        \brief Hatano Asymmetrical Equal Area projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_hatano.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Hatano Asymmetrical Equal Area projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Example
+            \image html ex_hatano.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::hatano::setup_hatano(this->m_par);
-        }
-    };
+            inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::hatano::setup_hatano(this->m_par);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::hatano, hatano_spheroid, hatano_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>

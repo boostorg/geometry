@@ -47,9 +47,13 @@
 
 namespace boost { namespace geometry { namespace projections
 {
+    struct fouc_s {};
+
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fouc_s
+    namespace detail
     {
+        namespace fouc_s
+        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -126,35 +130,33 @@ namespace boost { namespace geometry { namespace projections
                 par.es = 0;
             }
 
-        }} // namespace detail::fouc_s
-    #endif // doxygen
+        } // namespace fouc_s
 
-    /*!
-        \brief Foucaut Sinusoidal projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Projection parameters
-         - n (real)
-        \par Example
-        \image html ex_fouc_s.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>(par)
+        /*!
+            \brief Foucaut Sinusoidal projection
+            \ingroup projections
+            \tparam Geographic latlong point type
+            \tparam Cartesian xy point type
+            \tparam Parameters parameter type
+            \par Projection characteristics
+             - Pseudocylindrical
+             - Spheroid
+            \par Projection parameters
+             - n (real)
+            \par Example
+            \image html ex_fouc_s.gif
+        */
+        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+        struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>
         {
-            detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
-        }
-    };
+            inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>(par)
+            {
+                detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
+            }
+        };
 
-    #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
+        // Static projection
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::fouc_s, fouc_s_spheroid, fouc_s_spheroid)
 
         // Factory entry(s)
         template <typename Geographic, typename Cartesian, typename Parameters>
