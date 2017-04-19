@@ -25,6 +25,7 @@ test-suite boost-geometry-algorithms-overlay
     [ run get_turns_linear_linear.cpp      : : : : algorithms_get_turns_linear_linear ]
     [ run get_turns_linear_linear_sph.cpp  : : : : algorithms_get_turns_linear_linear_sph ]
     [ run overlay.cpp                      : : : : algorithms_overlay ]
+    [ run sort_by_side_basic.cpp           : : : : algorithms_sort_by_side_basic ]
     [ run sort_by_side.cpp                 : : : : algorithms_sort_by_side ]
     #[ run handle_touch.cpp                : : : : algorithms_handle_touch ]
     [ run relative_order.cpp               : : : : algorithms_relative_order ]

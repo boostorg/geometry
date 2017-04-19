@@ -32,9 +32,10 @@ std::string as_string(std::vector<T> const& v)
     bool first = true;
     BOOST_FOREACH(T const& value, v)
     {
-        out << (first ? "" : " , ") << value;
+        out << (first ? "[" : " , ") << value;
         first = false;
     }
+    out << (first ? "" : "]");
     return out.str();
 }
 
@@ -270,4 +271,4 @@ int test_main(int, char* [])
 {
     test_all<double>();
     return 0;
- }
+}
