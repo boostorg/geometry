@@ -247,8 +247,7 @@ void test_all()
     TEST_INT(case_recursive_boxes_22, list_of(0));
     TEST_INT(case_recursive_boxes_23, list_of(1));
 
-    // Should have (2) for third cluster
-    TEST_UNION(case_recursive_boxes_46, list_of(2)(1)(1)(1)(1)(2)(1));
+    TEST_UNION(case_recursive_boxes_46, list_of(2)(1)(2)(1)(1)(2)(1));
 
     TEST_UNION(case_62_multi, list_of(2));
     TEST_UNION(case_63_multi, list_of(2));

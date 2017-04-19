@@ -499,9 +499,10 @@ private :
     void find_polygons_for_source(signed_size_type the_index,
                 std::size_t start_index)
     {
-        int state = 1; // 'closed', because start_index is "from", arrives at the turn
-        std::size_t last_from_rank = m_ranked_points[start_index].rank;
-        std::size_t previous_rank = m_ranked_points[start_index].rank;
+        bool in_polygon = true; // Because start_index is "from", arrives at the turn
+        rp const& start_rp = m_ranked_points[start_index];
+        std::size_t last_from_rank = start_rp.rank;
+        std::size_t previous_rank = start_rp.rank;
 
         for (std::size_t index = move<Member>(the_index, start_index);
              ;
@@ -509,7 +510,7 @@ private :
         {
             rp& ranked = m_ranked_points[index];
 
-            if (ranked.rank != previous_rank && state == 0)
+            if (ranked.rank != previous_rank && ! in_polygon)
             {
                 assign_ranks(last_from_rank, previous_rank - 1, 1);
                 assign_ranks(last_from_rank + 1, previous_rank, 2);
@@ -523,11 +524,11 @@ private :
             if (ranked.direction == dir_from)
             {
                 last_from_rank = ranked.rank;
-                state++;
+                in_polygon = true;
             }
             else if (ranked.direction == dir_to)
             {
-                state--;
+                in_polygon = false;
             }
 
             previous_rank = ranked.rank;
