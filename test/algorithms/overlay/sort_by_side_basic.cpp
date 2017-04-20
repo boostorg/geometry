@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017, Oracle and/or its affiliates.
@@ -13,10 +13,16 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>  // for equals/within
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 
