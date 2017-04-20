@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -51,7 +55,7 @@ namespace boost { namespace geometry { namespace projections
     struct ob_tran_oblique {};
     struct ob_tran_transverse {};
 
-    template <typename Geographic, typename Cartesian, typename Parameters> class factory;
+    template <typename CalculationType, typename Parameters> class factory;
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -61,28 +65,28 @@ namespace boost { namespace geometry { namespace projections
 
             static const double TOL = 1e-10;
 
-            template <typename Geographic, typename Cartesian, typename Parameters>
+            template <typename CalculationType, typename Parameters>
             struct par_ob_tran
             {
-                boost::shared_ptr<base_v<Geographic, Cartesian, Parameters> > link;
+                boost::shared_ptr<base_v<CalculationType, Parameters> > link;
                 double    lamp;
                 double    cphip, sphip;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_ob_tran_oblique : public base_t_fi<base_ob_tran_oblique<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_ob_tran_oblique : public base_t_fi<base_ob_tran_oblique<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
-                par_ob_tran<Geographic, Cartesian, Parameters> m_proj_parm;
+                par_ob_tran<CalculationType, Parameters> m_proj_parm;
 
                 inline base_ob_tran_oblique(const Parameters& par)
-                    : base_t_fi<base_ob_tran_oblique<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_ob_tran_oblique<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(o_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -125,19 +129,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_ob_tran_transverse : public base_t_fi<base_ob_tran_transverse<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_ob_tran_transverse : public base_t_fi<base_ob_tran_transverse<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
-                par_ob_tran<Geographic, Cartesian, Parameters> m_proj_parm;
+                par_ob_tran<CalculationType, Parameters> m_proj_parm;
 
                 inline base_ob_tran_transverse(const Parameters& par)
-                    : base_t_fi<base_ob_tran_transverse<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_ob_tran_transverse<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(t_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -176,8 +180,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // General Oblique Transformation
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            double setup_ob_tran(Parameters& par, par_ob_tran<Geographic, Cartesian, Parameters>& proj_parm, bool create = true)
+            template <typename CalculationType, typename Parameters>
+            double setup_ob_tran(Parameters& par, par_ob_tran<CalculationType, Parameters>& proj_parm, bool create = true)
             {
                 double phip;
                 Parameters pj;
@@ -203,7 +207,7 @@ namespace boost { namespace geometry { namespace projections
 
                 if (create)
                 {
-                    factory<Geographic, Cartesian, Parameters> fac;
+                    factory<CalculationType, Parameters> fac;
                     proj_parm.link.reset(fac.create_new(pj));
                     if (! proj_parm.link.get()) throw proj_exception(-26);
                 }
@@ -278,10 +282,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_ob_tran.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>
         {
-            inline ob_tran_oblique(const Parameters& par) : detail::ob_tran::base_ob_tran_oblique<Geographic, Cartesian, Parameters>(par)
+            inline ob_tran_oblique(const Parameters& par) : detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>(par)
             {
                 detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
             }
@@ -312,10 +316,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_ob_tran.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>
         {
-            inline ob_tran_transverse(const Parameters& par) : detail::ob_tran::base_ob_tran_transverse<Geographic, Cartesian, Parameters>(par)
+            inline ob_tran_transverse(const Parameters& par) : detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>(par)
             {
                 detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
             }
@@ -326,27 +330,27 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::ob_tran_transverse, ob_tran_transverse, ob_tran_transverse)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class ob_tran_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class ob_tran_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    detail::ob_tran::par_ob_tran<Geographic, Cartesian, Parameters> proj_parm;
+                    detail::ob_tran::par_ob_tran<CalculationType, Parameters> proj_parm;
                     Parameters p = par;
                     double phip = setup_ob_tran(p, proj_parm, false);
 
                     if (fabs(phip) > detail::ob_tran::TOL)
-                        return new base_v_fi<ob_tran_oblique<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<ob_tran_oblique<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else
-                        return new base_v_fi<ob_tran_transverse<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<ob_tran_transverse<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void ob_tran_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void ob_tran_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("ob_tran", new ob_tran_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("ob_tran", new ob_tran_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

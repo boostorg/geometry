@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -83,19 +87,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_aeqd_ellipsoid : public base_t_fi<base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_aeqd_ellipsoid : public base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_aeqd m_proj_parm;
 
                 inline base_aeqd_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(e_forward)  elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -184,19 +188,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_aeqd_guam : public base_t_fi<base_aeqd_guam<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_aeqd_guam : public base_t_fi<base_aeqd_guam<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_aeqd m_proj_parm;
 
                 inline base_aeqd_guam(const Parameters& par)
-                    : base_t_fi<base_aeqd_guam<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_guam<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(e_guam_fwd)  Guam elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -237,19 +241,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_aeqd_spheroid : public base_t_fi<base_aeqd_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_aeqd_spheroid : public base_t_fi<base_aeqd_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_aeqd m_proj_parm;
 
                 inline base_aeqd_spheroid(const Parameters& par)
-                    : base_t_fi<base_aeqd_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spherical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -395,10 +399,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_aeqd.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
         {
-            inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
             }
@@ -420,10 +424,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_aeqd.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct aeqd_guam : public detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct aeqd_guam : public detail::aeqd::base_aeqd_guam<CalculationType, Parameters>
         {
-            inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<Geographic, Cartesian, Parameters>(par)
+            inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<CalculationType, Parameters>(par)
             {
                 detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
             }
@@ -445,10 +449,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_aeqd.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>
         {
-            inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>(par)
             {
                 detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
             }
@@ -459,27 +463,27 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class aeqd_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class aeqd_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
                     bool const guam = pj_param(par.params, "bguam").i;
 
                     if (par.es && ! guam)
-                        return new base_v_fi<aeqd_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<aeqd_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else if (par.es && guam)
-                        return new base_v_fi<aeqd_guam<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<aeqd_guam<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else
-                        return new base_v_fi<aeqd_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<aeqd_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void aeqd_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void aeqd_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("aeqd", new aeqd_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("aeqd", new aeqd_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

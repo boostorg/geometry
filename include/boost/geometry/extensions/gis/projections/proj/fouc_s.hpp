@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -64,19 +68,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_fouc_s_spheroid : public base_t_fi<base_fouc_s_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_fouc_s_spheroid : public base_t_fi<base_fouc_s_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_fouc_s m_proj_parm;
 
                 inline base_fouc_s_spheroid(const Parameters& par)
-                    : base_t_fi<base_fouc_s_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_fouc_s_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -146,10 +150,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_fouc_s.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>
         {
-            inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>(par)
             {
                 detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
             }
@@ -159,20 +163,20 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::fouc_s, fouc_s_spheroid, fouc_s_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class fouc_s_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class fouc_s_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<fouc_s_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<fouc_s_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void fouc_s_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void fouc_s_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("fouc_s", new fouc_s_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("fouc_s", new fouc_s_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

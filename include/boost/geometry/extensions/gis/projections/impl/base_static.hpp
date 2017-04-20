@@ -37,7 +37,7 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename Prj, typename CSTag, typename LL, typename XY, typename P>
+template <typename Prj, typename CSTag, typename CT, typename P>
 struct static_projection_type
 {
     BOOST_MPL_ASSERT_MSG((false),
@@ -46,25 +46,22 @@ struct static_projection_type
 };
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(PROJ, P_SPHERE, P_SPHEROID) \
-template <typename LL, typename XY, typename P> \
-struct static_projection_type<PROJ, srs_sphere_tag, LL, XY, P> \
+template <typename CT, typename P> \
+struct static_projection_type<PROJ, srs_sphere_tag, CT, P> \
 { \
-    typedef P_SPHERE<LL, XY, P> type; \
+    typedef P_SPHERE<CT, P> type; \
 }; \
-template <typename LL, typename XY, typename P> \
-struct static_projection_type<PROJ, srs_spheroid_tag, LL, XY, P> \
+template <typename CT, typename P> \
+struct static_projection_type<PROJ, srs_spheroid_tag, CT, P> \
 { \
-    typedef P_SPHEROID<LL, XY, P> type; \
+    typedef P_SPHEROID<CT, P> type; \
 }; \
 
 // Base-template-forward
-template <typename Prj, typename LL, typename XY, typename P>
+template <typename Prj, typename CT, typename P>
 struct base_t_f
 {
 public:
-
-    typedef LL geographic_point_type; ///< latlong point type
-    typedef XY cartesian_point_type;  ///< xy point type
 
     inline base_t_f(Prj const& prj, P const& params)
         : m_par(params), m_prj(prj)
@@ -74,6 +71,7 @@ public:
 
     inline P& mutable_params() { return m_par; }
 
+    template <typename LL, typename XY>
     inline bool forward(LL const& lp, XY& xy) const
     {
         try
@@ -94,27 +92,20 @@ public:
 
 protected:
 
-    // Some projections do not work with float -> wrong results
-    // TODO: make traits which select <double> from int/float/double and else selects T
-
-    //typedef typename geometry::coordinate_type<LL>::type LL_T;
-    //typedef typename geometry::coordinate_type<XY>::type XY_T;
-    typedef double LL_T;
-    typedef double XY_T;
-
     P m_par;
     const Prj& m_prj;
 };
 
 // Base-template-forward/inverse
-template <typename Prj, typename LL, typename XY, typename P>
-struct base_t_fi : public base_t_f<Prj, LL, XY, P>
+template <typename Prj, typename CT, typename P>
+struct base_t_fi : public base_t_f<Prj, CT, P>
 {
 public :
     inline base_t_fi(Prj const& prj, P const& params)
-        : base_t_f<Prj, LL, XY, P>(prj, params)
+        : base_t_f<Prj, CT, P>(prj, params)
     {}
 
+    template <typename XY, typename LL>
     inline bool inverse(XY const& xy, LL& lp) const
     {
         try

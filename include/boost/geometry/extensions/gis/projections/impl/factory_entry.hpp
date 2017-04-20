@@ -23,22 +23,22 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename LL, typename XY, typename P>
+template <typename CT, typename P>
 class factory_entry
 {
 public:
 
     virtual ~factory_entry() {}
-    virtual base_v<LL, XY, P>* create_new(P const& par) const = 0;
+    virtual base_v<CT, P>* create_new(P const& par) const = 0;
 };
 
-template <typename LL, typename XY, typename P>
+template <typename CT, typename P>
 class base_factory
 {
 public:
 
     virtual ~base_factory() {}
-    virtual void add_to_factory(std::string const& name, factory_entry<LL, XY, P>* sub) = 0;
+    virtual void add_to_factory(std::string const& name, factory_entry<CT, P>* sub) = 0;
 };
 
 } // namespace detail

@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -64,19 +68,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_eck3_spheroid : public base_t_fi<base_eck3_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_eck3_spheroid : public base_t_fi<base_eck3_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_eck3 m_proj_parm;
 
                 inline base_eck3_spheroid(const Parameters& par)
-                    : base_t_fi<base_eck3_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_eck3_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -167,10 +171,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_eck3.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
         {
-            inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
             {
                 detail::eck3::setup_eck3(this->m_par, this->m_proj_parm);
             }
@@ -188,10 +192,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_putp1.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
         {
-            inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
             {
                 detail::eck3::setup_putp1(this->m_par, this->m_proj_parm);
             }
@@ -209,10 +213,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_wag6.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
         {
-            inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
             {
                 detail::eck3::setup_wag6(this->m_par, this->m_proj_parm);
             }
@@ -230,10 +234,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_kav7.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
         {
-            inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
             {
                 detail::eck3::setup_kav7(this->m_par, this->m_proj_parm);
             }
@@ -246,53 +250,53 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::kav7, kav7_spheroid, kav7_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class eck3_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class eck3_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<eck3_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<eck3_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class putp1_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class putp1_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<putp1_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<putp1_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class wag6_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class wag6_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag6_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<wag6_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class kav7_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class kav7_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<kav7_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<kav7_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void eck3_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void eck3_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("eck3", new eck3_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("putp1", new putp1_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("wag6", new wag6_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("kav7", new kav7_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("eck3", new eck3_entry<CalculationType, Parameters>);
+            factory.add_to_factory("putp1", new putp1_entry<CalculationType, Parameters>);
+            factory.add_to_factory("wag6", new wag6_entry<CalculationType, Parameters>);
+            factory.add_to_factory("kav7", new kav7_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

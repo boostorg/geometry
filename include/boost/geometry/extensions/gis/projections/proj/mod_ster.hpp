@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -73,19 +77,19 @@ namespace boost { namespace geometry { namespace projections
             /* based upon Snyder and Linck, USGS-NMD */
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_mod_ster_ellipsoid : public base_t_fi<base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_mod_ster_ellipsoid : public base_t_fi<base_mod_ster_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_mod_ster m_proj_parm;
 
                 inline base_mod_ster_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_mod_ster_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -335,10 +339,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_mil_os.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
         {
-            inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::mod_ster::setup_mil_os(this->m_par, this->m_proj_parm);
             }
@@ -355,10 +359,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_lee_os.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
         {
-            inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::mod_ster::setup_lee_os(this->m_par, this->m_proj_parm);
             }
@@ -375,10 +379,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_gs48.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
         {
-            inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::mod_ster::setup_gs48(this->m_par, this->m_proj_parm);
             }
@@ -395,10 +399,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_alsk.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
         {
-            inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::mod_ster::setup_alsk(this->m_par, this->m_proj_parm);
             }
@@ -415,10 +419,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_gs50.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
         {
-            inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::mod_ster::setup_gs50(this->m_par, this->m_proj_parm);
             }
@@ -432,64 +436,64 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gs50, gs50_ellipsoid, gs50_ellipsoid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class mil_os_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class mil_os_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<mil_os_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<mil_os_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class lee_os_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class lee_os_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lee_os_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<lee_os_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class gs48_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class gs48_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gs48_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<gs48_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class alsk_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class alsk_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<alsk_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<alsk_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class gs50_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class gs50_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gs50_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<gs50_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void mod_ster_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void mod_ster_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("mil_os", new mil_os_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("lee_os", new lee_os_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("gs48", new gs48_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("alsk", new alsk_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("gs50", new gs50_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("mil_os", new mil_os_entry<CalculationType, Parameters>);
+            factory.add_to_factory("lee_os", new lee_os_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gs48", new gs48_entry<CalculationType, Parameters>);
+            factory.add_to_factory("alsk", new alsk_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gs50", new gs50_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

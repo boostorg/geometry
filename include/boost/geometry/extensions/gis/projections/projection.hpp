@@ -25,22 +25,43 @@
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
 {
 
+namespace detail
+{
+
+template <typename CT>
+struct promote_to_double
+{
+    typedef typename boost::mpl::if_c
+        <
+            boost::is_integral<CT>::value || boost::is_same<CT, float>::value,
+            double, CT
+        >::type type;
+};
+
+} // namespace detail
+
 /*!
     \brief Representation of projection
     \details Either dynamic or static projection representation
     \ingroup projection
-    \tparam LL latlong point type
-    \tparam XY xy point type
-    \tparam Proj default_dynamic or static projection tag
+    \tparam Proj default_dynamic or static projection parameters
+    \tparam CT calculation type used internally
 */
-template <typename LL, typename XY, typename Proj = default_dynamic>
+template
+<
+    typename Proj = default_dynamic,
+    typename CT = double
+>
 class projection
 {
     BOOST_MPL_ASSERT_MSG((false),
@@ -48,9 +69,13 @@ class projection
                          (Proj));
 };
 
-template <typename LL, typename XY>
-class projection<LL, XY, default_dynamic>
+template <typename CT>
+class projection<default_dynamic, CT>
 {
+    // Some projections do not work with float -> wrong results
+    // select <double> from int/float/double and else selects T
+    typedef typename detail::promote_to_double<CT>::type calc_t;
+
 public:
     /*!
     \ingroup projection
@@ -71,27 +96,28 @@ public:
                                 detail::code_to_string(params.code), false)))
     {}
 
-    typedef LL geographic_point_type; ///< latlong point type
-    typedef XY cartesian_point_type;  ///< xy point type
-
     /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
     bool forward(LL const& lp, XY& xy) const
     {
         return m_ptr->forward(lp, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
     bool inverse(XY const& xy, LL& lp) const
     {
         return m_ptr->inverse(xy, lp);
     }
 
 private:
-    static projections::detail::base_v<LL, XY>* create(parameters const& pj_params)
-    {
-        static detail::factory<LL, XY> fac;
+    typedef projections::detail::base_v<calc_t, parameters> vprj_t;
 
-        projections::detail::base_v<LL, XY>* result = fac.create_new(pj_params);
+    static vprj_t* create(parameters const& pj_params)
+    {
+        static detail::factory<calc_t, parameters> fac;
+
+        vprj_t* result = fac.create_new(pj_params);
 
         if (result == NULL)
         {
@@ -101,18 +127,19 @@ private:
         return result;
     }
 
-    boost::shared_ptr<projections::detail::base_v<LL, XY> > m_ptr;
+    boost::shared_ptr<vprj_t> m_ptr;
 };
 
-template <typename LL, typename XY, typename Proj, typename Model>
-class projection<LL, XY, static_proj4<Proj, Model> >
+template <typename Proj, typename Model, typename CT>
+class projection<static_proj4<Proj, Model>, CT>
 {
+    typedef typename detail::promote_to_double<CT>::type calc_t;
+
     typedef typename detail::static_projection_type
         <
             Proj,
             typename traits::tag<Model>::type,
-            LL,
-            XY,
+            calc_t,
             parameters
         >::type projection_type;
 
@@ -125,16 +152,15 @@ public:
         : m_proj(get_parameters(params))
     {}
 
-    typedef LL geographic_point_type; ///< latlong point type
-    typedef XY cartesian_point_type;  ///< xy point type
-
     /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
     bool forward(LL const& lp, XY& xy) const
     {
         return m_proj.forward(lp, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
     bool inverse(XY const& xy, LL& lp) const
     {
         return m_proj.inverse(xy, lp);
@@ -149,17 +175,18 @@ private:
     projection_type m_proj;
 };
 
-template <typename LL, typename XY, int Code>
-class projection<LL, XY, static_epsg<Code> >
+template <int Code, typename CT>
+class projection<static_epsg<Code>, CT>
 {
+    typedef typename detail::promote_to_double<CT>::type calc_t;
+
     typedef detail::epsg_traits<Code> epsg_traits;
 
     typedef typename detail::static_projection_type
         <
             typename epsg_traits::type,
             typename epsg_traits::srs_tag,
-            LL,
-            XY,
+            calc_t,
             parameters
         >::type projection_type;
 
@@ -168,16 +195,15 @@ public:
         : m_proj(detail::pj_init_plus(static_epsg<Code>(), epsg_traits::par(), false))
     {}
 
-    typedef LL geographic_point_type; ///< latlong point type
-    typedef XY cartesian_point_type;  ///< xy point type
-
     /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
     bool forward(LL const& lp, XY& xy) const
     {
         return m_proj.forward(lp, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
     bool inverse(XY const& xy, LL& lp) const
     {
         return m_proj.inverse(xy, lp);

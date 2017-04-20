@@ -125,8 +125,8 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename LatLong, typename Cartesian, typename Parameters = parameters>
-class factory : public detail::base_factory<LatLong, Cartesian, Parameters>
+template <typename CT, typename Parameters>
+class factory : public detail::base_factory<CT, Parameters>
 {
 private:
 
@@ -137,8 +137,7 @@ private:
                 <
                     detail::factory_entry
                         <
-                            LatLong,
-                            Cartesian,
+                            CT,
                             Parameters
                         >
                 >
@@ -252,12 +251,12 @@ public:
     virtual ~factory() {}
 
     virtual void add_to_factory(std::string const& name,
-                    detail::factory_entry<LatLong, Cartesian, Parameters>* sub)
+                    detail::factory_entry<CT, Parameters>* sub)
     {
         m_registry[name].reset(sub);
     }
 
-    inline detail::base_v<LatLong, Cartesian, Parameters>* create_new(Parameters const& parameters) const
+    inline detail::base_v<CT, Parameters>* create_new(Parameters const& parameters) const
     {
         typename prj_registry::const_iterator it = m_registry.find(parameters.name);
         if (it != m_registry.end())

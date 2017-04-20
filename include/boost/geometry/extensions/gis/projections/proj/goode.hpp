@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -57,29 +61,29 @@ namespace boost { namespace geometry { namespace projections
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
 
-            template <typename Geographic, typename Cartesian, typename Parameters>
+            template <typename CalculationType, typename Parameters>
             struct par_goode
             {
-                sinu_ellipsoid<Geographic, Cartesian, Parameters>    sinu;
-                moll_spheroid<Geographic, Cartesian, Parameters>    moll;
+                sinu_ellipsoid<CalculationType, Parameters>    sinu;
+                moll_spheroid<CalculationType, Parameters>    moll;
                 
                 par_goode(const Parameters& par) : sinu(par), moll(par) {}
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_goode_spheroid : public base_t_fi<base_goode_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_goode_spheroid : public base_t_fi<base_goode_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
-                par_goode<Geographic, Cartesian, Parameters> m_proj_parm;
+                par_goode<CalculationType, Parameters> m_proj_parm;
 
                 inline base_goode_spheroid(const Parameters& par)
-                    : base_t_fi<base_goode_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par), m_proj_parm(par) {}
+                    : base_t_fi<base_goode_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par), m_proj_parm(par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -113,8 +117,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // Goode Homolosine
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            void setup_goode(Parameters& par, par_goode<Geographic, Cartesian, Parameters>& proj_parm)
+            template <typename CalculationType, typename Parameters>
+            void setup_goode(Parameters& par, par_goode<CalculationType, Parameters>& proj_parm)
             {
                 par.es = 0.;
             }
@@ -133,10 +137,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_goode.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct goode_spheroid : public detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct goode_spheroid : public detail::goode::base_goode_spheroid<CalculationType, Parameters>
         {
-            inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<CalculationType, Parameters>(par)
             {
                 detail::goode::setup_goode(this->m_par, this->m_proj_parm);
             }
@@ -146,20 +150,20 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::goode, goode_spheroid, goode_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class goode_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class goode_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<goode_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<goode_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void goode_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void goode_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("goode", new goode_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("goode", new goode_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

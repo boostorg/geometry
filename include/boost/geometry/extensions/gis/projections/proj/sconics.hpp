@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -103,19 +107,19 @@ namespace boost { namespace geometry { namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_sconics_spheroid : public base_t_fi<base_sconics_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_sconics_spheroid : public base_t_fi<base_sconics_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_sconics m_proj_parm;
 
                 inline base_sconics_spheroid(const Parameters& par)
-                    : base_t_fi<base_sconics_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_sconics_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -297,10 +301,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_tissot.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct tissot_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct tissot_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline tissot_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline tissot_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_tissot(this->m_par, this->m_proj_parm);
             }
@@ -321,10 +325,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_murd1.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct murd1_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct murd1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline murd1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline murd1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_murd1(this->m_par, this->m_proj_parm);
             }
@@ -345,10 +349,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_murd2.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct murd2_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct murd2_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline murd2_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline murd2_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_murd2(this->m_par, this->m_proj_parm);
             }
@@ -369,10 +373,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_murd3.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct murd3_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct murd3_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline murd3_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline murd3_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_murd3(this->m_par, this->m_proj_parm);
             }
@@ -393,10 +397,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_euler.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct euler_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct euler_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline euler_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline euler_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_euler(this->m_par, this->m_proj_parm);
             }
@@ -417,10 +421,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_pconic.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct pconic_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct pconic_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline pconic_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline pconic_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_pconic(this->m_par, this->m_proj_parm);
             }
@@ -441,10 +445,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_vitk1.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct vitk1_spheroid : public detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct vitk1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
         {
-            inline vitk1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline vitk1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
             {
                 detail::sconics::setup_vitk1(this->m_par, this->m_proj_parm);
             }
@@ -460,86 +464,86 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::vitk1, vitk1_spheroid, vitk1_spheroid)
         
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class tissot_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class tissot_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<tissot_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<tissot_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class murd1_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class murd1_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<murd1_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<murd1_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class murd2_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class murd2_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<murd2_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<murd2_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class murd3_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class murd3_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<murd3_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<murd3_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class euler_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class euler_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<euler_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<euler_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class pconic_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class pconic_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<pconic_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<pconic_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class vitk1_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class vitk1_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<vitk1_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<vitk1_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void sconics_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void sconics_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("tissot", new tissot_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("murd1", new murd1_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("murd2", new murd2_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("murd3", new murd3_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("euler", new euler_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("pconic", new pconic_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("vitk1", new vitk1_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("tissot", new tissot_entry<CalculationType, Parameters>);
+            factory.add_to_factory("murd1", new murd1_entry<CalculationType, Parameters>);
+            factory.add_to_factory("murd2", new murd2_entry<CalculationType, Parameters>);
+            factory.add_to_factory("murd3", new murd3_entry<CalculationType, Parameters>);
+            factory.add_to_factory("euler", new euler_entry<CalculationType, Parameters>);
+            factory.add_to_factory("pconic", new pconic_entry<CalculationType, Parameters>);
+            factory.add_to_factory("vitk1", new vitk1_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

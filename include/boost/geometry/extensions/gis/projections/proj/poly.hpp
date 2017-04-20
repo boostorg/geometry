@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -67,19 +71,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_poly_ellipsoid : public base_t_fi<base_poly_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_poly_ellipsoid : public base_t_fi<base_poly_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_poly m_proj_parm;
 
                 inline base_poly_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_poly_ellipsoid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_poly_ellipsoid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -138,19 +142,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_poly_spheroid : public base_t_fi<base_poly_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_poly_spheroid : public base_t_fi<base_poly_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_poly m_proj_parm;
 
                 inline base_poly_spheroid(const Parameters& par)
-                    : base_t_fi<base_poly_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_poly_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -223,10 +227,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_poly.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<CalculationType, Parameters>
         {
-            inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<Geographic, Cartesian, Parameters>(par)
+            inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<CalculationType, Parameters>(par)
             {
                 detail::poly::setup_poly(this->m_par, this->m_proj_parm);
             }
@@ -245,10 +249,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_poly.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct poly_spheroid : public detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct poly_spheroid : public detail::poly::base_poly_spheroid<CalculationType, Parameters>
         {
-            inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<CalculationType, Parameters>(par)
             {
                 detail::poly::setup_poly(this->m_par, this->m_proj_parm);
             }
@@ -258,23 +262,23 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::poly, poly_spheroid, poly_ellipsoid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class poly_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class poly_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<poly_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<poly_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else
-                        return new base_v_fi<poly_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<poly_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void poly_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void poly_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("poly", new poly_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("poly", new poly_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

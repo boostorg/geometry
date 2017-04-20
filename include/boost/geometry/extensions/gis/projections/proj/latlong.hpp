@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -64,18 +68,18 @@ namespace boost { namespace geometry { namespace projections
             /* very loosely based upon DMA code by Bradford W. Drew */
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_latlong_other : public base_t_fi<base_latlong_other<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_latlong_other : public base_t_fi<base_latlong_other<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
 
                 inline base_latlong_other(const Parameters& par)
-                    : base_t_fi<base_latlong_other<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_latlong_other<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -147,10 +151,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_lonlat.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct lonlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
         {
-            inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
             {
                 detail::latlong::setup_lonlat(this->m_par);
             }
@@ -165,10 +169,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_latlon.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct latlon_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
         {
-            inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
             {
                 detail::latlong::setup_latlon(this->m_par);
             }
@@ -183,10 +187,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_latlong.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct latlong_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
         {
-            inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
             {
                 detail::latlong::setup_latlong(this->m_par);
             }
@@ -201,10 +205,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_longlat.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct longlat_other : public detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
         {
-            inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<Geographic, Cartesian, Parameters>(par)
+            inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
             {
                 detail::latlong::setup_longlat(this->m_par);
             }
@@ -217,53 +221,53 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::longlat, longlat_other, longlat_other)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class lonlat_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class lonlat_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lonlat_other<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<lonlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class latlon_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class latlon_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<latlon_other<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<latlon_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class latlong_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class latlong_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<latlong_other<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<latlong_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class longlat_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class longlat_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<longlat_other<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<longlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void latlong_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void latlong_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("lonlat", new lonlat_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("latlon", new latlon_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("latlong", new latlong_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("longlat", new longlat_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("lonlat", new lonlat_entry<CalculationType, Parameters>);
+            factory.add_to_factory("latlon", new latlon_entry<CalculationType, Parameters>);
+            factory.add_to_factory("latlong", new latlong_entry<CalculationType, Parameters>);
+            factory.add_to_factory("longlat", new longlat_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -66,19 +70,19 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_moll_spheroid : public base_t_fi<base_moll_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_moll_spheroid : public base_t_fi<base_moll_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
                 par_moll m_proj_parm;
 
                 inline base_moll_spheroid(const Parameters& par)
-                    : base_t_fi<base_moll_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_moll_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -171,10 +175,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_moll.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct moll_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct moll_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
         {
-            inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
             {
                 detail::moll::setup_moll(this->m_par, this->m_proj_parm);
             }
@@ -192,10 +196,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_wag4.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct wag4_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct wag4_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
         {
-            inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
             {
                 detail::moll::setup_wag4(this->m_par, this->m_proj_parm);
             }
@@ -213,10 +217,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_wag5.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct wag5_spheroid : public detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct wag5_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
         {
-            inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
             {
                 detail::moll::setup_wag5(this->m_par, this->m_proj_parm);
             }
@@ -228,42 +232,42 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag5, wag5_spheroid, wag5_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class moll_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class moll_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<moll_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<moll_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class wag4_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class wag4_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag4_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<wag4_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class wag5_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class wag5_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag5_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<wag5_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void moll_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void moll_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("moll", new moll_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("wag4", new wag4_entry<Geographic, Cartesian, Parameters>);
-            factory.add_to_factory("wag5", new wag5_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("moll", new moll_entry<CalculationType, Parameters>);
+            factory.add_to_factory("wag4", new wag4_entry<CalculationType, Parameters>);
+            factory.add_to_factory("wag5", new wag5_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

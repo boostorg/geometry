@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -57,10 +61,10 @@ namespace boost { namespace geometry { namespace projections
         namespace igh
         {
 
-            template <typename Geographic, typename Cartesian, typename Parameters>
+            template <typename CalculationType, typename Parameters>
             struct par_igh
             {
-                boost::shared_ptr<base_v<Geographic, Cartesian, Parameters> > pj[12];
+                boost::shared_ptr<base_v<CalculationType, Parameters> > pj[12];
                 double dy0;
             };
 
@@ -82,10 +86,10 @@ namespace boost { namespace geometry { namespace projections
             static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
-            template <template <typename, typename, typename> class Entry, typename Parameters, typename Geographic, typename Cartesian>
-            inline void do_setup(int n, Parameters const& par, par_igh<Geographic, Cartesian, Parameters>& proj_parm, double x_0, double y_0, double lon_0)
+            template <template <typename, typename> class Entry, typename Parameters, typename CalculationType>
+            inline void do_setup(int n, Parameters const& par, par_igh<CalculationType, Parameters>& proj_parm, double x_0, double y_0, double lon_0)
             {
-                Entry<Geographic, Cartesian, Parameters> entry;
+                Entry<CalculationType, Parameters> entry;
                 proj_parm.pj[n-1].reset(entry.create_new(par));
                 proj_parm.pj[n-1]->mutable_params().x0 = x_0;
                 proj_parm.pj[n-1]->mutable_params().y0 = y_0;
@@ -93,19 +97,19 @@ namespace boost { namespace geometry { namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_igh_spheroid : public base_t_fi<base_igh_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_igh_spheroid : public base_t_fi<base_igh_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
-                par_igh<Geographic, Cartesian, Parameters> m_proj_parm;
+                par_igh<CalculationType, Parameters> m_proj_parm;
 
                 inline base_igh_spheroid(const Parameters& par)
-                    : base_t_fi<base_igh_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_igh_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -208,8 +212,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
             // Interrupted Goode Homolosine
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            void setup_igh(Parameters& par, par_igh<Geographic, Cartesian, Parameters>& proj_parm)
+            template <typename CalculationType, typename Parameters>
+            void setup_igh(Parameters& par, par_igh<CalculationType, Parameters>& proj_parm)
             {
             /*
               Zones:
@@ -279,10 +283,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_igh.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct igh_spheroid : public detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct igh_spheroid : public detail::igh::base_igh_spheroid<CalculationType, Parameters>
         {
-            inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<CalculationType, Parameters>(par)
             {
                 detail::igh::setup_igh(this->m_par, this->m_proj_parm);
             }
@@ -292,20 +296,20 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::igh, igh_spheroid, igh_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class igh_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class igh_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<igh_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<igh_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void igh_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void igh_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("igh", new igh_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("igh", new igh_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail

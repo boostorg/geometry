@@ -6,6 +6,10 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -57,18 +61,18 @@ namespace boost { namespace geometry { namespace projections
             static const double LOOP_TOL = 1e-7;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_nell_spheroid : public base_t_fi<base_nell_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>
+            template <typename CalculationType, typename Parameters>
+            struct base_nell_spheroid : public base_t_fi<base_nell_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>
             {
 
-                 typedef double geographic_type;
-                 typedef double cartesian_type;
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
 
 
                 inline base_nell_spheroid(const Parameters& par)
-                    : base_t_fi<base_nell_spheroid<Geographic, Cartesian, Parameters>,
-                     Geographic, Cartesian, Parameters>(*this, par) {}
+                    : base_t_fi<base_nell_spheroid<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -126,10 +130,10 @@ namespace boost { namespace geometry { namespace projections
             \par Example
             \image html ex_nell.gif
         */
-        template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-        struct nell_spheroid : public detail::nell::base_nell_spheroid<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters = parameters>
+        struct nell_spheroid : public detail::nell::base_nell_spheroid<CalculationType, Parameters>
         {
-            inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<Geographic, Cartesian, Parameters>(par)
+            inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<CalculationType, Parameters>(par)
             {
                 detail::nell::setup_nell(this->m_par);
             }
@@ -139,20 +143,20 @@ namespace boost { namespace geometry { namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::nell, nell_spheroid, nell_spheroid)
 
         // Factory entry(s)
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        class nell_entry : public detail::factory_entry<Geographic, Cartesian, Parameters>
+        template <typename CalculationType, typename Parameters>
+        class nell_entry : public detail::factory_entry<CalculationType, Parameters>
         {
             public :
-                virtual base_v<Geographic, Cartesian>* create_new(const Parameters& par) const
+                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<nell_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<nell_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
-        template <typename Geographic, typename Cartesian, typename Parameters>
-        inline void nell_init(detail::base_factory<Geographic, Cartesian, Parameters>& factory)
+        template <typename CalculationType, typename Parameters>
+        inline void nell_init(detail::base_factory<CalculationType, Parameters>& factory)
         {
-            factory.add_to_factory("nell", new nell_entry<Geographic, Cartesian, Parameters>);
+            factory.add_to_factory("nell", new nell_entry<CalculationType, Parameters>);
         }
 
     } // namespace detail
