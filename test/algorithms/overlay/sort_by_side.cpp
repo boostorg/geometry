@@ -45,6 +45,7 @@ std::string as_string(std::vector<T> const& v)
 template
 <
     bool Reverse1, bool Reverse2,
+    bg::overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -68,7 +69,7 @@ std::vector<std::size_t> test_gather_cluster_properties(std::string const& case_
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();
@@ -162,7 +163,7 @@ std::vector<std::size_t> apply_overlay(std::string const& case_id,
                 side_strategy);
 
     // Gather cluster properties, with test option
-    return test_gather_cluster_properties<Reverse1, Reverse2>(case_id,
+    return test_gather_cluster_properties<Reverse1, Reverse2, OverlayType>(case_id,
             clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
                 geometry1, geometry2);
 }

@@ -91,7 +91,8 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
     // right side
     typedef bg::detail::overlay::sort_by_side::side_sorter
         <
-            false, false, point_type, std::less<int>
+            false, false, overlay_union,
+            point_type, std::less<int>
         > sbs_type;
 
     sbs_type sbs;

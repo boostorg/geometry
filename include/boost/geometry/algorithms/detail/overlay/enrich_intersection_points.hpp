@@ -397,8 +397,12 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
-        detail::overlay::gather_cluster_properties<Reverse1, Reverse2>(
-                clusters, turns, for_operation, geometry1, geometry2);
+        detail::overlay::gather_cluster_properties
+            <
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, for_operation, geometry1, geometry2);
     }
 
     if (has_cc)

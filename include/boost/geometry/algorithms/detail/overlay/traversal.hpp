@@ -105,7 +105,7 @@ struct traversal
     typedef typename geometry::point_type<Geometry1>::type point_type;
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2,
+            Reverse1, Reverse2, OverlayType,
             point_type, side_compare_type
         > sbs_type;
 

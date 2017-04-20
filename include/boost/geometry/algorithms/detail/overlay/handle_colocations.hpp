@@ -649,6 +649,7 @@ struct is_turn_index
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -666,7 +667,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();

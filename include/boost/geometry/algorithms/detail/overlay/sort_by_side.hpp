@@ -187,7 +187,14 @@ private :
 };
 
 // Sorts vectors in counter clockwise order (by default)
-template <bool Reverse1, bool Reverse2, typename Point, typename Compare>
+template
+<
+    bool Reverse1,
+    bool Reverse2,
+    overlay_type OverlayType,
+    typename Point,
+    typename Compare
+>
 struct side_sorter
 {
     typedef ranked_point<Point> rp;
@@ -322,7 +329,7 @@ public :
     }
 
     template <signed_size_type segment_identifier::*Member, typename Map>
-    void find_open_generic(Map& handled)
+    void find_open_generic(Map& handled, bool check)
     {
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
@@ -333,6 +340,11 @@ public :
             }
 
             signed_size_type const& index = ranked.seg_id.*Member;
+            if (check && (index < 0 || index > 1))
+            {
+                // Should not occur
+                continue;
+            }
             if (! handled[index])
             {
                 find_polygons_for_source<Member>(index, i);
@@ -343,36 +355,23 @@ public :
 
     void find_open()
     {
-        // TODO: we might pass Buffer as overlay_type, instead on the fly below
-        bool one_source = true;
-        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        if (OverlayType == overlay_buffer)
         {
-            const rp& ranked = m_ranked_points[i];
-            signed_size_type const& src = ranked.seg_id.source_index;
-            if (src != 0)
-            {
-                one_source = false;
-                break;
-            }
-        }
-
-        if (one_source)
-        {
-            // by multi index
+            // For buffers, use piece index
             std::map<signed_size_type, bool> handled;
             find_open_generic
                 <
                     &segment_identifier::piece_index
-                >(handled);
+                >(handled, false);
         }
         else
         {
-            // by source (there should only source 0,1) TODO assert this
+            // For other operations, by source (there should only source 0,1)
             bool handled[2] = {false, false};
             find_open_generic
                 <
                     &segment_identifier::source_index
-                >(handled);
+                >(handled, true);
         }
     }
 
