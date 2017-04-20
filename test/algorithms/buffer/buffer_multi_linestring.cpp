@@ -81,7 +81,9 @@ void test_all()
     test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_flat, 65.1834, 1.5, 1.5);
     test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_round, 75.2917, 1.5, 1.5);
 
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<multi_linestring_type, polygon>("degenerate0", degenerate0, join_round, end_round, 0.0, 3.0, 3.0);
+#endif // BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<multi_linestring_type, polygon>("degenerate1", degenerate1, join_round, end_round, 28.2503, 3.0, 3.0);
     test_one<multi_linestring_type, polygon>("degenerate2", degenerate2, join_round, end_round, 56.0457, 3.0, 3.0);
     test_one<multi_linestring_type, polygon>("degenerate3", degenerate3, join_round, end_round, 80.4531, 3.0, 3.0);
