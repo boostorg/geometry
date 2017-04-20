@@ -44,7 +44,7 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    bgp::projection<P1, P2, bgp::static_epsg<E> > prj;
+    bgp::projection<bgp::static_epsg<E> > prj;
     
     P1 ll;
     ll.lon(lon);

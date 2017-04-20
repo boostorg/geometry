@@ -39,7 +39,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef bgp::projection<GeoPoint, cartesian_point_type, bgp::static_proj4<Proj, Model> > projection_type;
+    typedef bgp::projection<bgp::static_proj4<Proj, Model> > projection_type;
 
     try
     {

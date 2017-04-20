@@ -33,7 +33,7 @@ int test_main(int, char*[])
         point_ll pt_ll(1, 1);
         point_xy pt_xy(0, 0);
 
-        projection<point_ll, point_xy> prj = proj4("+proj=tmerc +ellps=WGS84 +units=m");
+        projection<> prj = proj4("+proj=tmerc +ellps=WGS84 +units=m");
         
         std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
@@ -46,7 +46,7 @@ int test_main(int, char*[])
         point_ll pt_ll(1, 1);
         point_xy pt_xy(0, 0);
 
-        projection<point_ll, point_xy> prj = epsg(2000);
+        projection<> prj = epsg(2000);
 
         std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
@@ -60,7 +60,7 @@ int test_main(int, char*[])
         point_xy pt_xy(0, 0);
 
         // default WGS84 spheroid and additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc> > prj;
+        projection<static_proj4<tmerc> > prj;
 
         std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
@@ -73,7 +73,7 @@ int test_main(int, char*[])
         point_ll pt_ll(1, 1);
         point_xy pt_xy(0, 0);
 
-        projection<point_ll, point_xy, static_epsg<2000> > prj;
+        projection<static_epsg<2000> > prj;
 
         std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
@@ -84,23 +84,23 @@ int test_main(int, char*[])
 
     {
         // default spheroid and additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<tmerc, srs::spheroid<double> > >
             prj2;
 
         // default spheroid and additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<tmerc, srs::spheroid<double> > >
             prj3 = static_proj4<tmerc, srs::spheroid<double> >();
 
         // passed spheroid and default additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<tmerc, srs::spheroid<double> > >
             prj4 = static_proj4<tmerc, srs::spheroid<double> >(srs::spheroid<double>());
 
         // default spheroid and passed additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<tmerc, srs::spheroid<double> > >
             prj5 = static_proj4<tmerc, srs::spheroid<double> >("");
 
         // passed spheroid and additional parameters
-        projection<point_ll, point_xy, static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<tmerc, srs::spheroid<double> > >
             prj6 = static_proj4<tmerc, srs::spheroid<double> >(srs::spheroid<double>(), "");
     }
 

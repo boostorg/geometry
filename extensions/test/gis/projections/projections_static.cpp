@@ -126,13 +126,13 @@
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 
 
-template <template <typename, typename, typename> class Projection, typename GeoPoint>
+template <template <typename, typename> class Projection, typename GeoPoint>
 void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
         std::string const& parameters, int deviation = 1)
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef Projection<GeoPoint, cartesian_point_type, bg::projections::parameters> projection_type;
+    typedef Projection<coordinate_type, bg::projections::parameters> projection_type;
 
     try
     {

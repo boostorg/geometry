@@ -44,7 +44,7 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    bgp::projection<P1, P2, bgp::static_proj4<Prj, Model> > prj = bgp::static_proj4<Prj, Model>(parameters);
+    bgp::projection<bgp::static_proj4<Prj, Model> > prj = bgp::static_proj4<Prj, Model>(parameters);
 
     P1 ll;
     ll.lon(lon);
