@@ -1,5 +1,7 @@
 # ![Boost.Geometry](doc/other/logo/logo_bkg.png)
 
+[![Join the chat at https://gitter.im/boostorg/geometry](https://badges.gitter.im/boostorg/geometry.svg)](https://gitter.im/boostorg/geometry?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), defines concepts, primitives and algorithms for solving geometry problems.
 
 [![Licence](https://img.shields.io/badge/license-boost-4480cc.png)](http://www.boost.org/LICENSE_1_0.txt)
