@@ -26,6 +26,9 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 
+#if defined(TEST_WITH_SVG)
+#include "debug_sort_by_side_svg.hpp"
+#endif
 
 namespace
 {
@@ -204,6 +207,10 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
                         "  caseid="  << case_id
                         << " right count: expected="  << as_string(expected_right_count)
                         << " detected="  << as_string(right_count));
+
+#if defined(TEST_WITH_SVG)
+    debug::sorted_side_map(case_id, sbs, turn_point, geometry1, geometry2);
+#endif
 
     return result;
 }
