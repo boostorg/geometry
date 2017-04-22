@@ -3,6 +3,10 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -136,7 +140,7 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 
     try
     {
-        bg::projections::default_dynamic bgp; //TODO: TEMP
+        bg::srs::dynamic bgp; //TODO: TEMP
         bg::projections::parameters par = bg::projections::detail::pj_init_plus(bgp, parameters);
 
         projection_type prj(par);
@@ -162,7 +166,7 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 //            << " " << difference
 //            << std::endl;
     }
-    catch(bg::projections::proj_exception const& e)
+    catch(bg::proj_exception const& e)
     {
         std::cout << "Exception in " << projection_type::get_name() << " : " << e.code() << std::endl;
     }

@@ -22,7 +22,7 @@ int test_main(int, char*[])
 {
     using namespace boost::geometry;
     using namespace boost::geometry::model;
-    using namespace boost::geometry::projections;
+    using namespace boost::geometry::srs;
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
     typedef point<double, 2, cs::cartesian> point_xy;
@@ -60,7 +60,7 @@ int test_main(int, char*[])
         point_xy pt_xy(0, 0);
 
         // default WGS84 spheroid and additional parameters
-        projection<static_proj4<tmerc> > prj;
+        projection<static_proj4<proj::tmerc> > prj;
 
         std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
@@ -84,24 +84,24 @@ int test_main(int, char*[])
 
     {
         // default spheroid and additional parameters
-        projection<static_proj4<tmerc, srs::spheroid<double> > >
+        projection<static_proj4<proj::tmerc, ellps::WGS84> >
             prj2;
 
         // default spheroid and additional parameters
-        projection<static_proj4<tmerc, srs::spheroid<double> > >
-            prj3 = static_proj4<tmerc, srs::spheroid<double> >();
+        projection<static_proj4<proj::tmerc, ellps::WGS84> >
+            prj3 = static_proj4<proj::tmerc, ellps::WGS84>();
 
         // passed spheroid and default additional parameters
-        projection<static_proj4<tmerc, srs::spheroid<double> > >
-            prj4 = static_proj4<tmerc, srs::spheroid<double> >(srs::spheroid<double>());
+        projection<static_proj4<proj::tmerc, ellps::WGS84> >
+            prj4 = static_proj4<proj::tmerc, ellps::WGS84>(ellps::WGS84());
 
         // default spheroid and passed additional parameters
-        projection<static_proj4<tmerc, srs::spheroid<double> > >
-            prj5 = static_proj4<tmerc, srs::spheroid<double> >("");
+        projection<static_proj4<proj::tmerc, ellps::WGS84> >
+            prj5 = static_proj4<proj::tmerc, ellps::WGS84>("");
 
         // passed spheroid and additional parameters
-        projection<static_proj4<tmerc, srs::spheroid<double> > >
-            prj6 = static_proj4<tmerc, srs::spheroid<double> >(srs::spheroid<double>(), "");
+        projection<static_proj4<proj::tmerc, ellps::WGS84> >
+            prj6 = static_proj4<proj::tmerc, ellps::WGS84>(ellps::WGS84(), "");
     }
 
     return 0;

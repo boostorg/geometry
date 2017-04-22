@@ -3,6 +3,10 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -14,13 +18,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
-
-#include <boost/geometry/extensions/gis/projections/factory.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/igh.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp>
-
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/make.hpp>
@@ -31,7 +29,7 @@
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 
 
-namespace bgp = bg::projections;
+namespace srs = bg::srs;
 
 template <typename Proj, typename Model, typename GeoPoint>
 void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
@@ -39,11 +37,11 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef bgp::projection<bgp::static_proj4<Proj, Model> > projection_type;
+    typedef bg::projection<srs::static_proj4<Proj, Model> > projection_type;
 
     try
     {
-        projection_type prj = bgp::static_proj4<Proj, Model>(parameters);
+        projection_type prj = srs::static_proj4<Proj, Model>(parameters);
 
         cartesian_point_type xy1, xy2;
         prj.forward(geo_point1, xy1);
@@ -66,7 +64,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 //            << " " << difference
 //            << std::endl;
     }
-    catch(bg::projections::proj_exception const& e)
+    catch(bg::proj_exception const& e)
     {
         std::cout << "Exception in " << id << " : " << e.code() << std::endl;
     }
@@ -94,22 +92,22 @@ void test_all()
     geo_point_type denver = bg::make<geo_point_type>(-104.88, 39.76);
 
     // IGH (internally using moll/sinu)
-    test_forward<bgp::igh, bgp::ellps::sphere>("igh-au", amsterdam, utrecht, "+ellps=sphere +units=m", 5);
-    test_forward<bgp::igh, bgp::ellps::sphere>("igh-ad", aspen, denver, "+ellps=sphere +units=m", 3);
-    test_forward<bgp::igh, bgp::ellps::sphere>("igh-aw", auckland, wellington, "+ellps=sphere +units=m", 152);
-    test_forward<bgp::igh, bgp::ellps::sphere>("igh-aj", anchorage, juneau, "+ellps=sphere +units=m", 28);
+    test_forward<srs::proj::igh, srs::ellps::sphere>("igh-au", amsterdam, utrecht, "+ellps=sphere +units=m", 5);
+    test_forward<srs::proj::igh, srs::ellps::sphere>("igh-ad", aspen, denver, "+ellps=sphere +units=m", 3);
+    test_forward<srs::proj::igh, srs::ellps::sphere>("igh-aw", auckland, wellington, "+ellps=sphere +units=m", 152);
+    test_forward<srs::proj::igh, srs::ellps::sphere>("igh-aj", anchorage, juneau, "+ellps=sphere +units=m", 28);
 
     // Using moll
-    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    test_forward<srs::proj::ob_tran_oblique, srs::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    test_forward<srs::proj::ob_tran_transverse, srs::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    test_forward<srs::proj::ob_tran_oblique, srs::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    test_forward<srs::proj::ob_tran_transverse, srs::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
 
     // Using sinu
-    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<bgp::ob_tran_oblique, bgp::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
-    test_forward<bgp::ob_tran_transverse, bgp::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
+    test_forward<srs::proj::ob_tran_oblique, srs::ellps::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    test_forward<srs::proj::ob_tran_transverse, srs::ellps::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    test_forward<srs::proj::ob_tran_oblique, srs::ellps::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
+    test_forward<srs::proj::ob_tran_transverse, srs::ellps::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
 
 }
 

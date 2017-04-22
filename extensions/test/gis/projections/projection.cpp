@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -22,9 +26,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/aea.hpp>
 
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -36,7 +38,7 @@
 #include <test_common/test_point.hpp>
 
 
-namespace bgp = bg::projections;
+namespace srs = bg::srs;
 
 template <typename Prj, typename Model, typename P1, typename P2>
 void test_one(double lon, double lat,
@@ -44,7 +46,7 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    bgp::projection<bgp::static_proj4<Prj, Model> > prj = bgp::static_proj4<Prj, Model>(parameters);
+    bg::projection<srs::static_proj4<Prj, Model> > prj = srs::static_proj4<Prj, Model>(parameters);
 
     P1 ll;
     ll.lon(lon);
@@ -64,7 +66,7 @@ void test_all()
     typedef bg::model::ll::point<bg::degree, coord_type> point_type;
 
     // aea
-    test_one<bgp::aea, bgp::ellps::WGS84, point_type, P>
+    test_one<srs::proj::aea, srs::ellps::WGS84, point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }

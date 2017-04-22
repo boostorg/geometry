@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -21,11 +25,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/sterea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/tmerc.hpp>
-
 
 #include <boost/geometry/algorithms/transform.hpp>
 
@@ -37,14 +37,14 @@
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <test_common/test_point.hpp>
 
-namespace bgp = bg::projections;
+namespace srs = bg::srs;
 
 template <int E, typename P1, typename P2>
 void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    bgp::projection<bgp::static_epsg<E> > prj;
+    bg::projection<srs::static_epsg<E> > prj;
     
     P1 ll;
     ll.lon(lon);

@@ -40,7 +40,7 @@
 #include <test_common/test_point.hpp>
 
 
-namespace bgp = bg::projections;
+namespace srs = bg::srs;
 
 inline void check(double v, double ve, std::string const& name, std::string const& axis)
 {
@@ -62,7 +62,7 @@ void test_forward(std::string const& name,
     ll.lon(lon);
     ll.lat(lat);
 
-    bgp::projection<> prj = bgp::proj4(parameters);
+    bg::projection<> prj = srs::proj4(parameters);
 
     P xy;
     prj.forward(ll, xy);
@@ -87,7 +87,7 @@ void test_inverse(std::string const& name,
     bg::set<0>(xy, x);
     bg::set<1>(xy, y);
 
-    bgp::projection<> prj = bgp::proj4(parameters);
+    bg::projection<> prj = srs::proj4(parameters);
 
     lonlat_type ll;
     prj.inverse(xy, ll);
