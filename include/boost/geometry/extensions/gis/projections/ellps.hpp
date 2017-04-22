@@ -11,16 +11,15 @@
 #define BOOST_GEOMETRY_PROJECTIONS_ELLPS_HPP
 
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/sphere.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 
 
 namespace boost { namespace geometry
 {
     
-namespace projections
-{
-
-namespace detail
+#ifndef DOXYGEN_NO_DETAIL
+namespace srs { namespace detail
 {
 
 inline double b_from_a_rf(double a, double rf)
@@ -28,9 +27,8 @@ inline double b_from_a_rf(double a, double rf)
     return a * (1.0 - 1.0 / rf);
 }
 
-} // namespace detail
-
-} // namespace projections
+}} // namespace srs::detail
+#endif // DOXYGEN_NO_DETAIL
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_ELLPS(NAME, TAG) \
 namespace traits { \
@@ -51,7 +49,7 @@ struct radius_access<NAME, Dimension> \
 }
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_ELLPS_A_B(NAME, A, B) \
-namespace projections { namespace ellps { \
+namespace srs { namespace ellps { \
 struct NAME \
     : srs::spheroid<double> \
 { \
@@ -60,13 +58,13 @@ struct NAME \
     {} \
 }; \
 }} \
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_ELLPS(projections::ellps::NAME, srs_spheroid_tag)
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_ELLPS(srs::ellps::NAME, srs_spheroid_tag)
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_ELLPS_A_RF(NAME, A, RF) \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_ELLPS_A_B(NAME, A, detail::b_from_a_rf(A, RF))
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_SPHER_R(NAME, R) \
-namespace projections { namespace ellps { \
+namespace srs { namespace ellps { \
 struct NAME \
     : srs::sphere<double> \
 { \
@@ -75,7 +73,7 @@ struct NAME \
     {} \
 }; \
 }} \
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_ELLPS(projections::ellps::NAME, srs_sphere_tag)
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_ELLPS(srs::ellps::NAME, srs_sphere_tag)
 
 
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_ELLPS_A_RF(MERIT, 6378137.0, 298.257)

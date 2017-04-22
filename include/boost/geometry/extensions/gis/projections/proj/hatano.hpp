@@ -48,9 +48,17 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct hatano {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -162,7 +170,7 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::hatano, hatano_spheroid, hatano_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::hatano, hatano_spheroid, hatano_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -184,7 +192,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_HATANO_HPP
 

@@ -51,13 +51,21 @@
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_zpoly1.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct mil_os {};
     struct lee_os {};
     struct gs48 {};
     struct alsk {};
     struct gs50 {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -429,11 +437,11 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mil_os, mil_os_ellipsoid, mil_os_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lee_os, lee_os_ellipsoid, lee_os_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gs48, gs48_ellipsoid, gs48_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::alsk, alsk_ellipsoid, alsk_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gs50, gs50_ellipsoid, gs50_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mil_os, mil_os_ellipsoid, mil_os_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lee_os, lee_os_ellipsoid, lee_os_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gs48, gs48_ellipsoid, gs48_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::alsk, alsk_ellipsoid, alsk_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gs50, gs50_ellipsoid, gs50_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -499,7 +507,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_MOD_STER_HPP
 

@@ -48,9 +48,17 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct nell_h {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -142,7 +150,7 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::nell_h, nell_h_spheroid, nell_h_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::nell_h, nell_h_spheroid, nell_h_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -164,7 +172,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_NELL_H_HPP
 

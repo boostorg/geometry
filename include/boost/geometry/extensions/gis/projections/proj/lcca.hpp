@@ -49,9 +49,17 @@
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct lcca {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -184,7 +192,7 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::lcca, lcca_ellipsoid, lcca_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lcca, lcca_ellipsoid, lcca_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -206,7 +214,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_LCCA_HPP
 

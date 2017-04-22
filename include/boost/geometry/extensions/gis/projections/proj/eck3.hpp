@@ -49,12 +49,20 @@
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct eck3 {};
     struct putp1 {};
     struct wag6 {};
     struct kav7 {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -244,10 +252,10 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eck3, eck3_spheroid, eck3_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::putp1, putp1_spheroid, putp1_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::wag6, wag6_spheroid, wag6_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::kav7, kav7_spheroid, kav7_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eck3, eck3_spheroid, eck3_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::putp1, putp1_spheroid, putp1_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wag6, wag6_spheroid, wag6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::kav7, kav7_spheroid, kav7_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -302,7 +310,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_ECK3_HPP
 

@@ -52,9 +52,17 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct omerc {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -304,7 +312,7 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::omerc, omerc_ellipsoid, omerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::omerc, omerc_ellipsoid, omerc_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -326,7 +334,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_OMERC_HPP
 

@@ -50,12 +50,20 @@
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct ob_tran_oblique {};
     struct ob_tran_transverse {};
 
     template <typename CalculationType, typename Parameters> class factory;
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -326,8 +334,8 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::ob_tran_oblique, ob_tran_oblique, ob_tran_oblique)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::ob_tran_transverse, ob_tran_transverse, ob_tran_transverse)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran_oblique, ob_tran_oblique, ob_tran_oblique)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran_transverse, ob_tran_transverse, ob_tran_transverse)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -356,7 +364,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_OB_TRAN_HPP
 

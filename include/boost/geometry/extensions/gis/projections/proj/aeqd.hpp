@@ -55,10 +55,18 @@
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct aeqd {};
     struct aeqd_guam {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -459,8 +467,8 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aeqd, aeqd_spheroid, aeqd_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::aeqd_guam, aeqd_guam, aeqd_guam)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd, aeqd_spheroid, aeqd_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -489,7 +497,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_AEQD_HPP
 

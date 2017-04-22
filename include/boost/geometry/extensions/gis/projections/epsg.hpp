@@ -14,9 +14,6 @@
 #define BOOST_GEOMETRY_PROJECTIONS_EPGS_HPP
 
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_init.hpp>
-
 // This file is OPTIONAL
 // Only to be included if EPSG codes are necessary.
 // It is not included automatically

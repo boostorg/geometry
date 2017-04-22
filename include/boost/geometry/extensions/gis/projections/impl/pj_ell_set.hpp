@@ -162,7 +162,7 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameter
 // TODO: change result type to CalculationType
 // TODO: move common ellipsoid->sphere code into one function
 template <typename Proj, typename Model>
-inline void pj_ell_set(static_proj4<Proj, Model> const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
+inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
 {
     a = geometry::get_radius<0>(bg_params.model);
     double b = geometry::get_radius<2>(bg_params.model);

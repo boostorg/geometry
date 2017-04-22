@@ -23,6 +23,10 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
+// forward declaration needed by some projections
+template <typename CT, typename Parameters>
+class factory;
+
 template <typename CT, typename P>
 class factory_entry
 {

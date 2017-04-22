@@ -50,12 +50,20 @@
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct gn_sinu {};
     struct sinu {};
     struct eck6 {};
     struct mbtfps {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -343,10 +351,10 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::gn_sinu, gn_sinu_spheroid, gn_sinu_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::sinu, sinu_spheroid, sinu_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::eck6, eck6_spheroid, eck6_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::mbtfps, mbtfps_spheroid, mbtfps_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gn_sinu, gn_sinu_spheroid, gn_sinu_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::sinu, sinu_spheroid, sinu_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eck6, eck6_spheroid, eck6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mbtfps, mbtfps_spheroid, mbtfps_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -404,7 +412,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_GN_SINU_HPP
 

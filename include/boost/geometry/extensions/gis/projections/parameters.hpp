@@ -16,14 +16,13 @@
 
 #include <string>
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry { namespace srs
 {
 
-
-struct default_dynamic {};
+struct dynamic {};
 
 
 struct proj4
@@ -91,5 +90,5 @@ struct static_epsg
 };
 
 
-}}} // namespace boost::geometry::projections
+}}} // namespace boost::geometry::srs
 #endif

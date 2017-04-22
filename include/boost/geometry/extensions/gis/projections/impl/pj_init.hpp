@@ -92,22 +92,22 @@ inline void pj_push_defaults(BGParams const& bg_params, parameters& pin)
 }
 
 template <typename Proj, typename Model>
-inline void pj_push_defaults(static_proj4<Proj, Model> const& bg_params, parameters& pin)
+inline void pj_push_defaults(srs::static_proj4<Proj, Model> const& bg_params, parameters& pin)
 {
     // always set in the model
     //pin.params.push_back(pj_mkparam("ellps=WGS84"));
 
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::aea>::value)))
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::aea>::value)))
     {
         pin.params.push_back(pj_mkparam("lat_1=29.5"));
         pin.params.push_back(pj_mkparam("lat_2=45.5 "));
     }
-    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::lcc>::value)))
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lcc>::value)))
     {
         pin.params.push_back(pj_mkparam("lat_1=33"));
         pin.params.push_back(pj_mkparam("lat_2=45"));
     }
-    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, projections::lagrng>::value)))
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lagrng>::value)))
     {
         pin.params.push_back(pj_mkparam("W=2"));
     }

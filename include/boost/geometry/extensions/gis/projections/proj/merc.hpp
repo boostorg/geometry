@@ -51,9 +51,17 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
+{
+
+namespace srs { namespace proj
 {
     struct merc {};
+
+}} //namespace srs::proj
+
+namespace projections
+{
 
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
@@ -210,7 +218,7 @@ namespace boost { namespace geometry { namespace projections
         };
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(projections::merc, merc_spheroid, merc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::merc, merc_spheroid, merc_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -235,7 +243,9 @@ namespace boost { namespace geometry { namespace projections
     } // namespace detail
     #endif // doxygen
 
-}}} // namespace boost::geometry::projections
+} // namespace projections
+
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_MERC_HPP
 

@@ -19,9 +19,11 @@
 #include <boost/geometry/extensions/gis/projections/ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
+#include <boost/geometry/extensions/gis/projections/exception.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_init.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
 #include <boost/mpl/assert.hpp>
@@ -32,10 +34,11 @@
 #include <boost/type_traits/is_same.hpp>
 
 
-namespace boost { namespace geometry { namespace projections
+namespace boost { namespace geometry
 {
-
-namespace detail
+    
+#ifndef DOXYGEN_NO_DETAIL
+namespace projections { namespace detail
 {
 
 template <typename CT>
@@ -48,7 +51,8 @@ struct promote_to_double
         >::type type;
 };
 
-} // namespace detail
+}} // namespace projections::detail
+#endif // DOXYGEN_NO_DETAIL
 
 /*!
     \brief Representation of projection
@@ -59,7 +63,7 @@ struct promote_to_double
 */
 template
 <
-    typename Proj = default_dynamic,
+    typename Proj = srs::dynamic,
     typename CT = double
 >
 class projection
@@ -70,11 +74,11 @@ class projection
 };
 
 template <typename CT>
-class projection<default_dynamic, CT>
+class projection<srs::dynamic, CT>
 {
     // Some projections do not work with float -> wrong results
     // select <double> from int/float/double and else selects T
-    typedef typename detail::promote_to_double<CT>::type calc_t;
+    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
 public:
     /*!
@@ -87,13 +91,16 @@ public:
         for the Madagascar projection.
     \note Parameters are described in the group
     */
-    projection(proj4 const& params)
-        : m_ptr(create(detail::pj_init_plus(default_dynamic(), params.str)))
+    projection(srs::proj4 const& params)
+        : m_ptr(create(projections::detail::pj_init_plus(srs::dynamic(),
+                                params.str)))
     {}
 
-    projection(epsg const& params)
-        : m_ptr(create(detail::pj_init_plus(default_dynamic(),
-                                detail::code_to_string(params.code), false)))
+    projection(srs::epsg const& params)
+        : m_ptr(create(projections::detail::pj_init_plus(
+                            srs::dynamic(),
+                            projections::detail::code_to_string(params.code),
+                            false)))
     {}
 
     /// Forward projection, from Latitude-Longitude to Cartesian
@@ -111,11 +118,11 @@ public:
     }
 
 private:
-    typedef projections::detail::base_v<calc_t, parameters> vprj_t;
+    typedef projections::detail::base_v<calc_t, projections::parameters> vprj_t;
 
-    static vprj_t* create(parameters const& pj_params)
+    static vprj_t* create(projections::parameters const& pj_params)
     {
-        static detail::factory<calc_t, parameters> fac;
+        static projections::detail::factory<calc_t, projections::parameters> fac;
 
         vprj_t* result = fac.create_new(pj_params);
 
@@ -131,24 +138,24 @@ private:
 };
 
 template <typename Proj, typename Model, typename CT>
-class projection<static_proj4<Proj, Model>, CT>
+class projection<srs::static_proj4<Proj, Model>, CT>
 {
-    typedef typename detail::promote_to_double<CT>::type calc_t;
+    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
-    typedef typename detail::static_projection_type
+    typedef typename projections::detail::static_projection_type
         <
             Proj,
             typename traits::tag<Model>::type,
             calc_t,
-            parameters
+            projections::parameters
         >::type projection_type;
 
 public:
     projection()
-        : m_proj(get_parameters(static_proj4<Proj, Model>()))
+        : m_proj(get_parameters(srs::static_proj4<Proj, Model>()))
     {}
 
-    projection(static_proj4<Proj, Model> const& params)
+    projection(srs::static_proj4<Proj, Model> const& params)
         : m_proj(get_parameters(params))
     {}
 
@@ -167,32 +174,33 @@ public:
     }
 
 private:
-    static projections::parameters get_parameters(static_proj4<Proj, Model> const& params)
+    static projections::parameters get_parameters(srs::static_proj4<Proj, Model> const& params)
     {
-        return detail::pj_init_plus(params, params.str);
+        return projections::detail::pj_init_plus(params, params.str);
     }
 
     projection_type m_proj;
 };
 
 template <int Code, typename CT>
-class projection<static_epsg<Code>, CT>
+class projection<srs::static_epsg<Code>, CT>
 {
-    typedef typename detail::promote_to_double<CT>::type calc_t;
+    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
-    typedef detail::epsg_traits<Code> epsg_traits;
+    typedef projections::detail::epsg_traits<Code> epsg_traits;
 
-    typedef typename detail::static_projection_type
+    typedef typename projections::detail::static_projection_type
         <
             typename epsg_traits::type,
             typename epsg_traits::srs_tag,
             calc_t,
-            parameters
+            projections::parameters
         >::type projection_type;
 
 public:
     projection()
-        : m_proj(detail::pj_init_plus(static_epsg<Code>(), epsg_traits::par(), false))
+        : m_proj(projections::detail::pj_init_plus(srs::static_epsg<Code>(),
+                                                   epsg_traits::par(), false))
     {}
 
     /// Forward projection, from Latitude-Longitude to Cartesian
@@ -213,8 +221,7 @@ private:
     projection_type m_proj;
 };
 
-}}} // namespace boost::geometry::projections
-
+}} // namespace boost::geometry
 
 
 #endif
