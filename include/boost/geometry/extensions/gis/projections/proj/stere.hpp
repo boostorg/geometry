@@ -62,12 +62,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace stere
     {
-        namespace stere
-        {
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
@@ -373,103 +370,108 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace stere
+    }} // namespace detail::stere
+    #endif // doxygen
 
-        /*!
-            \brief Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_stere.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_stere.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    {
+        inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::stere::setup_stere(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_stere.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct stere_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_stere.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct stere_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    {
+        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
         {
-            inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::stere::setup_stere(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Universal Polar Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - south: Denotes southern hemisphere UTM zone (boolean)
-            \par Example
-            \image html ex_ups.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Universal Polar Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - south: Denotes southern hemisphere UTM zone (boolean)
+        \par Example
+        \image html ex_ups.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    {
+        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::stere::setup_ups(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Universal Polar Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - south: Denotes southern hemisphere UTM zone (boolean)
-            \par Example
-            \image html ex_ups.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ups_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Universal Polar Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - south: Denotes southern hemisphere UTM zone (boolean)
+        \par Example
+        \image html ex_ups.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ups_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    {
+        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
         {
-            inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::stere::setup_ups(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::stere, stere_spheroid, stere_ellipsoid)

@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace august
     {
-        namespace august
-        {
 
             static const double M = 1.333333333333333;
 
@@ -109,29 +106,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace august
+    }} // namespace detail::august
+    #endif // doxygen
 
-        /*!
-            \brief August Epicycloidal projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_august.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct august_spheroid : public detail::august::base_august_spheroid<CalculationType, Parameters>
+    /*!
+        \brief August Epicycloidal projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_august.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct august_spheroid : public detail::august::base_august_spheroid<CalculationType, Parameters>
+    {
+        inline august_spheroid(const Parameters& par) : detail::august::base_august_spheroid<CalculationType, Parameters>(par)
         {
-            inline august_spheroid(const Parameters& par) : detail::august::base_august_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::august::setup_august(this->m_par);
-            }
-        };
+            detail::august::setup_august(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::august, august_spheroid, august_spheroid)

@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace eck4
     {
-        namespace eck4
-        {
 
             static const double C_x = .42223820031577120149;
             static const double C_y = 1.32650042817700232218;
@@ -139,28 +136,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace eck4
+    }} // namespace detail::eck4
+    #endif // doxygen
 
-        /*!
-            \brief Eckert IV projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_eck4.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eck4_spheroid : public detail::eck4::base_eck4_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Eckert IV projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_eck4.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eck4_spheroid : public detail::eck4::base_eck4_spheroid<CalculationType, Parameters>
+    {
+        inline eck4_spheroid(const Parameters& par) : detail::eck4::base_eck4_spheroid<CalculationType, Parameters>(par)
         {
-            inline eck4_spheroid(const Parameters& par) : detail::eck4::base_eck4_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck4::setup_eck4(this->m_par);
-            }
-        };
+            detail::eck4::setup_eck4(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eck4, eck4_spheroid, eck4_spheroid)

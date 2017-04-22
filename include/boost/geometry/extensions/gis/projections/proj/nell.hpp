@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace nell
     {
-        namespace nell
-        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -124,28 +121,33 @@ namespace projections
                 par.es = 0;
             }
 
-        } // namespace nell
+    }} // namespace detail::nell
+    #endif // doxygen
 
-        /*!
-            \brief Nell projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_nell.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct nell_spheroid : public detail::nell::base_nell_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Nell projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_nell.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct nell_spheroid : public detail::nell::base_nell_spheroid<CalculationType, Parameters>
+    {
+        inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<CalculationType, Parameters>(par)
         {
-            inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::nell::setup_nell(this->m_par);
-            }
-        };
+            detail::nell::setup_nell(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::nell, nell_spheroid, nell_spheroid)

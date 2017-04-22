@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace rouss
     {
-        namespace rouss
-        {
 
             struct par_rouss
             {
@@ -185,28 +182,33 @@ namespace projections
                 proj_parm.D11 = R_R0_4 * t * (37. + t2 * 44.)/(96. * N0);
             }
 
-        } // namespace rouss
+    }} // namespace detail::rouss
+    #endif // doxygen
 
-        /*!
-            \brief Roussilhe Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Ellipsoid
-            \par Example
-            \image html ex_rouss.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Roussilhe Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Ellipsoid
+        \par Example
+        \image html ex_rouss.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>
+    {
+        inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::rouss, rouss_ellipsoid, rouss_ellipsoid)

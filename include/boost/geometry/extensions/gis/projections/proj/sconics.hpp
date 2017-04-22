@@ -66,12 +66,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace sconics
     {
-        namespace sconics
-        {
 
             static const int EULER = 0;
             static const int MURD1 = 1;
@@ -292,175 +289,180 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace sconics
+    }} // namespace detail::sconics
+    #endif // doxygen
     
-        /*!
-            \brief Tissot projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_tissot.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tissot_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Tissot projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_tissot.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tissot_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline tissot_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline tissot_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_tissot(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_tissot(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Murdoch I projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_murd1.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct murd1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Murdoch I projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_murd1.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct murd1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline murd1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline murd1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_murd1(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_murd1(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Murdoch II projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_murd2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct murd2_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Murdoch II projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_murd2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct murd2_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline murd2_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline murd2_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_murd2(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_murd2(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Murdoch III projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_murd3.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct murd3_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Murdoch III projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_murd3.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct murd3_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline murd3_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline murd3_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_murd3(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_murd3(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Euler projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_euler.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct euler_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Euler projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_euler.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct euler_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline euler_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline euler_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_euler(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_euler(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Perspective Conic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_pconic.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct pconic_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Perspective Conic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_pconic.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct pconic_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline pconic_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline pconic_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_pconic(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_pconic(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Vitkovsky I projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-            \par Example
-            \image html ex_vitk1.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct vitk1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Vitkovsky I projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+        \par Example
+        \image html ex_vitk1.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct vitk1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
+    {
+        inline vitk1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
         {
-            inline vitk1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::sconics::setup_vitk1(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sconics::setup_vitk1(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::euler, euler_spheroid, euler_spheroid)

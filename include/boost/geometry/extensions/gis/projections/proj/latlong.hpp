@@ -68,7 +68,6 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace latlong
     {
@@ -148,79 +147,84 @@ namespace projections
                     par.y0 = 0.0;
             }
 
-        } // namespace latlong
+    }} // namespace detail::latlong
+    #endif // doxygen
 
-        /*!
-            \brief Lat/long (Geodetic) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Example
-            \image html ex_lonlat.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    /*!
+        \brief Lat/long (Geodetic) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Example
+        \image html ex_lonlat.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    {
+        inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
         {
-            inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-            {
-                detail::latlong::setup_lonlat(this->m_par);
-            }
-        };
+            detail::latlong::setup_lonlat(this->m_par);
+        }
+    };
 
-        /*!
-            \brief Lat/long (Geodetic alias) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Example
-            \image html ex_latlon.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    /*!
+        \brief Lat/long (Geodetic alias) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Example
+        \image html ex_latlon.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    {
+        inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
         {
-            inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-            {
-                detail::latlong::setup_latlon(this->m_par);
-            }
-        };
+            detail::latlong::setup_latlon(this->m_par);
+        }
+    };
 
-        /*!
-            \brief Lat/long (Geodetic alias) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Example
-            \image html ex_latlong.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    /*!
+        \brief Lat/long (Geodetic alias) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Example
+        \image html ex_latlong.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    {
+        inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
         {
-            inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-            {
-                detail::latlong::setup_latlong(this->m_par);
-            }
-        };
+            detail::latlong::setup_latlong(this->m_par);
+        }
+    };
 
-        /*!
-            \brief Lat/long (Geodetic alias) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Example
-            \image html ex_longlat.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    /*!
+        \brief Lat/long (Geodetic alias) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Example
+        \image html ex_longlat.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    {
+        inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
         {
-            inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-            {
-                detail::latlong::setup_longlat(this->m_par);
-            }
-        };
+            detail::latlong::setup_longlat(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lonlat, lonlat_other, lonlat_other)

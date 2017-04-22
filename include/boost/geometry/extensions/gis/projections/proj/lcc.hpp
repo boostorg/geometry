@@ -65,12 +65,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace lcc
     {
-        namespace lcc
-        {
 
             static const double EPS10 = 1.e-10;
 
@@ -210,33 +207,38 @@ namespace projections
                 }
             }
 
-        } // namespace lcc
+    }} // namespace detail::lcc
+    #endif // doxygen
 
-        /*!
-            \brief Lambert Conformal Conic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-             - lat_0: Latitude of origin
-            \par Example
-            \image html ex_lcc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Lambert Conformal Conic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+            - lat_0: Latitude of origin
+        \par Example
+        \image html ex_lcc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>
+    {
+        inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::lcc::setup_lcc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::lcc::setup_lcc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lcc, lcc_ellipsoid, lcc_ellipsoid)

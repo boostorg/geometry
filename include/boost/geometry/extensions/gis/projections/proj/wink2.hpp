@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace wink2
     {
-        namespace wink2
-        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -129,31 +126,36 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace wink2
+    }} // namespace detail::wink2
+    #endif // doxygen
 
-        /*!
-            \brief Winkel II projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-            \par Example
-            \image html ex_wink2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wink2_spheroid : public detail::wink2::base_wink2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Winkel II projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+        \par Example
+        \image html ex_wink2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wink2_spheroid : public detail::wink2::base_wink2_spheroid<CalculationType, Parameters>
+    {
+        inline wink2_spheroid(const Parameters& par) : detail::wink2::base_wink2_spheroid<CalculationType, Parameters>(par)
         {
-            inline wink2_spheroid(const Parameters& par) : detail::wink2::base_wink2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::wink2::setup_wink2(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::wink2::setup_wink2(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wink2, wink2_spheroid, wink2_spheroid)

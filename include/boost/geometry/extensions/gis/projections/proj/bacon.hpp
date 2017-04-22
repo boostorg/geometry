@@ -61,12 +61,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace bacon
     {
-        namespace bacon
-        {
 
             static const double HLFPI2 = 2.46740110027233965467;
             static const double EPS = 1e-10;
@@ -144,73 +141,78 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace bacon
+    }} // namespace detail::bacon
+    #endif // doxygen
 
-        /*!
-            \brief Apian Globular I projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_apian.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct apian_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Apian Globular I projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_apian.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct apian_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    {
+        inline apian_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
         {
-            inline apian_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::bacon::setup_apian(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::bacon::setup_apian(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Ortelius Oval projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_ortel.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ortel_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Ortelius Oval projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_ortel.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ortel_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    {
+        inline ortel_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
         {
-            inline ortel_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::bacon::setup_ortel(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::bacon::setup_ortel(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Bacon Globular projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_bacon.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct bacon_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Bacon Globular projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_bacon.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct bacon_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
+    {
+        inline bacon_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
         {
-            inline bacon_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::bacon::setup_bacon(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::bacon::setup_bacon(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::apian, apian_spheroid, apian_spheroid)

@@ -61,12 +61,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace etmerc
     {
-        namespace etmerc
-        {
 
             static const int PROJ_ETMERC_ORDER = 6;
 
@@ -329,31 +326,36 @@ namespace projections
                 proj_parm.Zb  = - proj_parm.Qn*(Z + clens(proj_parm.gtu, PROJ_ETMERC_ORDER, 2*Z));
             }
 
-        } // namespace etmerc
+    }} // namespace detail::etmerc
+    #endif // doxygen
 
-        /*!
-            \brief Extended Transverse Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale
-             - lat_0: Latitude of origin
-            \par Example
-            \image html ex_etmerc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Extended Transverse Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale
+            - lat_0: Latitude of origin
+        \par Example
+        \image html ex_etmerc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>
+    {
+        inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::etmerc::setup_etmerc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::etmerc::setup_etmerc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::etmerc, etmerc_ellipsoid, etmerc_ellipsoid)

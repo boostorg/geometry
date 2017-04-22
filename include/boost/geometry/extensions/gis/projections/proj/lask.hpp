@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace lask
     {
-        namespace lask
-        {
 
             static const double a10 = 0.975534;
             static const double a12 = -0.119161;
@@ -116,29 +113,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace lask
+    }} // namespace detail::lask
+    #endif // doxygen
 
-        /*!
-            \brief Laskowski projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_lask.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lask_spheroid : public detail::lask::base_lask_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Laskowski projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_lask.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lask_spheroid : public detail::lask::base_lask_spheroid<CalculationType, Parameters>
+    {
+        inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<CalculationType, Parameters>(par)
         {
-            inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::lask::setup_lask(this->m_par);
-            }
-        };
+            detail::lask::setup_lask(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lask, lask_spheroid, lask_spheroid)

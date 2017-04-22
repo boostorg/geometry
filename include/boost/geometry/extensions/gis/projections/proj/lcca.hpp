@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace lcca
     {
-        namespace lcca
-        {
 
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
@@ -165,31 +162,36 @@ namespace projections
                 boost::ignore_unused(tan20);
             }
 
-        } // namespace lcca
+    }} // namespace detail::lcca
+    #endif // doxygen
 
-        /*!
-            \brief Lambert Conformal Conic Alternative projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_0: Latitude of origin
-            \par Example
-            \image html ex_lcca.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lcca_ellipsoid : public detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Lambert Conformal Conic Alternative projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_0: Latitude of origin
+        \par Example
+        \image html ex_lcca.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lcca_ellipsoid : public detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>
+    {
+        inline lcca_ellipsoid(const Parameters& par) : detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline lcca_ellipsoid(const Parameters& par) : detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::lcca::setup_lcca(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::lcca::setup_lcca(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lcca, lcca_ellipsoid, lcca_ellipsoid)

@@ -92,12 +92,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace qsc
     {
-        namespace qsc
-        {
 
             static const double EPS10 = 1.e-10;
             static const int FACE_FRONT = 0;
@@ -464,28 +461,33 @@ namespace projections
                     }
             }
 
-        } // namespace qsc
+    }} // namespace detail::qsc
+    #endif // doxygen
 
-        /*!
-            \brief Quadrilateralized Spherical Cube projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-            \par Example
-            \image html ex_qsc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Quadrilateralized Spherical Cube projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+        \par Example
+        \image html ex_qsc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>
+    {
+        inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::qsc::setup_qsc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::qsc::setup_qsc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::qsc, qsc_ellipsoid, qsc_ellipsoid)

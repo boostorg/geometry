@@ -71,11 +71,8 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
-    {
-        namespace aea
+    namespace detail { namespace aea
         {
 
             static const double EPS10 = 1.e-10;
@@ -245,57 +242,62 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace aea
+    }} // namespace detail::aea
+    #endif // doxygen
 
-        /*!
-            \brief Albers Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-            \par Example
-            \image html ex_aea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Albers Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+        \par Example
+        \image html ex_aea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    {
+        inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::aea::setup_aea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aea::setup_aea(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Lambert Equal Area Conic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-             - south: Denotes southern hemisphere UTM zone (boolean)
-            \par Example
-            \image html ex_leac.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Lambert Equal Area Conic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+            - south: Denotes southern hemisphere UTM zone (boolean)
+        \par Example
+        \image html ex_leac.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    {
+        inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::aea::setup_leac(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aea::setup_leac(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aea, aea_ellipsoid, aea_ellipsoid)

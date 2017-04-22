@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace ortho
     {
-        namespace ortho
-        {
 
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
@@ -190,28 +187,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace ortho
+    }} // namespace detail::ortho
+    #endif // doxygen
 
-        /*!
-            \brief Orthographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-            \par Example
-            \image html ex_ortho.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Orthographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+        \par Example
+        \image html ex_ortho.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<CalculationType, Parameters>
+    {
+        inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<CalculationType, Parameters>(par)
         {
-            inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ortho, ortho_spheroid, ortho_spheroid)

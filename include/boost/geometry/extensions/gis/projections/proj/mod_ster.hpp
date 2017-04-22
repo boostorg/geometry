@@ -66,12 +66,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace mod_ster
     {
-        namespace mod_ster
-        {
 
             static const double EPSLN = 1e-10;
 
@@ -334,107 +331,112 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace mod_ster
+    }} // namespace detail::mod_ster
+    #endif // doxygen
 
-        /*!
-            \brief Miller Oblated Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal (mod)
-            \par Example
-            \image html ex_mil_os.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Miller Oblated Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal (mod)
+        \par Example
+        \image html ex_mil_os.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    {
+        inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::mod_ster::setup_mil_os(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::mod_ster::setup_mil_os(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Lee Oblated Stereographic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal (mod)
-            \par Example
-            \image html ex_lee_os.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Lee Oblated Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal (mod)
+        \par Example
+        \image html ex_lee_os.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    {
+        inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::mod_ster::setup_lee_os(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::mod_ster::setup_lee_os(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Mod. Stererographics of 48 U.S. projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal (mod)
-            \par Example
-            \image html ex_gs48.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Mod. Stererographics of 48 U.S. projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal (mod)
+        \par Example
+        \image html ex_gs48.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    {
+        inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::mod_ster::setup_gs48(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::mod_ster::setup_gs48(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Mod. Stererographics of Alaska projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal (mod)
-            \par Example
-            \image html ex_alsk.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Mod. Stererographics of Alaska projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal (mod)
+        \par Example
+        \image html ex_alsk.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    {
+        inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::mod_ster::setup_alsk(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::mod_ster::setup_alsk(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Mod. Stererographics of 50 U.S. projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal (mod)
-            \par Example
-            \image html ex_gs50.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Mod. Stererographics of 50 U.S. projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal (mod)
+        \par Example
+        \image html ex_gs50.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    {
+        inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::mod_ster::setup_gs50(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::mod_ster::setup_gs50(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mil_os, mil_os_ellipsoid, mil_os_ellipsoid)

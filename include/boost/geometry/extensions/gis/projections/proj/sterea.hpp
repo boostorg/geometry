@@ -64,12 +64,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace sterea
     {
-        namespace sterea
-        {
 
             static const double DEL_TOL = 1.e-14;
             static const int MAX_ITER = 10;
@@ -153,29 +150,34 @@ namespace projections
                 proj_parm.R2 = 2. * R;
             }
 
-        } // namespace sterea
+    }} // namespace detail::sterea
+    #endif // doxygen
 
-        /*!
-            \brief Oblique Stereographic Alternative projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_sterea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Oblique Stereographic Alternative projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_sterea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>
+    {
+        inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::sterea, sterea_ellipsoid, sterea_ellipsoid)

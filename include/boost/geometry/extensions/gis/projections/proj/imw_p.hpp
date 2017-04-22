@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace imw_p
     {
-        namespace imw_p
-        {
 
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
@@ -254,32 +251,37 @@ namespace projections
                 proj_parm.Qp = (x2 - x1) * t;
             }
 
-        } // namespace imw_p
+    }} // namespace detail::imw_p
+    #endif // doxygen
 
-        /*!
-            \brief International Map of the World Polyconic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Mod. Polyconic
-             - Ellipsoid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel
-             - lat_2: Latitude of second standard parallel
-             - lon_1 (degrees)
-            \par Example
-            \image html ex_imw_p.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief International Map of the World Polyconic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Mod. Polyconic
+            - Ellipsoid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel
+            - lat_2: Latitude of second standard parallel
+            - lon_1 (degrees)
+        \par Example
+        \image html ex_imw_p.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
+    {
+        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::imw_p::setup_imw_p(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::imw_p::setup_imw_p(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::imw_p, imw_p_ellipsoid, imw_p_ellipsoid)

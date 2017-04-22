@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace wag2
     {
-        namespace wag2
-        {
 
             static const double C_x = 0.92483;
             static const double C_y = 1.38725;
@@ -116,28 +113,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace wag2
+    }} // namespace detail::wag2
+    #endif // doxygen
 
-        /*!
-            \brief Wagner II projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_wag2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wag2_spheroid : public detail::wag2::base_wag2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Wagner II projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_wag2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wag2_spheroid : public detail::wag2::base_wag2_spheroid<CalculationType, Parameters>
+    {
+        inline wag2_spheroid(const Parameters& par) : detail::wag2::base_wag2_spheroid<CalculationType, Parameters>(par)
         {
-            inline wag2_spheroid(const Parameters& par) : detail::wag2::base_wag2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::wag2::setup_wag2(this->m_par);
-            }
-        };
+            detail::wag2::setup_wag2(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wag2, wag2_spheroid, wag2_spheroid)

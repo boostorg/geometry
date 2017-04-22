@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace robin
     {
-        namespace robin
-        {
 
             static const double FXC = 0.8487;
             static const double FYC = 1.3523;
@@ -218,28 +215,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace robin
+    }} // namespace detail::robin
+    #endif // doxygen
 
-        /*!
-            \brief Robinson projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_robin.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct robin_spheroid : public detail::robin::base_robin_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Robinson projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_robin.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct robin_spheroid : public detail::robin::base_robin_spheroid<CalculationType, Parameters>
+    {
+        inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<CalculationType, Parameters>(par)
         {
-            inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::robin::setup_robin(this->m_par);
-            }
-        };
+            detail::robin::setup_robin(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::robin, robin_spheroid, robin_spheroid)

@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace mill
     {
-        namespace mill
-        {
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -108,28 +105,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace mill
+    }} // namespace detail::mill
+    #endif // doxygen
 
-        /*!
-            \brief Miller Cylindrical projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Example
-            \image html ex_mill.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct mill_spheroid : public detail::mill::base_mill_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Miller Cylindrical projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Example
+        \image html ex_mill.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct mill_spheroid : public detail::mill::base_mill_spheroid<CalculationType, Parameters>
+    {
+        inline mill_spheroid(const Parameters& par) : detail::mill::base_mill_spheroid<CalculationType, Parameters>(par)
         {
-            inline mill_spheroid(const Parameters& par) : detail::mill::base_mill_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::mill::setup_mill(this->m_par);
-            }
-        };
+            detail::mill::setup_mill(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mill, mill_spheroid, mill_spheroid)

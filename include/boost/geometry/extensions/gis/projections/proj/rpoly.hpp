@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace rpoly
     {
-        namespace rpoly
-        {
 
             static const double EPS = 1e-9;
 
@@ -127,31 +124,36 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace rpoly
+    }} // namespace detail::rpoly
+    #endif // doxygen
 
-        /*!
-            \brief Rectangular Polyconic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_rpoly.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Rectangular Polyconic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_rpoly.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>
+    {
+        inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>(par)
         {
-            inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::rpoly::setup_rpoly(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::rpoly::setup_rpoly(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::rpoly, rpoly_spheroid, rpoly_spheroid)

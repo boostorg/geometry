@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace urm5
     {
-        namespace urm5
-        {
 
             struct par_urm5
             {
@@ -119,33 +116,38 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace urm5
+    }} // namespace detail::urm5
+    #endif // doxygen
 
-        /*!
-            \brief Urmaev V projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - n (real)
-             - q (real)
-             - alpha: Alpha (degrees)
-            \par Example
-            \image html ex_urm5.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Urmaev V projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - n (real)
+            - q (real)
+            - alpha: Alpha (degrees)
+        \par Example
+        \image html ex_urm5.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<CalculationType, Parameters>
+    {
+        inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<CalculationType, Parameters>(par)
         {
-            inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::urm5, urm5_spheroid, urm5_spheroid)

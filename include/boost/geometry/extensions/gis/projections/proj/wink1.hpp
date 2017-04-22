@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace wink1
     {
-        namespace wink1
-        {
 
             struct par_wink1
             {
@@ -115,30 +112,35 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace wink1
+    }} // namespace detail::wink1
+    #endif // doxygen
 
-        /*!
-            \brief Winkel I projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_wink1.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Winkel I projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_wink1.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<CalculationType, Parameters>
+    {
+        inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<CalculationType, Parameters>(par)
         {
-            inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::wink1::setup_wink1(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::wink1::setup_wink1(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wink1, wink1_spheroid, wink1_spheroid)

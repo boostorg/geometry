@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace gins8
     {
-        namespace gins8
-        {
 
             static const double Cl = 0.000952426;
             static const double Cp = 0.162388;
@@ -108,29 +105,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace gins8
+    }} // namespace detail::gins8
+    #endif // doxygen
 
-        /*!
-            \brief Ginsburg VIII (TsNIIGAiK) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_gins8.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct gins8_spheroid : public detail::gins8::base_gins8_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Ginsburg VIII (TsNIIGAiK) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_gins8.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct gins8_spheroid : public detail::gins8::base_gins8_spheroid<CalculationType, Parameters>
+    {
+        inline gins8_spheroid(const Parameters& par) : detail::gins8::base_gins8_spheroid<CalculationType, Parameters>(par)
         {
-            inline gins8_spheroid(const Parameters& par) : detail::gins8::base_gins8_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::gins8::setup_gins8(this->m_par);
-            }
-        };
+            detail::gins8::setup_gins8(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gins8, gins8_spheroid, gins8_spheroid)

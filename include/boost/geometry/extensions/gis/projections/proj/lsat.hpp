@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace lsat
     {
-        namespace lsat
-        {
 
             static const double TOL = 1e-7;
             static const double PI_HALFPI = 4.71238898038468985766;
@@ -270,32 +267,37 @@ namespace projections
                 proj_parm.c3 /= 45.;
             }
 
-        } // namespace lsat
+    }} // namespace detail::lsat
+    #endif // doxygen
 
-        /*!
-            \brief Space oblique for LANDSAT projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lsat (integer)
-             - path (integer)
-            \par Example
-            \image html ex_lsat.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Space oblique for LANDSAT projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lsat (integer)
+            - path (integer)
+        \par Example
+        \image html ex_lsat.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>
+    {
+        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lsat, lsat_ellipsoid, lsat_ellipsoid)

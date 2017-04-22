@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace putp2
     {
-        namespace putp2
-        {
 
             static const double C_x = 1.89490;
             static const double C_y = 1.71848;
@@ -135,28 +132,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace putp2
+    }} // namespace detail::putp2
+    #endif // doxygen
 
-        /*!
-            \brief Putnins P2 projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_putp2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct putp2_spheroid : public detail::putp2::base_putp2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Putnins P2 projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_putp2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct putp2_spheroid : public detail::putp2::base_putp2_spheroid<CalculationType, Parameters>
+    {
+        inline putp2_spheroid(const Parameters& par) : detail::putp2::base_putp2_spheroid<CalculationType, Parameters>(par)
         {
-            inline putp2_spheroid(const Parameters& par) : detail::putp2::base_putp2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::putp2::setup_putp2(this->m_par);
-            }
-        };
+            detail::putp2::setup_putp2(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::putp2, putp2_spheroid, putp2_spheroid)

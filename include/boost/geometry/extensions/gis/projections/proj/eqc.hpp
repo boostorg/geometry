@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace eqc
     {
-        namespace eqc
-        {
 
             struct par_eqc
             {
@@ -115,31 +112,36 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace eqc
+    }} // namespace detail::eqc
+    #endif // doxygen
 
-        /*!
-            \brief Equidistant Cylindrical (Plate Caree) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-             - lat_0: Latitude of origin
-            \par Example
-            \image html ex_eqc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eqc_spheroid : public detail::eqc::base_eqc_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Equidistant Cylindrical (Plate Caree) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+            - lat_0: Latitude of origin
+        \par Example
+        \image html ex_eqc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eqc_spheroid : public detail::eqc::base_eqc_spheroid<CalculationType, Parameters>
+    {
+        inline eqc_spheroid(const Parameters& par) : detail::eqc::base_eqc_spheroid<CalculationType, Parameters>(par)
         {
-            inline eqc_spheroid(const Parameters& par) : detail::eqc::base_eqc_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eqc::setup_eqc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eqc::setup_eqc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eqc, eqc_spheroid, eqc_spheroid)

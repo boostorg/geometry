@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace mbtfpq
     {
-        namespace mbtfpq
-        {
 
             static const int NITER = 20;
             static const double EPS = 1e-7;
@@ -143,28 +140,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace mbtfpq
+    }} // namespace detail::mbtfpq
+    #endif // doxygen
 
-        /*!
-            \brief McBryde-Thomas Flat-Polar Quartic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Example
-            \image html ex_mbtfpq.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>
+    /*!
+        \brief McBryde-Thomas Flat-Polar Quartic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Example
+        \image html ex_mbtfpq.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>
+    {
+        inline mbtfpq_spheroid(const Parameters& par) : detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>(par)
         {
-            inline mbtfpq_spheroid(const Parameters& par) : detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::mbtfpq::setup_mbtfpq(this->m_par);
-            }
-        };
+            detail::mbtfpq::setup_mbtfpq(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mbtfpq, mbtfpq_spheroid, mbtfpq_spheroid)

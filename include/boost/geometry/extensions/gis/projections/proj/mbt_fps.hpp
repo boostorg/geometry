@@ -58,12 +58,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace mbt_fps
     {
-        namespace mbt_fps
-        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -133,28 +130,33 @@ namespace projections
                 par.es = 0;
             }
 
-        } // namespace mbt_fps
+    }} // namespace detail::mbt_fps
+    #endif // doxygen
 
-        /*!
-            \brief McBryde-Thomas Flat-Pole Sine (No. 2) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Example
-            \image html ex_mbt_fps.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct mbt_fps_spheroid : public detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>
+    /*!
+        \brief McBryde-Thomas Flat-Pole Sine (No. 2) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Example
+        \image html ex_mbt_fps.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct mbt_fps_spheroid : public detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>
+    {
+        inline mbt_fps_spheroid(const Parameters& par) : detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>(par)
         {
-            inline mbt_fps_spheroid(const Parameters& par) : detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::mbt_fps::setup_mbt_fps(this->m_par);
-            }
-        };
+            detail::mbt_fps::setup_mbt_fps(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mbt_fps, mbt_fps_spheroid, mbt_fps_spheroid)

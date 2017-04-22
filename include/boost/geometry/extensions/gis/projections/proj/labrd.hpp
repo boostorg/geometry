@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace labrd
     {
-        namespace labrd
-        {
 
             static const double EPS = 1.e-10;
 
@@ -203,32 +200,37 @@ namespace projections
                 proj_parm.Cd = 6. * proj_parm.Ca * proj_parm.Cb;
             }
 
-        } // namespace labrd
+    }} // namespace detail::labrd
+    #endif // doxygen
 
-        /*!
-            \brief Laborde projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Special for Madagascar
-            \par Projection parameters
-             - no_rot: No rotation (boolean)
-             - azi: Azimuth (or Gamma) (degrees)
-            \par Example
-            \image html ex_labrd.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Laborde projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Special for Madagascar
+        \par Projection parameters
+            - no_rot: No rotation (boolean)
+            - azi: Azimuth (or Gamma) (degrees)
+        \par Example
+        \image html ex_labrd.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>
+    {
+        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::labrd, labrd_ellipsoid, labrd_ellipsoid)

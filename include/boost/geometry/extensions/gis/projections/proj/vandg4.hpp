@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace vandg4
     {
-        namespace vandg4
-        {
 
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
@@ -134,29 +131,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace vandg4
+    }} // namespace detail::vandg4
+    #endif // doxygen
 
-        /*!
-            \brief van der Grinten IV projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_vandg4.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>
+    /*!
+        \brief van der Grinten IV projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_vandg4.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>
+    {
+        inline vandg4_spheroid(const Parameters& par) : detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>(par)
         {
-            inline vandg4_spheroid(const Parameters& par) : detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::vandg4::setup_vandg4(this->m_par);
-            }
-        };
+            detail::vandg4::setup_vandg4(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::vandg4, vandg4_spheroid, vandg4_spheroid)

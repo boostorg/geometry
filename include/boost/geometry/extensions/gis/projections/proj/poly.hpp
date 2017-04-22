@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace poly
     {
-        namespace poly
-        {
 
             static const double TOL = 1e-10;
             static const double CONV = 1e-10;
@@ -220,51 +217,56 @@ namespace projections
                 }
             }
 
-        } // namespace poly
+    }} // namespace detail::poly
+    #endif // doxygen
 
-        /*!
-            \brief Polyconic (American) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_poly.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Polyconic (American) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_poly.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<CalculationType, Parameters>
+    {
+        inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::poly::setup_poly(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::poly::setup_poly(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Polyconic (American) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_poly.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct poly_spheroid : public detail::poly::base_poly_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Polyconic (American) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_poly.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct poly_spheroid : public detail::poly::base_poly_spheroid<CalculationType, Parameters>
+    {
+        inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<CalculationType, Parameters>(par)
         {
-            inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::poly::setup_poly(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::poly::setup_poly(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::poly, poly_spheroid, poly_ellipsoid)

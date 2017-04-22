@@ -64,12 +64,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace tmerc
     {
-        namespace tmerc
-        {
 
             static const double EPS10 = 1.e-10;
             static const double FC1 = 1.;
@@ -299,99 +296,104 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace tmerc
+    }} // namespace detail::tmerc
+    #endif // doxygen
 
-        /*!
-            \brief Transverse Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_tmerc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tmerc_ellipsoid : public tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Transverse Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_tmerc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
+    {
+        inline tmerc_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline tmerc_ellipsoid(const Parameters& par) : tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Transverse Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_tmerc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tmerc_spheroid : public tmerc::base_tmerc_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Transverse Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_tmerc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>
+    {
+        inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
         {
-            inline tmerc_spheroid(const Parameters& par) : tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
-            {
-                tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Universal Transverse Mercator (UTM) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Projection parameters
-             - zone: UTM Zone (integer)
-             - south: Denotes southern hemisphere UTM zone (boolean)
-            \par Example
-            \image html ex_utm.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct utm_ellipsoid : public tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Universal Transverse Mercator (UTM) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Projection parameters
+            - zone: UTM Zone (integer)
+            - south: Denotes southern hemisphere UTM zone (boolean)
+        \par Example
+        \image html ex_utm.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct utm_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
+    {
+        inline utm_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline utm_ellipsoid(const Parameters& par) : tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                tmerc::setup_utm(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Universal Transverse Mercator (UTM) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Projection parameters
-             - zone: UTM Zone (integer)
-             - south: Denotes southern hemisphere UTM zone (boolean)
-            \par Example
-            \image html ex_utm.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct utm_spheroid : public tmerc::base_tmerc_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Universal Transverse Mercator (UTM) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Projection parameters
+            - zone: UTM Zone (integer)
+            - south: Denotes southern hemisphere UTM zone (boolean)
+        \par Example
+        \image html ex_utm.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct utm_spheroid : public detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>
+    {
+        inline utm_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
         {
-            inline utm_spheroid(const Parameters& par) : tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
-            {
-                tmerc::setup_utm(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::tmerc, tmerc_spheroid, tmerc_ellipsoid)

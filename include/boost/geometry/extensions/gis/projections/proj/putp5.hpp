@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace putp5
     {
-        namespace putp5
-        {
 
             static const double C = 1.01346;
             static const double D = 1.2158542;
@@ -139,49 +136,54 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace putp5
+    }} // namespace detail::putp5
+    #endif // doxygen
 
-        /*!
-            \brief Putnins P5 projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_putp5.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct putp5_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Putnins P5 projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_putp5.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct putp5_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
+    {
+        inline putp5_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)
         {
-            inline putp5_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::putp5::setup_putp5(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::putp5::setup_putp5(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Putnins P5' projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_putp5p.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct putp5p_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Putnins P5' projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_putp5p.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct putp5p_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
+    {
+        inline putp5p_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)
         {
-            inline putp5p_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::putp5::setup_putp5p(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::putp5::setup_putp5p(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::putp5, putp5_spheroid, putp5_spheroid)

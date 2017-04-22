@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace hatano
     {
-        namespace hatano
-        {
 
             static const int NITER = 20;
             static const double EPS = 1e-7;
@@ -146,28 +143,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace hatano
+    }} // namespace detail::hatano
+    #endif // doxygen
 
-        /*!
-            \brief Hatano Asymmetrical Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_hatano.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Hatano Asymmetrical Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_hatano.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<CalculationType, Parameters>
+    {
+        inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<CalculationType, Parameters>(par)
         {
-            inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::hatano::setup_hatano(this->m_par);
-            }
-        };
+            detail::hatano::setup_hatano(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::hatano, hatano_spheroid, hatano_spheroid)

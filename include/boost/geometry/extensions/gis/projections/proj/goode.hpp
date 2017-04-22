@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace goode
     {
-        namespace goode
-        {
 
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
@@ -131,28 +128,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace goode
+    }} // namespace detail::goode
+    #endif // doxygen
 
-        /*!
-            \brief Goode Homolosine projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_goode.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct goode_spheroid : public detail::goode::base_goode_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Goode Homolosine projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_goode.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct goode_spheroid : public detail::goode::base_goode_spheroid<CalculationType, Parameters>
+    {
+        inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<CalculationType, Parameters>(par)
         {
-            inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::goode::setup_goode(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::goode::setup_goode(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::goode, goode_spheroid, goode_spheroid)

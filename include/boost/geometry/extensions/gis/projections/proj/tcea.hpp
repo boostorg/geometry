@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace tcea
     {
-        namespace tcea
-        {
 
             struct par_tcea
             {
@@ -120,28 +117,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace tcea
+    }} // namespace detail::tcea
+    #endif // doxygen
     
-        /*!
-            \brief Transverse Cylindrical Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Example
-            \image html ex_tcea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Transverse Cylindrical Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Example
+        \image html ex_tcea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<CalculationType, Parameters>
+    {
+        inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<CalculationType, Parameters>(par)
         {
-            inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::tcea::setup_tcea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tcea::setup_tcea(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::tcea, tcea_spheroid, tcea_spheroid)

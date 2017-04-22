@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace fouc_s
     {
-        namespace fouc_s
-        {
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -142,30 +139,35 @@ namespace projections
                 par.es = 0;
             }
 
-        } // namespace fouc_s
+    }} // namespace detail::fouc_s
+    #endif // doxygen
 
-        /*!
-            \brief Foucaut Sinusoidal projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - n (real)
-            \par Example
-            \image html ex_fouc_s.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Foucaut Sinusoidal projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - n (real)
+        \par Example
+        \image html ex_fouc_s.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>
+    {
+        inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>(par)
         {
-            inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::fouc_s, fouc_s_spheroid, fouc_s_spheroid)

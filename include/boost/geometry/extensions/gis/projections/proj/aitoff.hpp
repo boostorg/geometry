@@ -66,12 +66,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace aitoff
     {
-        namespace aitoff
-        {
 
             struct par_aitoff
             {
@@ -229,51 +226,56 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace aitoff
+    }} // namespace detail::aitoff
+    #endif // doxygen
 
-        /*!
-            \brief Aitoff projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Example
-            \image html ex_aitoff.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Aitoff projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Example
+        \image html ex_aitoff.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    {
+        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
         {
-            inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Winkel Tripel projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-            \par Example
-            \image html ex_wintri.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Winkel Tripel projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+        \par Example
+        \image html ex_wintri.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    {
+        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
         {
-            inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aitoff, aitoff_spheroid, aitoff_spheroid)

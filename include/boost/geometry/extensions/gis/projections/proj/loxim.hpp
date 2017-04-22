@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace loxim
     {
-        namespace loxim
-        {
 
             static const double EPS = 1e-8;
 
@@ -138,30 +135,35 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace loxim
+    }} // namespace detail::loxim
+    #endif // doxygen
 
-        /*!
-            \brief Loximuthal projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-            \par Example
-            \image html ex_loxim.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Loximuthal projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+        \par Example
+        \image html ex_loxim.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<CalculationType, Parameters>
+    {
+        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<CalculationType, Parameters>(par)
         {
-            inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::loxim, loxim_spheroid, loxim_spheroid)

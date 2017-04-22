@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace lagrng
     {
-        namespace lagrng
-        {
 
             static const double TOL = 1e-10;
 
@@ -130,32 +127,37 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace lagrng
+    }} // namespace detail::lagrng
+    #endif // doxygen
 
-        /*!
-            \brief Lagrange projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - W (real)
-             - lat_1: Latitude of first standard parallel (degrees)
-            \par Example
-            \image html ex_lagrng.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Lagrange projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - W (real)
+            - lat_1: Latitude of first standard parallel (degrees)
+        \par Example
+        \image html ex_lagrng.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>
+    {
+        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>(par)
         {
-            inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lagrng, lagrng_spheroid, lagrng_spheroid)

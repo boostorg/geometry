@@ -63,12 +63,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace airy
     {
-        namespace airy
-        {
 
             static const double EPS = 1.e-10;
             static const int N_POLE = 0;
@@ -189,32 +186,37 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace airy
+    }} // namespace detail::airy
+    #endif // doxygen
 
-        /*!
-            \brief Airy projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - no_cut: Do not cut at hemisphere limit (boolean)
-             - lat_b (degrees)
-            \par Example
-            \image html ex_airy.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct airy_spheroid : public detail::airy::base_airy_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Airy projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - no_cut: Do not cut at hemisphere limit (boolean)
+            - lat_b (degrees)
+        \par Example
+        \image html ex_airy.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct airy_spheroid : public detail::airy::base_airy_spheroid<CalculationType, Parameters>
+    {
+        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<CalculationType, Parameters>(par)
         {
-            inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::airy::setup_airy(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::airy::setup_airy(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::airy, airy_spheroid, airy_spheroid)

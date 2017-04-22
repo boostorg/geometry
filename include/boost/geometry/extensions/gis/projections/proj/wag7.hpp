@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace wag7
     {
-        namespace wag7
-        {
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -104,29 +101,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace wag7
+    }} // namespace detail::wag7
+    #endif // doxygen
 
-        /*!
-            \brief Wagner VII projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_wag7.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wag7_spheroid : public detail::wag7::base_wag7_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Wagner VII projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_wag7.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wag7_spheroid : public detail::wag7::base_wag7_spheroid<CalculationType, Parameters>
+    {
+        inline wag7_spheroid(const Parameters& par) : detail::wag7::base_wag7_spheroid<CalculationType, Parameters>(par)
         {
-            inline wag7_spheroid(const Parameters& par) : detail::wag7::base_wag7_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::wag7::setup_wag7(this->m_par);
-            }
-        };
+            detail::wag7::setup_wag7(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wag7, wag7_spheroid, wag7_spheroid)

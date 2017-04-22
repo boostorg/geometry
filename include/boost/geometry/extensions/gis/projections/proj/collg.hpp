@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace collg
     {
-        namespace collg
-        {
 
             static const double FXC = 1.12837916709551257390;
             static const double FYC = 1.77245385090551602729;
@@ -125,28 +122,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace collg
+    }} // namespace collg
+    #endif // doxygen
 
-        /*!
-            \brief Collignon projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_collg.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct collg_spheroid : public detail::collg::base_collg_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Collignon projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_collg.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct collg_spheroid : public detail::collg::base_collg_spheroid<CalculationType, Parameters>
+    {
+        inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<CalculationType, Parameters>(par)
         {
-            inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::collg::setup_collg(this->m_par);
-            }
-        };
+            detail::collg::setup_collg(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::collg, collg_spheroid, collg_spheroid)

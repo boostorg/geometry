@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace wag3
     {
-        namespace wag3
-        {
 
             static const double TWOTHIRD = 0.6666666666666666666667;
 
@@ -120,30 +117,35 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace wag3
+    }} // namespace detail::wag3
+    #endif // doxygen
 
-        /*!
-            \brief Wagner III projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_wag3.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Wagner III projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_wag3.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<CalculationType, Parameters>
+    {
+        inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<CalculationType, Parameters>(par)
         {
-            inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::wag3::setup_wag3(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::wag3::setup_wag3(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::wag3, wag3_spheroid, wag3_spheroid)

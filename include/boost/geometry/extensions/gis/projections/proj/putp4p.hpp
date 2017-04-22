@@ -61,12 +61,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace putp4p
     {
-        namespace putp4p
-        {
 
             struct par_putp4p
             {
@@ -142,49 +139,54 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace putp4p
+    }} // namespace detail::putp4p
+    #endif // doxygen
 
-        /*!
-            \brief Putnins P4' projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_putp4p.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Putnins P4' projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_putp4p.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    {
+        inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
         {
-            inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::putp4p::setup_putp4p(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::putp4p::setup_putp4p(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Werenskiold I projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_weren.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Werenskiold I projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_weren.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    {
+        inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
         {
-            inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::putp4p::setup_weren(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::putp4p::setup_weren(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::putp4p, putp4p_spheroid, putp4p_spheroid)

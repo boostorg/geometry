@@ -63,12 +63,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace eck3
     {
-        namespace eck3
-        {
 
             struct par_eck3
             {
@@ -165,91 +162,96 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace eck3
+    }} // namespace detail::eck3
+    #endif // doxygen
 
-        /*!
-            \brief Eckert III projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_eck3.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Eckert III projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_eck3.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    {
+        inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
         {
-            inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck3::setup_eck3(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eck3::setup_eck3(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Putnins P1 projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_putp1.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Putnins P1 projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_putp1.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    {
+        inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
         {
-            inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck3::setup_putp1(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eck3::setup_putp1(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Wagner VI projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_wag6.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Wagner VI projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_wag6.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    {
+        inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
         {
-            inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck3::setup_wag6(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eck3::setup_wag6(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Kavraisky VII projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_kav7.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Kavraisky VII projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_kav7.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    {
+        inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
         {
-            inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck3::setup_kav7(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eck3::setup_kav7(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eck3, eck3_spheroid, eck3_spheroid)

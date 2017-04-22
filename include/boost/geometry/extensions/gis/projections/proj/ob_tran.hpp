@@ -64,12 +64,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace ob_tran
     {
-        namespace ob_tran
-        {
 
             static const double TOL = 1e-10;
 
@@ -263,75 +260,80 @@ namespace projections
                 return phip;
             }
 
-        } // namespace ob_tran
+    }} // namespace detail::ob_tran
+    #endif // doxygen
 
-        /*!
-            \brief General Oblique Transformation projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Projection parameters
-             - o_proj (string)
-             - Plus projection parameters
-             - o_lat_p (degrees)
-             - o_lon_p (degrees)
-             - New pole
-             - o_alpha: Alpha (degrees)
-             - o_lon_c (degrees)
-             - o_lat_c (degrees)
-             - o_lon_1 (degrees)
-             - o_lat_1: Latitude of first standard parallel (degrees)
-             - o_lon_2 (degrees)
-             - o_lat_2: Latitude of second standard parallel (degrees)
-            \par Example
-            \image html ex_ob_tran.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>
+    /*!
+        \brief General Oblique Transformation projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Projection parameters
+            - o_proj (string)
+            - Plus projection parameters
+            - o_lat_p (degrees)
+            - o_lon_p (degrees)
+            - New pole
+            - o_alpha: Alpha (degrees)
+            - o_lon_c (degrees)
+            - o_lat_c (degrees)
+            - o_lon_1 (degrees)
+            - o_lat_1: Latitude of first standard parallel (degrees)
+            - o_lon_2 (degrees)
+            - o_lat_2: Latitude of second standard parallel (degrees)
+        \par Example
+        \image html ex_ob_tran.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>
+    {
+        inline ob_tran_oblique(const Parameters& par) : detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>(par)
         {
-            inline ob_tran_oblique(const Parameters& par) : detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>(par)
-            {
-                detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief General Oblique Transformation projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Projection parameters
-             - o_proj (string)
-             - Plus projection parameters
-             - o_lat_p (degrees)
-             - o_lon_p (degrees)
-             - New pole
-             - o_alpha: Alpha (degrees)
-             - o_lon_c (degrees)
-             - o_lat_c (degrees)
-             - o_lon_1 (degrees)
-             - o_lat_1: Latitude of first standard parallel (degrees)
-             - o_lon_2 (degrees)
-             - o_lat_2: Latitude of second standard parallel (degrees)
-            \par Example
-            \image html ex_ob_tran.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>
+    /*!
+        \brief General Oblique Transformation projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Projection parameters
+            - o_proj (string)
+            - Plus projection parameters
+            - o_lat_p (degrees)
+            - o_lon_p (degrees)
+            - New pole
+            - o_alpha: Alpha (degrees)
+            - o_lon_c (degrees)
+            - o_lat_c (degrees)
+            - o_lon_1 (degrees)
+            - o_lat_1: Latitude of first standard parallel (degrees)
+            - o_lon_2 (degrees)
+            - o_lat_2: Latitude of second standard parallel (degrees)
+        \par Example
+        \image html ex_ob_tran.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>
+    {
+        inline ob_tran_transverse(const Parameters& par) : detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>(par)
         {
-            inline ob_tran_transverse(const Parameters& par) : detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>(par)
-            {
-                detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran_oblique, ob_tran_oblique, ob_tran_oblique)

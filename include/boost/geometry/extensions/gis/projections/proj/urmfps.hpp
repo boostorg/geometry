@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace urmfps
     {
-        namespace urmfps
-        {
 
             static const double C_x = 0.8773826753;
             static const double Cy = 1.139753528477;
@@ -143,51 +140,56 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace urmfps
+    }} // namespace detail::urmfps
+    #endif // doxygen
 
-        /*!
-            \brief Urmaev Flat-Polar Sinusoidal projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - n (real)
-            \par Example
-            \image html ex_urmfps.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct urmfps_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Urmaev Flat-Polar Sinusoidal projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - n (real)
+        \par Example
+        \image html ex_urmfps.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct urmfps_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
+    {
+        inline urmfps_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)
         {
-            inline urmfps_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::urmfps::setup_urmfps(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::urmfps::setup_urmfps(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Wagner I (Kavraisky VI) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_wag1.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct wag1_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Wagner I (Kavraisky VI) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_wag1.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct wag1_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
+    {
+        inline wag1_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)
         {
-            inline wag1_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::urmfps::setup_wag1(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::urmfps::setup_wag1(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::urmfps, urmfps_spheroid, urmfps_spheroid)

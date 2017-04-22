@@ -62,12 +62,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace merc
     {
-        namespace merc
-        {
 
             static const double EPS10 = 1.e-10;
 
@@ -167,55 +164,60 @@ namespace projections
                 }
             }
 
-        } // namespace merc
+    }} // namespace detail::merc
+    #endif // doxygen
 
-        /*!
-            \brief Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_merc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_merc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<CalculationType, Parameters>
+    {
+        inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::merc::setup_merc(this->m_par);
-            }
-        };
+            detail::merc::setup_merc(this->m_par);
+        }
+    };
 
-        /*!
-            \brief Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-            \par Example
-            \image html ex_merc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct merc_spheroid : public detail::merc::base_merc_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_merc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct merc_spheroid : public detail::merc::base_merc_spheroid<CalculationType, Parameters>
+    {
+        inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<CalculationType, Parameters>(par)
         {
-            inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::merc::setup_merc(this->m_par);
-            }
-        };
+            detail::merc::setup_merc(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::merc, merc_spheroid, merc_ellipsoid)

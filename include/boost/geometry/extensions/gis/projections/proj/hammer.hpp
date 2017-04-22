@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace hammer
     {
-        namespace hammer
-        {
 
             struct par_hammer
             {
@@ -120,32 +117,37 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace hammer
+    }} // namespace detail::hammer
+    #endif // doxygen
 
-        /*!
-            \brief Hammer & Eckert-Greifendorff projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - W (real)
-             - M (real)
-            \par Example
-            \image html ex_hammer.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct hammer_spheroid : public detail::hammer::base_hammer_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Hammer & Eckert-Greifendorff projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - W (real)
+            - M (real)
+        \par Example
+        \image html ex_hammer.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct hammer_spheroid : public detail::hammer::base_hammer_spheroid<CalculationType, Parameters>
+    {
+        inline hammer_spheroid(const Parameters& par) : detail::hammer::base_hammer_spheroid<CalculationType, Parameters>(par)
         {
-            inline hammer_spheroid(const Parameters& par) : detail::hammer::base_hammer_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::hammer::setup_hammer(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::hammer::setup_hammer(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::hammer, hammer_spheroid, hammer_spheroid)

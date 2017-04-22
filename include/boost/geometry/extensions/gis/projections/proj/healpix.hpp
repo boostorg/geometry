@@ -70,12 +70,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace healpix
     {
-        namespace healpix
-        {
 
             static const double EPS = 1e-15;
 
@@ -723,97 +720,102 @@ namespace projections
                 }
             }
 
-        } // namespace healpix
+    }} // namespace detail::healpix
+    #endif // doxygen
 
-        /*!
-            \brief HEALPix projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_healpix.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief HEALPix projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_healpix.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>
+    {
+        inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief HEALPix projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_healpix.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<CalculationType, Parameters>
+    /*!
+        \brief HEALPix projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_healpix.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<CalculationType, Parameters>
+    {
+        inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<CalculationType, Parameters>(par)
         {
-            inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief rHEALPix projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - north_square (integer)
-             - south_square (integer)
-            \par Example
-            \image html ex_rhealpix.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief rHEALPix projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - north_square (integer)
+            - south_square (integer)
+        \par Example
+        \image html ex_rhealpix.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>
+    {
+        inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief rHEALPix projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - north_square (integer)
-             - south_square (integer)
-            \par Example
-            \image html ex_rhealpix.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>
+    /*!
+        \brief rHEALPix projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - north_square (integer)
+            - south_square (integer)
+        \par Example
+        \image html ex_rhealpix.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>
+    {
+        inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>(par)
         {
-            inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::healpix, healpix_spheroid, healpix_ellipsoid)

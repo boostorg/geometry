@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace denoy
     {
-        namespace denoy
-        {
 
             static const double C0 = 0.95;
             static const double C1 = -.08333333333333333333;
@@ -109,29 +106,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace denoy
+    }} // namespace detail::denoy
+    #endif // doxygen
 
-        /*!
-            \brief Denoyer Semi-Elliptical projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - no inverse
-             - Spheroid
-            \par Example
-            \image html ex_denoy.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Denoyer Semi-Elliptical projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - no inverse
+            - Spheroid
+        \par Example
+        \image html ex_denoy.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<CalculationType, Parameters>
+    {
+        inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<CalculationType, Parameters>(par)
         {
-            inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::denoy::setup_denoy(this->m_par);
-            }
-        };
+            detail::denoy::setup_denoy(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::denoy, denoy_spheroid, denoy_spheroid)

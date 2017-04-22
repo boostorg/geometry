@@ -62,12 +62,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace igh
     {
-        namespace igh
-        {
 
             template <typename CalculationType, typename Parameters>
             struct par_igh
@@ -277,28 +274,33 @@ namespace projections
                     par.es = 0.;
             }
 
-        } // namespace igh
+    }} // namespace detail::igh
+    #endif // doxygen
 
-        /*!
-            \brief Interrupted Goode Homolosine projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_igh.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct igh_spheroid : public detail::igh::base_igh_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Interrupted Goode Homolosine projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_igh.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct igh_spheroid : public detail::igh::base_igh_spheroid<CalculationType, Parameters>
+    {
+        inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<CalculationType, Parameters>(par)
         {
-            inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::igh::setup_igh(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::igh::setup_igh(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::igh, igh_spheroid, igh_spheroid)

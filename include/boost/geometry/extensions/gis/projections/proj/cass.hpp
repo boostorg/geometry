@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace cass
     {
-        namespace cass
-        {
 
             static const double EPS10 = 1e-10;
             static const double C1 = .16666666666666666666;
@@ -190,51 +187,56 @@ namespace projections
                 }
             }
 
-        } // namespace cass
+    }} // namespace detail::cass
+    #endif // doxygen
 
-        /*!
-            \brief Cassini projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_cass.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Cassini projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_cass.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<CalculationType, Parameters>
+    {
+        inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::cass::setup_cass(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::cass::setup_cass(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Cassini projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_cass.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct cass_spheroid : public detail::cass::base_cass_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Cassini projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_cass.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct cass_spheroid : public detail::cass::base_cass_spheroid<CalculationType, Parameters>
+    {
+        inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<CalculationType, Parameters>(par)
         {
-            inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::cass::setup_cass(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::cass::setup_cass(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::cass, cass_spheroid, cass_ellipsoid)

@@ -61,12 +61,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace chamb
     {
-        namespace chamb
-        {
 
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
@@ -211,36 +208,41 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace chamb
+    }} // namespace detail::chamb
+    #endif // doxygen
 
-        /*!
-            \brief Chamberlin Trimetric projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Projection parameters
-             - lat_1: Latitude of control point 1 (degrees)
-             - lon_1: Longitude of control point 1 (degrees)
-             - lat_2: Latitude of control point 2 (degrees)
-             - lon_2: Longitude of control point 2 (degrees)
-             - lat_3: Latitude of control point 3 (degrees)
-             - lon_3: Longitude of control point 3 (degrees)
-            \par Example
-            \image html ex_chamb.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Chamberlin Trimetric projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Projection parameters
+            - lat_1: Latitude of control point 1 (degrees)
+            - lon_1: Longitude of control point 1 (degrees)
+            - lat_2: Latitude of control point 2 (degrees)
+            - lon_2: Longitude of control point 2 (degrees)
+            - lat_3: Latitude of control point 3 (degrees)
+            - lon_3: Longitude of control point 3 (degrees)
+        \par Example
+        \image html ex_chamb.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<CalculationType, Parameters>
+    {
+        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<CalculationType, Parameters>(par)
         {
-            inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::chamb, chamb_spheroid, chamb_spheroid)

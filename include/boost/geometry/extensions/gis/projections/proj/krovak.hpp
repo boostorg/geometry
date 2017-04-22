@@ -62,12 +62,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace krovak
     {
-        namespace krovak
-        {
 
             struct par_krovak
             {
@@ -299,33 +296,38 @@ namespace projections
                 /* always the same */
             }
 
-        } // namespace krovak
+    }} // namespace detail::krovak
+    #endif // doxygen
 
-        /*!
-            \brief Krovak projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Ellipsoid
-            \par Projection parameters
-             - lat_ts: Latitude of true scale (degrees)
-             - lat_0: Latitude of origin
-             - lon_0: Central meridian
-             - k: Scale factor on the pseudo standard parallel
-            \par Example
-            \image html ex_krovak.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Krovak projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Ellipsoid
+        \par Projection parameters
+            - lat_ts: Latitude of true scale (degrees)
+            - lat_0: Latitude of origin
+            - lon_0: Central meridian
+            - k: Scale factor on the pseudo standard parallel
+        \par Example
+        \image html ex_krovak.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>
+    {
+        inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::krovak, krovak_ellipsoid, krovak_ellipsoid)

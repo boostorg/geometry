@@ -70,12 +70,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace natearth
     {
-        namespace natearth
-        {
 
             static const double A0 = 0.8707;
             static const double A1 = -0.131979;
@@ -167,28 +164,33 @@ namespace projections
                 par.es = 0;
             }
 
-        } // namespace natearth
+    }} // namespace detail::natearth
+    #endif // doxygen
 
-        /*!
-            \brief Natural Earth projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_natearth.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Natural Earth projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_natearth.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<CalculationType, Parameters>
+    {
+        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<CalculationType, Parameters>(par)
         {
-            inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::natearth::setup_natearth(this->m_par);
-            }
-        };
+            detail::natearth::setup_natearth(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::natearth, natearth_spheroid, natearth_spheroid)

@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace ocea
     {
-        namespace ocea
-        {
 
             struct par_ocea
             {
@@ -162,35 +159,40 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace ocea
+    }} // namespace detail::ocea
+    #endif // doxygen
 
-        /*!
-            \brief Oblique Cylindrical Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-            \par Projection parameters
-             - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
-             - alpha: Alpha (degrees)
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-             - lon_1 (degrees)
-             - lon_2 (degrees)
-            \par Example
-            \image html ex_ocea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Oblique Cylindrical Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+        \par Projection parameters
+            - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+            - alpha: Alpha (degrees)
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+            - lon_1 (degrees)
+            - lon_2 (degrees)
+        \par Example
+        \image html ex_ocea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<CalculationType, Parameters>
+    {
+        inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<CalculationType, Parameters>(par)
         {
-            inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::ocea::setup_ocea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::ocea::setup_ocea(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ocea, ocea_spheroid, ocea_spheroid)

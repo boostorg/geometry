@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace boggs
     {
-        namespace boggs
-        {
 
             static const int NITER = 20;
             static const double EPS = 1e-7;
@@ -125,29 +122,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace detail::boggs
+    }} // namespace detail::boggs
+    #endif // doxygen
 
-        /*!
-            \brief Boggs Eumorphic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - no inverse
-             - Spheroid
-            \par Example
-            \image html ex_boggs.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Boggs Eumorphic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - no inverse
+            - Spheroid
+        \par Example
+        \image html ex_boggs.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<CalculationType, Parameters>
+    {
+        inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<CalculationType, Parameters>(par)
         {
-            inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::boggs::setup_boggs(this->m_par);
-            }
-        };
+            detail::boggs::setup_boggs(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::boggs, boggs_spheroid, boggs_spheroid)

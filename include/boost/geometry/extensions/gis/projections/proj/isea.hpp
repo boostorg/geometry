@@ -63,12 +63,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace isea
     {
-        namespace isea
-        {
 
             static const double E = 52.62263186;
             static const double F = 10.81231696;
@@ -1203,36 +1200,41 @@ namespace projections
                 }
             }
 
-        } // namespace isea
+    }} // namespace detail::isea
+    #endif // doxygen
 
-        /*!
-            \brief Icosahedral Snyder Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Spheroid
-            \par Projection parameters
-             - orient (string)
-             - azi: Azimuth (or Gamma) (degrees)
-             - lon_0: Central meridian (degrees)
-             - lat_0: Latitude of origin (degrees)
-             - aperture (integer)
-             - resolution (integer)
-             - mode (string)
-             - rescale
-            \par Example
-            \image html ex_isea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct isea_spheroid : public detail::isea::base_isea_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Icosahedral Snyder Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Spheroid
+        \par Projection parameters
+            - orient (string)
+            - azi: Azimuth (or Gamma) (degrees)
+            - lon_0: Central meridian (degrees)
+            - lat_0: Latitude of origin (degrees)
+            - aperture (integer)
+            - resolution (integer)
+            - mode (string)
+            - rescale
+        \par Example
+        \image html ex_isea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct isea_spheroid : public detail::isea::base_isea_spheroid<CalculationType, Parameters>
+    {
+        inline isea_spheroid(const Parameters& par) : detail::isea::base_isea_spheroid<CalculationType, Parameters>(par)
         {
-            inline isea_spheroid(const Parameters& par) : detail::isea::base_isea_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::isea::setup_isea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::isea::setup_isea(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::isea, isea_spheroid, isea_spheroid)

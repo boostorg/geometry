@@ -62,12 +62,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace eqdc
     {
-        namespace eqdc
-        {
 
             static const double EPS10 = 1.e-10;
 
@@ -188,32 +185,37 @@ namespace projections
                 }
             }
 
-        } // namespace eqdc
+    }} // namespace detail::eqdc
+    #endif // doxygen
 
-        /*!
-            \brief Equidistant Conic projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Conic
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-            \par Example
-            \image html ex_eqdc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Equidistant Conic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Conic
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+        \par Example
+        \image html ex_eqdc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>
+    {
+        inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::eqdc::setup_eqdc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::eqdc::setup_eqdc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eqdc, eqdc_ellipsoid, eqdc_ellipsoid)

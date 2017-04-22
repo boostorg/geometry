@@ -61,12 +61,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace tpeqd
     {
-        namespace tpeqd
-        {
 
             struct par_tpeqd
             {
@@ -173,33 +170,38 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace tpeqd
+    }} // namespace detail::tpeqd
+    #endif // doxygen
 
-        /*!
-            \brief Two Point Equidistant projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Projection parameters
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lon_1 (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-             - lon_2 (degrees)
-            \par Example
-            \image html ex_tpeqd.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Two Point Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Projection parameters
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lon_1 (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+            - lon_2 (degrees)
+        \par Example
+        \image html ex_tpeqd.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>
+    {
+        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>(par)
         {
-            inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::tpeqd, tpeqd_spheroid, tpeqd_spheroid)

@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace vandg2
     {
-        namespace vandg2
-        {
 
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
@@ -143,51 +140,56 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace vandg2
+    }} // namespace detail::vandg2
+    #endif // doxygen
 
-        /*!
-            \brief van der Grinten II projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_vandg2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief van der Grinten II projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_vandg2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    {
+        inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
         {
-            inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::vandg2::setup_vandg2(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::vandg2::setup_vandg2(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief van der Grinten III projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_vandg3.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief van der Grinten III projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_vandg3.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    {
+        inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
         {
-            inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::vandg2::setup_vandg3(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::vandg2::setup_vandg3(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::vandg2, vandg2_spheroid, vandg2_spheroid)

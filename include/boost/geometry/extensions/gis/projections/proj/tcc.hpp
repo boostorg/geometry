@@ -57,12 +57,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace tcc
     {
-        namespace tcc
-        {
 
             static const double EPS10 = 1.e-10;
 
@@ -112,29 +109,34 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace tcc
+    }} // namespace detail::tcc
+    #endif // doxygen
 
-        /*!
-            \brief Transverse Central Cylindrical projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - no inverse
-            \par Example
-            \image html ex_tcc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Transverse Central Cylindrical projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - no inverse
+        \par Example
+        \image html ex_tcc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<CalculationType, Parameters>
+    {
+        inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<CalculationType, Parameters>(par)
         {
-            inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::tcc::setup_tcc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::tcc::setup_tcc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::tcc, tcc_spheroid, tcc_spheroid)

@@ -64,12 +64,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace gn_sinu
     {
-        namespace gn_sinu
-        {
 
             static const double EPS10 = 1e-10;
             static const int MAX_ITER = 8;
@@ -238,117 +235,122 @@ namespace projections
                 setup(par, proj_parm);
             }
 
-        } // namespace gn_sinu
+    }} // namespace detail::gn_sinu
+    #endif // doxygen
 
-        /*!
-            \brief General Sinusoidal Series projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Projection parameters
-             - m (real)
-             - n (real)
-            \par Example
-            \image html ex_gn_sinu.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    /*!
+        \brief General Sinusoidal Series projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Projection parameters
+            - m (real)
+            - n (real)
+        \par Example
+        \image html ex_gn_sinu.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    {
+        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
         {
-            inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Sinusoidal (Sanson-Flamsteed) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_sinu.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct sinu_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Sinusoidal (Sanson-Flamsteed) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_sinu.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct sinu_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>
+    {
+        inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Sinusoidal (Sanson-Flamsteed) projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Example
-            \image html ex_sinu.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Sinusoidal (Sanson-Flamsteed) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Example
+        \image html ex_sinu.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    {
+        inline sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
         {
-            inline sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Eckert VI projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_eck6.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eck6_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Eckert VI projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_eck6.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eck6_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    {
+        inline eck6_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
         {
-            inline eck6_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::gn_sinu::setup_eck6(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::gn_sinu::setup_eck6(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief McBryde-Thomas Flat-Polar Sinusoidal projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_mbtfps.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct mbtfps_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    /*!
+        \brief McBryde-Thomas Flat-Polar Sinusoidal projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_mbtfps.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct mbtfps_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
+    {
+        inline mbtfps_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
         {
-            inline mbtfps_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::gn_sinu::setup_mbtfps(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::gn_sinu::setup_mbtfps(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gn_sinu, gn_sinu_spheroid, gn_sinu_spheroid)

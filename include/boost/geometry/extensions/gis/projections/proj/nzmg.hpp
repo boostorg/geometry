@@ -65,12 +65,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace nzmg
     {
-        namespace nzmg
-        {
 
             static const double EPSLN = 1e-10;
             static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
@@ -173,27 +170,32 @@ namespace projections
                 par.y0 = 6023150.;
             }
 
-        } // namespace nzmg
+    }} // namespace detail::nzmg
+    #endif // doxygen
 
-        /*!
-            \brief New Zealand Map Grid projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Fixed Earth
-            \par Example
-            \image html ex_nzmg.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief New Zealand Map Grid projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Fixed Earth
+        \par Example
+        \image html ex_nzmg.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>
+    {
+        inline nzmg_ellipsoid(const Parameters& par) : detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline nzmg_ellipsoid(const Parameters& par) : detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::nzmg::setup_nzmg(this->m_par);
-            }
-        };
+            detail::nzmg::setup_nzmg(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::nzmg, nzmg_ellipsoid, nzmg_ellipsoid)

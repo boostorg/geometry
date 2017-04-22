@@ -67,12 +67,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace aeqd
     {
-        namespace aeqd
-        {
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
@@ -389,82 +386,87 @@ namespace projections
                 }
             }
 
-        } // namespace aeqd
+    }} // namespace detail::aeqd
+    #endif // doxygen
 
-        /*!
-            \brief Azimuthal Equidistant projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_0: Latitude of origin (degrees)
-             - guam (boolean)
-            \par Example
-            \image html ex_aeqd.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Azimuthal Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_0: Latitude of origin (degrees)
+            - guam (boolean)
+        \par Example
+        \image html ex_aeqd.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
+    {
+        inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Azimuthal Equidistant projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_0: Latitude of origin (degrees)
-             - guam (boolean)
-            \par Example
-            \image html ex_aeqd.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct aeqd_guam : public detail::aeqd::base_aeqd_guam<CalculationType, Parameters>
+    /*!
+        \brief Azimuthal Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_0: Latitude of origin (degrees)
+            - guam (boolean)
+        \par Example
+        \image html ex_aeqd.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct aeqd_guam : public detail::aeqd::base_aeqd_guam<CalculationType, Parameters>
+    {
+        inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<CalculationType, Parameters>(par)
         {
-            inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<CalculationType, Parameters>(par)
-            {
-                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Azimuthal Equidistant projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - lat_0: Latitude of origin (degrees)
-             - guam (boolean)
-            \par Example
-            \image html ex_aeqd.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Azimuthal Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - lat_0: Latitude of origin (degrees)
+            - guam (boolean)
+        \par Example
+        \image html ex_aeqd.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>
+    {
+        inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>(par)
         {
-            inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd, aeqd_spheroid, aeqd_ellipsoid)

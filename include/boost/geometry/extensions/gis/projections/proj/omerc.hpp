@@ -63,12 +63,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace omerc
     {
-        namespace omerc
-        {
 
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
@@ -276,40 +273,45 @@ namespace projections
                 proj_parm.v_pole_s = proj_parm.ArB * log(tan(FORTPI + F));
             }
 
-        } // namespace omerc
+    }} // namespace detail::omerc
+    #endif // doxygen
 
-        /*!
-            \brief Oblique Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - no_rot: No rotation
-             - alpha: Alpha (degrees)
-             - gamma: Gamma (degrees)
-             - no_off: Only for compatibility with libproj, proj4 (string)
-             - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
-             - lon_1 (degrees)
-             - lat_1: Latitude of first standard parallel (degrees)
-             - lon_2 (degrees)
-             - lat_2: Latitude of second standard parallel (degrees)
-             - no_uoff (string)
-            \par Example
-            \image html ex_omerc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Oblique Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - no_rot: No rotation
+            - alpha: Alpha (degrees)
+            - gamma: Gamma (degrees)
+            - no_off: Only for compatibility with libproj, proj4 (string)
+            - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+            - lon_1 (degrees)
+            - lat_1: Latitude of first standard parallel (degrees)
+            - lon_2 (degrees)
+            - lat_2: Latitude of second standard parallel (degrees)
+            - no_uoff (string)
+        \par Example
+        \image html ex_omerc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>
+    {
+        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::omerc::setup_omerc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::omerc::setup_omerc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::omerc, omerc_ellipsoid, omerc_ellipsoid)

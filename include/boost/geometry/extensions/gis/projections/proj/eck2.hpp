@@ -59,12 +59,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace eck2
     {
-        namespace eck2
-        {
 
             static const double FXC = 0.46065886596178063902;
             static const double FYC = 1.44720250911653531871;
@@ -124,28 +121,33 @@ namespace projections
                 par.es = 0.;
             }
 
-        } // namespace eck2
+    }} // namespace detail::eck2
+    #endif // doxygen
 
-        /*!
-            \brief Eckert II projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Pseudocylindrical
-             - Spheroid
-            \par Example
-            \image html ex_eck2.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct eck2_spheroid : public detail::eck2::base_eck2_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Eckert II projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Pseudocylindrical
+            - Spheroid
+        \par Example
+        \image html ex_eck2.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct eck2_spheroid : public detail::eck2::base_eck2_spheroid<CalculationType, Parameters>
+    {
+        inline eck2_spheroid(const Parameters& par) : detail::eck2::base_eck2_spheroid<CalculationType, Parameters>(par)
         {
-            inline eck2_spheroid(const Parameters& par) : detail::eck2::base_eck2_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::eck2::setup_eck2(this->m_par);
-            }
-        };
+            detail::eck2::setup_eck2(this->m_par);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::eck2, eck2_spheroid, eck2_spheroid)

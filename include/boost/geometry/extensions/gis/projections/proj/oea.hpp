@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace oea
     {
-        namespace oea
-        {
 
             struct par_oea
             {
@@ -154,32 +151,37 @@ namespace projections
                 }
             }
 
-        } // namespace oea
+    }} // namespace detail::oea
+    #endif // doxygen
 
-        /*!
-            \brief Oblated Equal Area projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Miscellaneous
-             - Spheroid
-            \par Projection parameters
-             - n (real)
-             - m (real)
-             - theta: Theta (degrees)
-            \par Example
-            \image html ex_oea.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct oea_spheroid : public detail::oea::base_oea_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Oblated Equal Area projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Miscellaneous
+            - Spheroid
+        \par Projection parameters
+            - n (real)
+            - m (real)
+            - theta: Theta (degrees)
+        \par Example
+        \image html ex_oea.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct oea_spheroid : public detail::oea::base_oea_spheroid<CalculationType, Parameters>
+    {
+        inline oea_spheroid(const Parameters& par) : detail::oea::base_oea_spheroid<CalculationType, Parameters>(par)
         {
-            inline oea_spheroid(const Parameters& par) : detail::oea::base_oea_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::oea::setup_oea(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::oea::setup_oea(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::oea, oea_spheroid, oea_spheroid)

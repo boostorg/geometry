@@ -64,12 +64,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace geos
     {
-        namespace geos
-        {
 
             struct par_geos
             {
@@ -285,57 +282,62 @@ namespace projections
                 }
             }
 
-        } // namespace detail::geos
+    }} // namespace detail::geos
+    #endif // doxygen
 
-        /*!
-            \brief Geostationary Satellite View projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - h: Height (real)
-             - sweep: Sweep axis ('x' or 'y') (string)
-            \par Example
-            \image html ex_geos.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Geostationary Satellite View projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - h: Height (real)
+            - sweep: Sweep axis ('x' or 'y') (string)
+        \par Example
+        \image html ex_geos.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<CalculationType, Parameters>
+    {
+        inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::geos::setup_geos(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::geos::setup_geos(this->m_par, this->m_proj_parm);
+        }
+    };
 
-        /*!
-            \brief Geostationary Satellite View projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Azimuthal
-             - Spheroid
-             - Ellipsoid
-            \par Projection parameters
-             - h: Height (real)
-             - sweep: Sweep axis ('x' or 'y') (string)
-            \par Example
-            \image html ex_geos.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct geos_spheroid : public detail::geos::base_geos_spheroid<CalculationType, Parameters>
+    /*!
+        \brief Geostationary Satellite View projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Azimuthal
+            - Spheroid
+            - Ellipsoid
+        \par Projection parameters
+            - h: Height (real)
+            - sweep: Sweep axis ('x' or 'y') (string)
+        \par Example
+        \image html ex_geos.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct geos_spheroid : public detail::geos::base_geos_spheroid<CalculationType, Parameters>
+    {
+        inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<CalculationType, Parameters>(par)
         {
-            inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<CalculationType, Parameters>(par)
-            {
-                detail::geos::setup_geos(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::geos::setup_geos(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::geos, geos_spheroid, geos_ellipsoid)

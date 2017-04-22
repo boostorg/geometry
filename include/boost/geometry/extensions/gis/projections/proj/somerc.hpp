@@ -60,12 +60,9 @@ namespace srs { namespace proj
 
 namespace projections
 {
-
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail
+    namespace detail { namespace somerc
     {
-        namespace somerc
-        {
 
             static const double EPS = 1.e-10;
             static const int NITER = 6;
@@ -163,29 +160,34 @@ namespace projections
                 proj_parm.kR = par.k0 * sqrt(par.one_es) / (1. - sp * sp);
             }
 
-        } // namespace somerc
+    }} // namespace detail::somerc
+    #endif // doxygen
 
-        /*!
-            \brief Swiss. Obl. Mercator projection
-            \ingroup projections
-            \tparam Geographic latlong point type
-            \tparam Cartesian xy point type
-            \tparam Parameters parameter type
-            \par Projection characteristics
-             - Cylindrical
-             - Ellipsoid
-             - For CH1903
-            \par Example
-            \image html ex_somerc.gif
-        */
-        template <typename CalculationType, typename Parameters = parameters>
-        struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>
+    /*!
+        \brief Swiss. Obl. Mercator projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+            - Cylindrical
+            - Ellipsoid
+            - For CH1903
+        \par Example
+        \image html ex_somerc.gif
+    */
+    template <typename CalculationType, typename Parameters = parameters>
+    struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>
+    {
+        inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>(par)
         {
-            inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>(par)
-            {
-                detail::somerc::setup_somerc(this->m_par, this->m_proj_parm);
-            }
-        };
+            detail::somerc::setup_somerc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    #ifndef DOXYGEN_NO_DETAIL
+    namespace detail
+    {
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::somerc, somerc_ellipsoid, somerc_ellipsoid)
