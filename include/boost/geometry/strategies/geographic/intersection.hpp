@@ -15,7 +15,6 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
@@ -31,6 +30,8 @@
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>

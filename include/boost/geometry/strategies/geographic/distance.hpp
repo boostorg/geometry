@@ -19,10 +19,11 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
