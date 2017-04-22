@@ -730,8 +730,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Spheroid
-            - Ellipsoid
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_healpix.gif
     */
@@ -751,8 +751,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Spheroid
-            - Ellipsoid
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_healpix.gif
     */
@@ -772,11 +772,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Spheroid
-            - Ellipsoid
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - north_square (integer)
-            - south_square (integer)
+         - north_square (integer)
+         - south_square (integer)
         \par Example
         \image html ex_rhealpix.gif
     */
@@ -796,11 +796,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Spheroid
-            - Ellipsoid
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - north_square (integer)
-            - south_square (integer)
+         - north_square (integer)
+         - south_square (integer)
         \par Example
         \image html ex_rhealpix.gif
     */

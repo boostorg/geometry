@@ -127,12 +127,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
-            - no inverse
+         - Miscellaneous
+         - Spheroid
+         - no inverse
         \par Projection parameters
-            - W (real)
-            - M (real)
+         - W (real)
+         - M (real)
         \par Example
         \image html ex_hammer.gif
     */

@@ -299,11 +299,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_tissot.gif
     */
@@ -323,11 +323,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd1.gif
     */
@@ -347,11 +347,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd2.gif
     */
@@ -371,11 +371,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd3.gif
     */
@@ -395,11 +395,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_euler.gif
     */
@@ -419,11 +419,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_pconic.gif
     */
@@ -443,11 +443,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_vitk1.gif
     */

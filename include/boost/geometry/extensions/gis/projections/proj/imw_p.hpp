@@ -261,12 +261,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Mod. Polyconic
-            - Ellipsoid
+         - Mod. Polyconic
+         - Ellipsoid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel
-            - lat_2: Latitude of second standard parallel
-            - lon_1 (degrees)
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
+         - lon_1 (degrees)
         \par Example
         \image html ex_imw_p.gif
     */

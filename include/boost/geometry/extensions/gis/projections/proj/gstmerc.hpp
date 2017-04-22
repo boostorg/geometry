@@ -148,13 +148,13 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_0: Latitude of origin
-            - lon_0: Central meridian
-            - k_0: Scale factor
+         - lat_0: Latitude of origin
+         - lon_0: Central meridian
+         - k_0: Scale factor
         \par Example
         \image html ex_gstmerc.gif
     */

@@ -235,10 +235,10 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
+         - Conic
+         - Spheroid
         \par Projection parameters
-            - ns (boolean)
+         - ns (boolean)
         \par Example
         \image html ex_bipc.gif
     */

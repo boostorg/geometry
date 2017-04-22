@@ -174,11 +174,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */
@@ -198,11 +198,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */

@@ -357,9 +357,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_laea.gif
     */
@@ -379,9 +379,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_laea.gif
     */

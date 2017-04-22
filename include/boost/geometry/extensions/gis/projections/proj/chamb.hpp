@@ -218,16 +218,16 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
-            - no inverse
+         - Miscellaneous
+         - Spheroid
+         - no inverse
         \par Projection parameters
-            - lat_1: Latitude of control point 1 (degrees)
-            - lon_1: Longitude of control point 1 (degrees)
-            - lat_2: Latitude of control point 2 (degrees)
-            - lon_2: Longitude of control point 2 (degrees)
-            - lat_3: Latitude of control point 3 (degrees)
-            - lon_3: Longitude of control point 3 (degrees)
+         - lat_1: Latitude of control point 1 (degrees)
+         - lon_1: Longitude of control point 1 (degrees)
+         - lat_2: Latitude of control point 2 (degrees)
+         - lon_2: Longitude of control point 2 (degrees)
+         - lat_3: Latitude of control point 3 (degrees)
+         - lon_3: Longitude of control point 3 (degrees)
         \par Example
         \image html ex_chamb.gif
     */

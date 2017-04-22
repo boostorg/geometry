@@ -195,12 +195,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_eqdc.gif
     */

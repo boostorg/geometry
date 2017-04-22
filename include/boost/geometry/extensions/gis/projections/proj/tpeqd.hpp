@@ -180,13 +180,13 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
+         - Miscellaneous
+         - Spheroid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lon_1 (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
-            - lon_2 (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lon_1 (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lon_2 (degrees)
         \par Example
         \image html ex_tpeqd.gif
     */

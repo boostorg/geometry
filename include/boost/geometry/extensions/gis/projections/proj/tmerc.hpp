@@ -306,9 +306,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_tmerc.gif
     */
@@ -328,9 +328,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_tmerc.gif
     */
@@ -350,11 +350,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
+         - Cylindrical
+         - Spheroid
         \par Projection parameters
-            - zone: UTM Zone (integer)
-            - south: Denotes southern hemisphere UTM zone (boolean)
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */
@@ -374,11 +374,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
+         - Cylindrical
+         - Spheroid
         \par Projection parameters
-            - zone: UTM Zone (integer)
-            - south: Denotes southern hemisphere UTM zone (boolean)
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */

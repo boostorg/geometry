@@ -227,9 +227,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_poly.gif
     */
@@ -249,9 +249,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_poly.gif
     */

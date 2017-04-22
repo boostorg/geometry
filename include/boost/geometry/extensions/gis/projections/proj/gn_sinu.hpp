@@ -245,11 +245,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Projection parameters
-            - m (real)
-            - n (real)
+         - m (real)
+         - n (real)
         \par Example
         \image html ex_gn_sinu.gif
     */
@@ -269,9 +269,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
-            - Ellipsoid
+         - Pseudocylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_sinu.gif
     */
@@ -291,9 +291,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
-            - Ellipsoid
+         - Pseudocylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_sinu.gif
     */
@@ -313,8 +313,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_eck6.gif
     */
@@ -334,8 +334,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_mbtfps.gif
     */

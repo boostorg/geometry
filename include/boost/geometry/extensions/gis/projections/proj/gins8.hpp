@@ -115,9 +115,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
-            - no inverse
+         - Pseudocylindrical
+         - Spheroid
+         - no inverse
         \par Example
         \image html ex_gins8.gif
     */

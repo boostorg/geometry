@@ -197,9 +197,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_cass.gif
     */
@@ -219,9 +219,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Example
         \image html ex_cass.gif
     */

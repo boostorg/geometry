@@ -161,12 +161,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
+         - Miscellaneous
+         - Spheroid
         \par Projection parameters
-            - n (real)
-            - m (real)
-            - theta: Theta (degrees)
+         - n (real)
+         - m (real)
+         - theta: Theta (degrees)
         \par Example
         \image html ex_oea.gif
     */

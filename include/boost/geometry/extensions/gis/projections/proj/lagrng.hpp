@@ -137,12 +137,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
-            - no inverse
+         - Miscellaneous
+         - Spheroid
+         - no inverse
         \par Projection parameters
-            - W (real)
-            - lat_1: Latitude of first standard parallel (degrees)
+         - W (real)
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_lagrng.gif
     */

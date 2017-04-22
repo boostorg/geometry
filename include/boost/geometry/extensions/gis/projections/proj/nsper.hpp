@@ -261,10 +261,10 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
+         - Azimuthal
+         - Spheroid
         \par Projection parameters
-            - h: Height
+         - h: Height
         \par Example
         \image html ex_nsper.gif
     */
@@ -284,12 +284,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
+         - Azimuthal
+         - Spheroid
         \par Projection parameters
-            - tilt: Tilt, or Omega (real)
-            - azi: Azimuth (or Gamma) (real)
-            - h: Height
+         - tilt: Tilt, or Omega (real)
+         - azi: Azimuth (or Gamma) (real)
+         - h: Height
         \par Example
         \image html ex_tpers.gif
     */

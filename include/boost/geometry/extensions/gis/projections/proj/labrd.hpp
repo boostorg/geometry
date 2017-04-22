@@ -210,12 +210,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Special for Madagascar
+         - Cylindrical
+         - Spheroid
+         - Special for Madagascar
         \par Projection parameters
-            - no_rot: No rotation (boolean)
-            - azi: Azimuth (or Gamma) (degrees)
+         - no_rot: No rotation (boolean)
+         - azi: Azimuth (or Gamma) (degrees)
         \par Example
         \image html ex_labrd.gif
     */

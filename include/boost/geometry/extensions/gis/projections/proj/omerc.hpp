@@ -283,20 +283,20 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - Ellipsoid
+         - Cylindrical
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - no_rot: No rotation
-            - alpha: Alpha (degrees)
-            - gamma: Gamma (degrees)
-            - no_off: Only for compatibility with libproj, proj4 (string)
-            - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
-            - lon_1 (degrees)
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lon_2 (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
-            - no_uoff (string)
+         - no_rot: No rotation
+         - alpha: Alpha (degrees)
+         - gamma: Gamma (degrees)
+         - no_off: Only for compatibility with libproj, proj4 (string)
+         - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+         - lon_1 (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lon_2 (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - no_uoff (string)
         \par Example
         \image html ex_omerc.gif
     */

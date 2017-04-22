@@ -270,21 +270,21 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
+         - Miscellaneous
+         - Spheroid
         \par Projection parameters
-            - o_proj (string)
-            - Plus projection parameters
-            - o_lat_p (degrees)
-            - o_lon_p (degrees)
-            - New pole
-            - o_alpha: Alpha (degrees)
-            - o_lon_c (degrees)
-            - o_lat_c (degrees)
-            - o_lon_1 (degrees)
-            - o_lat_1: Latitude of first standard parallel (degrees)
-            - o_lon_2 (degrees)
-            - o_lat_2: Latitude of second standard parallel (degrees)
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */
@@ -304,21 +304,21 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
+         - Miscellaneous
+         - Spheroid
         \par Projection parameters
-            - o_proj (string)
-            - Plus projection parameters
-            - o_lat_p (degrees)
-            - o_lon_p (degrees)
-            - New pole
-            - o_alpha: Alpha (degrees)
-            - o_lon_c (degrees)
-            - o_lat_c (degrees)
-            - o_lon_1 (degrees)
-            - o_lat_1: Latitude of first standard parallel (degrees)
-            - o_lon_2 (degrees)
-            - o_lat_2: Latitude of second standard parallel (degrees)
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */

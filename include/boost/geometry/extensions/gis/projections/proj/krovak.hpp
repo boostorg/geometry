@@ -306,13 +306,13 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Ellipsoid
+         - Pseudocylindrical
+         - Ellipsoid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
-            - lat_0: Latitude of origin
-            - lon_0: Central meridian
-            - k: Scale factor on the pseudo standard parallel
+         - lat_ts: Latitude of true scale (degrees)
+         - lat_0: Latitude of origin
+         - lon_0: Central meridian
+         - k: Scale factor on the pseudo standard parallel
         \par Example
         \image html ex_krovak.gif
     */

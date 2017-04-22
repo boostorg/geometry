@@ -341,7 +341,7 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal (mod)
+         - Azimuthal (mod)
         \par Example
         \image html ex_mil_os.gif
     */
@@ -361,7 +361,7 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal (mod)
+         - Azimuthal (mod)
         \par Example
         \image html ex_lee_os.gif
     */
@@ -381,7 +381,7 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal (mod)
+         - Azimuthal (mod)
         \par Example
         \image html ex_gs48.gif
     */
@@ -401,7 +401,7 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal (mod)
+         - Azimuthal (mod)
         \par Example
         \image html ex_alsk.gif
     */
@@ -421,7 +421,7 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal (mod)
+         - Azimuthal (mod)
         \par Example
         \image html ex_gs50.gif
     */

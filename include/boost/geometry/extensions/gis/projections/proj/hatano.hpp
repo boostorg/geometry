@@ -153,8 +153,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_hatano.gif
     */

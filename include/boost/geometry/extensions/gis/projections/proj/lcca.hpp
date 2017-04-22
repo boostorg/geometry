@@ -172,11 +172,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_0: Latitude of origin
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcca.gif
     */

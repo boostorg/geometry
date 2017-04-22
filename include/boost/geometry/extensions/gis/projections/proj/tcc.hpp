@@ -119,9 +119,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
-            - no inverse
+         - Cylindrical
+         - Spheroid
+         - no inverse
         \par Example
         \image html ex_tcc.gif
     */

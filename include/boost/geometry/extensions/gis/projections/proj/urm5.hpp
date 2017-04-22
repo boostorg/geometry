@@ -126,13 +126,13 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
-            - no inverse
+         - Pseudocylindrical
+         - Spheroid
+         - no inverse
         \par Projection parameters
-            - n (real)
-            - q (real)
-            - alpha: Alpha (degrees)
+         - n (real)
+         - q (real)
+         - alpha: Alpha (degrees)
         \par Example
         \image html ex_urm5.gif
     */

@@ -149,10 +149,10 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Projection parameters
-            - n (real)
+         - n (real)
         \par Example
         \image html ex_fouc_s.gif
     */

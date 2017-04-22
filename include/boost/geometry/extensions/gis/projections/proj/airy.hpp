@@ -196,12 +196,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Miscellaneous
-            - Spheroid
-            - no inverse
+         - Miscellaneous
+         - Spheroid
+         - no inverse
         \par Projection parameters
-            - no_cut: Do not cut at hemisphere limit (boolean)
-            - lat_b (degrees)
+         - no_cut: Do not cut at hemisphere limit (boolean)
+         - lat_b (degrees)
         \par Example
         \image html ex_airy.gif
     */

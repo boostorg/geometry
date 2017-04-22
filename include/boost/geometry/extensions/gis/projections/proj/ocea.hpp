@@ -169,15 +169,15 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
+         - Cylindrical
+         - Spheroid
         \par Projection parameters
-            - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
-            - alpha: Alpha (degrees)
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
-            - lon_1 (degrees)
-            - lon_2 (degrees)
+         - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+         - alpha: Alpha (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lon_1 (degrees)
+         - lon_2 (degrees)
         \par Example
         \image html ex_ocea.gif
     */

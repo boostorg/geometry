@@ -292,12 +292,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - h: Height (real)
-            - sweep: Sweep axis ('x' or 'y') (string)
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */
@@ -317,12 +317,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - h: Height (real)
-            - sweep: Sweep axis ('x' or 'y') (string)
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */

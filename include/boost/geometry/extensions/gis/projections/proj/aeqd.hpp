@@ -396,12 +396,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_0: Latitude of origin (degrees)
-            - guam (boolean)
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -421,12 +421,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_0: Latitude of origin (degrees)
-            - guam (boolean)
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -446,12 +446,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_0: Latitude of origin (degrees)
-            - guam (boolean)
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */

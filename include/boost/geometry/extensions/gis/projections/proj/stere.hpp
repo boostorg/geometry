@@ -380,11 +380,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_stere.gif
     */
@@ -404,11 +404,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_stere.gif
     */
@@ -428,11 +428,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - south: Denotes southern hemisphere UTM zone (boolean)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_ups.gif
     */
@@ -452,11 +452,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
-            - Ellipsoid
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - south: Denotes southern hemisphere UTM zone (boolean)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_ups.gif
     */

@@ -170,9 +170,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Ellipsoid
-            - For CH1903
+         - Cylindrical
+         - Ellipsoid
+         - For CH1903
         \par Example
         \image html ex_somerc.gif
     */

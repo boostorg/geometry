@@ -172,8 +172,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_eck3.gif
     */
@@ -193,8 +193,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_putp1.gif
     */
@@ -214,8 +214,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_wag6.gif
     */
@@ -235,8 +235,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - Spheroid
+         - Pseudocylindrical
+         - Spheroid
         \par Example
         \image html ex_kav7.gif
     */

@@ -217,13 +217,13 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
-            - lat_0: Latitude of origin
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcc.gif
     */

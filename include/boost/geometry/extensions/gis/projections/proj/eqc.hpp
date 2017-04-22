@@ -122,11 +122,11 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Cylindrical
-            - Spheroid
+         - Cylindrical
+         - Spheroid
         \par Projection parameters
-            - lat_ts: Latitude of true scale (degrees)
-            - lat_0: Latitude of origin
+         - lat_ts: Latitude of true scale (degrees)
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_eqc.gif
     */

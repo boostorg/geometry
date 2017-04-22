@@ -192,8 +192,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Ellipsoid
+         - Azimuthal
+         - Ellipsoid
         \par Example
         \image html ex_rouss.gif
     */

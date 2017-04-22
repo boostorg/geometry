@@ -471,8 +471,8 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Azimuthal
-            - Spheroid
+         - Azimuthal
+         - Spheroid
         \par Example
         \image html ex_qsc.gif
     */

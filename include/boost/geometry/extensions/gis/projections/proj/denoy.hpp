@@ -116,9 +116,9 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Pseudocylindrical
-            - no inverse
-            - Spheroid
+         - Pseudocylindrical
+         - no inverse
+         - Spheroid
         \par Example
         \image html ex_denoy.gif
     */

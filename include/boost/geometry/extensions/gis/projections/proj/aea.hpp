@@ -73,7 +73,7 @@ namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace aea
-        {
+    {
 
             static const double EPS10 = 1.e-10;
             static const double TOL7 = 1.e-7;
@@ -252,12 +252,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel (degrees)
-            - lat_2: Latitude of second standard parallel (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_aea.gif
     */
@@ -277,12 +277,12 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-            - Conic
-            - Spheroid
-            - Ellipsoid
+         - Conic
+         - Spheroid
+         - Ellipsoid
         \par Projection parameters
-            - lat_1: Latitude of first standard parallel (degrees)
-            - south: Denotes southern hemisphere UTM zone (boolean)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_leac.gif
     */
