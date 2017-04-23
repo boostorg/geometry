@@ -16,6 +16,10 @@
 
 #include <string>
 
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+
+#include <boost/geometry/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/extensions/gis/projections/ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg.hpp>
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
@@ -50,6 +54,47 @@ struct promote_to_double
             double, CT
         >::type type;
 };
+
+// Copy coordinates of dimensions >= MinDim
+template <std::size_t MinDim, typename Point1, typename Point2>
+inline void copy_higher_dimensions(Point1 const& point1, Point2 & point2)
+{
+    static const std::size_t dim1 = geometry::dimension<Point1>::value;
+    static const std::size_t dim2 = geometry::dimension<Point2>::value;
+    static const std::size_t lesser_dim = dim1 < dim2 ? dim1 : dim2;
+    BOOST_MPL_ASSERT_MSG((lesser_dim >= MinDim),
+                         THE_DIMENSION_OF_POINTS_IS_TOO_SMALL,
+                         (Point1, Point2));
+
+    geometry::detail::conversion::point_to_point
+        <
+            Point1, Point2, MinDim, lesser_dim
+        > ::apply(point1, point2);
+
+    // TODO: fill point2 with zeros if dim1 < dim2 ?
+}
+
+/// Forward projection, from Latitude-Longitude to Cartesian
+template <typename Proj, typename LL, typename XY>
+inline bool forward(Proj const& proj, LL const& ll, XY& xy)
+{
+    // (Geographic -> Cartesian) will be projected, rest will be copied.
+    // So first copy third or higher dimensions
+    copy_higher_dimensions<2>(ll, xy);
+
+    return proj.forward(ll, xy);
+}
+
+/// Inverse projection, from Cartesian to Latitude-Longitude
+template <typename Proj, typename XY, typename LL>
+inline bool inverse(Proj const& proj, XY const& xy, LL& ll)
+{
+    // (Cartesian -> Geographic) will be projected, rest will be copied.
+    // So first copy third or higher dimensions
+    copy_higher_dimensions<2>(ll, xy);
+
+    return proj.inverse(xy, ll);
+}
 
 }} // namespace projections::detail
 #endif // DOXYGEN_NO_DETAIL
@@ -105,16 +150,16 @@ public:
 
     /// Forward projection, from Latitude-Longitude to Cartesian
     template <typename LL, typename XY>
-    bool forward(LL const& lp, XY& xy) const
+    bool forward(LL const& ll, XY& xy) const
     {
-        return m_ptr->forward(lp, xy);
+        return projections::detail::forward(*m_ptr, ll, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
     template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& lp) const
+    bool inverse(XY const& xy, LL& ll) const
     {
-        return m_ptr->inverse(xy, lp);
+        return projections::detail::inverse(*m_ptr, xy, ll);
     }
 
 private:
@@ -161,16 +206,16 @@ public:
 
     /// Forward projection, from Latitude-Longitude to Cartesian
     template <typename LL, typename XY>
-    bool forward(LL const& lp, XY& xy) const
+    bool forward(LL const& ll, XY& xy) const
     {
-        return m_proj.forward(lp, xy);
+        return projections::detail::forward(m_proj, ll, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
     template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& lp) const
+    bool inverse(XY const& xy, LL& ll) const
     {
-        return m_proj.inverse(xy, lp);
+        return projections::detail::inverse(m_proj, xy, ll);
     }
 
 private:
@@ -205,16 +250,16 @@ public:
 
     /// Forward projection, from Latitude-Longitude to Cartesian
     template <typename LL, typename XY>
-    bool forward(LL const& lp, XY& xy) const
+    bool forward(LL const& ll, XY& xy) const
     {
-        return m_proj.forward(lp, xy);
+        return projections::detail::forward(m_proj, ll, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
     template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& lp) const
+    bool inverse(XY const& xy, LL& ll) const
     {
-        return m_proj.inverse(xy, lp);
+        return projections::detail::inverse(m_proj, xy, ll);
     }
 
 private:
