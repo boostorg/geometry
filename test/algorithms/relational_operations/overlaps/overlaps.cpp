@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,6 +17,13 @@ template <typename P>
 void test_pp()
 {
     typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", false);
+    test_geometry<P, P>("POINT(0 0)", "POINT(1 1)", false);
+
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 1)", false);
+
+    test_geometry<mpt, P>("MULTIPOINT(0 0, 1 1)", "POINT(0 0)", false);
 
     test_geometry<mpt, mpt>("MULTIPOINT(0 0,1 1,2 2)", "MULTIPOINT(1 1,3 3,4 4)", true);
     test_geometry<mpt, mpt>("MULTIPOINT(0 0,1 1,2 2)", "MULTIPOINT(1 1,2 2)", false);

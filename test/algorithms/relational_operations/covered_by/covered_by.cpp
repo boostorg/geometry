@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -43,6 +43,14 @@ void test_all()
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
 
     */
+
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", true);
+    test_geometry<P, P>("POINT(0 0)", "POINT(1 1)", false);
+
+    typedef bg::model::multi_point<P> mpt;
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<mpt, P>("MULTIPOINT(0 0, 1 1)", "POINT(1 1)", false);
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(1 1, 2 2)", false);
 
     typedef bg::model::segment<P> seg;
     test_geometry<P, seg>("POINT(1 1)", "LINESTRING(0 0, 2 2)", true);
