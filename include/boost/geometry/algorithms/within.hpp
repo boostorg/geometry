@@ -51,6 +51,7 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/within/multi_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
 
@@ -138,6 +139,16 @@ struct within<Point1, Point2, point_tag, point_tag>
 template <typename Point, typename MultiPoint>
 struct within<Point, MultiPoint, point_tag, multi_point_tag>
     : public detail::within::use_point_in_geometry
+{};
+
+template <typename MultiPoint, typename Point>
+struct within<MultiPoint, Point, multi_point_tag, point_tag>
+    : public detail::within::multi_point_point
+{};
+
+template <typename MultiPoint1, typename MultiPoint2>
+struct within<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+    : public detail::within::multi_point_multi_point
 {};
 
 // P/L
