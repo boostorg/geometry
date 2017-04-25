@@ -23,6 +23,25 @@
 namespace bgm = bg::model;
 
 template <typename P>
+void test_pointlike()
+{
+    typedef bgm::multi_point<P> mpt;
+
+    test_geometry<P, P>("ptpt2d_1", "POINT(0 0)", "POINT(0 0)", true);
+    test_geometry<P, P>("ptpt2d_2", "POINT(0 0)", "POINT(1 1)", false);
+
+    test_geometry<P, mpt>("ptmpt2d_1", "POINT(0 0)", "MULTIPOINT(0 0)", true);
+    test_geometry<P, mpt>("ptmpt2d_1", "POINT(0 0)", "MULTIPOINT(0 0, 1 1)", false);
+
+    test_geometry<mpt, P>("mptpt2d_1", "MULTIPOINT(0 0)", "POINT(0 0)", true);
+    test_geometry<mpt, P>("mptpt2d_1", "MULTIPOINT(0 0, 1 1)", "POINT(0 0)", false);
+
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 2 2)", false);
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(2 2, 3 3)", false);
+}
+
+template <typename P>
 void test_segment_segment()
 {
     typedef bgm::segment<P> seg;
@@ -229,6 +248,7 @@ void test_all()
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,2 1,2 2,1 2,1 1))",
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(2 2,1 2,1 1,2 1,2 2))", true);
 
+    test_pointlike<P>();
     test_segment_segment<P>();
     test_linestring_linestring<P>();
     test_linestring_multilinestring<P>();
