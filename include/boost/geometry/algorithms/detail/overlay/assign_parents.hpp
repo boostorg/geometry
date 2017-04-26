@@ -52,7 +52,6 @@ static inline bool within_selected_input(Item const& item2,
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
-    typedef typename boost::range_value<RingCollection>::type ring_type;
 
     // NOTE: range_in_geometry first checks the item2.point and then
     // if this point is on boundary it checks points of inner_geometry
