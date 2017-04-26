@@ -124,6 +124,21 @@ struct covered_by<Point, MultiLinestring, point_tag, multi_linestring_tag>
     : public detail::covered_by::use_point_in_geometry
 {};
 
+template <typename MultiPoint, typename Segment>
+struct covered_by<MultiPoint, Segment, multi_point_tag, segment_tag>
+    : public detail::within::multi_point_single_geometry<false>
+{};
+
+template <typename MultiPoint, typename Linestring>
+struct covered_by<MultiPoint, Linestring, multi_point_tag, linestring_tag>
+    : public detail::within::multi_point_single_geometry<false>
+{};
+
+template <typename MultiPoint, typename MultiLinestring>
+struct covered_by<MultiPoint, MultiLinestring, multi_point_tag, multi_linestring_tag>
+    : public detail::within::multi_point_multi_geometry<false>
+{};
+
 // P/A
 
 template <typename Point, typename Ring>
@@ -139,6 +154,21 @@ struct covered_by<Point, Polygon, point_tag, polygon_tag>
 template <typename Point, typename MultiPolygon>
 struct covered_by<Point, MultiPolygon, point_tag, multi_polygon_tag>
     : public detail::covered_by::use_point_in_geometry
+{};
+
+template <typename MultiPoint, typename Ring>
+struct covered_by<MultiPoint, Ring, multi_point_tag, ring_tag>
+    : public detail::within::multi_point_single_geometry<false>
+{};
+
+template <typename MultiPoint, typename Polygon>
+struct covered_by<MultiPoint, Polygon, multi_point_tag, polygon_tag>
+    : public detail::within::multi_point_single_geometry<false>
+{};
+
+template <typename MultiPoint, typename MultiPolygon>
+struct covered_by<MultiPoint, MultiPolygon, multi_point_tag, multi_polygon_tag>
+    : public detail::within::multi_point_multi_geometry<false>
 {};
 
 // L/L

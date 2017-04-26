@@ -147,6 +147,21 @@ struct within<Point, MultiLinestring, point_tag, multi_linestring_tag>
     : public detail::within::use_point_in_geometry
 {};
 
+template <typename MultiPoint, typename Segment>
+struct within<MultiPoint, Segment, multi_point_tag, segment_tag>
+    : public detail::within::multi_point_single_geometry<true>
+{};
+
+template <typename MultiPoint, typename Linestring>
+struct within<MultiPoint, Linestring, multi_point_tag, linestring_tag>
+    : public detail::within::multi_point_single_geometry<true>
+{};
+
+template <typename MultiPoint, typename MultiLinestring>
+struct within<MultiPoint, MultiLinestring, multi_point_tag, multi_linestring_tag>
+    : public detail::within::multi_point_multi_geometry<true>
+{};
+
 // P/A
 
 template <typename Point, typename Ring>
@@ -162,6 +177,21 @@ struct within<Point, Polygon, point_tag, polygon_tag>
 template <typename Point, typename MultiPolygon>
 struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
     : public detail::within::use_point_in_geometry
+{};
+
+template <typename MultiPoint, typename Ring>
+struct within<MultiPoint, Ring, multi_point_tag, ring_tag>
+    : public detail::within::multi_point_single_geometry<true>
+{};
+
+template <typename MultiPoint, typename Polygon>
+struct within<MultiPoint, Polygon, multi_point_tag, polygon_tag>
+    : public detail::within::multi_point_single_geometry<true>
+{};
+
+template <typename MultiPoint, typename MultiPolygon>
+struct within<MultiPoint, MultiPolygon, multi_point_tag, multi_polygon_tag>
+    : public detail::within::multi_point_multi_geometry<true>
 {};
 
 // L/L
