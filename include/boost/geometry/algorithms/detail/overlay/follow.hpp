@@ -62,17 +62,7 @@ static inline bool last_covered_by(Turn const& turn, Operation const& op,
                 LineString const& linestring, Polygon const& polygon,
                 PtInPolyStrategy const& strategy)
 {
-    // Check any point between the this one and the first IP
-    typedef typename geometry::point_type<LineString>::type point_type;
-    point_type point_in_between;
-    // TODO: Does this work properly in non-cartesian coordinate systems?
-    detail::point_on_border::midpoint_helper
-        <
-            point_type,
-            0, dimension<point_type>::value
-        >::apply(point_in_between, *(::boost::begin(linestring) + op.seg_id.segment_index), turn.point);
-
-    return geometry::covered_by(point_in_between, polygon, strategy);
+    return geometry::covered_by(range::at(linestring, op.seg_id.segment_index), polygon, strategy);
 }
 
 
