@@ -205,6 +205,7 @@ struct multi_point_multi_geometry
         for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
         {
             // TODO: investigate the possibility of using satisfies
+            // TODO: investigate the possibility of using iterative queries (optimization below)
             box_pair_vector inters_boxes;
             rtree.query(index::intersects(*it), std::back_inserter(inters_boxes));
 
@@ -221,6 +222,15 @@ struct multi_point_multi_geometry
                     found_interior = true;
                 else if (in_val == 0)
                     ++boundaries;
+
+                // If the result was set previously (interior or
+                // interior/boundary found) the only thing that needs to be
+                // done for other points is to make sure they're not
+                // overlapping the exterior no need to analyse boundaries.
+                if (result && in_val >= 0)
+                {
+                    break;
+                }
             }
 
             if ( boundaries > 0)
