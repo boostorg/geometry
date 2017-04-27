@@ -65,6 +65,9 @@ void test_point_linestring()
 {
     typedef bg::model::linestring<P> ls;
     
+    // degenerated
+    //test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+
     test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
     test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0, 2 2, 3 2)", "0FFFFF102");
     test_geometry<P, ls>("POINT(3 2)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
@@ -113,6 +116,25 @@ void test_point_multilinestring()
 }
 
 template <typename P>
+void test_multipoint_linestring()
+{
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::linestring<P> ls;
+    
+    // degenerated
+    //test_geometry<mpt, ls>("MULTIPOINT(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2, 3 2)", "00FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "000FFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "F00FFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(1 1, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "0F0FFF102");
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0FFFFF1F2");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 3 3)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0F0FFF1F2");
+}
+
+template <typename P>
 void test_all()
 {
     test_point_point<P>();
@@ -120,6 +142,7 @@ void test_all()
     test_multipoint_multipoint<P>();
     test_point_linestring<P>();
     test_point_multilinestring<P>();
+    test_multipoint_linestring<P>();
 }
 
 int test_main( int , char* [] )
