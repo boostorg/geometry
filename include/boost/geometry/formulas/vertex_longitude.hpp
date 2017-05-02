@@ -220,23 +220,30 @@ public:
 
         omg12 += omg1 - omg2;
 
-        CT omg13 = vertex_longitude_on_sphere<CT>
-                ::apply(bet1, bet2, bet3, sin(omg12), cos(omg12));
+        CT sin_omg12 = sin(omg12);
+        CT cos_omg12 = cos(omg12);
 
-        if (sin(omg12) > 0 && cos(omg12) < 0)
+        CT omg13 = geometry::formula::vertex_longitude_on_sphere<CT>
+                ::apply(bet1, bet2, bet3, sin_omg12, cos_omg12);
+
+
+        if (lat1 * lat2 < CT(0))//different hemispheres
         {
-            omg13 = pi - omg13;
+            if ((lat2-lat1)*lat3  > 0)// ascending segment
+            {
+                omg13 = pi - omg13;
+            }
         }
 
-        std::cout << "bet=" << bet1 * geometry::math::r2d<double>()
-                  << " " << bet2 * geometry::math::r2d<double>()
-                  << " " << bet3 * geometry::math::r2d<double>()
-                  << "\n omg12= " << (omg1 - omg2) * geometry::math::r2d<double>()
-                  << " " << omg12 * geometry::math::r2d<double>()
-                  << "\n omg1= " << omg1 * geometry::math::r2d<double>()
-                  << "\n omg2= " << omg2 * geometry::math::r2d<double>()
+        std::cout << "bet=" << bet1 * geometry::math::r2d<CT>()
+                  << " " << bet2 * geometry::math::r2d<CT>()
+                  << " " << bet3 * geometry::math::r2d<CT>()
+                  << "\n omg12= " << (omg1 - omg2) * geometry::math::r2d<CT>()
+                  << " " << omg12 * geometry::math::r2d<CT>()
+                  << "\n omg1= " << omg1 * geometry::math::r2d<CT>()
+                  << "\n omg2= " << omg2 * geometry::math::r2d<CT>()
                   << "\n omg13(rad)= " << omg13
-                  << "\n omg13= " << omg13 * geometry::math::r2d<double>()
+                  << "\n omg13= " << omg13 * geometry::math::r2d<CT>()
                   << "\n";
 
         // Second, compute the ellipsoidal longitude
@@ -278,7 +285,7 @@ public:
                             + C32 * (sin4_sig3 - sin4_sig1));
 
 
-        std::cout << "correction=" << f * sin_alp0 * I3 * geometry::math::r2d<double>() << std::endl;
+        std::cout << "correction=" << f * sin_alp0 * I3 * geometry::math::r2d<CT>() << std::endl;
         std::cout << "I3=" << I3   << std::endl;
 
         int sign = CT(1);
@@ -349,6 +356,7 @@ struct compute_vertex_lon<CT, geographic_tag>
 };
 
 // Vertex longitude interface
+// Assume that lon1 < lon2 and lon1, lon2 \in (-pi,pi]
 
 template <typename CT, typename CS_Tag>
 class vertex_longitude
@@ -423,13 +431,23 @@ public :
                                                               azimuth_strategy);
 
         CT pi = math::pi<CT>();
-        CT vertex_lon = std::fmod(lon1 + dlon + pi, 2 * pi) - pi;
 
+
+        CT vertex_lon = std::fmod(lon1 + dlon, 2 * pi);// - pi;;
 
         if(vertex_lat < CT(0))
         {
-            vertex_lon += geometry::math::pi<CT>();
+            vertex_lon -= geometry::math::pi<CT>();
         }
+
+        if (std::abs(lon1 - lon2) > pi)
+        {
+            vertex_lon -= pi;
+        }
+
+        vertex_lon = std::fmod(vertex_lon, 2 * pi);
+
+        //geometry::math::normalize_longitude<geometry::radian, CT>(vertex_lon);
 
         return vertex_lon;
 
