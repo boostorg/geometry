@@ -118,15 +118,21 @@ private:
         }
     };
 
-    // TODO: After adding non-cartesian Segment envelope to the library
-    // this policy should be modified to take envelope strategy.
+    template <typename EnvelopeStrategy>
     struct expand_box_segment
     {
+        explicit expand_box_segment(EnvelopeStrategy const& strategy)
+            : m_strategy(strategy)
+        {}
+
         template <typename Box, typename Segment>
-        static inline void apply(Box& total, Segment const& segment)
+        inline void apply(Box& total, Segment const& segment) const
         {
-            geometry::expand(total, geometry::return_envelope<Box>(segment));
+            geometry::expand(total,
+                             geometry::return_envelope<Box>(segment, m_strategy));
         }
+
+        EnvelopeStrategy const& m_strategy;
     };
 
     struct overlaps_box_point
@@ -143,24 +149,20 @@ private:
         }
     };
 
-    // TODO: After implementing disjoint Segment/Box for non-cartesian geometries
-    // this strategy should be passed here.
-    // TODO: This Segment/Box strategy should somehow be derived from Point/Segment strategy
-    // which by default is winding containing CS-specific side strategy
-    // TODO: disjoint Segment/Box will be called in this case which may take
-    // quite long in non-cartesian CS. So we should consider passing range of bounding boxes
-    // of segments after calculating them once.
+    template <typename DisjointStrategy>
     struct overlaps_box_segment
     {
+        explicit overlaps_box_segment(DisjointStrategy const& strategy)
+            : m_strategy(strategy)
+        {}
+
         template <typename Box, typename Segment>
-        static inline bool apply(Box const& box, Segment const& segment)
+        inline bool apply(Box const& box, Segment const& segment) const
         {
-            typedef typename strategy::disjoint::services::default_strategy
-                <
-                    Segment, Box
-                >::type strategy_type;
-            return ! dispatch::disjoint<Segment, Box>::apply(segment, box, strategy_type());
+            return ! dispatch::disjoint<Segment, Box>::apply(segment, box, m_strategy);
         }
+
+        DisjointStrategy const& m_strategy;
     };
 
     template <typename PtSegStrategy>
@@ -222,12 +224,22 @@ public:
     {
         item_visitor_type<Strategy> visitor(strategy);
 
+        typedef typename Strategy::envelope_strategy_type envelope_strategy_type;
+        typedef typename Strategy::disjoint_strategy_type disjoint_strategy_type;
+
+        // TODO: disjoint Segment/Box may be called in partition multiple times
+        // possibly for non-cartesian segments which could be slow. We should consider
+        // passing a range of bounding boxes of segments after calculating them once.
+        // Alternatively instead of a range of segments a range of Segment/Envelope pairs
+        // should be passed, where envelope would be lazily calculated when needed the first time
         geometry::partition
             <
                 geometry::model::box<typename point_type<MultiPoint>::type>
             >::apply(multipoint, segment_range(linear), visitor,
-                     expand_box_point(), overlaps_box_point(),
-                     expand_box_segment(), overlaps_box_segment());
+                     expand_box_point(),
+                     overlaps_box_point(),
+                     expand_box_segment<envelope_strategy_type>(strategy.get_envelope_strategy()),
+                     overlaps_box_segment<disjoint_strategy_type>(strategy.get_disjoint_strategy()));
 
         return ! visitor.intersection_found();
     }

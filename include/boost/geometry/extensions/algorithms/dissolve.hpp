@@ -229,7 +229,7 @@ struct dissolve_ring_or_polygon
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected);
+            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected, strategy);
 
             // Add intersected rings
             {
@@ -244,7 +244,7 @@ struct dissolve_ring_or_polygon
                 }
             }
 
-            detail::overlay::assign_parents(geometry, rings, selected, true);
+            detail::overlay::assign_parents(geometry, rings, selected, strategy, true);
             return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
 
         }
