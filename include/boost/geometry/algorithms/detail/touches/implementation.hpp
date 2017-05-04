@@ -325,7 +325,25 @@ struct touches<Point, Geometry, point_tag, Tag2, pointlike_tag, CastedTag2, fals
     : detail::touches::use_point_in_geometry
 {};
 
-// TODO: support touches(MPt, Linear/Areal)
+template <typename MultiPoint, typename MultiGeometry, typename Tag2, typename CastedTag2>
+struct touches<MultiPoint, MultiGeometry, multi_point_tag, Tag2, pointlike_tag, CastedTag2, false>
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            MultiPoint,
+            MultiGeometry
+        >
+{};
+
+template <typename Geometry, typename MultiPoint, typename Tag1, typename CastedTag1>
+struct touches<Geometry, MultiPoint, Tag1, multi_point_tag, CastedTag1, pointlike_tag, false>
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            Geometry,
+            MultiPoint
+        >
+{};
 
 // Box/Box
 
