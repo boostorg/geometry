@@ -18,10 +18,14 @@ void test_pl()
 {
     typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
 
     test_geometry<mpt, ls>("MULTIPOINT(1 0,1 1)", "LINESTRING(0 0,1 0,3 3)", true);
     test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 0,3 3)", false);
     test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 1,3 3)", false);
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0,3 0)", "MULTILINESTRING((0 0,0 1,1 1),(1 1,1 0,0 0))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0,1 1)", "MULTILINESTRING((0 0,0 1,1 1),(1 1,1 0,0 0))", false);
 }
 
 template <typename P>
@@ -34,6 +38,9 @@ void test_pa()
     test_geometry<mpt, poly>("MULTIPOINT(1 1,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
     test_geometry<mpt, poly>("MULTIPOINT(0 0,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
     test_geometry<mpt, poly>("MULTIPOINT(0 0,1 1)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0,1 1)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 9,9 9,9 5,5 5)))", false);
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1,1 6)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 9,9 9,9 5,5 5)))", true);
 }
 
 template <typename P>
