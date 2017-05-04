@@ -109,7 +109,7 @@ test:
     #- cd $BOOST_ROOT/libs/geometry && index=0 ; run_tests() { for i in "$1"/* ; do if [ -f "$i"/Jamfile* ] ; then ((index++)) ; echo "$index - $i" ; ../../b2 cxxflags="--coverage" linkflags="--coverage" "$i" ; run_tests "$i" ; fi ; done } ; run_tests test
 
     # so for now just run the tests from the list
-    - cd $BOOST_ROOT/libs/geometry && status=0; index=0 ; for t in ${TESTS[@]} ; do if [ $(((index++)%CIRCLE_NODE_TOTAL)) == $CIRCLE_NODE_INDEX ] ; then ../../b2 cxxflags="--coverage" linkflags="--coverage" $t ; fi || status=$? ; done ; exit $status :
+    - cd $BOOST_ROOT/libs/geometry && status=0; index=0 ; for t in ${TESTS[@]} ; do if [ $(((index++)%CIRCLE_NODE_TOTAL)) == $CIRCLE_NODE_INDEX ] ; then ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t ; fi || status=$? ; done ; exit $status :
         parallel: true
 
   post:
