@@ -73,7 +73,7 @@ struct multi_point_multi_point
     {
         typedef typename boost::range_value<MultiPoint2>::type point2_type;
 
-        relate::less const less;
+        relate::less const less = relate::less();
 
         std::vector<point2_type> points2(boost::begin(multi_point2), boost::end(multi_point2));
         std::sort(points2.begin(), points2.end(), less);
