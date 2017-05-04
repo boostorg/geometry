@@ -76,9 +76,9 @@ struct point_geometry
             {
                 // check if there is a boundary in Geometry
                 tc_t tc(geometry);
-                if ( tc.has_interior )
+                if ( tc.has_interior() )
                     relate::set<exterior, interior, tc_t::interior, Transpose>(result);
-                if ( tc.has_boundary )
+                if ( tc.has_boundary() )
                     relate::set<exterior, boundary, tc_t::boundary, Transpose>(result);
             }
         }

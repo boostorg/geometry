@@ -84,12 +84,12 @@ struct relate<Geometry, Point, Tag1, point_tag, TopDim1, 0, true>
 
 template <typename MultiPoint, typename Geometry, typename Tag2, int TopDim2>
 struct relate<MultiPoint, Geometry, multi_point_tag, Tag2, 0, TopDim2, false>
-    : detail::relate::multi_point_single_geometry<MultiPoint, Geometry>
+    : detail::relate::multi_point_geometry<MultiPoint, Geometry>
 {};
 
 template <typename Geometry, typename MultiPoint, typename Tag1, int TopDim1>
 struct relate<Geometry, MultiPoint, Tag1, multi_point_tag, TopDim1, 0, false>
-    : detail::relate::single_geometry_multi_point<Geometry, MultiPoint>
+    : detail::relate::geometry_multi_point<Geometry, MultiPoint>
 {};
 
 
