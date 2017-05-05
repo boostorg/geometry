@@ -25,16 +25,13 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
-
-#include <boost/geometry/algorithms/transform.hpp>
+#include <boost/geometry/srs/projection.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <test_common/test_point.hpp>
 
 namespace srs = bg::srs;
@@ -44,11 +41,11 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    bg::projection<srs::static_epsg<E> > prj;
+    srs::projection<srs::static_epsg<E> > prj;
     
     P1 ll;
-    ll.lon(lon);
-    ll.lat(lat);
+    bg::set<0>(ll, lon);
+    bg::set<1>(ll, lat);
 
     P2 xy;
     bg::set<0>(xy, 0.0);
@@ -63,7 +60,7 @@ template <typename D, typename P>
 void test_deg_rad(double factor)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::ll::point<D, coord_type> point_type;
+    typedef bg::model::point<coord_type, 2, bg::cs::geographic<D> > point_type;
 
     test_one<28992, point_type, P>(4.897000 * factor, 52.371000 * factor, 121590.388077, 487013.903377);
     test_one<29118, point_type, P>(4.897000 * factor, 52.371000 * factor, 4852882, 9129373);

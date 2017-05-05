@@ -26,7 +26,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
+#include <boost/geometry/srs/projection.hpp>
 
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -34,7 +34,6 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <test_common/test_point.hpp>
 
 
@@ -46,11 +45,11 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    bg::projection<srs::static_proj4<Prj, Model> > prj = srs::static_proj4<Prj, Model>(parameters);
+    srs::projection<srs::static_proj4<Prj, Model> > prj = srs::static_proj4<Prj, Model>(parameters);
 
     P1 ll;
-    ll.lon(lon);
-    ll.lat(lat);
+    bg::set<0>(ll, lon);
+    bg::set<1>(ll, lat);
 
     P2 xy;
     prj.forward(ll, xy);
@@ -63,7 +62,7 @@ template <typename P>
 void test_all()
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::ll::point<bg::degree, coord_type> point_type;
+    typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > point_type;
 
     // aea
     test_one<srs::proj::aea, srs::ellps::WGS84, point_type, P>

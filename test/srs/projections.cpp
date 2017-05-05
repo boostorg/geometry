@@ -26,16 +26,10 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
-#include <boost/geometry/extensions/gis/projections/factory.hpp>
-
-#include <boost/geometry/algorithms/transform.hpp>
-
+#include <boost/geometry/srs/projection.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 
 #include <test_common/test_point.hpp>
 
@@ -56,13 +50,13 @@ void test_forward(std::string const& name,
               std::string const& parameters)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::ll::point<bg::degree, coord_type> lonlat_type;
+    typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > lonlat_type;
 
     lonlat_type ll;
-    ll.lon(lon);
-    ll.lat(lat);
+    bg::set<0>(ll, lon);
+    bg::set<1>(ll, lat);
 
-    bg::projection<> prj = srs::proj4(parameters);
+    srs::projection<> prj = srs::proj4(parameters);
 
     P xy;
     prj.forward(ll, xy);
@@ -81,13 +75,13 @@ void test_inverse(std::string const& name,
               std::string const& parameters)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::ll::point<bg::degree, coord_type> lonlat_type;
+    typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > lonlat_type;
 
     P xy;
     bg::set<0>(xy, x);
     bg::set<1>(xy, y);
 
-    bg::projection<> prj = srs::proj4(parameters);
+    srs::projection<> prj = srs::proj4(parameters);
 
     lonlat_type ll;
     prj.inverse(xy, ll);

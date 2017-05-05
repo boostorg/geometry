@@ -18,7 +18,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
+#include <boost/geometry/srs/projection.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/make.hpp>
@@ -37,7 +37,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef bg::projection<srs::static_proj4<Proj, Model> > projection_type;
+    typedef srs::projection<srs::static_proj4<Proj, Model> > projection_type;
 
     try
     {
@@ -77,7 +77,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 template <typename T>
 void test_all()
 {
-    typedef bg::model::ll::point<bg::degree, T> geo_point_type;
+    typedef bg::model::point<T, 2, bg::cs::geographic<bg::degree> > geo_point_type;
 
     geo_point_type amsterdam = bg::make<geo_point_type>(4.8925, 52.3731);
     geo_point_type utrecht   = bg::make<geo_point_type>(5.1213, 52.0907);

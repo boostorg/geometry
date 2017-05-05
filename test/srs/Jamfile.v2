@@ -12,13 +12,14 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-extensions-gis-projections
+# TODO: move project transformer test to strategies
+test-suite boost-geometry-srs
     :
-    [ run interface.cpp ]
-    [ run project_transformer.cpp ]
-    [ run projection.cpp ]
-    [ run projections.cpp ]
-    [ run projections_combined.cpp ]
-    [ run projections_static.cpp ]
-    [ run projection_epsg.cpp ]
+    [ run project_transformer.cpp         : : : : srs_project_transformer ]
+    [ run projection.cpp                  : : : : srs_projection ]
+    [ run projection_epsg.cpp             : : : : srs_projection_epsg ]
+    [ run projection_interface.cpp        : : : : srs_projection_interface ]
+    [ run projections.cpp                 : : : : srs_projections ]
+    [ run projections_combined.cpp        : : : : srs_projections_combined ]
+    [ run projections_static.cpp          : : : : srs_projections_static ]
     ;

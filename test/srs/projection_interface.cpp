@@ -15,7 +15,7 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
+#include <boost/geometry/srs/projection.hpp>
 
 
 int test_main(int, char*[])

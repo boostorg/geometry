@@ -18,107 +18,107 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/gis/projections/parameters.hpp>
-#include <boost/geometry/extensions/gis/projections/projection.hpp>
+#include <boost/geometry/srs/parameters.hpp>
+#include <boost/geometry/srs/projection.hpp>
 
-#include <boost/geometry/extensions/gis/projections/proj/aea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/aeqd.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/airy.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/aitoff.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/august.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/bacon.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/bipc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/boggs.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/bonne.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/cass.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/cc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/cea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/chamb.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/collg.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/crast.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/denoy.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eck1.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eck2.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eck3.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eck4.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eck5.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eqc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/eqdc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/etmerc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/fahey.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/fouc_s.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/gall.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/geocent.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/geos.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/gins8.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/gnom.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/goode.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/gstmerc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/healpix.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
-//#include <boost/geometry/extensions/gis/projections/proj/igh.hpp> -> in combined
-#include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/isea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/laea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/labrd.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/lagrng.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/larr.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/lask.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/latlong.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/lcc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/lcca.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/loxim.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/lsat.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/mbtfpp.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/mbtfpq.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/mbt_fps.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/merc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/mill.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/mod_ster.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/natearth.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/nell.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/nell_h.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/nocol.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/nsper.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/nzmg.hpp>
-//#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp> -> in combined
-#include <boost/geometry/extensions/gis/projections/proj/ocea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/oea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/omerc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/ortho.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/qsc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/poly.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/putp2.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/putp3.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/putp4p.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/putp5.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/putp6.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/robin.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/rouss.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/rpoly.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/sconics.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/somerc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/stere.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/sterea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/sts.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/tcc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/tcea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/tmerc.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/tpeqd.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/urm5.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/urmfps.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/vandg.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/vandg2.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/vandg4.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/wag2.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/wag3.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/wag7.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/wink1.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/wink2.hpp>
+#include <boost/geometry/srs/projections/proj/aea.hpp>
+#include <boost/geometry/srs/projections/proj/aeqd.hpp>
+#include <boost/geometry/srs/projections/proj/airy.hpp>
+#include <boost/geometry/srs/projections/proj/aitoff.hpp>
+#include <boost/geometry/srs/projections/proj/august.hpp>
+#include <boost/geometry/srs/projections/proj/bacon.hpp>
+#include <boost/geometry/srs/projections/proj/bipc.hpp>
+#include <boost/geometry/srs/projections/proj/boggs.hpp>
+#include <boost/geometry/srs/projections/proj/bonne.hpp>
+#include <boost/geometry/srs/projections/proj/cass.hpp>
+#include <boost/geometry/srs/projections/proj/cc.hpp>
+#include <boost/geometry/srs/projections/proj/cea.hpp>
+#include <boost/geometry/srs/projections/proj/chamb.hpp>
+#include <boost/geometry/srs/projections/proj/collg.hpp>
+#include <boost/geometry/srs/projections/proj/crast.hpp>
+#include <boost/geometry/srs/projections/proj/denoy.hpp>
+#include <boost/geometry/srs/projections/proj/eck1.hpp>
+#include <boost/geometry/srs/projections/proj/eck2.hpp>
+#include <boost/geometry/srs/projections/proj/eck3.hpp>
+#include <boost/geometry/srs/projections/proj/eck4.hpp>
+#include <boost/geometry/srs/projections/proj/eck5.hpp>
+#include <boost/geometry/srs/projections/proj/eqc.hpp>
+#include <boost/geometry/srs/projections/proj/eqdc.hpp>
+#include <boost/geometry/srs/projections/proj/etmerc.hpp>
+#include <boost/geometry/srs/projections/proj/fahey.hpp>
+#include <boost/geometry/srs/projections/proj/fouc_s.hpp>
+#include <boost/geometry/srs/projections/proj/gall.hpp>
+#include <boost/geometry/srs/projections/proj/geocent.hpp>
+#include <boost/geometry/srs/projections/proj/geos.hpp>
+#include <boost/geometry/srs/projections/proj/gins8.hpp>
+#include <boost/geometry/srs/projections/proj/gn_sinu.hpp>
+#include <boost/geometry/srs/projections/proj/gnom.hpp>
+#include <boost/geometry/srs/projections/proj/goode.hpp>
+#include <boost/geometry/srs/projections/proj/gstmerc.hpp>
+#include <boost/geometry/srs/projections/proj/hammer.hpp>
+#include <boost/geometry/srs/projections/proj/hatano.hpp>
+#include <boost/geometry/srs/projections/proj/healpix.hpp>
+#include <boost/geometry/srs/projections/proj/krovak.hpp>
+//#include <boost/geometry/srs/projections/proj/igh.hpp> -> in combined
+#include <boost/geometry/srs/projections/proj/imw_p.hpp>
+#include <boost/geometry/srs/projections/proj/isea.hpp>
+#include <boost/geometry/srs/projections/proj/laea.hpp>
+#include <boost/geometry/srs/projections/proj/labrd.hpp>
+#include <boost/geometry/srs/projections/proj/lagrng.hpp>
+#include <boost/geometry/srs/projections/proj/larr.hpp>
+#include <boost/geometry/srs/projections/proj/lask.hpp>
+#include <boost/geometry/srs/projections/proj/latlong.hpp>
+#include <boost/geometry/srs/projections/proj/lcc.hpp>
+#include <boost/geometry/srs/projections/proj/lcca.hpp>
+#include <boost/geometry/srs/projections/proj/loxim.hpp>
+#include <boost/geometry/srs/projections/proj/lsat.hpp>
+#include <boost/geometry/srs/projections/proj/mbtfpp.hpp>
+#include <boost/geometry/srs/projections/proj/mbtfpq.hpp>
+#include <boost/geometry/srs/projections/proj/mbt_fps.hpp>
+#include <boost/geometry/srs/projections/proj/merc.hpp>
+#include <boost/geometry/srs/projections/proj/mill.hpp>
+#include <boost/geometry/srs/projections/proj/mod_ster.hpp>
+#include <boost/geometry/srs/projections/proj/moll.hpp>
+#include <boost/geometry/srs/projections/proj/natearth.hpp>
+#include <boost/geometry/srs/projections/proj/nell.hpp>
+#include <boost/geometry/srs/projections/proj/nell_h.hpp>
+#include <boost/geometry/srs/projections/proj/nocol.hpp>
+#include <boost/geometry/srs/projections/proj/nsper.hpp>
+#include <boost/geometry/srs/projections/proj/nzmg.hpp>
+//#include <boost/geometry/srs/projections/proj/ob_tran.hpp> -> in combined
+#include <boost/geometry/srs/projections/proj/ocea.hpp>
+#include <boost/geometry/srs/projections/proj/oea.hpp>
+#include <boost/geometry/srs/projections/proj/omerc.hpp>
+#include <boost/geometry/srs/projections/proj/ortho.hpp>
+#include <boost/geometry/srs/projections/proj/qsc.hpp>
+#include <boost/geometry/srs/projections/proj/poly.hpp>
+#include <boost/geometry/srs/projections/proj/putp2.hpp>
+#include <boost/geometry/srs/projections/proj/putp3.hpp>
+#include <boost/geometry/srs/projections/proj/putp4p.hpp>
+#include <boost/geometry/srs/projections/proj/putp5.hpp>
+#include <boost/geometry/srs/projections/proj/putp6.hpp>
+#include <boost/geometry/srs/projections/proj/robin.hpp>
+#include <boost/geometry/srs/projections/proj/rouss.hpp>
+#include <boost/geometry/srs/projections/proj/rpoly.hpp>
+#include <boost/geometry/srs/projections/proj/sconics.hpp>
+#include <boost/geometry/srs/projections/proj/somerc.hpp>
+#include <boost/geometry/srs/projections/proj/stere.hpp>
+#include <boost/geometry/srs/projections/proj/sterea.hpp>
+#include <boost/geometry/srs/projections/proj/sts.hpp>
+#include <boost/geometry/srs/projections/proj/tcc.hpp>
+#include <boost/geometry/srs/projections/proj/tcea.hpp>
+#include <boost/geometry/srs/projections/proj/tmerc.hpp>
+#include <boost/geometry/srs/projections/proj/tpeqd.hpp>
+#include <boost/geometry/srs/projections/proj/urm5.hpp>
+#include <boost/geometry/srs/projections/proj/urmfps.hpp>
+#include <boost/geometry/srs/projections/proj/vandg.hpp>
+#include <boost/geometry/srs/projections/proj/vandg2.hpp>
+#include <boost/geometry/srs/projections/proj/vandg4.hpp>
+#include <boost/geometry/srs/projections/proj/wag2.hpp>
+#include <boost/geometry/srs/projections/proj/wag3.hpp>
+#include <boost/geometry/srs/projections/proj/wag7.hpp>
+#include <boost/geometry/srs/projections/proj/wink1.hpp>
+#include <boost/geometry/srs/projections/proj/wink2.hpp>
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -127,7 +127,6 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 
 
 template <template <typename, typename> class Projection, typename GeoPoint>
@@ -179,7 +178,7 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 template <typename T>
 void test_all()
 {
-    typedef bg::model::ll::point<bg::degree, T> geo_point_type;
+    typedef bg::model::point<T, 2, bg::cs::geographic<bg::degree> > geo_point_type;
 
     geo_point_type amsterdam = bg::make<geo_point_type>(4.8925, 52.3731);
     geo_point_type utrecht   = bg::make<geo_point_type>(5.1213, 52.0907);
