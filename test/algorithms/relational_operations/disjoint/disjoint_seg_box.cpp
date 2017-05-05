@@ -9,10 +9,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-
-#include <iostream>
-
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -124,25 +120,25 @@ template <typename P, typename CT>
 void disjoint_tests_with_strategy(bool expected_result)
 {
     bg::strategy::disjoint::segment_box_geographic
-            <
-            bg::strategy::andoyer,
-            bg::srs::spheroid<CT>,
-            CT
-            > geographic_andoyer;
+    <
+        bg::strategy::andoyer,
+        bg::srs::spheroid<CT>,
+        CT
+    > geographic_andoyer;
 
     bg::strategy::disjoint::segment_box_geographic
-            <
-            bg::strategy::thomas,
-            bg::srs::spheroid<CT>,
-            CT
-            > geographic_thomas;
+    <
+        bg::strategy::thomas,
+        bg::srs::spheroid<CT>,
+        CT
+    > geographic_thomas;
 
     bg::strategy::disjoint::segment_box_geographic
-            <
-            bg::strategy::vincenty,
-            bg::srs::spheroid<CT>,
-            CT
-            > geographic_vincenty;
+    <
+        bg::strategy::vincenty,
+        bg::srs::spheroid<CT>,
+        CT
+    > geographic_vincenty;
 
     test_disjoint_strategy<bg::model::box<P>, bg::model::segment<P> >
             ("BOX(1 1,3 3)", "SEGMENT(1 0.999, 10 0.999)",

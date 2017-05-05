@@ -450,7 +450,6 @@ expected_results expected[] =
             100.498796,
             100.8645911
         }
-        /**/
 };
 
 size_t const expected_size = sizeof(expected) / sizeof(expected_results);

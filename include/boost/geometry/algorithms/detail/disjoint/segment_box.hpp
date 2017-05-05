@@ -37,7 +37,6 @@
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/io/dsv/write.hpp> //TODO:remove if not needed
 
 namespace boost { namespace geometry
 {
