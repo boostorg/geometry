@@ -54,9 +54,9 @@ inline void test_disjoint_strategy(std::string const& wkt1,
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
 
-    test_disjoint_check(bg::disjoint(geometry1, geometry2), expected_result,
+    test_disjoint_check(bg::disjoint(geometry1, geometry2, strategy), expected_result,
                         geometry1, geometry2);
     //reverse
-    test_disjoint_check(bg::disjoint(geometry2, geometry1), expected_result,
+    test_disjoint_check(bg::disjoint(geometry2, geometry1, strategy), expected_result,
                         geometry2, geometry1);
 }

@@ -106,13 +106,14 @@ public:
             swap(lon1, lat1, lon2, lat2);
         }
 
+        //Compute alp1 outside envelope and pass it to envelope_segment_impl
+        //in order for it to be used later in the algorithm
         CT alp1;
 
         azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
 
         geometry::model::box<segment_point_type> box_seg;
 
-        //Do not compute alp1 twice, pass the already computed alp1 to envelope_segment_impl
         geometry::detail::envelope::envelope_segment_impl<segment_cs_type>
                 ::template apply<geometry::radian>(lon1, lat1,
                                                    lon2, lat2,
@@ -171,28 +172,14 @@ public:
                 b_lat_below = b_lat_max;
             }
 
-            //TODO: computing the spherical longitude should suffice for this test (?)
-            CT vertex_lon = geometry::formula::vertex_longitude<CT, CS_Tag>::apply(lon1, lat1,
-                                                                                   lon2, lat2,
-                                                                                   vertex_lat,
-                                                                                   alp1,
-                                                                                   azimuth_strategy);
-
-            segment_point_type p_vertex_rad;
-            geometry::set_from_radian<0>(p_vertex_rad, vertex_lon);
-            geometry::set_from_radian<1>(p_vertex_rad, vertex_lat);
-
-            std::cout << "vertex=" <<  vertex_lon * math::r2d<CT>()
-                      << " , " <<  vertex_lat * math::r2d<CT>()
-                      << std::endl << std::endl;
-
-
-            Box box_rad;
-            geometry::set_from_radian<geometry::min_corner, 0>(box_rad, b_lon_min);
-            geometry::set_from_radian<geometry::min_corner, 1>(box_rad, b_lat_min);
-            geometry::set_from_radian<geometry::max_corner, 0>(box_rad, b_lon_max);
-            geometry::set_from_radian<geometry::max_corner, 1>(box_rad, b_lat_max);
-
+            //optimization TODO: computing the spherical longitude should suffice for
+            // the majority of cases
+            CT vertex_lon = geometry::formula::vertex_longitude<CT, CS_Tag>
+                                    ::apply(lon1, lat1,
+                                            lon2, lat2,
+                                            vertex_lat,
+                                            alp1,
+                                            azimuth_strategy);
 
             // Check if the vertex point is within the band defined by the
             // minimum and maximum longitude of the box; if yes, then return

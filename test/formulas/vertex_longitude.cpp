@@ -13,7 +13,6 @@
 
 #include "test_formula.hpp"
 #include "vertex_longitude_cases.hpp"
-#include <boost/geometry/io/dsv/write.hpp> //TODO:remove if not needed
 
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 #include <boost/geometry/formulas/vertex_longitude.hpp>
@@ -36,18 +35,14 @@ CT test_vrt_lon_sph(CT lon1r,
                     CT lat2r)
 {
     CT a1 = bg::formula::spherical_azimuth(lon1r, lat1r, lon2r, lat2r);
-    std::cout << "a1=" << a1 << std::endl;
 
     typedef bg::model::point<CT, 2,
-                                bg::cs::spherical_equatorial<bg::radian> > point;
+            bg::cs::spherical_equatorial<bg::radian> > point;
 
     bg::model::segment<point> segment(point(lon1r, lat1r),
                                       point(lon2r, lat2r));
     bg::model::box<point> box;
-
     bg::envelope(segment, box);
-
-    std::cout << "envelope(segment):" << bg::dsv(box) << std::endl;
 
     CT vertex_lat;
     CT lat_sum = lat1r + lat2r;
@@ -60,21 +55,20 @@ CT test_vrt_lon_sph(CT lon1r,
 
     bg::strategy::azimuth::spherical<> azimuth;
 
-    std::cout << "(lat=" << vertex_lat * bg::math::r2d<double>() << ")" << std::endl;
-
-    return bg::formula::vertex_longitude<CT, bg::spherical_equatorial_tag>::
-                                                  apply(lon1r, lat1r,
-                                                        lon2r, lat2r,
-                                                        vertex_lat,
-                                                        a1,
-                                                        azimuth);
+    return bg::formula::vertex_longitude
+            <CT, bg::spherical_equatorial_tag>::
+            apply(lon1r, lat1r,
+                  lon2r, lat2r,
+                  vertex_lat,
+                  a1,
+                  azimuth);
 }
 
 template
 <
         template <typename, bool, bool, bool, bool, bool> class FormulaPolicy,
         typename CT
->
+        >
 CT test_vrt_lon_geo(CT lon1r,
                     CT lat1r,
                     CT lon2r,
@@ -86,20 +80,12 @@ CT test_vrt_lon_geo(CT lon1r,
     typedef FormulaPolicy<CT, false, true, false, false, false> formula;
     CT a1 = formula::apply(lon1r, lat1r, lon2r, lat2r, spheroid).azimuth;
 
-    std::cout << "a1=" << a1 << std::endl;
-
-    //CT vertex_lat = bg::formula::vertex_latitude<CT, bg::geographic_tag>
-    //                        ::apply(lat1r, a1, spheroid);
-
     typedef bg::model::point<CT, 2, bg::cs::geographic<bg::radian> > geo_point;
 
     bg::model::segment<geo_point> segment(geo_point(lon1r, lat1r),
                                           geo_point(lon2r, lat2r));
     bg::model::box<geo_point> box;
-
     bg::envelope(segment, box);
-
-    std::cout << "envelope(segment):" << bg::dsv(box) << std::endl;
 
     CT vertex_lat;
     CT lat_sum = lat1r + lat2r;
@@ -112,36 +98,24 @@ CT test_vrt_lon_geo(CT lon1r,
 
     bg::strategy::azimuth::geographic<> azimuth_geographic;
 
-    std::cout << "(lat=" << vertex_lat * bg::math::r2d<double>() << ")" << std::endl;
-
-    return bg::formula::vertex_longitude<CT, bg::geographic_tag>::
-                                                  apply(lon1r, lat1r,
-                                                        lon2r, lat2r,
-                                                        vertex_lat,
-                                                        a1,
-                                                        azimuth_geographic);
+    return bg::formula::vertex_longitude
+            <CT, bg::geographic_tag>::apply(lon1r, lat1r,
+                                            lon2r, lat2r,
+                                            vertex_lat,
+                                            a1,
+                                            azimuth_geographic);
 
 }
 
 void test_all(expected_results const& results)
 {
     double const d2r = bg::math::d2r<double>();
-    double const pi = bg::math::pi<double>();
 
     double lon1r = results.p1.lon * d2r;
     double lat1r = results.p1.lat * d2r;
     double lon2r = results.p2.lon * d2r;
     double lat2r = results.p2.lat * d2r;
-/*
-    if (lon1r > pi)
-    {
-        lon1r -= 2 * pi;
-    }
-    if (lon2r > pi)
-    {
-        lon2r -= 2 * pi;
-    }
-*/
+
     if(lon1r > lon2r)
     {
         std::swap(lon1r, lon2r);
@@ -155,12 +129,6 @@ void test_all(expected_results const& results)
     double res_vi = test_vrt_lon_geo<bg::formula::vincenty_inverse>
             (lon1r, lat1r, lon2r, lat2r);
     double res_sh = test_vrt_lon_sph(lon1r, lat1r, lon2r, lat2r);
-
-    std::cout.precision(10);
-    std::cout << res_an * bg::math::r2d<double>() << "," << std::endl;
-    std::cout << res_th * bg::math::r2d<double>() << "," << std::endl;
-    std::cout << res_vi * bg::math::r2d<double>() << "," << std::endl;
-    std::cout << res_sh * bg::math::r2d<double>() << std::endl<< std::endl;
 
     bg::math::normalize_longitude<bg::radian, double>(res_an);
     bg::math::normalize_longitude<bg::radian, double>(res_th);
@@ -177,7 +145,6 @@ int test_main(int, char*[])
 {
 
     for (size_t i = 0; i < expected_size; ++i)
-    //for (size_t i = expected_size-2; i < expected_size; ++i)
     {
         test_all(expected[i]);
     }

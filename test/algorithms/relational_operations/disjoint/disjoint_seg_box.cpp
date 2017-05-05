@@ -234,14 +234,17 @@ void disjoint_tests_sph_geo()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 10, 120 10.1)",
                                                              "SEGMENT(0 5, 120 5.1)",
                                                              false);
+
     //descending segment
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 9.8, 120 10)",
                                                              "SEGMENT(0 5, 120 4.9)",
                                                              false);
+
     //ascending segment both hemispheres
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(100 5, 120 6)",
                                                              "SEGMENT(0 -1, 120 4.9)",
                                                              false);
+
     //descending segment both hemispheres
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 5, 20 6)",
                                                              "SEGMENT(0 4.9, 120 -1)",
