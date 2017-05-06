@@ -26,6 +26,8 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
+#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/side.hpp>
 //#include <boost/geometry/strategies/concepts/side_concept.hpp>
@@ -56,6 +58,30 @@ template
 class geographic
 {
 public:
+    typedef strategy::envelope::geographic_segment
+        <
+            FormulaPolicy,
+            Spheroid,
+            CalculationType
+        > envelope_strategy_type;
+
+    inline envelope_strategy_type get_envelope_strategy() const
+    {
+        return envelope_strategy_type(m_model);
+    }
+
+    typedef strategy::disjoint::segment_box_geographic
+        <
+            FormulaPolicy,
+            Spheroid,
+            CalculationType
+        > disjoint_strategy_type;
+
+    inline disjoint_strategy_type get_disjoint_strategy() const
+    {
+        return disjoint_strategy_type(m_model);
+    }
+
     geographic()
     {}
 

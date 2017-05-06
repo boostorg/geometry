@@ -129,11 +129,11 @@ template
 <
     typename GeometryOut, overlay_type OverlayType, bool ReverseOut,
     typename Geometry1, typename Geometry2,
-    typename OutputIterator
+    typename OutputIterator, typename Strategy
 >
 inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            OutputIterator out)
+            OutputIterator out, Strategy const& strategy)
 {
     typedef std::deque
         <
@@ -165,9 +165,9 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     std::map<ring_identifier, ring_turn_info> empty;
     std::map<ring_identifier, properties> all_of_one_of_them;
 
-    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them);
+    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them, strategy);
     ring_container_type rings;
-    assign_parents(geometry1, geometry2, rings, all_of_one_of_them);
+    assign_parents(geometry1, geometry2, rings, all_of_one_of_them, strategy);
     return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out);
 }
 
@@ -202,7 +202,7 @@ struct overlay
             return return_if_one_input_is_empty
                 <
                     GeometryOut, OverlayType, ReverseOut
-                >(geometry1, geometry2, out);
+                >(geometry1, geometry2, out, strategy);
         }
 
         typedef typename geometry::point_type<GeometryOut>::type point_type;
@@ -292,7 +292,7 @@ std::cout << "traverse" << std::endl;
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties);
+                selected_ring_properties, strategy);
 
         // Add rings created during traversal
         {
@@ -308,7 +308,7 @@ std::cout << "traverse" << std::endl;
             }
         }
 
-        assign_parents(geometry1, geometry2, rings, selected_ring_properties);
+        assign_parents(geometry1, geometry2, rings, selected_ring_properties, strategy);
 
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
     }

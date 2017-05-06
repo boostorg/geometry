@@ -3,6 +3,10 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,9 +22,10 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
@@ -221,20 +226,21 @@ struct decide<overlay_intersection>
     }
 };
 
-
 template
 <
     overlay_type OverlayType,
     typename Geometry1,
     typename Geometry2,
     typename TurnInfoMap,
-    typename RingPropertyMap
+    typename RingPropertyMap,
+    typename Strategy
 >
 inline void update_ring_selection(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             TurnInfoMap const& turn_info_map,
             RingPropertyMap const& all_ring_properties,
-            RingPropertyMap& selected_ring_properties)
+            RingPropertyMap& selected_ring_properties,
+            Strategy const& strategy)
 {
     selected_ring_properties.clear();
 
@@ -263,11 +269,16 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         // a point lying on the ring
         switch(id.source_index)
         {
+            // within
             case 0 :
-                info.within_other = geometry::within(it->second.point, geometry2);
+                info.within_other = range_in_geometry(it->second.point,
+                                                      geometry1, geometry2,
+                                                      strategy) > 0;
                 break;
             case 1 :
-                info.within_other = geometry::within(it->second.point, geometry1);
+                info.within_other = range_in_geometry(it->second.point,
+                                                      geometry2, geometry1,
+                                                      strategy) > 0;
                 break;
         }
 
@@ -290,11 +301,13 @@ template
     typename Geometry1,
     typename Geometry2,
     typename RingTurnInfoMap,
-    typename RingPropertyMap
+    typename RingPropertyMap,
+    typename Strategy
 >
 inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingTurnInfoMap const& turn_info_per_ring,
-            RingPropertyMap& selected_ring_properties)
+            RingPropertyMap& selected_ring_properties,
+            Strategy const& strategy)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
@@ -306,7 +319,8 @@ inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
                 ring_identifier(1, -1, -1), all_ring_properties);
 
     update_ring_selection<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                all_ring_properties, selected_ring_properties);
+                all_ring_properties, selected_ring_properties,
+                strategy);
 }
 
 template
@@ -314,11 +328,13 @@ template
     overlay_type OverlayType,
     typename Geometry,
     typename RingTurnInfoMap,
-    typename RingPropertyMap
+    typename RingPropertyMap,
+    typename Strategy
 >
 inline void select_rings(Geometry const& geometry,
             RingTurnInfoMap const& turn_info_per_ring,
-            RingPropertyMap& selected_ring_properties)
+            RingPropertyMap& selected_ring_properties,
+            Strategy const& strategy)
 {
     typedef typename geometry::tag<Geometry>::type tag;
 
@@ -327,7 +343,8 @@ inline void select_rings(Geometry const& geometry,
                 ring_identifier(0, -1, -1), all_ring_properties);
 
     update_ring_selection<OverlayType>(geometry, geometry, turn_info_per_ring,
-                all_ring_properties, selected_ring_properties);
+                all_ring_properties, selected_ring_properties,
+                strategy);
 }
 
 

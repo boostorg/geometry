@@ -232,9 +232,9 @@ void test_all()
         4, 18, 1.5,
         3, 15, 4.0625);
 
-    TEST_DIFFERENCE(case_103, 1, 12, 17.5, 2, 9, 32.5);
-    TEST_DIFFERENCE(case_104, 2, 16, 18.0, 2, 16, 29.0);
-    TEST_DIFFERENCE(case_105, 4, 20, 8.0, 1, 9, 16.0);
+    TEST_DIFFERENCE(case_103m, 1, 12, 17.5, 2, 9, 32.5);
+    TEST_DIFFERENCE(case_104m, 2, 16, 18.0, 2, 16, 29.0);
+    TEST_DIFFERENCE(case_105m, 4, 20, 8.0, 1, 9, 16.0);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],

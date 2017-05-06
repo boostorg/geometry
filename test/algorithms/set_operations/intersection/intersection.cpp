@@ -347,15 +347,22 @@ void test_areal()
         case_102[0], case_102[1],
         0, -1, 3.1875);
 
+    test_one<Polygon, Polygon, Polygon>("case_103",
+        case_103[0], case_103[1],
+        1, -1, 0.5);
+    test_one<Polygon, Polygon, Polygon>("case_104",
+        case_104[0], case_104[1],
+        0, -1, 0.0);
+
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_INTERSECTION(case_103, 2, -1, 3.5);
-    TEST_INTERSECTION(case_104, 3, -1, 3.0);
+    TEST_INTERSECTION(case_103m, 2, -1, 3.5);
+    TEST_INTERSECTION(case_104m, 3, -1, 3.0);
 #else
-    TEST_INTERSECTION_IGNORE(case_103, 0, -1, 3.5);
-    TEST_INTERSECTION_IGNORE(case_104, 0, -1, 3.0);
+    TEST_INTERSECTION_IGNORE(case_103m, 0, -1, 3.5);
+    TEST_INTERSECTION_IGNORE(case_104m, 0, -1, 3.0);
 #endif
 
-    TEST_INTERSECTION(case_105, 1, 34, 76.0);
+    TEST_INTERSECTION(case_105m, 1, 34, 76.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],

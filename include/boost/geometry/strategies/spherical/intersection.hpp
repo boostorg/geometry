@@ -41,6 +41,7 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
@@ -145,6 +146,14 @@ struct ecef_segments
     {
         typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type();
+    }
+
+    typedef envelope::spherical_segment<CalculationType>
+        envelope_strategy_type;
+
+    static inline envelope_strategy_type get_envelope_strategy()
+    {
+        return envelope_strategy_type();
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };

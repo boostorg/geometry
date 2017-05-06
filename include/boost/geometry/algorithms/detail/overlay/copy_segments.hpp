@@ -36,6 +36,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/append_no_dups_or_spikes.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
