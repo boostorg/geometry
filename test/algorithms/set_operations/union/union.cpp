@@ -244,8 +244,8 @@ void test_areal()
                 case_104[0], case_104[1],
                 1, 0, 5, 100.0);
 
-    test_one<Polygon, Polygon, Polygon>("105m",
-                case_105m[0], case_105m[1], 1, 0, 5, 100);
+    test_one<Polygon, Polygon, Polygon>("105",
+                case_105[0], case_105[1], 1, 0, 5, 100);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,

@@ -544,25 +544,25 @@ static std::string case_104[2] =
     "POLYGON((1 1,1 9,9 9,9 1,1 1))"
 };
 
-static const std::string case_103m[2] =
+static const std::string case_105[2] =
+{
+    // Multiple touching interiors
+    "POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+    "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 5,2 4,3 5,2 6,1 5),(4 2,5 1,6 2,5 3,4 2),(4 8,5 7,6 8,5 9,4 8),(7 5,8 4,9 5,8 6,7 5))"
+};
+
+static const std::string case_106[2] =
 {
     // Smaller adapted version of case_126_multi
     "POLYGON((5 5,5 10,10 10,10 5,5 5),(9 8,7 9,5 8,7 7,9 8))",
     "POLYGON((0 3,6 3,6 9,0 9,0 3))"
 };
 
-static const std::string case_104m[2] =
+static const std::string case_107[2] =
 {
     // Same but with hole in second polygon too
-    case_103m[0],
+    "POLYGON((5 5,5 10,10 10,10 5,5 5),(9 8,7 9,5 8,7 7,9 8))",
     "POLYGON((0 3,6 3,6 9,0 9,0 3),(2 6,4 7,6 6,4 5,2 6))"
-};
-
-static const std::string case_105m[2] =
-{
-    // Multiple touching interiors
-    "POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
-    "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 5,2 4,3 5,2 6,1 5),(4 2,5 1,6 2,5 3,4 2),(4 8,5 7,6 8,5 9,4 8),(7 5,8 4,9 5,8 6,7 5))"
 };
 
 static std::string case_many_situations[2] = {
