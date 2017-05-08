@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -30,6 +30,16 @@ void test_p_p()
 
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 1)", true);
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(1 1, 2 2)", false);
+
+    test_geometry<mpt, P>("MULTIPOINT(0 0)", "POINT(0 0)", true);
+    test_geometry<mpt, P>("MULTIPOINT(0 0, 1 1)", "POINT(0 0)", false);
+    test_geometry<mpt, P>("MULTIPOINT(0 0, 1 1)", "POINT(2 2)", false);
+
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0)", false);
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(1 1, 2 2)", false);
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(2 2, 3 4)", false);
 }
 
 template <typename P>

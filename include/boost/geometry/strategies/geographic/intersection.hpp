@@ -34,6 +34,7 @@
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
@@ -69,7 +70,7 @@ struct geographic_segments
             FormulaPolicy, Spheroid, CalculationType
         > side_strategy_type;
 
-    inline side_strategy_type get_side_strategy()
+    inline side_strategy_type get_side_strategy() const
     {
         return side_strategy_type(m_spheroid);
     }
@@ -88,7 +89,7 @@ struct geographic_segments
 
     template <typename Geometry1, typename Geometry2>
     inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+        get_point_in_geometry_strategy() const
     {
         typedef typename point_in_geometry_strategy
             <
@@ -111,7 +112,7 @@ struct geographic_segments
     };
 
     template <typename Geometry>
-    inline typename area_strategy<Geometry>::type get_area_strategy()
+    inline typename area_strategy<Geometry>::type get_area_strategy() const
     {
         typedef typename area_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
@@ -129,10 +130,18 @@ struct geographic_segments
     };
 
     template <typename Geometry>
-    inline typename distance_strategy<Geometry>::type get_distance_strategy()
+    inline typename distance_strategy<Geometry>::type get_distance_strategy() const
     {
         typedef typename distance_strategy<Geometry>::type strategy_type;
         return strategy_type(m_spheroid);
+    }
+
+    typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType>
+        envelope_strategy_type;
+
+    inline envelope_strategy_type get_envelope_strategy() const
+    {
+        return envelope_strategy_type(m_spheroid);
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };

@@ -132,6 +132,11 @@ struct turn_info
     {
         return has(operation_blocked);
     }
+    inline bool self_turn() const
+    {
+        return this->operations[0].seg_id.source_index
+                == this->operations[1].seg_id.source_index;
+    }
 
 
 private :

@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
@@ -100,13 +101,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
     {
         typename boost::range_value<Turns>::type const& turn_info = *it;
 
-        if (turn_info.discarded
-            && ! turn_info.any_blocked()
-            && ! turn_info.colocated)
-        {
-            continue;
-        }
-
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn_info.operations);
             op_it != boost::end(turn_info.operations);
@@ -118,7 +112,22 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
                     op_it->seg_id.multi_index,
                     op_it->seg_id.ring_index
                 );
-            turn_info_map[ring_id].has_normal_turn = true;
+
+            if (turn_info.both(operation_union))
+            {
+                // Register it, even if discarded
+                turn_info_map[ring_id].has_uu_turn = true;
+            }
+
+            // Skip singular discarded turns, if any
+            bool const skip = turn_info.discarded
+                    && ! turn_info.any_blocked()
+                    && ! turn_info.colocated;
+
+            if (! skip)
+            {
+                turn_info_map[ring_id].has_normal_turn = true;
+            }
         }
     }
 }
@@ -128,11 +137,11 @@ template
 <
     typename GeometryOut, overlay_type OverlayType, bool ReverseOut,
     typename Geometry1, typename Geometry2,
-    typename OutputIterator
+    typename OutputIterator, typename Strategy
 >
 inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            OutputIterator out)
+            OutputIterator out, Strategy const& strategy)
 {
     typedef std::deque
         <
@@ -164,9 +173,9 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     std::map<ring_identifier, ring_turn_info> empty;
     std::map<ring_identifier, properties> all_of_one_of_them;
 
-    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them);
+    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them, strategy);
     ring_container_type rings;
-    assign_parents(geometry1, geometry2, rings, all_of_one_of_them);
+    assign_parents(geometry1, geometry2, rings, all_of_one_of_them, strategy);
     return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out);
 }
 
@@ -201,7 +210,7 @@ struct overlay
             return return_if_one_input_is_empty
                 <
                     GeometryOut, OverlayType, ReverseOut
-                >(geometry1, geometry2, out);
+                >(geometry1, geometry2, out, strategy);
         }
 
         typedef typename geometry::point_type<GeometryOut>::type point_type;
@@ -237,6 +246,16 @@ std::cout << "get turns" << std::endl;
             >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
         visitor.visit_turns(1, turns);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        {
+            geometry::self_turns<assign_null_policy>(geometry1, strategy, robust_policy,
+                                                     turns, policy, 0);
+            geometry::self_turns<assign_null_policy>(geometry2, strategy, robust_policy,
+                                                     turns, policy, 1);
+        }
+#endif
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
@@ -281,7 +300,7 @@ std::cout << "traverse" << std::endl;
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties);
+                selected_ring_properties, strategy);
 
         // Add rings created during traversal
         {
@@ -297,7 +316,7 @@ std::cout << "traverse" << std::endl;
             }
         }
 
-        assign_parents(geometry1, geometry2, rings, selected_ring_properties);
+        assign_parents(geometry1, geometry2, rings, selected_ring_properties, strategy);
 
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
     }

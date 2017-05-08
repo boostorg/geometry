@@ -378,6 +378,13 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
                        segment_identifier const& int_seg_0,
                        segment_identifier const& other_seg_1)
 {
+    if (ext_seg_0.source_index == ext_seg_1.source_index)
+    {
+        // External turn is a self-turn, dont discard internal turn for this
+        return false;
+    }
+
+
     // Compares two segment identifiers from two turns (external / one internal)
 
     // From first turn [0], both are from same polygon (multi_index),
@@ -411,6 +418,7 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 template
 <
     bool Reverse0, bool Reverse1, // Reverse interpretation interior/exterior
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters
 >
@@ -418,6 +426,9 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 {
     typedef std::set<signed_size_type>::const_iterator set_iterator;
     typedef typename boost::range_value<Turns>::type turn_type;
+
+    static const operation_type target_operation
+            = operation_from_overlay<OverlayType>::value;
 
     std::set<signed_size_type> ids_to_remove;
 
@@ -435,13 +446,15 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             segment_identifier const& seg_0 = turn.operations[0].seg_id;
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
 
-            if (turn.both(operation_intersection)
+            if (target_operation == operation_union
+                    && turn.both(operation_intersection)
                     && Reverse0 == Reverse1)
             {
-                if (   is_interior<Reverse0>(seg_0)
+                if (is_interior<Reverse0>(seg_0)
                     && is_interior<Reverse1>(seg_1))
                 {
-                    // ii touch with, two interior rings
+                    // In union or sym difference:
+                    // discard colocated ii touch with two interior rings
                     discard_ie_turn(turn, ids_to_remove, *it);
                 }
 
@@ -498,6 +511,7 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -581,7 +595,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     discard_interior_exterior_turns
         <
             do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
-            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2
+            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
+            OverlayType
         >(turns, clusters);
     remove_clusters(turns, clusters);
 
@@ -634,6 +649,7 @@ struct is_turn_index
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -651,7 +667,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();

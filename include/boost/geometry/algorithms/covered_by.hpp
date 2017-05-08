@@ -116,6 +116,16 @@ struct covered_by<Point, MultiPoint, point_tag, multi_point_tag>
     : public detail::covered_by::use_point_in_geometry
 {};
 
+template <typename MultiPoint, typename Point>
+struct covered_by<MultiPoint, Point, multi_point_tag, point_tag>
+    : public detail::within::multi_point_point
+{};
+
+template <typename MultiPoint1, typename MultiPoint2>
+struct covered_by<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+    : public detail::within::multi_point_multi_point
+{};
+
 // P/L
 
 template <typename Point, typename Segment>

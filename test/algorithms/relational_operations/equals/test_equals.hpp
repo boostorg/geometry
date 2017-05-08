@@ -2,7 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2016-2017.
 // Modifications copyright (c) 2016-2017 Oracle and/or its affiliates.
@@ -19,6 +19,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
@@ -75,13 +76,21 @@ void check_geometry(Geometry1 const& geometry1,
 template <typename Geometry1, typename Geometry2>
 void test_geometry(std::string const& caseid,
             std::string const& wkt1,
-            std::string const& wkt2, bool expected)
+            std::string const& wkt2,
+            bool expected,
+            bool correct_geometries = false)
 {
     Geometry1 geometry1;
     Geometry2 geometry2;
 
     bg::read_wkt(wkt1, geometry1);
     bg::read_wkt(wkt2, geometry2);
+
+    if (correct_geometries)
+    {
+        bg::correct(geometry1);
+        bg::correct(geometry2);
+    }
 
     typedef typename bg::strategy::relate::services::default_strategy
         <

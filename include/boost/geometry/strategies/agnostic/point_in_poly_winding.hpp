@@ -388,10 +388,24 @@ class winding
 
 
 public:
+    typedef typename SideStrategy::envelope_strategy_type envelope_strategy_type;
+
+    inline envelope_strategy_type get_envelope_strategy() const
+    {
+        return m_side_strategy.get_envelope_strategy();
+    }
+
+    typedef typename SideStrategy::disjoint_strategy_type disjoint_strategy_type;
+
+    inline disjoint_strategy_type get_disjoint_strategy() const
+    {
+        return m_side_strategy.get_disjoint_strategy();
+    }
+
     winding()
     {}
 
-    winding(SideStrategy const& side_strategy)
+    explicit winding(SideStrategy const& side_strategy)
         : m_side_strategy(side_strategy)
     {}
 
