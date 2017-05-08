@@ -113,9 +113,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
                     op_it->seg_id.ring_index
                 );
 
-            if (turn_info.both(operation_union))
+            if (turn_info.both(operation_union) && ! turn_info.self_turn())
             {
-                // Register it, even if discarded
+                // uu turn, not being a self-turn, register it, even if discarded
                 turn_info_map[ring_id].has_uu_turn = true;
             }
 
