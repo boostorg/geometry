@@ -80,6 +80,14 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(255,128,0);"
                             "stroke:rgb(0,0,0);stroke-width:1", 3);
                     break;
+                case 11 :
+                    m_mapper.map(turn.point, "fill:rgb(92,255,0);" // Greenish
+                            "stroke:rgb(0,0,0);stroke-width:1", 3);
+                    break;
+                case 21 :
+                    m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
+                            "stroke:rgb(0,0,0);stroke-width:1", 3);
+                    break;
                 case 2 :
                     label_turn(index, turn);
                     break;
@@ -264,22 +272,28 @@ struct map_visitor
             out << "#";
         }
 
-        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
-        if (turn.colocated)
+        std::string font8 = "font-family:Arial;font-size:8px";
+        std::string font6 = "font-family:Arial;font-size:6px";
+        std::string style =  "fill:rgb(0,0,255);" + font8;
+        if (turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index)
         {
-            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+            style =  "fill:rgb(255,0,255);" + font8;
+        }
+        else if (turn.colocated)
+        {
+            style =  "fill:rgb(255,0,0);" + font8;
         }
         else if (turn.discarded)
         {
-            style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
+            style =  "fill:rgb(92,92,92);" + font6;
         }
         else if (turn.cluster_id != -1)
         {
-            style =  "fill:rgb(0,0,255);font-family:Arial;font-size:8px";
+            style =  "fill:rgb(0,0,255);" + font8;
         }
         else if (! lab1 || ! lab2)
         {
-            style =  "fill:rgb(0,0,255);font-family:Arial;font-size:6px";
+            style =  "fill:rgb(0,0,255);" + font6;
         }
 
         add_text(turn, out.str(), style);

@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
@@ -100,13 +101,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
     {
         typename boost::range_value<Turns>::type const& turn_info = *it;
 
-        if (turn_info.discarded
-            && ! turn_info.any_blocked()
-            && ! turn_info.colocated)
-        {
-            continue;
-        }
-
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn_info.operations);
             op_it != boost::end(turn_info.operations);
@@ -118,7 +112,22 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
                     op_it->seg_id.multi_index,
                     op_it->seg_id.ring_index
                 );
-            turn_info_map[ring_id].has_normal_turn = true;
+
+            if (turn_info.both(operation_union))
+            {
+                // Register it, even if discarded
+                turn_info_map[ring_id].has_uu_turn = true;
+            }
+
+            // Skip singular discarded turns, if any
+            bool const skip = turn_info.discarded
+                    && ! turn_info.any_blocked()
+                    && ! turn_info.colocated;
+
+            if (! skip)
+            {
+                turn_info_map[ring_id].has_normal_turn = true;
+            }
         }
     }
 }
@@ -237,6 +246,16 @@ std::cout << "get turns" << std::endl;
             >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
         visitor.visit_turns(1, turns);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        {
+            geometry::self_turns<assign_null_policy>(geometry1, strategy, robust_policy,
+                                                     turns, policy, 0);
+            geometry::self_turns<assign_null_policy>(geometry2, strategy, robust_policy,
+                                                     turns, policy, 1);
+        }
+#endif
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;

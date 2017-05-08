@@ -36,7 +36,6 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
 
-
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
@@ -126,7 +125,7 @@ void test_areal()
         3, 26, 19.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi_inv_b",
         case_102_multi[1], case_102_multi[2],
-        3, 25, 3.75, ignore_validity);
+        6, 25, 3.75);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         2, 10, 1.5);
@@ -144,12 +143,22 @@ void test_areal()
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
     TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
-    TEST_INTERSECTION_IGNORE(case_125_multi, 3, 17, 2.1);
+    TEST_INTERSECTION(case_125_multi, 3, 17, 2.1);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_126_multi, 5, 27, 9.0);
+#else
+    TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
+#endif
+    TEST_INTERSECTION(case_127_multi, 3, 19, 24.0);
+    TEST_INTERSECTION(case_128_multi, 2, 26, 75.5);
+    TEST_INTERSECTION(case_129_multi, 1, 20, 20.5);
+    TEST_INTERSECTION(case_130_multi, 2, 30, 39.0);
 
-    // #1 needs self-turns to make valid
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
-        case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-        8, 97, 47.0, ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_1, 8, 97, 47.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
@@ -158,10 +167,11 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
-        case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        8, 179, 67.0, // Area from SQL Server
-        ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 10, 180, 67.0);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
+#endif
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     // Should contain 6 output polygons
@@ -257,8 +267,7 @@ void test_areal()
         2, 0, 17.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_35",
         case_recursive_boxes_35[0], case_recursive_boxes_35[1],
-        1, 0, 20.0,
-        ignore_validity);
+        2, 0, 20.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_36",
         case_recursive_boxes_36[0], case_recursive_boxes_36[1],
         1, 0, 0.5);
@@ -266,8 +275,13 @@ void test_areal()
         case_recursive_boxes_37[0], case_recursive_boxes_37[1],
         2, 0, 1.0);
 
-    TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.00);
-    TEST_INTERSECTION(case_recursive_boxes_40, 1, 0, 1.00);
+    TEST_INTERSECTION(case_recursive_boxes_39, 3, 0, 3.0);
+    TEST_INTERSECTION(case_recursive_boxes_40, 1, 0, 1.0);
+    TEST_INTERSECTION(case_recursive_boxes_41, 1, 0, 23.5);
+    TEST_INTERSECTION(case_recursive_boxes_42, 1, 29, 95.0);
+    TEST_INTERSECTION(case_recursive_boxes_43, 2, 0, 22.5);
+    TEST_INTERSECTION(case_recursive_boxes_44, 2, 0, 3.0);
+    TEST_INTERSECTION(case_recursive_boxes_45, 7, 0, 12.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -296,10 +310,11 @@ void test_areal()
         mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_12",
-        mysql_23023665_12[0], mysql_23023665_12[1],
-        1, -1, 11.812440191387557,
-        ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(mysql_23023665_12, 2, 0, 11.812440191387557);
+#else
+    TEST_INTERSECTION_IGNORE(mysql_23023665_12, 1, -1, 11.812440191387557);
+#endif
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>

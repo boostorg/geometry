@@ -38,8 +38,14 @@ struct enrichment_info
         , count_left(0)
         , count_right(0)
         , zone(-1)
-        , only_turn_on_ring(false)
+        , region_id(-1)
+        , isolated(false)
     {}
+
+    inline signed_size_type get_next_turn_index() const
+    {
+        return next_ip_index == -1 ? travels_to_ip_index : next_ip_index;
+    }
 
     // vertex to which is free travel after this IP,
     // so from "segment_index+1" to "travels_to_vertex_index", without IP-s,
@@ -58,7 +64,8 @@ struct enrichment_info
     std::size_t count_left;
     std::size_t count_right;
     signed_size_type zone; // open zone, in cluster
-    bool only_turn_on_ring; // True if it is the only turn on a ring (for clusters)
+    signed_size_type region_id;
+    bool isolated;
 };
 
 

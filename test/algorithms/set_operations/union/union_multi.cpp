@@ -183,6 +183,8 @@ void test_areal()
 
     TEST_UNION(case_123_multi, 1, 0, 11, 2.75);
     TEST_UNION(case_124_multi, 1, 0, 9, 2.75);
+    TEST_UNION(case_125_multi, 1, 0, 9, 2.75);
+    TEST_UNION(case_126_multi, 1, 2, 27, 52.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
@@ -338,6 +340,8 @@ void test_areal()
         case_recursive_boxes_38[0], case_recursive_boxes_38[1],
             2, 1, -1, 14.0);
 
+    TEST_UNION(case_recursive_boxes_46, 1, 4, 51, 33.0);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server
@@ -423,11 +427,11 @@ void test_specific()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double>, true, true>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<double>, false, false>();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float>, true, true>();
 
 #if defined(HAVE_TTMATH)
