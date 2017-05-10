@@ -233,7 +233,8 @@ struct traversal_switch_detector
 
         if (operation_from_overlay<OverlayType>::value == operation_union)
         {
-            // It is a cluster, check zones of both operations
+            // It is a cluster, check zones
+            // (assigned by sort_by_side/handle colocations) of both operations
             return turn.operations[0].enriched.zone
                     == turn.operations[1].enriched.zone;
         }
@@ -341,6 +342,32 @@ struct traversal_switch_detector
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
             turn_type const& turn = m_turns[turn_index];
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+            if (operation_from_overlay<OverlayType>::value == operation_intersection)
+            {
+                if (turn.self_turn() && turn.discarded)
+                {
+                    // Discarded self-turn, avoid it influencing isolated regions
+                    continue;
+                }
+            }
+#endif
+
+#if 0
+            // EXPERIMENTAL
+            if (operation_from_overlay<OverlayType>::value == operation_union)
+            {
+                if (turn.self_turn()
+//                    && turn.both(operation_union)
+//                    && turn.discarded
+                        )
+                {
+                    continue;
+                }
+            }
+            // END EXPERIMENTAL
+#endif
 
             for (int op_index = 0; op_index < 2; op_index++)
             {

@@ -88,22 +88,47 @@ struct overlay_null_visitor
     {}
 };
 
-template <typename Turns, typename TurnInfoMap>
-inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
+template
+<
+    overlay_type OverlayType,
+    typename TurnInfoMap,
+    typename Turns,
+    typename Clusters
+>
+inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::container_type container_type;
 
+    static const operation_type target_operation
+            = operation_from_overlay<OverlayType>::value;
+    static const operation_type opposite_operation
+            = target_operation == operation_union ? operation_intersection : operation_union;
+
+    signed_size_type turn_index = 0;
     for (typename boost::range_iterator<Turns const>::type
             it = boost::begin(turns);
          it != boost::end(turns);
-         ++it)
+         ++it, turn_index++)
     {
-        typename boost::range_value<Turns>::type const& turn_info = *it;
+        typename boost::range_value<Turns>::type const& turn = *it;
+
+        bool const colocated_target = target_operation == operation_union
+                ? turn.colocated_uu : turn.colocated_ii;
+        bool const colocated_opp = target_operation == operation_union
+                ? turn.colocated_ii : turn.colocated_uu;
+
+        bool const traversed
+                = turn.operations[0].visited.finalized()
+                || turn.operations[0].visited.rejected()
+                || turn.operations[1].visited.finalized()
+                || turn.operations[1].visited.rejected()
+                || turn.both(operation_blocked)
+                || turn.combination(opposite_operation, operation_blocked);
 
         for (typename boost::range_iterator<container_type const>::type
-                op_it = boost::begin(turn_info.operations);
-            op_it != boost::end(turn_info.operations);
+                op_it = boost::begin(turn.operations);
+            op_it != boost::end(turn.operations);
             ++op_it)
         {
             ring_identifier const ring_id
@@ -113,20 +138,54 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
                     op_it->seg_id.ring_index
                 );
 
-            if (turn_info.both(operation_union))
+            if (traversed)
             {
-                // Register it, even if discarded
-                turn_info_map[ring_id].has_uu_turn = true;
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
             }
 
-            // Skip singular discarded turns, if any
-            bool const skip = turn_info.discarded
-                    && ! turn_info.any_blocked()
-                    && ! turn_info.colocated;
-
-            if (! skip)
+            if (turn.both(opposite_operation) && colocated_target)
             {
-                turn_info_map[ring_id].has_normal_turn = true;
+                // For union: ii, colocated with a uu
+                // For example, two interior rings touch where two exterior rings also touch.
+                // The interior rings are not yet traversed, and should be taken from the input
+
+                // For intersection: uu, colocated with an ii
+                continue;
+            }
+
+            // unless it is two interior inner rings colocated with a uu
+            if (turn.both(opposite_operation))
+            {
+                // For union, mark any ring with a ii turn as traversed
+                // For intersection, any uu
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
+            }
+            else if (colocated_opp && ! colocated_target)
+            {
+                // For union, a turn colocated with ii and NOT with uu
+                // For intersection v.v.
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
+            }
+
+            if (turn.cluster_id >= 0)
+            {
+                // Check other turns in same cluster
+
+                typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
+                BOOST_ASSERT(mit != clusters.end());
+
+                cluster_info const& cinfo = mit->second;
+
+                if (target_operation == operation_union && cinfo.open_count == 0)
+                {
+                    // It is not traversed, and there is no way out for a union,
+                    // so register it as traversed to avoid including the ring
+                    turn_info_map[ring_id].has_traversed_turn = true;
+                    continue;
+                }
             }
         }
     }
@@ -290,7 +349,7 @@ std::cout << "traverse" << std::endl;
                 );
 
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
-        get_ring_turn_info(turn_info_per_ring, turns);
+        get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
         typedef ring_properties
         <
