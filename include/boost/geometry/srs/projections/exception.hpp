@@ -15,6 +15,7 @@
 
 
 #include <boost/geometry/core/exception.hpp>
+#include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 
 
 namespace boost { namespace geometry
@@ -26,16 +27,19 @@ class proj_exception : public geometry::exception
 public:
     proj_exception(int code = 0)
         : m_code(code)
+        , m_msg(projections::detail::pj_strerrno(code))
     {}
 
     virtual char const* what() const throw()
     {
-        return "Boost.Geometry Projection exception";
+        //return "Boost.Geometry Projection exception";
+        return m_msg.what();
     }
 
     int code() const { return m_code; }
 private :
     int m_code;
+    std::runtime_error m_msg;
 };
 
 
