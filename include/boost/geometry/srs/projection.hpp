@@ -41,8 +41,11 @@
 namespace boost { namespace geometry
 {
     
+namespace projections
+{
+
 #ifndef DOXYGEN_NO_DETAIL
-namespace projections { namespace detail
+namespace detail
 {
 
 template <typename CT>
@@ -96,26 +99,10 @@ inline bool inverse(Proj const& proj, XY const& xy, LL& ll)
     return proj.inverse(xy, ll);
 }
 
-}} // namespace projections::detail
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-
-namespace srs
-{
-
-
-/*!
-    \brief Representation of projection
-    \details Either dynamic or static projection representation
-    \ingroup projection
-    \tparam Proj default_dynamic or static projection parameters
-    \tparam CT calculation type used internally
-*/
-template
-<
-    typename Proj = srs::dynamic,
-    typename CT = double
->
+template <typename Proj, typename CT>
 class projection
 {
     BOOST_MPL_ASSERT_MSG((false),
@@ -130,17 +117,9 @@ class projection<srs::dynamic, CT>
     // select <double> from int/float/double and else selects T
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
+    typedef projections::detail::base_v<calc_t, projections::parameters> vprj_t;
+
 public:
-    /*!
-    \ingroup projection
-    \brief Initializes a projection as a string, using the format with + and =
-    \details The projection can be initialized with a string (with the same format as the PROJ4 package) for
-      convenient initialization from, for example, the command line
-    \par Example
-        <tt>+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000</tt>
-        for the Madagascar projection.
-    \note Parameters are described in the group
-    */
     projection(srs::proj4 const& params)
         : m_ptr(create(projections::detail::pj_init_plus(srs::dynamic(),
                                 params.str)))
@@ -153,23 +132,10 @@ public:
                             false)))
     {}
 
-    /// Forward projection, from Latitude-Longitude to Cartesian
-    template <typename LL, typename XY>
-    bool forward(LL const& ll, XY& xy) const
-    {
-        return projections::detail::forward(*m_ptr, ll, xy);
-    }
-
-    /// Inverse projection, from Cartesian to Latitude-Longitude
-    template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& ll) const
-    {
-        return projections::detail::inverse(*m_ptr, xy, ll);
-    }
+    vprj_t const& proj() const { return *m_ptr; }
+    vprj_t & mutable_proj() { return *m_ptr; }
 
 private:
-    typedef projections::detail::base_v<calc_t, projections::parameters> vprj_t;
-
     static vprj_t* create(projections::parameters const& pj_params)
     {
         static projections::detail::factory<calc_t, projections::parameters> fac;
@@ -178,7 +144,7 @@ private:
 
         if (result == NULL)
         {
-            BOOST_THROW_EXCEPTION(proj_exception());
+            BOOST_THROW_EXCEPTION(proj_exception(-4));
         }
 
         return result;
@@ -209,19 +175,8 @@ public:
         : m_proj(get_parameters(params))
     {}
 
-    /// Forward projection, from Latitude-Longitude to Cartesian
-    template <typename LL, typename XY>
-    bool forward(LL const& ll, XY& xy) const
-    {
-        return projections::detail::forward(m_proj, ll, xy);
-    }
-
-    /// Inverse projection, from Cartesian to Latitude-Longitude
-    template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& ll) const
-    {
-        return projections::detail::inverse(m_proj, xy, ll);
-    }
+    projection_type const& proj() const { return m_proj; }
+    projection_type & mutable_proj() { return m_proj; }
 
 private:
     static projections::parameters get_parameters(srs::static_proj4<Proj, Model> const& params)
@@ -253,22 +208,132 @@ public:
                                                    epsg_traits::par(), false))
     {}
 
+    projection_type const& proj() const { return m_proj; }
+    projection_type & mutable_proj() { return m_proj; }
+
+private:
+    projection_type m_proj;
+};
+
+
+} // namespace projections
+
+
+namespace srs
+{
+
+
+/*!
+    \brief Representation of projection
+    \details Either dynamic or static projection representation
+    \ingroup projection
+    \tparam Proj default_dynamic or static projection parameters
+    \tparam CT calculation type used internally
+*/
+template
+<
+    typename Proj = srs::dynamic,
+    typename CT = double
+>
+class projection
+{
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION_TAG,
+                         (Proj));
+};
+
+template <typename CT>
+class projection<srs::dynamic, CT>
+{
+public:
+    /*!
+    \ingroup projection
+    \brief Initializes a projection as a string, using the format with + and =
+    \details The projection can be initialized with a string (with the same format as the PROJ4 package) for
+      convenient initialization from, for example, the command line
+    \par Example
+        <tt>+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000</tt>
+        for the Madagascar projection.
+    \note Parameters are described in the group
+    */
+    projection(srs::proj4 const& params)
+        : m_projection(params)
+    {}
+
+    projection(srs::epsg const& params)
+        : m_projection(params)
+    {}
+
     /// Forward projection, from Latitude-Longitude to Cartesian
     template <typename LL, typename XY>
     bool forward(LL const& ll, XY& xy) const
     {
-        return projections::detail::forward(m_proj, ll, xy);
+        return projections::detail::forward(m_projection.proj(), ll, xy);
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
     template <typename XY, typename LL>
     bool inverse(XY const& xy, LL& ll) const
     {
-        return projections::detail::inverse(m_proj, xy, ll);
+        return projections::detail::inverse(m_projection.proj(), xy, ll);
     }
 
 private:
-    projection_type m_proj;
+    projections::projection<srs::dynamic, CT> m_projection;
+};
+
+template <typename Proj, typename Model, typename CT>
+class projection<srs::static_proj4<Proj, Model>, CT>
+{
+public:
+    projection()
+    {}
+
+    projection(srs::static_proj4<Proj, Model> const& params)
+        : m_projection(params)
+    {}
+
+    /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
+    bool forward(LL const& ll, XY& xy) const
+    {
+        return projections::detail::forward(m_projection.proj(), ll, xy);
+    }
+
+    /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
+    bool inverse(XY const& xy, LL& ll) const
+    {
+        return projections::detail::inverse(m_projection.proj(), xy, ll);
+    }
+
+private:
+    projections::projection<srs::static_proj4<Proj, Model>, CT> m_projection;
+};
+
+template <int Code, typename CT>
+class projection<srs::static_epsg<Code>, CT>
+{
+public:
+    projection()
+    {}
+
+    /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
+    bool forward(LL const& ll, XY& xy) const
+    {
+        return projections::detail::forward(m_projection.proj(), ll, xy);
+    }
+
+    /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
+    bool inverse(XY const& xy, LL& ll) const
+    {
+        return projections::detail::inverse(m_projection.proj(), xy, ll);
+    }
+
+private:
+    projections::projection<srs::static_epsg<Code>, CT> m_projection;
 };
 
 
