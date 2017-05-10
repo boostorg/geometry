@@ -479,7 +479,7 @@ namespace projections
             public :
                 virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    bool const guam = pj_param(par.params, "bguam").i;
+                    bool const guam = pj_param(par.params, "bguam").i != 0;
 
                     if (par.es && ! guam)
                         return new base_v_fi<aeqd_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
