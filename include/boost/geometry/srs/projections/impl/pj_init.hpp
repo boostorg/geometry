@@ -111,6 +111,68 @@ inline void pj_push_defaults(srs::static_proj4<Proj, Model> const& bg_params, pa
     }
 }
 
+template <typename T>
+inline void pj_init_units(std::vector<pvalue> const& params,
+                          std::string const& sunits,
+                          std::string const& sto_meter,
+                          T & to_meter,
+                          T & fr_meter,
+                          T const& default_to_meter,
+                          T const& default_fr_meter)
+{
+    std::string s;
+    std::string units = pj_param(params, sunits).s;
+    if (! units.empty())
+    {
+        const int n = sizeof(pj_units) / sizeof(pj_units[0]);
+        int index = -1;
+        for (int i = 0; i < n && index == -1; i++)
+        {
+            if(pj_units[i].id == units)
+            {
+                index = i;
+            }
+        }
+
+        if (index == -1) { throw proj_exception(-7); }
+        s = pj_units[index].to_meter;
+    }
+
+    if (s.empty())
+    {
+        s = pj_param(params, sto_meter).s;
+    }
+
+    if (! s.empty())
+    {
+        std::size_t const pos = s.find('/');
+        if (pos == std::string::npos)
+        {
+            to_meter = lexical_cast<T>(s);
+        }
+        else
+        {
+            T const numerator = lexical_cast<T>(s.substr(0, pos));
+            T const denominator = lexical_cast<T>(s.substr(pos + 1));
+            if (numerator == 0.0 || denominator == 0.0)
+            {
+                throw proj_exception(-99);
+            }
+            to_meter = numerator / denominator;
+        }
+        if (to_meter == 0.0)
+        {
+            throw proj_exception(-99);
+        }
+        fr_meter = 1. / to_meter;
+    }
+    else
+    {
+        to_meter = default_to_meter;
+        fr_meter = default_fr_meter;
+    }
+}
+
 /************************************************************************/
 /*                              pj_init()                               */
 /*                                                                      */
@@ -153,10 +215,12 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
     }
 
     /* allocate projection structure */
-    // done by constructor:
+    // done by BGParams constructor:
     // pin.is_latlong = 0;
     // pin.is_geocent = 0;
     // pin.long_wrap_center = 0.0;
+    // pin.long_wrap_center = 0.0;
+    pin.is_long_wrap_set = false;
 
     /* set datum parameters */
     pj_datum_set(pin.params, pin);
@@ -191,7 +255,9 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
     pin.over = pj_param(pin.params, "bover").i;
 
     /* longitude center for wrapping */
-    pin.long_wrap_center = pj_param(pin.params, "rlon_wrap").f;
+    pin.is_long_wrap_set = pj_param(pin.params, "tlon_wrap").i;
+    if (pin.is_long_wrap_set)
+        pin.long_wrap_center = pj_param(pin.params, "rlon_wrap").f;
 
     /* central meridian */
     pin.lam0 = pj_param(pin.params, "rlon_0").f;
@@ -215,59 +281,12 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
     }
 
     /* set units */
-    std::string s;
-    std::string units = pj_param(pin.params, "sunits").s;
-    if (! units.empty())
-    {
-        const int n = sizeof(pj_units) / sizeof(pj_units[0]);
-        int index = -1;
-        for (int i = 0; i < n && index == -1; i++)
-        {
-            if(pj_units[i].id == units)
-            {
-                index = i;
-            }
-        }
-
-        if (index == -1) { throw proj_exception(-7); }
-        s = pj_units[index].to_meter;
-    }
-
-    if (s.empty())
-    {
-        s = pj_param(pin.params, "sto_meter").s;
-    }
-
-    if (! s.empty())
-    {
-        std::size_t const pos = s.find('/');
-        if (pos == std::string::npos)
-        {
-            pin.to_meter = lexical_cast<double>(s);
-        }
-        else
-        {
-            double const numerator = lexical_cast<double>(s.substr(0, pos));
-            double const denominator = lexical_cast<double>(s.substr(pos + 1));
-            if (numerator == 0.0 || denominator == 0.0)
-            {
-                throw proj_exception(-99);
-            }
-            pin.to_meter = numerator / denominator;
-        }
-        if (pin.to_meter == 0.0)
-        {
-            throw proj_exception(-99);
-        }
-        pin.fr_meter = 1. / pin.to_meter;
-    }
-    else
-    {
-        pin.to_meter = pin.fr_meter = 1.;
-    }
+    pj_init_units(pin.params, "sunits", "sto_meter",
+                  pin.to_meter, pin.fr_meter, 1., 1.);
+    pj_init_units(pin.params, "svunits", "svto_meter",
+                  pin.vto_meter, pin.vfr_meter, pin.to_meter, pin.fr_meter);
 
     /* prime meridian */
-    s.clear();
     std::string pm = pj_param(pin.params, "spm").s;
     if (! pm.empty())
     {

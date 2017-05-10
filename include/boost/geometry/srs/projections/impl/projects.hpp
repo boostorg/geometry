@@ -99,12 +99,14 @@ struct pj_const_pod
         lam0, phi0, /* central longitude, latitude */
         x0, y0, /* easting and northing */
         k0,    /* general scaling factor */
-        to_meter, fr_meter; /* cartesian scaling */
+        to_meter, fr_meter, /* cartesian scaling */
+        vto_meter, vfr_meter;      /* Vertical scaling. Internal unit [m] */
 
     int datum_type; /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
     double  datum_params[7];
     double  from_greenwich; /* prime meridian offset (in radians) */
     double  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
+    bool    is_long_wrap_set;
 
     // Initialize all variables to zero
     pj_const_pod()

@@ -246,14 +246,14 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Transform Z to meters if it isn't already.                      */
 /* -------------------------------------------------------------------- */
-    /*if( srcdefn.vto_meter != 1.0 && dimension > 2 )
+    if( srcdefn.vto_meter != 1.0 && dimension > 2 )
     {
-        for( i = 0; i < point_count; i++ )
+        for( std::size_t i = 0; i < point_count; i++ )
         {
             point_type const& point = geometry::range::at(range, i);
             set_z(point, get_z(point) * srcdefn.vto_meter);
         }
-    }*/
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Transform geocentric source coordinates to lat/long.            */
@@ -567,28 +567,36 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /*      If a wrapping center other than 0 is provided, rewrap around    */
 /*      the suggested center (for latlong coordinate systems only).     */
 /* -------------------------------------------------------------------- */
-    /*else if( dstdefn.is_latlong && dstdefn.is_long_wrap_set )
+    else if( dstdefn.is_latlong && dstdefn.is_long_wrap_set )
     {
-        for( i = 0; i < point_count; i++ )
+        for( std::size_t i = 0; i < point_count; i++ )
         {
-            if( x[point_offset*i] == HUGE_VAL )
+            point_type & point = range::at(range, i);
+            coord_t x = get_as_radian<0>(point);
+
+            if( x == HUGE_VAL )
                 continue;
 
-            while( x[point_offset*i] < dstdefn->long_wrap_center - M_PI )
-                x[point_offset*i] += M_TWOPI;
-            while( x[point_offset*i] > dstdefn->long_wrap_center + M_PI )
-                x[point_offset*i] -= M_TWOPI;
+            while( x < dstdefn.long_wrap_center - math::pi<coord_t>() )
+                x += math::two_pi<coord_t>();
+            while( x > dstdefn.long_wrap_center + math::pi<coord_t>() )
+                x -= math::two_pi<coord_t>();
+
+            set_from_radian<0>(point, x);
         }
-    }*/
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Transform Z from meters if needed.                              */
 /* -------------------------------------------------------------------- */
-    /*if( dstdefn->vto_meter != 1.0 && z != NULL )
+    if( dstdefn.vto_meter != 1.0 && dimension > 2 )
     {
-        for( i = 0; i < point_count; i++ )
-            z[point_offset*i] *= dstdefn->vfr_meter;
-    }*/
+        for( std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type const& point = geometry::range::at(range, i);
+            set_z(point, get_z(point) * dstdefn.vfr_meter);
+        }
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Transform normalized axes into unusual output coordinate axis   */
