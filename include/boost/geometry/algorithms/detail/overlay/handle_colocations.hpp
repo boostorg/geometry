@@ -751,6 +751,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
             op.enriched.count_left = ranked.count_left;
             op.enriched.count_right = ranked.count_right;
+            op.enriched.rank = ranked.rank;
             op.enriched.zone = ranked.zone;
 
             if ((for_operation == operation_union
