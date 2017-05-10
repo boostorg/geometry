@@ -446,7 +446,7 @@ struct self_touches
         detail::self_get_turn_points::get_turns
         <
             policy_type
-        >::apply(geometry, strategy, robust_policy, turns, policy);
+        >::apply(geometry, strategy, robust_policy, turns, policy, 0);
 
         return policy.result();
     }

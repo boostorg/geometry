@@ -90,6 +90,9 @@ struct no_interrupt_policy
 {
     static bool const enabled = false;
 
+    // variable required by self_get_turn_points::get_turns
+    static bool const has_intersections = false;
+
     template <typename Range>
     static inline bool apply(Range const&)
     {
