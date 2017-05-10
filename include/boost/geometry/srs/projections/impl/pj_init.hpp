@@ -255,7 +255,7 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
     pin.over = pj_param(pin.params, "bover").i;
 
     /* longitude center for wrapping */
-    pin.is_long_wrap_set = pj_param(pin.params, "tlon_wrap").i;
+    pin.is_long_wrap_set = pj_param(pin.params, "tlon_wrap").i != 0;
     if (pin.is_long_wrap_set)
         pin.long_wrap_center = pj_param(pin.params, "rlon_wrap").f;
 

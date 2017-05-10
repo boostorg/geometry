@@ -171,13 +171,20 @@ static int pj_adjust_axis( projCtx ctx, const char *axis, int denormalize_flag,
 #define SRS_WGS84_ESQUARED 0.0066943799901413165
 #endif*/
 
-#define Dx_BF (defn.datum_params[0])
-#define Dy_BF (defn.datum_params[1])
-#define Dz_BF (defn.datum_params[2])
-#define Rx_BF (defn.datum_params[3])
-#define Ry_BF (defn.datum_params[4])
-#define Rz_BF (defn.datum_params[5])
-#define M_BF  (defn.datum_params[6])
+template <typename Par>
+inline double Dx_BF(Par const& defn) { return defn.datum_params[0]; }
+template <typename Par>
+inline double Dy_BF(Par const& defn) { return defn.datum_params[1]; }
+template <typename Par>
+inline double Dz_BF(Par const& defn) { return defn.datum_params[2]; }
+template <typename Par>
+inline double Rx_BF(Par const& defn) { return defn.datum_params[3]; }
+template <typename Par>
+inline double Ry_BF(Par const& defn) { return defn.datum_params[4]; }
+template <typename Par>
+inline double Rz_BF(Par const& defn) { return defn.datum_params[5]; }
+template <typename Par>
+inline double M_BF(Par const& defn) { return defn.datum_params[6]; }
 
 /*
 ** This table is intended to indicate for any given error code in
@@ -723,7 +730,7 @@ inline int pj_geocentric_to_geodetic( T const& a, T const& es,
 /************************************************************************/
 
 template <typename Par>
-bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
+inline bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
 {
     if( srcdefn.datum_type != dstdefn.datum_type )
     {
@@ -766,8 +773,8 @@ bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
 /************************************************************************/
 
 template <typename Par, typename Range, bool AddZ>
-int pj_geocentric_to_wgs84( Par const& defn,
-                            range_wrapper<Range, AddZ> & range_wrapper )
+inline int pj_geocentric_to_wgs84( Par const& defn,
+                                   range_wrapper<Range, AddZ> & range_wrapper )
 
 {
     typedef typename boost::range_value<Range>::type point_type;
@@ -785,9 +792,9 @@ int pj_geocentric_to_wgs84( Par const& defn,
             if( get<0>(point) == HUGE_VAL )
                 continue;
 
-            set<0>(point, get<0>(point) + Dx_BF);
-            set<1>(point, get<1>(point) + Dy_BF);
-            range_wrapper.set_z(i, range_wrapper.get_z(i) + Dz_BF);
+            set<0>(point,                   get<0>(point) + Dx_BF(defn));
+            set<1>(point,                   get<1>(point) + Dy_BF(defn));
+            range_wrapper.set_z(i, range_wrapper.get_z(i) + Dz_BF(defn));
         }
     }
     else if( defn.datum_type == PJD_7PARAM )
@@ -805,9 +812,9 @@ int pj_geocentric_to_wgs84( Par const& defn,
 
             coord_t x_out, y_out, z_out;
 
-            x_out = M_BF*(       x - Rz_BF*y + Ry_BF*z) + Dx_BF;
-            y_out = M_BF*( Rz_BF*x +       y - Rx_BF*z) + Dy_BF;
-            z_out = M_BF*(-Ry_BF*x + Rx_BF*y +       z) + Dz_BF;
+            x_out = M_BF(defn)*(             x - Rz_BF(defn)*y + Ry_BF(defn)*z) + Dx_BF(defn);
+            y_out = M_BF(defn)*( Rz_BF(defn)*x +             y - Rx_BF(defn)*z) + Dy_BF(defn);
+            z_out = M_BF(defn)*(-Ry_BF(defn)*x + Rx_BF(defn)*y +             z) + Dz_BF(defn);
 
             set<0>(point, x_out);
             set<1>(point, y_out);
@@ -823,8 +830,8 @@ int pj_geocentric_to_wgs84( Par const& defn,
 /************************************************************************/
 
 template <typename Par, typename Range, bool AddZ>
-int pj_geocentric_from_wgs84( Par const& defn,
-                              range_wrapper<Range, AddZ> & range_wrapper )
+inline int pj_geocentric_from_wgs84( Par const& defn,
+                                     range_wrapper<Range, AddZ> & range_wrapper )
 
 {
     typedef typename boost::range_value<Range>::type point_type;
@@ -842,9 +849,9 @@ int pj_geocentric_from_wgs84( Par const& defn,
             if( get<0>(point) == HUGE_VAL )
                 continue;
 
-            set<0>(point, get<0>(point) - Dx_BF);
-            set<1>(point, get<1>(point) - Dy_BF);
-            range_wrapper.set_z(i, range_wrapper.get_z(i) - Dz_BF);
+            set<0>(point,                   get<0>(point) - Dx_BF(defn));
+            set<1>(point,                   get<1>(point) - Dy_BF(defn));
+            range_wrapper.set_z(i, range_wrapper.get_z(i) - Dz_BF(defn));
         }
     }
     else if( defn.datum_type == PJD_7PARAM )
@@ -861,13 +868,13 @@ int pj_geocentric_from_wgs84( Par const& defn,
             coord_t y = get<1>(point);
             coord_t z = range_wrapper.get_z(i);
 
-            coord_t x_tmp = (x - Dx_BF) / M_BF;
-            coord_t y_tmp = (y - Dy_BF) / M_BF;
-            coord_t z_tmp = (z - Dz_BF) / M_BF;
+            coord_t x_tmp = (x - Dx_BF(defn)) / M_BF(defn);
+            coord_t y_tmp = (y - Dy_BF(defn)) / M_BF(defn);
+            coord_t z_tmp = (z - Dz_BF(defn)) / M_BF(defn);
 
-            x =        x_tmp + Rz_BF*y_tmp - Ry_BF*z_tmp;
-            y = -Rz_BF*x_tmp +       y_tmp + Rx_BF*z_tmp;
-            z =  Ry_BF*x_tmp - Rx_BF*y_tmp +       z_tmp;
+            x =              x_tmp + Rz_BF(defn)*y_tmp - Ry_BF(defn)*z_tmp;
+            y = -Rz_BF(defn)*x_tmp +             y_tmp + Rx_BF(defn)*z_tmp;
+            z =  Ry_BF(defn)*x_tmp - Rx_BF(defn)*y_tmp +             z_tmp;
 
             set<0>(point, x);
             set<1>(point, y);
@@ -893,8 +900,8 @@ inline bool pj_datum_check_error(int err)
 /************************************************************************/
 
 template <typename Par, typename Range>
-void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
-                         Range & range )
+inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
+                                Range & range )
 
 {
     double      src_a, src_es, dst_a, dst_es;

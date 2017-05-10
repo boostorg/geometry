@@ -171,9 +171,9 @@ inline long pj_Set_Geocentric_Parameters (GeocentricInfo<T> & gi, T const& a, T 
 
 
 template <typename T>
-void pj_Get_Geocentric_Parameters (GeocentricInfo<T> const& gi,
-                                   T & a, 
-                                   T & b)
+inline void pj_Get_Geocentric_Parameters (GeocentricInfo<T> const& gi,
+                                          T & a, 
+                                          T & b)
 { /* BEGIN Get_Geocentric_Parameters */
 /*
  * The function Get_Geocentric_Parameters returns the ellipsoid parameters
@@ -189,9 +189,9 @@ void pj_Get_Geocentric_Parameters (GeocentricInfo<T> const& gi,
 
 
 template <typename T>
-long pj_Convert_Geodetic_To_Geocentric (GeocentricInfo<T> const& gi,
-                                        T Longitude, T Latitude, T Height,
-                                        T & X, T & Y, T & Z)
+inline long pj_Convert_Geodetic_To_Geocentric (GeocentricInfo<T> const& gi,
+                                               T Longitude, T Latitude, T Height,
+                                               T & X, T & Y, T & Z)
 { /* BEGIN Convert_Geodetic_To_Geocentric */
 /*
  * The function Convert_Geodetic_To_Geocentric converts geodetic coordinates
@@ -260,9 +260,9 @@ long pj_Convert_Geodetic_To_Geocentric (GeocentricInfo<T> const& gi,
 #define BOOST_GEOMETRY_PROJECTIONS_USE_ITERATIVE_METHOD
 
 template <typename T>
-void pj_Convert_Geocentric_To_Geodetic (GeocentricInfo<T> const& gi,
-                                        T X, T Y, T Z,
-                                        T & Longitude, T & Latitude, T & Height)
+inline void pj_Convert_Geocentric_To_Geodetic (GeocentricInfo<T> const& gi,
+                                               T X, T Y, T Z,
+                                               T & Longitude, T & Latitude, T & Height)
 { /* BEGIN Convert_Geocentric_To_Geodetic */
 
     static const T PI_OVER_2 = math::half_pi<T>();

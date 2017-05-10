@@ -87,7 +87,7 @@ pj_err_list[] = {
     "malformed pipeline",                                              /* -50 */
 };
 
-std::string pj_strerrno(int err) {
+inline std::string pj_strerrno(int err) {
     if (0==err)
         return "";
 
