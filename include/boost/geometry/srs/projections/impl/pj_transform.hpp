@@ -1,0 +1,1127 @@
+// Boost.Geometry
+// This file is manually converted from PROJ4
+
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// This file is converted from PROJ4, http://trac.osgeo.org/proj
+// PROJ4 is originally written by Gerald Evenden (then of the USGS)
+// PROJ4 is maintained by Frank Warmerdam
+// This file was converted to Geometry Library by Adam Wulkiewicz
+
+// Original copyright notice:
+
+// Copyright (c) 2000, Frank Warmerdam
+
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+#ifndef BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_TRANSFORM_HPP
+#define BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_TRANSFORM_HPP
+
+
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+
+#include <boost/geometry/srs/projections/impl/geocent.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/range.hpp>
+
+#include <cstring>
+#include <cmath>
+
+
+namespace boost { namespace geometry { namespace projections
+{
+
+namespace detail
+{
+
+// -----------------------------------------------------------
+// Boost.Geometry helpers begin
+// -----------------------------------------------------------
+
+template
+<
+    typename Point,
+    bool HasCoord2 = (dimension<Point>::value > 2)
+>
+struct z_access
+{
+    typedef typename coordinate_type<Point>::type type;
+    static inline type get(Point const& point)
+    {
+        return geometry::get<2>(point);
+    }
+    static inline void set(Point & point, type const& h)
+    {
+        return geometry::set<2>(point, h);
+    }
+};
+
+template <typename Point>
+struct z_access<Point, false>
+{
+    typedef typename coordinate_type<Point>::type type;
+    static inline type get(Point const& point)
+    {
+        return type(0);
+    }
+    static inline void set(Point & , type const& )
+    {}
+};
+
+template <typename XYorXYZ>
+inline typename z_access<XYorXYZ>::type
+get_z(XYorXYZ const& xy_or_xyz)
+{
+    return z_access<XYorXYZ>::get(xy_or_xyz);
+}
+
+template <typename XYorXYZ>
+inline void set_z(XYorXYZ & xy_or_xyz,
+                  typename z_access<XYorXYZ>::type const& z)
+{
+    return z_access<XYorXYZ>::set(xy_or_xyz, z);
+}
+
+template
+<
+    typename Range,
+    bool AddZ = (dimension<typename boost::range_value<Range>::type>::value < 3)
+>
+struct range_wrapper
+{
+    typedef Range range_type;
+    typedef typename boost::range_value<Range>::type point_type;
+    typedef typename coordinate_type<point_type>::type coord_t;
+
+    range_wrapper(Range & range)
+        : m_range(range)
+    {}
+
+    range_type & get_range() { return m_range; }
+
+    coord_t get_z(std::size_t i) { return detail::get_z(range::at(m_range, i)); }
+    void set_z(std::size_t i, coord_t const& v) { return detail::set_z(range::at(m_range, i), v); }
+
+private:
+    Range & m_range;
+};
+
+template <typename Range>
+struct range_wrapper<Range, true>
+{
+    typedef Range range_type;
+    typedef typename boost::range_value<Range>::type point_type;
+    typedef typename coordinate_type<point_type>::type coord_t;
+
+    range_wrapper(Range & range)
+        : m_range(range)
+        , m_zs(boost::size(range), coord_t(0))
+    {}
+
+    range_type & get_range() { return m_range; }
+
+    coord_t get_z(std::size_t i) { return m_zs[i]; }
+    void set_z(std::size_t i, coord_t const& v) { m_zs[i] = v; }
+
+private:
+    Range & m_range;
+    std::vector<coord_t> m_zs;
+};
+
+// -----------------------------------------------------------
+// Boost.Geometry helpers end
+// -----------------------------------------------------------
+
+/*
+template <typename T>
+static int pj_adjust_axis( projCtx ctx, const char *axis, int denormalize_flag,
+                           long point_count, int point_offset,
+                           T & x, T & y, T & z );
+*/
+
+/*#ifndef SRS_WGS84_SEMIMAJOR
+#define SRS_WGS84_SEMIMAJOR 6378137.0
+#endif
+
+#ifndef SRS_WGS84_ESQUARED
+#define SRS_WGS84_ESQUARED 0.0066943799901413165
+#endif*/
+
+#define Dx_BF (defn.datum_params[0])
+#define Dy_BF (defn.datum_params[1])
+#define Dz_BF (defn.datum_params[2])
+#define Rx_BF (defn.datum_params[3])
+#define Ry_BF (defn.datum_params[4])
+#define Rz_BF (defn.datum_params[5])
+#define M_BF  (defn.datum_params[6])
+
+/*
+** This table is intended to indicate for any given error code in
+** the range 0 to -44, whether that error will occur for all locations (ie.
+** it is a problem with the coordinate system as a whole) in which case the
+** value would be 0, or if the problem is with the point being transformed
+** in which case the value is 1.
+**
+** At some point we might want to move this array in with the error message
+** list or something, but while experimenting with it this should be fine.
+*/
+
+static const int transient_error[50] = {
+    /*             0  1  2  3  4  5  6  7  8  9   */
+    /* 0 to 9 */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 10 to 19 */ 0, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+    /* 20 to 29 */ 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+    /* 30 to 39 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 40 to 49 */ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 };
+
+
+template <typename T, typename Range>
+inline int pj_geocentric_to_geodetic( T const& a, T const& es,
+                                      Range & range );
+template <typename T, typename Range>
+inline int pj_geodetic_to_geocentric( T const& a, T const& es,
+                                      Range & range );
+
+/************************************************************************/
+/*                            pj_transform()                            */
+/*                                                                      */
+/*      Currently this function doesn't recognise if two projections    */
+/*      are identical (to short circuit reprojection) because it is     */
+/*      difficult to compare PJ structures (since there are some        */
+/*      projection specific components).                                */
+/************************************************************************/
+
+template <typename SrcPrj, typename DstPrj2, typename Par, typename Range>
+inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
+                         DstPrj2 const& dstprj, Par const& dstdefn,
+                         Range & range)
+
+{
+    typedef typename boost::range_value<Range>::type point_type;
+    typedef typename coordinate_type<point_type>::type coord_t;
+    static const std::size_t dimension = geometry::dimension<point_type>::value;
+    std::size_t point_count = boost::size(range);
+
+    /*if( point_offset == 0 )
+        point_offset = 1;*/
+
+/* -------------------------------------------------------------------- */
+/*      Transform unusual input coordinate axis orientation to          */
+/*      standard form if needed.                                        */
+/* -------------------------------------------------------------------- */
+    /*if( strcmp(srcdefn->axis,"enu") != 0 )
+    {
+        int err;
+
+        err = pj_adjust_axis( srcdefn->ctx, srcdefn->axis,
+                              0, point_count, point_offset, x, y, z );
+        if( err != 0 )
+            return err;
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      Transform Z to meters if it isn't already.                      */
+/* -------------------------------------------------------------------- */
+    /*if( srcdefn.vto_meter != 1.0 && dimension > 2 )
+    {
+        for( i = 0; i < point_count; i++ )
+        {
+            point_type const& point = geometry::range::at(range, i);
+            set_z(point, get_z(point) * srcdefn.vto_meter);
+        }
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      Transform geocentric source coordinates to lat/long.            */
+/* -------------------------------------------------------------------- */
+    if( srcdefn.is_geocent )
+    {
+        // Point should be cartesian 3D (ECEF)
+        if (dimension < 3)
+            throw proj_exception(PJD_ERR_GEOCENTRIC);
+            //return PJD_ERR_GEOCENTRIC;
+
+        if( srcdefn.to_meter != 1.0 )
+        {
+            for(std::size_t i = 0; i < point_count; i++ )
+            {
+                point_type & point = range::at(range, i);
+                if( get<0>(point) != HUGE_VAL )
+                {
+                    set<0>(point, get<0>(point) * srcdefn.to_meter);
+                    set<1>(point, get<1>(point) * srcdefn.to_meter);
+                }
+            }
+        }
+
+        range_wrapper<Range, false> rng(range);
+        int err = pj_geocentric_to_geodetic( srcdefn.a_orig, srcdefn.es_orig,
+                                             rng );
+        if( err != 0 )
+            throw proj_exception(err);
+            //return err;
+
+        // NOTE: here 3D cartesian ECEF is converted into 3D geodetic LLH
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Transform source points to lat/long, if they aren't             */
+/*      already.                                                        */
+/* -------------------------------------------------------------------- */
+    else if( !srcdefn.is_latlong )
+    {
+        // Point should be cartesian 2D or 3D (map projection)
+
+        /* Check first if projection is invertible. */
+        /*if( (srcdefn->inv3d == NULL) && (srcdefn->inv == NULL))
+        {
+            pj_ctx_set_errno( pj_get_ctx(srcdefn), -17 );
+            pj_log( pj_get_ctx(srcdefn), PJ_LOG_ERROR,
+                    "pj_transform(): source projection not invertable" );
+            return -17;
+        }*/
+
+        /* If invertible - First try inv3d if defined */
+        //if (srcdefn->inv3d != NULL)
+        //{
+        //    /* Three dimensions must be defined */
+        //    if ( z == NULL)
+        //    {
+        //        pj_ctx_set_errno( pj_get_ctx(srcdefn), PJD_ERR_GEOCENTRIC);
+        //        return PJD_ERR_GEOCENTRIC;
+        //    }
+
+        //    for (i=0; i < point_count; i++)
+        //    {
+        //        XYZ projected_loc;
+        //        XYZ geodetic_loc;
+
+        //        projected_loc.u = x[point_offset*i];
+        //        projected_loc.v = y[point_offset*i];
+        //        projected_loc.w = z[point_offset*i];
+
+        //        if (projected_loc.u == HUGE_VAL)
+        //            continue;
+
+        //        geodetic_loc = pj_inv3d(projected_loc, srcdefn);
+        //        if( srcdefn->ctx->last_errno != 0 )
+        //        {
+        //            if( (srcdefn->ctx->last_errno != 33 /*EDOM*/
+        //                 && srcdefn->ctx->last_errno != 34 /*ERANGE*/ )
+        //                && (srcdefn->ctx->last_errno > 0
+        //                    || srcdefn->ctx->last_errno < -44 || point_count == 1
+        //                    || transient_error[-srcdefn->ctx->last_errno] == 0 ) )
+        //                return srcdefn->ctx->last_errno;
+        //            else
+        //            {
+        //                geodetic_loc.u = HUGE_VAL;
+        //                geodetic_loc.v = HUGE_VAL;
+        //                geodetic_loc.w = HUGE_VAL;
+        //            }
+        //        }
+
+        //        x[point_offset*i] = geodetic_loc.u;
+        //        y[point_offset*i] = geodetic_loc.v;
+        //        z[point_offset*i] = geodetic_loc.w;
+
+        //    }
+
+        //}
+        //else
+        {
+            /* Fallback to the original PROJ.4 API 2d inversion - inv */
+            for( std::size_t i = 0; i < point_count; i++ )
+            {
+                point_type & point = range::at(range, i);
+
+                model::point<coord_t, 2, cs::cartesian> projected_loc;
+                model::point<coord_t, 2, cs::geographic<radian> > geodetic_loc;
+
+                set<0>(projected_loc, get<0>(point));
+                set<1>(projected_loc, get<1>(point));
+
+                if( get<0>(projected_loc) == HUGE_VAL )
+                    continue;
+
+                try
+                {
+                    pj_inv(srcprj, srcdefn, projected_loc, geodetic_loc);
+                }
+                catch(proj_exception const& e)
+                {
+                    if( (e.code() != 33 /*EDOM*/
+                        && e.code() != 34 /*ERANGE*/ )
+                        && (e.code() > 0
+                            || e.code() < -44 || point_count == 1
+                            || transient_error[-e.code()] == 0) )
+                        throw;
+                    else
+                    {
+                        set<0>(geodetic_loc, HUGE_VAL);
+                        set<1>(geodetic_loc, HUGE_VAL);
+                    }
+                }
+
+                set<0>(point, get<0>(geodetic_loc));
+                set<1>(point, get<1>(geodetic_loc));
+            }
+        }
+    }
+/* -------------------------------------------------------------------- */
+/*      But if they are already lat long, adjust for the prime          */
+/*      meridian if there is one in effect.                             */
+/* -------------------------------------------------------------------- */
+    if( srcdefn.from_greenwich != 0.0 )
+    {
+        for( std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(range, i);
+
+            if( get<0>(point) != HUGE_VAL )
+                set<0>(point, get<0>(point) + srcdefn.from_greenwich);
+        }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Do we need to translate from geoid to ellipsoidal vertical      */
+/*      datum?                                                          */
+/* -------------------------------------------------------------------- */
+    /*if( srcdefn->has_geoid_vgrids && z != NULL )
+    {
+        if( pj_apply_vgridshift( srcdefn, "sgeoidgrids",
+                                 &(srcdefn->vgridlist_geoid),
+                                 &(srcdefn->vgridlist_geoid_count),
+                                 0, point_count, point_offset, x, y, z ) != 0 )
+            return pj_ctx_get_errno(srcdefn->ctx);
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      Convert datums if needed, and possible.                         */
+/* -------------------------------------------------------------------- */
+    pj_datum_transform( srcdefn, dstdefn, range );
+
+/* -------------------------------------------------------------------- */
+/*      Do we need to translate from ellipsoidal to geoid vertical      */
+/*      datum?                                                          */
+/* -------------------------------------------------------------------- */
+    /*if( dstdefn->has_geoid_vgrids && z != NULL )
+    {
+        if( pj_apply_vgridshift( dstdefn, "sgeoidgrids",
+                                 &(dstdefn->vgridlist_geoid),
+                                 &(dstdefn->vgridlist_geoid_count),
+                                 1, point_count, point_offset, x, y, z ) != 0 )
+            return dstdefn->ctx->last_errno;
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      But if they are staying lat long, adjust for the prime          */
+/*      meridian if there is one in effect.                             */
+/* -------------------------------------------------------------------- */
+    if( dstdefn.from_greenwich != 0.0 )
+    {
+        for( std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(range, i);
+
+            if( get<0>(point) != HUGE_VAL )
+                set<0>(point, get<0>(point) - dstdefn.from_greenwich);
+        }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Transform destination latlong to geocentric if required.        */
+/* -------------------------------------------------------------------- */
+    if( dstdefn.is_geocent )
+    {
+        // Point should be cartesian 3D (ECEF)
+        if (dimension < 3)
+            throw proj_exception(PJD_ERR_GEOCENTRIC);
+            //return PJD_ERR_GEOCENTRIC;
+
+        // NOTE: In the original code the return value of the following
+        // function is not checked
+        range_wrapper<Range, false> rng(range);
+        pj_geodetic_to_geocentric( dstdefn.a_orig, dstdefn.es_orig,
+                                   rng );
+
+        if( dstdefn.fr_meter != 1.0 )
+        {
+            for( std::size_t i = 0; i < point_count; i++ )
+            {
+                point_type & point = range::at(range, i);
+                if( get<0>(point) != HUGE_VAL )
+                {
+                    set<0>(point, get<0>(point) * dstdefn.fr_meter);
+                    set<1>(point, get<1>(point) * dstdefn.fr_meter);
+                }
+            }
+        }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Transform destination points to projection coordinates, if      */
+/*      desired.                                                        */
+/* -------------------------------------------------------------------- */
+    else if( !dstdefn.is_latlong )
+    {
+
+        //if( dstdefn->fwd3d != NULL)
+        //{
+        //    for( i = 0; i < point_count; i++ )
+        //    {
+        //        XYZ projected_loc;
+        //        LPZ geodetic_loc;
+
+        //        geodetic_loc.u = x[point_offset*i];
+        //        geodetic_loc.v = y[point_offset*i];
+        //        geodetic_loc.w = z[point_offset*i];
+
+        //        if (geodetic_loc.u == HUGE_VAL)
+        //            continue;
+
+        //        projected_loc = pj_fwd3d( geodetic_loc, dstdefn);
+        //        if( dstdefn->ctx->last_errno != 0 )
+        //        {
+        //            if( (dstdefn->ctx->last_errno != 33 /*EDOM*/
+        //                 && dstdefn->ctx->last_errno != 34 /*ERANGE*/ )
+        //                && (dstdefn->ctx->last_errno > 0
+        //                    || dstdefn->ctx->last_errno < -44 || point_count == 1
+        //                    || transient_error[-dstdefn->ctx->last_errno] == 0 ) )
+        //                return dstdefn->ctx->last_errno;
+        //            else
+        //            {
+        //                projected_loc.u = HUGE_VAL;
+        //                projected_loc.v = HUGE_VAL;
+        //                projected_loc.w = HUGE_VAL;
+        //            }
+        //        }
+
+        //        x[point_offset*i] = projected_loc.u;
+        //        y[point_offset*i] = projected_loc.v;
+        //        z[point_offset*i] = projected_loc.w;
+        //    }
+
+        //}
+        //else
+        {
+            for(std::size_t i = 0; i < point_count; i++ )
+            {
+                point_type & point = range::at(range, i);
+
+                model::point<coord_t, 2, cs::cartesian> projected_loc;
+                model::point<coord_t, 2, cs::geographic<radian> > geodetic_loc;
+
+                set<0>(geodetic_loc, get<0>(point));
+                set<1>(geodetic_loc, get<1>(point));
+
+                if( get<0>(geodetic_loc) == HUGE_VAL )
+                    continue;
+
+                try {
+                    pj_fwd(dstprj, dstdefn, geodetic_loc, projected_loc);
+                } catch (proj_exception const& e) {
+                    if( (e.code() != 33 /*EDOM*/
+                         && e.code() != 34 /*ERANGE*/ )
+                        && (e.code() > 0
+                            || e.code() < -44 || point_count == 1
+                            || transient_error[-e.code()] == 0) )
+                        throw;
+                    else
+                    {
+                        set<0>(projected_loc, HUGE_VAL);
+                        set<1>(projected_loc, HUGE_VAL);
+                    }
+                }
+
+                set<0>(point, get<0>(projected_loc));
+                set<1>(point, get<1>(projected_loc));
+            }
+        }
+    }
+
+/* -------------------------------------------------------------------- */
+/*      If a wrapping center other than 0 is provided, rewrap around    */
+/*      the suggested center (for latlong coordinate systems only).     */
+/* -------------------------------------------------------------------- */
+    /*else if( dstdefn.is_latlong && dstdefn.is_long_wrap_set )
+    {
+        for( i = 0; i < point_count; i++ )
+        {
+            if( x[point_offset*i] == HUGE_VAL )
+                continue;
+
+            while( x[point_offset*i] < dstdefn->long_wrap_center - M_PI )
+                x[point_offset*i] += M_TWOPI;
+            while( x[point_offset*i] > dstdefn->long_wrap_center + M_PI )
+                x[point_offset*i] -= M_TWOPI;
+        }
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      Transform Z from meters if needed.                              */
+/* -------------------------------------------------------------------- */
+    /*if( dstdefn->vto_meter != 1.0 && z != NULL )
+    {
+        for( i = 0; i < point_count; i++ )
+            z[point_offset*i] *= dstdefn->vfr_meter;
+    }*/
+
+/* -------------------------------------------------------------------- */
+/*      Transform normalized axes into unusual output coordinate axis   */
+/*      orientation if needed.                                          */
+/* -------------------------------------------------------------------- */
+    /*if( strcmp(dstdefn->axis,"enu") != 0 )
+    {
+        int err;
+
+        err = pj_adjust_axis( dstdefn->ctx, dstdefn->axis,
+                              1, point_count, point_offset, x, y, z );
+        if( err != 0 )
+            return err;
+    }*/
+}
+
+/************************************************************************/
+/*                     pj_geodetic_to_geocentric()                      */
+/************************************************************************/
+
+template <typename T, typename Range, bool AddZ>
+inline int pj_geodetic_to_geocentric( T const& a, T const& es,
+                                      range_wrapper<Range, AddZ> & range_wrapper )
+
+{
+    //typedef typename boost::range_iterator<Range>::type iterator;
+    typedef typename boost::range_value<Range>::type point_type;
+    //typedef typename coordinate_type<point_type>::type coord_t;
+
+    Range & rng = range_wrapper.get_range();
+    std::size_t point_count = boost::size(rng);
+
+    int ret_errno = 0;
+
+    T const b = (es == 0.0) ? a : a * sqrt(1-es);
+
+    GeocentricInfo<T> gi;
+    if( pj_Set_Geocentric_Parameters( gi, a, b ) != 0 )
+    {
+        return PJD_ERR_GEOCENTRIC;
+    }
+
+    for( std::size_t i = 0 ; i < point_count ; ++i )
+    {
+        point_type & point = range::at(rng, i);
+
+        if( get<1>(point) == HUGE_VAL  )
+            continue;
+
+        T X = 0, Y = 0, Z = 0;
+        if( pj_Convert_Geodetic_To_Geocentric( gi,
+                                               get_as_radian<0>(point),
+                                               get_as_radian<1>(point),
+                                               range_wrapper.get_z(i), // Height
+                                               X, Y, Z ) != 0 )
+        {
+            ret_errno = -14;
+            set<0>(point, HUGE_VAL);
+            set<1>(point, HUGE_VAL);
+            /* but keep processing points! */
+        }
+        else
+        {
+            set<0>(point, X);
+            set<1>(point, Y);
+            range_wrapper.set_z(i, Z);
+        }
+    }
+
+    return ret_errno;
+}
+
+/************************************************************************/
+/*                     pj_geodetic_to_geocentric()                      */
+/************************************************************************/
+
+template <typename T, typename Range, bool AddZ>
+inline int pj_geocentric_to_geodetic( T const& a, T const& es,
+                                      range_wrapper<Range, AddZ> & range_wrapper )
+
+{
+    //typedef typename boost::range_iterator<Range>::type iterator;
+    typedef typename boost::range_value<Range>::type point_type;
+    //typedef typename coordinate_type<point_type>::type coord_t;
+
+    Range & rng = range_wrapper.get_range();
+    std::size_t point_count = boost::size(rng);
+
+    T const b = (es == 0.0) ? a : a * sqrt(1-es);
+
+    GeocentricInfo<T> gi;
+    if( pj_Set_Geocentric_Parameters( gi, a, b ) != 0 )
+    {
+        return PJD_ERR_GEOCENTRIC;
+    }
+
+    for( std::size_t i = 0 ; i < point_count ; ++i )
+    {
+        point_type & point = range::at(rng, i);
+
+        if( get<0>(point) == HUGE_VAL )
+            continue;
+
+        T Longitude = 0, Latitude = 0, Height = 0;
+        pj_Convert_Geocentric_To_Geodetic( gi,
+                                           get<0>(point),
+                                           get<1>(point),
+                                           range_wrapper.get_z(i), // z
+                                           Longitude, Latitude, Height );
+
+        set_from_radian<0>(point, Longitude);
+        set_from_radian<1>(point, Latitude);
+        range_wrapper.set_z(i, Height); // Height
+    }
+
+    return 0;
+}
+
+/************************************************************************/
+/*                         pj_compare_datums()                          */
+/*                                                                      */
+/*      Returns TRUE if the two datums are identical, otherwise         */
+/*      FALSE.                                                          */
+/************************************************************************/
+
+template <typename Par>
+bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
+{
+    if( srcdefn.datum_type != dstdefn.datum_type )
+    {
+        return false;
+    }
+    else if( srcdefn.a_orig != dstdefn.a_orig
+             || math::abs(srcdefn.es_orig - dstdefn.es_orig) > 0.000000000050 )
+    {
+        /* the tolerance for es is to ensure that GRS80 and WGS84 are
+           considered identical */
+        return false;
+    }
+    else if( srcdefn.datum_type == PJD_3PARAM )
+    {
+        return (srcdefn.datum_params[0] == dstdefn.datum_params[0]
+                && srcdefn.datum_params[1] == dstdefn.datum_params[1]
+                && srcdefn.datum_params[2] == dstdefn.datum_params[2]);
+    }
+    else if( srcdefn.datum_type == PJD_7PARAM )
+    {
+        return (srcdefn.datum_params[0] == dstdefn.datum_params[0]
+                && srcdefn.datum_params[1] == dstdefn.datum_params[1]
+                && srcdefn.datum_params[2] == dstdefn.datum_params[2]
+                && srcdefn.datum_params[3] == dstdefn.datum_params[3]
+                && srcdefn.datum_params[4] == dstdefn.datum_params[4]
+                && srcdefn.datum_params[5] == dstdefn.datum_params[5]
+                && srcdefn.datum_params[6] == dstdefn.datum_params[6]);
+    }
+    else if( srcdefn.datum_type == PJD_GRIDSHIFT )
+    {
+        return pj_param(srcdefn.params,"snadgrids").s
+            == pj_param(dstdefn.params,"snadgrids").s;
+    }
+    else
+        return true;
+}
+
+/************************************************************************/
+/*                       pj_geocentic_to_wgs84()                        */
+/************************************************************************/
+
+template <typename Par, typename Range, bool AddZ>
+int pj_geocentric_to_wgs84( Par const& defn,
+                            range_wrapper<Range, AddZ> & range_wrapper )
+
+{
+    typedef typename boost::range_value<Range>::type point_type;
+    typedef typename coordinate_type<point_type>::type coord_t;
+
+    Range & rng = range_wrapper.get_range();
+    std::size_t point_count = boost::size(rng);
+
+    if( defn.datum_type == PJD_3PARAM )
+    {
+        for(std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(rng, i);
+            
+            if( get<0>(point) == HUGE_VAL )
+                continue;
+
+            set<0>(point, get<0>(point) + Dx_BF);
+            set<1>(point, get<1>(point) + Dy_BF);
+            range_wrapper.set_z(i, range_wrapper.get_z(i) + Dz_BF);
+        }
+    }
+    else if( defn.datum_type == PJD_7PARAM )
+    {
+        for(std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(rng, i);
+
+            if( get<0>(point) == HUGE_VAL )
+                continue;
+
+            coord_t x = get<0>(point);
+            coord_t y = get<1>(point);
+            coord_t z = range_wrapper.get_z(i);
+
+            coord_t x_out, y_out, z_out;
+
+            x_out = M_BF*(       x - Rz_BF*y + Ry_BF*z) + Dx_BF;
+            y_out = M_BF*( Rz_BF*x +       y - Rx_BF*z) + Dy_BF;
+            z_out = M_BF*(-Ry_BF*x + Rx_BF*y +       z) + Dz_BF;
+
+            set<0>(point, x_out);
+            set<1>(point, y_out);
+            range_wrapper.set_z(i, z_out);
+        }
+    }
+
+    return 0;
+}
+
+/************************************************************************/
+/*                      pj_geocentic_from_wgs84()                       */
+/************************************************************************/
+
+template <typename Par, typename Range, bool AddZ>
+int pj_geocentric_from_wgs84( Par const& defn,
+                              range_wrapper<Range, AddZ> & range_wrapper )
+
+{
+    typedef typename boost::range_value<Range>::type point_type;
+    typedef typename coordinate_type<point_type>::type coord_t;
+
+    Range & rng = range_wrapper.get_range();
+    std::size_t point_count = boost::size(rng);
+
+    if( defn.datum_type == PJD_3PARAM )
+    {
+        for(std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(rng, i);
+
+            if( get<0>(point) == HUGE_VAL )
+                continue;
+
+            set<0>(point, get<0>(point) - Dx_BF);
+            set<1>(point, get<1>(point) - Dy_BF);
+            range_wrapper.set_z(i, range_wrapper.get_z(i) - Dz_BF);
+        }
+    }
+    else if( defn.datum_type == PJD_7PARAM )
+    {
+        for(std::size_t i = 0; i < point_count; i++ )
+        {
+            point_type & point = range::at(rng, i);
+
+            coord_t x = get<0>(point);
+
+            if( x == HUGE_VAL )
+                continue;
+
+            coord_t y = get<1>(point);
+            coord_t z = range_wrapper.get_z(i);
+
+            coord_t x_tmp = (x - Dx_BF) / M_BF;
+            coord_t y_tmp = (y - Dy_BF) / M_BF;
+            coord_t z_tmp = (z - Dz_BF) / M_BF;
+
+            x =        x_tmp + Rz_BF*y_tmp - Ry_BF*z_tmp;
+            y = -Rz_BF*x_tmp +       y_tmp + Rx_BF*z_tmp;
+            z =  Ry_BF*x_tmp - Rx_BF*y_tmp +       z_tmp;
+
+            set<0>(point, x);
+            set<1>(point, y);
+            range_wrapper.set_z(i, z);
+        }
+    }
+
+    return 0;
+}
+
+
+inline bool pj_datum_check_error(int err)
+{
+    return err != 0 && (err > 0 || transient_error[-err] == 0);
+}
+
+/************************************************************************/
+/*                         pj_datum_transform()                         */
+/*                                                                      */
+/*      The input should be long/lat/z coordinates in radians in the    */
+/*      source datum, and the output should be long/lat/z               */
+/*      coordinates in radians in the destination datum.                */
+/************************************************************************/
+
+template <typename Par, typename Range>
+void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
+                         Range & range )
+
+{
+    double      src_a, src_es, dst_a, dst_es;
+
+/* -------------------------------------------------------------------- */
+/*      We cannot do any meaningful datum transformation if either      */
+/*      the source or destination are of an unknown datum type          */
+/*      (ie. only a +ellps declaration, no +datum).  This is new        */
+/*      behavior for PROJ 4.6.0.                                        */
+/* -------------------------------------------------------------------- */
+    if( srcdefn.datum_type == PJD_UNKNOWN
+        || dstdefn.datum_type == PJD_UNKNOWN )
+        return;
+
+/* -------------------------------------------------------------------- */
+/*      Short cut if the datums are identical.                          */
+/* -------------------------------------------------------------------- */
+    if( pj_compare_datums( srcdefn, dstdefn ) )
+        return;
+
+    src_a = srcdefn.a_orig;
+    src_es = srcdefn.es_orig;
+
+    dst_a = dstdefn.a_orig;
+    dst_es = dstdefn.es_orig;
+
+/* -------------------------------------------------------------------- */
+/*      Create a temporary Z array if one is not provided.              */
+/* -------------------------------------------------------------------- */
+    
+    range_wrapper<Range> z_range(range);
+
+/* -------------------------------------------------------------------- */
+/*	If this datum requires grid shifts, then apply it to geodetic   */
+/*      coordinates.                                                    */
+/* -------------------------------------------------------------------- */
+    /*if( srcdefn.datum_type == PJD_GRIDSHIFT )
+    {
+        try {
+            pj_apply_gridshift_2( srcdefn, 0, point_count, point_offset, x, y, z );
+        } catch (proj_exception const& e) {
+            if (pj_datum_check_error(e.code()))
+                throw;
+        }
+
+        src_a = SRS_WGS84_SEMIMAJOR;
+        src_es = SRS_WGS84_ESQUARED;
+    }
+
+    if( dstdefn.datum_type == PJD_GRIDSHIFT )
+    {
+        dst_a = SRS_WGS84_SEMIMAJOR;
+        dst_es = SRS_WGS84_ESQUARED;
+    }*/
+
+/* ==================================================================== */
+/*      Do we need to go through geocentric coordinates?                */
+/* ==================================================================== */
+    if( src_es != dst_es || src_a != dst_a
+        || srcdefn.datum_type == PJD_3PARAM
+        || srcdefn.datum_type == PJD_7PARAM
+        || dstdefn.datum_type == PJD_3PARAM
+        || dstdefn.datum_type == PJD_7PARAM)
+    {
+/* -------------------------------------------------------------------- */
+/*      Convert to geocentric coordinates.                              */
+/* -------------------------------------------------------------------- */
+        int err = pj_geodetic_to_geocentric( src_a, src_es, z_range );
+        if (pj_datum_check_error(err))
+            throw proj_exception(err);
+
+/* -------------------------------------------------------------------- */
+/*      Convert between datums.                                         */
+/* -------------------------------------------------------------------- */
+        if( srcdefn.datum_type == PJD_3PARAM
+            || srcdefn.datum_type == PJD_7PARAM )
+        {
+            try {
+                pj_geocentric_to_wgs84( srcdefn, z_range );
+            } catch (proj_exception const& e) {
+                if (pj_datum_check_error(e.code()))
+                    throw;
+            }
+        }
+
+        if( dstdefn.datum_type == PJD_3PARAM
+            || dstdefn.datum_type == PJD_7PARAM )
+        {
+            try {
+                pj_geocentric_from_wgs84( dstdefn, z_range );
+            } catch (proj_exception const& e) {
+                if (pj_datum_check_error(e.code()))
+                    throw;
+            }
+        }
+
+/* -------------------------------------------------------------------- */
+/*      Convert back to geodetic coordinates.                           */
+/* -------------------------------------------------------------------- */
+        err = pj_geocentric_to_geodetic( dst_a, dst_es, z_range );
+        if (pj_datum_check_error(err))
+            throw proj_exception(err);
+    }
+
+/* -------------------------------------------------------------------- */
+/*      Apply grid shift to destination if required.                    */
+/* -------------------------------------------------------------------- */
+    /*if( dstdefn.datum_type == PJD_GRIDSHIFT )
+    {
+        try {
+            pj_apply_gridshift_2( dstdefn, 1, point_count, point_offset, x, y, z );
+        } catch (proj_exception const& e) {
+            if (pj_datum_check_error(e.code()))
+                throw;
+        }
+    }*/
+
+    return;
+}
+
+///************************************************************************/
+///*                           pj_adjust_axis()                           */
+///*                                                                      */
+///*      Normalize or de-normalized the x/y/z axes.  The normal form     */
+///*      is "enu" (easting, northing, up).                               */
+///************************************************************************/
+//static int pj_adjust_axis( projCtx ctx,
+//                           const char *axis, int denormalize_flag,
+//                           long point_count, int point_offset,
+//                           double *x, double *y, double *z )
+//
+//{
+//    double x_in, y_in, z_in = 0.0;
+//    int i, i_axis;
+//
+//    if( !denormalize_flag )
+//    {
+//        for( i = 0; i < point_count; i++ )
+//        {
+//            x_in = x[point_offset*i];
+//            y_in = y[point_offset*i];
+//            if( z )
+//                z_in = z[point_offset*i];
+//
+//            for( i_axis = 0; i_axis < 3; i_axis++ )
+//            {
+//                double value;
+//
+//                if( i_axis == 0 )
+//                    value = x_in;
+//                else if( i_axis == 1 )
+//                    value = y_in;
+//                else
+//                    value = z_in;
+//
+//                switch( axis[i_axis] )
+//                {
+//                  case 'e':
+//                    x[point_offset*i] = value;
+//                    break;
+//                  case 'w':
+//                    x[point_offset*i] = -value;
+//                    break;
+//                  case 'n':
+//                    y[point_offset*i] = value;
+//                    break;
+//                  case 's':
+//                    y[point_offset*i] = -value;
+//                    break;
+//                  case 'u':
+//                    if( z )
+//                        z[point_offset*i] = value;
+//                    break;
+//                  case 'd':
+//                    if( z )
+//                        z[point_offset*i] = -value;
+//                    break;
+//                  default:
+//                    pj_ctx_set_errno( ctx, PJD_ERR_AXIS );
+//                    return PJD_ERR_AXIS;
+//                }
+//            } /* i_axis */
+//        } /* i (point) */
+//    }
+//
+//    else /* denormalize */
+//    {
+//        for( i = 0; i < point_count; i++ )
+//        {
+//            x_in = x[point_offset*i];
+//            y_in = y[point_offset*i];
+//            if( z )
+//                z_in = z[point_offset*i];
+//
+//            for( i_axis = 0; i_axis < 3; i_axis++ )
+//            {
+//                double *target;
+//
+//                if( i_axis == 2 && z == NULL )
+//                    continue;
+//
+//                if( i_axis == 0 )
+//                    target = x;
+//                else if( i_axis == 1 )
+//                    target = y;
+//                else
+//                    target = z;
+//
+//                switch( axis[i_axis] )
+//                {
+//                  case 'e':
+//                    target[point_offset*i] = x_in; break;
+//                  case 'w':
+//                    target[point_offset*i] = -x_in; break;
+//                  case 'n':
+//                    target[point_offset*i] = y_in; break;
+//                  case 's':
+//                    target[point_offset*i] = -y_in; break;
+//                  case 'u':
+//                    target[point_offset*i] = z_in; break;
+//                  case 'd':
+//                    target[point_offset*i] = -z_in; break;
+//                  default:
+//                    pj_ctx_set_errno( ctx, PJD_ERR_AXIS );
+//                    return PJD_ERR_AXIS;
+//                }
+//            } /* i_axis */
+//        } /* i (point) */
+//    }
+//
+//    return 0;
+//}
+
+} // namespace detail
+
+}}} // namespace boost::geometry::projections
+
+#endif // BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_TRANSFORM_HPP

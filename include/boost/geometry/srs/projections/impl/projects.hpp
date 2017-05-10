@@ -58,12 +58,18 @@ namespace detail
 /* some useful constants */
 static const double FORTPI = boost::math::constants::pi<double>() / 4.0;
 
-static const int PJD_UNKNOWN =0;
+/* datum_type values */
+static const int PJD_UNKNOWN = 0;
 static const int PJD_3PARAM = 1;
 static const int PJD_7PARAM = 2;
 static const int PJD_GRIDSHIFT = 3;
 static const int PJD_WGS84 = 4;   /* WGS84 (or anything considered equivelent) */
 
+/* library errors */
+static const int PJD_ERR_GEOCENTRIC = -45;
+static const int PJD_ERR_AXIS = -47;
+static const int PJD_ERR_GRID_AREA = -48;
+static const int PJD_ERR_CATALOG = -49;
 
 struct pvalue
 {
