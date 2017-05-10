@@ -343,32 +343,6 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-            if (operation_from_overlay<OverlayType>::value == operation_intersection)
-            {
-                if (turn.self_turn() && turn.discarded)
-                {
-                    // Discarded self-turn, avoid it influencing isolated regions
-                    continue;
-                }
-            }
-#endif
-
-#if 0
-            // EXPERIMENTAL
-            if (operation_from_overlay<OverlayType>::value == operation_union)
-            {
-                if (turn.self_turn()
-//                    && turn.both(operation_union)
-//                    && turn.discarded
-                        )
-                {
-                    continue;
-                }
-            }
-            // END EXPERIMENTAL
-#endif
-
             for (int op_index = 0; op_index < 2; op_index++)
             {
                 turn_operation_type const& op = turn.operations[op_index];

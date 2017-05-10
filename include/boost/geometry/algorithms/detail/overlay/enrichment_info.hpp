@@ -37,6 +37,7 @@ struct enrichment_info
         , startable(true)
         , count_left(0)
         , count_right(0)
+        , rank(-1)
         , zone(-1)
         , region_id(-1)
         , isolated(false)
@@ -63,6 +64,7 @@ struct enrichment_info
     // Counts if polygons left/right of this operation
     std::size_t count_left;
     std::size_t count_right;
+    signed_size_type rank; // in cluster
     signed_size_type zone; // open zone, in cluster
     signed_size_type region_id;
     bool isolated;
