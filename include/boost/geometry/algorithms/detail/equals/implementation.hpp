@@ -228,7 +228,7 @@ struct equals_by_relate
 // If collect_vectors which is a SideStrategy-dispatched optimization
 // is implemented in a way consistent with the Intersection/Side Strategy
 // then collect_vectors is used, otherwise relate is used.
-// NOTE: the result could be coneptually different for invalid
+// NOTE: the result could be conceptually different for invalid
 // geometries in different coordinate systems because collect_vectors
 // and relate treat invalid geometries differently.
 template<typename TrivialCheck>
