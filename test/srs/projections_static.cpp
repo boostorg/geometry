@@ -135,12 +135,13 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef Projection<coordinate_type, bg::projections::parameters> projection_type;
+    typedef bg::projections::parameters<double> parameters_type;
+    typedef Projection<coordinate_type, parameters_type> projection_type;
 
     try
     {
         bg::srs::dynamic bgp; //TODO: TEMP
-        bg::projections::parameters par = bg::projections::detail::pj_init_plus(bgp, parameters);
+        parameters_type par = bg::projections::detail::pj_init_plus<double>(bgp, parameters);
 
         projection_type prj(par);
 
