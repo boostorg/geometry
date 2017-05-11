@@ -138,7 +138,7 @@ namespace projections
         \par Example
         \image html ex_nell_h.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<CalculationType, Parameters>
     {
         inline nell_h_spheroid(const Parameters& par) : detail::nell_h::base_nell_h_spheroid<CalculationType, Parameters>(par)

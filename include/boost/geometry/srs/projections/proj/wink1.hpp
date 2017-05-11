@@ -129,7 +129,7 @@ namespace projections
         \par Example
         \image html ex_wink1.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<CalculationType, Parameters>
     {
         inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<CalculationType, Parameters>(par)

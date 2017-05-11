@@ -312,7 +312,7 @@ namespace projections
         \par Example
         \image html ex_tmerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
     {
         inline tmerc_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
@@ -334,7 +334,7 @@ namespace projections
         \par Example
         \image html ex_tmerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>
     {
         inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
@@ -358,7 +358,7 @@ namespace projections
         \par Example
         \image html ex_utm.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct utm_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
     {
         inline utm_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
@@ -382,7 +382,7 @@ namespace projections
         \par Example
         \image html ex_utm.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct utm_spheroid : public detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>
     {
         inline utm_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)

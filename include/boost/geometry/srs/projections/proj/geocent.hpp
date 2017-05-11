@@ -125,7 +125,7 @@ namespace projections
         \par Example
         \image html ex_geocent.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct geocent_other : public detail::geocent::base_geocent_other<CalculationType, Parameters>
     {
         inline geocent_other(const Parameters& par) : detail::geocent::base_geocent_other<CalculationType, Parameters>(par)

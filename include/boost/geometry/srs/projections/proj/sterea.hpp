@@ -76,7 +76,7 @@ namespace projections
                 double phic0;
                 double cosc0, sinc0;
                 double R2;
-                gauss::GAUSS en;
+                gauss::GAUSS<double> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -166,7 +166,7 @@ namespace projections
         \par Example
         \image html ex_sterea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>
     {
         inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>(par)

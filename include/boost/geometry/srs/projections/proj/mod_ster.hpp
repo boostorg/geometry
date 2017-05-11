@@ -74,7 +74,7 @@ namespace projections
 
             struct par_mod_ster
             {
-                COMPLEX    *zcoeff;
+                COMPLEX<double>    *zcoeff;
                 double    cchio, schio;
                 int        n;
             };
@@ -101,7 +101,7 @@ namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double sinlon, coslon, esphi, chi, schi, cchi, s;
-                    COMPLEX p;
+                    COMPLEX<double> p;
 
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
@@ -123,7 +123,7 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn;
-                    COMPLEX p, fxy, fpxy, dp;
+                    COMPLEX<double> p, fxy, fpxy, dp;
                     double den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
 
                     p.r = xy_x;
@@ -196,7 +196,7 @@ namespace projections
             template <typename Parameters>
             void setup_mil_os(Parameters& par, par_mod_ster& proj_parm)
             {
-                static COMPLEX /* Miller Oblated Stereographic */
+                static COMPLEX<double> /* Miller Oblated Stereographic */
             AB[] = {
                 {0.924500,    0.},
                 {0.,            0.},
@@ -215,7 +215,7 @@ namespace projections
             template <typename Parameters>
             void setup_lee_os(Parameters& par, par_mod_ster& proj_parm)
             {
-                static COMPLEX /* Lee Oblated Stereographic */
+                static COMPLEX<double> /* Lee Oblated Stereographic */
             AB[] = {
                 {0.721316,    0.},
                 {0.,            0.},
@@ -234,7 +234,7 @@ namespace projections
             template <typename Parameters>
             void setup_gs48(Parameters& par, par_mod_ster& proj_parm)
             {
-                static COMPLEX /* 48 United States */
+                static COMPLEX<double> /* 48 United States */
             AB[] = {
                 {0.98879,    0.},
                 {0.,        0.},
@@ -256,7 +256,7 @@ namespace projections
             template <typename Parameters>
             void setup_alsk(Parameters& par, par_mod_ster& proj_parm)
             {
-                static COMPLEX
+                static COMPLEX<double>
             ABe[] = { /* Alaska ellipsoid */
                 {.9945303,    0.},
                 {.0052083,    -.0027404},
@@ -291,7 +291,7 @@ namespace projections
             template <typename Parameters>
             void setup_gs50(Parameters& par, par_mod_ster& proj_parm)
             {
-                static COMPLEX
+                static COMPLEX<double>
             ABe[] = { /* GS50 ellipsoid */
                 {.9827497,    0.},
                 {.0210669,    .0053804},
@@ -345,7 +345,7 @@ namespace projections
         \par Example
         \image html ex_mil_os.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
     {
         inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
@@ -365,7 +365,7 @@ namespace projections
         \par Example
         \image html ex_lee_os.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
     {
         inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
@@ -385,7 +385,7 @@ namespace projections
         \par Example
         \image html ex_gs48.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
     {
         inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
@@ -405,7 +405,7 @@ namespace projections
         \par Example
         \image html ex_alsk.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
     {
         inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
@@ -425,7 +425,7 @@ namespace projections
         \par Example
         \image html ex_gs50.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
     {
         inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)

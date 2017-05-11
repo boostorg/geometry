@@ -181,7 +181,7 @@ namespace projections
         \par Example
         \image html ex_moll.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct moll_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
     {
         inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
@@ -202,7 +202,7 @@ namespace projections
         \par Example
         \image html ex_wag4.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wag4_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
     {
         inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
@@ -223,7 +223,7 @@ namespace projections
         \par Example
         \image html ex_wag5.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wag5_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
     {
         inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)

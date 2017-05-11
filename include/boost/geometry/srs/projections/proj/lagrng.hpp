@@ -146,7 +146,7 @@ namespace projections
         \par Example
         \image html ex_lagrng.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>
     {
         inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>(par)

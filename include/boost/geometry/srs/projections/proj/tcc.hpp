@@ -125,7 +125,7 @@ namespace projections
         \par Example
         \image html ex_tcc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<CalculationType, Parameters>
     {
         inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<CalculationType, Parameters>(par)

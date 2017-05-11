@@ -65,6 +65,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace merc
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
 
@@ -182,7 +183,7 @@ namespace projections
         \par Example
         \image html ex_merc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<CalculationType, Parameters>
     {
         inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<CalculationType, Parameters>(par)
@@ -206,7 +207,7 @@ namespace projections
         \par Example
         \image html ex_merc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct merc_spheroid : public detail::merc::base_merc_spheroid<CalculationType, Parameters>
     {
         inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<CalculationType, Parameters>(par)

@@ -253,7 +253,7 @@ namespace projections
         \par Example
         \image html ex_gn_sinu.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
     {
         inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
@@ -275,7 +275,7 @@ namespace projections
         \par Example
         \image html ex_sinu.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct sinu_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>
     {
         inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<CalculationType, Parameters>(par)
@@ -297,7 +297,7 @@ namespace projections
         \par Example
         \image html ex_sinu.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
     {
         inline sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
@@ -318,7 +318,7 @@ namespace projections
         \par Example
         \image html ex_eck6.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct eck6_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
     {
         inline eck6_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)
@@ -339,7 +339,7 @@ namespace projections
         \par Example
         \image html ex_mbtfps.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mbtfps_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>
     {
         inline mbtfps_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<CalculationType, Parameters>(par)

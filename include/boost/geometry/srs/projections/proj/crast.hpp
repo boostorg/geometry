@@ -127,7 +127,7 @@ namespace projections
         \par Example
         \image html ex_crast.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct crast_spheroid : public detail::crast::base_crast_spheroid<CalculationType, Parameters>
     {
         inline crast_spheroid(const Parameters& par) : detail::crast::base_crast_spheroid<CalculationType, Parameters>(par)

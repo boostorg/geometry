@@ -144,7 +144,7 @@ namespace projections
         \par Example
         \image html ex_nicol.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct nicol_spheroid : public detail::nocol::base_nocol_spheroid<CalculationType, Parameters>
     {
         inline nicol_spheroid(const Parameters& par) : detail::nocol::base_nocol_spheroid<CalculationType, Parameters>(par)

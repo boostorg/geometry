@@ -159,7 +159,7 @@ namespace projections
         \par Example
         \image html ex_lonlat.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
     {
         inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
@@ -177,7 +177,7 @@ namespace projections
         \par Example
         \image html ex_latlon.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
     {
         inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
@@ -195,7 +195,7 @@ namespace projections
         \par Example
         \image html ex_latlong.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
     {
         inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
@@ -213,7 +213,7 @@ namespace projections
         \par Example
         \image html ex_longlat.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
     {
         inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)

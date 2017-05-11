@@ -60,6 +60,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace mill
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -120,7 +121,7 @@ namespace projections
         \par Example
         \image html ex_mill.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mill_spheroid : public detail::mill::base_mill_spheroid<CalculationType, Parameters>
     {
         inline mill_spheroid(const Parameters& par) : detail::mill::base_mill_spheroid<CalculationType, Parameters>(par)

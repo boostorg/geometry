@@ -344,7 +344,7 @@ namespace projections
         \par Example
         \image html ex_etmerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>
     {
         inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>(par)

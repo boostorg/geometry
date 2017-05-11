@@ -261,7 +261,7 @@ namespace projections
         \par Example
         \image html ex_aea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
     {
         inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
@@ -286,7 +286,7 @@ namespace projections
         \par Example
         \image html ex_leac.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
     {
         inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)

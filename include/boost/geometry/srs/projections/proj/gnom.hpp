@@ -214,7 +214,7 @@ namespace projections
         \par Example
         \image html ex_gnom.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gnom_spheroid : public detail::gnom::base_gnom_spheroid<CalculationType, Parameters>
     {
         inline gnom_spheroid(const Parameters& par) : detail::gnom::base_gnom_spheroid<CalculationType, Parameters>(par)

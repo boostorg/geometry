@@ -62,6 +62,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace wink2
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
@@ -144,7 +145,7 @@ namespace projections
         \par Example
         \image html ex_wink2.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wink2_spheroid : public detail::wink2::base_wink2_spheroid<CalculationType, Parameters>
     {
         inline wink2_spheroid(const Parameters& par) : detail::wink2::base_wink2_spheroid<CalculationType, Parameters>(par)

@@ -190,7 +190,7 @@ namespace projections
         \par Example
         \image html ex_tpeqd.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>
     {
         inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>(par)

@@ -193,7 +193,7 @@ namespace projections
         \par Example
         \image html ex_cea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<CalculationType, Parameters>
     {
         inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<CalculationType, Parameters>(par)
@@ -217,7 +217,7 @@ namespace projections
         \par Example
         \image html ex_cea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct cea_spheroid : public detail::cea::base_cea_spheroid<CalculationType, Parameters>
     {
         inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<CalculationType, Parameters>(par)

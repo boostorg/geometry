@@ -125,7 +125,7 @@ namespace projections
         \par Example
         \image html ex_gall.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gall_spheroid : public detail::gall::base_gall_spheroid<CalculationType, Parameters>
     {
         inline gall_spheroid(const Parameters& par) : detail::gall::base_gall_spheroid<CalculationType, Parameters>(par)

@@ -60,7 +60,8 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace labrd
     {
-
+            static const double FORTPI = detail::FORTPI<double>();
+            
             static const double EPS = 1.e-10;
 
             struct par_labrd
@@ -219,7 +220,7 @@ namespace projections
         \par Example
         \image html ex_labrd.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>
     {
         inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>(par)

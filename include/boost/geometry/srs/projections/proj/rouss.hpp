@@ -197,7 +197,7 @@ namespace projections
         \par Example
         \image html ex_rouss.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>
     {
         inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>(par)

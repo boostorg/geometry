@@ -65,6 +65,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace laea
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
             static const int NITER = 20;
@@ -363,7 +364,7 @@ namespace projections
         \par Example
         \image html ex_laea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<CalculationType, Parameters>
     {
         inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<CalculationType, Parameters>(par)
@@ -385,7 +386,7 @@ namespace projections
         \par Example
         \image html ex_laea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct laea_spheroid : public detail::laea::base_laea_spheroid<CalculationType, Parameters>
     {
         inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<CalculationType, Parameters>(par)

@@ -115,7 +115,7 @@ namespace projections
         \par Example
         \image html ex_larr.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct larr_spheroid : public detail::larr::base_larr_spheroid<CalculationType, Parameters>
     {
         inline larr_spheroid(const Parameters& par) : detail::larr::base_larr_spheroid<CalculationType, Parameters>(par)

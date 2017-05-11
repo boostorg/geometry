@@ -95,6 +95,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace qsc
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
             static const int FACE_FRONT = 0;
@@ -476,7 +477,7 @@ namespace projections
         \par Example
         \image html ex_qsc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>
     {
         inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>(par)

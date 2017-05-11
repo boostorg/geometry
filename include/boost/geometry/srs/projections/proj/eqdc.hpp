@@ -204,7 +204,7 @@ namespace projections
         \par Example
         \image html ex_eqdc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>
     {
         inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>(par)

@@ -55,18 +55,23 @@ namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
 /* set ellipsoid parameters a and es */
-static const double SIXTH =  .1666666666666666667; /* 1/6 */
-static const double RA4 = .04722222222222222222; /* 17/360 */
-static const double RA6 = .02215608465608465608; /* 67/3024 */
-static const double RV4 = .06944444444444444444; /* 5/72 */
-static const double RV6 = .04243827160493827160; /* 55/1296 */
+template <typename T>
+inline T SIXTH() { return .1666666666666666667; } /* 1/6 */
+template <typename T>
+inline T RA4() { return .04722222222222222222; } /* 17/360 */
+template <typename T>
+inline T RA6() { return .02215608465608465608; } /* 67/3024 */
+template <typename T>
+inline T RV4() { return .06944444444444444444; } /* 5/72 */
+template <typename T>
+inline T RV6() { return .04243827160493827160; } /* 55/1296 */
 
 /* initialize geographic shape parameters */
-template <typename BGParams>
-inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
+template <typename BGParams, typename T>
+inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& parameters, T &a, T &es)
 {
-    double b = 0.0;
-    double e = 0.0;
+    T b = 0.0;
+    T e = 0.0;
     std::string name;
 
     /* check for varying forms of ellipsoid input */
@@ -93,8 +98,8 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameter
 
             if (index == -1) { throw proj_exception(-9); }
 
-            parameters.push_back(pj_mkparam(pj_ellps[index].major));
-            parameters.push_back(pj_mkparam(pj_ellps[index].ell));
+            parameters.push_back(pj_mkparam<T>(pj_ellps[index].major));
+            parameters.push_back(pj_mkparam<T>(pj_ellps[index].ell));
         }
         a = pj_param(parameters, "da").f;
         if (pj_param(parameters, "tes").i) /* eccentricity squared */
@@ -120,10 +125,10 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameter
             b = a * sqrt(1. - es);
         /* following options turn ellipsoid into equivalent sphere */
         if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
-            a *= 1. - es * (SIXTH + es * (RA4 + es * RA6));
+            a *= 1. - es * (SIXTH<T>() + es * (RA4<T>() + es * RA6<T>()));
             es = 0.;
         } else if (pj_param(parameters, "bR_V").i) { /* sphere--vol. of ellipsoid */
-            a *= 1. - es * (SIXTH + es * (RV4 + es * RV6));
+            a *= 1. - es * (SIXTH<T>() + es * (RV4<T>() + es * RV6<T>()));
             es = 0.;
         } else if (pj_param(parameters, "bR_a").i) { /* sphere--arithmetic mean */
             a = .5 * (a + b);
@@ -138,10 +143,10 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameter
             int i = pj_param(parameters, "tR_lat_a").i;
             if (i || /* sphere--arith. */
                 pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
-                double tmp;
+                T tmp;
 
                 tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-                if (geometry::math::abs(tmp) > geometry::math::half_pi<double>()) {
+                if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
                     throw proj_exception(-11);
                 }
                 tmp = 1. - es * tmp * tmp;
@@ -161,22 +166,22 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue>& parameter
 
 // TODO: change result type to CalculationType
 // TODO: move common ellipsoid->sphere code into one function
-template <typename Proj, typename Model>
-inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vector<pvalue>& parameters, double &a, double &es)
+template <typename Proj, typename Model, typename T>
+inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vector<pvalue<T> >& parameters, T &a, T &es)
 {
     a = geometry::get_radius<0>(bg_params.model);
-    double b = geometry::get_radius<2>(bg_params.model);
+    T b = geometry::get_radius<2>(bg_params.model);
     es = 0.;
     if (a != b)
     {
-        es = formula::eccentricity_sqr<double>(bg_params.model);
+        es = formula::eccentricity_sqr<T>(bg_params.model);
 
         /* following options turn ellipsoid into equivalent sphere */
         if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
-            a *= 1. - es * (SIXTH + es * (RA4 + es * RA6));
+            a *= 1. - es * (SIXTH<T>() + es * (RA4<T>() + es * RA6<T>()));
             es = 0.;
         } else if (pj_param(parameters, "bR_V").i) { /* sphere--vol. of ellipsoid */
-            a *= 1. - es * (SIXTH + es * (RV4 + es * RV6));
+            a *= 1. - es * (SIXTH<T>() + es * (RV4<T>() + es * RV6<T>()));
             es = 0.;
         } else if (pj_param(parameters, "bR_a").i) { /* sphere--arithmetic mean */
             a = .5 * (a + b);
@@ -191,10 +196,10 @@ inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vec
             int i = pj_param(parameters, "tR_lat_a").i;
             if (i || /* sphere--arith. */
                 pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
-                double tmp;
+                T tmp;
 
                 tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-                if (geometry::math::abs(tmp) > geometry::math::half_pi<double>()) {
+                if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
                     throw proj_exception(-11);
                 }
                 tmp = 1. - es * tmp * tmp;

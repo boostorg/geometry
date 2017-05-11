@@ -242,7 +242,7 @@ namespace projections
         \par Example
         \image html ex_bipc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<CalculationType, Parameters>
     {
         inline bipc_spheroid(const Parameters& par) : detail::bipc::base_bipc_spheroid<CalculationType, Parameters>(par)

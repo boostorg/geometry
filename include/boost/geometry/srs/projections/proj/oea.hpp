@@ -170,7 +170,7 @@ namespace projections
         \par Example
         \image html ex_oea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct oea_spheroid : public detail::oea::base_oea_spheroid<CalculationType, Parameters>
     {
         inline oea_spheroid(const Parameters& par) : detail::oea::base_oea_spheroid<CalculationType, Parameters>(par)

@@ -136,7 +136,7 @@ namespace projections
         \par Example
         \image html ex_hammer.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct hammer_spheroid : public detail::hammer::base_hammer_spheroid<CalculationType, Parameters>
     {
         inline hammer_spheroid(const Parameters& par) : detail::hammer::base_hammer_spheroid<CalculationType, Parameters>(par)

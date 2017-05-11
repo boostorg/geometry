@@ -233,7 +233,7 @@ namespace projections
         \par Example
         \image html ex_poly.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<CalculationType, Parameters>
     {
         inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<CalculationType, Parameters>(par)
@@ -255,7 +255,7 @@ namespace projections
         \par Example
         \image html ex_poly.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct poly_spheroid : public detail::poly::base_poly_spheroid<CalculationType, Parameters>
     {
         inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<CalculationType, Parameters>(par)

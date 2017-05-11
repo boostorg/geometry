@@ -180,7 +180,7 @@ namespace projections
         \par Example
         \image html ex_lcca.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lcca_ellipsoid : public detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>
     {
         inline lcca_ellipsoid(const Parameters& par) : detail::lcca::base_lcca_ellipsoid<CalculationType, Parameters>(par)

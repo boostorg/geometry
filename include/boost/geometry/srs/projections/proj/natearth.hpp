@@ -179,7 +179,7 @@ namespace projections
         \par Example
         \image html ex_natearth.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<CalculationType, Parameters>
     {
         inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<CalculationType, Parameters>(par)

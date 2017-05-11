@@ -46,6 +46,8 @@
 
 #include <boost/geometry/srs/projections/exception.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_pod.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -56,7 +58,8 @@ namespace detail
 {
 
 /* some useful constants */
-static const double FORTPI = boost::math::constants::pi<double>() / 4.0;
+template <typename T>
+inline T FORTPI() { return boost::math::constants::pi<T>() / 4.0; }
 
 /* datum_type values */
 static const int PJD_UNKNOWN = 0;
@@ -71,23 +74,25 @@ static const int PJD_ERR_AXIS = -47;
 static const int PJD_ERR_GRID_AREA = -48;
 static const int PJD_ERR_CATALOG = -49;
 
+template <typename T>
 struct pvalue
 {
     std::string param;
     int used;
 
     int i;
-    double f;
+    T f;
     std::string s;
 };
 
+template <typename T>
 struct pj_const_pod
 {
     int over;   /* over-range flag */
     int geoc;   /* geocentric latitude flag */
     int is_latlong; /* proj=latlong ... not really a projection at all */
     int is_geocent; /* proj=geocent ... not really a projection at all */
-    double
+    T
         a,  /* major axis or radius if es==0 */
         a_orig, /* major axis before any +proj related adjustment */
         es, /* e ^ 2 */
@@ -103,9 +108,9 @@ struct pj_const_pod
         vto_meter, vfr_meter;      /* Vertical scaling. Internal unit [m] */
 
     int datum_type; /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
-    double  datum_params[7];
-    double  from_greenwich; /* prime meridian offset (in radians) */
-    double  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
+    T  datum_params[7];
+    T  from_greenwich; /* prime meridian offset (in radians) */
+    T  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
     bool    is_long_wrap_set;
 
     // Initialize all variables to zero
@@ -115,8 +120,66 @@ struct pj_const_pod
     }
 };
 
+template <typename T>
+struct pj_const_non_pod
+{
+    int over;   /* over-range flag */
+    int geoc;   /* geocentric latitude flag */
+    int is_latlong; /* proj=latlong ... not really a projection at all */
+    int is_geocent; /* proj=geocent ... not really a projection at all */
+    T
+        a,  /* major axis or radius if es==0 */
+        a_orig, /* major axis before any +proj related adjustment */
+        es, /* e ^ 2 */
+        es_orig, /* es before any +proj related adjustment */
+        e,  /* eccentricity */
+        ra, /* 1/A */
+        one_es, /* 1 - e^2 */
+        rone_es, /* 1/one_es */
+        lam0, phi0, /* central longitude, latitude */
+        x0, y0, /* easting and northing */
+        k0,    /* general scaling factor */
+        to_meter, fr_meter, /* cartesian scaling */
+        vto_meter, vfr_meter;      /* Vertical scaling. Internal unit [m] */
+
+    int datum_type; /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
+    T  datum_params[7];
+    T  from_greenwich; /* prime meridian offset (in radians) */
+    T  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
+    bool    is_long_wrap_set;
+
+    // Initialize all variables to zero
+    pj_const_non_pod()
+        : over(0), geoc(0), is_latlong(0), is_geocent(0)
+        , a(0), a_orig(0), es(0), es_orig(0), e(0), ra(0)
+        , one_es(0), rone_es(0), lam0(0), phi0(0), x0(0), y0(0), k0(0)
+        , to_meter(0), fr_meter(0), vto_meter(0), vfr_meter(0)
+        , datum_type(PJD_UNKNOWN)
+        , from_greenwich(0), long_wrap_center(0), is_long_wrap_set(false)
+    {
+        datum_params[0] = 0;
+        datum_params[1] = 0;
+        datum_params[2] = 0;
+        datum_params[3] = 0;
+        datum_params[4] = 0;
+        datum_params[5] = 0;
+        datum_params[6] = 0;
+    }
+};
+
+template <typename T>
+struct pj_const
+    : boost::mpl::if_c
+        <
+            boost::is_pod<T>::value,
+            pj_const_pod<T>,
+            pj_const_non_pod<T>
+        >::type
+{};
+
 // PROJ4 complex. Might be replaced with std::complex
-struct COMPLEX { double r, i; };
+template <typename T>
+struct COMPLEX { T r, i; };
 
 struct PJ_ELLPS
 {
@@ -147,20 +210,22 @@ struct PJ_UNITS
     std::string name;    /* comments */
 };
 
+template <typename T>
 struct DERIVS
 {
-    double x_l, x_p; /* derivatives of x for lambda-phi */
-    double y_l, y_p; /* derivatives of y for lambda-phi */
+    T x_l, x_p; /* derivatives of x for lambda-phi */
+    T y_l, y_p; /* derivatives of y for lambda-phi */
 };
 
+template <typename T>
 struct FACTORS
 {
-    struct DERIVS der;
-    double h, k;    /* meridinal, parallel scales */
-    double omega, thetap;    /* angular distortion, theta prime */
-    double conv;    /* convergence */
-    double s;        /* areal scale factor */
-    double a, b;    /* max-min scale error */
+    DERIVS<T> der;
+    T h, k;    /* meridinal, parallel scales */
+    T omega, thetap;    /* angular distortion, theta prime */
+    T conv;    /* convergence */
+    T s;        /* areal scale factor */
+    T a, b;    /* max-min scale error */
     int code;        /* info as to analytics, see following */
 };
 
@@ -172,10 +237,11 @@ struct FACTORS
     \details This structure initializes all projections
     \ingroup projection
 */
-struct parameters : public detail::pj_const_pod
+template <typename T>
+struct parameters : public detail::pj_const<T>
 {
     std::string name;
-    std::vector<detail::pvalue> params;
+    std::vector<detail::pvalue<T> > params;
 };
 
 }}} // namespace boost::geometry::projections

@@ -157,7 +157,7 @@ namespace projections
         \par Example
         \image html ex_urmfps.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct urmfps_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
     {
         inline urmfps_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)
@@ -178,7 +178,7 @@ namespace projections
         \par Example
         \image html ex_wag1.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wag1_spheroid : public detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>
     {
         inline wag1_spheroid(const Parameters& par) : detail::urmfps::base_urmfps_spheroid<CalculationType, Parameters>(par)

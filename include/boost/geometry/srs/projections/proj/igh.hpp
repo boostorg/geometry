@@ -289,7 +289,7 @@ namespace projections
         \par Example
         \image html ex_igh.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct igh_spheroid : public detail::igh::base_igh_spheroid<CalculationType, Parameters>
     {
         inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<CalculationType, Parameters>(par)

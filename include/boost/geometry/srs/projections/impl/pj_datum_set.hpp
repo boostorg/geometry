@@ -56,14 +56,18 @@ namespace detail {
 
 
 /* SEC_TO_RAD = Pi/180/3600 */
-const double SEC_TO_RAD = 4.84813681109535993589914102357e-6;
+template <typename T>
+inline T SEC_TO_RAD() { return 4.84813681109535993589914102357e-6; }
 
 /************************************************************************/
 /*                            pj_datum_set()                            */
 /************************************************************************/
 
-inline void pj_datum_set(std::vector<pvalue>& pvalues, parameters& projdef)
+template <typename T>
+inline void pj_datum_set(std::vector<pvalue<T> >& pvalues, parameters<T>& projdef)
 {
+    static const T SEC_TO_RAD = detail::SEC_TO_RAD<T>();
+
     std::string name, towgs84, nadgrids;
 
     projdef.datum_type = PJD_UNKNOWN;
@@ -101,12 +105,12 @@ inline void pj_datum_set(std::vector<pvalue>& pvalues, parameters& projdef)
         {
             std::string entry("ellps=");
             entry +=pj_datums[index].ellipse_id;
-            pvalues.push_back(pj_mkparam(entry));
+            pvalues.push_back(pj_mkparam<T>(entry));
         }
 
         if(! pj_datums[index].defn.empty())
         {
-            pvalues.push_back(pj_mkparam(pj_datums[index].defn));
+            pvalues.push_back(pj_mkparam<T>(pj_datums[index].defn));
         }
     }
 

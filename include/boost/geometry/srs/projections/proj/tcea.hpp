@@ -132,7 +132,7 @@ namespace projections
         \par Example
         \image html ex_tcea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<CalculationType, Parameters>
     {
         inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<CalculationType, Parameters>(par)

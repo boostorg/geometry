@@ -230,7 +230,7 @@ namespace projections
         \par Example
         \image html ex_robin.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct robin_spheroid : public detail::robin::base_robin_spheroid<CalculationType, Parameters>
     {
         inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<CalculationType, Parameters>(par)

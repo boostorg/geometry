@@ -65,6 +65,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace stere
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
@@ -388,7 +389,7 @@ namespace projections
         \par Example
         \image html ex_stere.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
     {
         inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
@@ -412,7 +413,7 @@ namespace projections
         \par Example
         \image html ex_stere.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct stere_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
     {
         inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
@@ -436,7 +437,7 @@ namespace projections
         \par Example
         \image html ex_ups.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
     {
         inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
@@ -460,7 +461,7 @@ namespace projections
         \par Example
         \image html ex_ups.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ups_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
     {
         inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)

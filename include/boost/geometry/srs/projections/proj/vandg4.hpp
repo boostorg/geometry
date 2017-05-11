@@ -147,7 +147,7 @@ namespace projections
         \par Example
         \image html ex_vandg4.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>
     {
         inline vandg4_spheroid(const Parameters& par) : detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>(par)

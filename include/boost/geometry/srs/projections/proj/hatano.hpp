@@ -158,7 +158,7 @@ namespace projections
         \par Example
         \image html ex_hatano.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<CalculationType, Parameters>
     {
         inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<CalculationType, Parameters>(par)

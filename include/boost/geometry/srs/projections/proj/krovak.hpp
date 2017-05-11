@@ -316,7 +316,7 @@ namespace projections
         \par Example
         \image html ex_krovak.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>
     {
         inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>(par)

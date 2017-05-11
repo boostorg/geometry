@@ -121,7 +121,7 @@ namespace projections
         \par Example
         \image html ex_gins8.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gins8_spheroid : public detail::gins8::base_gins8_spheroid<CalculationType, Parameters>
     {
         inline gins8_spheroid(const Parameters& par) : detail::gins8::base_gins8_spheroid<CalculationType, Parameters>(par)

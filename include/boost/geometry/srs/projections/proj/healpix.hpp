@@ -735,7 +735,7 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>
     {
         inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>(par)
@@ -756,7 +756,7 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<CalculationType, Parameters>
     {
         inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<CalculationType, Parameters>(par)
@@ -780,7 +780,7 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>
     {
         inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>(par)
@@ -804,7 +804,7 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>
     {
         inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>(par)

@@ -270,7 +270,7 @@ namespace projections
         \par Example
         \image html ex_imw_p.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
     {
         inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)

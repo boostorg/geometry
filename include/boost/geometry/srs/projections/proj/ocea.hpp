@@ -181,7 +181,7 @@ namespace projections
         \par Example
         \image html ex_ocea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<CalculationType, Parameters>
     {
         inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<CalculationType, Parameters>(par)

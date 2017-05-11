@@ -142,7 +142,7 @@ namespace projections
         \par Example
         \image html ex_rpoly.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>
     {
         inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<CalculationType, Parameters>(par)

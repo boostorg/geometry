@@ -157,7 +157,7 @@ namespace projections
         \par Example
         \image html ex_apian.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct apian_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
     {
         inline apian_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
@@ -179,7 +179,7 @@ namespace projections
         \par Example
         \image html ex_ortel.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ortel_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
     {
         inline ortel_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)
@@ -201,7 +201,7 @@ namespace projections
         \par Example
         \image html ex_bacon.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct bacon_spheroid : public detail::bacon::base_bacon_spheroid<CalculationType, Parameters>
     {
         inline bacon_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<CalculationType, Parameters>(par)

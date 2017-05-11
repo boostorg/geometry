@@ -217,7 +217,7 @@ namespace projections
         \par Example
         \image html ex_bonne.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct bonne_ellipsoid : public detail::bonne::base_bonne_ellipsoid<CalculationType, Parameters>
     {
         inline bonne_ellipsoid(const Parameters& par) : detail::bonne::base_bonne_ellipsoid<CalculationType, Parameters>(par)
@@ -241,7 +241,7 @@ namespace projections
         \par Example
         \image html ex_bonne.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct bonne_spheroid : public detail::bonne::base_bonne_spheroid<CalculationType, Parameters>
     {
         inline bonne_spheroid(const Parameters& par) : detail::bonne::base_bonne_spheroid<CalculationType, Parameters>(par)

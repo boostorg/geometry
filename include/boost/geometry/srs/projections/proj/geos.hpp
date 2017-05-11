@@ -301,7 +301,7 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<CalculationType, Parameters>
     {
         inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<CalculationType, Parameters>(par)
@@ -326,7 +326,7 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct geos_spheroid : public detail::geos::base_geos_spheroid<CalculationType, Parameters>
     {
         inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<CalculationType, Parameters>(par)

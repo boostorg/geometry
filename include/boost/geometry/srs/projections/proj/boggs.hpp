@@ -138,7 +138,7 @@ namespace projections
         \par Example
         \image html ex_boggs.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<CalculationType, Parameters>
     {
         inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<CalculationType, Parameters>(par)

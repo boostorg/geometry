@@ -202,7 +202,7 @@ namespace projections
         \par Example
         \image html ex_ortho.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<CalculationType, Parameters>
     {
         inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<CalculationType, Parameters>(par)

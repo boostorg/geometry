@@ -177,7 +177,7 @@ namespace projections
         \par Example
         \image html ex_eck3.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
     {
         inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
@@ -198,7 +198,7 @@ namespace projections
         \par Example
         \image html ex_putp1.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
     {
         inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
@@ -219,7 +219,7 @@ namespace projections
         \par Example
         \image html ex_wag6.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
     {
         inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
@@ -240,7 +240,7 @@ namespace projections
         \par Example
         \image html ex_kav7.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
     {
         inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)

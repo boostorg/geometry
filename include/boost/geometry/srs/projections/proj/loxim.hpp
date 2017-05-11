@@ -62,6 +62,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace loxim
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS = 1e-8;
 
@@ -152,7 +153,7 @@ namespace projections
         \par Example
         \image html ex_loxim.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<CalculationType, Parameters>
     {
         inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<CalculationType, Parameters>(par)

@@ -54,7 +54,8 @@ namespace detail {
 
 
 /* create pvalue list entry */
-inline pvalue pj_mkparam(std::string const& str)
+template <typename T>
+inline pvalue<T> pj_mkparam(std::string const& str)
 {
     std::string name = str;
     std::string value;
@@ -67,7 +68,7 @@ inline pvalue pj_mkparam(std::string const& str)
     }
 
 
-    pvalue newitem;
+    pvalue<T> newitem;
     newitem.param = name;
     newitem.s = value;
     newitem.used = 0;
@@ -93,15 +94,17 @@ inline pvalue pj_mkparam(std::string const& str)
 /*                                                                      */
 /************************************************************************/
 
-inline pvalue pj_param(std::vector<pvalue> const& pl, std::string opt)
+template <typename T>
+inline pvalue<T> pj_param(std::vector<pvalue<T> > const& pl, std::string opt)
 {
     char type = opt[0];
     opt.erase(opt.begin());
 
-    pvalue value;
+    pvalue<T> value;
 
     /* simple linear lookup */
-    for (std::vector<pvalue>::const_iterator it = pl.begin(); it != pl.end(); it++)
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
     {
         if (it->param == opt)
         {
@@ -119,8 +122,8 @@ inline pvalue pj_param(std::vector<pvalue> const& pl, std::string opt)
                 break;
             case 'r':    /* degrees input */
                 {
-                    dms_parser<true> parser;
-                    value.f = parser(it->s.c_str());
+                    dms_parser<T, true> parser;
+                    value.f = parser.apply(it->s.c_str()).angle();
                 }
                 break;
             case 's':    /* char string */

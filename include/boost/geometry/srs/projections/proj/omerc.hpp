@@ -66,6 +66,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace omerc
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
@@ -300,7 +301,7 @@ namespace projections
         \par Example
         \image html ex_omerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>
     {
         inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>(par)

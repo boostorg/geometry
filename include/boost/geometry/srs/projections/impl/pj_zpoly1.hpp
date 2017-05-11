@@ -51,11 +51,12 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
     **    i.e. C_0 == (0., 0)
     **    n should always be >= 1 though no checks are made
     */
-    inline COMPLEX
-    pj_zpoly1(COMPLEX z, COMPLEX *C, int n)
+    template <typename T>
+    inline COMPLEX<T>
+    pj_zpoly1(COMPLEX<T> z, COMPLEX<T> *C, int n)
     {
-        COMPLEX a;
-        double t;
+        COMPLEX<T> a;
+        T t;
 
         a = *(C += n);
         while (n-- > 0)
@@ -69,14 +70,15 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
     }
 
     /* evaluate complex polynomial and derivative */
-    inline COMPLEX
-    pj_zpolyd1(COMPLEX z, COMPLEX *C, int n, COMPLEX *der)
+    template <typename T>
+    inline COMPLEX<T>
+    pj_zpolyd1(COMPLEX<T> z, COMPLEX<T> *C, int n, COMPLEX<T> *der)
     {
-        double t;
+        T t;
         bool first = true;
 
-        COMPLEX a = *(C += n);
-        COMPLEX b = a;
+        COMPLEX<T> a = *(C += n);
+        COMPLEX<T> b = a;
         while (n-- > 0)
         {
             if (first)

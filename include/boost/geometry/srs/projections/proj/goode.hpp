@@ -143,7 +143,7 @@ namespace projections
         \par Example
         \image html ex_goode.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct goode_spheroid : public detail::goode::base_goode_spheroid<CalculationType, Parameters>
     {
         inline goode_spheroid(const Parameters& par) : detail::goode::base_goode_spheroid<CalculationType, Parameters>(par)

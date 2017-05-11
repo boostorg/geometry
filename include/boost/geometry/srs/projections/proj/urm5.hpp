@@ -136,7 +136,7 @@ namespace projections
         \par Example
         \image html ex_urm5.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<CalculationType, Parameters>
     {
         inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<CalculationType, Parameters>(par)

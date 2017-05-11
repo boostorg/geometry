@@ -182,7 +182,7 @@ namespace projections
         \par Example
         \image html ex_kav5.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct kav5_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
     {
         inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
@@ -203,7 +203,7 @@ namespace projections
         \par Example
         \image html ex_qua_aut.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
     {
         inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
@@ -224,7 +224,7 @@ namespace projections
         \par Example
         \image html ex_mbt_s.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
     {
         inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
@@ -245,7 +245,7 @@ namespace projections
         \par Example
         \image html ex_fouc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct fouc_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
     {
         inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)

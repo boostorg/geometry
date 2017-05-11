@@ -59,12 +59,12 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
+template <typename T>
 struct dms_result
 {
     enum axis_selector {axis_lat = 1, axis_lon = 0};
 
     private :
-        typedef double T;
         T m_angle;
         axis_selector m_axis;
 
@@ -77,7 +77,7 @@ struct dms_result
 
         inline axis_selector axis() const { return m_axis; }
 
-        inline operator double() const { return m_angle; }
+        inline T angle() const { return m_angle; }
 
         template <typename CH, typename TR>
         inline friend std::basic_ostream<CH, TR>& operator<<(std::basic_ostream<CH, TR>& os,
@@ -90,7 +90,8 @@ struct dms_result
 };
 
 
-template <bool as_radian = true
+template <typename T
+        , bool as_radian = true
         , char N = 'N', char E = 'E', char S = 'S', char W = 'W' // translatable
         , char MIN = '\'', char SEC = '"' // other char's possible
         , char D = 'D', char R = 'R' // degree sign might be small o
@@ -122,7 +123,7 @@ struct dms_parser
 
     struct dms_value
     {
-        double dms[3];
+        T dms[3];
         bool has_dms[3];
 
         dms_value()
@@ -136,7 +137,7 @@ struct dms_parser
     static inline void assign_dms(dms_value& dms, std::string& value, bool& has_value)
     {
 #if !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-        dms.dms[I] = boost::lexical_cast<double>(value.c_str());
+        dms.dms[I] = boost::lexical_cast<T>(value.c_str());
 #else // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
         dms.dms[I] = std::atof(value.c_str());
 #endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
@@ -157,14 +158,14 @@ struct dms_parser
     }
 
 
-    dms_result operator()(const char* is) const
+    dms_result<T> apply(const char* is) const
     {
         dms_value dms;
         bool has_value = false;
         std::string value;
 
-        double factor = 1.0; // + denotes N/E values, -1 denotes S/W values
-        dms_result::axis_selector axis = dms_result::axis_lon; // true denotes N/S values
+        T factor = 1.0; // + denotes N/E values, -1 denotes S/W values
+        typename dms_result<T>::axis_selector axis = dms_result<T>::axis_lon; // true denotes N/S values
         bool in_radian = false; // true denotes values as "0.1R"
 
         while(*is)
@@ -179,20 +180,20 @@ struct dms_parser
                     break;
                 case N :
                 case n_alter :
-                    axis = dms_result::axis_lat;
+                    axis = dms_result<T>::axis_lat;
                     break;
                 case S :
                 case s_alter :
-                    axis = dms_result::axis_lat;
+                    axis = dms_result<T>::axis_lat;
                     factor = -factor;
                     break;
                 case E :
                 case e_alter :
-                    axis = dms_result::axis_lon;
+                    axis = dms_result<T>::axis_lon;
                     break;
                 case W :
                 case w_alter :
-                    axis = dms_result::axis_lon;
+                    axis = dms_result<T>::axis_lon;
                     factor = -factor;
                     break;
                 case D :
@@ -239,10 +240,10 @@ struct dms_parser
         // Assign last one, if any
         process(dms, value, has_value);
 
-        double const d2r = math::d2r<double>();
-        double const r2d = math::r2d<double>();
+        T const d2r = math::d2r<T>();
+        T const r2d = math::r2d<T>();
 
-        return dms_result(factor *
+        return dms_result<T>(factor *
             (in_radian && as_radian
                     ? dms.dms[0]
             : in_radian && ! as_radian

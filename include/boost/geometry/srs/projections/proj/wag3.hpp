@@ -134,7 +134,7 @@ namespace projections
         \par Example
         \image html ex_wag3.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<CalculationType, Parameters>
     {
         inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<CalculationType, Parameters>(par)

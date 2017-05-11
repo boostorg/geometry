@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -46,34 +50,37 @@ namespace detail { namespace gauss {
 
 static const int MAX_ITER = 20;
 
+template <typename T>
 struct GAUSS
 {
-    double C;
-    double K;
-    double e;
-    double ratexp;
+    T C;
+    T K;
+    T e;
+    T ratexp;
 };
 
-static const double DEL_TOL = 1e-14;
-
-inline double srat(double esinp, double exp)
+template <typename T>
+inline T srat(T const& esinp, T const& exp)
 {
     return (pow((1.0 - esinp) / (1.0 + esinp), exp));
 }
 
-inline GAUSS gauss_ini(double e, double phi0, double &chi, double &rc)
+template <typename T>
+inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 {
+    static const T FORTPI = detail::FORTPI<T>();
+
     using std::asin;
     using std::cos;
     using std::sin;
     using std::sqrt;
     using std::tan;
 
-    double sphi = 0;
-    double cphi = 0;
-    double es = 0;
+    T sphi = 0;
+    T cphi = 0;
+    T es = 0;
 
-    GAUSS en;
+    GAUSS<T> en;
     es = e * e;
     en.e = e;
     sphi = sin(phi0);
@@ -84,31 +91,36 @@ inline GAUSS gauss_ini(double e, double phi0, double &chi, double &rc)
     en.C = sqrt(1.0 + es * cphi * cphi / (1.0 - es));
     chi = asin(sphi / en.C);
     en.ratexp = 0.5 * en.C * e;
-    en.K = tan(0.5 * chi + detail::FORTPI)
-           / (pow(tan(0.5 * phi0 + detail::FORTPI), en.C) * srat(en.e * sphi, en.ratexp));
+    en.K = tan(0.5 * chi + FORTPI)
+           / (pow(tan(0.5 * phi0 + FORTPI), en.C) * srat(en.e * sphi, en.ratexp));
 
     return en;
 }
 
 template <typename T>
-inline void gauss(GAUSS const& en, T& lam, T& phi)
+inline void gauss(GAUSS<T> const& en, T& lam, T& phi)
 {
+    static const T FORTPI = detail::FORTPI<T>();
+
     phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + FORTPI), en.C)
-          * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<double>();
+          * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<T>();
 
     lam *= en.C;
 }
 
 template <typename T>
-inline void inv_gauss(GAUSS const& en, T& lam, T& phi)
+inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
 {
+    static const T FORTPI = detail::FORTPI<T>();
+    static const T DEL_TOL = 1e-14;
+
     lam /= en.C;
-    const double num = pow(tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
+    const T num = pow(tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
 
     int i = 0;
     for (i = MAX_ITER; i; --i)
     {
-        const double elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - geometry::math::half_pi<double>();
+        const T elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - geometry::math::half_pi<T>();
 
         if (geometry::math::abs(elp_phi - phi) < DEL_TOL)
         {

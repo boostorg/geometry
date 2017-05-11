@@ -288,7 +288,7 @@ namespace projections
         \par Example
         \image html ex_ob_tran.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>
     {
         inline ob_tran_oblique(const Parameters& par) : detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>(par)
@@ -322,7 +322,7 @@ namespace projections
         \par Example
         \image html ex_ob_tran.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>
     {
         inline ob_tran_transverse(const Parameters& par) : detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>(par)

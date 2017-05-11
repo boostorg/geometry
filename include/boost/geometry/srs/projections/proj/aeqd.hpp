@@ -405,7 +405,7 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
     {
         inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
@@ -430,7 +430,7 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct aeqd_guam : public detail::aeqd::base_aeqd_guam<CalculationType, Parameters>
     {
         inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<CalculationType, Parameters>(par)
@@ -455,7 +455,7 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>
     {
         inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>(par)

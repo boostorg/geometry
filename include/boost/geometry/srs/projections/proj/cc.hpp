@@ -131,7 +131,7 @@ namespace projections
         \par Example
         \image html ex_cc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct cc_spheroid : public detail::cc::base_cc_spheroid<CalculationType, Parameters>
     {
         inline cc_spheroid(const Parameters& par) : detail::cc::base_cc_spheroid<CalculationType, Parameters>(par)

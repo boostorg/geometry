@@ -63,6 +63,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace somerc
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS = 1.e-10;
             static const int NITER = 6;
@@ -176,7 +177,7 @@ namespace projections
         \par Example
         \image html ex_somerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>
     {
         inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>(par)

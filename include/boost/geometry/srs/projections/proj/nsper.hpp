@@ -268,7 +268,7 @@ namespace projections
         \par Example
         \image html ex_nsper.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
     {
         inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)
@@ -293,7 +293,7 @@ namespace projections
         \par Example
         \image html ex_tpers.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
     {
         inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)

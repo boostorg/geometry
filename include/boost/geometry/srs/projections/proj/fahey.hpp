@@ -124,7 +124,7 @@ namespace projections
         \par Example
         \image html ex_fahey.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct fahey_spheroid : public detail::fahey::base_fahey_spheroid<CalculationType, Parameters>
     {
         inline fahey_spheroid(const Parameters& par) : detail::fahey::base_fahey_spheroid<CalculationType, Parameters>(par)

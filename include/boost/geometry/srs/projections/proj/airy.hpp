@@ -205,7 +205,7 @@ namespace projections
         \par Example
         \image html ex_airy.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct airy_spheroid : public detail::airy::base_airy_spheroid<CalculationType, Parameters>
     {
         inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<CalculationType, Parameters>(par)

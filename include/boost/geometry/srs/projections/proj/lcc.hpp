@@ -68,6 +68,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lcc
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
 
@@ -227,7 +228,7 @@ namespace projections
         \par Example
         \image html ex_lcc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>
     {
         inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>(par)

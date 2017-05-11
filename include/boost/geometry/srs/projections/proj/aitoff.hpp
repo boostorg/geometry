@@ -241,7 +241,7 @@ namespace projections
         \par Example
         \image html ex_aitoff.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
     {
         inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
@@ -264,7 +264,7 @@ namespace projections
         \par Example
         \image html ex_wintri.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
     {
         inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)

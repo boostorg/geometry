@@ -63,6 +63,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lsat
     {
+            static const double FORTPI = detail::FORTPI<double>();
 
             static const double TOL = 1e-7;
             static const double PI_HALFPI = 4.71238898038468985766;
@@ -286,7 +287,7 @@ namespace projections
         \par Example
         \image html ex_lsat.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>
     {
         inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>(par)

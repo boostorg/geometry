@@ -307,7 +307,7 @@ namespace projections
         \par Example
         \image html ex_tissot.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct tissot_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline tissot_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -331,7 +331,7 @@ namespace projections
         \par Example
         \image html ex_murd1.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct murd1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline murd1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -355,7 +355,7 @@ namespace projections
         \par Example
         \image html ex_murd2.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct murd2_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline murd2_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -379,7 +379,7 @@ namespace projections
         \par Example
         \image html ex_murd3.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct murd3_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline murd3_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -403,7 +403,7 @@ namespace projections
         \par Example
         \image html ex_euler.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct euler_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline euler_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -427,7 +427,7 @@ namespace projections
         \par Example
         \image html ex_pconic.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct pconic_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline pconic_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)
@@ -451,7 +451,7 @@ namespace projections
         \par Example
         \image html ex_vitk1.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct vitk1_spheroid : public detail::sconics::base_sconics_spheroid<CalculationType, Parameters>
     {
         inline vitk1_spheroid(const Parameters& par) : detail::sconics::base_sconics_spheroid<CalculationType, Parameters>(par)

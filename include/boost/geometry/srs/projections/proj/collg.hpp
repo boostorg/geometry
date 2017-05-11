@@ -137,7 +137,7 @@ namespace projections
         \par Example
         \image html ex_collg.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct collg_spheroid : public detail::collg::base_collg_spheroid<CalculationType, Parameters>
     {
         inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<CalculationType, Parameters>(par)

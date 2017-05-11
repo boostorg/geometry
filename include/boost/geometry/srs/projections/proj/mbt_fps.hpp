@@ -145,7 +145,7 @@ namespace projections
         \par Example
         \image html ex_mbt_fps.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mbt_fps_spheroid : public detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>
     {
         inline mbt_fps_spheroid(const Parameters& par) : detail::mbt_fps::base_mbt_fps_spheroid<CalculationType, Parameters>(par)

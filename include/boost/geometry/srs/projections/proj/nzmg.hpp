@@ -76,7 +76,7 @@ namespace projections
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
 
-                static COMPLEX
+                static COMPLEX<double>
             bf[] = {
                 {.7557853228,    0.0},
                 {.249204646,    .003371507},
@@ -108,7 +108,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    COMPLEX p;
+                    COMPLEX<double> p;
                     double *C;
                     int i;
 
@@ -127,7 +127,7 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn, i;
-                    COMPLEX p, f, fp, dp;
+                    COMPLEX<double> p, f, fp, dp;
                     double den, *C;
 
                     p.r = xy_y;
@@ -184,7 +184,7 @@ namespace projections
         \par Example
         \image html ex_nzmg.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>
     {
         inline nzmg_ellipsoid(const Parameters& par) : detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>(par)

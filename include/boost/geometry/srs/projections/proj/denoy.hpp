@@ -122,7 +122,7 @@ namespace projections
         \par Example
         \image html ex_denoy.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<CalculationType, Parameters>
     {
         inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<CalculationType, Parameters>(par)

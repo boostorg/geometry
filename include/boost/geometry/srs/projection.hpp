@@ -117,16 +117,17 @@ class projection<srs::dynamic, CT>
     // select <double> from int/float/double and else selects T
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
-    typedef projections::detail::base_v<calc_t, projections::parameters> vprj_t;
+    typedef projections::parameters<calc_t> parameters_type;
+    typedef projections::detail::base_v<calc_t, parameters_type> vprj_t;
 
 public:
     projection(srs::proj4 const& params)
-        : m_ptr(create(projections::detail::pj_init_plus(srs::dynamic(),
+        : m_ptr(create(projections::detail::pj_init_plus<calc_t>(srs::dynamic(),
                                 params.str)))
     {}
 
     projection(srs::epsg const& params)
-        : m_ptr(create(projections::detail::pj_init_plus(
+        : m_ptr(create(projections::detail::pj_init_plus<calc_t>(
                             srs::dynamic(),
                             projections::detail::code_to_string(params.code),
                             false)))
@@ -136,9 +137,9 @@ public:
     vprj_t & mutable_proj() { return *m_ptr; }
 
 private:
-    static vprj_t* create(projections::parameters const& pj_params)
+    static vprj_t* create(parameters_type const& pj_params)
     {
-        static projections::detail::factory<calc_t, projections::parameters> fac;
+        static projections::detail::factory<calc_t, parameters_type> fac;
 
         vprj_t* result = fac.create_new(pj_params);
 
@@ -158,12 +159,13 @@ class projection<srs::static_proj4<Proj, Model>, CT>
 {
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
+    typedef projections::parameters<calc_t> parameters_type;
     typedef typename projections::detail::static_projection_type
         <
             Proj,
             typename traits::tag<Model>::type,
             calc_t,
-            projections::parameters
+            parameters_type
         >::type projection_type;
 
 public:
@@ -179,9 +181,9 @@ public:
     projection_type & mutable_proj() { return m_proj; }
 
 private:
-    static projections::parameters get_parameters(srs::static_proj4<Proj, Model> const& params)
+    static parameters_type get_parameters(srs::static_proj4<Proj, Model> const& params)
     {
-        return projections::detail::pj_init_plus(params, params.str);
+        return projections::detail::pj_init_plus<calc_t>(params, params.str);
     }
 
     projection_type m_proj;
@@ -194,18 +196,20 @@ class projection<srs::static_epsg<Code>, CT>
 
     typedef projections::detail::epsg_traits<Code> epsg_traits;
 
+    typedef projections::parameters<calc_t> parameters_type;
     typedef typename projections::detail::static_projection_type
         <
             typename epsg_traits::type,
             typename epsg_traits::srs_tag,
             calc_t,
-            projections::parameters
+            parameters_type
         >::type projection_type;
 
 public:
     projection()
-        : m_proj(projections::detail::pj_init_plus(srs::static_epsg<Code>(),
-                                                   epsg_traits::par(), false))
+        : m_proj(projections::detail::pj_init_plus<calc_t>(
+                        srs::static_epsg<Code>(),
+                        epsg_traits::par(), false))
     {}
 
     projection_type const& proj() const { return m_proj; }

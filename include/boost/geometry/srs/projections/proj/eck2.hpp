@@ -136,7 +136,7 @@ namespace projections
         \par Example
         \image html ex_eck2.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct eck2_spheroid : public detail::eck2::base_eck2_spheroid<CalculationType, Parameters>
     {
         inline eck2_spheroid(const Parameters& par) : detail::eck2::base_eck2_spheroid<CalculationType, Parameters>(par)

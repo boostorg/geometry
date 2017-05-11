@@ -155,7 +155,7 @@ namespace projections
         \par Example
         \image html ex_mbtfpq.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>
     {
         inline mbtfpq_spheroid(const Parameters& par) : detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>(par)

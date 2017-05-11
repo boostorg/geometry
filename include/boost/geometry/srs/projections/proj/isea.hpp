@@ -1223,7 +1223,7 @@ namespace projections
         \par Example
         \image html ex_isea.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct isea_spheroid : public detail::isea::base_isea_spheroid<CalculationType, Parameters>
     {
         inline isea_spheroid(const Parameters& par) : detail::isea::base_isea_spheroid<CalculationType, Parameters>(par)

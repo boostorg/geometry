@@ -68,51 +68,51 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename BGParams>
-inline void pj_push_defaults(BGParams const& bg_params, parameters& pin)
+template <typename BGParams, typename T>
+inline void pj_push_defaults(BGParams const& bg_params, parameters<T>& pin)
 {
-    pin.params.push_back(pj_mkparam("ellps=WGS84"));
+    pin.params.push_back(pj_mkparam<T>("ellps=WGS84"));
 
     if (pin.name == "aea")
     {
-        pin.params.push_back(pj_mkparam("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
     }
     else if (pin.name == "lcc")
     {
-        pin.params.push_back(pj_mkparam("lat_1=33"));
-        pin.params.push_back(pj_mkparam("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
     }
     else if (pin.name == "lagrng")
     {
-        pin.params.push_back(pj_mkparam("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W=2"));
     }
 }
 
-template <typename Proj, typename Model>
-inline void pj_push_defaults(srs::static_proj4<Proj, Model> const& bg_params, parameters& pin)
+template <typename Proj, typename Model, typename T>
+inline void pj_push_defaults(srs::static_proj4<Proj, Model> const& bg_params, parameters<T>& pin)
 {
     // always set in the model
     //pin.params.push_back(pj_mkparam("ellps=WGS84"));
 
     if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::aea>::value)))
     {
-        pin.params.push_back(pj_mkparam("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lcc>::value)))
     {
-        pin.params.push_back(pj_mkparam("lat_1=33"));
-        pin.params.push_back(pj_mkparam("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lagrng>::value)))
     {
-        pin.params.push_back(pj_mkparam("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W=2"));
     }
 }
 
 template <typename T>
-inline void pj_init_units(std::vector<pvalue> const& params,
+inline void pj_init_units(std::vector<pvalue<T> > const& params,
                           std::string const& sunits,
                           std::string const& sto_meter,
                           T & to_meter,
@@ -181,14 +181,14 @@ inline void pj_init_units(std::vector<pvalue> const& params,
 /*      called to do the initial allocation so it can be created        */
 /*      large enough to hold projection specific parameters.            */
 /************************************************************************/
-template <typename BGParams, typename R>
-inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool use_defaults = true)
+template <typename T, typename BGParams, typename R>
+inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool use_defaults = true)
 {
-    parameters pin;
+    parameters<T> pin;
     for (std::vector<std::string>::const_iterator it = boost::begin(arguments);
         it != boost::end(arguments); it++)
     {
-        pin.params.push_back(pj_mkparam(*it));
+        pin.params.push_back(pj_mkparam<T>(*it));
     }
 
     /* check if +init present */
@@ -306,8 +306,8 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
         if (index == -1) { throw proj_exception(-7); }
         if (value.empty()) { throw proj_exception(-46); }
 
-        dms_parser<true> parser;
-        pin.from_greenwich = parser(value.c_str());
+        dms_parser<T, true> parser;
+        pin.from_greenwich = parser.apply(value.c_str()).angle();
     }
     else
     {
@@ -324,8 +324,8 @@ inline parameters pj_init(BGParams const& bg_params, R const& arguments, bool us
 /*      individual arguments preceeded by '+', such as "+proj=utm       */
 /*      +zone=11 +ellps=WGS84".                                         */
 /************************************************************************/
-template <typename BGParams>
-inline parameters pj_init_plus(BGParams const& bg_params, std::string const& definition, bool use_defaults = true)
+template <typename T, typename BGParams>
+inline parameters<T> pj_init_plus(BGParams const& bg_params, std::string const& definition, bool use_defaults = true)
 {
     const char* sep = " +";
 
@@ -362,7 +362,7 @@ inline parameters pj_init_plus(BGParams const& bg_params, std::string const& def
     {
         boost::trim(*it);
     }*/
-    return pj_init(bg_params, arguments, use_defaults);
+    return pj_init<T>(bg_params, arguments, use_defaults);
 }
 
 } // namespace detail

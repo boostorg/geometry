@@ -122,7 +122,7 @@ namespace projections
         \par Example
         \image html ex_august.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct august_spheroid : public detail::august::base_august_spheroid<CalculationType, Parameters>
     {
         inline august_spheroid(const Parameters& par) : detail::august::base_august_spheroid<CalculationType, Parameters>(par)

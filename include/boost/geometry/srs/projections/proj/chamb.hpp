@@ -231,7 +231,7 @@ namespace projections
         \par Example
         \image html ex_chamb.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<CalculationType, Parameters>
     {
         inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<CalculationType, Parameters>(par)

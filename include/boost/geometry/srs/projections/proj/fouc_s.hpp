@@ -156,7 +156,7 @@ namespace projections
         \par Example
         \image html ex_fouc_s.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>
     {
         inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>(par)

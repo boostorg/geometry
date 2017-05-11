@@ -129,7 +129,7 @@ namespace projections
         \par Example
         \image html ex_lask.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct lask_spheroid : public detail::lask::base_lask_spheroid<CalculationType, Parameters>
     {
         inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<CalculationType, Parameters>(par)

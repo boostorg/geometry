@@ -151,7 +151,7 @@ namespace projections
         \par Example
         \image html ex_putp5.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct putp5_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
     {
         inline putp5_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)
@@ -172,7 +172,7 @@ namespace projections
         \par Example
         \image html ex_putp5p.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct putp5p_spheroid : public detail::putp5::base_putp5_spheroid<CalculationType, Parameters>
     {
         inline putp5p_spheroid(const Parameters& par) : detail::putp5::base_putp5_spheroid<CalculationType, Parameters>(par)

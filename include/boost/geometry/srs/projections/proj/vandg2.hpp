@@ -156,7 +156,7 @@ namespace projections
         \par Example
         \image html ex_vandg2.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
     {
         inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
@@ -178,7 +178,7 @@ namespace projections
         \par Example
         \image html ex_vandg3.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
     {
         inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)

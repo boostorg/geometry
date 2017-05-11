@@ -158,7 +158,7 @@ namespace projections
         \par Example
         \image html ex_gstmerc.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<CalculationType, Parameters>
     {
         inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<CalculationType, Parameters>(par)

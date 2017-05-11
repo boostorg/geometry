@@ -203,7 +203,7 @@ namespace projections
         \par Example
         \image html ex_cass.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<CalculationType, Parameters>
     {
         inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<CalculationType, Parameters>(par)
@@ -225,7 +225,7 @@ namespace projections
         \par Example
         \image html ex_cass.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct cass_spheroid : public detail::cass::base_cass_spheroid<CalculationType, Parameters>
     {
         inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<CalculationType, Parameters>(par)

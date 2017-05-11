@@ -147,7 +147,7 @@ namespace projections
         \par Example
         \image html ex_putp2.gif
     */
-    template <typename CalculationType, typename Parameters = parameters>
+    template <typename CalculationType, typename Parameters>
     struct putp2_spheroid : public detail::putp2::base_putp2_spheroid<CalculationType, Parameters>
     {
         inline putp2_spheroid(const Parameters& par) : detail::putp2::base_putp2_spheroid<CalculationType, Parameters>(par)
