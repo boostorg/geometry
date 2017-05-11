@@ -172,19 +172,19 @@ static int pj_adjust_axis( projCtx ctx, const char *axis, int denormalize_flag,
 #endif*/
 
 template <typename Par>
-inline double Dx_BF(Par const& defn) { return defn.datum_params[0]; }
+inline typename Par::type Dx_BF(Par const& defn) { return defn.datum_params[0]; }
 template <typename Par>
-inline double Dy_BF(Par const& defn) { return defn.datum_params[1]; }
+inline typename Par::type Dy_BF(Par const& defn) { return defn.datum_params[1]; }
 template <typename Par>
-inline double Dz_BF(Par const& defn) { return defn.datum_params[2]; }
+inline typename Par::type Dz_BF(Par const& defn) { return defn.datum_params[2]; }
 template <typename Par>
-inline double Rx_BF(Par const& defn) { return defn.datum_params[3]; }
+inline typename Par::type Rx_BF(Par const& defn) { return defn.datum_params[3]; }
 template <typename Par>
-inline double Ry_BF(Par const& defn) { return defn.datum_params[4]; }
+inline typename Par::type Ry_BF(Par const& defn) { return defn.datum_params[4]; }
 template <typename Par>
-inline double Rz_BF(Par const& defn) { return defn.datum_params[5]; }
+inline typename Par::type Rz_BF(Par const& defn) { return defn.datum_params[5]; }
 template <typename Par>
-inline double M_BF(Par const& defn) { return defn.datum_params[6]; }
+inline typename Par::type M_BF(Par const& defn) { return defn.datum_params[6]; }
 
 /*
 ** This table is intended to indicate for any given error code in
@@ -904,7 +904,9 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
                                 Range & range )
 
 {
-    double      src_a, src_es, dst_a, dst_es;
+    typedef typename Par::type calc_t;
+
+    calc_t      src_a, src_es, dst_a, dst_es;
 
 /* -------------------------------------------------------------------- */
 /*      We cannot do any meaningful datum transformation if either      */

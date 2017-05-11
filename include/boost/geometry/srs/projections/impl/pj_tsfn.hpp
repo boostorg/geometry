@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -41,10 +45,11 @@ namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
     /* determine small t */
-    inline double pj_tsfn(double phi, double sinphi, double e)
+    template <typename T>
+    inline T pj_tsfn(T const& phi, T sinphi, T const& e)
     {
         sinphi *= e;
-        return (tan (.5 * (geometry::math::half_pi<double>() - phi)) /
+        return (tan (.5 * (geometry::math::half_pi<T>() - phi)) /
            pow((1. - sinphi) / (1. + sinphi), .5 * e));
     }
 

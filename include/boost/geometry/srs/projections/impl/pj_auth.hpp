@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -44,20 +48,22 @@ namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
-static const double P00 = .33333333333333333333;
-static const double P01 = .17222222222222222222;
-static const double P02 = .10257936507936507936;
-static const double P10 = .06388888888888888888;
-static const double P11 = .06640211640211640211;
-static const double P20 = .01641501294219154443;
 static const int APA_SIZE = 3;
 
 /* determine latitude from authalic latitude */
-inline bool pj_authset(double es, double* APA)
+template <typename T>
+inline bool pj_authset(T const& es, T* APA)
 {
     BOOST_GEOMETRY_ASSERT(0 != APA);
 
-    double t = 0;
+    static const T P00 = .33333333333333333333;
+    static const T P01 = .17222222222222222222;
+    static const T P02 = .10257936507936507936;
+    static const T P10 = .06388888888888888888;
+    static const T P11 = .06640211640211640211;
+    static const T P20 = .01641501294219154443;
+
+    T t = 0;
 
     // if (APA = (double *)pj_malloc(APA_SIZE * sizeof(double)))
     {
@@ -73,11 +79,12 @@ inline bool pj_authset(double es, double* APA)
     return true;
 }
 
-inline double pj_authlat(double beta, const double* APA)
+template <typename T>
+inline T pj_authlat(T const& beta, const T* APA)
 {
     BOOST_GEOMETRY_ASSERT(0 != APA);
 
-    double const t = beta + beta;
+    T const t = beta + beta;
 
     return(beta + APA[0] * sin(t) + APA[1] * sin(t + t) + APA[2] * sin(t + t + t));
 }

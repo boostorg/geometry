@@ -53,25 +53,23 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-namespace inv
-{
-    static const double EPS = 1.0e-12;
-}
-
  /* inverse projection entry */
 template <typename PRJ, typename LL, typename XY, typename PAR>
 inline void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
 {
+    typedef typename PAR::type calc_t;
+    static const calc_t EPS = 1.0e-12;
+
     /* can't do as much preliminary checking as with forward */
     /* descale and de-offset */
-    double xy_x = (geometry::get<0>(xy) * par.to_meter - par.x0) * par.ra;
-    double xy_y = (geometry::get<1>(xy) * par.to_meter - par.y0) * par.ra;
-    double lon = 0, lat = 0;
+    calc_t xy_x = (geometry::get<0>(xy) * par.to_meter - par.x0) * par.ra;
+    calc_t xy_y = (geometry::get<1>(xy) * par.to_meter - par.y0) * par.ra;
+    calc_t lon = 0, lat = 0;
     prj.inv(xy_x, xy_y, lon, lat); /* inverse project */
     lon += par.lam0; /* reduce from del lp.lam */
     if (!par.over)
         lon = adjlon(lon); /* adjust longitude to CM */
-    if (par.geoc && geometry::math::abs(fabs(lat)-geometry::math::half_pi<double>()) > inv::EPS)
+    if (par.geoc && geometry::math::abs(fabs(lat)-geometry::math::half_pi<calc_t>()) > EPS)
         lat = atan(par.one_es * tan(lat));
 
     geometry::set_from_radian<0>(ll, lon);

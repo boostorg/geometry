@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -37,16 +41,19 @@
 
 
 namespace boost { namespace geometry { namespace projections
-{ namespace detail {
+{
+    
+namespace detail {
 
 /* determine small q */
-inline double pj_qsfn(double sinphi, double e, double one_es)
+template <typename T>
+inline T pj_qsfn(T const& sinphi, T const& e, T const& one_es)
 {
-    static const double EPSILON = 1.0e-7;
+    static const T EPSILON = 1.0e-7;
 
     if (e >= EPSILON)
     {
-        double con = e * sinphi;
+        T con = e * sinphi;
         return (one_es * (sinphi / (1. - con * con) -
            (.5 / e) * log ((1. - con) / (1. + con))));
     } else
@@ -54,10 +61,12 @@ inline double pj_qsfn(double sinphi, double e, double one_es)
 }
 
 
-#define MAX_C 9
+static const int MAX_C = 9;
+
+template <typename T>
 struct AUTHALIC
 {
-    double C[MAX_C], CP[MAX_C], CQ[MAX_C];
+    T C[MAX_C], CP[MAX_C], CQ[MAX_C];
 };
 
 /**
@@ -66,9 +75,10 @@ struct AUTHALIC
  * @param[in] a initialized structure pointer
  * @return authalic latitude
  */
-inline double proj_qsfn(double phi, const AUTHALIC& a)
+template <typename T>
+inline T proj_qsfn(T const& phi, AUTHALIC<T> const& a)
 {
-    double s, s2, sum;
+    T s, s2, sum;
     int i = MAX_C;
 
     s = sin(phi);
@@ -79,6 +89,7 @@ inline double proj_qsfn(double phi, const AUTHALIC& a)
 }
 
 } // namespace detail
+
 }}} // namespace boost::geometry::projections
 
 #endif

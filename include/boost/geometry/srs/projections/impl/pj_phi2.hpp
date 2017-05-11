@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -40,26 +44,24 @@
 namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
-namespace phi2
+template <typename T>
+inline T pj_phi2(T const& ts, T const& e)
 {
-    static const double TOL = 1.0e-10;
+    static const T TOL = 1.0e-10;
     static const int N_ITER = 15;
-}
 
-inline double pj_phi2(double ts, double e)
-{
-    double eccnth, Phi, con, dphi;
+    T eccnth, Phi, con, dphi;
     int i;
 
     eccnth = .5 * e;
-    Phi = geometry::math::half_pi<double>() - 2. * atan (ts);
-    i = phi2::N_ITER;
+    Phi = geometry::math::half_pi<T>() - 2. * atan (ts);
+    i = N_ITER;
     do {
         con = e * sin (Phi);
-        dphi = geometry::math::half_pi<double>() - 2. * atan (ts * pow((1. - con) /
+        dphi = geometry::math::half_pi<T>() - 2. * atan (ts * pow((1. - con) /
            (1. + con), eccnth)) - Phi;
         Phi += dphi;
-    } while ( geometry::math::abs(dphi) > phi2::TOL && --i);
+    } while ( geometry::math::abs(dphi) > TOL && --i);
     if (i <= 0)
         throw proj_exception(-18);
     return Phi;

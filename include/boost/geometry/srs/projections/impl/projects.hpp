@@ -240,6 +240,8 @@ struct FACTORS
 template <typename T>
 struct parameters : public detail::pj_const<T>
 {
+    typedef T type;
+
     std::string name;
     std::vector<detail::pvalue<T> > params;
 };

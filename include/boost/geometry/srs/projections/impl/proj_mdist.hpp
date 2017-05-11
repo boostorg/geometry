@@ -45,19 +45,21 @@ namespace detail
 {
     static const int MDIST_MAX_ITER = 20;
 
+    template <typename T>
     struct MDIST
     {
         int nb;
-        double es;
-        double E;
-        double b[MDIST_MAX_ITER];
+        T es;
+        T E;
+        T b[MDIST_MAX_ITER];
     };
 
-    inline bool proj_mdist_ini(double es, MDIST& b)
+    template <typename CT>
+    inline bool proj_mdist_ini(CT const& es, MDIST<CT>& b)
     {
-        double numf, numfi, twon1, denf, denfi, ens, T, twon;
-        double den, El, Es;
-        double E[MDIST_MAX_ITER];
+        CT numf, numfi, twon1, denf, denfi, ens, T, twon;
+        CT den, El, Es;
+        CT E[MDIST_MAX_ITER];
         int i, j;
 
         /* generate E(e^2) and its terms E[] */
@@ -99,9 +101,11 @@ namespace detail
         }
         return true;
     }
-    inline double proj_mdist(double phi, double sphi, double cphi, const MDIST& b)
+
+    template <typename T>
+    inline T proj_mdist(T const& phi, T const& sphi, T const& cphi, MDIST<T> const& b)
     {
-        double sc, sum, sphi2, D;
+        T sc, sum, sphi2, D;
         int i;
 
         sc = sphi * cphi;
@@ -111,10 +115,12 @@ namespace detail
         while (i) sum = b.b[--i] + sphi2 * sum;
         return(D + sc * sum);
     }
-    inline double proj_inv_mdist(double dist, const MDIST& b)
+
+    template <typename T>
+    inline T proj_inv_mdist(T const& dist, MDIST<T> const& b)
     {
-        static const double TOL = 1e-14;
-        double s, t, phi, k;
+        static const T TOL = 1e-14;
+        T s, t, phi, k;
         int i;
 
         k = 1./(1.- b.es);

@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -44,30 +48,25 @@ namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
-/* meridinal distance for ellipsoid and inverse
-**    8th degree - accurate to < 1e-5 meters when used in conjuction
-**        with typical major axis values.
-**    Inverse determines phi to EPS (1e-11) radians, about 1e-6 seconds.
-*/
-static const double C00 = 1.;
-static const double C02 = .25;
-static const double C04 = .046875;
-static const double C06 = .01953125;
-static const double C08 = .01068115234375;
-static const double C22 = .75;
-static const double C44 = .46875;
-static const double C46 = .01302083333333333333;
-static const double C48 = .00712076822916666666;
-static const double C66 = .36458333333333333333;
-static const double C68 = .00569661458333333333;
-static const double C88 = .3076171875;
-static const double EPS = 1e-11;
-static const int MAX_ITER = 10;
 static const int EN_SIZE = 5;
 
-inline bool pj_enfn(double es, double* en)
+template <typename T>
+inline bool pj_enfn(T const& es, T* en)
 {
-    double t; //, *en;
+    static const T C00 = 1.;
+    static const T C02 = .25;
+    static const T C04 = .046875;
+    static const T C06 = .01953125;
+    static const T C08 = .01068115234375;
+    static const T C22 = .75;
+    static const T C44 = .46875;
+    static const T C46 = .01302083333333333333;
+    static const T C48 = .00712076822916666666;
+    static const T C66 = .36458333333333333333;
+    static const T C68 = .00569661458333333333;
+    static const T C88 = .3076171875;
+
+    T t; //, *en;
 
     //if (en = (double *)pj_malloc(EN_SIZE * sizeof(double)))
     {
@@ -81,7 +80,8 @@ inline bool pj_enfn(double es, double* en)
     return true;
 }
 
-inline double pj_mlfn(double phi, double sphi, double cphi, const double *en)
+template <typename T>
+inline T pj_mlfn(T const& phi, T sphi, T cphi, const T *en)
 {
     cphi *= sphi;
     sphi *= sphi;
@@ -89,9 +89,18 @@ inline double pj_mlfn(double phi, double sphi, double cphi, const double *en)
         + sphi*(en[3] + sphi*en[4]))));
 }
 
-inline double pj_inv_mlfn(double arg, double es, const double *en)
+template <typename T>
+inline T pj_inv_mlfn(T const& arg, T const& es, const T *en)
 {
-    double s, t, phi, k = 1./(1.-es);
+    /* meridinal distance for ellipsoid and inverse
+    **    8th degree - accurate to < 1e-5 meters when used in conjuction
+    **        with typical major axis values.
+    **    Inverse determines phi to EPS (1e-11) radians, about 1e-6 seconds.
+    */
+    static const T EPS = 1e-11;
+    static const int MAX_ITER = 10;
+
+    T s, t, phi, k = 1./(1.-es);
     int i;
 
     phi = arg;

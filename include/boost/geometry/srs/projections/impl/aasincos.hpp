@@ -49,52 +49,59 @@ namespace detail
 
 namespace aasincos
 {
-    static const double ONE_TOL= 1.00000000000001;
-    //static const double TOL = 0.000000001;
-    static const double ATOL = 1e-50;
+    template <typename T>
+    inline T ONE_TOL() { return 1.00000000000001; }
+    //template <typename T>
+    //inline T TOL() { return 0.000000001; }
+    template <typename T>
+    inline T ATOL() { return 1e-50; }
 }
 
-inline double aasin(double v)
+template <typename T>
+inline T aasin(T const& v)
 {
-    double av = 0;
+    T av = 0;
 
     if ((av = geometry::math::abs(v)) >= 1.0)
     {
-        if (av > aasincos::ONE_TOL)
+        if (av > aasincos::ONE_TOL<T>())
         {
             throw proj_exception(-19);
         }
-        return (v < 0.0 ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>());
+        return (v < 0.0 ? -geometry::math::half_pi<T>() : geometry::math::half_pi<T>());
     }
 
     return asin(v);
 }
 
-inline double aacos(double v)
+template <typename T>
+inline T aacos(T const& v)
 {
-    double av = 0;
+    T av = 0;
 
     if ((av = geometry::math::abs(v)) >= 1.0)
     {
-        if (av > aasincos::ONE_TOL)
+        if (av > aasincos::ONE_TOL<T>())
         {
             throw proj_exception(-19);
         }
-        return (v < 0.0 ? geometry::math::pi<double>() : 0.0);
+        return (v < 0.0 ? geometry::math::pi<T>() : 0.0);
     }
 
     return acos(v);
 }
 
-inline double asqrt(double v)
+template <typename T>
+inline T asqrt(T const& v)
 {
     return ((v <= 0) ? 0 : sqrt(v));
 }
 
-inline double aatan2(double n, double d)
+template <typename T>
+inline T aatan2(T const& n, T const& d)
 {
-    return ((geometry::math::abs(n) < aasincos::ATOL
-        && geometry::math::abs(d) < aasincos::ATOL) ? 0.0 : atan2(n, d));
+    return ((geometry::math::abs(n) < aasincos::ATOL<T>()
+        && geometry::math::abs(d) < aasincos::ATOL<T>()) ? 0.0 : atan2(n, d));
 }
 
 
