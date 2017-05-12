@@ -60,11 +60,11 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace hammer
     {
-
+            template <typename T>
             struct par_hammer
             {
-                double w;
-                double m, rm;
+                T w;
+                T m, rm;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -76,7 +76,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_hammer m_proj_parm;
+                par_hammer<CalculationType> m_proj_parm;
 
                 inline base_hammer_spheroid(const Parameters& par)
                     : base_t_f<base_hammer_spheroid<CalculationType, Parameters>,
@@ -86,7 +86,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double cosphi, d;
+                    CalculationType cosphi, d;
 
                     d = sqrt(2./(1. + (cosphi = cos(lp_lat)) * cos(lp_lon *= this->m_proj_parm.w)));
                     xy_x = this->m_proj_parm.m * d * cosphi * sin(lp_lon);
@@ -101,8 +101,8 @@ namespace projections
             };
 
             // Hammer & Eckert-Greifendorff
-            template <typename Parameters>
-            void setup_hammer(Parameters& par, par_hammer& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
             {
                 if (pj_param(par.params, "tW").i) {
                     if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.) throw proj_exception(-27);

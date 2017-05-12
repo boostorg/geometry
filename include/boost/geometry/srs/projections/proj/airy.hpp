@@ -73,14 +73,15 @@ namespace projections
             static const int EQUIT = 2;
             static const int OBLIQ = 3;
 
+            template <typename T>
             struct par_airy
             {
-                double    p_halfpi;
-                double    sinph0;
-                double    cosph0;
-                double    Cb;
-                int        mode;
-                int        no_cut;    /* do not cut at hemisphere limit */
+                T    p_halfpi;
+                T    sinph0;
+                T    cosph0;
+                T    Cb;
+                int  mode;
+                int  no_cut;    /* do not cut at hemisphere limit */
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -92,7 +93,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_airy m_proj_parm;
+                par_airy<CalculationType> m_proj_parm;
 
                 inline base_airy_spheroid(const Parameters& par)
                     : base_t_f<base_airy_spheroid<CalculationType, Parameters>,
@@ -102,7 +103,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
 
                     sinlam = sin(lp_lon);
                     coslam = cos(lp_lon);
@@ -131,7 +134,7 @@ namespace projections
                     case S_POLE:
                     case N_POLE:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
-                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > geometry::math::half_pi<double>())
+                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > HALFPI)
                             throw proj_exception();;
                         if ((lp_lat *= 0.5) > EPS) {
                             t = tan(lp_lat);
@@ -153,25 +156,27 @@ namespace projections
             };
 
             // Airy
-            template <typename Parameters>
-            void setup_airy(Parameters& par, par_airy& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_airy(Parameters& par, par_airy<T>& proj_parm)
             {
-                double beta;
+                static const T HALFPI = detail::HALFPI<T>();
+
+                T beta;
 
                 proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
-                beta = 0.5 * (geometry::math::half_pi<double>() - pj_param(par.params, "rlat_b").f);
+                beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
                 if (fabs(beta) < EPS)
                     proj_parm.Cb = -0.5;
                 else {
                     proj_parm.Cb = 1./tan(beta);
                     proj_parm.Cb *= proj_parm.Cb * log(cos(beta));
                 }
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS)
+                if (fabs(fabs(par.phi0) - HALFPI) < EPS)
                     if (par.phi0 < 0.) {
-                        proj_parm.p_halfpi = -geometry::math::half_pi<double>();
+                        proj_parm.p_halfpi = -HALFPI;
                         proj_parm.mode = S_POLE;
                     } else {
-                        proj_parm.p_halfpi =  geometry::math::half_pi<double>();
+                        proj_parm.p_halfpi =  HALFPI;
                         proj_parm.mode = N_POLE;
                     }
                 else {

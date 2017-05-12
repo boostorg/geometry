@@ -89,14 +89,17 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double theta, th1, c;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+
+                    CalculationType theta, th1, c;
                     int i;
 
                     theta = lp_lat;
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS)
+                    if (fabs(fabs(lp_lat) - HALFPI) < EPS)
                         xy_x = 0.;
                     else {
-                        c = sin(theta) * geometry::math::pi<double>();
+                        c = sin(theta) * ONEPI;
                         for (i = NITER; i; --i) {
                             theta -= th1 = (theta + sin(theta) - c) /
                                 (1. + cos(theta));

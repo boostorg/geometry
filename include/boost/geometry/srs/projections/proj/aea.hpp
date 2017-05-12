@@ -77,29 +77,31 @@ namespace projections
 
             static const double EPS10 = 1.e-10;
             static const double TOL7 = 1.e-7;
-            static const int N_ITER = 15;
             static const double EPSILON = 1.0e-7;
             static const double TOL = 1.0e-10;
+            static const int N_ITER = 15;
 
+            template <typename T>
             struct par_aea
             {
-                double    ec;
-                double    n;
-                double    c;
-                double    dd;
-                double    n2;
-                double    rho0;
-                double    phi1;
-                double    phi2;
-                double    en[EN_SIZE];
-                int        ellips;
+                T    ec;
+                T    n;
+                T    c;
+                T    dd;
+                T    n2;
+                T    rho0;
+                T    phi1;
+                T    phi2;
+                T    en[EN_SIZE];
+                int  ellips;
             };
 
             /* determine latitude angle phi-1 */
-                static double
-            phi1_(double qs, double Te, double Tone_es) {
+            template <typename T>
+            inline T phi1_(T const& qs, T const& Te, T const& Tone_es)
+            {
                 int i;
-                double Phi, sinpi, cospi, con, com, dphi;
+                T Phi, sinpi, cospi, con, com, dphi;
 
                 Phi = asin (.5 * qs);
                 if (Te < EPSILON)
@@ -127,7 +129,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_aea m_proj_parm;
+                par_aea<CalculationType> m_proj_parm;
 
                 inline base_aea_ellipsoid(const Parameters& par)
                     : base_t_fi<base_aea_ellipsoid<CalculationType, Parameters>,
@@ -137,7 +139,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double rho = 0.0;
+                    CalculationType rho = 0.0;
                     if ((rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat),
                         this->m_par.e, this->m_par.one_es) : this->m_proj_parm.n2 * sin(lp_lat))) < 0.) throw proj_exception();
                     rho = this->m_proj_parm.dd * sqrt(rho);
@@ -149,7 +151,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double rho = 0.0;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType rho = 0.0;
                     if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
@@ -163,15 +167,15 @@ namespace projections
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
                                     throw proj_exception();
                             } else
-                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
                             lp_lat = asin(lp_lat);
                         else
-                            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
+                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
                     }
                 }
 
@@ -182,10 +186,10 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_aea& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_aea<T>& proj_parm) 
             {
-                double cosphi, sinphi;
+                T cosphi, sinphi;
                 int secant;
 
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
@@ -193,13 +197,13 @@ namespace projections
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.))) {
-                    double ml1, m1;
+                    T ml1, m1;
 
                     if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_qsfn(sinphi, par.e, par.one_es);
                     if (secant) { /* secant cone */
-                        double ml2, m2;
+                        T ml2, m2;
 
                         sinphi = sin(proj_parm.phi2);
                         cosphi = cos(proj_parm.phi2);
@@ -224,21 +228,22 @@ namespace projections
 
 
             // Albers Equal Area
-            template <typename Parameters>
-            void setup_aea(Parameters& par, par_aea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_aea(Parameters& par, par_aea<T>& proj_parm)
             {
-                boost::ignore_unused(phi1_);
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
                 setup(par, proj_parm);
             }
 
             // Lambert Equal Area Conic
-            template <typename Parameters>
-            void setup_leac(Parameters& par, par_aea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_leac(Parameters& par, par_aea<T>& proj_parm)
             {
+                static const T HALFPI = detail::HALFPI<T>();
+
                 proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? - geometry::math::half_pi<double>(): geometry::math::half_pi<double>();
+                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? -HALFPI : HALFPI;
                 setup(par, proj_parm);
             }
 

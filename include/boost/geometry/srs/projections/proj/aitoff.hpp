@@ -69,11 +69,11 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace aitoff
     {
-
+            template <typename T>
             struct par_aitoff
             {
-                double    cosphi1;
-                int        mode;
+                T    cosphi1;
+                int  mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -85,7 +85,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_aitoff m_proj_parm;
+                par_aitoff<CalculationType> m_proj_parm;
 
                 inline base_aitoff_spheroid(const Parameters& par)
                     : base_t_fi<base_aitoff_spheroid<CalculationType, Parameters>,
@@ -95,7 +95,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double c, d;
+                    CalculationType c, d;
 
                     if((d = acos(cos(lp_lat) * cos(c = 0.5 * lp_lon)))) {/* basic Aitoff */
                         xy_x = 2. * d * cos(lp_lat) * sin(c) * (xy_y = 1. / sin(d));
@@ -132,8 +132,12 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        int iter, MAXITER = 10, round = 0, MAXROUND = 20;
-                    double EPSILON = 1e-12, D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType TWOPI = detail::TWOPI<CalculationType>();
+                    static const CalculationType EPSILON = 1e-12;
+
+                    int iter, MAXITER = 10, round = 0, MAXROUND = 20;
+                    CalculationType D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
 
                     if ((fabs(xy_x) < EPSILON) && (fabs(xy_y) < EPSILON )) { lp_lat = 0.; lp_lon = 0.; return; }
 
@@ -164,13 +168,13 @@ namespace projections
                             f1 -= xy_x; f2 -= xy_y;
                             dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
                             dp = (f1 * f2l - f2 * f1l) / dp;
-                            while (dl > geometry::math::pi<double>()) dl -= geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
-                            while (dl < -geometry::math::pi<double>()) dl += geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
+                            while (dl > ONEPI) dl -= ONEPI; /* set to interval [-ONEPI, ONEPI]  */
+                            while (dl < -ONEPI) dl += ONEPI; /* set to interval [-ONEPI, ONEPI]  */
                             lp_lat -= dp;    lp_lon -= dl;
                         } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
-                        if (lp_lat > geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat-geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
-                        if (lp_lat < -geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat+geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - geometry::math::two_pi<double>()) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        if (lp_lat > TWOPI) lp_lat -= 2.*(lp_lat-TWOPI); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -TWOPI) lp_lat -= 2.*(lp_lat+TWOPI); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - TWOPI) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon)))) {/* Aitoff */
@@ -195,8 +199,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_aitoff& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_aitoff<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -204,25 +208,27 @@ namespace projections
 
 
             // Aitoff
-            template <typename Parameters>
-            void setup_aitoff(Parameters& par, par_aitoff& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_aitoff(Parameters& par, par_aitoff<T>& proj_parm)
             {
                 proj_parm.mode = 0;
                 setup(par, proj_parm);
             }
 
             // Winkel Tripel
-            template <typename Parameters>
-            void setup_wintri(Parameters& par, par_aitoff& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
             {
+                static const T TWO_D_PI = detail::TWO_D_PI<T>();
+
                 proj_parm.mode = 1;
                 if (pj_param(par.params, "tlat_1").i)
                     {
                     if ((proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f)) == 0.)
                         throw proj_exception(-22);
                     }
-                else /* 50d28' or acos(2/pi) */
-                    proj_parm.cosphi1 = 0.636619772367581343;
+                else /* 50d28' or phi1=acos(2/pi) */
+                    proj_parm.cosphi1 = TWO_D_PI;
                 setup(par, proj_parm);
             }
 

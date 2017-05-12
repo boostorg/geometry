@@ -65,7 +65,7 @@ namespace projections
     namespace detail { namespace bacon
     {
 
-            static const double HLFPI2 = 2.46740110027233965467;
+            //static const double HLFPI2 = 2.46740110027233965467;
             static const double EPS = 1e-10;
 
             struct par_bacon
@@ -93,12 +93,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double ax, f;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType HLFPI2 = detail::HALFPI_SQR<CalculationType>();
 
-                    xy_y = this->m_proj_parm.bacn ? geometry::math::half_pi<double>() * sin(lp_lat) : lp_lat;
+                    CalculationType ax, f;
+
+                    xy_y = this->m_proj_parm.bacn ? HALFPI * sin(lp_lat) : lp_lat;
                     if ((ax = fabs(lp_lon)) >= EPS) {
-                        if (this->m_proj_parm.ortl && ax >= geometry::math::half_pi<double>())
-                            xy_x = sqrt(HLFPI2 - lp_lat * lp_lat + EPS) + ax - geometry::math::half_pi<double>();
+                        if (this->m_proj_parm.ortl && ax >= HALFPI)
+                            xy_x = sqrt(HLFPI2 - lp_lat * lp_lat + EPS) + ax - HALFPI;
                         else {
                             f = 0.5 * (HLFPI2 / ax + ax);
                             xy_x = ax - f + sqrt(f * f - xy_y * xy_y);

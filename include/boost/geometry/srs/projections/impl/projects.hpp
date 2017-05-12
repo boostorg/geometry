@@ -69,15 +69,9 @@ inline T TWOPI() { return boost::math::constants::two_pi<T>(); }
 template <typename T>
 inline T TWO_D_PI() { return boost::math::constants::two_div_pi<T>(); }
 template <typename T>
-inline T EPS10() { return 1.e-10; }
+inline T HALFPI_SQR() { return 2.4674011002723396547086227499689; }
 template <typename T>
-inline T EPS7() { return 1.e-7; }
-template <typename T>
-inline T TOL14() { return 1.e-14; }
-template <typename T>
-inline T TOL10() { return 1.e-10; }
-template <typename T>
-inline T TOL7() { return 1.e-7; }
+inline T THIRD() { return 0.3333333333333333333333333333333; }
 
 /* datum_type values */
 static const int PJD_UNKNOWN = 0;

@@ -63,7 +63,10 @@ namespace projections
 
             static const double Cl = 0.000952426;
             static const double Cp = 0.162388;
-            static const double C12 = 0.08333333333333333;
+            //static const double C12 = 0.08333333333333333;
+
+            template <typename T>
+            inline T C12() { return 0.083333333333333333333333333333333333; }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -83,7 +86,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t = lp_lat * lp_lat;
+                    static const CalculationType C12 = gins8::C12<CalculationType>();
+
+                    CalculationType t = lp_lat * lp_lat;
 
                     xy_y = lp_lat * (1. + t * C12);
                     xy_x = lp_lon * (1. - Cp * t);

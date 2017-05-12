@@ -67,14 +67,15 @@ namespace projections
 
             static const int PROJ_ETMERC_ORDER = 6;
 
+            template <typename T>
             struct par_etmerc
             {
-                double    Qn;    /* Merid. quad., scaled to the projection */
-                double    Zb;    /* Radius vector in polar coord. systems  */
-                double    cgb[6]; /* Constants for Gauss -> Geo lat */
-                double    cbg[6]; /* Constants for Geo lat -> Gauss */
-                double    utg[6]; /* Constants for transv. merc. -> geo */
-                double    gtu[6]; /* Constants for geo -> transv. merc. */
+                T    Qn;    /* Merid. quad., scaled to the projection */
+                T    Zb;    /* Radius vector in polar coord. systems  */
+                T    cgb[6]; /* Constants for Gauss -> Geo lat */
+                T    cbg[6]; /* Constants for Geo lat -> Gauss */
+                T    utg[6]; /* Constants for transv. merc. -> geo */
+                T    gtu[6]; /* Constants for geo -> transv. merc. */
             };
 
             /* The code in this file is largly based upon procedures:
@@ -93,10 +94,10 @@ namespace projections
 
 
 
-
-                static double
-            log1py(double x) {              /* Compute log(1+x) accurately */
-                volatile double
+            template <typename T>
+            inline T
+            log1py(T const& x) {              /* Compute log(1+x) accurately */
+                volatile T
                   y = 1 + x,
                   z = y - 1;
                 /* Here's the explanation for this magic: y = 1 + z, exactly, and z
@@ -106,17 +107,19 @@ namespace projections
                 return z == 0 ? x : x * log(y) / z;
             }
 
-                static double
-            asinhy(double x) {              /* Compute asinh(x) accurately */
-                double y = fabs(x);         /* Enforce odd parity */
+            template <typename T>
+            inline T
+            asinhy(T const& x) {              /* Compute asinh(x) accurately */
+                T y = fabs(x);         /* Enforce odd parity */
                 y = log1py(y * (1 + y/(boost::math::hypot(1.0, y) + 1)));
                 return x < 0 ? -y : y;
             }
 
-                static double
-            gatg(const double *p1, int len_p1, double B) {
-                const double *p;
-                double h = 0, h1, h2 = 0, cos_2B;
+            template <typename T>
+            inline T
+            gatg(const T *p1, int len_p1, T const& B) {
+                const T *p;
+                T h = 0, h1, h2 = 0, cos_2B;
 
                 cos_2B = 2*cos(2*B);
                 for (p = p1 + len_p1, h1 = *--p; p - p1; h2 = h1, h1 = h)
@@ -124,13 +127,14 @@ namespace projections
                 return (B + h*sin(2*B));
             }
 
-                static double
-            clenS(const double *a, int size, double arg_r, double arg_i, double *R, double *I) {
-                double      r, i, hr, hr1, hr2, hi, hi1, hi2;
-                double      sin_arg_r, cos_arg_r, sinh_arg_i, cosh_arg_i;
+            template <typename T>
+            inline T
+            clenS(const T *a, int size, T const& arg_r, T const& arg_i, T *R, T *I) {
+                T      r, i, hr, hr1, hr2, hi, hi1, hi2;
+                T      sin_arg_r, cos_arg_r, sinh_arg_i, cosh_arg_i;
 
                 /* arguments */
-                const double* p = a + size;
+                const T* p = a + size;
                 sin_arg_r  = sin(arg_r);
                 cos_arg_r  = cos(arg_r);
                 sinh_arg_i = sinh(arg_i);
@@ -152,11 +156,13 @@ namespace projections
                 *I  = r*hi + i*hr;
                 return(*R);
             }
-                static double
-            clens(const double *a, int size, double arg_r) {
-                double      r, hr, hr1, hr2, cos_arg_r;
 
-                const double* p = a + size;
+            template <typename T>
+            inline T
+            clens(const T *a, int size, T const& arg_r) {
+                T      r, hr, hr1, hr2, cos_arg_r;
+
+                const T* p = a + size;
                 cos_arg_r  = cos(arg_r);
                 r          =  2*cos_arg_r;
                 /* summation loop */
@@ -177,7 +183,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_etmerc m_proj_parm;
+                par_etmerc<CalculationType> m_proj_parm;
 
                 inline base_etmerc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_etmerc_ellipsoid<CalculationType, Parameters>,
@@ -187,8 +193,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
-                    double Cn = lp_lat, Ce = lp_lon;
+                    CalculationType sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
+                    CalculationType Cn = lp_lat, Ce = lp_lon;
 
                     /* ell. LAT, LNG -> Gaussian LAT, LNG */
                     Cn  = gatg(this->m_proj_parm.cbg, PROJ_ETMERC_ORDER, Cn);
@@ -215,8 +221,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
-                    double Cn = xy_y, Ce = xy_x;
+                    CalculationType sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
+                    CalculationType Cn = xy_y, Ce = xy_x;
 
                     /* normalize N, E */
                     Cn = (Cn - this->m_proj_parm.Zb)/this->m_proj_parm.Qn;
@@ -249,10 +255,10 @@ namespace projections
             };
 
             // Extended Transverse Mercator
-            template <typename Parameters>
-            void setup_etmerc(Parameters& par, par_etmerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_etmerc(Parameters& par, par_etmerc<T>& proj_parm)
             {
-                double f, n, np, Z;
+                T f, n, np, Z;
 
                 if (par.es <= 0) throw proj_exception(-34);
                 f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */

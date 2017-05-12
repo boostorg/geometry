@@ -72,10 +72,11 @@ namespace projections
             static const int MAX_ITER = 8;
             static const double LOOP_TOL = 1e-7;
 
+            template <typename T>
             struct par_gn_sinu
             {
-                double    en[EN_SIZE];
-                double    m, n, C_x, C_y;
+                T    en[EN_SIZE];
+                T    m, n, C_x, C_y;
             };
 
             /* Ellipsoidal Sinusoidal only */
@@ -89,7 +90,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_gn_sinu m_proj_parm;
+                par_gn_sinu<CalculationType> m_proj_parm;
 
                 inline base_gn_sinu_ellipsoid(const Parameters& par)
                     : base_t_fi<base_gn_sinu_ellipsoid<CalculationType, Parameters>,
@@ -99,7 +100,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double s, c;
+                    CalculationType s, c;
 
                     xy_y = pj_mlfn(lp_lat, s = sin(lp_lat), c = cos(lp_lat), this->m_proj_parm.en);
                     xy_x = lp_lon * c / sqrt(1. - this->m_par.es * s * s);
@@ -109,12 +110,14 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double s;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < geometry::math::half_pi<double>()) {
+                    CalculationType s;
+
+                    if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < HALFPI) {
                         s = sin(lp_lat);
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if ((s - EPS10) < geometry::math::half_pi<double>())
+                    } else if ((s - EPS10) < HALFPI)
                         lp_lon = 0.;
                     else throw proj_exception();;
                 }
@@ -136,7 +139,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_gn_sinu m_proj_parm;
+                par_gn_sinu<CalculationType> m_proj_parm;
 
                 inline base_gn_sinu_spheroid(const Parameters& par)
                     : base_t_fi<base_gn_sinu_spheroid<CalculationType, Parameters>,
@@ -149,7 +152,7 @@ namespace projections
                     if (!this->m_proj_parm.m)
                         lp_lat = this->m_proj_parm.n != 1. ? aasin(this->m_proj_parm.n * sin(lp_lat)): lp_lat;
                     else {
-                        double k, V;
+                        CalculationType k, V;
                         int i;
 
                         k = this->m_proj_parm.n * sin(lp_lat);
@@ -183,8 +186,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_gn_sinu& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_gn_sinu<T>& proj_parm) 
             {
                 par.es = 0;
                 proj_parm.C_x = (proj_parm.C_y = sqrt((proj_parm.m + 1.) / proj_parm.n))/(proj_parm.m + 1.);
@@ -192,8 +195,8 @@ namespace projections
 
 
             // General Sinusoidal Series
-            template <typename Parameters>
-            void setup_gn_sinu(Parameters& par, par_gn_sinu& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 if (pj_param(par.params, "tn").i && pj_param(par.params, "tm").i) {
                     proj_parm.n = pj_param(par.params, "dn").f;
@@ -204,8 +207,8 @@ namespace projections
             }
 
             // Sinusoidal (Sanson-Flamsteed)
-            template <typename Parameters>
-            void setup_sinu(Parameters& par, par_gn_sinu& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 if (!pj_enfn(par.es, proj_parm.en))
                     throw proj_exception(0);
@@ -218,8 +221,8 @@ namespace projections
             }
 
             // Eckert VI
-            template <typename Parameters>
-            void setup_eck6(Parameters& par, par_gn_sinu& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_eck6(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 proj_parm.m = 1.;
                 proj_parm.n = 2.570796326794896619231321691;
@@ -227,8 +230,8 @@ namespace projections
             }
 
             // McBryde-Thomas Flat-Polar Sinusoidal
-            template <typename Parameters>
-            void setup_mbtfps(Parameters& par, par_gn_sinu& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_mbtfps(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 proj_parm.m = 0.5;
                 proj_parm.n = 1.785398163397448309615660845;

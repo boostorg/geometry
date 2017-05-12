@@ -70,11 +70,12 @@ namespace projections
             static const int EQUIT = 2;
             static const int OBLIQ = 3;
 
+            template <typename T>
             struct par_gnom
             {
-                double    sinph0;
-                double    cosph0;
-                int        mode;
+                T    sinph0;
+                T    cosph0;
+                int  mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -86,7 +87,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_gnom m_proj_parm;
+                par_gnom<CalculationType> m_proj_parm;
 
                 inline base_gnom_spheroid(const Parameters& par)
                     : base_t_fi<base_gnom_spheroid<CalculationType, Parameters>,
@@ -96,7 +97,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  coslam, cosphi, sinphi;
+                    CalculationType  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -136,7 +137,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  rh, cosz, sinz;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType  rh, cosz, sinz;
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     sinz = sin(lp_lat = atan(rh));
@@ -149,7 +152,7 @@ namespace projections
                         case OBLIQ:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
+                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
@@ -158,17 +161,17 @@ namespace projections
                         case EQUIT:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
+                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
                         case S_POLE:
-                            lp_lat -= geometry::math::half_pi<double>();
+                            lp_lat -= HALFPI;
                             break;
                         case N_POLE:
-                            lp_lat = geometry::math::half_pi<double>() - lp_lat;
+                            lp_lat = HALFPI - lp_lat;
                             xy_y = -xy_y;
                             break;
                         }
@@ -184,10 +187,12 @@ namespace projections
             };
 
             // Gnomonic
-            template <typename Parameters>
-            void setup_gnom(Parameters& par, par_gnom& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_gnom(Parameters& par, par_gnom<T>& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10)
+                static const T HALFPI = detail::HALFPI<T>();
+
+                if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) < EPS10)
                     proj_parm.mode = EQUIT;

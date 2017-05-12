@@ -65,30 +65,35 @@ namespace projections
     namespace detail { namespace chamb
     {
 
-            static const double THIRD = 0.333333333333333333;
+            //static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
 
             // specific for 'chamb'
-            struct VECT { double r, Az; };
-            struct XY { double x, y; };
+            template <typename T>
+            struct VECT { T r, Az; };
+            template <typename T>
+            struct XY { T x, y; };
 
+            template <typename T>
             struct par_chamb
             {
                 struct { /* control point data */
-                double phi, lam;
-                double cosphi, sinphi;
-                VECT v;
-                XY    p;
-                double Az;
+                    T phi, lam;
+                    T cosphi, sinphi;
+                    VECT<T> v;
+                    XY<T>   p;
+                    T Az;
                 } c[3];
-                XY p;
-                double beta_0, beta_1, beta_2;
+                XY<T> p;
+                T beta_0, beta_1, beta_2;
             };
 
-                static VECT /* distance and azimuth from point 1 to point 2 */
-            vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
-                VECT v;
-                double cdl, dp, dl;
+            template <typename T>
+            inline VECT<T> /* distance and azimuth from point 1 to point 2 */
+            vect(T const& dphi, T const& c1, T const& s1, T const& c2, T const& s2, T const& dlam)
+            {
+                VECT<T> v;
+                T cdl, dp, dl;
 
                 cdl = cos(dlam);
                 if (fabs(dphi) > 1. || fabs(dlam) > 1.)
@@ -104,8 +109,11 @@ namespace projections
                     v.r = v.Az = 0.;
                 return v;
             }
-                static double /* law of cosines */
-            lc(double b,double c,double a) {
+
+            template <typename T>
+            inline T /* law of cosines */
+            lc(T const& b, T const& c, T const& a)
+            {
                 return aacos(.5 * (b * b + c * c - a * a) / (b * c));
             }
 
@@ -118,7 +126,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_chamb m_proj_parm;
+                par_chamb<CalculationType> m_proj_parm;
 
                 inline base_chamb_spheroid(const Parameters& par)
                     : base_t_f<base_chamb_spheroid<CalculationType, Parameters>,
@@ -128,8 +136,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double sinphi, cosphi, a;
-                    VECT v[3];
+                    static const CalculationType THIRD = detail::THIRD<CalculationType>();
+
+                    CalculationType sinphi, cosphi, a;
+                    VECT<CalculationType> v[3];
                     int i, j;
 
                     sinphi = sin(lp_lat);
@@ -176,9 +186,11 @@ namespace projections
             };
 
             // Chamberlin Trimetric
-            template <typename Parameters>
-            void setup_chamb(Parameters& par, par_chamb& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
             {
+                static const T ONEPI = detail::ONEPI<T>();
+
                 int i, j;
                 char line[10];
 
@@ -200,7 +212,7 @@ namespace projections
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);
                 proj_parm.beta_1 = lc(proj_parm.c[0].v.r, proj_parm.c[1].v.r, proj_parm.c[2].v.r);
-                proj_parm.beta_2 = geometry::math::pi<double>() - proj_parm.beta_0;
+                proj_parm.beta_2 = ONEPI - proj_parm.beta_0;
                 proj_parm.p.y = 2. * (proj_parm.c[0].p.y = proj_parm.c[1].p.y = proj_parm.c[2].v.r * sin(proj_parm.beta_0));
                 proj_parm.c[2].p.y = 0.;
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);

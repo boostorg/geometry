@@ -68,15 +68,16 @@ namespace projections
 
             static const double EPS10 = 1.e-10;
 
+            template <typename T>
             struct par_eqdc
             {
-                double phi1;
-                double phi2;
-                double n;
-                double rho0;
-                double c;
-                double en[EN_SIZE];
-                int        ellips;
+                T   phi1;
+                T   phi2;
+                T   n;
+                T   rho0;
+                T   c;
+                T   en[EN_SIZE];
+                int ellips;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -88,7 +89,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_eqdc m_proj_parm;
+                par_eqdc<CalculationType> m_proj_parm;
 
                 inline base_eqdc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_eqdc_ellipsoid<CalculationType, Parameters>,
@@ -98,7 +99,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double rho = 0.0;
+                    CalculationType rho = 0.0;
                     rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? pj_mlfn(lp_lat, sin(lp_lat),
                         cos(lp_lat), this->m_proj_parm.en) : lp_lat);
                     xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
@@ -109,7 +110,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double rho = 0.0;
+                    CalculationType rho = 0.0;
                     if ((rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
@@ -130,7 +131,7 @@ namespace projections
                 #ifdef SPECIAL_FACTORS_NOT_CONVERTED
                 inline void fac(Geographic lp, Factors &fac) const
                 {
-                    double sinphi, cosphi;
+                    CalculationType sinphi, cosphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -149,10 +150,10 @@ namespace projections
             };
 
             // Equidistant Conic
-            template <typename Parameters>
-            void setup_eqdc(Parameters& par, par_eqdc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_eqdc(Parameters& par, par_eqdc<T>& proj_parm)
             {
-                double cosphi, sinphi;
+                T cosphi, sinphi;
                 int secant;
 
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;

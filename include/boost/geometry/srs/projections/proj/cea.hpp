@@ -67,10 +67,11 @@ namespace projections
 
             static const double EPS = 1e-10;
 
+            template <typename T>
             struct par_cea
             {
-                double qp;
-                double apa[APA_SIZE];
+                T qp;
+                T apa[APA_SIZE];
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -82,7 +83,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_cea m_proj_parm;
+                par_cea<CalculationType> m_proj_parm;
 
                 inline base_cea_ellipsoid(const Parameters& par)
                     : base_t_fi<base_cea_ellipsoid<CalculationType, Parameters>,
@@ -120,7 +121,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_cea m_proj_parm;
+                par_cea<CalculationType> m_proj_parm;
 
                 inline base_cea_spheroid(const Parameters& par)
                     : base_t_fi<base_cea_spheroid<CalculationType, Parameters>,
@@ -138,15 +139,17 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType t;
 
                     if ((t = fabs(xy_y *= this->m_par.k0)) - EPS <= 1.) {
                         if (t >= 1.)
-                            lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
                         else
                             lp_lat = asin(xy_y);
                         lp_lon = xy_x / this->m_par.k0;
-                    } else throw proj_exception();;
+                    } else throw proj_exception();
                 }
 
                 static inline std::string get_name()
@@ -157,10 +160,10 @@ namespace projections
             };
 
             // Equal Area Cylindrical
-            template <typename Parameters>
-            void setup_cea(Parameters& par, par_cea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_cea(Parameters& par, par_cea<T>& proj_parm)
             {
-                double t = 0;
+                T t = 0;
 
                 if (pj_param(par.params, "tlat_ts").i &&
                     (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.)

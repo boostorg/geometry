@@ -64,17 +64,29 @@ namespace projections
     namespace detail { namespace cass
     {
 
-            static const double EPS10 = 1e-10;
-            static const double C1 = .16666666666666666666;
-            static const double C2 = .00833333333333333333;
-            static const double C3 = .04166666666666666666;
-            static const double C4 = .33333333333333333333;
-            static const double C5 = .06666666666666666666;
+            //static const double EPS10 = 1e-10;
+            //static const double C1 = .16666666666666666666;
+            //static const double C2 = .00833333333333333333;
+            //static const double C3 = .04166666666666666666;
+            //static const double C4 = .33333333333333333333;
+            //static const double C5 = .06666666666666666666;
 
+            template <typename T>
+            inline T C1() { return .16666666666666666666666666666666666666; }
+            template <typename T>
+            inline T C2() { return .00833333333333333333333333333333333333; }
+            template <typename T>
+            inline T C3() { return .04166666666666666666666666666666666666; }
+            template <typename T>
+            inline T C4() { return .33333333333333333333333333333333333333; }
+            template <typename T>
+            inline T C5() { return .06666666666666666666666666666666666666; }
+
+            template <typename T>
             struct par_cass
             {
-                double m0;
-                double en[EN_SIZE];
+                T m0;
+                T en[EN_SIZE];
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -86,7 +98,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_cass m_proj_parm;
+                par_cass<CalculationType> m_proj_parm;
 
                 inline base_cass_ellipsoid(const Parameters& par)
                     : base_t_fi<base_cass_ellipsoid<CalculationType, Parameters>,
@@ -96,14 +108,18 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double n = sin(lp_lat);
-                    double c = cos(lp_lat);
+                    static const CalculationType C1 = cass::C1<CalculationType>();
+                    static const CalculationType C2 = cass::C2<CalculationType>();
+                    static const CalculationType C3 = cass::C3<CalculationType>();
+
+                    CalculationType n = sin(lp_lat);
+                    CalculationType c = cos(lp_lat);
                     xy_y = pj_mlfn(lp_lat, n, c, this->m_proj_parm.en);
                     n = 1./sqrt(1. - this->m_par.es * n * n);
-                    double tn = tan(lp_lat); double t = tn * tn;
-                    double a1 = lp_lon * c;
+                    CalculationType tn = tan(lp_lat); CalculationType t = tn * tn;
+                    CalculationType a1 = lp_lon * c;
                     c *= this->m_par.es * c / (1 - this->m_par.es);
-                    double a2 = a1 * a1;
+                    CalculationType a2 = a1 * a1;
                     xy_x = n * a1 * (1. - a2 * t *
                         (C1 - (8. - t + 8. * c) * a2 * C2));
                     xy_y -= this->m_proj_parm.m0 - n * tn * a2 *
@@ -114,16 +130,20 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double ph1;
+                    static const CalculationType C3 = cass::C3<CalculationType>();
+                    static const CalculationType C4 = cass::C4<CalculationType>();
+                    static const CalculationType C5 = cass::C5<CalculationType>();
+
+                    CalculationType ph1;
 
                     ph1 = pj_inv_mlfn(this->m_proj_parm.m0 + xy_y, this->m_par.es, this->m_proj_parm.en);
-                    double tn = tan(ph1); double t = tn * tn;
-                    double n = sin(ph1);
-                    double r = 1. / (1. - this->m_par.es * n * n);
+                    CalculationType tn = tan(ph1); CalculationType t = tn * tn;
+                    CalculationType n = sin(ph1);
+                    CalculationType r = 1. / (1. - this->m_par.es * n * n);
                     n = sqrt(r);
                     r *= (1. - this->m_par.es) * n;
-                    double dd = xy_x / n;
-                    double d2 = dd * dd;
+                    CalculationType dd = xy_x / n;
+                    CalculationType d2 = dd * dd;
                     lp_lat = ph1 - (n * tn / r) * d2 *
                         (.5 - (1. + 3. * t) * d2 * C3);
                     lp_lon = dd * (1. + t * d2 *
@@ -146,7 +166,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_cass m_proj_parm;
+                par_cass<CalculationType> m_proj_parm;
 
                 inline base_cass_spheroid(const Parameters& par)
                     : base_t_fi<base_cass_spheroid<CalculationType, Parameters>,
@@ -164,7 +184,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double dd = xy_y + this->m_par.phi0;
+                    CalculationType dd = xy_y + this->m_par.phi0;
                     lp_lat = asin(sin(dd) * cos(xy_x));
                     lp_lon = atan2(tan(xy_x), cos(dd));
                 }
@@ -177,8 +197,8 @@ namespace projections
             };
 
             // Cassini
-            template <typename Parameters>
-            void setup_cass(Parameters& par, par_cass& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_cass(Parameters& par, par_cass<T>& proj_parm)
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);

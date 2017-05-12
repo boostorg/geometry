@@ -67,13 +67,14 @@ namespace projections
 
             static const double EPS10 = 1e-10;
 
+            template <typename T>
             struct par_bonne
             {
-                double phi1;
-                double cphi1;
-                double am1;
-                double m1;
-                double en[EN_SIZE];
+                T phi1;
+                T cphi1;
+                T am1;
+                T m1;
+                T en[EN_SIZE];
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -85,7 +86,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_bonne m_proj_parm;
+                par_bonne<CalculationType> m_proj_parm;
 
                 inline base_bonne_ellipsoid(const Parameters& par)
                     : base_t_fi<base_bonne_ellipsoid<CalculationType, Parameters>,
@@ -95,7 +96,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double rh, E, c;
+                    CalculationType rh, E, c;
 
                     rh = this->m_proj_parm.am1 + this->m_proj_parm.m1 - pj_mlfn(lp_lat, E = sin(lp_lat), c = cos(lp_lat), this->m_proj_parm.en);
                     E = c * lp_lon / (rh * sqrt(1. - this->m_par.es * E * E));
@@ -107,15 +108,17 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double s, rh;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType s, rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, this->m_par.es, this->m_proj_parm.en);
-                    if ((s = fabs(lp_lat)) < geometry::math::half_pi<double>()) {
+                    if ((s = fabs(lp_lat)) < HALFPI) {
                         s = sin(lp_lat);
                         lp_lon = rh * atan2(xy_x, xy_y) *
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if (fabs(s - geometry::math::half_pi<double>()) <= EPS10)
+                    } else if (fabs(s - HALFPI) <= EPS10)
                         lp_lon = 0.;
                     else throw proj_exception();;
                 }
@@ -136,7 +139,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_bonne m_proj_parm;
+                par_bonne<CalculationType> m_proj_parm;
 
                 inline base_bonne_spheroid(const Parameters& par)
                     : base_t_fi<base_bonne_spheroid<CalculationType, Parameters>,
@@ -146,7 +149,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double E, rh;
+                    CalculationType E, rh;
 
                     rh = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - lp_lat;
                     if (fabs(rh) > EPS10) {
@@ -160,12 +163,14 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double rh;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
-                    if (fabs(lp_lat) > geometry::math::half_pi<double>()) throw proj_exception();;
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10)
+                    if (fabs(lp_lat) > HALFPI) throw proj_exception();
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
                         lp_lon = 0.;
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
@@ -179,10 +184,12 @@ namespace projections
             };
 
             // Bonne (Werner lat_1=90)
-            template <typename Parameters>
-            void setup_bonne(Parameters& par, par_bonne& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_bonne(Parameters& par, par_bonne<T>& proj_parm)
             {
-                double c;
+                static const T HALFPI = detail::HALFPI<T>();
+
+                T c;
 
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if (fabs(proj_parm.phi1) < EPS10) throw proj_exception(-23);
@@ -192,7 +199,7 @@ namespace projections
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
                 } else {
-                    if (fabs(proj_parm.phi1) + EPS10 >= geometry::math::half_pi<double>())
+                    if (fabs(proj_parm.phi1) + EPS10 >= HALFPI)
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);

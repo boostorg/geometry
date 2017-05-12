@@ -76,12 +76,13 @@ namespace projections
 
             static const double EPS = 1e-15;
 
+            template <typename T>
             struct par_healpix
             {
                 int north_square;
                 int south_square;
-                double qp;
-                double apa[APA_SIZE];
+                T qp;
+                T apa[APA_SIZE];
             };
 
             /* Matrix for counterclockwise rotation by pi/2: */
@@ -90,14 +91,18 @@ namespace projections
             /* Identity matrix */
             /* IDENT, R1, R2, R3, R1 inverse, R2 inverse, R3 inverse:*/
             /* Fuzz to handle rounding errors: */
-            typedef struct {
+            template <typename T>
+            struct CapMap
+            {
                 int cn; /* An integer 0--3 indicating the position of the polar cap. */
-                double x, y;  /* Coordinates of the pole point (point of most extreme latitude on the polar caps). */
+                T x, y; /* Coordinates of the pole point (point of most extreme latitude on the polar caps). */
                 enum Region {north, south, equatorial} region;
-            } CapMap;
-            typedef struct {
-                double x, y;
-            } Point;
+            };
+            template <typename T>
+            struct Point
+            {
+                T x, y;
+            };
             static double rot[7][2][2] = {{{1, 0},{0, 1}}, {{ 0,-1},{ 1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0, 1},{-1, 0}}, {{ 0, 1},{-1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0,-1},{ 1, 0}}};
 
             /**
@@ -105,14 +110,17 @@ namespace projections
              * @param v the parameter whose sign is returned.
              * @return 1 for positive number, -1 for negative, and 0 for zero.
              **/
-            inline double pj_sign (double v) {
+            template <typename T>
+            inline T pj_sign (T const& v)
+            {
                 return v > 0 ? 1 : (v < 0 ? -1 : 0);
             }
             /**
              * Return the index of the matrix in {{{1, 0},{0, 1}}, {{ 0,-1},{ 1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0, 1},{-1, 0}}, {{ 0, 1},{-1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0,-1},{ 1, 0}}}.
              * @param index ranges from -3 to 3.
              */
-            static int get_rotate_index(int index) {
+            static int get_rotate_index(int index)
+            {
                 switch(index) {
                 case 0:
                     return 0;
@@ -138,11 +146,13 @@ namespace projections
              * @param nvert the number of vertices in the polygon.
              * @param vert the (x, y)-coordinates of the polygon's vertices
              **/
-            static int pnpoly(int nvert, double vert[][2], double testx, double testy) {
+            template <typename T>
+            inline int pnpoly(int nvert, T vert[][2], T const& testx, T const& testy)
+            {
                 int i, c = 0;
                 int counter = 0;
-                double xinters;
-                Point p1, p2;
+                T xinters;
+                Point<T> p1, p2;
                 /* Check for boundrary cases */
                 for (i = 0; i < nvert; i++) {
                     if (testx == vert[i][0] && testy == vert[i][1]) {
@@ -182,44 +192,48 @@ namespace projections
              * @param north_square the position of the north polar square (rHEALPix only)
              * @param south_square the position of the south polar square (rHEALPix only)
              **/
-            inline int in_image(double x, double y, int proj, int north_square, int south_square) {
+            template <typename T>
+            inline int in_image(T const& x, T const& y, int proj, int north_square, int south_square)
+            {
+                static const T ONEPI = detail::ONEPI<T>();
+
                 if (proj == 0) {
-                    double healpixVertsJit[][2] = {
-                        {-1.0*geometry::math::pi<double>()- EPS, geometry::math::pi<double>()/4.0},
-                        {-3.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
-                        {-1.0*geometry::math::pi<double>()/2.0, geometry::math::pi<double>()/4.0 + EPS},
-                        {-1.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
-                        {0.0, geometry::math::pi<double>()/4.0 + EPS},
-                        {geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
-                        {geometry::math::pi<double>()/2.0, geometry::math::pi<double>()/4.0 + EPS},
-                        {3.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
-                        {geometry::math::pi<double>()+ EPS, geometry::math::pi<double>()/4.0},
-                        {geometry::math::pi<double>()+ EPS, -1.0*geometry::math::pi<double>()/4.0},
-                        {3.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
-                        {geometry::math::pi<double>()/2.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
-                        {0.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
-                        {-1.0*geometry::math::pi<double>()/2.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-3.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() - EPS, -1.0*geometry::math::pi<double>()/4.0}
+                    T healpixVertsJit[][2] = {
+                        {-1.0*ONEPI- EPS, ONEPI/4.0},
+                        {-3.0*ONEPI/4.0, ONEPI/2.0 + EPS},
+                        {-1.0*ONEPI/2.0, ONEPI/4.0 + EPS},
+                        {-1.0*ONEPI/4.0, ONEPI/2.0 + EPS},
+                        {0.0, ONEPI/4.0 + EPS},
+                        {ONEPI/4.0, ONEPI/2.0 + EPS},
+                        {ONEPI/2.0, ONEPI/4.0 + EPS},
+                        {3.0*ONEPI/4.0, ONEPI/2.0 + EPS},
+                        {ONEPI+ EPS, ONEPI/4.0},
+                        {ONEPI+ EPS, -1.0*ONEPI/4.0},
+                        {3.0*ONEPI/4.0, -1.0*ONEPI/2.0 - EPS},
+                        {ONEPI/2.0, -1.0*ONEPI/4.0 - EPS},
+                        {ONEPI/4.0, -1.0*ONEPI/2.0 - EPS},
+                        {0.0, -1.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI/4.0, -1.0*ONEPI/2.0 - EPS},
+                        {-1.0*ONEPI/2.0, -1.0*ONEPI/4.0 - EPS},
+                        {-3.0*ONEPI/4.0, -1.0*ONEPI/2.0 - EPS},
+                        {-1.0*ONEPI - EPS, -1.0*ONEPI/4.0}
                     };
                     return pnpoly((int)sizeof(healpixVertsJit)/
                                   sizeof(healpixVertsJit[0]), healpixVertsJit, x, y);
                 } else {
-                    double rhealpixVertsJit[][2] = {
-                        {-1.0*geometry::math::pi<double>() - EPS, geometry::math::pi<double>()/4.0 + EPS},
-                        {-1.0*geometry::math::pi<double>() + north_square*geometry::math::pi<double>()/2.0- EPS, geometry::math::pi<double>()/4.0 + EPS},
-                        {-1.0*geometry::math::pi<double>() + north_square*geometry::math::pi<double>()/2.0- EPS, 3*geometry::math::pi<double>()/4.0 + EPS},
-                        {-1.0*geometry::math::pi<double>() + (north_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, 3*geometry::math::pi<double>()/4.0 + EPS},
-                        {-1.0*geometry::math::pi<double>() + (north_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, geometry::math::pi<double>()/4.0 + EPS},
-                        {geometry::math::pi<double>() + EPS, geometry::math::pi<double>()/4.0 + EPS},
-                        {geometry::math::pi<double>() + EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() + (south_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() + (south_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, -3.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() + south_square*geometry::math::pi<double>()/2.0 - EPS, -3.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() + south_square*geometry::math::pi<double>()/2.0 - EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
-                        {-1.0*geometry::math::pi<double>() - EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS}};
+                    T rhealpixVertsJit[][2] = {
+                        {-1.0*ONEPI - EPS, ONEPI/4.0 + EPS},
+                        {-1.0*ONEPI + north_square*ONEPI/2.0- EPS, ONEPI/4.0 + EPS},
+                        {-1.0*ONEPI + north_square*ONEPI/2.0- EPS, 3*ONEPI/4.0 + EPS},
+                        {-1.0*ONEPI + (north_square + 1.0)*ONEPI/2.0 + EPS, 3*ONEPI/4.0 + EPS},
+                        {-1.0*ONEPI + (north_square + 1.0)*ONEPI/2.0 + EPS, ONEPI/4.0 + EPS},
+                        {ONEPI + EPS, ONEPI/4.0 + EPS},
+                        {ONEPI + EPS, -1.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI + (south_square + 1.0)*ONEPI/2.0 + EPS, -1.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI + (south_square + 1.0)*ONEPI/2.0 + EPS, -3.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI + south_square*ONEPI/2.0 - EPS, -3.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI + south_square*ONEPI/2.0 - EPS, -1.0*ONEPI/4.0 - EPS},
+                        {-1.0*ONEPI - EPS, -1.0*ONEPI/4.0 - EPS}};
                     return pnpoly((int)sizeof(rhealpixVertsJit)/
                                   sizeof(rhealpixVertsJit[0]), rhealpixVertsJit, x, y);
                 }
@@ -229,13 +243,14 @@ namespace projections
              * return the approximate latitude of authalic latitude alpha (if inverse=1).
              * P contains the relavent ellipsoid parameters.
              **/
-            template <typename Parameters>
-            double auth_lat(const Parameters& par, const par_healpix& proj_parm, double alpha, int inverse) {
+            template <typename Parameters, typename T>
+            inline T auth_lat(const Parameters& par, const par_healpix<T>& proj_parm, T const& alpha, int inverse)
+            {
                 if (inverse == 0) {
                     /* Authalic latitude. */
-                    double q = pj_qsfn(sin(alpha), par.e, 1.0 - par.es);
-                    double qp = proj_parm.qp;
-                    double ratio = q/qp;
+                    T q = pj_qsfn(sin(alpha), par.e, 1.0 - par.es);
+                    T qp = proj_parm.qp;
+                    T ratio = q/qp;
                     if (fabsl(ratio) > 1) {
                         /* Rounding error. */
                         ratio = pj_sign(ratio);
@@ -250,53 +265,60 @@ namespace projections
              * Return the HEALPix projection of the longitude-latitude point lp on
              * the unit sphere.
             **/
-            inline void healpix_sphere(double const& lp_lam, double const& lp_phi, double& xy_x, double& xy_y) {
-                double lam = lp_lam;
-                double phi = lp_phi;
-                double phi0 = asin(2.0/3.0);
+            template <typename T>
+            inline void healpix_sphere(T const& lp_lam, T const& lp_phi, T& xy_x, T& xy_y)
+            {               
+                static const T ONEPI = detail::ONEPI<T>();
+
+                T lam = lp_lam;
+                T phi = lp_phi;
+                T phi0 = asin(T(2.0)/T(3.0));
 
                 /* equatorial region */
                 if ( fabsl(phi) <= phi0) {
                     xy_x = lam;
-                    xy_y = 3.0*geometry::math::pi<double>()/8.0*sin(phi);
+                    xy_y = 3.0*ONEPI/8.0*sin(phi);
                 } else {
-                    double lamc;
-                    double sigma = sqrt(3.0*(1 - fabsl(sin(phi))));
-                    double cn = floor(2*lam / geometry::math::pi<double>() + 2);
+                    T lamc;
+                    T sigma = sqrt(3.0*(1 - fabsl(sin(phi))));
+                    T cn = floor(2*lam / ONEPI + 2);
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    lamc = -3*geometry::math::pi<double>()/4 + (geometry::math::pi<double>()/2)*cn;
+                    lamc = -3*ONEPI/4 + (ONEPI/2)*cn;
                     xy_x = lamc + (lam - lamc)*sigma;
-                    xy_y = pj_sign(phi)*geometry::math::pi<double>()/4*(2 - sigma);
+                    xy_y = pj_sign(phi)*ONEPI/4*(2 - sigma);
                 }
                 return;
             }
             /**
              * Return the inverse of healpix_sphere().
             **/
-            inline void healpix_sphere_inverse(double const& xy_x, double const& xy_y, double& lp_lam, double& lp_phi) {
+            template <typename T>
+            inline void healpix_sphere_inverse(T const& xy_x, T const& xy_y, T& lp_lam, T& lp_phi)
+            {                
+                static const T ONEPI = detail::ONEPI<T>();
 
-                double x = xy_x;
-                double y = xy_y;
-                double y0 = geometry::math::pi<double>()/4.0;
+                T x = xy_x;
+                T y = xy_y;
+                T y0 = ONEPI/4.0;
                 /* Equatorial region. */
                 if (fabsl(y) <= y0) {
                     lp_lam = x;
-                    lp_phi = asin(8.0*y/(3.0*geometry::math::pi<double>()));
-                } else if (fabsl(y) < geometry::math::pi<double>()/2.0) {
-                    double cn = floor(2.0*x/geometry::math::pi<double>() + 2.0);
-                    double xc, tau;
+                    lp_phi = asin(8.0*y/(3.0*ONEPI));
+                } else if (fabsl(y) < ONEPI/2.0) {
+                    T cn = floor(2.0*x/ONEPI + 2.0);
+                    T xc, tau;
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    xc = -3.0*geometry::math::pi<double>()/4.0 + (geometry::math::pi<double>()/2.0)*cn;
-                    tau = 2.0 - 4.0*fabsl(y)/geometry::math::pi<double>();
+                    xc = -3.0*ONEPI/4.0 + (ONEPI/2.0)*cn;
+                    tau = 2.0 - 4.0*fabsl(y)/ONEPI;
                     lp_lam = xc + (x - xc)/tau;
                     lp_phi = pj_sign(y)*asin(1.0 - pow(tau , 2.0)/3.0);
                 } else {
-                    lp_lam = -1.0*geometry::math::pi<double>();
-                    lp_phi = pj_sign(y)*geometry::math::pi<double>()/2.0;
+                    lp_lam = -1.0*ONEPI;
+                    lp_phi = pj_sign(y)*ONEPI/2.0;
                 }
                 return;
             }
@@ -304,7 +326,9 @@ namespace projections
              * Return the vector sum a + b, where a and b are 2-dimensional vectors.
              * @param ret holds a + b.
              **/
-            static void vector_add(double a[2], double b[2], double *ret) {
+            template <typename T>
+            inline void vector_add(T a[2], T b[2], T *ret)
+            {
                 int i;
                 for(i = 0; i < 2; i++) {
                     ret[i] = a[i] + b[i];
@@ -314,7 +338,9 @@ namespace projections
              * Return the vector difference a - b, where a and b are 2-dimensional vectors.
              * @param ret holds a - b.
              **/
-            static void vector_sub(double a[2], double b[2], double*ret) {
+            template <typename T>
+            inline void vector_sub(T a[2], T b[2], T*ret)
+            {
                 int i;
                 for(i = 0; i < 2; i++) {
                     ret[i] = a[i] - b[i];
@@ -325,7 +351,9 @@ namespace projections
              * b is a 2 x 1 matrix.
              * @param ret holds a*b.
              **/
-            static void dot_product(double a[2][2], double b[2], double *ret) {
+            template <typename T>
+            inline void dot_product(T a[2][2], T b[2], T *ret)
+            {
                 int i, j;
                 int length = 2;
                 for(i = 0; i < length; i++) {
@@ -343,79 +371,83 @@ namespace projections
              * If inverse=1, then assume (x,y) lies in the image of the
              * (north_square, south_square)-rHEALPix projection of the unit sphere.
              **/
-            static CapMap get_cap(double x, double y, int north_square, int south_square,
-                                  int inverse) {
-                CapMap capmap;
-                double c;
+            template <typename T>
+            inline CapMap<T> get_cap(T x, T const& y, int north_square, int south_square,
+                                     int inverse)
+            {
+                static const T ONEPI = detail::ONEPI<T>();
+
+                CapMap<T> capmap;
+                T c;
                 capmap.x = x;
                 capmap.y = y;
                 if (inverse == 0) {
-                    if (y > geometry::math::pi<double>()/4.0) {
-                        capmap.region = CapMap::north;
-                        c = geometry::math::pi<double>()/2.0;
-                    } else if (y < -1*geometry::math::pi<double>()/4.0) {
-                        capmap.region = CapMap::south;
-                        c = -1*geometry::math::pi<double>()/2.0;
+                    if (y > ONEPI/4.0) {
+                        capmap.region = CapMap<T>::north;
+                        c = ONEPI/2.0;
+                    } else if (y < -1*ONEPI/4.0) {
+                        capmap.region = CapMap<T>::south;
+                        c = -1*ONEPI/2.0;
                     } else {
-                        capmap.region = CapMap::equatorial;
+                        capmap.region = CapMap<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* polar region */
-                    if (x < -1*geometry::math::pi<double>()/2.0) {
+                    if (x < -1*ONEPI/2.0) {
                         capmap.cn = 0;
-                        capmap.x = (-1*3.0*geometry::math::pi<double>()/4.0);
+                        capmap.x = (-1*3.0*ONEPI/4.0);
                         capmap.y = c;
-                    } else if (x >= -1*geometry::math::pi<double>()/2.0 && x < 0) {
+                    } else if (x >= -1*ONEPI/2.0 && x < 0) {
                         capmap.cn = 1;
-                        capmap.x = -1*geometry::math::pi<double>()/4.0;
+                        capmap.x = -1*ONEPI/4.0;
                         capmap.y = c;
-                    } else if (x >= 0 && x < geometry::math::pi<double>()/2.0) {
+                    } else if (x >= 0 && x < ONEPI/2.0) {
                         capmap.cn = 2;
-                        capmap.x = geometry::math::pi<double>()/4.0;
+                        capmap.x = ONEPI/4.0;
                         capmap.y = c;
                     } else {
                         capmap.cn = 3;
-                        capmap.x = 3.0*geometry::math::pi<double>()/4.0;
+                        capmap.x = 3.0*ONEPI/4.0;
                         capmap.y = c;
                     }
                     return capmap;
                 } else {
-                    double eps;
-                    if (y > geometry::math::pi<double>()/4.0) {
-                        capmap.region = CapMap::north;
-                        capmap.x = (-3.0*geometry::math::pi<double>()/4.0 + north_square*geometry::math::pi<double>()/2.0);
-                        capmap.y = geometry::math::pi<double>()/2.0;
-                        x = x - north_square*geometry::math::pi<double>()/2.0;
-                    } else if (y < -1*geometry::math::pi<double>()/4.0) {
-                        capmap.region = CapMap::south;
-                        capmap.x = (-3.0*geometry::math::pi<double>()/4.0 + south_square*geometry::math::pi<double>()/2);
-                        capmap.y = -1*geometry::math::pi<double>()/2.0;
-                        x = x - south_square*geometry::math::pi<double>()/2.0;
+                    T eps;
+                    if (y > ONEPI/4.0) {
+                        capmap.region = CapMap<T>::north;
+                        capmap.x = (-3.0*ONEPI/4.0 + north_square*ONEPI/2.0);
+                        capmap.y = ONEPI/2.0;
+                        x = x - north_square*ONEPI/2.0;
+                    } else if (y < -1*ONEPI/4.0) {
+                        capmap.region = CapMap<T>::south;
+                        capmap.x = (-3.0*ONEPI/4.0 + south_square*ONEPI/2);
+                        capmap.y = -1*ONEPI/2.0;
+                        x = x - south_square*ONEPI/2.0;
                     } else {
-                        capmap.region = CapMap::equatorial;
+                        capmap.region = CapMap<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* Polar Region, find the HEALPix polar cap number that
                        x, y moves to when rHEALPix polar square is disassembled. */
                     eps = 1e-15; /* Kludge.  Fuzz to avoid some rounding errors. */
-                    if (capmap.region == CapMap::north) {
-                        if (y >= -1*x - geometry::math::pi<double>()/4.0 - eps && y < x + 5.0*geometry::math::pi<double>()/4.0 - eps) {
+                    if (capmap.region == CapMap<T>::north) {
+                        if (y >= -1*x - ONEPI/4.0 - eps && y < x + 5.0*ONEPI/4.0 - eps) {
                             capmap.cn = (north_square + 1) % 4;
-                        } else if (y > -1*x -1*geometry::math::pi<double>()/4.0 + eps && y >= x + 5.0*geometry::math::pi<double>()/4.0 - eps) {
+                        } else if (y > -1*x -1*ONEPI/4.0 + eps && y >= x + 5.0*ONEPI/4.0 - eps) {
                             capmap.cn = (north_square + 2) % 4;
-                        } else if (y <= -1*x -1*geometry::math::pi<double>()/4.0 + eps && y > x + 5.0*geometry::math::pi<double>()/4.0 + eps) {
+                        } else if (y <= -1*x -1*ONEPI/4.0 + eps && y > x + 5.0*ONEPI/4.0 + eps) {
                             capmap.cn = (north_square + 3) % 4;
                         } else {
                             capmap.cn = north_square;
                         }
-                    } else if (capmap.region == CapMap::south) {
-                        if (y <= x + geometry::math::pi<double>()/4.0 + eps && y > -1*x - 5.0*geometry::math::pi<double>()/4 + eps) {
+                    } else if (capmap.region == CapMap<T>::south) {
+                        if (y <= x + ONEPI/4.0 + eps && y > -1*x - 5.0*ONEPI/4 + eps) {
                             capmap.cn = (south_square + 1) % 4;
-                        } else if (y < x + geometry::math::pi<double>()/4.0 - eps && y <= -1*x - 5.0*geometry::math::pi<double>()/4.0 + eps) {
+                        } else if (y < x + ONEPI/4.0 - eps && y <= -1*x - 5.0*ONEPI/4.0 + eps) {
                             capmap.cn = (south_square + 2) % 4;
-                        } else if (y >= x + geometry::math::pi<double>()/4.0 - eps && y < -1*x - 5.0*geometry::math::pi<double>()/4.0 - eps) {
+                        } else if (y >= x + ONEPI/4.0 - eps && y < -1*x - 5.0*ONEPI/4.0 - eps) {
                             capmap.cn = (south_square + 3) % 4;
                         } else {
                             capmap.cn = south_square;
@@ -433,16 +465,19 @@ namespace projections
              * @param north_square integer between 0 and 3.
              * @param south_square integer between 0 and 3.
              **/
-            static void combine_caps(double& xy_x, double& xy_y, int north_square, int south_square,
-                                   int inverse) {
+            template <typename T>
+            inline void combine_caps(T& xy_x, T& xy_y, int north_square, int south_square,
+                                     int inverse)
+            {
+                static const T ONEPI = detail::ONEPI<T>();
 
-                double v[2];
-                double a[2];
-                double vector[2];
-                double v_min_c[2];
-                double ret_dot[2];
-                CapMap capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
-                if (capmap.region == CapMap::equatorial) {
+                T v[2];
+                T a[2];
+                T vector[2];
+                T v_min_c[2];
+                T ret_dot[2];
+                CapMap<T> capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
+                if (capmap.region == CapMap<T>::equatorial) {
                     xy_x = capmap.x;
                     xy_y = capmap.y;
                     return;
@@ -453,20 +488,20 @@ namespace projections
                     /* Rotate (xy_x, xy_y) about its polar cap tip and then translate it to
                        north_square or south_square. */
                     int pole = 0;
-                    double (*tmpRot)[2];
-                    double c[2] = {capmap.x, capmap.y};
-                    if (capmap.region == CapMap::north) {
+                    T (*tmpRot)[2];
+                    T c[2] = {capmap.x, capmap.y};
+                    if (capmap.region == CapMap<T>::north) {
                         pole = north_square;
-                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + pole*geometry::math::pi<double>()/2);
-                        a[1] =  (geometry::math::pi<double>()/2.0 + pole*0);
+                        a[0] =  (-3.0*ONEPI/4.0 + pole*ONEPI/2);
+                        a[1] =  (ONEPI/2.0 + pole*0);
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
                         vector_add(ret_dot, a, vector);
                     } else {
                         pole = south_square;
-                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + pole*geometry::math::pi<double>()/2);
-                        a[1] =  (geometry::math::pi<double>()/-2.0 + pole*0);
+                        a[0] =  (-3.0*ONEPI/4.0 + pole*ONEPI/2);
+                        a[1] =  (ONEPI/-2.0 + pole*0);
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
@@ -479,21 +514,21 @@ namespace projections
                     /* Inverse function.
                      Unrotate (xy_x, xy_y) and then translate it back. */
                     int pole = 0;
-                    double (*tmpRot)[2];
-                    double c[2] = {capmap.x, capmap.y};
+                    T (*tmpRot)[2];
+                    T c[2] = {capmap.x, capmap.y};
                     /* disassemble */
-                    if (capmap.region == CapMap::north) {
+                    if (capmap.region == CapMap<T>::north) {
                         pole = north_square;
-                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + capmap.cn*geometry::math::pi<double>()/2);
-                        a[1] =  (geometry::math::pi<double>()/2.0 + capmap.cn*0);
+                        a[0] =  (-3.0*ONEPI/4.0 + capmap.cn*ONEPI/2);
+                        a[1] =  (ONEPI/2.0 + capmap.cn*0);
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
                         vector_add(ret_dot, a, vector);
                     } else {
                         pole = south_square;
-                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + capmap.cn*geometry::math::pi<double>()/2);
-                        a[1] =  (geometry::math::pi<double>()/-2.0 + capmap.cn*0);
+                        a[0] =  (-3.0*ONEPI/4.0 + capmap.cn*ONEPI/2);
+                        a[1] =  (ONEPI/-2.0 + capmap.cn*0);
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
@@ -514,7 +549,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_healpix m_proj_parm;
+                par_healpix<CalculationType> m_proj_parm;
 
                 inline base_healpix_ellipsoid(const Parameters& par)
                     : base_t_fi<base_healpix_ellipsoid<CalculationType, Parameters>,
@@ -559,7 +594,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_healpix m_proj_parm;
+                par_healpix<CalculationType> m_proj_parm;
 
                 inline base_healpix_spheroid(const Parameters& par)
                     : base_t_fi<base_healpix_spheroid<CalculationType, Parameters>,
@@ -602,7 +637,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_healpix m_proj_parm;
+                par_healpix<CalculationType> m_proj_parm;
 
                 inline base_rhealpix_ellipsoid(const Parameters& par)
                     : base_t_fi<base_rhealpix_ellipsoid<CalculationType, Parameters>,
@@ -649,7 +684,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_healpix m_proj_parm;
+                par_healpix<CalculationType> m_proj_parm;
 
                 inline base_rhealpix_spheroid(const Parameters& par)
                     : base_t_fi<base_rhealpix_spheroid<CalculationType, Parameters>,
@@ -686,8 +721,8 @@ namespace projections
             };
 
             // HEALPix
-            template <typename Parameters>
-            void setup_healpix(Parameters& par, par_healpix& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_healpix(Parameters& par, par_healpix<T>& proj_parm)
             {
                 if (par.es) {
                     pj_authset(par.es, proj_parm.apa); /* For auth_lat(). */
@@ -699,8 +734,8 @@ namespace projections
             }
 
             // rHEALPix
-            template <typename Parameters>
-            void setup_rhealpix(Parameters& par, par_healpix& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_rhealpix(Parameters& par, par_healpix<T>& proj_parm)
             {
                 proj_parm.north_square = pj_param(par.params,"inorth_square").i;
                 proj_parm.south_square = pj_param(par.params,"isouth_square").i;

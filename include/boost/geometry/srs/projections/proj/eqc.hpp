@@ -60,10 +60,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace eqc
     {
-
+            template <typename T>
             struct par_eqc
             {
-                double rc;
+                T rc;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -75,7 +75,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_eqc m_proj_parm;
+                par_eqc<CalculationType> m_proj_parm;
 
                 inline base_eqc_spheroid(const Parameters& par)
                     : base_t_fi<base_eqc_spheroid<CalculationType, Parameters>,
@@ -105,8 +105,8 @@ namespace projections
             };
 
             // Equidistant Cylindrical (Plate Caree)
-            template <typename Parameters>
-            void setup_eqc(Parameters& par, par_eqc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
             {
                 if ((proj_parm.rc = cos(pj_param(par.params, "rlat_ts").f)) <= 0.) throw proj_exception(-24);
                 par.es = 0.;

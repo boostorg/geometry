@@ -62,16 +62,16 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace gstmerc
     {
-
+            template <typename T>
             struct par_gstmerc
             {
-                double lamc;
-                double phic;
-                double c;
-                double n1;
-                double n2;
-                double XS;
-                double YS;
+                T lamc;
+                T phic;
+                T c;
+                T n1;
+                T n2;
+                T XS;
+                T YS;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -83,7 +83,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_gstmerc m_proj_parm;
+                par_gstmerc<CalculationType> m_proj_parm;
 
                 inline base_gstmerc_spheroid(const Parameters& par)
                     : base_t_fi<base_gstmerc_spheroid<CalculationType, Parameters>,
@@ -93,7 +93,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double L, Ls, sinLs1, Ls1;
+                    CalculationType L, Ls, sinLs1, Ls1;
                     L= this->m_proj_parm.n1*lp_lon;
                     Ls= this->m_proj_parm.c+this->m_proj_parm.n1*log(pj_tsfn(-1.0*lp_lat,-1.0*sin(lp_lat),this->m_par.e));
                     sinLs1= sin(L)/cosh(Ls);
@@ -107,7 +107,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double L, LC, sinC;
+                    CalculationType L, LC, sinC;
                     L= atan(sinh((xy_x*this->m_par.a - this->m_proj_parm.XS)/this->m_proj_parm.n2)/cos((xy_y*this->m_par.a - this->m_proj_parm.YS)/this->m_proj_parm.n2));
                     sinC= sin((xy_y*this->m_par.a - this->m_proj_parm.YS)/this->m_proj_parm.n2)/cosh((xy_x*this->m_par.a - this->m_proj_parm.XS)/this->m_proj_parm.n2);
                     LC= log(pj_tsfn(-1.0*asin(sinC),0.0,0.0));
@@ -124,8 +124,8 @@ namespace projections
             };
 
             // Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
-            template <typename Parameters>
-            void setup_gstmerc(Parameters& par, par_gstmerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_gstmerc(Parameters& par, par_gstmerc<T>& proj_parm)
             {
                 proj_parm.lamc= par.lam0;
                 proj_parm.n1= sqrt(1.0+par.es*pow(cos(par.phi0),4.0)/(1.0-par.es));

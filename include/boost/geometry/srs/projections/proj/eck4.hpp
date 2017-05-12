@@ -88,7 +88,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double p, V, s, c;
+                    CalculationType p, V, s, c;
                     int i;
 
                     p = C_p * sin(lp_lat);
@@ -115,7 +115,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double c;
+                    CalculationType c;
 
                     lp_lat = aasin(xy_y / C_y);
                     lp_lon = xy_x / (C_x * (1. + (c = cos(lp_lat))));

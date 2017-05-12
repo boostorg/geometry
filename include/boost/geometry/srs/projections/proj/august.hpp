@@ -61,7 +61,7 @@ namespace projections
     namespace detail { namespace august
     {
 
-            static const double M = 1.333333333333333;
+            //static const double M = 1.333333333333333;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -81,7 +81,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t, c1, c, x1, x12, y1, y12;
+                    static const CalculationType M = 1.333333333333333333333333333333333333;
+
+                    CalculationType t, c1, c, x1, x12, y1, y12;
 
                     t = tan(.5 * lp_lat);
                     c1 = sqrt(1. - t * t);

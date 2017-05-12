@@ -67,18 +67,18 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace geos
     {
-
+            template <typename T>
             struct par_geos
             {
-                double    h;
-                double  radius_p;
-                double  radius_p2;
-                double  radius_p_inv2;
-                double  radius_g;
-                double  radius_g_1;
-                double  C;
-                std::string  sweep_axis;
-                int     flip_axis;
+                T           h;
+                T           radius_p;
+                T           radius_p2;
+                T           radius_p_inv2;
+                T           radius_g;
+                T           radius_g_1;
+                T           C;
+                std::string sweep_axis;
+                int         flip_axis;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -90,7 +90,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_geos m_proj_parm;
+                par_geos<CalculationType> m_proj_parm;
 
                 inline base_geos_ellipsoid(const Parameters& par)
                     : base_t_fi<base_geos_ellipsoid<CalculationType, Parameters>,
@@ -100,7 +100,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double r, Vx, Vy, Vz, tmp;
+                    CalculationType r, Vx, Vy, Vz, tmp;
 
                 /* Calculation of geocentric latitude. */
                     lp_lat = atan (this->m_proj_parm.radius_p2 * tan (lp_lat));
@@ -131,7 +131,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double Vx, Vy, Vz, a, b, det, k;
+                    CalculationType Vx, Vy, Vz, a, b, det, k;
 
                 /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -177,7 +177,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_geos m_proj_parm;
+                par_geos<CalculationType> m_proj_parm;
 
                 inline base_geos_spheroid(const Parameters& par)
                     : base_t_fi<base_geos_spheroid<CalculationType, Parameters>,
@@ -187,7 +187,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double Vx, Vy, Vz, tmp;
+                    CalculationType Vx, Vy, Vz, tmp;
 
                 /* Calculation of the three components of the vector from satellite to
                 ** position on earth surface (lon,lat).*/
@@ -215,7 +215,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double Vx, Vy, Vz, a, b, det, k;
+                    CalculationType Vx, Vy, Vz, a, b, det, k;
 
                 /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -251,8 +251,8 @@ namespace projections
             };
 
             // Geostationary Satellite View
-            template <typename Parameters>
-            void setup_geos(Parameters& par, par_geos& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_geos(Parameters& par, par_geos<T>& proj_parm)
             {
                 if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
                 if (par.phi0) throw proj_exception(-46);

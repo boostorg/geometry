@@ -67,9 +67,10 @@ namespace projections
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
+            template <typename T>
             struct par_fouc_s
             {
-                double n, n1;
+                T n, n1;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -81,7 +82,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_fouc_s m_proj_parm;
+                par_fouc_s<CalculationType> m_proj_parm;
 
                 inline base_fouc_s_spheroid(const Parameters& par)
                     : base_t_fi<base_fouc_s_spheroid<CalculationType, Parameters>,
@@ -91,7 +92,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t;
+                    CalculationType t;
 
                     t = cos(lp_lat);
                     xy_x = lp_lon * t / (this->m_proj_parm.n + this->m_proj_parm.n1 * t);
@@ -102,7 +103,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double V;
+                    CalculationType V;
                     int i;
 
                     if (this->m_proj_parm.n) {
@@ -129,8 +130,8 @@ namespace projections
             };
 
             // Foucaut Sinusoidal
-            template <typename Parameters>
-            void setup_fouc_s(Parameters& par, par_fouc_s& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
             {
                 proj_parm.n = pj_param(par.params, "dn").f;
                 if (proj_parm.n < 0. || proj_parm.n > 1.)

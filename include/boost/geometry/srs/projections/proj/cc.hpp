@@ -65,9 +65,10 @@ namespace projections
 
             static const double EPS10 = 1.e-10;
 
+            template <typename T>
             struct par_cc
             {
-                double ap;
+                T ap;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -79,7 +80,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_cc m_proj_parm;
+                par_cc<CalculationType> m_proj_parm;
 
                 inline base_cc_spheroid(const Parameters& par)
                     : base_t_fi<base_cc_spheroid<CalculationType, Parameters>,
@@ -89,7 +90,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();
                     xy_x = lp_lon;
                     xy_y = tan(lp_lat);
                 }
@@ -110,8 +113,8 @@ namespace projections
             };
 
             // Central Cylindrical
-            template <typename Parameters>
-            void setup_cc(Parameters& par, par_cc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_cc(Parameters& par, par_cc<T>& proj_parm)
             {
                 par.es = 0.;
             }

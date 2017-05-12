@@ -65,7 +65,7 @@ namespace projections
 
             static const double FXC = 0.46065886596178063902;
             static const double FYC = 1.44720250911653531871;
-            static const double C13 = 0.33333333333333333333;
+            //static const double C13 = 0.33333333333333333333;
             static const double ONEEPS = 1.0000001;
 
             // template class, using CRTP to implement forward/inverse
@@ -95,12 +95,15 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType C13 = detail::THIRD<CalculationType>();
+
                     lp_lon = xy_x / (FXC * ( lp_lat = 2. - fabs(xy_y) / FYC) );
                     lp_lat = (4. - lp_lat * lp_lat) * C13;
                     if (fabs(lp_lat) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
                         else
-                            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                     } else
                         lp_lat = asin(lp_lat);
                     if (xy_y < 0)

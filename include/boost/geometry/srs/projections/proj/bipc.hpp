@@ -108,15 +108,18 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+
+                    CalculationType cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
                     int tag;
 
                     cphi = cos(lp_lat);
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS10) {
-                        Az = lp_lat < 0. ? geometry::math::pi<double>() : 0.;
+                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                        Az = lp_lat < 0. ? ONEPI : 0.;
                         tphi = HUGE_VAL;
                     } else {
                         tphi = sphi / cphi;
@@ -169,7 +172,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t, r, rp, rl, al, z, fAz, Az, s, c, Av;
+                    CalculationType t, r, rp, rl, al, z, fAz, Az, s, c, Av;
                     int neg, i;
 
                     if (this->m_proj_parm.noskew) {

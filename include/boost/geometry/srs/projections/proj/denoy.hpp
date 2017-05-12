@@ -62,10 +62,15 @@ namespace projections
     {
 
             static const double C0 = 0.95;
-            static const double C1 = -.08333333333333333333;
-            static const double C3 = .00166666666666666666;
+            //static const double C1 = -.08333333333333333333;
+            //static const double C3 = .00166666666666666666;
             static const double D1 = 0.9;
             static const double D5 = 0.03;
+
+            template <typename T>
+            inline T C1() { return -.0833333333333333333333333333333; }
+            template <typename T>
+            inline T C3() { return .0016666666666666666666666666666; }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -85,6 +90,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType C1 = denoy::C1<CalculationType>();
+                    static const CalculationType C3 = denoy::C3<CalculationType>();
+
                     xy_y = lp_lat;
                     xy_x = lp_lon;
                     lp_lon = fabs(lp_lon);
