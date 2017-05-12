@@ -59,7 +59,25 @@ namespace detail
 
 /* some useful constants */
 template <typename T>
-inline T FORTPI() { return boost::math::constants::pi<T>() / 4.0; }
+inline T ONEPI() { return boost::math::constants::pi<T>(); }
+template <typename T>
+inline T HALFPI() { return boost::math::constants::half_pi<T>(); }
+template <typename T>
+inline T FORTPI() { return boost::math::constants::pi<T>() / T(4); }
+template <typename T>
+inline T TWOPI() { return boost::math::constants::two_pi<T>(); }
+template <typename T>
+inline T TWO_D_PI() { return boost::math::constants::two_div_pi<T>(); }
+template <typename T>
+inline T EPS10() { return 1.e-10; }
+template <typename T>
+inline T EPS7() { return 1.e-7; }
+template <typename T>
+inline T TOL14() { return 1.e-14; }
+template <typename T>
+inline T TOL10() { return 1.e-10; }
+template <typename T>
+inline T TOL7() { return 1.e-7; }
 
 /* datum_type values */
 static const int PJD_UNKNOWN = 0;
