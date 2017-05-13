@@ -264,9 +264,16 @@ void test_areal()
                 ignore_validity);
     }
 
+    // Invalid input (validity in output is ignored)
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
+        case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
+            3, 0, -1, 4.5, ignore_validity);
+#else
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
         case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
             5, 0, -1, 4.5);
+#endif
 
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
