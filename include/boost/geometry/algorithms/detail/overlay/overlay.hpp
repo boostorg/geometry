@@ -172,7 +172,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             }
             else if (colocated_opp && ! colocated_target)
             {
-                // For union, a turn colocated with ii and NOT with uu
+                // For union, a turn colocated with ii and NOT with uu/ux
                 // For intersection v.v.
                 turn_info_map[ring_id].has_traversed_turn = true;
             }
