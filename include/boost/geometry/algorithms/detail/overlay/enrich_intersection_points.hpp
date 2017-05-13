@@ -353,13 +353,32 @@ inline void enrich_intersection_points(Turns& turns,
             turn.cluster_id = -1;
         }
 
-        if (OverlayType != overlay_buffer
-            && turn.cluster_id >= 0
-            && turn.self_turn())
+        if (OverlayType != overlay_buffer && turn.self_turn())
         {
-            // Avoid interfering self-turn if there are already clustered turns
-            // TODO: avoid discarding if there are ONLY self-turns
-           turn.discarded = true;
+            if (turn.cluster_id >= 0)
+            {
+                // Avoid interfering self-turn if there are already clustered turns
+                // TODO: avoid discarding if there are ONLY self-turns
+               turn.discarded = true;
+               turn.cluster_id = -1;
+            }
+            if (for_operation == detail::overlay::operation_union
+                    && turn.both(detail::overlay::operation_union))
+            {
+                // For now, avoid uu including self-turns for unions (there are many)
+                // TODO: nuance this, they are necessary to separate newly formed attached holes
+                // See #case_recursive_boxes_5
+                turn.discarded = true;
+                turn.cluster_id = -1;
+            }
+            if (OverlayType == overlay_difference
+                    && for_operation == detail::overlay::operation_intersection
+                    && turn.both(detail::overlay::operation_intersection))
+            {
+                // Avoid ii including self-turns for differences, for now (there are many)
+                turn.discarded = true;
+                turn.cluster_id = -1;
+            }
         }
 
         if (! turn.discarded
