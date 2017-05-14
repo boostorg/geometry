@@ -91,7 +91,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double th1, c;
+                    CalculationType th1, c;
                     int i;
 
                     c = C * sin(lp_lat);
@@ -108,20 +108,23 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t;
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType t;
 
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
                         if (fabs(lp_lat) > ONETOL)    throw proj_exception();
-                        else if (lp_lat < 0.) { t = -1.; lp_lat = -geometry::math::pi<double>(); }
-                        else { t = 1.; lp_lat = geometry::math::pi<double>(); }
+                        else if (lp_lat < 0.) { t = -1.; lp_lat = -ONEPI; }
+                        else { t = 1.; lp_lat = ONEPI; }
                     } else
                         lp_lat = 2. * asin(t = lp_lat);
                     lp_lon = RXC * xy_x / (1. + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     lp_lat = RC * (t + sin(lp_lat));
                     if (fabs(lp_lat) > 1.)
                         if (fabs(lp_lat) > ONETOL)    throw proj_exception();
-                        else            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        else            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                     else
                         lp_lat = asin(lp_lat);
                 }

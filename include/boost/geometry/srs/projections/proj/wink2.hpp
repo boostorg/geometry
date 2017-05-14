@@ -62,15 +62,16 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace wink2
     {
-            static const double FORTPI = detail::FORTPI<double>();
 
             static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
-            static const double TWO_D_PI = 0.636619772367581343;
 
+            static const double LOOP_TOL = 1e-7;
+            //static const double TWO_D_PI = 0.636619772367581343;
+
+            template <typename T>
             struct par_wink2
             {
-                double    cosphi1;
+                T    cosphi1;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -82,7 +83,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_wink2 m_proj_parm;
+                par_wink2<CalculationType> m_proj_parm;
 
                 inline base_wink2_spheroid(const Parameters& par)
                     : base_t_f<base_wink2_spheroid<CalculationType, Parameters>,
@@ -92,11 +93,16 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double k, V;
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+
+                    CalculationType k, V;
                     int i;
 
                     xy_y = lp_lat * TWO_D_PI;
-                    k = geometry::math::pi<double>() * sin(lp_lat);
+                    k = ONEPI * sin(lp_lat);
                     lp_lat *= 1.8;
                     for (i = MAX_ITER; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
@@ -105,7 +111,7 @@ namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     else
                         lp_lat *= 0.5;
                     xy_x = 0.5 * lp_lon * (cos(lp_lat) + this->m_proj_parm.cosphi1);
@@ -120,8 +126,8 @@ namespace projections
             };
 
             // Winkel II
-            template <typename Parameters>
-            void setup_wink2(Parameters& par, par_wink2& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wink2(Parameters& par, par_wink2<T>& proj_parm)
             {
                 proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f);
                 par.es = 0.;

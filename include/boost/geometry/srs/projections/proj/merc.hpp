@@ -65,7 +65,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace merc
     {
-            static const double FORTPI = detail::FORTPI<double>();
 
             static const double EPS10 = 1.e-10;
 
@@ -87,7 +86,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
                 }
@@ -96,7 +97,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) throw proj_exception();;
+                    if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) throw proj_exception();
                     lp_lon = xy_x / this->m_par.k0;
                 }
 
@@ -125,7 +126,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
                 }
@@ -134,7 +138,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    lp_lat = geometry::math::half_pi<double>() - 2. * atan(exp(-xy_y / this->m_par.k0));
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    lp_lat = HALFPI - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
                 }
 
@@ -149,12 +155,15 @@ namespace projections
             template <typename Parameters>
             void setup_merc(Parameters& par)
             {
-                double phits=0.0;
+                typedef typename Parameters::type calc_t;
+                static const calc_t HALFPI = detail::HALFPI<calc_t>();
+
+                calc_t phits=0.0;
                 int is_phits;
 
                 if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
                     phits = fabs(pj_param(par.params, "rlat_ts").f);
-                    if (phits >= geometry::math::half_pi<double>()) throw proj_exception(-24);
+                    if (phits >= HALFPI) throw proj_exception(-24);
                 }
                 if (par.es) { /* ellipsoid */
                     if (is_phits)

@@ -66,9 +66,14 @@ namespace projections
             static const double CS_ = .95257934441568037152;
             static const double FXC = .92582009977255146156;
             static const double FYC = 3.40168025708304504493;
-            static const double C23 = .66666666666666666666;
-            static const double C13 = .33333333333333333333;
+            //static const double C23 = .66666666666666666666;
+            //static const double C13 = .33333333333333333333;
             static const double ONEEPS = 1.0000001;
+
+            template <typename T>
+            inline T C23() { return detail::TWOTHIRD<T>(); }
+            template <typename T>
+            inline T C13() { return detail::THIRD<T>(); }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -88,6 +93,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType C23 = mbtfpp::C23<CalculationType>();
+                    static const CalculationType C13 = mbtfpp::C13<CalculationType>();
+
                     lp_lat = asin(CS_ * sin(lp_lat));
                     xy_x = FXC * lp_lon * (2. * cos(C23 * lp_lat) - 1.);
                     xy_y = FYC * sin(C13 * lp_lat);
@@ -97,16 +105,19 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType C23 = mbtfpp::C23<CalculationType>();
+
                     lp_lat = xy_y / FYC;
                     if (fabs(lp_lat) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     } else
                         lp_lat = asin(lp_lat);
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
                     if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     } else
                         lp_lat = asin(lp_lat);
                 }

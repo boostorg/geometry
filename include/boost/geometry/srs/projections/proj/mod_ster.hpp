@@ -72,10 +72,11 @@ namespace projections
 
             static const double EPSLN = 1e-10;
 
+            template <typename T>
             struct par_mod_ster
             {
-                COMPLEX<double>    *zcoeff;
-                double    cchio, schio;
+                COMPLEX<T> *zcoeff;
+                T          cchio, schio;
                 int        n;
             };
 
@@ -90,7 +91,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_mod_ster m_proj_parm;
+                par_mod_ster<CalculationType> m_proj_parm;
 
                 inline base_mod_ster_ellipsoid(const Parameters& par)
                     : base_t_fi<base_mod_ster_ellipsoid<CalculationType, Parameters>,
@@ -100,14 +101,16 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double sinlon, coslon, esphi, chi, schi, cchi, s;
-                    COMPLEX<double> p;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType sinlon, coslon, esphi, chi, schi, cchi, s;
+                    COMPLEX<CalculationType> p;
 
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
-                    chi = 2. * atan(tan((geometry::math::half_pi<double>() + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>();
+                    chi = 2. * atan(tan((HALFPI + lp_lat) * .5) *
+                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - HALFPI;
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -122,9 +125,11 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
                     int nn;
-                    COMPLEX<double> p, fxy, fpxy, dp;
-                    double den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
+                    COMPLEX<CalculationType> p, fxy, fpxy, dp;
+                    CalculationType den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
 
                     p.r = xy_x;
                     p.i = xy_y;
@@ -154,8 +159,8 @@ namespace projections
                         phi = chi;
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
-                            dphi = 2. * atan(tan((geometry::math::half_pi<double>() + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>() - phi;
+                            dphi = 2. * atan(tan((HALFPI + chi) * .5) *
+                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - HALFPI - phi;
                             phi += dphi;
                             if (fabs(dphi) <= EPSLN)
                                 break;
@@ -176,15 +181,15 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_mod_ster& proj_parm)  /* general initialization */
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_mod_ster<T>& proj_parm)  /* general initialization */
             {
-                double esphi, chio;
+                T esphi, chio;
 
                 if (par.es) {
                     esphi = par.e * sin(par.phi0);
-                    chio = 2. * atan(tan((geometry::math::half_pi<double>() + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - geometry::math::half_pi<double>();
+                    chio = 2. * atan(tan((geometry::math::half_pi<T>() + par.phi0) * .5) *
+                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - geometry::math::half_pi<T>();
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);
@@ -193,10 +198,10 @@ namespace projections
 
 
             // Miller Oblated Stereographic
-            template <typename Parameters>
-            void setup_mil_os(Parameters& par, par_mod_ster& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_mil_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<double> /* Miller Oblated Stereographic */
+                static COMPLEX<T> /* Miller Oblated Stereographic */
             AB[] = {
                 {0.924500,    0.},
                 {0.,            0.},
@@ -204,18 +209,18 @@ namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<double>() * 20.;
-                par.phi0 = geometry::math::d2r<double>() * 18.;
+                par.lam0 = geometry::math::d2r<T>() * 20.;
+                par.phi0 = geometry::math::d2r<T>() * 18.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
             }
 
             // Lee Oblated Stereographic
-            template <typename Parameters>
-            void setup_lee_os(Parameters& par, par_mod_ster& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_lee_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<double> /* Lee Oblated Stereographic */
+                static COMPLEX<T> /* Lee Oblated Stereographic */
             AB[] = {
                 {0.721316,    0.},
                 {0.,            0.},
@@ -223,18 +228,18 @@ namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<double>() * -165.;
-                par.phi0 = geometry::math::d2r<double>() * -10.;
+                par.lam0 = geometry::math::d2r<T>() * -165.;
+                par.phi0 = geometry::math::d2r<T>() * -10.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
             }
 
             // Mod. Stererographics of 48 U.S.
-            template <typename Parameters>
-            void setup_gs48(Parameters& par, par_mod_ster& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_gs48(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<double> /* 48 United States */
+                static COMPLEX<T> /* 48 United States */
             AB[] = {
                 {0.98879,    0.},
                 {0.,        0.},
@@ -244,8 +249,8 @@ namespace projections
             };
 
                 proj_parm.n = 4;
-                par.lam0 = geometry::math::d2r<double>() * -96.;
-                par.phi0 = geometry::math::d2r<double>() * -39.;
+                par.lam0 = geometry::math::d2r<T>() * -96.;
+                par.phi0 = geometry::math::d2r<T>() * -39.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 par.a = 6370997.;
@@ -253,10 +258,10 @@ namespace projections
             }
 
             // Mod. Stererographics of Alaska
-            template <typename Parameters>
-            void setup_alsk(Parameters& par, par_mod_ster& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_alsk(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<double>
+                static COMPLEX<T>
             ABe[] = { /* Alaska ellipsoid */
                 {.9945303,    0.},
                 {.0052083,    -.0027404},
@@ -274,8 +279,8 @@ namespace projections
             };
 
                 proj_parm.n = 5;
-                par.lam0 = geometry::math::d2r<double>() * -152.;
-                par.phi0 = geometry::math::d2r<double>() * 64.;
+                par.lam0 = geometry::math::d2r<T>() * -152.;
+                par.phi0 = geometry::math::d2r<T>() * 64.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -288,10 +293,10 @@ namespace projections
             }
 
             // Mod. Stererographics of 50 U.S.
-            template <typename Parameters>
-            void setup_gs50(Parameters& par, par_mod_ster& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_gs50(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<double>
+                static COMPLEX<T>
             ABe[] = { /* GS50 ellipsoid */
                 {.9827497,    0.},
                 {.0210669,    .0053804},
@@ -318,8 +323,8 @@ namespace projections
             };
 
                 proj_parm.n = 9;
-                par.lam0 = geometry::math::d2r<double>() * -120.;
-                par.phi0 = geometry::math::d2r<double>() * 45.;
+                par.lam0 = geometry::math::d2r<T>() * -120.;
+                par.phi0 = geometry::math::d2r<T>() * 45.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;

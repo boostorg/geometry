@@ -30,6 +30,11 @@ public:
         , m_msg(projections::detail::pj_strerrno(code))
     {}
 
+    proj_exception(std::string const& msg)
+        : m_code(0)
+        , m_msg(msg)
+    {}
+
     virtual char const* what() const throw()
     {
         //return "Boost.Geometry Projection exception";

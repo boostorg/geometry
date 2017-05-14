@@ -60,8 +60,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace mill
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
             struct base_mill_spheroid : public base_t_fi<base_mill_spheroid<CalculationType, Parameters>,
@@ -80,6 +78,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
                     xy_x = lp_lon;
                     xy_y = log(tan(FORTPI + lp_lat * .4)) * 1.25;
                 }
@@ -88,6 +88,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
                     lp_lon = xy_x;
                     lp_lat = 2.5 * (atan(exp(.8 * xy_y)) - FORTPI);
                 }

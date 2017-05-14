@@ -61,9 +61,10 @@ namespace projections
     namespace detail { namespace wink1
     {
 
+            template <typename T>
             struct par_wink1
             {
-                double    cosphi1;
+                T    cosphi1;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -75,7 +76,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_wink1 m_proj_parm;
+                par_wink1<CalculationType> m_proj_parm;
 
                 inline base_wink1_spheroid(const Parameters& par)
                     : base_t_fi<base_wink1_spheroid<CalculationType, Parameters>,
@@ -105,8 +106,8 @@ namespace projections
             };
 
             // Winkel I
-            template <typename Parameters>
-            void setup_wink1(Parameters& par, par_wink1& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wink1(Parameters& par, par_wink1<T>& proj_parm)
             {
                 proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_ts").f);
                 par.es = 0.;

@@ -64,11 +64,11 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace tpeqd
     {
-
+            template <typename T>
             struct par_tpeqd
             {
-                double cp1, sp1, cp2, sp2, ccs, cs, sc, r2z0, z02, dlam2;
-                double hz0, thz0, rhshz0, ca, sa, lp, lamc;
+                T cp1, sp1, cp2, sp2, ccs, cs, sc, r2z0, z02, dlam2;
+                T hz0, thz0, rhshz0, ca, sa, lp, lamc;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -80,7 +80,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_tpeqd m_proj_parm;
+                par_tpeqd<CalculationType> m_proj_parm;
 
                 inline base_tpeqd_spheroid(const Parameters& par)
                     : base_t_fi<base_tpeqd_spheroid<CalculationType, Parameters>,
@@ -90,7 +90,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t, z1, z2, dl1, dl2, sp, cp;
+                    CalculationType t, z1, z2, dl1, dl2, sp, cp;
 
                     sp = sin(lp_lat);
                     cp = cos(lp_lat);
@@ -109,7 +109,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double cz1, cz2, s, d, cp, sp;
+                    CalculationType cz1, cz2, s, d, cp, sp;
 
                     cz1 = cos(boost::math::hypot(xy_y, xy_x + this->m_proj_parm.hz0));
                     cz2 = cos(boost::math::hypot(xy_y, xy_x - this->m_proj_parm.hz0));
@@ -134,10 +134,10 @@ namespace projections
             };
 
             // Two Point Equidistant
-            template <typename Parameters>
-            void setup_tpeqd(Parameters& par, par_tpeqd& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_tpeqd(Parameters& par, par_tpeqd<T>& proj_parm)
             {
-                double lam_1, lam_2, phi_1, phi_2, A12, pp;
+                T lam_1, lam_2, phi_1, phi_2, A12, pp;
 
                 /* get control point locations */
                 phi_1 = pj_param(par.params, "rlat_1").f;
@@ -162,7 +162,7 @@ namespace projections
                 proj_parm.sa = sin(pp);
                 proj_parm.lp = adjlon(atan2(proj_parm.cp1 * cos(A12), proj_parm.sp1) - proj_parm.hz0);
                 proj_parm.dlam2 *= .5;
-                proj_parm.lamc = geometry::math::half_pi<double>() - atan2(sin(A12) * proj_parm.sp1, cos(A12)) - proj_parm.dlam2;
+                proj_parm.lamc = geometry::math::half_pi<T>() - atan2(sin(A12) * proj_parm.sp1, cos(A12)) - proj_parm.dlam2;
                 proj_parm.thz0 = tan(proj_parm.hz0);
                 proj_parm.rhshz0 = .5 / sin(proj_parm.hz0);
                 proj_parm.r2z0 = 0.5 / proj_parm.z02;

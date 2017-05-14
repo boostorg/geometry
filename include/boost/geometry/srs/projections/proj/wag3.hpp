@@ -60,12 +60,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace wag3
     {
-
-            static const double TWOTHIRD = 0.6666666666666666666667;
-
+            template <typename T>
             struct par_wag3
             {
-                double    C_x;
+                T    C_x;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -77,7 +75,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_wag3 m_proj_parm;
+                par_wag3<CalculationType> m_proj_parm;
 
                 inline base_wag3_spheroid(const Parameters& par)
                     : base_t_fi<base_wag3_spheroid<CalculationType, Parameters>,
@@ -87,6 +85,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(TWOTHIRD * lp_lat);
                     xy_y = lp_lat;
                 }
@@ -95,6 +95,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+
                     lp_lat = xy_y;
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(TWOTHIRD * lp_lat));
                 }
@@ -107,10 +109,10 @@ namespace projections
             };
 
             // Wagner III
-            template <typename Parameters>
-            void setup_wag3(Parameters& par, par_wag3& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wag3(Parameters& par, par_wag3<T>& proj_parm)
             {
-                double ts;
+                T ts;
 
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);

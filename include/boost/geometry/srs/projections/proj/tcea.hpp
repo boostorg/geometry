@@ -60,10 +60,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace tcea
     {
-
+            template <typename T>
             struct par_tcea
             {
-                double rk0;
+                T rk0;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -75,7 +75,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_tcea m_proj_parm;
+                par_tcea<CalculationType> m_proj_parm;
 
                 inline base_tcea_spheroid(const Parameters& par)
                     : base_t_fi<base_tcea_spheroid<CalculationType, Parameters>,
@@ -93,7 +93,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t;
+                    CalculationType t;
 
                     xy_y = xy_y * this->m_proj_parm.rk0 + this->m_par.phi0;
                     xy_x *= this->m_par.k0;
@@ -110,8 +110,8 @@ namespace projections
             };
 
             // Transverse Cylindrical Equal Area
-            template <typename Parameters>
-            void setup_tcea(Parameters& par, par_tcea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_tcea(Parameters& par, par_tcea<T>& proj_parm)
             {
                 proj_parm.rk0 = 1 / par.k0;
                 par.es = 0.;

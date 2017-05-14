@@ -69,7 +69,10 @@ namespace projections
             static const double C3 = 1.41546;
             static const double C_x = 0.22248;
             static const double C_y = 1.44492;
-            static const double C1_2 = 0.33333333333333333333333333;
+            //static const double C1_2 = 0.33333333333333333333333333;
+
+            template <typename T>
+            inline T C1_2() { return detail::THIRD<T>(); }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -89,7 +92,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double k, V, t;
+                    static const CalculationType C1_2 = mbt_fps::C1_2<CalculationType>();
+
+                    CalculationType k, V, t;
                     int i;
 
                     k = C3 * sin(lp_lat);
@@ -109,7 +114,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t;
+                    CalculationType t;
 
                     lp_lat = C2 * (t = aasin(xy_y / C_y));
                     lp_lon = xy_x / (C_x * (1. + 3. * cos(lp_lat)/cos(t)));

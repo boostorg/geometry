@@ -67,19 +67,22 @@ namespace projections
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 
-            struct XY { double x, y; }; // specific for IMW_P
+            template <typename T>
+            struct XY { T x, y; }; // specific for IMW_P
 
+            template <typename T>
             struct par_imw_p
             {
-                double    P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2;
-                double    phi_1, phi_2, lam_1;
-                double    en[EN_SIZE];
-                int    mode; /* = 0, phi_1 and phi_2 != 0, = 1, phi_1 = 0, = -1 phi_2 = 0 */
+                T    P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2;
+                T    phi_1, phi_2, lam_1;
+                T    en[EN_SIZE];
+                int  mode; /* = 0, phi_1 and phi_2 != 0, = 1, phi_1 = 0, = -1 phi_2 = 0 */
             };
 
-            template <typename Parameters>
-                static int
-            phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {
+            template <typename Parameters, typename T>
+            inline int
+            phi12(Parameters& par, par_imw_p<T>& proj_parm, T *del, T *sig)
+            {
                 int err = 0;
 
                 if (!pj_param(par.params, "tlat_1").i ||
@@ -94,16 +97,17 @@ namespace projections
                 }
                 return err;
             }
-            template <typename Parameters>
-                static XY
-            loc_for(double const& lp_lam, double const& lp_phi, Parameters const& par, par_imw_p const& proj_parm, double *yc) {
-                XY xy;
+            template <typename Parameters, typename T>
+            inline XY<T>
+            loc_for(T const& lp_lam, T const& lp_phi, Parameters const& par, par_imw_p<T> const& proj_parm, T *yc)
+            {
+                XY<T> xy;
 
                 if (! lp_phi) {
                     xy.x = lp_lam;
                     xy.y = 0.;
                 } else {
-                    double xa, ya, xb, yb, xc, D, B, m, sp, t, R, C;
+                    T xa, ya, xb, yb, xc, D, B, m, sp, t, R, C;
 
                     sp = sin(lp_phi);
                     m = pj_mlfn(lp_phi, sp, cos(lp_phi), proj_parm.en);
@@ -142,10 +146,11 @@ namespace projections
                 }
                 return (xy);
             }
-            template <typename Parameters>
-                static void
-            xy(Parameters const& par, par_imw_p const& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
-                double F;
+            template <typename Parameters, typename T>
+            inline void
+            xy(Parameters const& par, par_imw_p<T> const& proj_parm, T const& phi, T *x, T *y, T *sp, T *R)
+            {
+                T F;
 
                 *sp = sin(phi);
                 *R = 1./(tan(phi) * sqrt(1. - par.es * *sp * *sp ));
@@ -163,7 +168,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_imw_p m_proj_parm;
+                par_imw_p<CalculationType> m_proj_parm;
 
                 inline base_imw_p_ellipsoid(const Parameters& par)
                     : base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
@@ -173,8 +178,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double yc = 0;
-                    XY xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    CalculationType yc = 0;
+                    XY<CalculationType> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
@@ -182,8 +187,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    XY t;
-                    double yc = 0;
+                    XY<CalculationType> t;
+                    CalculationType yc = 0;
 
                     lp_lat = this->m_proj_parm.phi_2;
                     lp_lon = xy_x / cos(lp_lat);
@@ -202,10 +207,10 @@ namespace projections
             };
 
             // International Map of the World Polyconic
-            template <typename Parameters>
-            void setup_imw_p(Parameters& par, par_imw_p& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_imw_p(Parameters& par, par_imw_p<T>& proj_parm)
             {
-                double del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
+                T del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int i;
 
                 if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
@@ -219,11 +224,11 @@ namespace projections
                 if (pj_param(par.params, "tlon_1").i)
                     proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
                 else { /* use predefined based upon latitude */
-                    sig = fabs(sig * geometry::math::r2d<double>());
+                    sig = fabs(sig * geometry::math::r2d<T>());
                     if (sig <= 60)        sig = 2.;
                     else if (sig <= 76) sig = 4.;
                     else                sig = 8.;
-                    proj_parm.lam_1 = sig * geometry::math::d2r<double>();
+                    proj_parm.lam_1 = sig * geometry::math::d2r<T>();
                 }
                 proj_parm.mode = 0;
                 if (proj_parm.phi_1) xy(par, proj_parm, proj_parm.phi_1, &x1, &y1, &proj_parm.sphi_1, &proj_parm.R_1);

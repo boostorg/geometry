@@ -70,29 +70,44 @@ namespace projections
             struct par_igh
             {
                 boost::shared_ptr<base_v<CalculationType, Parameters> > pj[12];
-                double dy0;
+                CalculationType dy0;
             };
 
-            static const double d4044118 = (40 + 44/60. + 11.8/3600.) * geometry::math::d2r<double>(); // 40d 44' 11.8" [degrees]
+            template <typename T>
+            inline T d4044118() { return (T(40) + T(44)/T(60.) + T(11.8)/T(3600.)) * geometry::math::d2r<T>(); } // 40d 44' 11.8" [degrees]
 
-            static const double d10  =  10 * geometry::math::d2r<double>();
-            static const double d20  =  20 * geometry::math::d2r<double>();
-            static const double d30  =  30 * geometry::math::d2r<double>();
-            static const double d40  =  40 * geometry::math::d2r<double>();
-            static const double d50  =  50 * geometry::math::d2r<double>();
-            static const double d60  =  60 * geometry::math::d2r<double>();
-            static const double d80  =  80 * geometry::math::d2r<double>();
-            static const double d90  =  90 * geometry::math::d2r<double>();
-            static const double d100 = 100 * geometry::math::d2r<double>();
-            static const double d140 = 140 * geometry::math::d2r<double>();
-            static const double d160 = 160 * geometry::math::d2r<double>();
-            static const double d180 = 180 * geometry::math::d2r<double>();
+            template <typename T>
+            inline T d10() { return T(10) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d20() { return T(20) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d30() { return T(30) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d40() { return T(40) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d50() { return T(50) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d60() { return T(60) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d80() { return T(80) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d90() { return T(90) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d100() { return T(100) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d140() { return T(140) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d160() { return T(160) * geometry::math::d2r<T>(); }
+            template <typename T>
+            inline T d180() { return T(180) * geometry::math::d2r<T>(); }
 
             static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
             template <template <typename, typename> class Entry, typename Parameters, typename CalculationType>
-            inline void do_setup(int n, Parameters const& par, par_igh<CalculationType, Parameters>& proj_parm, double x_0, double y_0, double lon_0)
+            inline void do_setup(int n, Parameters const& par, par_igh<CalculationType, Parameters>& proj_parm,
+                                 CalculationType const& x_0, CalculationType const& y_0,
+                                 CalculationType const& lon_0)
             {
                 Entry<CalculationType, Parameters> entry;
                 proj_parm.pj[n-1].reset(entry.create_new(par));
@@ -120,6 +135,12 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType d4044118 = igh::d4044118<CalculationType>();
+                    static const CalculationType d20  =  igh::d20<CalculationType>();
+                    static const CalculationType d40  =  igh::d40<CalculationType>();
+                    static const CalculationType d80  =  igh::d80<CalculationType>();
+                    static const CalculationType d100 = igh::d100<CalculationType>();
+
                         int z;
                         if (lp_lat >=  d4044118) {          // 1|2
                           z = (lp_lon <= -d40 ? 1: 2);
@@ -150,7 +171,21 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        const double y90 = this->m_proj_parm.dy0 + sqrt(2.0); // lt=90 corresponds to y=y0+sqrt(2.0)
+                    static const CalculationType d4044118 = igh::d4044118<CalculationType>();
+                    static const CalculationType d10  =  igh::d10<CalculationType>();
+                    static const CalculationType d20  =  igh::d20<CalculationType>();
+                    static const CalculationType d40  =  igh::d40<CalculationType>();
+                    static const CalculationType d50  =  igh::d50<CalculationType>();
+                    static const CalculationType d60  =  igh::d60<CalculationType>();
+                    static const CalculationType d80  =  igh::d80<CalculationType>();
+                    static const CalculationType d90  =  igh::d90<CalculationType>();
+                    static const CalculationType d100 = igh::d100<CalculationType>();
+                    static const CalculationType d160 = igh::d160<CalculationType>();
+                    static const CalculationType d180 = igh::d180<CalculationType>();
+
+                    static const CalculationType c2 = 2.0;
+                    
+                    const CalculationType y90 = this->m_proj_parm.dy0 + sqrt(c2); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
                         if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
@@ -220,6 +255,15 @@ namespace projections
             template <typename CalculationType, typename Parameters>
             void setup_igh(Parameters& par, par_igh<CalculationType, Parameters>& proj_parm)
             {
+                static const CalculationType d0   =  0;
+                static const CalculationType d4044118 = igh::d4044118<CalculationType>();
+                static const CalculationType d20  =  igh::d20<CalculationType>();
+                static const CalculationType d30  =  igh::d30<CalculationType>();
+                static const CalculationType d60  =  igh::d60<CalculationType>();
+                static const CalculationType d100 = igh::d100<CalculationType>();
+                static const CalculationType d140 = igh::d140<CalculationType>();
+                static const CalculationType d160 = igh::d160<CalculationType>();
+
             /*
               Zones:
 
@@ -241,20 +285,20 @@ namespace projections
             */
 
 
-                    double lp_lam = 0, lp_phi = d4044118;
-                    double xy1_x, xy1_y;
-                    double xy3_x, xy3_y;
+                    CalculationType lp_lam = 0, lp_phi = d4044118;
+                    CalculationType xy1_x, xy1_y;
+                    CalculationType xy3_x, xy3_y;
 
                     // sinusoidal zones
-                    do_setup<sinu_entry>(3, par, proj_parm, -d100, 0, -d100);
-                    do_setup<sinu_entry>(4, par, proj_parm,   d30, 0,   d30);
-                    do_setup<sinu_entry>(5, par, proj_parm, -d160, 0, -d160);
-                    do_setup<sinu_entry>(6, par, proj_parm,  -d60, 0,  -d60);
-                    do_setup<sinu_entry>(7, par, proj_parm,   d20, 0,   d20);
-                    do_setup<sinu_entry>(8, par, proj_parm,  d140, 0,  d140);
+                    do_setup<sinu_entry>(3, par, proj_parm, -d100, d0, -d100);
+                    do_setup<sinu_entry>(4, par, proj_parm,   d30, d0,   d30);
+                    do_setup<sinu_entry>(5, par, proj_parm, -d160, d0, -d160);
+                    do_setup<sinu_entry>(6, par, proj_parm,  -d60, d0,  -d60);
+                    do_setup<sinu_entry>(7, par, proj_parm,   d20, d0,   d20);
+                    do_setup<sinu_entry>(8, par, proj_parm,  d140, d0,  d140);
 
                     // mollweide zones
-                    do_setup<moll_entry>(1, par, proj_parm, -d100, 0, -d100);
+                    do_setup<moll_entry>(1, par, proj_parm, -d100, d0, -d100);
 
                     // y0 ?
                      proj_parm.pj[0]->fwd(lp_lam, lp_phi, xy1_x, xy1_y); // zone 1

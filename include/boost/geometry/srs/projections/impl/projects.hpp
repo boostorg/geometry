@@ -72,6 +72,8 @@ template <typename T>
 inline T HALFPI_SQR() { return 2.4674011002723396547086227499689; }
 template <typename T>
 inline T THIRD() { return 0.3333333333333333333333333333333; }
+template <typename T>
+inline T TWOTHIRD() { return 0.6666666666666666666666666666666; }
 
 /* datum_type values */
 static const int PJD_UNKNOWN = 0;

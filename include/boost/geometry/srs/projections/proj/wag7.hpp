@@ -79,7 +79,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double theta, ct, D;
+                    CalculationType theta, ct, D;
 
                     theta = asin(xy_y = 0.90630778703664996 * sin(lp_lat));
                     xy_x = 2.66723 * (ct = cos(theta)) * sin(lp_lon /= 3.);

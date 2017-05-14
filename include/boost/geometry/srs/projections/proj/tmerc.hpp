@@ -69,20 +69,38 @@ namespace projections
     {
 
             static const double EPS10 = 1.e-10;
-            static const double FC1 = 1.;
-            static const double FC2 = .5;
-            static const double FC3 = .16666666666666666666;
-            static const double FC4 = .08333333333333333333;
-            static const double FC5 = .05;
-            static const double FC6 = .03333333333333333333;
-            static const double FC7 = .02380952380952380952;
-            static const double FC8 = .01785714285714285714;
+            //static const double FC1 = 1.;
+            //static const double FC2 = .5;
+            //static const double FC3 = .16666666666666666666;
+            //static const double FC4 = .08333333333333333333;
+            //static const double FC5 = .05;
+            //static const double FC6 = .03333333333333333333;
+            //static const double FC7 = .02380952380952380952;
+            //static const double FC8 = .01785714285714285714;
 
+            template <typename T>
+            inline T FC1() { return 1.; }
+            template <typename T>
+            inline T FC2() { return .5; }
+            template <typename T>
+            inline T FC3() { return .16666666666666666666666666666666666666; }
+            template <typename T>
+            inline T FC4() { return .08333333333333333333333333333333333333; }
+            template <typename T>
+            inline T FC5() { return .05; }
+            template <typename T>
+            inline T FC6() { return .03333333333333333333333333333333333333; }
+            template <typename T>
+            inline T FC7() { return .02380952380952380952380952380952380952; }
+            template <typename T>
+            inline T FC8() { return .01785714285714285714285714285714285714; }
+
+            template <typename T>
             struct par_tmerc
             {
-                double    esp;
-                double    ml0;
-                double    en[EN_SIZE];
+                T    esp;
+                T    ml0;
+                T    en[EN_SIZE];
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -94,7 +112,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_tmerc m_proj_parm;
+                par_tmerc<CalculationType> m_proj_parm;
 
                 inline base_tmerc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_tmerc_ellipsoid<CalculationType, Parameters>,
@@ -104,7 +122,17 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double al, als, n, cosphi, sinphi, t;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType FC1 = tmerc::FC1<CalculationType>();
+                    static const CalculationType FC2 = tmerc::FC2<CalculationType>();
+                    static const CalculationType FC3 = tmerc::FC3<CalculationType>();
+                    static const CalculationType FC4 = tmerc::FC4<CalculationType>();
+                    static const CalculationType FC5 = tmerc::FC5<CalculationType>();
+                    static const CalculationType FC6 = tmerc::FC6<CalculationType>();
+                    static const CalculationType FC7 = tmerc::FC7<CalculationType>();
+                    static const CalculationType FC8 = tmerc::FC8<CalculationType>();
+
+                    CalculationType al, als, n, cosphi, sinphi, t;
 
                         /*
                          * Fail if our longitude is more than 90 degrees from the
@@ -113,7 +141,7 @@ namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
+                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
@@ -145,11 +173,21 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double n, con, cosphi, d, ds, sinphi, t;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType FC1 = tmerc::FC1<CalculationType>();
+                    static const CalculationType FC2 = tmerc::FC2<CalculationType>();
+                    static const CalculationType FC3 = tmerc::FC3<CalculationType>();
+                    static const CalculationType FC4 = tmerc::FC4<CalculationType>();
+                    static const CalculationType FC5 = tmerc::FC5<CalculationType>();
+                    static const CalculationType FC6 = tmerc::FC6<CalculationType>();
+                    static const CalculationType FC7 = tmerc::FC7<CalculationType>();
+                    static const CalculationType FC8 = tmerc::FC8<CalculationType>();
+
+                    CalculationType n, con, cosphi, d, ds, sinphi, t;
 
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
-                    if (fabs(lp_lat) >= geometry::math::half_pi<double>()) {
-                        lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                    if (fabs(lp_lat) >= HALFPI) {
+                        lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
                         lp_lon = 0.;
                     } else {
                         sinphi = sin(lp_lat);
@@ -190,7 +228,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_tmerc m_proj_parm;
+                par_tmerc<CalculationType> m_proj_parm;
 
                 inline base_tmerc_spheroid(const Parameters& par)
                     : base_t_fi<base_tmerc_spheroid<CalculationType, Parameters>,
@@ -200,7 +238,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double b, cosphi;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType b, cosphi;
 
                         /*
                          * Fail if our longitude is more than 90 degrees from the
@@ -209,7 +249,7 @@ namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
+                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
@@ -233,7 +273,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double h, g;
+                    CalculationType h, g;
 
                     h = exp(xy_x / this->m_proj_parm.esp);
                     g = .5 * (h - 1. / h);
@@ -250,8 +290,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_tmerc& proj_parm)  /* general initialization */
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_tmerc<T>& proj_parm)  /* general initialization */
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en))
@@ -266,16 +306,18 @@ namespace projections
 
 
             // Transverse Mercator
-            template <typename Parameters>
-            void setup_tmerc(Parameters& par, par_tmerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_tmerc(Parameters& par, par_tmerc<T>& proj_parm)
             {
                 setup(par, proj_parm);
             }
 
             // Universal Transverse Mercator (UTM)
-            template <typename Parameters>
-            void setup_utm(Parameters& par, par_tmerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_utm(Parameters& par, par_tmerc<T>& proj_parm)
             {
+                static const T ONEPI = detail::ONEPI<T>();
+
                 int zone;
 
                 par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
@@ -286,11 +328,11 @@ namespace projections
                     else
                         throw proj_exception(-35);
                 else /* nearest central meridian input */
-                    if ((zone = int_floor((adjlon(par.lam0) + geometry::math::pi<double>()) * 30. / geometry::math::pi<double>())) < 0)
+                    if ((zone = int_floor((adjlon(par.lam0) + ONEPI) * 30. / ONEPI)) < 0)
                         zone = 0;
                     else if (zone >= 60)
                         zone = 59;
-                par.lam0 = (zone + .5) * geometry::math::pi<double>() / 30. - geometry::math::pi<double>();
+                par.lam0 = (zone + .5) * ONEPI / 30. - ONEPI;
                 par.k0 = 0.9996;
                 par.phi0 = 0.;
                 setup(par, proj_parm);

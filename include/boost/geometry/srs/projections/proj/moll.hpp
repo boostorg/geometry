@@ -69,9 +69,10 @@ namespace projections
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
+            template <typename T>
             struct par_moll
             {
-                double    C_x, C_y, C_p;
+                T    C_x, C_y, C_p;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -83,7 +84,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_moll m_proj_parm;
+                par_moll<CalculationType> m_proj_parm;
 
                 inline base_moll_spheroid(const Parameters& par)
                     : base_t_fi<base_moll_spheroid<CalculationType, Parameters>,
@@ -93,7 +94,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double k, V;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType k, V;
                     int i;
 
                     k = this->m_proj_parm.C_p * sin(lp_lat);
@@ -104,7 +107,7 @@ namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     else
                         lp_lat *= 0.5;
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
@@ -128,37 +131,37 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_moll& proj_parm, double p) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_moll<T>& proj_parm, T const& p) 
             {
-                double r, sp, p2 = p + p;
+                T r, sp, p2 = p + p;
 
                 par.es = 0;
                 sp = sin(p);
-                r = sqrt(geometry::math::two_pi<double>() * sp / (p2 + sin(p2)));
-                proj_parm.C_x = 2. * r / geometry::math::pi<double>();
+                r = sqrt(geometry::math::two_pi<T>() * sp / (p2 + sin(p2)));
+                proj_parm.C_x = 2. * r / geometry::math::pi<T>();
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
             }
 
 
             // Mollweide
-            template <typename Parameters>
-            void setup_moll(Parameters& par, par_moll& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_moll(Parameters& par, par_moll<T>& proj_parm)
             {
-                setup(par, proj_parm, geometry::math::half_pi<double>());
+                setup(par, proj_parm, geometry::math::half_pi<T>());
             }
 
             // Wagner IV
-            template <typename Parameters>
-            void setup_wag4(Parameters& par, par_moll& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wag4(Parameters& par, par_moll<T>& proj_parm)
             {
-                setup(par, proj_parm, geometry::math::pi<double>()/3.);
+                setup(par, proj_parm, geometry::math::pi<T>()/3.);
             }
 
             // Wagner V
-            template <typename Parameters>
-            void setup_wag5(Parameters& par, par_moll& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wag5(Parameters& par, par_moll<T>& proj_parm)
             {
                 par.es = 0;
                 proj_parm.C_x = 0.90977;
