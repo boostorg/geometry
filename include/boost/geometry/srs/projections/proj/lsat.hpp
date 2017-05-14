@@ -63,25 +63,25 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lsat
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double TOL = 1e-7;
-            static const double PI_HALFPI = 4.71238898038468985766;
-            static const double TWOPI_HALFPI = 7.85398163397448309610;
+            //static const double PI_HALFPI = 4.71238898038468985766;
+            //static const double TWOPI_HALFPI = 7.85398163397448309610;
 
+            template <typename T>
             struct par_lsat
             {
-                double a2, a4, b, c1, c3;
-                double q, t, u, w, p22, sa, ca, xj, rlm, rlm2;
+                T a2, a4, b, c1, c3;
+                T q, t, u, w, p22, sa, ca, xj, rlm, rlm2;
             };
 
             /* based upon Snyder and Linck, USGS-NMD */
-            template <typename Parameters>
-                static void
-            seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
-                double sdsq, h, s, fc, sd, sq, d__1;
+            template <typename Parameters, typename T>
+            inline void
+            seraz0(T lam, T const& mult, Parameters& par, par_lsat<T>& proj_parm)
+            {
+                T sdsq, h, s, fc, sd, sq, d__1;
 
-                lam *= geometry::math::d2r<double>();
+                lam *= geometry::math::d2r<T>();
                 sd = sin(lam);
                 sdsq = sd * sd;
                 s = proj_parm.p22 * proj_parm.sa * cos(lam) * sqrt((1. + proj_parm.t * sdsq) / ((
@@ -107,7 +107,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_lsat m_proj_parm;
+                par_lsat<CalculationType> m_proj_parm;
 
                 inline base_lsat_ellipsoid(const Parameters& par)
                     : base_t_fi<base_lsat_ellipsoid<CalculationType, Parameters>,
@@ -117,15 +117,20 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    int l, nn;
-                    double lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
-                        lamtp, cl, sd, sp, fac, sav, tanphi;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType PI_HALFPI = detail::PI_HALFPI<CalculationType>();
+                    static const CalculationType TWOPI_HALFPI = detail::TWOPI_HALFPI<CalculationType>();
 
-                    if (lp_lat > geometry::math::half_pi<double>())
-                        lp_lat = geometry::math::half_pi<double>();
-                    else if (lp_lat < -geometry::math::half_pi<double>())
-                        lp_lat = -geometry::math::half_pi<double>();
-                    lampp = lp_lat >= 0. ? geometry::math::half_pi<double>() : PI_HALFPI;
+                    int l, nn;
+                    CalculationType lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
+                                    lamtp, cl, sd, sp, fac, sav, tanphi;
+
+                    if (lp_lat > HALFPI)
+                        lp_lat = HALFPI;
+                    else if (lp_lat < -HALFPI)
+                        lp_lat = -HALFPI;
+                    lampp = lp_lat >= 0. ? HALFPI : PI_HALFPI;
                     tanphi = tan(lp_lat);
                     for (nn = 0;;) {
                         sav = lampp;
@@ -133,7 +138,7 @@ namespace projections
                         cl = cos(lamtp);
                         if (fabs(cl) < TOL)
                             lamtp -= TOL;
-                        fac = lampp - sin(lampp) * (cl < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>());
+                        fac = lampp - sin(lampp) * (cl < 0. ? -HALFPI : HALFPI);
                         for (l = 50; l; --l) {
                             lamt = lp_lon + this->m_proj_parm.p22 * sav;
                             if (fabs(c = cos(lamt)) < TOL)
@@ -149,7 +154,7 @@ namespace projections
                         if (lamdp <= this->m_proj_parm.rlm)
                             lampp = TWOPI_HALFPI;
                         else if (lamdp >= this->m_proj_parm.rlm2)
-                            lampp = geometry::math::half_pi<double>();
+                            lampp = HALFPI;
                     }
                     if (l) {
                         sp = sin(lp_lat);
@@ -172,8 +177,11 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
                     int nn;
-                    double lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
+                    CalculationType lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
 
                     lamdp = xy_x / this->m_proj_parm.b;
                     nn = 50;
@@ -203,7 +211,7 @@ namespace projections
                         * (1. + this->m_proj_parm.u)));
                     sl = lamt >= 0. ? 1. : -1.;
                     scl = cos(lamdp) >= 0. ? 1. : -1;
-                    lamt -= geometry::math::half_pi<double>() * (1. - scl) * sl;
+                    lamt -= HALFPI * (1. - scl) * sl;
                     lp_lon = lamt - this->m_proj_parm.p22 * lamdp;
                     if (fabs(this->m_proj_parm.sa) < TOL)
                         lp_lat = aasin(spp / sqrt(this->m_par.one_es * this->m_par.one_es + this->m_par.es * sppsq));
@@ -220,24 +228,24 @@ namespace projections
             };
 
             // Space oblique for LANDSAT
-            template <typename Parameters>
-            void setup_lsat(Parameters& par, par_lsat& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_lsat(Parameters& par, par_lsat<T>& proj_parm)
             {
                 int land, path;
-                double lam, alf, esc, ess;
+                T lam, alf, esc, ess;
 
                 land = pj_param(par.params, "ilsat").i;
                 if (land <= 0 || land > 5) throw proj_exception(-28);
                 path = pj_param(par.params, "ipath").i;
                 if (path <= 0 || path > (land <= 3 ? 251 : 233)) throw proj_exception(-29);
                 if (land <= 3) {
-                    par.lam0 = geometry::math::d2r<double>() * 128.87 - geometry::math::two_pi<double>() / 251. * path;
+                    par.lam0 = geometry::math::d2r<T>() * 128.87 - geometry::math::two_pi<T>() / 251. * path;
                     proj_parm.p22 = 103.2669323;
-                    alf = geometry::math::d2r<double>() * 99.092;
+                    alf = geometry::math::d2r<T>() * 99.092;
                 } else {
-                    par.lam0 = geometry::math::d2r<double>() * 129.3 - geometry::math::two_pi<double>() / 233. * path;
+                    par.lam0 = geometry::math::d2r<T>() * 129.3 - geometry::math::two_pi<T>() / 233. * path;
                     proj_parm.p22 = 98.8841202;
-                    alf = geometry::math::d2r<double>() * 98.2;
+                    alf = geometry::math::d2r<T>() * 98.2;
                 }
                 proj_parm.p22 /= 1440.;
                 proj_parm.sa = sin(alf);
@@ -252,8 +260,8 @@ namespace projections
                 proj_parm.t = ess * (2. - par.es) * par.rone_es * par.rone_es;
                 proj_parm.u = esc * par.rone_es;
                 proj_parm.xj = par.one_es * par.one_es * par.one_es;
-                proj_parm.rlm = geometry::math::pi<double>() * (1. / 248. + .5161290322580645);
-                proj_parm.rlm2 = proj_parm.rlm + geometry::math::two_pi<double>();
+                proj_parm.rlm = geometry::math::pi<T>() * (1. / 248. + .5161290322580645);
+                proj_parm.rlm2 = proj_parm.rlm + geometry::math::two_pi<T>();
                 proj_parm.a2 = proj_parm.a4 = proj_parm.b = proj_parm.c1 = proj_parm.c3 = 0.;
                 seraz0(0., 1., par, proj_parm);
                 for (lam = 9.; lam <= 81.0001; lam += 18.)

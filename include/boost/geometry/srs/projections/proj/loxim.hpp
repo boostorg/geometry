@@ -62,15 +62,14 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace loxim
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double EPS = 1e-8;
 
+            template <typename T>
             struct par_loxim
             {
-                double phi1;
-                double cosphi1;
-                double tanphi1;
+                T phi1;
+                T cosphi1;
+                T tanphi1;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -82,7 +81,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_loxim m_proj_parm;
+                par_loxim<CalculationType> m_proj_parm;
 
                 inline base_loxim_spheroid(const Parameters& par)
                     : base_t_fi<base_loxim_spheroid<CalculationType, Parameters>,
@@ -92,12 +91,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
                     xy_y = lp_lat - this->m_proj_parm.phi1;
                     if (fabs(xy_y) < EPS)
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
                         xy_x = FORTPI + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - geometry::math::half_pi<double>()) < EPS)
+                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - HALFPI) < EPS)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -108,12 +110,15 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
                     lp_lat = xy_y + this->m_proj_parm.phi1;
                     if (fabs(xy_y) < EPS)
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     else
                         if (fabs( lp_lon = FORTPI + 0.5 * lp_lat ) < EPS ||
-                            fabs(fabs(lp_lon) - geometry::math::half_pi<double>()) < EPS)
+                            fabs(fabs(lp_lon) - HALFPI) < EPS)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
@@ -127,9 +132,11 @@ namespace projections
             };
 
             // Loximuthal
-            template <typename Parameters>
-            void setup_loxim(Parameters& par, par_loxim& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
             {
+                static const T FORTPI = detail::FORTPI<T>();
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if ((proj_parm.cosphi1 = cos(proj_parm.phi1)) < EPS) throw proj_exception(-22);
                 proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);

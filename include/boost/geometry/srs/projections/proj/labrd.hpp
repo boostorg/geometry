@@ -60,14 +60,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace labrd
     {
-            static const double FORTPI = detail::FORTPI<double>();
-            
             static const double EPS = 1.e-10;
 
+            template <typename T>
             struct par_labrd
             {
-                double    Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
-                int        rot;
+                T   Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
+                int rot;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -79,7 +78,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_labrd m_proj_parm;
+                par_labrd<CalculationType> m_proj_parm;
 
                 inline base_labrd_ellipsoid(const Parameters& par)
                     : base_t_fi<base_labrd_ellipsoid<CalculationType, Parameters>,
@@ -89,8 +88,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double V1, V2, ps, sinps, cosps, sinps2, cosps2, I1, I2, I3, I4, I5, I6,
-                        x2, y2, t;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
+                    CalculationType V1, V2, ps, sinps, cosps, sinps2, cosps2, I1, I2, I3, I4, I5, I6,
+                                    x2, y2, t;
 
                     V1 = this->m_proj_parm.A * log( tan(FORTPI + .5 * lp_lat) );
                     t = this->m_par.e * sin(lp_lat);
@@ -121,8 +122,10 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double x2, y2, V1, V2, V3, V4, t, t2, ps, pe, tpe, s,
-                        I7, I8, I9, I10, I11, d, Re;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
+                    CalculationType x2, y2, V1, V2, V3, V4, t, t2, ps, pe, tpe, s,
+                                    I7, I8, I9, I10, I11, d, Re;
                     int i;
 
                     x2 = xy_x * xy_x;
@@ -176,10 +179,12 @@ namespace projections
             };
 
             // Laborde
-            template <typename Parameters>
-            void setup_labrd(Parameters& par, par_labrd& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
             {
-                double Az, sinp, R, N, t;
+                static const T FORTPI = detail::FORTPI<T>();
+
+                T Az, sinp, R, N, t;
 
                 proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
                 Az = pj_param(par.params, "razi").f;

@@ -61,7 +61,10 @@ namespace projections
     namespace detail { namespace larr
     {
 
-            static const double SIXTH = .16666666666666666;
+            //static const double SIXTH = .16666666666666666;
+
+            template <typename T>
+            inline T SIXTH() { return .16666666666666666666666666666666; }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -81,6 +84,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
+                    static const CalculationType SIXTH = larr::SIXTH<CalculationType>();
+
                     xy_x = 0.5 * lp_lon * (1. + sqrt(cos(lp_lat)));
                     xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(SIXTH * lp_lon));
                 }

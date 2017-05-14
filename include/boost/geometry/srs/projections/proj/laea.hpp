@@ -65,8 +65,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace laea
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double EPS10 = 1.e-10;
             static const int NITER = 20;
             static const double CONV = 1.e-10;
@@ -75,18 +73,19 @@ namespace projections
             static const int EQUIT = 2;
             static const int OBLIQ = 3;
 
+            template <typename T>
             struct par_laea
             {
-                double    sinb1;
-                double    cosb1;
-                double    xmf;
-                double    ymf;
-                double    mmf;
-                double    qp;
-                double    dd;
-                double    rq;
-                double    apa[APA_SIZE];
-                int        mode;
+                T   sinb1;
+                T   cosb1;
+                T   xmf;
+                T   ymf;
+                T   mmf;
+                T   qp;
+                T   dd;
+                T   rq;
+                T   apa[APA_SIZE];
+                int mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -98,7 +97,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_laea m_proj_parm;
+                par_laea<CalculationType> m_proj_parm;
 
                 inline base_laea_ellipsoid(const Parameters& par)
                     : base_t_fi<base_laea_ellipsoid<CalculationType, Parameters>,
@@ -108,7 +107,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
 
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
@@ -126,11 +127,11 @@ namespace projections
                         b = 1. + cosb * coslam;
                         break;
                     case N_POLE:
-                        b = geometry::math::half_pi<double>() + lp_lat;
+                        b = HALFPI + lp_lat;
                         q = this->m_proj_parm.qp - q;
                         break;
                     case S_POLE:
-                        b = lp_lat - geometry::math::half_pi<double>();
+                        b = lp_lat - HALFPI;
                         q = this->m_proj_parm.qp + q;
                         break;
                     }
@@ -161,7 +162,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double cCe, sCe, q, rho, ab=0.0;
+                    CalculationType cCe, sCe, q, rho, ab=0.0;
 
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:
@@ -217,7 +218,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_laea m_proj_parm;
+                par_laea<CalculationType> m_proj_parm;
 
                 inline base_laea_spheroid(const Parameters& par)
                     : base_t_fi<base_laea_spheroid<CalculationType, Parameters>,
@@ -227,7 +228,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  coslam, cosphi, sinphi;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
+                    CalculationType  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -260,7 +263,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  cosz=0.0, rh, sinz=0.0;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType  cosz=0.0, rh, sinz=0.0;
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((lp_lat = rh * .5 ) > 1.) throw proj_exception();;
@@ -283,10 +288,10 @@ namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
-                        lp_lat = geometry::math::half_pi<double>() - lp_lat;
+                        lp_lat = HALFPI - lp_lat;
                         break;
                     case S_POLE:
-                        lp_lat -= geometry::math::half_pi<double>();
+                        lp_lat -= HALFPI;
                         break;
                     }
                     lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == EQUIT || this->m_proj_parm.mode == OBLIQ)) ?
@@ -301,12 +306,14 @@ namespace projections
             };
 
             // Lambert Azimuthal Equal Area
-            template <typename Parameters>
-            void setup_laea(Parameters& par, par_laea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_laea(Parameters& par, par_laea<T>& proj_parm)
             {
-                double t;
+                static const T HALFPI = detail::HALFPI<T>();
 
-                if (fabs((t = fabs(par.phi0)) - geometry::math::half_pi<double>()) < EPS10)
+                T t;
+
+                if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(t) < EPS10)
                     proj_parm.mode = EQUIT;

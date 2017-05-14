@@ -67,19 +67,23 @@ namespace projections
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
 
+            template <typename T>
             struct par_lcca
             {
-                double    en[EN_SIZE];
-                double    r0, l, M0;
-                double    C;
+                T    en[EN_SIZE];
+                T    r0, l, M0;
+                T    C;
             };
 
-                static double /* func to compute dr */
-            fS(double S, double C) {
-                    return(S * ( 1. + S * S * C));
+            template <typename T> /* func to compute dr */
+            inline T fS(T const& S, T const& C)
+            {
+                return(S * ( 1. + S * S * C));
             }
-                static double /* deriv of fs */
-            fSp(double S, double C) {
+
+            template <typename T> /* deriv of fs */
+            inline T fSp(T const& S, T const& C)
+            {
                 return(1. + 3.* S * S * C);
             }
 
@@ -92,7 +96,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_lcca m_proj_parm;
+                par_lcca<CalculationType> m_proj_parm;
 
                 inline base_lcca_ellipsoid(const Parameters& par)
                     : base_t_fi<base_lcca_ellipsoid<CalculationType, Parameters>,
@@ -102,7 +106,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double S, r, dr;
+                    CalculationType S, r, dr;
 
                     S = pj_mlfn(lp_lat, sin(lp_lat), cos(lp_lat), this->m_proj_parm.en) - this->m_proj_parm.M0;
                     dr = fS(S, this->m_proj_parm.C);
@@ -115,7 +119,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double theta, dr, S, dif;
+                    CalculationType theta, dr, S, dif;
                     int i;
 
                     xy_x /= this->m_par.k0;
@@ -140,11 +144,10 @@ namespace projections
             };
 
             // Lambert Conformal Conic Alternative
-            template <typename Parameters>
-            void setup_lcca(Parameters& par, par_lcca& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_lcca(Parameters& par, par_lcca<T>& proj_parm)
             {
-                boost::ignore_unused(fSp);
-                double s2p0, N0, R0, tan0, tan20;
+                T s2p0, N0, R0, tan0, tan20;
 
                 if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);

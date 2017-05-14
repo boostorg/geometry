@@ -90,7 +90,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double l2, p2;
+                    CalculationType l2, p2;
 
                     l2 = lp_lon * lp_lon;
                     p2 = lp_lat * lp_lat;

@@ -65,10 +65,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace krovak
     {
-
+            template <typename T>
             struct par_krovak
             {
-                double    C_x;
+                T    C_x;
             };
 
             /**
@@ -103,7 +103,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_krovak m_proj_parm;
+                par_krovak<CalculationType> m_proj_parm;
 
                 inline base_krovak_ellipsoid(const Parameters& par)
                     : base_t_fi<base_krovak_ellipsoid<CalculationType, Parameters>,
@@ -116,8 +116,8 @@ namespace projections
                 /* calculate xy from lat/lon */
 
                 /* Constants, identical to inverse transform function */
-                    double s45, s90, e2, e, alfa, uq, u0, g, k, k1, n0, ro0, ad, a, s0, n;
-                    double gfi, u, fi0, deltav, s, d, eps, ro;
+                    CalculationType s45, s90, e2, e, alfa, uq, u0, g, k, k1, n0, ro0, ad, a, s0, n;
+                    CalculationType gfi, u, fi0, deltav, s, d, eps, ro;
 
 
                     s45 = 0.785398163397448;    /* 45 DEG */
@@ -181,8 +181,8 @@ namespace projections
                     /* calculate lat/lon from xy */
 
                 /* Constants, identisch wie in der Umkehrfunktion */
-                    double s45, s90, fi0, e2, e, alfa, uq, u0, g, k, k1, n0, ro0, ad, a, s0, n;
-                    double u, deltav, s, d, eps, ro, fi1, xy0;
+                    CalculationType s45, s90, fi0, e2, e, alfa, uq, u0, g, k, k1, n0, ro0, ad, a, s0, n;
+                    CalculationType u, deltav, s, d, eps, ro, fi1, xy0;
                     int ok;
 
                     s45 = 0.785398163397448;    /* 45 DEG */
@@ -265,10 +265,10 @@ namespace projections
             };
 
             // Krovak
-            template <typename Parameters>
-            void setup_krovak(Parameters& par, par_krovak& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_krovak(Parameters& par, par_krovak<T>& proj_parm)
             {
-                double ts;
+                T ts;
                 /* read some Parameters,
                  * here Latitude Truescale */
 

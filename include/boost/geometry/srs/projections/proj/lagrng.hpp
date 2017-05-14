@@ -65,11 +65,12 @@ namespace projections
 
             static const double TOL = 1e-10;
 
+            template <typename T>
             struct par_lagrng
             {
-                double    hrw;
-                double    rw;
-                double    a1;
+                T    hrw;
+                T    rw;
+                T    a1;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -81,7 +82,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_lagrng m_proj_parm;
+                par_lagrng<CalculationType> m_proj_parm;
 
                 inline base_lagrng_spheroid(const Parameters& par)
                     : base_t_f<base_lagrng_spheroid<CalculationType, Parameters>,
@@ -91,9 +92,11 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double v, c;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < TOL) {
+                    CalculationType v, c;
+
+                    if (fabs(fabs(lp_lat) - HALFPI) < TOL) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
@@ -114,10 +117,10 @@ namespace projections
             };
 
             // Lagrange
-            template <typename Parameters>
-            void setup_lagrng(Parameters& par, par_lagrng& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_lagrng(Parameters& par, par_lagrng<T>& proj_parm)
             {
-                double phi1;
+                T phi1;
 
                 if ((proj_parm.rw = pj_param(par.params, "dW").f) <= 0) throw proj_exception(-27);
                 proj_parm.hrw = 0.5 * (proj_parm.rw = 1. / proj_parm.rw);
