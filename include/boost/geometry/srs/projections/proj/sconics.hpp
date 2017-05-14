@@ -80,21 +80,22 @@ namespace projections
             static const double EPS10 = 1.e-10;
             static const double EPS = 1e-10;
 
+            template <typename T>
             struct par_sconics
             {
-                double    n;
-                double    rho_c;
-                double    rho_0;
-                double    sig;
-                double    c1, c2;
-                int        type;
+                T   n;
+                T   rho_c;
+                T   rho_0;
+                T   sig;
+                T   c1, c2;
+                int type;
             };
 
             /* get common factors for simple conics */
-            template <typename Parameters>
-                static int
-            phi12(Parameters& par, par_sconics& proj_parm, double *del) {
-                double p1, p2;
+            template <typename Parameters, typename T>
+            inline int phi12(Parameters& par, par_sconics<T>& proj_parm, T *del)
+            {
+                T p1, p2;
                 int err = 0;
 
                 if (!pj_param(par.params, "tlat_1").i ||
@@ -120,7 +121,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_sconics m_proj_parm;
+                par_sconics<CalculationType> m_proj_parm;
 
                 inline base_sconics_spheroid(const Parameters& par)
                     : base_t_fi<base_sconics_spheroid<CalculationType, Parameters>,
@@ -130,7 +131,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double rho;
+                    CalculationType rho;
 
                     switch (this->m_proj_parm.type) {
                     case MURD2:
@@ -151,7 +152,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double rho;
+                    CalculationType rho;
 
                     rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho_0 - xy_y);
                     if (this->m_proj_parm.n < 0.) {
@@ -179,10 +180,12 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_sconics& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_sconics<T>& proj_parm) 
             {
-                double del, cs;
+                static const T HALFPI = detail::HALFPI<T>();
+
+                T del, cs;
                 int i;
 
                 if( (i = phi12(par, proj_parm, &del)) )
@@ -219,7 +222,7 @@ namespace projections
                     proj_parm.n = sin(proj_parm.sig);
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
-                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= geometry::math::half_pi<double>())
+                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= HALFPI)
                         throw proj_exception(-43);
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;
@@ -234,56 +237,56 @@ namespace projections
 
 
             // Tissot
-            template <typename Parameters>
-            void setup_tissot(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_tissot(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = TISSOT;
                 setup(par, proj_parm);
             }
 
             // Murdoch I
-            template <typename Parameters>
-            void setup_murd1(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_murd1(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD1;
                 setup(par, proj_parm);
             }
 
             // Murdoch II
-            template <typename Parameters>
-            void setup_murd2(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_murd2(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD2;
                 setup(par, proj_parm);
             }
 
             // Murdoch III
-            template <typename Parameters>
-            void setup_murd3(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_murd3(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD3;
                 setup(par, proj_parm);
             }
 
             // Euler
-            template <typename Parameters>
-            void setup_euler(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_euler(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = EULER;
                 setup(par, proj_parm);
             }
 
             // Perspective Conic
-            template <typename Parameters>
-            void setup_pconic(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_pconic(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = PCONIC;
                 setup(par, proj_parm);
             }
 
             // Vitkovsky I
-            template <typename Parameters>
-            void setup_vitk1(Parameters& par, par_sconics& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_vitk1(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = VITK1;
                 setup(par, proj_parm);

@@ -65,8 +65,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace stere
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
             static const int NITER = 8;
@@ -76,19 +74,21 @@ namespace projections
             static const int OBLIQ = 2;
             static const int EQUIT = 3;
 
+            template <typename T>
             struct par_stere
             {
-                double phits;
-                double sinX1;
-                double cosX1;
-                double akm1;
-                int    mode;
+                T   phits;
+                T   sinX1;
+                T   cosX1;
+                T   akm1;
+                int mode;
             };
 
-                static double
-            ssfn_(double phit, double sinphi, double eccen) {
+            template <typename T>
+            inline T ssfn_(T const& phit, T sinphi, T const& eccen)
+            {
                 sinphi *= eccen;
-                return (tan (.5 * (geometry::math::half_pi<double>() + phit)) *
+                return (tan (.5 * (geometry::math::half_pi<T>() + phit)) *
                    pow((1. - sinphi) / (1. + sinphi), .5 * eccen));
             }
 
@@ -101,7 +101,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_stere m_proj_parm;
+                par_stere<CalculationType> m_proj_parm;
 
                 inline base_stere_ellipsoid(const Parameters& par)
                     : base_t_fi<base_stere_ellipsoid<CalculationType, Parameters>,
@@ -111,13 +111,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
 
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
                     if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
-                        sinX = sin(X = 2. * atan(ssfn_(lp_lat, sinphi, this->m_par.e)) - geometry::math::half_pi<double>());
+                        sinX = sin(X = 2. * atan(ssfn_(lp_lat, sinphi, this->m_par.e)) - HALFPI);
                         cosX = cos(X);
                     }
                     switch (this->m_proj_parm.mode) {
@@ -148,7 +150,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
                     int i;
 
                     rho = boost::math::hypot(xy_x, xy_y);
@@ -162,17 +166,17 @@ namespace projections
                                 else
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1 + (xy_y * sinphi * this->m_proj_parm.cosX1 / rho));
 
-                        tp = tan(.5 * (geometry::math::half_pi<double>() + phi_l));
+                        tp = tan(.5 * (HALFPI + phi_l));
                         xy_x *= sinphi;
                         xy_y = rho * this->m_proj_parm.cosX1 * cosphi - xy_y * this->m_proj_parm.sinX1* sinphi;
-                        halfpi = geometry::math::half_pi<double>();
+                        halfpi = HALFPI;
                         halfe = .5 * this->m_par.e;
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
                     case S_POLE:
-                        phi_l = geometry::math::half_pi<double>() - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
-                        halfpi = -geometry::math::half_pi<double>();
+                        phi_l = HALFPI - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
+                        halfpi = -HALFPI;
                         halfe = -.5 * this->m_par.e;
                         break;
                     }
@@ -206,7 +210,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_stere m_proj_parm;
+                par_stere<CalculationType> m_proj_parm;
 
                 inline base_stere_spheroid(const Parameters& par)
                     : base_t_fi<base_stere_spheroid<CalculationType, Parameters>,
@@ -216,7 +220,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  sinphi, cosphi, coslam, sinlam;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType  sinphi, cosphi, coslam, sinlam;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -238,7 +245,7 @@ namespace projections
                         coslam = - coslam;
                         lp_lat = - lp_lat;
                     case S_POLE:
-                        if (fabs(lp_lat - geometry::math::half_pi<double>()) < TOL) throw proj_exception();;
+                        if (fabs(lp_lat - HALFPI) < TOL) throw proj_exception();;
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(FORTPI + .5 * lp_lat) );
                         xy_y *= coslam;
                         break;
@@ -249,7 +256,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  c, rh, sinc, cosc;
+                    CalculationType  c, rh, sinc, cosc;
 
                     sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
                     cosc = cos(c);
@@ -290,23 +297,26 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_stere& proj_parm)  /* general initialization */
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_stere<T>& proj_parm)  /* general initialization */
             {
-                double t;
+                static const T FORTPI = detail::FORTPI<T>();
+                static const T HALFPI = detail::HALFPI<T>();
 
-                if (fabs((t = fabs(par.phi0)) - geometry::math::half_pi<double>()) < EPS10)
+                T t;
+
+                if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else
                     proj_parm.mode = t > EPS10 ? OBLIQ : EQUIT;
                 proj_parm.phits = fabs(proj_parm.phits);
                 if (par.es) {
-                    double X;
+                    T X;
 
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:
-                        if (fabs(proj_parm.phits - geometry::math::half_pi<double>()) < EPS10)
+                        if (fabs(proj_parm.phits - HALFPI) < EPS10)
                             proj_parm.akm1 = 2. * par.k0 /
                                sqrt(pow(1+par.e,1+par.e)*pow(1-par.e,1-par.e));
                         else {
@@ -321,7 +331,7 @@ namespace projections
                         break;
                     case OBLIQ:
                         t = sin(par.phi0);
-                        X = 2. * atan(ssfn_(par.phi0, t, par.e)) - geometry::math::half_pi<double>();
+                        X = 2. * atan(ssfn_(par.phi0, t, par.e)) - HALFPI;
                         t *= par.e;
                         proj_parm.akm1 = 2. * par.k0 * cos(par.phi0) / sqrt(1. - t * t);
                         proj_parm.sinX1 = sin(X);
@@ -338,7 +348,7 @@ namespace projections
                         break;
                     case S_POLE:
                     case N_POLE:
-                        proj_parm.akm1 = fabs(proj_parm.phits - geometry::math::half_pi<double>()) >= EPS10 ?
+                        proj_parm.akm1 = fabs(proj_parm.phits - HALFPI) >= EPS10 ?
                            cos(proj_parm.phits) / tan(FORTPI - .5 * proj_parm.phits) :
                            2. * par.k0 ;
                         break;
@@ -348,25 +358,29 @@ namespace projections
 
 
             // Stereographic
-            template <typename Parameters>
-            void setup_stere(Parameters& par, par_stere& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_stere(Parameters& par, par_stere<T>& proj_parm)
             {
+                static const T HALFPI = detail::HALFPI<T>();
+
                 proj_parm.phits = pj_param(par.params, "tlat_ts").i ?
-                        pj_param(par.params, "rlat_ts").f : geometry::math::half_pi<double>();
+                        pj_param(par.params, "rlat_ts").f : HALFPI;
                 setup(par, proj_parm);
             }
 
             // Universal Polar Stereographic
-            template <typename Parameters>
-            void setup_ups(Parameters& par, par_stere& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_ups(Parameters& par, par_stere<T>& proj_parm)
             {
+                static const T HALFPI = detail::HALFPI<T>();
+
                 /* International Ellipsoid */
-                par.phi0 = pj_param(par.params, "bsouth").i ? - geometry::math::half_pi<double>(): geometry::math::half_pi<double>();
+                par.phi0 = pj_param(par.params, "bsouth").i ? -HALFPI: HALFPI;
                 if (!par.es) throw proj_exception(-34);
                 par.k0 = .994;
                 par.x0 = 2000000.;
                 par.y0 = 2000000.;
-                proj_parm.phits = geometry::math::half_pi<double>();
+                proj_parm.phits = HALFPI;
                 par.lam0 = 0.;
                 setup(par, proj_parm);
             }

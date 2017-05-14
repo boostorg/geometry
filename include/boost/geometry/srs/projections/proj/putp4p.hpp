@@ -64,10 +64,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace putp4p
     {
-
+            template <typename T>
             struct par_putp4p
             {
-                double    C_x, C_y;
+                T    C_x, C_y;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -79,7 +79,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_putp4p m_proj_parm;
+                par_putp4p<CalculationType> m_proj_parm;
 
                 inline base_putp4p_spheroid(const Parameters& par)
                     : base_t_fi<base_putp4p_spheroid<CalculationType, Parameters>,
@@ -113,8 +113,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_putp4p& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_putp4p<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -122,8 +122,8 @@ namespace projections
 
 
             // Putnins P4'
-            template <typename Parameters>
-            void setup_putp4p(Parameters& par, par_putp4p& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_putp4p(Parameters& par, par_putp4p<T>& proj_parm)
             {
                 proj_parm.C_x = 0.874038744;
                 proj_parm.C_y = 3.883251825;
@@ -131,8 +131,8 @@ namespace projections
             }
 
             // Werenskiold I
-            template <typename Parameters>
-            void setup_weren(Parameters& par, par_putp4p& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_weren(Parameters& par, par_putp4p<T>& proj_parm)
             {
                 proj_parm.C_x = 1.;
                 proj_parm.C_y = 4.442882938;

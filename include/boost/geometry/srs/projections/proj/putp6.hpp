@@ -69,9 +69,10 @@ namespace projections
             static const int NITER = 10;
             static const double CON_POLE = 1.732050807568877;
 
+            template <typename T>
             struct par_putp6
             {
-                double C_x, C_y, A, B, D;
+                T C_x, C_y, A, B, D;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -83,7 +84,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_putp6 m_proj_parm;
+                par_putp6<CalculationType> m_proj_parm;
 
                 inline base_putp6_spheroid(const Parameters& par)
                     : base_t_fi<base_putp6_spheroid<CalculationType, Parameters>,
@@ -93,7 +94,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double p, r, V;
+                    CalculationType p, r, V;
                     int i;
 
                     p = this->m_proj_parm.B * sin(lp_lat);
@@ -115,7 +116,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double r;
+                    CalculationType r;
 
                     lp_lat = xy_y / this->m_proj_parm.C_y;
                     r = sqrt(1. + lp_lat * lp_lat);
@@ -130,8 +131,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_putp6& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_putp6<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -139,8 +140,8 @@ namespace projections
 
 
             // Putnins P6
-            template <typename Parameters>
-            void setup_putp6(Parameters& par, par_putp6& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_putp6(Parameters& par, par_putp6<T>& proj_parm)
             {
                 proj_parm.C_x = 1.01346;
                 proj_parm.C_y = 0.91910;
@@ -151,8 +152,8 @@ namespace projections
             }
 
             // Putnins P6'
-            template <typename Parameters>
-            void setup_putp6p(Parameters& par, par_putp6& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_putp6p(Parameters& par, par_putp6<T>& proj_parm)
             {
                 proj_parm.C_x = 0.44329;
                 proj_parm.C_y = 0.80404;

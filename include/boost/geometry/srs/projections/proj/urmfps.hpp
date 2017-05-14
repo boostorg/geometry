@@ -66,9 +66,10 @@ namespace projections
             static const double C_x = 0.8773826753;
             static const double Cy = 1.139753528477;
 
+            template <typename T>
             struct par_urmfps
             {
-                double    n, C_y;
+                T    n, C_y;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -80,7 +81,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_urmfps m_proj_parm;
+                par_urmfps<CalculationType> m_proj_parm;
 
                 inline base_urmfps_spheroid(const Parameters& par)
                     : base_t_fi<base_urmfps_spheroid<CalculationType, Parameters>,
@@ -111,8 +112,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_urmfps& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_urmfps<T>& proj_parm) 
             {
                 proj_parm.C_y = Cy / proj_parm.n;
                 par.es = 0.;
@@ -120,8 +121,8 @@ namespace projections
 
 
             // Urmaev Flat-Polar Sinusoidal
-            template <typename Parameters>
-            void setup_urmfps(Parameters& par, par_urmfps& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_urmfps(Parameters& par, par_urmfps<T>& proj_parm)
             {
                 if (pj_param(par.params, "tn").i) {
                     proj_parm.n = pj_param(par.params, "dn").f;
@@ -133,8 +134,8 @@ namespace projections
             }
 
             // Wagner I (Kavraisky VI)
-            template <typename Parameters>
-            void setup_wag1(Parameters& par, par_urmfps& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_wag1(Parameters& par, par_urmfps<T>& proj_parm)
             {
                 proj_parm.n = 0.8660254037844386467637231707;
                 setup(par, proj_parm);

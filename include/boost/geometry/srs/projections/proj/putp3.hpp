@@ -67,9 +67,10 @@ namespace projections
             static const double C = 0.79788456;
             static const double RPISQ = 0.1013211836;
 
+            template <typename T>
             struct par_putp3
             {
-                double    A;
+                T    A;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -81,7 +82,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_putp3 m_proj_parm;
+                par_putp3<CalculationType> m_proj_parm;
 
                 inline base_putp3_spheroid(const Parameters& par)
                     : base_t_fi<base_putp3_spheroid<CalculationType, Parameters>,
@@ -110,8 +111,8 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_putp3& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_putp3<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -119,16 +120,16 @@ namespace projections
 
 
             // Putnins P3
-            template <typename Parameters>
-            void setup_putp3(Parameters& par, par_putp3& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_putp3(Parameters& par, par_putp3<T>& proj_parm)
             {
                 proj_parm.A = 4. * RPISQ;
                 setup(par, proj_parm);
             }
 
             // Putnins P3'
-            template <typename Parameters>
-            void setup_putp3p(Parameters& par, par_putp3& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_putp3p(Parameters& par, par_putp3<T>& proj_parm)
             {
                 proj_parm.A = 2. * RPISQ;
                 setup(par, proj_parm);

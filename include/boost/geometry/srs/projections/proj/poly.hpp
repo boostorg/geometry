@@ -69,10 +69,11 @@ namespace projections
             static const int I_ITER = 20;
             static const double ITOL = 1.e-12;
 
+            template <typename T>
             struct par_poly
             {
-                double ml0;
-                double en[EN_SIZE];
+                T ml0;
+                T en[EN_SIZE];
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -84,7 +85,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_poly m_proj_parm;
+                par_poly<CalculationType> m_proj_parm;
 
                 inline base_poly_ellipsoid(const Parameters& par)
                     : base_t_fi<base_poly_ellipsoid<CalculationType, Parameters>,
@@ -94,7 +95,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  ms, sp, cp;
+                    CalculationType  ms, sp, cp;
 
                     if (fabs(lp_lat) <= TOL) { xy_x = lp_lon; xy_y = -this->m_proj_parm.ml0; }
                     else {
@@ -112,7 +113,7 @@ namespace projections
                     xy_y += this->m_proj_parm.ml0;
                     if (fabs(xy_y) <= TOL) { lp_lon = xy_x; lp_lat = 0.; }
                     else {
-                        double r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
+                        CalculationType r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
                         int i;
 
                         r = xy_y * xy_y + xy_x * xy_x;
@@ -155,7 +156,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_poly m_proj_parm;
+                par_poly<CalculationType> m_proj_parm;
 
                 inline base_poly_spheroid(const Parameters& par)
                     : base_t_fi<base_poly_spheroid<CalculationType, Parameters>,
@@ -165,7 +166,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  cot, E;
+                    CalculationType  cot, E;
 
                     if (fabs(lp_lat) <= TOL) { xy_x = lp_lon; xy_y = this->m_proj_parm.ml0; }
                     else {
@@ -179,7 +180,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double B, dphi, tp;
+                    CalculationType B, dphi, tp;
                     int i;
 
                     if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) { lp_lon = xy_x; lp_lat = 0.; }
@@ -206,8 +207,8 @@ namespace projections
             };
 
             // Polyconic (American)
-            template <typename Parameters>
-            void setup_poly(Parameters& par, par_poly& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_poly(Parameters& par, par_poly<T>& proj_parm)
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);

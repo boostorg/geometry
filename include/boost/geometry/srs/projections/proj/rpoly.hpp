@@ -63,12 +63,13 @@ namespace projections
 
             static const double EPS = 1e-9;
 
+            template <typename T>
             struct par_rpoly
             {
-                double    phi1;
-                double    fxa;
-                double    fxb;
-                int        mode;
+                T   phi1;
+                T   fxa;
+                T   fxb;
+                int mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -80,7 +81,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_rpoly m_proj_parm;
+                par_rpoly<CalculationType> m_proj_parm;
 
                 inline base_rpoly_spheroid(const Parameters& par)
                     : base_t_f<base_rpoly_spheroid<CalculationType, Parameters>,
@@ -90,7 +91,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double fa;
+                    CalculationType fa;
 
                     if (this->m_proj_parm.mode)
                         fa = tan(lp_lon * this->m_proj_parm.fxb) * this->m_proj_parm.fxa;
@@ -114,8 +115,8 @@ namespace projections
             };
 
             // Rectangular Polyconic
-            template <typename Parameters>
-            void setup_rpoly(Parameters& par, par_rpoly& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
             {
                 if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_param(par.params, "rlat_ts").f)) > EPS)) {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);

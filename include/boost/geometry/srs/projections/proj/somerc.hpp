@@ -63,14 +63,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace somerc
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double EPS = 1.e-10;
             static const int NITER = 6;
 
+            template <typename T>
             struct par_somerc
             {
-                double    K, c, hlf_e, kR, cosp0, sinp0;
+                T K, c, hlf_e, kR, cosp0, sinp0;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -82,7 +81,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_somerc m_proj_parm;
+                par_somerc<CalculationType> m_proj_parm;
 
                 inline base_somerc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_somerc_ellipsoid<CalculationType, Parameters>,
@@ -92,12 +91,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double phip, lamp, phipp, lampp, sp, cp;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType phip, lamp, phipp, lampp, sp, cp;
 
                     sp = this->m_par.e * sin(lp_lat);
                     phip = 2.* atan( exp( this->m_proj_parm.c * (
                         log(tan(FORTPI + 0.5 * lp_lat)) - this->m_proj_parm.hlf_e * log((1. + sp)/(1. - sp)))
-                        + this->m_proj_parm.K)) - geometry::math::half_pi<double>();
+                        + this->m_proj_parm.K)) - HALFPI;
                     lamp = this->m_proj_parm.c * lp_lon;
                     cp = cos(phip);
                     phipp = aasin(this->m_proj_parm.cosp0 * sin(phip) - this->m_proj_parm.sinp0 * cp * cos(lamp));
@@ -110,7 +112,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double phip, lamp, phipp, lampp, cp, esp, con, delp;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+
+                    CalculationType phip, lamp, phipp, lampp, cp, esp, con, delp;
                     int i;
 
                     phipp = 2. * (atan(exp(xy_y / this->m_proj_parm.kR)) - FORTPI);
@@ -143,10 +147,12 @@ namespace projections
             };
 
             // Swiss. Obl. Mercator
-            template <typename Parameters>
-            void setup_somerc(Parameters& par, par_somerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_somerc(Parameters& par, par_somerc<T>& proj_parm)
             {
-                double cp, phip0, sp;
+                static const T FORTPI = detail::FORTPI<T>();
+
+                T cp, phip0, sp;
 
                 proj_parm.hlf_e = 0.5 * par.e;
                 cp = cos(par.phi0);

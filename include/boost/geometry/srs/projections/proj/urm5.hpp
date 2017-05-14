@@ -61,10 +61,10 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace urm5
     {
-
+            template <typename T>
             struct par_urm5
             {
-                double m, rmn, q3, n;
+                T m, rmn, q3, n;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -76,7 +76,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_urm5 m_proj_parm;
+                par_urm5<CalculationType> m_proj_parm;
 
                 inline base_urm5_spheroid(const Parameters& par)
                     : base_t_f<base_urm5_spheroid<CalculationType, Parameters>,
@@ -86,7 +86,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t;
+                    CalculationType t;
 
                     t = lp_lat = aasin(this->m_proj_parm.n * sin(lp_lat));
                     xy_x = this->m_proj_parm.m * lp_lon * cos(lp_lat);
@@ -102,10 +102,10 @@ namespace projections
             };
 
             // Urmaev V
-            template <typename Parameters>
-            void setup_urm5(Parameters& par, par_urm5& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_urm5(Parameters& par, par_urm5<T>& proj_parm)
             {
-                double alpha, t;
+                T alpha, t;
 
                 proj_parm.n = pj_param(par.params, "dn").f;
                 proj_parm.q3 = pj_param(par.params, "dq").f / 3.;

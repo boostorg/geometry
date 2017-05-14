@@ -71,12 +71,13 @@ namespace projections
             static const double DEL_TOL = 1.e-14;
             static const int MAX_ITER = 10;
 
+            template <typename T>
             struct par_sterea
             {
-                double phic0;
-                double cosc0, sinc0;
-                double R2;
-                gauss::GAUSS<double> en;
+                T phic0;
+                T cosc0, sinc0;
+                T R2;
+                gauss::GAUSS<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -88,7 +89,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_sterea m_proj_parm;
+                par_sterea<CalculationType> m_proj_parm;
 
                 inline base_sterea_ellipsoid(const Parameters& par)
                     : base_t_fi<base_sterea_ellipsoid<CalculationType, Parameters>,
@@ -98,7 +99,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double cosc, sinc, cosl_, k;
+                    CalculationType cosc, sinc, cosl_, k;
 
                     detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
@@ -113,7 +114,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double rho, c, sinc, cosc;
+                    CalculationType rho, c, sinc, cosc;
 
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
@@ -139,10 +140,10 @@ namespace projections
             };
 
             // Oblique Stereographic Alternative
-            template <typename Parameters>
-            void setup_sterea(Parameters& par, par_sterea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_sterea(Parameters& par, par_sterea<T>& proj_parm)
             {
-                double R;
+                T R;
 
                 proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);

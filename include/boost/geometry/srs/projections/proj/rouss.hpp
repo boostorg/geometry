@@ -63,15 +63,15 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace rouss
     {
-
+            template <typename T>
             struct par_rouss
             {
-                double s0;
-                double A1, A2, A3, A4, A5, A6;
-                double B1, B2, B3, B4, B5, B6, B7, B8;
-                double C1, C2, C3, C4, C5, C6, C7, C8;
-                double D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11;
-                MDIST<double> en;
+                T s0;
+                T A1, A2, A3, A4, A5, A6;
+                T B1, B2, B3, B4, B5, B6, B7, B8;
+                T C1, C2, C3, C4, C5, C6, C7, C8;
+                T D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11;
+                MDIST<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -83,7 +83,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_rouss m_proj_parm;
+                par_rouss<CalculationType> m_proj_parm;
 
                 inline base_rouss_ellipsoid(const Parameters& par)
                     : base_t_fi<base_rouss_ellipsoid<CalculationType, Parameters>,
@@ -93,7 +93,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double s, al, cp, sp, al2, s2;
+                    CalculationType s, al, cp, sp, al2, s2;
 
                     cp = cos(lp_lat);
                     sp = sin(lp_lat);
@@ -112,7 +112,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;;
+                    CalculationType s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;;
 
                     x2 = x * x;
                     y2 = y * y;
@@ -134,10 +134,10 @@ namespace projections
             };
 
             // Roussilhe Stereographic
-            template <typename Parameters>
-            void setup_rouss(Parameters& par, par_rouss& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_rouss(Parameters& par, par_rouss<T>& proj_parm)
             {
-                double N0, es2, t, t2, R_R0_2, R_R0_4;
+                T N0, es2, t, t2, R_R0_2, R_R0_4;
 
                 if (!proj_mdist_ini(par.es, proj_parm.en))
                     throw proj_exception(0);

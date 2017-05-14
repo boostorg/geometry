@@ -71,6 +71,8 @@ inline T TWO_D_PI() { return boost::math::constants::two_div_pi<T>(); }
 template <typename T>
 inline T HALFPI_SQR() { return 2.4674011002723396547086227499689; }
 template <typename T>
+inline T PI_SQR() { return boost::math::constants::pi_sqr<T>(); }
+template <typename T>
 inline T THIRD() { return 0.3333333333333333333333333333333; }
 template <typename T>
 inline T TWOTHIRD() { return 0.6666666666666666666666666666666; }
@@ -78,6 +80,8 @@ template <typename T>
 inline T PI_HALFPI() { return 4.7123889803846898576939650749193; }
 template <typename T>
 inline T TWOPI_HALFPI() { return 7.8539816339744830961566084581988; }
+template <typename T>
+inline T PI_DIV_3() { return 1.0471975511965977461542144610932; }
 
 /* datum_type values */
 static const int PJD_UNKNOWN = 0;

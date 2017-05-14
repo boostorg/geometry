@@ -95,8 +95,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace qsc
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double EPS10 = 1.e-10;
             static const int FACE_FRONT = 0;
             static const int FACE_RIGHT = 1;
@@ -109,13 +107,14 @@ namespace projections
             static const int AREA_2 = 2;
             static const int AREA_3 = 3;
 
+            template <typename T>
             struct par_qsc
             {
                 int face;
-                double a_squared;
-                double b;
-                double one_minus_f;
-                double one_minus_f_squared;
+                T   a_squared;
+                T   b;
+                T   one_minus_f;
+                T   one_minus_f_squared;
             };
 
             /* The six cube faces. */
@@ -125,9 +124,14 @@ namespace projections
 
             /* Helper function for forward projection: compute the theta angle
              * and determine the area number. */
-            static double
-            qsc_fwd_equat_face_theta(double phi, double y, double x, int *area) {
-                    double theta;
+            template <typename T>
+            inline T qsc_fwd_equat_face_theta(T const& phi, T const& y, T const& x, int *area)
+            {
+                static const T FORTPI = detail::FORTPI<T>();
+                static const T HALFPI = detail::HALFPI<T>();
+                static const T ONEPI = detail::ONEPI<T>();
+
+                    T theta;
                     if (phi < EPS10) {
                         *area = AREA_0;
                         theta = 0.0;
@@ -135,30 +139,34 @@ namespace projections
                         theta = atan2(y, x);
                         if (fabs(theta) <= FORTPI) {
                             *area = AREA_0;
-                        } else if (theta > FORTPI && theta <= geometry::math::half_pi<double>() + FORTPI) {
+                        } else if (theta > FORTPI && theta <= HALFPI + FORTPI) {
                             *area = AREA_1;
-                            theta -= geometry::math::half_pi<double>();
-                        } else if (theta > geometry::math::half_pi<double>() + FORTPI || theta <= -(geometry::math::half_pi<double>() + FORTPI)) {
+                            theta -= HALFPI;
+                        } else if (theta > HALFPI + FORTPI || theta <= -(HALFPI + FORTPI)) {
                             *area = AREA_2;
-                            theta = (theta >= 0.0 ? theta - geometry::math::pi<double>() : theta + geometry::math::pi<double>());
+                            theta = (theta >= 0.0 ? theta - ONEPI : theta + ONEPI);
                         } else {
                             *area = AREA_3;
-                            theta += geometry::math::half_pi<double>();
+                            theta += HALFPI;
                         }
                     }
                     return (theta);
             }
 
             /* Helper function: shift the longitude. */
-            static double
-            qsc_shift_lon_origin(double lon, double offset) {
-                    double slon = lon + offset;
-                    if (slon < -geometry::math::pi<double>()) {
-                        slon += geometry::math::two_pi<double>();
-                    } else if (slon > +geometry::math::pi<double>()) {
-                        slon -= geometry::math::two_pi<double>();
-                    }
-                    return slon;
+            template <typename T>
+            inline T qsc_shift_lon_origin(T const& lon, T const& offset)
+            {
+                static const T ONEPI = detail::ONEPI<T>();
+                static const T TWOPI = detail::TWOPI<T>();
+
+                T slon = lon + offset;
+                if (slon < -ONEPI) {
+                    slon += TWOPI;
+                } else if (slon > +ONEPI) {
+                    slon -= TWOPI;
+                }
+                return slon;
             }
 
             /* Forward projection, ellipsoid */
@@ -172,7 +180,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_qsc m_proj_parm;
+                par_qsc<CalculationType> m_proj_parm;
 
                 inline base_qsc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_qsc_ellipsoid<CalculationType, Parameters>,
@@ -182,12 +190,16 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                        double lat, lon;
-                        double sinlat, coslat;
-                        double sinlon, coslon;
-                        double q = 0.0, r = 0.0, s = 0.0;
-                        double theta, phi;
-                        double t, mu, nu;
+                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+
+                        CalculationType lat, lon;
+                        CalculationType sinlat, coslat;
+                        CalculationType sinlon, coslon;
+                        CalculationType q = 0.0, r = 0.0, s = 0.0;
+                        CalculationType theta, phi;
+                        CalculationType t, mu, nu;
                         int area;
 
                         /* Convert the geodetic latitude to a geocentric latitude.
@@ -207,11 +219,11 @@ namespace projections
                         lon = lp_lon;
                         if (this->m_proj_parm.face != FACE_TOP && this->m_proj_parm.face != FACE_BOTTOM) {
                             if (this->m_proj_parm.face == FACE_RIGHT) {
-                                lon = qsc_shift_lon_origin(lon, +geometry::math::half_pi<double>());
+                                lon = qsc_shift_lon_origin(lon, +HALFPI);
                             } else if (this->m_proj_parm.face == FACE_BACK) {
-                                lon = qsc_shift_lon_origin(lon, +geometry::math::pi<double>());
+                                lon = qsc_shift_lon_origin(lon, +ONEPI);
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
-                                lon = qsc_shift_lon_origin(lon, -geometry::math::half_pi<double>());
+                                lon = qsc_shift_lon_origin(lon, -HALFPI);
                             }
                             sinlat = sin(lat);
                             coslat = cos(lat);
@@ -234,51 +246,51 @@ namespace projections
                             phi = acos(-r);
                             theta = qsc_fwd_equat_face_theta(phi, s, q, &area);
                         } else if (this->m_proj_parm.face == FACE_TOP) {
-                            phi = geometry::math::half_pi<double>() - lat;
-                            if (lon >= FORTPI && lon <= geometry::math::half_pi<double>() + FORTPI) {
+                            phi = HALFPI - lat;
+                            if (lon >= FORTPI && lon <= HALFPI + FORTPI) {
                                 area = AREA_0;
-                                theta = lon - geometry::math::half_pi<double>();
-                            } else if (lon > geometry::math::half_pi<double>() + FORTPI || lon <= -(geometry::math::half_pi<double>() + FORTPI)) {
+                                theta = lon - HALFPI;
+                            } else if (lon > HALFPI + FORTPI || lon <= -(HALFPI + FORTPI)) {
                                 area = AREA_1;
-                                theta = (lon > 0.0 ? lon - geometry::math::pi<double>() : lon + geometry::math::pi<double>());
-                            } else if (lon > -(geometry::math::half_pi<double>() + FORTPI) && lon <= -FORTPI) {
+                                theta = (lon > 0.0 ? lon - ONEPI : lon + ONEPI);
+                            } else if (lon > -(HALFPI + FORTPI) && lon <= -FORTPI) {
                                 area = AREA_2;
-                                theta = lon + geometry::math::half_pi<double>();
+                                theta = lon + HALFPI;
                             } else {
                                 area = AREA_3;
                                 theta = lon;
                             }
                         } else /* this->m_proj_parm.face == FACE_BOTTOM */ {
-                            phi = geometry::math::half_pi<double>() + lat;
-                            if (lon >= FORTPI && lon <= geometry::math::half_pi<double>() + FORTPI) {
+                            phi = HALFPI + lat;
+                            if (lon >= FORTPI && lon <= HALFPI + FORTPI) {
                                 area = AREA_0;
-                                theta = -lon + geometry::math::half_pi<double>();
+                                theta = -lon + HALFPI;
                             } else if (lon < FORTPI && lon >= -FORTPI) {
                                 area = AREA_1;
                                 theta = -lon;
-                            } else if (lon < -FORTPI && lon >= -(geometry::math::half_pi<double>() + FORTPI)) {
+                            } else if (lon < -FORTPI && lon >= -(HALFPI + FORTPI)) {
                                 area = AREA_2;
-                                theta = -lon - geometry::math::half_pi<double>();
+                                theta = -lon - HALFPI;
                             } else {
                                 area = AREA_3;
-                                theta = (lon > 0.0 ? -lon + geometry::math::pi<double>() : -lon - geometry::math::pi<double>());
+                                theta = (lon > 0.0 ? -lon + ONEPI : -lon - ONEPI);
                             }
                         }
 
                         /* Compute mu and nu for the area of definition.
                          * For mu, see Eq. (3-21) in [OL76], but note the typos:
                          * compare with Eq. (3-14). For nu, see Eq. (3-38). */
-                        mu = atan((12.0 / geometry::math::pi<double>()) * (theta + acos(sin(theta) * cos(FORTPI)) - geometry::math::half_pi<double>()));
+                        mu = atan((12.0 / ONEPI) * (theta + acos(sin(theta) * cos(FORTPI)) - HALFPI));
                         t = sqrt((1.0 - cos(phi)) / (cos(mu) * cos(mu)) / (1.0 - cos(atan(1.0 / cos(theta)))));
                         /* nu = atan(t);        We don't really need nu, just t, see below. */
 
                         /* Apply the result to the real area. */
                         if (area == AREA_1) {
-                            mu += geometry::math::half_pi<double>();
+                            mu += HALFPI;
                         } else if (area == AREA_2) {
-                            mu += geometry::math::pi<double>();
+                            mu += ONEPI;
                         } else if (area == AREA_3) {
-                            mu += geometry::math::half_pi<double>() + geometry::math::pi<double>();
+                            mu += HALFPI + ONEPI;
                         }
 
                         /* Now compute x, y from mu and nu */
@@ -293,9 +305,12 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        double mu, nu, cosmu, tannu;
-                        double tantheta, theta, cosphi, phi;
-                        double t;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+
+                        CalculationType mu, nu, cosmu, tannu;
+                        CalculationType tantheta, theta, cosphi, phi;
+                        CalculationType t;
                         int area;
 
                         /* Convert the input x, y to the mu and nu angles as used by QSC.
@@ -306,13 +321,13 @@ namespace projections
                             area = AREA_0;
                         } else if (xy_y >= 0.0 && xy_y >= fabs(xy_x)) {
                             area = AREA_1;
-                            mu -= geometry::math::half_pi<double>();
+                            mu -= HALFPI;
                         } else if (xy_x < 0.0 && -xy_x >= fabs(xy_y)) {
                             area = AREA_2;
-                            mu = (mu < 0.0 ? mu + geometry::math::pi<double>() : mu - geometry::math::pi<double>());
+                            mu = (mu < 0.0 ? mu + ONEPI : mu - ONEPI);
                         } else {
                             area = AREA_3;
-                            mu += geometry::math::half_pi<double>();
+                            mu += HALFPI;
                         }
 
                         /* Compute phi and theta for the area of definition.
@@ -320,7 +335,7 @@ namespace projections
                          * good hints can be found here (as of 2011-12-14):
                          * http://fits.gsfc.nasa.gov/fitsbits/saf.93/saf.9302
                          * (search for "Message-Id: <9302181759.AA25477 at fits.cv.nrao.edu>") */
-                        t = (geometry::math::pi<double>() / 12.0) * tan(mu);
+                        t = (ONEPI / 12.0) * tan(mu);
                         tantheta = sin(t) / (cos(t) - (1.0 / sqrt(2.0)));
                         theta = atan(tantheta);
                         cosmu = cos(mu);
@@ -338,31 +353,31 @@ namespace projections
                          * as an intermediate step. */
                         if (this->m_proj_parm.face == FACE_TOP) {
                             phi = acos(cosphi);
-                            lp_lat = geometry::math::half_pi<double>() - phi;
+                            lp_lat = HALFPI - phi;
                             if (area == AREA_0) {
-                                lp_lon = theta + geometry::math::half_pi<double>();
+                                lp_lon = theta + HALFPI;
                             } else if (area == AREA_1) {
-                                lp_lon = (theta < 0.0 ? theta + geometry::math::pi<double>() : theta - geometry::math::pi<double>());
+                                lp_lon = (theta < 0.0 ? theta + ONEPI : theta - ONEPI);
                             } else if (area == AREA_2) {
-                                lp_lon = theta - geometry::math::half_pi<double>();
+                                lp_lon = theta - HALFPI;
                             } else /* area == AREA_3 */ {
                                 lp_lon = theta;
                             }
                         } else if (this->m_proj_parm.face == FACE_BOTTOM) {
                             phi = acos(cosphi);
-                            lp_lat = phi - geometry::math::half_pi<double>();
+                            lp_lat = phi - HALFPI;
                             if (area == AREA_0) {
-                                lp_lon = -theta + geometry::math::half_pi<double>();
+                                lp_lon = -theta + HALFPI;
                             } else if (area == AREA_1) {
                                 lp_lon = -theta;
                             } else if (area == AREA_2) {
-                                lp_lon = -theta - geometry::math::half_pi<double>();
+                                lp_lon = -theta - HALFPI;
                             } else /* area == AREA_3 */ {
-                                lp_lon = (theta < 0.0 ? -theta - geometry::math::pi<double>() : -theta + geometry::math::pi<double>());
+                                lp_lon = (theta < 0.0 ? -theta - ONEPI : -theta + ONEPI);
                             }
                         } else {
                             /* Compute phi and lam via cartesian unit sphere coordinates. */
-                            double q, r, s, t;
+                            CalculationType q, r, s, t;
                             q = cosphi;
                             t = q * q;
                             if (t >= 1.0) {
@@ -403,14 +418,14 @@ namespace projections
                                 r = -t;
                             }
                             /* Now compute phi and lam from the unit sphere coordinates. */
-                            lp_lat = acos(-s) - geometry::math::half_pi<double>();
+                            lp_lat = acos(-s) - HALFPI;
                             lp_lon = atan2(r, q);
                             if (this->m_proj_parm.face == FACE_RIGHT) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, -geometry::math::half_pi<double>());
+                                lp_lon = qsc_shift_lon_origin(lp_lon, -HALFPI);
                             } else if (this->m_proj_parm.face == FACE_BACK) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, -geometry::math::pi<double>());
+                                lp_lon = qsc_shift_lon_origin(lp_lon, -ONEPI);
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, +geometry::math::half_pi<double>());
+                                lp_lon = qsc_shift_lon_origin(lp_lon, +HALFPI);
                             }
                         }
 
@@ -418,7 +433,7 @@ namespace projections
                          * in [LK12]. */
                         if (this->m_par.es) {
                             int invert_sign;
-                            double tanphi, xa;
+                            CalculationType tanphi, xa;
                             invert_sign = (lp_lat < 0.0 ? 1 : 0);
                             tanphi = tan(lp_lat);
                             xa = this->m_proj_parm.b / sqrt(tanphi * tanphi + this->m_proj_parm.one_minus_f_squared);
@@ -437,17 +452,20 @@ namespace projections
             };
 
             // Quadrilateralized Spherical Cube
-            template <typename Parameters>
-            void setup_qsc(Parameters& par, par_qsc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_qsc(Parameters& par, par_qsc<T>& proj_parm)
             {
+                static const T FORTPI = detail::FORTPI<T>();
+                static const T HALFPI = detail::HALFPI<T>();
+
                     /* Determine the cube face from the center of projection. */
-                    if (par.phi0 >= geometry::math::half_pi<double>() - FORTPI / 2.0) {
+                    if (par.phi0 >= HALFPI - FORTPI / 2.0) {
                         proj_parm.face = FACE_TOP;
-                    } else if (par.phi0 <= -(geometry::math::half_pi<double>() - FORTPI / 2.0)) {
+                    } else if (par.phi0 <= -(HALFPI - FORTPI / 2.0)) {
                         proj_parm.face = FACE_BOTTOM;
                     } else if (fabs(par.lam0) <= FORTPI) {
                         proj_parm.face = FACE_FRONT;
-                    } else if (fabs(par.lam0) <= geometry::math::half_pi<double>() + FORTPI) {
+                    } else if (fabs(par.lam0) <= HALFPI + FORTPI) {
                         proj_parm.face = (par.lam0 > 0.0 ? FACE_RIGHT : FACE_LEFT);
                     } else {
                         proj_parm.face = FACE_BACK;
