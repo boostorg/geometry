@@ -74,8 +74,8 @@ namespace projections
             struct par_ob_tran
             {
                 boost::shared_ptr<base_v<CalculationType, Parameters> > link;
-                double    lamp;
-                double    cphip, sphip;
+                CalculationType lamp;
+                CalculationType cphip, sphip;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -97,7 +97,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double coslam, sinphi, cosphi;
+                    CalculationType coslam, sinphi, cosphi;
 
 
                     coslam = cos(lp_lon);
@@ -113,7 +113,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double coslam, sinphi, cosphi;
+                    CalculationType coslam, sinphi, cosphi;
 
                     m_proj_parm.link->inv(xy_x, xy_y, lp_lon, lp_lat);
                     if (lp_lon != HUGE_VAL) {
@@ -152,7 +152,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double cosphi, coslam;
+                    CalculationType cosphi, coslam;
 
 
                     cosphi = cos(lp_lat);
@@ -166,7 +166,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double cosphi, t;
+                    CalculationType cosphi, t;
 
                     m_proj_parm.link->inv(xy_x, xy_y, lp_lon, lp_lat);
                     if (lp_lon != HUGE_VAL) {
@@ -186,9 +186,11 @@ namespace projections
 
             // General Oblique Transformation
             template <typename CalculationType, typename Parameters>
-            double setup_ob_tran(Parameters& par, par_ob_tran<CalculationType, Parameters>& proj_parm, bool create = true)
+            CalculationType setup_ob_tran(Parameters& par, par_ob_tran<CalculationType, Parameters>& proj_parm, bool create = true)
             {
-                double phip;
+                static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                CalculationType phip;
                 Parameters pj;
 
                 /* get name of projection to be translated */
@@ -217,17 +219,17 @@ namespace projections
                     if (! proj_parm.link.get()) throw proj_exception(-26);
                 }
                 if (pj_param(par.params, "to_alpha").i) {
-                    double lamc, phic, alpha;
+                    CalculationType lamc, phic, alpha;
 
                     lamc    = pj_param(par.params, "ro_lon_c").f;
                     phic    = pj_param(par.params, "ro_lat_c").f;
                     alpha    = pj_param(par.params, "ro_alpha").f;
             /*
                     if (fabs(phic) <= TOL ||
-                        fabs(fabs(phic) - geometry::math::half_pi<double>()) <= TOL ||
-                        fabs(fabs(alpha) - geometry::math::half_pi<double>()) <= TOL)
+                        fabs(fabs(phic) - HALFPI) <= TOL ||
+                        fabs(fabs(alpha) - HALFPI) <= TOL)
             */
-                    if (fabs(fabs(phic) - geometry::math::half_pi<double>()) <= TOL)
+                    if (fabs(fabs(phic) - HALFPI) <= TOL)
                         throw proj_exception(-32);
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
@@ -235,7 +237,7 @@ namespace projections
                     proj_parm.lamp = pj_param(par.params, "ro_lon_p").f;
                     phip = pj_param(par.params, "ro_lat_p").f;
                 } else { /* specified new "equator" points */
-                    double lam1, lam2, phi1, phi2, con;
+                    CalculationType lam1, lam2, phi1, phi2, con;
 
                     lam1 = pj_param(par.params, "ro_lon_1").f;
                     phi1 = pj_param(par.params, "ro_lat_1").f;
@@ -243,8 +245,8 @@ namespace projections
                     phi2 = pj_param(par.params, "ro_lat_2").f;
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
-                        fabs(con - geometry::math::half_pi<double>()) <= TOL ||
-                        fabs(fabs(phi2) - geometry::math::half_pi<double>()) <= TOL) throw proj_exception(-33);
+                        fabs(con - HALFPI) <= TOL ||
+                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
                         sin(phi1) * cos(phi2) * cos(lam2),
                         sin(phi1) * cos(phi2) * sin(lam2) -
@@ -348,7 +350,7 @@ namespace projections
                 {
                     detail::ob_tran::par_ob_tran<CalculationType, Parameters> proj_parm;
                     Parameters p = par;
-                    double phip = setup_ob_tran(p, proj_parm, false);
+                    CalculationType phip = setup_ob_tran(p, proj_parm, false);
 
                     if (fabs(phip) > detail::ob_tran::TOL)
                         return new base_v_fi<ob_tran_oblique<CalculationType, Parameters>, CalculationType, Parameters>(par);

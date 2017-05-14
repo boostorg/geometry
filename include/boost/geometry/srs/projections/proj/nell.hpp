@@ -83,7 +83,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double k, V;
+                    CalculationType k, V;
                     int i;
 
                     k = 2. * sin(lp_lat);

@@ -70,25 +70,45 @@ namespace projections
     {
 
             static const double EPSLN = 1e-10;
-            static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
-            static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
+            //static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
+            //static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
             static const int Nbf = 5;
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
 
-                static COMPLEX<double>
-            bf[] = {
-                {.7557853228,    0.0},
-                {.249204646,    .003371507},
-                {-.001541739,    .041058560},
-                {-.10162907,    .01727609},
-                {-.26623489,    -.36249218},
-                {-.6870983,    -1.1651967} };
-                static double
-            tphi[] = { 1.5627014243, .5185406398, -.03333098, -.1052906, -.0368594,
-                .007317, .01220, .00394, -.0013 },
-            tpsi[] = { .6399175073, -.1358797613, .063294409, -.02526853, .0117879,
-                -.0055161, .0026906, -.001333, .00067, -.00034 };
+            template <typename T>
+            inline T SEC5_TO_RAD() { return 0.4848136811095359935899141023; }
+            template <typename T>
+            inline T RAD_TO_SEC5() { return 2.062648062470963551564733573; }
+
+            template <typename T>
+            inline const COMPLEX<T> * bf()
+            {
+                static const COMPLEX<T> result[] = {
+                    {.7557853228,    0.0},
+                    {.249204646,    .003371507},
+                    {-.001541739,    .041058560},
+                    {-.10162907,    .01727609},
+                    {-.26623489,    -.36249218},
+                    {-.6870983,    -1.1651967}
+                };
+                return result;
+            }
+
+            template <typename T>
+            inline const T * tphi()
+            {
+                static const T result[] = { 1.5627014243, .5185406398, -.03333098, -.1052906, -.0368594,
+                    .007317, .01220, .00394, -.0013 };
+                return result;
+            }
+            template <typename T>
+            inline const T * tpsi()
+            {
+                static const T result[] = { .6399175073, -.1358797613, .063294409, -.02526853, .0117879,
+                    -.0055161, .0026906, -.001333, .00067, -.00034 };
+                return result;
+            }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -108,16 +128,18 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    COMPLEX<double> p;
-                    double *C;
+                    static const CalculationType RAD_TO_SEC5 = nzmg::RAD_TO_SEC5<CalculationType>();
+
+                    COMPLEX<CalculationType> p;
+                    const CalculationType * C;
                     int i;
 
                     lp_lat = (lp_lat - this->m_par.phi0) * RAD_TO_SEC5;
-                    for (p.r = *(C = tpsi + (i = Ntpsi)); i ; --i)
+                    for (p.r = *(C = tpsi<CalculationType>() + (i = Ntpsi)); i ; --i)
                         p.r = *--C + lp_lat * p.r;
                     p.r *= lp_lat;
                     p.i = lp_lon;
-                    p = pj_zpoly1(p, bf, Nbf);
+                    p = pj_zpoly1(p, bf<CalculationType>(), Nbf);
                     xy_x = p.i;
                     xy_y = p.r;
                 }
@@ -126,14 +148,17 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
+                    static const CalculationType SEC5_TO_RAD = nzmg::SEC5_TO_RAD<CalculationType>();
+
                     int nn, i;
-                    COMPLEX<double> p, f, fp, dp;
-                    double den, *C;
+                    COMPLEX<CalculationType> p, f, fp, dp;
+                    CalculationType den;
+                    const CalculationType* C;
 
                     p.r = xy_y;
                     p.i = xy_x;
                     for (nn = 20; nn ;--nn) {
-                        f = pj_zpolyd1(p, bf, Nbf, &fp);
+                        f = pj_zpolyd1(p, bf<CalculationType>(), Nbf, &fp);
                         f.r -= xy_y;
                         f.i -= xy_x;
                         den = fp.r * fp.r + fp.i * fp.i;
@@ -144,7 +169,7 @@ namespace projections
                     }
                     if (nn) {
                         lp_lon = p.i;
-                        for (lp_lat = *(C = tphi + (i = Ntphi)); i ; --i)
+                        for (lp_lat = *(C = tphi<CalculationType>() + (i = Ntphi)); i ; --i)
                             lp_lat = *--C + p.r * lp_lat;
                         lp_lat = this->m_par.phi0 + p.r * lp_lat * SEC5_TO_RAD;
                     } else
@@ -162,10 +187,12 @@ namespace projections
             template <typename Parameters>
             void setup_nzmg(Parameters& par)
             {
+                typedef typename Parameters::type calc_t;
+
                 /* force to International major axis */
                 par.ra = 1. / (par.a = 6378388.0);
-                par.lam0 = geometry::math::d2r<double>() * 173.;
-                par.phi0 = geometry::math::d2r<double>() * -41.;
+                par.lam0 = geometry::math::d2r<calc_t>() * 173.;
+                par.phi0 = geometry::math::d2r<calc_t>() * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
             }

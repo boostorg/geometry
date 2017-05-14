@@ -62,15 +62,15 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace ocea
     {
-
+            template <typename T>
             struct par_ocea
             {
-                double    rok;
-                double    rtk;
-                double    sinphi;
-                double    cosphi;
-                double    singam;
-                double    cosgam;
+                T    rok;
+                T    rtk;
+                T    sinphi;
+                T    cosphi;
+                T    singam;
+                T    cosgam;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -82,7 +82,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_ocea m_proj_parm;
+                par_ocea<CalculationType> m_proj_parm;
 
                 inline base_ocea_spheroid(const Parameters& par)
                     : base_t_fi<base_ocea_spheroid<CalculationType, Parameters>,
@@ -92,7 +92,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double t;
+                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+
+                    CalculationType t;
 
                     xy_y = sin(lp_lon);
                 /*
@@ -101,7 +103,7 @@ namespace projections
                     t = cos(lp_lon);
                     xy_x = atan((tan(lp_lat) * this->m_proj_parm.cosphi + this->m_proj_parm.sinphi * xy_y) / t);
                     if (t < 0.)
-                        xy_x += geometry::math::pi<double>();
+                        xy_x += ONEPI;
                     xy_x *= this->m_proj_parm.rtk;
                     xy_y = this->m_proj_parm.rok * (this->m_proj_parm.sinphi * sin(lp_lat) - this->m_proj_parm.cosphi * cos(lp_lat) * xy_y);
                 }
@@ -110,7 +112,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double t, s;
+                    CalculationType t, s;
 
                     xy_y /= this->m_proj_parm.rok;
                     xy_x /= this->m_proj_parm.rtk;
@@ -128,10 +130,12 @@ namespace projections
             };
 
             // Oblique Cylindrical Equal Area
-            template <typename Parameters>
-            void setup_ocea(Parameters& par, par_ocea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
             {
-                double phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
+                static const T HALFPI = detail::HALFPI<T>();
+
+                T phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
 
                 proj_parm.rok = par.a / par.k0;
                 proj_parm.rtk = par.a * par.k0;
@@ -151,7 +155,7 @@ namespace projections
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
-                par.lam0 = proj_parm.singam + geometry::math::half_pi<double>();
+                par.lam0 = proj_parm.singam + HALFPI;
                 proj_parm.cosphi = cos(proj_parm.sinphi);
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);

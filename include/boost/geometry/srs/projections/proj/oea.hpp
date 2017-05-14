@@ -63,13 +63,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace oea
     {
-
+            template <typename T>
             struct par_oea
             {
-                double    theta;
-                double    m, n;
-                double    two_r_m, two_r_n, rm, rn, hm, hn;
-                double    cp0, sp0;
+                T    theta;
+                T    m, n;
+                T    two_r_m, two_r_n, rm, rn, hm, hn;
+                T    cp0, sp0;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -81,7 +81,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_oea m_proj_parm;
+                par_oea<CalculationType> m_proj_parm;
 
                 inline base_oea_spheroid(const Parameters& par)
                     : base_t_fi<base_oea_spheroid<CalculationType, Parameters>,
@@ -91,7 +91,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double Az, M, N, cp, sp, cl, shz;
+                    CalculationType Az, M, N, cp, sp, cl, shz;
 
                     cp = cos(lp_lat);
                     sp = sin(lp_lat);
@@ -108,7 +108,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double N, M, xp, yp, z, Az, cz, sz, cAz;
+                    CalculationType N, M, xp, yp, z, Az, cz, sz, cAz;
 
                     N = this->m_proj_parm.hn * aasin(xy_y * this->m_proj_parm.rn);
                     M = this->m_proj_parm.hm * aasin(xy_x * this->m_proj_parm.rm * cos(N * this->m_proj_parm.two_r_n) / cos(N));
@@ -131,8 +131,8 @@ namespace projections
             };
 
             // Oblated Equal Area
-            template <typename Parameters>
-            void setup_oea(Parameters& par, par_oea& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_oea(Parameters& par, par_oea<T>& proj_parm)
             {
                 if (((proj_parm.n = pj_param(par.params, "dn").f) <= 0.) ||
                     ((proj_parm.m = pj_param(par.params, "dm").f) <= 0.))

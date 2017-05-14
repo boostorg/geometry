@@ -53,7 +53,7 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
     */
     template <typename T>
     inline COMPLEX<T>
-    pj_zpoly1(COMPLEX<T> z, COMPLEX<T> *C, int n)
+    pj_zpoly1(COMPLEX<T> z, const COMPLEX<T> *C, int n)
     {
         COMPLEX<T> a;
         T t;
@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
     /* evaluate complex polynomial and derivative */
     template <typename T>
     inline COMPLEX<T>
-    pj_zpolyd1(COMPLEX<T> z, COMPLEX<T> *C, int n, COMPLEX<T> *der)
+    pj_zpolyd1(COMPLEX<T> z, const COMPLEX<T> *C, int n, COMPLEX<T> *der)
     {
         T t;
         bool first = true;

@@ -71,22 +71,23 @@ namespace projections
             static const int EQUIT = 2;
             static const int OBLIQ = 3;
 
+            template <typename T>
             struct par_nsper
             {
-                double    height;
-                double    sinph0;
-                double    cosph0;
-                double    p;
-                double    rp;
-                double    pn1;
-                double    pfact;
-                double    h;
-                double    cg;
-                double    sg;
-                double    sw;
-                double    cw;
-                int        mode;
-                int        tilt;
+                T   height;
+                T   sinph0;
+                T   cosph0;
+                T   p;
+                T   rp;
+                T   pn1;
+                T   pfact;
+                T   h;
+                T   cg;
+                T   sg;
+                T   sw;
+                T   cw;
+                int mode;
+                int tilt;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -98,7 +99,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_nsper m_proj_parm;
+                par_nsper<CalculationType> m_proj_parm;
 
                 inline base_nsper_spheroid(const Parameters& par)
                     : base_t_fi<base_nsper_spheroid<CalculationType, Parameters>,
@@ -108,7 +109,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  coslam, cosphi, sinphi;
+                    CalculationType  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -145,7 +146,7 @@ namespace projections
                         break;
                     }
                     if (this->m_proj_parm.tilt) {
-                        double yt, ba;
+                        CalculationType yt, ba;
 
                         yt = xy_y * this->m_proj_parm.cg + xy_x * this->m_proj_parm.sg;
                         ba = 1. / (yt * this->m_proj_parm.sw * this->m_proj_parm.h + this->m_proj_parm.cw);
@@ -158,10 +159,10 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  rh, cosz, sinz;
+                    CalculationType  rh, cosz, sinz;
 
                     if (this->m_proj_parm.tilt) {
-                        double bm, bq, yt;
+                        CalculationType bm, bq, yt;
 
                         yt = 1./(this->m_proj_parm.pn1 - xy_y * this->m_proj_parm.sw);
                         bm = this->m_proj_parm.pn1 * xy_x * yt;
@@ -207,11 +208,11 @@ namespace projections
 
             };
 
-            template <typename Parameters>
-            void setup(Parameters& par, par_nsper& proj_parm) 
+            template <typename Parameters, typename T>
+            void setup(Parameters& par, par_nsper<T>& proj_parm) 
             {
                 if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) < EPS10)
                     proj_parm.mode = EQUIT;
@@ -230,21 +231,21 @@ namespace projections
 
 
             // Near-sided perspective
-            template <typename Parameters>
-            void setup_nsper(Parameters& par, par_nsper& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_nsper(Parameters& par, par_nsper<T>& proj_parm)
             {
                 proj_parm.tilt = 0;
                 setup(par, proj_parm);
             }
 
             // Tilted perspective
-            template <typename Parameters>
-            void setup_tpers(Parameters& par, par_nsper& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_tpers(Parameters& par, par_nsper<T>& proj_parm)
             {
-                double omega, gamma;
+                T omega, gamma;
 
-                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<double>();
-                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<double>();
+                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<T>();
+                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<T>();
                 proj_parm.tilt = 1;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);

@@ -90,7 +90,10 @@ namespace projections
             static const double C3 = (9 * B3);
             static const double C4 = (11 * B4);
             static const double EPS = 1e-11;
-            static const double MAX_Y = (0.8707 * 0.52 * geometry::math::pi<double>());
+            //static const double MAX_Y = (0.8707 * 0.52 * geometry::math::pi<double>());
+
+            template <typename T>
+            inline T MAX_Y() { return (0.8707 * 0.52 * detail::ONEPI<T>()); }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -110,7 +113,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double phi2, phi4;
+                    CalculationType phi2, phi4;
 
                     phi2 = lp_lat * lp_lat;
                     phi4 = phi2 * phi2;
@@ -122,16 +125,18 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double yc, tol, y2, y4, f, fder;
+                    static const CalculationType MAX_Y = natearth::MAX_Y<CalculationType>();
 
-                        /* make sure y is inside valid range */
+                    CalculationType yc, tol, y2, y4, f, fder;
+
+                    /* make sure y is inside valid range */
                     if (xy_y > MAX_Y) {
                         xy_y = MAX_Y;
                     } else if (xy_y < -MAX_Y) {
                         xy_y = -MAX_Y;
                     }
 
-                        /* latitude */
+                    /* latitude */
                     yc = xy_y;
                         for (;;) { /* Newton-Raphson */
                         y2 = yc * yc;
@@ -145,7 +150,7 @@ namespace projections
                     }
                     lp_lat = yc;
 
-                        /* longitude */
+                    /* longitude */
                     y2 = yc * yc;
                     lp_lon = xy_x / (A0 + y2 * (A1 + y2 * (A2 + y2 * y2 * y2 * (A3 + y2 * A4))));
                 }

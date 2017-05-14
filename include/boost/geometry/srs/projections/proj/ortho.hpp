@@ -70,11 +70,12 @@ namespace projections
             static const int EQUIT = 2;
             static const int OBLIQ = 3;
 
+            template <typename T>
             struct par_ortho
             {
-                double    sinph0;
-                double    cosph0;
-                int        mode;
+                T   sinph0;
+                T   cosph0;
+                int mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -86,7 +87,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_ortho m_proj_parm;
+                par_ortho<CalculationType> m_proj_parm;
 
                 inline base_ortho_spheroid(const Parameters& par)
                     : base_t_fi<base_ortho_spheroid<CalculationType, Parameters>,
@@ -96,24 +97,26 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  coslam, cosphi, sinphi;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType coslam, cosphi, sinphi;
 
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:
-                        if (cosphi * coslam < - EPS10) throw proj_exception();;
+                        if (cosphi * coslam < - EPS10) throw proj_exception();
                         xy_y = sin(lp_lat);
                         break;
                     case OBLIQ:
                         if (this->m_proj_parm.sinph0 * (sinphi = sin(lp_lat)) +
-                           this->m_proj_parm.cosph0 * cosphi * coslam < - EPS10) throw proj_exception();;
+                           this->m_proj_parm.cosph0 * cosphi * coslam < - EPS10) throw proj_exception();
                         xy_y = this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
                         break;
                     case N_POLE:
                         coslam = - coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > geometry::math::half_pi<double>()) throw proj_exception();;
+                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) throw proj_exception();
                         xy_y = cosphi * coslam;
                         break;
                     }
@@ -124,10 +127,12 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  rh, cosc, sinc;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType rh, cosc, sinc;
 
                     if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
-                        if ((sinc - 1.) > EPS10) throw proj_exception();;
+                        if ((sinc - 1.) > EPS10) throw proj_exception();
                         sinc = 1.;
                     }
                     cosc = sqrt(1. - sinc * sinc); /* in this range OK */
@@ -154,13 +159,13 @@ namespace projections
                             xy_x *= sinc * this->m_proj_parm.cosph0;
                         sinchk:
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                             else
                                 lp_lat = asin(lp_lat);
                             break;
                         }
                         lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT))
-                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>())
+                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -HALFPI : HALFPI)
                                            : atan2(xy_x, xy_y);
                     }
                 }
@@ -173,10 +178,10 @@ namespace projections
             };
 
             // Orthographic
-            template <typename Parameters>
-            void setup_ortho(Parameters& par, par_ortho& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_ortho(Parameters& par, par_ortho<T>& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) <= EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) > EPS10) {
                     proj_parm.mode = OBLIQ;

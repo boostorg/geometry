@@ -66,15 +66,14 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace omerc
     {
-            static const double FORTPI = detail::FORTPI<double>();
-
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
+            template <typename T>
             struct par_omerc
             {
-                double    A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
-                double  v_pole_n, v_pole_s, u_0;
+                T   A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
+                T   v_pole_n, v_pole_s, u_0;
                 int no_rot;
             };
 
@@ -87,7 +86,7 @@ namespace projections
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
 
-                par_omerc m_proj_parm;
+                par_omerc<CalculationType> m_proj_parm;
 
                 inline base_omerc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_omerc_ellipsoid<CalculationType, Parameters>,
@@ -97,9 +96,11 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double  Q, S, T, U, V, temp, u, v;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) > EPS) {
+                    CalculationType  Q, S, T, U, V, temp, u, v;
+
+                    if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
                         Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / Q;
                         S = .5 * (Q - temp);
@@ -133,7 +134,9 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double  u, v, Qp, Sp, Tp, Vp, Up;
+                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+
+                    CalculationType  u, v, Qp, Sp, Tp, Vp, Up;
 
                     if (this->m_proj_parm.no_rot) {
                         v = xy_y;
@@ -149,7 +152,7 @@ namespace projections
                     Up = (Vp * this->m_proj_parm.cosgam + Sp * this->m_proj_parm.singam) / Tp;
                     if (fabs(fabs(Up) - 1.) < EPS) {
                         lp_lon = 0.;
-                        lp_lat = Up < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                        lp_lat = Up < 0. ? -HALFPI : HALFPI;
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL)
@@ -167,11 +170,16 @@ namespace projections
             };
 
             // Oblique Mercator
-            template <typename Parameters>
-            void setup_omerc(Parameters& par, par_omerc& proj_parm)
+            template <typename Parameters, typename T>
+            void setup_omerc(Parameters& par, par_omerc<T>& proj_parm)
             {
-                double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
-                    gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0.0;
+                static const T FORTPI = detail::FORTPI<T>();
+                static const T HALFPI = detail::HALFPI<T>();
+                static const T ONEPI = detail::ONEPI<T>();
+                static const T TWOPI = detail::TWOPI<T>();
+
+                T con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
+                  gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0.0;
                 int alp, gam, no_off = 0;
 
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
@@ -199,9 +207,9 @@ namespace projections
                     phi2 = pj_param(par.params, "rlat_2").f;
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
-                        fabs(con - geometry::math::half_pi<double>()) <= TOL ||
-                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL ||
-                        fabs(fabs(phi2) - geometry::math::half_pi<double>()) <= TOL) throw proj_exception(-33);
+                        fabs(con - HALFPI) <= TOL ||
+                        fabs(fabs(par.phi0) - HALFPI) <= TOL ||
+                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
                 }
                 com = sqrt(par.one_es);
                 if (fabs(par.phi0) > EPS) {
@@ -234,8 +242,8 @@ namespace projections
                     } else
                         alpha_c = asin(D*sin(gamma0 = gamma));
                     if ((con = fabs(alpha_c)) <= TOL ||
-                        fabs(con - geometry::math::pi<double>()) <= TOL ||
-                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL)
+                        fabs(con - ONEPI) <= TOL ||
+                        fabs(fabs(par.phi0) - HALFPI) <= TOL)
                         throw proj_exception(-32);
                     par.lam0 = lamc - asin(.5 * (F - 1. / F) *
                        tan(gamma0)) / proj_parm.B;
@@ -246,10 +254,10 @@ namespace projections
                     p = (L - H) / (L + H);
                     J = proj_parm.E * proj_parm.E;
                     J = (J - L * H) / (J + L * H);
-                    if ((con = lam1 - lam2) < -geometry::math::pi<double>())
-                        lam2 -= geometry::math::two_pi<double>();
-                    else if (con > geometry::math::pi<double>())
-                        lam2 += geometry::math::two_pi<double>();
+                    if ((con = lam1 - lam2) < -ONEPI)
+                        lam2 -= TWOPI;
+                    else if (con > ONEPI)
+                        lam2 += TWOPI;
                     par.lam0 = adjlon(.5 * (lam1 + lam2) - atan(
                        J * tan(.5 * proj_parm.B * (lam1 - lam2)) / p) / proj_parm.B);
                     gamma0 = atan(2. * sin(proj_parm.B * adjlon(lam1 - par.lam0)) /
