@@ -60,6 +60,8 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace hammer
     {
+            static const double EPS = 1.0e-10;
+
             template <typename T>
             struct par_hammer
             {
@@ -69,7 +71,7 @@ namespace projections
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
-            struct base_hammer_spheroid : public base_t_f<base_hammer_spheroid<CalculationType, Parameters>,
+            struct base_hammer_spheroid : public base_t_fi<base_hammer_spheroid<CalculationType, Parameters>,
                      CalculationType, Parameters>
             {
 
@@ -79,7 +81,7 @@ namespace projections
                 par_hammer<CalculationType> m_proj_parm;
 
                 inline base_hammer_spheroid(const Parameters& par)
-                    : base_t_f<base_hammer_spheroid<CalculationType, Parameters>,
+                    : base_t_fi<base_hammer_spheroid<CalculationType, Parameters>,
                      CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
@@ -91,6 +93,23 @@ namespace projections
                     d = sqrt(2./(1. + (cosphi = cos(lp_lat)) * cos(lp_lon *= this->m_proj_parm.w)));
                     xy_x = this->m_proj_parm.m * d * cosphi * sin(lp_lon);
                     xy_y = this->m_proj_parm.rm * d * sin(lp_lat);
+                }
+
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
+                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                {
+                    CalculationType z;
+
+                    z = sqrt(1. - 0.25*this->m_proj_parm.w*this->m_proj_parm.w*xy_x*xy_x - 0.25*xy_y*xy_y);
+                    if (geometry::math::abs(2.*z*z-1.) < EPS) {
+                        lp_lon = HUGE_VAL;
+                        lp_lat = HUGE_VAL;
+                        throw proj_exception(-14);
+                    } else {
+                        lp_lon = aatan2(this->m_proj_parm.w * xy_x * z,2. * z * z - 1)/this->m_proj_parm.w;
+                        lp_lat = aasin(z * xy_y);
+                    }
                 }
 
                 static inline std::string get_name()
@@ -159,7 +178,7 @@ namespace projections
             public :
                 virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<hammer_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<hammer_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 
