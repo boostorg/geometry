@@ -53,7 +53,7 @@ void test_projection(std::string const& id, std::string const& parameters,
                        && bg::math::abs(bg::get<1>(inv_out) - bg::get<1>(inv_expected[i])) < 1e-10;
 
             BOOST_CHECK_MESSAGE((inv_eq),
-                                std::setprecision(16) << "Result of " << id << " forward projection {"
+                                std::setprecision(16) << "Result of " << id << " inverse projection {"
                                 << bg::wkt(inv_out) << "} different than expected {"
                                 << bg::wkt(inv_expected[i]) << "}");
         }
