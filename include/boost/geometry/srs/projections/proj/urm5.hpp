@@ -107,7 +107,12 @@ namespace projections
             {
                 T alpha, t;
 
-                proj_parm.n = pj_param(par.params, "dn").f;
+                if (pj_param(par.params, "tn").i) {
+                    proj_parm.n = pj_param(par.params, "dn").f;
+                    if (proj_parm.n <= 0. || proj_parm.n > 1.)
+                        throw proj_exception(-40);
+                } else
+                    throw proj_exception(-40);
                 proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
                 alpha = pj_param(par.params, "ralpha").f;
                 t = proj_parm.n * sin(alpha);
