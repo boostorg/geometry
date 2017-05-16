@@ -69,7 +69,7 @@ inline void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
     lon += par.lam0; /* reduce from del lp.lam */
     if (!par.over)
         lon = adjlon(lon); /* adjust longitude to CM */
-    if (par.geoc && geometry::math::abs(fabs(lat)-geometry::math::half_pi<calc_t>()) > EPS)
+    if (par.geoc && geometry::math::abs(geometry::math::abs(lat)-geometry::math::half_pi<calc_t>()) > EPS)
         lat = atan(par.one_es * tan(lat));
 
     geometry::set_from_radian<0>(ll, lon);
