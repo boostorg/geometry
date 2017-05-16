@@ -90,7 +90,7 @@ namespace projections
             inline const COEFS<T> * X()
             {
                 static const COEFS<T> result[] = {
-                    {1, 2.2199e-17, -7.15515e-05, 3.1103e-06},
+                    {1.0, 2.2199e-17, -7.15515e-05, 3.1103e-06},
                     {0.9986, -0.000482243, -2.4897e-05, -1.3309e-06},
                     {0.9954, -0.00083103, -4.48605e-05, -9.86701e-07},
                     {0.99, -0.00135364, -5.9661e-05, 3.6777e-06},
@@ -135,7 +135,7 @@ namespace projections
                     {0.8936, 0.00969686, -6.4636e-05, -8.547e-06},
                     {0.9394, 0.00840947, -0.000192841, -4.2106e-06},
                     {0.9761, 0.00616527, -0.000256, -4.2106e-06},
-                    {1, 0.00328947, -0.000319159, -4.2106e-06}
+                    {1.0, 0.00328947, -0.000319159, -4.2106e-06}
                 };
                 return result;
             }
@@ -169,6 +169,8 @@ namespace projections
                     CalculationType dphi;
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
+                    if (i < 0)
+                        throw proj_exception(-20);
                     if (i >= NODES) i = NODES - 1;
                     dphi = geometry::math::r2d<CalculationType>() * (dphi - RC1 * i);
                     xy_x = V(X<CalculationType>()[i], dphi) * FXC * lp_lon;
@@ -191,14 +193,17 @@ namespace projections
                     lp_lon = xy_x / FXC;
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */
-                        if (lp_lat > ONEEPS) throw proj_exception();
+                        if (lp_lat > ONEEPS) throw proj_exception(-20);
                         else {
                             lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
                             lp_lon /= X[NODES].c0;
                         }
                     } else { /* general problem */
                         /* in Y space, reduce to table interval */
-                        for (i = int_floor(lp_lat * NODES);;) {
+                        i = int_floor(lp_lat * NODES);
+                        if( i < 0 || i >= NODES )
+                            throw proj_exception(-20);
+                        for (;;) {
                             if (Y[i].c0 > lp_lat) --i;
                             else if (Y[i+1].c0 <= lp_lat) ++i;
                             else break;
