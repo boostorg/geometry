@@ -137,8 +137,8 @@ namespace projections
 
                 T phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
 
-                proj_parm.rok = par.a / par.k0;
-                proj_parm.rtk = par.a * par.k0;
+                proj_parm.rok = 1. / par.k0;
+                proj_parm.rtk = par.k0;
                 if ( pj_param(par.params, "talpha").i) {
                     alpha    = pj_param(par.params, "ralpha").f;
                     lonz = pj_param(par.params, "rlonc").f;
@@ -153,6 +153,8 @@ namespace projections
                         sin(phi_1) * cos(phi_2) * cos(lam_2),
                         sin(phi_1) * cos(phi_2) * sin(lam_2) -
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
+                    if (lam_1 == -HALFPI)
+                        proj_parm.singam = -proj_parm.singam;
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
                 par.lam0 = proj_parm.singam + HALFPI;
