@@ -25,14 +25,19 @@ namespace boost { namespace geometry
 class proj_exception : public geometry::exception
 {
 public:
-    proj_exception(int code = 0)
+    explicit proj_exception(int code = 0)
         : m_code(code)
         , m_msg(projections::detail::pj_strerrno(code))
     {}
 
-    proj_exception(std::string const& msg)
+    explicit proj_exception(std::string const& msg)
         : m_code(0)
         , m_msg(msg)
+    {}
+
+    proj_exception(int code, std::string const& additional_msg)
+        : m_code(code)
+        , m_msg(projections::detail::pj_strerrno(code) + " (" + additional_msg + ")")
     {}
 
     virtual char const* what() const throw()

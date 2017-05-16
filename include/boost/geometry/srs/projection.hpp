@@ -145,7 +145,10 @@ private:
 
         if (result == NULL)
         {
-            BOOST_THROW_EXCEPTION(proj_exception(-4));
+            if (pj_params.name.empty())
+                BOOST_THROW_EXCEPTION(proj_exception(-4));
+            else
+                BOOST_THROW_EXCEPTION(proj_exception(-5, pj_params.name));
         }
 
         return result;
