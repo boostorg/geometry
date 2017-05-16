@@ -179,7 +179,7 @@ void test_all()
     test_forward<P>("nsper", 4.897000, 52.371000, 0.521191, 7.919806, "+proj=nsper +ellps=WGS84 +units=m +a=10 +h=40000000");
     test_forward<P>("nzmg", 174.783333, -36.850000, 2669448.884228, 6482177.102194, "+proj=nzmg +ellps=WGS84 +units=m");
     test_forward<P>("ob_tran", 4.897000, 52.371000, 8688996.467740, -3348342.663884, "+proj=ob_tran +ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50");
-    test_forward<P>("ocea", 4.897000, 52.371000, 90368744555736.703000, -5887882801731.769500, "+proj=ocea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
+    test_forward<P>("ocea", 4.897000, 52.371000, 14168517.320298, -923135.204172, "+proj=ocea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
     test_forward<P>("oea", 4.897000, 52.371000, 545723.850088, 5058869.127694, "+proj=oea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=1e +lon_2=30e +m=1 +n=1");
     test_forward<P>("omerc", 4.897000, 52.371000, 1009705.329154, 5829437.254923, "+proj=omerc +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
     test_forward<P>("ortel", 4.897000, 52.371000, 360906.947408, 5829913.052335, "+proj=ortel +ellps=WGS84 +units=m");
@@ -202,7 +202,7 @@ void test_all()
     test_forward<P>("rpoly", 4.897000, 52.371000, 332447.130797, 5841164.662431, "+proj=rpoly +ellps=WGS84 +units=m");
     test_forward<P>("sinu", 4.897000, 52.371000, 333528.909809, 5804625.044313, "+proj=sinu +ellps=WGS84 +units=m");
     test_forward<P>("somerc", 4.897000, 52.371000, 545131.546415, 6833623.829215, "+proj=somerc +ellps=WGS84 +units=m");
-    test_forward<P>("stere", 4.897000, 52.371000, 828919.243654, 12511653.499743, "+proj=stere +ellps=WGS84 +units=m +lat_ts=30n");
+    test_forward<P>("stere", 4.897000, 52.371000, 414459.621827, 6255826.749872, "+proj=stere +ellps=WGS84 +units=m +lat_ts=30n");
     test_forward<P>("sterea", 4.897000, 52.371000, 121590.388077, 487013.903377, "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m");
     test_forward<P>("tcc", 4.897000, 52.371000, 332875.293370, 5841186.022551, "+proj=tcc +ellps=WGS84 +units=m");
     test_forward<P>("tcea", 4.897000, 52.371000, 332422.874291, 5841186.022551, "+proj=tcea +ellps=WGS84 +units=m");
@@ -300,7 +300,7 @@ void test_all()
     test_inverse<P>("nsper", 0.521191, 7.919806, 4.897000, 52.371000, "+proj=nsper +ellps=WGS84 +units=m +a=10 +h=40000000");
     test_inverse<P>("nzmg", 2669448.884228, 6482177.102194, 174.783333, -36.850000, "+proj=nzmg +ellps=WGS84 +units=m");
     test_inverse<P>("ob_tran", 8688996.467740, -3348342.663884, 4.897000, 52.371000, "+proj=ob_tran +ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50");
-    test_inverse<P>("ocea", 90368744555736.703000, -5887882801731.769500, 4.897000, 52.371000, "+proj=ocea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
+    test_inverse<P>("ocea", 14168517.320298, -923135.204172, 4.897000, 52.371000, "+proj=ocea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
     test_inverse<P>("oea", 545723.850088, 5058869.127694, 4.897000, 52.371000, "+proj=oea +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=1e +lon_2=30e +m=1 +n=1");
     test_inverse<P>("omerc", 1009705.329154, 5829437.254923, 4.897000, 52.371000, "+proj=omerc +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
     test_inverse<P>("ortho", 332422.874291, 5051361.531375, 4.897000, 52.371000, "+proj=ortho +ellps=WGS84 +units=m");
