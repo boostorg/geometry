@@ -129,7 +129,7 @@ namespace projections
                         xy_y = A * (this->m_proj_parm.cosX1 * sinX - this->m_proj_parm.sinX1 * cosX * coslam);
                         goto xmul;
                     case EQUIT:
-                        A = 2. * this->m_proj_parm.akm1 / (1. + cosX * coslam);
+                        A = this->m_proj_parm.akm1 / (1. + cosX * coslam);
                         xy_y = A * sinX;
                 xmul:
                         xy_x = A * cosX;
@@ -182,8 +182,7 @@ namespace projections
                     }
                     for (i = NITER; i--; phi_l = lp_lat) {
                         sinphi = this->m_par.e * sin(phi_l);
-                        lp_lat = 2. * atan(tp * pow((1.+sinphi)/(1.-sinphi),
-                           halfe)) - halfpi;
+                        lp_lat = 2. * atan(tp * pow((1.+sinphi)/(1.-sinphi), halfe)) - halfpi;
                         if (fabs(phi_l - lp_lat) < CONV) {
                             if (this->m_proj_parm.mode == S_POLE)
                                 lp_lat = -lp_lat;
@@ -236,7 +235,7 @@ namespace projections
                     case OBLIQ:
                         xy_y = 1. + this->m_proj_parm.sinX1 * sinphi + this->m_proj_parm.cosX1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10) throw proj_exception();;
+                        if (xy_y <= EPS10) throw proj_exception(-20);
                         xy_x = (xy_y = this->m_proj_parm.akm1 / xy_y) * cosphi * sinlam;
                         xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
                            this->m_proj_parm.cosX1 * sinphi - this->m_proj_parm.sinX1 * cosphi * coslam;
@@ -245,7 +244,7 @@ namespace projections
                         coslam = - coslam;
                         lp_lat = - lp_lat;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < TOL) throw proj_exception();;
+                        if (fabs(lp_lat - HALFPI) < TOL) throw proj_exception(-20);
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(FORTPI + .5 * lp_lat) );
                         xy_y *= coslam;
                         break;
@@ -310,7 +309,7 @@ namespace projections
                 else
                     proj_parm.mode = t > EPS10 ? OBLIQ : EQUIT;
                 proj_parm.phits = fabs(proj_parm.phits);
-                if (par.es) {
+                if (par.es != 0.0) {
                     T X;
 
                     switch (proj_parm.mode) {
@@ -327,8 +326,8 @@ namespace projections
                         }
                         break;
                     case EQUIT:
-                        proj_parm.akm1 = 2. * par.k0;
-                        break;
+                        //proj_parm.akm1 = 2. * par.k0;
+                        //break;
                     case OBLIQ:
                         t = sin(par.phi0);
                         X = 2. * atan(ssfn_(par.phi0, t, par.e)) - HALFPI;
