@@ -146,9 +146,13 @@ private:
         if (result == NULL)
         {
             if (pj_params.name.empty())
-                BOOST_THROW_EXCEPTION(proj_exception(-4));
+            {
+                BOOST_THROW_EXCEPTION(projection_not_named_exception());
+            }
             else
-                BOOST_THROW_EXCEPTION(proj_exception(-5, pj_params.name));
+            {
+                BOOST_THROW_EXCEPTION(projection_unknown_id_exception(pj_params.name));
+            }
         }
 
         return result;

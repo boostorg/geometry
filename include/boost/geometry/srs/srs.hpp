@@ -20,8 +20,10 @@
 #define BOOST_GEOMETRY_SRS_SRS_HPP
 
 
+#include <boost/geometry/srs/projection.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
+#include <boost/geometry/srs/transformation.hpp>
 
 
 #endif // BOOST_GEOMETRY_SRS_SRS_HPP

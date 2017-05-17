@@ -59,6 +59,10 @@ public :
             pj_inv(*this, this->params(), xy, lp);
             return true;
         }
+        catch (projection_not_invertable_exception &)
+        {
+            BOOST_RETHROW;
+        }
         catch (...)
         {
             return false;
@@ -97,7 +101,7 @@ public:
 
     virtual void inv(CT& , CT& , CT& , CT& ) const
     {
-        // exception?
+        BOOST_THROW_EXCEPTION(projection_not_invertable_exception(params().name));
     }
 
     virtual std::string name() const { return m_proj.name(); }

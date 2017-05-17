@@ -17,9 +17,12 @@
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 
+#include <boost/throw_exception.hpp>
+
 
 namespace boost { namespace geometry
 {
+
 
 // TODO: make more for forward/inverse/init/setup
 class proj_exception : public geometry::exception
@@ -35,9 +38,9 @@ public:
         , m_msg(msg)
     {}
 
-    proj_exception(int code, std::string const& additional_msg)
+    proj_exception(int code, std::string const& msg)
         : m_code(code)
-        , m_msg(projections::detail::pj_strerrno(code) + " (" + additional_msg + ")")
+        , m_msg(msg)
     {}
 
     virtual char const* what() const throw()
@@ -50,6 +53,43 @@ public:
 private :
     int m_code;
     std::runtime_error m_msg;
+};
+
+
+struct projection_not_named_exception
+    : proj_exception
+{
+    projection_not_named_exception()
+        : proj_exception(-4)
+    {}
+};
+
+struct projection_unknown_id_exception
+    : proj_exception
+{
+    projection_unknown_id_exception(std::string const& proj_name)
+        : proj_exception(-5, msg(proj_name))
+    {}
+
+private:
+    static std::string msg(std::string const& proj_name)
+    {
+        return projections::detail::pj_strerrno(-5) + " (" + proj_name + ")";
+    }
+};
+
+struct projection_not_invertable_exception
+    : proj_exception
+{
+    projection_not_invertable_exception(std::string const& proj_name)
+        : proj_exception(-17, msg(proj_name))
+    {}
+
+private:
+    static std::string msg(std::string const& proj_name)
+    {
+        return std::string("projection (") + proj_name + ") is not invertable";
+    }
 };
 
 

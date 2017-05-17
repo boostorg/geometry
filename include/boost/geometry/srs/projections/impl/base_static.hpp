@@ -85,6 +85,14 @@ public:
         }
     }
 
+    template <typename XY, typename LL>
+    inline bool inverse(XY const& , LL& ) const
+    {
+        BOOST_MPL_ASSERT_MSG((false),
+                             PROJECTION_IS_NOT_INVERTABLE,
+                             (Prj));
+    }
+
     inline std::string name() const
     {
         return this->m_par.name;
