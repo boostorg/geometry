@@ -166,7 +166,7 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
 //            << " " << difference
 //            << std::endl;
     }
-    catch(bg::proj_exception const& e)
+    catch(bg::projection_exception const& e)
     {
         std::cout << "Exception in " << projection_type::get_name() << " : " << e.code() << std::endl;
     }

@@ -64,7 +64,7 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 //            << " " << difference
 //            << std::endl;
     }
-    catch(bg::proj_exception const& e)
+    catch(bg::projection_exception const& e)
     {
         std::cout << "Exception in " << id << " : " << e.code() << std::endl;
     }
