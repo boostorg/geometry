@@ -104,5 +104,42 @@ int test_main(int, char*[])
             prj6 = static_proj4<proj::tmerc, ellps::WGS84>(ellps::WGS84(), "");
     }
 
+    // compile-time errors
+    {
+        point_ll pt_ll(1, 1);
+        point_xy pt_xy(0, 0);
+
+        //projection<static_proj4<int> > prj1;
+        //projection<int> prj2;
+
+        projection<static_proj4<proj::bacon> > prj3;
+        //prj3.inverse(pt_xy, pt_ll);
+    }
+
+    // run-time errors
+    {
+        point_ll pt_ll(1, 1);
+        point_xy pt_xy(0, 0);
+
+        try {
+            projection<> prj1 = proj4("");
+        } catch (exception & e) {
+            std::cerr << e.what() << std::endl;
+        }
+
+        try {
+            projection<> prj2 = proj4("+proj=abcd");
+        } catch (exception & e) {
+            std::cerr << e.what() << std::endl;
+        }
+
+        try {
+            projection<> prj3 = proj4("+proj=bacon +a=6400000");
+            prj3.inverse(pt_xy, pt_ll);
+        } catch (exception & e) {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+
     return 0;
 }
