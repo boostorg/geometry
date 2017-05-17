@@ -132,7 +132,7 @@ inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
     /* convergence failed */
     if (!i)
     {
-        throw proj_exception(-17);
+        BOOST_THROW_EXCEPTION( projection_exception(-17) );
     }
 }
 

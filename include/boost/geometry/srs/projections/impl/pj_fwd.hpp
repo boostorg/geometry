@@ -69,7 +69,7 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
     /* check for forward and latitude or longitude overange */
     if (t > EPS || geometry::math::abs(lp_lon) > 10.)
     {
-        throw proj_exception(-14);
+        BOOST_THROW_EXCEPTION( projection_exception(-14) );
     }
 
     if (geometry::math::abs(t) <= EPS)

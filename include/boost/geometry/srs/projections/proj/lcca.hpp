@@ -132,7 +132,8 @@ namespace projections
                         S -= (dif = (fS(S, this->m_proj_parm.C) - dr) / fSp(S, this->m_proj_parm.C));
                         if (fabs(dif) < DEL_TOL) break;
                     }
-                    if (!i) throw proj_exception(-20);
+                    if (!i)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
 
@@ -149,9 +150,12 @@ namespace projections
             {
                 T s2p0, N0, R0, tan0, tan20;
 
-                if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
-                if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);
-                if (par.phi0 == 0.) throw proj_exception(51);
+                if (!pj_enfn(par.es, proj_parm.en))
+                    BOOST_THROW_EXCEPTION( projection_exception(0) );
+                if (!pj_param(par.params, "tlat_0").i)
+                    BOOST_THROW_EXCEPTION( projection_exception(50) );
+                if (par.phi0 == 0.)
+                    BOOST_THROW_EXCEPTION( projection_exception(51) );
                 proj_parm.l = sin(par.phi0);
                 proj_parm.M0 = pj_mlfn(par.phi0, proj_parm.l, cos(par.phi0), proj_parm.en);
                 s2p0 = proj_parm.l * proj_parm.l;

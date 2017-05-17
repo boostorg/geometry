@@ -89,7 +89,7 @@ namespace projections
                     static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
                     if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
                 }
@@ -99,7 +99,7 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     lp_lon = xy_x / this->m_par.k0;
                 }
 
@@ -132,7 +132,7 @@ namespace projections
                     static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
 
                     if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
                 }
@@ -166,7 +166,8 @@ namespace projections
 
                 if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
                     phits = fabs(pj_param(par.params, "rlat_ts").f);
-                    if (phits >= HALFPI) throw proj_exception(-24);
+                    if (phits >= HALFPI)
+                        BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 }
                 if (par.es) { /* ellipsoid */
                     if (is_phits)

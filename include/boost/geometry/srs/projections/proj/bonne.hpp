@@ -120,7 +120,8 @@ namespace projections
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
                     } else if (fabs(s - HALFPI) <= EPS10)
                         lp_lon = 0.;
-                    else throw proj_exception(-20);
+                    else
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
 
                 static inline std::string get_name()
@@ -169,7 +170,8 @@ namespace projections
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
-                    if (fabs(lp_lat) > HALFPI) throw proj_exception(-20);
+                    if (fabs(lp_lat) > HALFPI)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
                         lp_lon = 0.;
                     else
@@ -192,7 +194,8 @@ namespace projections
                 T c;
 
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                if (fabs(proj_parm.phi1) < EPS10) throw proj_exception(-23);
+                if (fabs(proj_parm.phi1) < EPS10)
+                    BOOST_THROW_EXCEPTION( projection_exception(-23) );
                 if (par.es) {
                     pj_enfn(par.es, proj_parm.en);
                     proj_parm.m1 = pj_mlfn(proj_parm.phi1, proj_parm.am1 = sin(proj_parm.phi1),

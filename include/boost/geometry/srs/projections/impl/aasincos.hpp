@@ -66,7 +66,7 @@ inline T aasin(T const& v)
     {
         if (av > aasincos::ONE_TOL<T>())
         {
-            throw proj_exception(-19);
+            BOOST_THROW_EXCEPTION( projection_exception(-19) );
         }
         return (v < 0.0 ? -geometry::math::half_pi<T>() : geometry::math::half_pi<T>());
     }
@@ -83,7 +83,7 @@ inline T aacos(T const& v)
     {
         if (av > aasincos::ONE_TOL<T>())
         {
-            throw proj_exception(-19);
+            BOOST_THROW_EXCEPTION( projection_exception(-19) );
         }
         return (v < 0.0 ? geometry::math::pi<T>() : 0.0);
     }

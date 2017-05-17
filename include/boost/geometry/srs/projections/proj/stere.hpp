@@ -190,7 +190,7 @@ namespace projections
                             return;
                         }
                     }
-                    throw proj_exception(-20);
+                    BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
 
                 static inline std::string get_name()
@@ -235,7 +235,8 @@ namespace projections
                     case OBLIQ:
                         xy_y = 1. + this->m_proj_parm.sinX1 * sinphi + this->m_proj_parm.cosX1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10) throw proj_exception(-20);
+                        if (xy_y <= EPS10)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         xy_x = (xy_y = this->m_proj_parm.akm1 / xy_y) * cosphi * sinlam;
                         xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
                            this->m_proj_parm.cosX1 * sinphi - this->m_proj_parm.sinX1 * cosphi * coslam;
@@ -244,7 +245,8 @@ namespace projections
                         coslam = - coslam;
                         lp_lat = - lp_lat;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < TOL) throw proj_exception(-20);
+                        if (fabs(lp_lat - HALFPI) < TOL)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(FORTPI + .5 * lp_lat) );
                         xy_y *= coslam;
                         break;
@@ -375,7 +377,8 @@ namespace projections
 
                 /* International Ellipsoid */
                 par.phi0 = pj_param(par.params, "bsouth").i ? -HALFPI: HALFPI;
-                if (!par.es) throw proj_exception(-34);
+                if (!par.es)
+                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
                 par.k0 = .994;
                 par.x0 = 2000000.;
                 par.y0 = 2000000.;

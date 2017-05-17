@@ -118,7 +118,7 @@ namespace projections
                         if (this->m_proj_parm.mode == OBLIQ)
                             cosz = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosz;
                         if (!this->m_proj_parm.no_cut && cosz < -EPS)
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         if (fabs(s = 1. - cosz) > EPS) {
                             t = 0.5 * (1. + cosz);
                             Krho = -log(t)/s - this->m_proj_parm.Cb / t;
@@ -135,7 +135,7 @@ namespace projections
                     case N_POLE:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
                         if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > HALFPI)
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         if ((lp_lat *= 0.5) > EPS) {
                             t = tan(lp_lat);
                             Krho = -2.*(log(cos(lp_lat)) / t + t * this->m_proj_parm.Cb);

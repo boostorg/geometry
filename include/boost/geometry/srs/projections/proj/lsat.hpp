@@ -235,9 +235,11 @@ namespace projections
                 T lam, alf, esc, ess;
 
                 land = pj_param(par.params, "ilsat").i;
-                if (land <= 0 || land > 5) throw proj_exception(-28);
+                if (land <= 0 || land > 5)
+                    BOOST_THROW_EXCEPTION( projection_exception(-28) );
                 path = pj_param(par.params, "ipath").i;
-                if (path <= 0 || path > (land <= 3 ? 251 : 233)) throw proj_exception(-29);
+                if (path <= 0 || path > (land <= 3 ? 251 : 233))
+                    BOOST_THROW_EXCEPTION( projection_exception(-29) );
                 if (land <= 3) {
                     par.lam0 = geometry::math::d2r<T>() * 128.87 - geometry::math::two_pi<T>() / 251. * path;
                     proj_parm.p22 = 103.2669323;

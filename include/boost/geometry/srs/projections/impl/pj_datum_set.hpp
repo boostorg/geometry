@@ -98,7 +98,7 @@ inline void pj_datum_set(std::vector<pvalue<T> >& pvalues, parameters<T>& projde
 
         if (index == -1)
         {
-            throw proj_exception(-9);
+            BOOST_THROW_EXCEPTION( projection_exception(-9) );
         }
 
         if(! pj_datums[index].ellipse_id.empty())

@@ -170,7 +170,7 @@ namespace projections
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i < 0)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     if (i >= NODES) i = NODES - 1;
                     dphi = geometry::math::r2d<CalculationType>() * (dphi - RC1 * i);
                     xy_x = V(X<CalculationType>()[i], dphi) * FXC * lp_lon;
@@ -193,7 +193,8 @@ namespace projections
                     lp_lon = xy_x / FXC;
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */
-                        if (lp_lat > ONEEPS) throw proj_exception(-20);
+                        if (lp_lat > ONEEPS)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         else {
                             lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
                             lp_lon /= X[NODES].c0;
@@ -202,7 +203,7 @@ namespace projections
                         /* in Y space, reduce to table interval */
                         i = int_floor(lp_lat * NODES);
                         if( i < 0 || i >= NODES )
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         for (;;) {
                             if (Y[i].c0 > lp_lat) --i;
                             else if (Y[i+1].c0 <= lp_lat) ++i;

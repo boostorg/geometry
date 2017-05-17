@@ -216,7 +216,8 @@ namespace projections
                 {
                     factory<CalculationType, Parameters> fac;
                     proj_parm.link.reset(fac.create_new(pj));
-                    if (! proj_parm.link.get()) throw proj_exception(-26);
+                    if (! proj_parm.link.get())
+                        BOOST_THROW_EXCEPTION( projection_exception(-26) );
                 }
                 if (pj_param(par.params, "to_alpha").i) {
                     CalculationType lamc, phic, alpha;
@@ -230,7 +231,7 @@ namespace projections
                         fabs(fabs(alpha) - HALFPI) <= TOL)
             */
                     if (fabs(fabs(phic) - HALFPI) <= TOL)
-                        throw proj_exception(-32);
+                        BOOST_THROW_EXCEPTION( projection_exception(-32) );
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
                 } else if (pj_param(par.params, "to_lat_p").i) { /* specified new pole */
@@ -246,7 +247,8 @@ namespace projections
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
                         fabs(con - HALFPI) <= TOL ||
-                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
+                        fabs(fabs(phi2) - HALFPI) <= TOL)
+                        BOOST_THROW_EXCEPTION( projection_exception(-33) );
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
                         sin(phi1) * cos(phi2) * cos(lam2),
                         sin(phi1) * cos(phi2) * sin(lam2) -

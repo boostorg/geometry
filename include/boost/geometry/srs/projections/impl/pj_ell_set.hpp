@@ -96,7 +96,9 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
                 }
             }
 
-            if (index == -1) { throw proj_exception(-9); }
+            if (index == -1) {
+                BOOST_THROW_EXCEPTION( projection_exception(-9) );
+            }
 
             parameters.push_back(pj_mkparam<T>(pj_ellps[index].major));
             parameters.push_back(pj_mkparam<T>(pj_ellps[index].ell));
@@ -110,7 +112,7 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
         } else if (pj_param(parameters, "trf").i) { /* recip flattening */
             es = pj_param(parameters, "drf").f;
             if (!es) {
-                throw proj_exception(-10);
+                BOOST_THROW_EXCEPTION( projection_exception(-10) );
             }
             es = 1./ es;
             es = es * (2. - es);
@@ -147,7 +149,7 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
 
                 tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
                 if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
-                    throw proj_exception(-11);
+                    BOOST_THROW_EXCEPTION( projection_exception(-11) );
                 }
                 tmp = 1. - es * tmp * tmp;
                 a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
@@ -158,10 +160,12 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
     }
 
     /* some remaining checks */
-    if (es < 0.)
-        { throw proj_exception(-12); }
-    if (a <= 0.)
-        { throw proj_exception(-13); }
+    if (es < 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+    }
+    if (a <= 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+    }
 }
 
 // TODO: change result type to CalculationType
@@ -200,7 +204,7 @@ inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vec
 
                 tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
                 if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
-                    throw proj_exception(-11);
+                    BOOST_THROW_EXCEPTION( projection_exception(-11) );
                 }
                 tmp = 1. - es * tmp * tmp;
                 a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
@@ -211,10 +215,12 @@ inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vec
     }
 
     /* some remaining checks */
-    if (es < 0.)
-        { throw proj_exception(-12); }
-    if (a <= 0.)
-        { throw proj_exception(-13); }
+    if (es < 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+    }
+    if (a <= 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+    }
 }
 
 } // namespace detail

@@ -25,20 +25,20 @@ namespace boost { namespace geometry
 
 
 // TODO: make more for forward/inverse/init/setup
-class proj_exception : public geometry::exception
+class projection_exception : public geometry::exception
 {
 public:
-    explicit proj_exception(int code = 0)
+    explicit projection_exception(int code = 0)
         : m_code(code)
         , m_msg(projections::detail::pj_strerrno(code))
     {}
 
-    explicit proj_exception(std::string const& msg)
+    explicit projection_exception(std::string const& msg)
         : m_code(0)
         , m_msg(msg)
     {}
 
-    proj_exception(int code, std::string const& msg)
+    projection_exception(int code, std::string const& msg)
         : m_code(code)
         , m_msg(msg)
     {}
@@ -57,18 +57,18 @@ private :
 
 
 struct projection_not_named_exception
-    : proj_exception
+    : projection_exception
 {
     projection_not_named_exception()
-        : proj_exception(-4)
+        : projection_exception(-4)
     {}
 };
 
 struct projection_unknown_id_exception
-    : proj_exception
+    : projection_exception
 {
     projection_unknown_id_exception(std::string const& proj_name)
-        : proj_exception(-5, msg(proj_name))
+        : projection_exception(-5, msg(proj_name))
     {}
 
 private:
@@ -79,10 +79,10 @@ private:
 };
 
 struct projection_not_invertable_exception
-    : proj_exception
+    : projection_exception
 {
     projection_not_invertable_exception(std::string const& proj_name)
-        : proj_exception(-17, msg(proj_name))
+        : projection_exception(-17, msg(proj_name))
     {}
 
 private:

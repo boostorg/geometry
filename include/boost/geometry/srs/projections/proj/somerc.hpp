@@ -136,7 +136,7 @@ namespace projections
                         lp_lat = phip;
                         lp_lon = lamp / this->m_proj_parm.c;
                     } else
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
 
                 static inline std::string get_name()

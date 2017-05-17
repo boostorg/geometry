@@ -145,7 +145,7 @@ namespace projections
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        throw proj_exception( -14 );
+                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
                         return;
                     }
 
@@ -254,14 +254,14 @@ namespace projections
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        throw proj_exception( -14 );
+                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
                         return;
                     }
 
                     cosphi = cos(lp_lat);
                     b = cosphi * sin(lp_lon);
                     if (fabs(fabs(b) - 1.) <= EPS10)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
 
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
                     xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b);
@@ -269,7 +269,7 @@ namespace projections
                     b = fabs( xy_y );
                     if (b >= 1.) {
                         if ((b - 1.) > EPS10)
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         else xy_y = 0.;
                     } else
                         xy_y = acos(xy_y);
@@ -305,7 +305,7 @@ namespace projections
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en))
-                        throw proj_exception(0);
+                        BOOST_THROW_EXCEPTION( projection_exception(0) );
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                     proj_parm.esp = par.es / (1. - par.es);
                 } else {
@@ -336,7 +336,7 @@ namespace projections
                     if ((zone = pj_param(par.params, "izone").i) > 0 && zone <= 60)
                         --zone;
                     else
-                        throw proj_exception(-35);
+                        BOOST_THROW_EXCEPTION( projection_exception(-35) );
                 else /* nearest central meridian input */
                     if ((zone = int_floor((adjlon(par.lam0) + ONEPI) * 30. / ONEPI)) < 0)
                         zone = 0;

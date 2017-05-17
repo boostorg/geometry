@@ -123,7 +123,7 @@ namespace projections
                             sp = sin(lp_lat);
                             s2ph = sp * ( cp = cos(lp_lat));
                             if (fabs(cp) < ITOL)
-                                throw proj_exception(-20);
+                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
                             c = sp * (mlp = sqrt(1. - this->m_par.es * sp * sp)) / cp;
                             ml = pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en);
                             mlb = ml * ml + r;
@@ -136,7 +136,7 @@ namespace projections
                                 break;
                         }
                         if (!i)
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         c = sin(lp_lat);
                         lp_lon = asin(xy_x * tan(lp_lat) * sqrt(1. - this->m_par.es * c * c)) / sin(lp_lat);
                     }
@@ -200,7 +200,8 @@ namespace projections
                                 .5 * ( lp_lat * lp_lat + B) * tp) /
                                 ((lp_lat - xy_y) / tp - 1.));
                         } while (fabs(dphi) > CONV && --i);
-                        if (! i) throw proj_exception(-20);
+                        if (! i)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         lp_lon = asin(xy_x * tan(lp_lat)) / sin(lp_lat);
                     }
                 }
@@ -217,7 +218,8 @@ namespace projections
             void setup_poly(Parameters& par, par_poly<T>& proj_parm)
             {
                 if (par.es) {
-                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
+                    if (!pj_enfn(par.es, proj_parm.en))
+                        BOOST_THROW_EXCEPTION( projection_exception(0) );
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                 } else {
                     proj_parm.ml0 = -par.phi0;

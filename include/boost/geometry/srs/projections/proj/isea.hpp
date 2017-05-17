@@ -384,7 +384,7 @@ namespace projections
                     break;
                 default:
                     /* should be impossible */
-                    throw proj_exception();
+                    BOOST_THROW_EXCEPTION( projection_exception() );
                 };
                 c.x *= Rprime;
                 c.y *= Rprime;
@@ -584,7 +584,7 @@ namespace projections
                 ss << "impossible transform: " << ll->lon * geometry::math::r2d<T>()
                    << " " << ll->lat * geometry::math::r2d<T>() << " is not on any triangle.";
 
-                throw proj_exception(ss.str());
+                BOOST_THROW_EXCEPTION( projection_exception(ss.str()) );
 
                 /* not reached */
                 return 0;        /* supresses a warning */
@@ -1177,7 +1177,7 @@ namespace projections
                     } else if (opt == std::string("pole")) {
                         isea_orient_pole(&proj_parm.dgg);
                     } else {
-                        throw proj_exception(-34);
+                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
                     }
                 }
 
@@ -1216,7 +1216,7 @@ namespace projections
                     }
                     else {
                         /* TODO verify error code.  Possibly eliminate magic */
-                        throw proj_exception(-34);
+                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
                     }
                 }
 

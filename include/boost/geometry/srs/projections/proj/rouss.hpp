@@ -140,7 +140,7 @@ namespace projections
                 T N0, es2, t, t2, R_R0_2, R_R0_4;
 
                 if (!proj_mdist_ini(par.es, proj_parm.en))
-                    throw proj_exception(0);
+                    BOOST_THROW_EXCEPTION( projection_exception(0) );
                 es2 = sin(par.phi0);
                 proj_parm.s0 = proj_mdist(par.phi0, es2, cos(par.phi0), proj_parm.en);
                 t = 1. - (es2 = par.es * es2 * es2);

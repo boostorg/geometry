@@ -119,7 +119,8 @@ namespace projections
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
                     } else if ((s - EPS10) < HALFPI)
                         lp_lon = 0.;
-                    else throw proj_exception(-20);
+                    else
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
                 /* General spherical sinusoidals */
 
@@ -163,7 +164,7 @@ namespace projections
                                 break;
                         }
                         if (!i)
-                            throw proj_exception(-20);
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     }
                     xy_x = this->m_proj_parm.C_x * lp_lon * (this->m_proj_parm.m + cos(lp_lat));
                     xy_y = this->m_proj_parm.C_y * lp_lat;
@@ -202,7 +203,7 @@ namespace projections
                     proj_parm.n = pj_param(par.params, "dn").f;
                     proj_parm.m = pj_param(par.params, "dm").f;
                 } else
-                    throw proj_exception(-99);
+                    BOOST_THROW_EXCEPTION( projection_exception(-99) );
                 setup(par, proj_parm);
             }
 
@@ -211,7 +212,7 @@ namespace projections
             void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 if (!pj_enfn(par.es, proj_parm.en))
-                    throw proj_exception(0);
+                    BOOST_THROW_EXCEPTION( projection_exception(0) );
                 if (par.es) {
                 } else {
                     proj_parm.n = 1.;

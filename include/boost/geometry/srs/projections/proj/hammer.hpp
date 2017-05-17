@@ -105,7 +105,7 @@ namespace projections
                     if (geometry::math::abs(2.*z*z-1.) < EPS) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        throw proj_exception(-14);
+                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
                     } else {
                         lp_lon = aatan2(this->m_proj_parm.w * xy_x * z,2. * z * z - 1)/this->m_proj_parm.w;
                         lp_lat = aasin(z * xy_y);
@@ -124,11 +124,13 @@ namespace projections
             void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
             {
                 if (pj_param(par.params, "tW").i) {
-                    if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.) throw proj_exception(-27);
+                    if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.w = .5;
                 if (pj_param(par.params, "tM").i) {
-                    if ((proj_parm.m = fabs(pj_param(par.params, "dM").f)) <= 0.) throw proj_exception(-27);
+                    if ((proj_parm.m = fabs(pj_param(par.params, "dM").f)) <= 0.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.m = 1.;
                 proj_parm.rm = 1. / proj_parm.m;

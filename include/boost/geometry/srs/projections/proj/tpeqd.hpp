@@ -144,7 +144,8 @@ namespace projections
                 lam_1 = pj_param(par.params, "rlon_1").f;
                 phi_2 = pj_param(par.params, "rlat_2").f;
                 lam_2 = pj_param(par.params, "rlon_2").f;
-                if (phi_1 == phi_2 && lam_1 == lam_2) throw proj_exception(-25);
+                if (phi_1 == phi_2 && lam_1 == lam_2)
+                    BOOST_THROW_EXCEPTION( projection_exception(-25) );
                 par.lam0 = adjlon(0.5 * (lam_1 + lam_2));
                 proj_parm.dlam2 = adjlon(lam_2 - lam_1);
                 proj_parm.cp1 = cos(phi_1);

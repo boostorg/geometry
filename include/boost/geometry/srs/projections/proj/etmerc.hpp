@@ -260,7 +260,8 @@ namespace projections
             {
                 T f, n, np, Z;
 
-                if (par.es <= 0) throw proj_exception(-34);
+                if (par.es <= 0)
+                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
                 f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */
                 /* third flattening */
                 np = n = f/(2 - f);

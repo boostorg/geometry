@@ -63,7 +63,7 @@ inline T pj_phi2(T const& ts, T const& e)
         Phi += dphi;
     } while ( geometry::math::abs(dphi) > TOL && --i);
     if (i <= 0)
-        throw proj_exception(-18);
+        BOOST_THROW_EXCEPTION( projection_exception(-18) );
     return Phi;
 }
 

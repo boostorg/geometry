@@ -571,8 +571,7 @@ namespace projections
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        throw proj_exception(-15);
-                            return;
+                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
                     }
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 1);
@@ -615,8 +614,7 @@ namespace projections
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        throw proj_exception(-15);
-                            return;
+                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
                     }
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                 }
@@ -660,8 +658,7 @@ namespace projections
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        throw proj_exception(-15);
-                            return;
+                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
                     }
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 1);
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
@@ -706,8 +703,7 @@ namespace projections
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        throw proj_exception(-15);
-                            return;
+                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
                     }
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 1);
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
@@ -741,10 +737,10 @@ namespace projections
                 proj_parm.south_square = pj_param(par.params,"isouth_square").i;
                 /* Check for valid north_square and south_square inputs. */
                 if (proj_parm.north_square < 0 || proj_parm.north_square > 3) {
-                    throw proj_exception(-47);
+                    BOOST_THROW_EXCEPTION( projection_exception(-47) );
                 }
                 if (proj_parm.south_square < 0 || proj_parm.south_square > 3) {
-                    throw proj_exception(-47);
+                    BOOST_THROW_EXCEPTION( projection_exception(-47) );
                 }
                 if (par.es) {
                     pj_authset(par.es, proj_parm.apa); /* For auth_lat(). */

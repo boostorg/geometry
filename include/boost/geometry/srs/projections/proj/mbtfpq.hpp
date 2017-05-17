@@ -115,16 +115,22 @@ namespace projections
 
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
-                        if (fabs(lp_lat) > ONETOL)    throw proj_exception(-20);
-                        else if (lp_lat < 0.) { t = -1.; lp_lat = -ONEPI; }
-                        else { t = 1.; lp_lat = ONEPI; }
+                        if (fabs(lp_lat) > ONETOL)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        else if (lp_lat < 0.) {
+                            t = -1.; lp_lat = -ONEPI;
+                        } else {
+                            t = 1.; lp_lat = ONEPI;
+                        }
                     } else
                         lp_lat = 2. * asin(t = lp_lat);
                     lp_lon = RXC * xy_x / (1. + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     lp_lat = RC * (t + sin(lp_lat));
                     if (fabs(lp_lat) > 1.)
-                        if (fabs(lp_lat) > ONETOL)    throw proj_exception(-20);
-                        else            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                        if (fabs(lp_lat) > ONETOL)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        else
+                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                     else
                         lp_lat = asin(lp_lat);
                 }

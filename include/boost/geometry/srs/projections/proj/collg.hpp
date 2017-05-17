@@ -100,8 +100,10 @@ namespace projections
                     lp_lat = xy_y / FYC - 1.;
                     if (fabs(lp_lat = 1. - lp_lat * lp_lat) < 1.)
                         lp_lat = asin(lp_lat);
-                    else if (fabs(lp_lat) > ONEEPS) throw proj_exception(-20);
-                    else    lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
+                    else if (fabs(lp_lat) > ONEEPS)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    else
+                        lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     if ((lp_lon = 1. - sin(lp_lat)) <= 0.)
                         lp_lon = 0.;
                     else

@@ -61,7 +61,7 @@ public :
         }
         catch (projection_not_invertable_exception &)
         {
-            BOOST_RETHROW;
+            BOOST_RETHROW
         }
         catch (...)
         {

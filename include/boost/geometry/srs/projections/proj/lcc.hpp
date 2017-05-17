@@ -105,10 +105,10 @@ namespace projections
 
                     CalculationType rho;
                     if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
-                        if ((lp_lat * this->m_proj_parm.n) <= 0.) throw proj_exception(-20);
+                        if ((lp_lat * this->m_proj_parm.n) <= 0.)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         rho = 0.;
-                        }
-                    else
+                    } else
                         rho = this->m_proj_parm.c * (this->m_proj_parm.ellips ? pow(pj_tsfn(lp_lat, sin(lp_lat),
                             this->m_par.e), this->m_proj_parm.n) : pow(tan(FORTPI + .5 * lp_lat), -this->m_proj_parm.n));
                     xy_x = this->m_par.k0 * (rho * sin( lp_lon *= this->m_proj_parm.n ) );
@@ -133,7 +133,7 @@ namespace projections
                         if (this->m_proj_parm.ellips) {
                             if ((lp_lat = pj_phi2(pow(rho / this->m_proj_parm.c, 1./this->m_proj_parm.n), this->m_par.e))
                                 == HUGE_VAL)
-                                throw proj_exception(-20);
+                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         } else
                             lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - HALFPI;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
@@ -189,7 +189,8 @@ namespace projections
                     if (!pj_param(par.params, "tlat_0").i)
                         par.phi0 = proj_parm.phi1;
                 }
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
+                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;

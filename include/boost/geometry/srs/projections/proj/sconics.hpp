@@ -189,7 +189,7 @@ namespace projections
                 int i;
 
                 if( (i = phi12(par, proj_parm, &del)) )
-                    throw proj_exception(i);
+                    BOOST_THROW_EXCEPTION( projection_exception(i) );
                 switch (proj_parm.type) {
                 case TISSOT:
                     proj_parm.n = sin(proj_parm.sig);
@@ -223,7 +223,7 @@ namespace projections
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
                     if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= HALFPI)
-                        throw proj_exception(-43);
+                        BOOST_THROW_EXCEPTION( projection_exception(-43) );
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;
                 case VITK1:

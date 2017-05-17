@@ -111,7 +111,7 @@ inline T pj_inv_mlfn(T const& arg, T const& es, const T *en)
         if (geometry::math::abs(t) < EPS)
             return phi;
     }
-    throw proj_exception(-17);
+    BOOST_THROW_EXCEPTION( projection_exception(-17) );
     return phi;
 }
 

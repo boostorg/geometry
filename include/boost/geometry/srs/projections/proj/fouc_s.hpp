@@ -135,7 +135,7 @@ namespace projections
             {
                 proj_parm.n = pj_param(par.params, "dn").f;
                 if (proj_parm.n < 0. || proj_parm.n > 1.)
-                    throw proj_exception(-99);
+                    BOOST_THROW_EXCEPTION( projection_exception(-99) );
                 proj_parm.n1 = 1. - proj_parm.n;
                 par.es = 0;
             }

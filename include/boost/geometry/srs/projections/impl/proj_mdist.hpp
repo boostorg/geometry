@@ -135,7 +135,7 @@ namespace detail
                 return phi;
         }
             /* convergence failed */
-        throw proj_exception(-17);
+        BOOST_THROW_EXCEPTION( projection_exception(-17) );
     }
 } // namespace detail
 

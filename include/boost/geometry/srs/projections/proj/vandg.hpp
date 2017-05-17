@@ -105,7 +105,8 @@ namespace projections
                     CalculationType  al, al2, g, g2, p2;
 
                     p2 = fabs(lp_lat / HALFPI);
-                    if ((p2 - TOL) > 1.) throw proj_exception(-20);
+                    if ((p2 - TOL) > 1.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     if (p2 > 1.)
                         p2 = 1.;
                     if (fabs(lp_lat) <= TOL) {
@@ -128,7 +129,8 @@ namespace projections
                         if (lp_lon < 0.) xy_x = -xy_x;
                         xy_y = fabs(xy_x / ONEPI);
                         xy_y = 1. - xy_y * (xy_y + 2. * al);
-                        if (xy_y < -TOL) throw proj_exception(-20);
+                        if (xy_y < -TOL)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         if (xy_y < 0.)
                             xy_y = 0.;
                         else
@@ -179,7 +181,7 @@ namespace projections
                         lp_lon = fabs(xy_x) <= TOL ? 0. :
                            .5 * (r - PISQ + (t <= 0. ? 0. : sqrt(t))) / xy_x;
                     } else
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
 
                 static inline std::string get_name()

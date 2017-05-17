@@ -149,7 +149,8 @@ namespace projections
                         else
                             lp_lat = asin(xy_y);
                         lp_lon = xy_x / this->m_par.k0;
-                    } else throw proj_exception(-20);
+                    } else
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 }
 
                 static inline std::string get_name()
@@ -167,12 +168,13 @@ namespace projections
 
                 if (pj_param(par.params, "tlat_ts").i &&
                     (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.)
-                  throw proj_exception(-24);
+                  BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 if (par.es) {
                     t = sin(t);
                     par.k0 /= sqrt(1. - par.es * t * t);
                     par.e = sqrt(par.es);
-                    if (!pj_authset(par.es, proj_parm.apa)) throw proj_exception(0);
+                    if (!pj_authset(par.es, proj_parm.apa))
+                        BOOST_THROW_EXCEPTION( projection_exception(0) );
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
                 } else {
                 }

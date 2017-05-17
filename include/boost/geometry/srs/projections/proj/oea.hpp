@@ -136,7 +136,7 @@ namespace projections
             {
                 if (((proj_parm.n = pj_param(par.params, "dn").f) <= 0.) ||
                     ((proj_parm.m = pj_param(par.params, "dm").f) <= 0.))
-                    throw proj_exception(-39);
+                    BOOST_THROW_EXCEPTION( projection_exception(-39) );
                 else {
                     proj_parm.theta = pj_param(par.params, "rtheta").f;
                     proj_parm.sp0 = sin(par.phi0);

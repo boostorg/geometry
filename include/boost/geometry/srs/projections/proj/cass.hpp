@@ -201,7 +201,8 @@ namespace projections
             void setup_cass(Parameters& par, par_cass<T>& proj_parm)
             {
                 if (par.es) {
-                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
+                    if (!pj_enfn(par.es, proj_parm.en))
+                        BOOST_THROW_EXCEPTION( projection_exception(0) );
                     proj_parm.m0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                 } else {
                 }

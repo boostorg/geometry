@@ -269,7 +269,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         // Point should be cartesian 3D (ECEF)
         if (dimension < 3)
-            throw proj_exception(PJD_ERR_GEOCENTRIC);
+            BOOST_THROW_EXCEPTION( projection_exception(PJD_ERR_GEOCENTRIC) );
             //return PJD_ERR_GEOCENTRIC;
 
         if( srcdefn.to_meter != 1.0 )
@@ -289,7 +289,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         int err = pj_geocentric_to_geodetic( srcdefn.a_orig, srcdefn.es_orig,
                                              rng );
         if( err != 0 )
-            throw proj_exception(err);
+            BOOST_THROW_EXCEPTION( projection_exception(err) );
             //return err;
 
         // NOTE: here 3D cartesian ECEF is converted into 3D geodetic LLH
@@ -378,16 +378,15 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                 {
                     pj_inv(srcprj, srcdefn, projected_loc, geodetic_loc);
                 }
-                catch(proj_exception const& e)
+                catch(projection_exception const& e)
                 {
                     if( (e.code() != 33 /*EDOM*/
                         && e.code() != 34 /*ERANGE*/ )
                         && (e.code() > 0
                             || e.code() < -44 || point_count == 1
-                            || transient_error[-e.code()] == 0) )
-                        throw;
-                    else
-                    {
+                            || transient_error[-e.code()] == 0) ) {
+                        BOOST_RETHROW
+                    } else {
                         set<0>(geodetic_loc, HUGE_VAL);
                         set<1>(geodetic_loc, HUGE_VAL);
                     }
@@ -466,7 +465,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         // Point should be cartesian 3D (ECEF)
         if (dimension < 3)
-            throw proj_exception(PJD_ERR_GEOCENTRIC);
+            BOOST_THROW_EXCEPTION( projection_exception(PJD_ERR_GEOCENTRIC) );
             //return PJD_ERR_GEOCENTRIC;
 
         // NOTE: In the original code the return value of the following
@@ -550,15 +549,14 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 
                 try {
                     pj_fwd(dstprj, dstdefn, geodetic_loc, projected_loc);
-                } catch (proj_exception const& e) {
+                } catch (projection_exception const& e) {
                     if( (e.code() != 33 /*EDOM*/
                          && e.code() != 34 /*ERANGE*/ )
                         && (e.code() > 0
                             || e.code() < -44 || point_count == 1
-                            || transient_error[-e.code()] == 0) )
-                        throw;
-                    else
-                    {
+                            || transient_error[-e.code()] == 0) ) {
+                        BOOST_RETHROW
+                    } else {
                         set<0>(projected_loc, HUGE_VAL);
                         set<1>(projected_loc, HUGE_VAL);
                     }
@@ -944,9 +942,10 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
     {
         try {
             pj_apply_gridshift_2( srcdefn, 0, point_count, point_offset, x, y, z );
-        } catch (proj_exception const& e) {
-            if (pj_datum_check_error(e.code()))
-                throw;
+        } catch (projection_exception const& e) {
+            if (pj_datum_check_error(e.code())) {
+                BOOST_RETHROW
+            }
         }
 
         src_a = SRS_WGS84_SEMIMAJOR;
@@ -973,7 +972,7 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /* -------------------------------------------------------------------- */
         int err = pj_geodetic_to_geocentric( src_a, src_es, z_range );
         if (pj_datum_check_error(err))
-            throw proj_exception(err);
+            BOOST_THROW_EXCEPTION( projection_exception(err) );
 
 /* -------------------------------------------------------------------- */
 /*      Convert between datums.                                         */
@@ -983,9 +982,10 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
         {
             try {
                 pj_geocentric_to_wgs84( srcdefn, z_range );
-            } catch (proj_exception const& e) {
-                if (pj_datum_check_error(e.code()))
-                    throw;
+            } catch (projection_exception const& e) {
+                if (pj_datum_check_error(e.code())) {
+                    BOOST_RETHROW
+                }
             }
         }
 
@@ -994,9 +994,10 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
         {
             try {
                 pj_geocentric_from_wgs84( dstdefn, z_range );
-            } catch (proj_exception const& e) {
-                if (pj_datum_check_error(e.code()))
-                    throw;
+            } catch (projection_exception const& e) {
+                if (pj_datum_check_error(e.code())) {
+                    BOOST_RETHROW
+                }
             }
         }
 
@@ -1005,7 +1006,7 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /* -------------------------------------------------------------------- */
         err = pj_geocentric_to_geodetic( dst_a, dst_es, z_range );
         if (pj_datum_check_error(err))
-            throw proj_exception(err);
+            BOOST_THROW_EXCEPTION( projection_exception(err) );
     }
 
 /* -------------------------------------------------------------------- */
@@ -1015,9 +1016,9 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
     {
         try {
             pj_apply_gridshift_2( dstdefn, 1, point_count, point_offset, x, y, z );
-        } catch (proj_exception const& e) {
+        } catch (projection_exception const& e) {
             if (pj_datum_check_error(e.code()))
-                throw;
+                BOOST_RETHROW
         }
     }*/
 

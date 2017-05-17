@@ -158,9 +158,10 @@ namespace projections
 
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
+                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
                 if (!pj_enfn(par.es, proj_parm.en))
-                    throw proj_exception(0);
+                    BOOST_THROW_EXCEPTION( projection_exception(0) );
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;

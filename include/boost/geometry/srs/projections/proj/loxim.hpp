@@ -138,7 +138,8 @@ namespace projections
                 static const T FORTPI = detail::FORTPI<T>();
 
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                if ((proj_parm.cosphi1 = cos(proj_parm.phi1)) < EPS) throw proj_exception(-22);
+                if ((proj_parm.cosphi1 = cos(proj_parm.phi1)) < EPS)
+                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
                 proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);
                 par.es = 0.;
             }

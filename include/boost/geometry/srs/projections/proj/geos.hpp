@@ -112,7 +112,7 @@ namespace projections
                     Vz = r * sin (lp_lat);
                 /* Check visibility. */
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz * this->m_proj_parm.radius_p_inv2) < 0.)
-                        throw proj_exception(-20);
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 /* Calculation based on view angles from satellite. */
                     tmp = this->m_proj_parm.radius_g - Vx;
                         if(this->m_proj_parm.flip_axis)
@@ -149,7 +149,8 @@ namespace projections
                     a = Vz / this->m_proj_parm.radius_p;
                     a   = Vy * Vy + a * a + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
-                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception(-20);
+                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 /* Calculation of three components of vector from satellite to position.*/
                     k  = (-b - sqrt(det)) / (2. * a);
                     Vx = this->m_proj_parm.radius_g + k * Vx;
@@ -196,7 +197,8 @@ namespace projections
                     Vy = sin (lp_lon) * tmp;
                     Vz = sin (lp_lat);
                 /* Check visibility.*/
-                    if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.) throw proj_exception(-20);
+                    if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 /* Calculation based on view angles from satellite.*/
                     tmp = this->m_proj_parm.radius_g - Vx;
                         if(this->m_proj_parm.flip_axis)
@@ -232,7 +234,8 @@ namespace projections
                 /* Calculation of terms in cubic equation and determinant.*/
                     a   = Vy * Vy + Vz * Vz + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
-                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception(-20);
+                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
                 /* Calculation of three components of vector from satellite to position.*/
                     k  = (-b - sqrt(det)) / (2 * a);
                     Vx = this->m_proj_parm.radius_g + k * Vx;
@@ -254,23 +257,24 @@ namespace projections
             template <typename Parameters, typename T>
             void setup_geos(Parameters& par, par_geos<T>& proj_parm)
             {
-                if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
-                if (par.phi0) throw proj_exception(-46);
-                    proj_parm.sweep_axis = pj_param(par.params, "ssweep").s;
-                    if (proj_parm.sweep_axis.empty())
-                      proj_parm.flip_axis = 0;
+                if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.)
+                    BOOST_THROW_EXCEPTION( projection_exception(-30) );
+                if (par.phi0)
+                    BOOST_THROW_EXCEPTION( projection_exception(-46) );
+                proj_parm.sweep_axis = pj_param(par.params, "ssweep").s;
+                if (proj_parm.sweep_axis.empty())
+                    proj_parm.flip_axis = 0;
+                else {
+                    if (proj_parm.sweep_axis[1] != '\0' ||
+                        (proj_parm.sweep_axis[0] != 'x' &&
+                            proj_parm.sweep_axis[0] != 'y'))
+                        BOOST_THROW_EXCEPTION( projection_exception(-49) );
+                    if (proj_parm.sweep_axis[0] == 'x')
+                        proj_parm.flip_axis = 1;
                     else
-                      {
-                        if (proj_parm.sweep_axis[1] != '\0' ||
-                            (proj_parm.sweep_axis[0] != 'x' &&
-                             proj_parm.sweep_axis[0] != 'y'))
-                          throw proj_exception(-49);
-                        if (proj_parm.sweep_axis[0] == 'x')
-                          proj_parm.flip_axis = 1;
-                        else
-                          proj_parm.flip_axis = 0;
-                      }
-                    proj_parm.radius_g_1 = proj_parm.h / par.a;
+                        proj_parm.flip_axis = 0;
+                }
+                proj_parm.radius_g_1 = proj_parm.h / par.a;
                 proj_parm.radius_g = 1. + proj_parm.radius_g_1;
                 proj_parm.C  = proj_parm.radius_g * proj_parm.radius_g - 1.0;
                 if (par.es) {

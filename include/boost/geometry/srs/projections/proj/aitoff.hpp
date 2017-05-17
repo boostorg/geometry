@@ -222,12 +222,10 @@ namespace projections
                 static const T TWO_D_PI = detail::TWO_D_PI<T>();
 
                 proj_parm.mode = 1;
-                if (pj_param(par.params, "tlat_1").i)
-                    {
+                if (pj_param(par.params, "tlat_1").i) {
                     if ((proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f)) == 0.)
-                        throw proj_exception(-22);
-                    }
-                else /* 50d28' or phi1=acos(2/pi) */
+                        BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                } else /* 50d28' or phi1=acos(2/pi) */
                     proj_parm.cosphi1 = TWO_D_PI;
                 setup(par, proj_parm);
             }

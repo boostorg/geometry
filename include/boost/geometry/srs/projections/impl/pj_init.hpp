@@ -134,7 +134,9 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
             }
         }
 
-        if (index == -1) { throw proj_exception(-7); }
+        if (index == -1) {
+            BOOST_THROW_EXCEPTION( projection_exception(-7) );
+        }
         s = pj_units[index].to_meter;
     }
 
@@ -156,13 +158,13 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
             T const denominator = lexical_cast<T>(s.substr(pos + 1));
             if (numerator == 0.0 || denominator == 0.0)
             {
-                throw proj_exception(-99);
+                BOOST_THROW_EXCEPTION( projection_exception(-99) );
             }
             to_meter = numerator / denominator;
         }
         if (to_meter == 0.0)
         {
-            throw proj_exception(-99);
+            BOOST_THROW_EXCEPTION( projection_exception(-99) );
         }
         fr_meter = 1. / to_meter;
     }
@@ -200,8 +202,9 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
 
     // find projection -> implemented in projection factory
     pin.name = pj_param(pin.params, "sproj").s;
+    // exception thrown in projection<>
     //if (pin.name.empty())
-    //{ throw proj_exception(-4); }
+    //{ BOOST_THROW_EXCEPTION( projection_not_named_exception() ); }
 
 
     // set defaults, unless inhibited
@@ -234,7 +237,9 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     pin.e = sqrt(pin.es);
     pin.ra = 1. / pin.a;
     pin.one_es = 1. - pin.es;
-    if (pin.one_es == 0.) { throw proj_exception(-6); }
+    if (pin.one_es == 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+    }
     pin.rone_es = 1./pin.one_es;
 
     /* Now that we have ellipse information check for WGS84 datum */
@@ -277,7 +282,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     else
         pin.k0 = 1.;
     if (pin.k0 <= 0.) {
-        throw proj_exception(-31);
+        BOOST_THROW_EXCEPTION( projection_exception(-31) );
     }
 
     /* set units */
@@ -303,8 +308,12 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
             }
         }
 
-        if (index == -1) { throw proj_exception(-7); }
-        if (value.empty()) { throw proj_exception(-46); }
+        if (index == -1) {
+            BOOST_THROW_EXCEPTION( projection_exception(-7) );
+        }
+        if (value.empty()) {
+            BOOST_THROW_EXCEPTION( projection_exception(-46) );
+        }
 
         dms_parser<T, true> parser;
         pin.from_greenwich = parser.apply(value.c_str()).angle();

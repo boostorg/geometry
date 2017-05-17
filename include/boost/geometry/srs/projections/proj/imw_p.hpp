@@ -213,9 +213,10 @@ namespace projections
                 T del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int i;
 
-                if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
+                if (!pj_enfn(par.es, proj_parm.en))
+                    BOOST_THROW_EXCEPTION( projection_exception(0) );
                 if( (i = phi12(par, proj_parm, &del, &sig)) != 0)
-                    throw proj_exception(i);
+                    BOOST_THROW_EXCEPTION( projection_exception(i) );
                 if (proj_parm.phi_2 < proj_parm.phi_1) { /* make sure proj_parm.phi_1 most southerly */
                     del = proj_parm.phi_1;
                     proj_parm.phi_1 = proj_parm.phi_2;
