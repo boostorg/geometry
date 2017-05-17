@@ -114,19 +114,28 @@ namespace projections
                     CalculationType th;
 
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
-                    if (fabs(th) > 1.)
-                        if (fabs(th) > ONETOL)    throw proj_exception();
-                        else            th = th > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
-                    else
+                    if (fabs(th) > 1.) {
+                        if (fabs(th) > ONETOL) {
+                            throw proj_exception(-20);
+                        } else {
+                            th = th > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
+                        }
+                    } else {
                         th = asin(th);
+                    }
+
                     lp_lon = RXC * xy_x / cos(th);
                     th += th;
                     lp_lat = (th + sin(th)) * (xy_y < 0. ? RCS : RCN);
-                    if (fabs(lp_lat) > 1.)
-                        if (fabs(lp_lat) > ONETOL)    throw proj_exception();
-                        else            lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
-                    else
+                    if (fabs(lp_lat) > 1.) {
+                        if (fabs(lp_lat) > ONETOL) {
+                            throw proj_exception(-20);
+                        } else {
+                            lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
+                        }
+                    } else {
                         lp_lat = asin(lp_lat);
+                    }
                 }
 
                 static inline std::string get_name()

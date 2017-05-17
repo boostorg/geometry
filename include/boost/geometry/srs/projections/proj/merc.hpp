@@ -88,7 +88,8 @@ namespace projections
                 {
                     static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
+                        throw proj_exception(-20);
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
                 }
@@ -97,7 +98,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) throw proj_exception();
+                    if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL)
+                        throw proj_exception(-20);
                     lp_lon = xy_x / this->m_par.k0;
                 }
 
@@ -129,7 +131,8 @@ namespace projections
                     static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
                     static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();
+                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
+                        throw proj_exception(-20);
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
                 }

@@ -130,7 +130,7 @@ namespace projections
                         sdlam = sin(sdlam);
                         z = S20 * sphi + C20 * cphi * cdlam;
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS) throw proj_exception();
+                            if (fabs(z) > ONEEPS) throw proj_exception(-20);
                             else z = z < 0. ? -1. : 1.;
                         } else
                             z = acos(z);
@@ -141,19 +141,19 @@ namespace projections
                     } else {
                         z = S45 * (sphi + cphi * cdlam);
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS) throw proj_exception();
+                            if (fabs(z) > ONEEPS) throw proj_exception(-20);
                             else z = z < 0. ? -1. : 1.;
                         } else
                             z = acos(z);
                         Av = Azba;
                         xy_y = -rhoc;
                     }
-                    if (z < 0.) throw proj_exception();;
+                    if (z < 0.) throw proj_exception(-20);
                     r = F * (t = pow(tan(.5 * z), n));
-                    if ((al = .5 * (R104 - z)) < 0.) throw proj_exception();;
+                    if ((al = .5 * (R104 - z)) < 0.) throw proj_exception(-20);
                     al = (t + pow(al, n)) / T;
                     if (fabs(al) > 1.) {
-                        if (fabs(al) > ONEEPS) throw proj_exception();
+                        if (fabs(al) > ONEEPS) throw proj_exception(-20);
                         else al = al < 0. ? -1. : 1.;
                     } else
                         al = acos(al);
@@ -203,7 +203,7 @@ namespace projections
                             break;
                         rl = r;
                     }
-                    if (! i) throw proj_exception();;
+                    if (! i) throw proj_exception(-20);
                     Az = Av - Az / n;
                     lp_lat = asin(s * cos(z) + c * sin(z) * cos(Az));
                     lp_lon = atan2(sin(Az), c / tan(z) - s * cos(Az));

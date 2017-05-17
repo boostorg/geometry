@@ -112,7 +112,7 @@ namespace projections
                     Vz = r * sin (lp_lat);
                 /* Check visibility. */
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz * this->m_proj_parm.radius_p_inv2) < 0.)
-                        throw proj_exception();;
+                        throw proj_exception(-20);
                 /* Calculation based on view angles from satellite. */
                     tmp = this->m_proj_parm.radius_g - Vx;
                         if(this->m_proj_parm.flip_axis)
@@ -149,7 +149,7 @@ namespace projections
                     a = Vz / this->m_proj_parm.radius_p;
                     a   = Vy * Vy + a * a + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
-                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception();;
+                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception(-20);
                 /* Calculation of three components of vector from satellite to position.*/
                     k  = (-b - sqrt(det)) / (2. * a);
                     Vx = this->m_proj_parm.radius_g + k * Vx;
@@ -196,7 +196,7 @@ namespace projections
                     Vy = sin (lp_lon) * tmp;
                     Vz = sin (lp_lat);
                 /* Check visibility.*/
-                    if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.) throw proj_exception();;
+                    if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.) throw proj_exception(-20);
                 /* Calculation based on view angles from satellite.*/
                     tmp = this->m_proj_parm.radius_g - Vx;
                         if(this->m_proj_parm.flip_axis)
@@ -232,7 +232,7 @@ namespace projections
                 /* Calculation of terms in cubic equation and determinant.*/
                     a   = Vy * Vy + Vz * Vz + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
-                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception();;
+                    if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) throw proj_exception(-20);
                 /* Calculation of three components of vector from satellite to position.*/
                     k  = (-b - sqrt(det)) / (2 * a);
                     Vx = this->m_proj_parm.radius_g + k * Vx;

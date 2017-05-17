@@ -119,7 +119,7 @@ namespace projections
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
                     } else if ((s - EPS10) < HALFPI)
                         lp_lon = 0.;
-                    else throw proj_exception();;
+                    else throw proj_exception(-20);
                 }
                 /* General spherical sinusoidals */
 
@@ -163,7 +163,7 @@ namespace projections
                                 break;
                         }
                         if (!i)
-                            throw proj_exception();
+                            throw proj_exception(-20);
                     }
                     xy_x = this->m_proj_parm.C_x * lp_lon * (this->m_proj_parm.m + cos(lp_lat));
                     xy_y = this->m_proj_parm.C_y * lp_lat;

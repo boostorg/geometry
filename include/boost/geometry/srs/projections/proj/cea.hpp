@@ -149,7 +149,7 @@ namespace projections
                         else
                             lp_lat = asin(xy_y);
                         lp_lon = xy_x / this->m_par.k0;
-                    } else throw proj_exception();
+                    } else throw proj_exception(-20);
                 }
 
                 static inline std::string get_name()

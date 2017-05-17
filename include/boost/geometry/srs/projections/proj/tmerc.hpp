@@ -134,22 +134,23 @@ namespace projections
 
                     CalculationType al, als, n, cosphi, sinphi, t;
 
-                        /*
-                         * Fail if our longitude is more than 90 degrees from the
-                         * central meridian since the results are essentially garbage.
-                         * Is error -20 really an appropriate return value?
-                         *
-                         *  http://trac.osgeo.org/proj/ticket/5
-                         */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
-                        {
-                            xy_x = HUGE_VAL;
-                            xy_y = HUGE_VAL;
-                            throw proj_exception( -14 );
-                            return;
-                        }
+                    /*
+                     * Fail if our longitude is more than 90 degrees from the
+                     * central meridian since the results are essentially garbage.
+                     * Is error -20 really an appropriate return value?
+                     *
+                     *  http://trac.osgeo.org/proj/ticket/5
+                     */
+                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    {
+                        xy_x = HUGE_VAL;
+                        xy_y = HUGE_VAL;
+                        throw proj_exception( -14 );
+                        return;
+                    }
 
-                    sinphi = sin(lp_lat); cosphi = cos(lp_lat);
+                    sinphi = sin(lp_lat);
+                    cosphi = cos(lp_lat);
                     t = fabs(cosphi) > 1e-10 ? sinphi/cosphi : 0.;
                     t *= t;
                     al = cosphi * lp_lon;
@@ -242,30 +243,39 @@ namespace projections
 
                     CalculationType b, cosphi;
 
-                        /*
-                         * Fail if our longitude is more than 90 degrees from the
-                         * central meridian since the results are essentially garbage.
-                         * Is error -20 really an appropriate return value?
-                         *
-                         *  http://trac.osgeo.org/proj/ticket/5
-                         */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
-                        {
-                            xy_x = HUGE_VAL;
-                            xy_y = HUGE_VAL;
-                            throw proj_exception( -14 );
-                            return;
-                        }
+                    /*
+                     * Fail if our longitude is more than 90 degrees from the
+                     * central meridian since the results are essentially garbage.
+                     * Is error -20 really an appropriate return value?
+                     *
+                     *  http://trac.osgeo.org/proj/ticket/5
+                     */
+                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    {
+                        xy_x = HUGE_VAL;
+                        xy_y = HUGE_VAL;
+                        throw proj_exception( -14 );
+                        return;
+                    }
 
-                    b = (cosphi = cos(lp_lat)) * sin(lp_lon);
-                    if (fabs(fabs(b) - 1.) <= EPS10) throw proj_exception();;
+                    cosphi = cos(lp_lat);
+                    b = cosphi * sin(lp_lon);
+                    if (fabs(fabs(b) - 1.) <= EPS10)
+                        throw proj_exception(-20);
+
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
-                    if ((b = fabs( xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b) )) >= 1.) {
-                        if ((b - 1.) > EPS10) throw proj_exception();
+                    xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b);
+
+                    b = fabs( xy_y );
+                    if (b >= 1.) {
+                        if ((b - 1.) > EPS10)
+                            throw proj_exception(-20);
                         else xy_y = 0.;
                     } else
                         xy_y = acos(xy_y);
-                    if (lp_lat < 0.) xy_y = -xy_y;
+
+                    if (lp_lat < 0.)
+                        xy_y = -xy_y;
                     xy_y = this->m_proj_parm.esp * (xy_y - this->m_par.phi0);
                 }
 

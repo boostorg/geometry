@@ -91,7 +91,7 @@ namespace projections
                     CalculationType b, bt;
 
                     b = cos(lp_lat) * sin(lp_lon);
-                    if ((bt = 1. - b * b) < EPS10) throw proj_exception();
+                    if ((bt = 1. - b * b) < EPS10) throw proj_exception(-20);
                     xy_x = b / sqrt(bt);
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon));
                 }

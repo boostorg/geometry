@@ -116,7 +116,7 @@ namespace projections
                         xy_y = sinphi;
                         break;
                     }
-                    if (xy_y <= EPS10) throw proj_exception();;
+                    if (xy_y <= EPS10) throw proj_exception(-20);
                     xy_x = (xy_y = 1. / xy_y) * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:

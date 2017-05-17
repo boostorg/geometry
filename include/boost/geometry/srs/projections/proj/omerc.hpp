@@ -108,7 +108,7 @@ namespace projections
                         V = sin(this->m_proj_parm.B * lp_lon);
                         U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
                         if (fabs(fabs(U) - 1.0) < EPS)
-                            throw proj_exception();;
+                            throw proj_exception(-20);
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
                                 if(fabs(temp) < TOL) {
@@ -156,7 +156,7 @@ namespace projections
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL)
-                            throw proj_exception();;
+                            throw proj_exception(-20);
                         lp_lon = - this->m_proj_parm.rB * atan2((Sp * this->m_proj_parm.cosgam -
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
                     }

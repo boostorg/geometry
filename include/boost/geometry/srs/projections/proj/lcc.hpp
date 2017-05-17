@@ -105,7 +105,7 @@ namespace projections
 
                     CalculationType rho;
                     if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
-                        if ((lp_lat * this->m_proj_parm.n) <= 0.) throw proj_exception();;
+                        if ((lp_lat * this->m_proj_parm.n) <= 0.) throw proj_exception(-20);
                         rho = 0.;
                         }
                     else
@@ -133,7 +133,7 @@ namespace projections
                         if (this->m_proj_parm.ellips) {
                             if ((lp_lat = pj_phi2(pow(rho / this->m_proj_parm.c, 1./this->m_proj_parm.n), this->m_par.e))
                                 == HUGE_VAL)
-                                throw proj_exception();;
+                                throw proj_exception(-20);
                         } else
                             lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - HALFPI;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;

@@ -110,14 +110,18 @@ namespace projections
 
                     lp_lat = xy_y / FYC;
                     if (fabs(lp_lat) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        if (fabs(lp_lat) > ONEEPS)
+                            throw proj_exception(-20);
+                        else
+                            lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     } else
                         lp_lat = asin(lp_lat);
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
                     if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
-                        else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        if (fabs(lp_lat) > ONEEPS)
+                            throw proj_exception(-20);
+                        else
+                            lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     } else
                         lp_lat = asin(lp_lat);
                 }

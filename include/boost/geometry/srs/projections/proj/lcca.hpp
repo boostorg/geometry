@@ -132,7 +132,7 @@ namespace projections
                         S -= (dif = (fS(S, this->m_proj_parm.C) - dr) / fSp(S, this->m_proj_parm.C));
                         if (fabs(dif) < DEL_TOL) break;
                     }
-                    if (!i) throw proj_exception();
+                    if (!i) throw proj_exception(-20);
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
 

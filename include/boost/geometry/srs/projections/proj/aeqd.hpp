@@ -283,7 +283,7 @@ namespace projections
                 oblcon:
                         if (fabs(fabs(xy_y) - 1.) < TOL)
                             if (xy_y < 0.)
-                                throw proj_exception();
+                                throw proj_exception(-20);
                             else
                                 xy_x = xy_y = 0.;
                         else {
@@ -298,7 +298,7 @@ namespace projections
                         lp_lat = -lp_lat;
                         coslam = -coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < EPS10) throw proj_exception();;
+                        if (fabs(lp_lat - HALFPI) < EPS10) throw proj_exception(-20);
                         xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
                         xy_y *= coslam;
                         break;
@@ -315,7 +315,7 @@ namespace projections
                     CalculationType cosc, c_rh, sinc;
 
                     if ((c_rh = boost::math::hypot(xy_x, xy_y)) > ONEPI) {
-                        if (c_rh - EPS10 > ONEPI) throw proj_exception();;
+                        if (c_rh - EPS10 > ONEPI) throw proj_exception(-20);
                         c_rh = ONEPI;
                     } else if (c_rh < EPS10) {
                         lp_lat = this->m_par.phi0;

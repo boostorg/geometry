@@ -111,8 +111,10 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     xy_y += this->m_proj_parm.ml0;
-                    if (fabs(xy_y) <= TOL) { lp_lon = xy_x; lp_lat = 0.; }
-                    else {
+                    if (fabs(xy_y) <= TOL) {
+                        lp_lon = xy_x;
+                        lp_lat = 0.;
+                    } else {
                         CalculationType r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
                         int i;
 
@@ -121,7 +123,7 @@ namespace projections
                             sp = sin(lp_lat);
                             s2ph = sp * ( cp = cos(lp_lat));
                             if (fabs(cp) < ITOL)
-                                throw proj_exception();;
+                                throw proj_exception(-20);
                             c = sp * (mlp = sqrt(1. - this->m_par.es * sp * sp)) / cp;
                             ml = pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en);
                             mlb = ml * ml + r;
@@ -134,7 +136,7 @@ namespace projections
                                 break;
                         }
                         if (!i)
-                            throw proj_exception();;
+                            throw proj_exception(-20);
                         c = sin(lp_lat);
                         lp_lon = asin(xy_x * tan(lp_lat) * sqrt(1. - this->m_par.es * c * c)) / sin(lp_lat);
                     }
@@ -168,8 +170,10 @@ namespace projections
                 {
                     CalculationType  cot, E;
 
-                    if (fabs(lp_lat) <= TOL) { xy_x = lp_lon; xy_y = this->m_proj_parm.ml0; }
-                    else {
+                    if (fabs(lp_lat) <= TOL) {
+                        xy_x = lp_lon;
+                        xy_y = this->m_proj_parm.ml0;
+                    } else {
                         cot = 1. / tan(lp_lat);
                         xy_x = sin(E = lp_lon * sin(lp_lat)) * cot;
                         xy_y = lp_lat - this->m_par.phi0 + cot * (1. - cos(E));
@@ -183,8 +187,10 @@ namespace projections
                     CalculationType B, dphi, tp;
                     int i;
 
-                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) { lp_lon = xy_x; lp_lat = 0.; }
-                    else {
+                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) {
+                        lp_lon = xy_x;
+                        lp_lat = 0.;
+                    } else {
                         lp_lat = xy_y;
                         B = xy_x * xy_x + xy_y * xy_y;
                         i = N_ITER;
@@ -194,7 +200,7 @@ namespace projections
                                 .5 * ( lp_lat * lp_lat + B) * tp) /
                                 ((lp_lat - xy_y) / tp - 1.));
                         } while (fabs(dphi) > CONV && --i);
-                        if (! i) throw proj_exception();;
+                        if (! i) throw proj_exception(-20);
                         lp_lon = asin(xy_x * tan(lp_lat)) / sin(lp_lat);
                     }
                 }

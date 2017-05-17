@@ -101,7 +101,7 @@ namespace projections
                     lp_lon = xy_x / (FXC * ( lp_lat = 2. - fabs(xy_y) / FYC) );
                     lp_lat = (4. - lp_lat * lp_lat) * C13;
                     if (fabs(lp_lat) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
+                        if (fabs(lp_lat) > ONEEPS)    throw proj_exception(-20);
                         else
                             lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                     } else

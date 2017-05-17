@@ -105,18 +105,18 @@ namespace projections
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:
-                        if (cosphi * coslam < - EPS10) throw proj_exception();
+                        if (cosphi * coslam < - EPS10) throw proj_exception(-20);
                         xy_y = sin(lp_lat);
                         break;
                     case OBLIQ:
                         if (this->m_proj_parm.sinph0 * (sinphi = sin(lp_lat)) +
-                           this->m_proj_parm.cosph0 * cosphi * coslam < - EPS10) throw proj_exception();
+                           this->m_proj_parm.cosph0 * cosphi * coslam < - EPS10) throw proj_exception(-20);
                         xy_y = this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
                         break;
                     case N_POLE:
                         coslam = - coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) throw proj_exception();
+                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) throw proj_exception(-20);
                         xy_y = cosphi * coslam;
                         break;
                     }
@@ -132,7 +132,7 @@ namespace projections
                     CalculationType rh, cosc, sinc;
 
                     if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
-                        if ((sinc - 1.) > EPS10) throw proj_exception();
+                        if ((sinc - 1.) > EPS10) throw proj_exception(-20);
                         sinc = 1.;
                     }
                     cosc = sqrt(1. - sinc * sinc); /* in this range OK */

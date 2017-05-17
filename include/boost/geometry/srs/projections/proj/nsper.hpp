@@ -128,7 +128,7 @@ namespace projections
                         xy_y = sinphi;
                         break;
                     }
-                    if (xy_y < this->m_proj_parm.rp) throw proj_exception();;
+                    if (xy_y < this->m_proj_parm.rp) throw proj_exception(-20);
                     xy_y = this->m_proj_parm.pn1 / (this->m_proj_parm.p - xy_y);
                     xy_x = xy_y * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
@@ -171,7 +171,7 @@ namespace projections
                         xy_y = bq * this->m_proj_parm.cg - bm * this->m_proj_parm.sg;
                     }
                     rh = boost::math::hypot(xy_x, xy_y);
-                    if ((sinz = 1. - rh * rh * this->m_proj_parm.pfact) < 0.) throw proj_exception();;
+                    if ((sinz = 1. - rh * rh * this->m_proj_parm.pfact) < 0.) throw proj_exception(-20);
                     sinz = (this->m_proj_parm.p - sqrt(sinz)) / (this->m_proj_parm.pn1 / rh + rh / this->m_proj_parm.pn1);
                     cosz = sqrt(1. - sinz * sinz);
                     if (fabs(rh) <= EPS10) {

@@ -190,7 +190,7 @@ namespace projections
                             return;
                         }
                     }
-                    throw proj_exception();;
+                    throw proj_exception(-20);
                 }
 
                 static inline std::string get_name()

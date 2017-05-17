@@ -103,7 +103,7 @@ namespace projections
                         lp_lat = sin(lp_lat);
                         v = this->m_proj_parm.a1 * pow((1. + lp_lat)/(1. - lp_lat), this->m_proj_parm.hrw);
                         if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < TOL)
-                            throw proj_exception();;
+                            throw proj_exception(-20);
                         xy_x = 2. * sin(lp_lon) / c;
                         xy_y = (v - 1./v) / c;
                     }

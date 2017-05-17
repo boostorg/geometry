@@ -141,7 +141,7 @@ namespace projections
                 {
                     CalculationType rho = 0.0;
                     if ((rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat),
-                        this->m_par.e, this->m_par.one_es) : this->m_proj_parm.n2 * sin(lp_lat))) < 0.) throw proj_exception();
+                        this->m_par.e, this->m_par.one_es) : this->m_proj_parm.n2 * sin(lp_lat))) < 0.) throw proj_exception(-20);
                     rho = this->m_proj_parm.dd * sqrt(rho);
                     xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
@@ -165,7 +165,7 @@ namespace projections
                             lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n;
                             if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > TOL7) {
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
-                                    throw proj_exception();
+                                    throw proj_exception(-20);
                             } else
                                 lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
