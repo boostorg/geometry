@@ -91,6 +91,7 @@ public:
         BOOST_MPL_ASSERT_MSG((false),
                              PROJECTION_IS_NOT_INVERTABLE,
                              (Prj));
+        return false;
     }
 
     inline std::string name() const
