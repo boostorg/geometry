@@ -70,12 +70,17 @@ void test_all()
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }
 
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(bg::cs::cartesian)
+
 int test_main(int, char* [])
 {
     //test_all<int[2]>();
     test_all<float[2]>();
     test_all<double[2]>();
-    test_all<test::test_point>();
+
+    // 2D -> 3D
+    //test_all<test::test_point>();
+    
     //test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();

@@ -141,5 +141,80 @@ int test_main(int, char*[])
         }
     }
 
+    {
+        segment<point_ll> seg_ll;
+        segment<point_xy> seg_xy;
+        linestring<point_ll> ls_ll;
+        linestring<point_xy> ls_xy;
+        ring<point_ll> ring_ll;
+        ring<point_xy> ring_xy;
+        polygon<point_ll> poly_ll;
+        polygon<point_xy> poly_xy;
+        multi_point<point_ll> mpt_ll;
+        multi_point<point_xy> mpt_xy;
+        multi_linestring<linestring<point_ll> > mls_ll;
+        multi_linestring<linestring<point_xy> > mls_xy;
+        multi_polygon<polygon<point_ll> > mpoly_ll;
+        multi_polygon<polygon<point_xy> > mpoly_xy;
+
+        bg::read_wkt("LINESTRING(0 0, 1 1)", seg_ll);
+        bg::read_wkt("LINESTRING(0 0, 1 1, 2 2)", ls_ll);
+        bg::read_wkt("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))", ring_ll);
+        bg::read_wkt("POLYGON((0 0, 0 3, 3 3, 3 0, 0 0),(1 1, 2 1, 2 2, 1 2, 1 1))", poly_ll);
+        bg::read_wkt("MULTIPOINT(0 0, 1 1, 2 2)", mpt_ll);
+        bg::read_wkt("MULTILINESTRING((0 0, 1 1),(2 2, 3 3))", mls_ll);
+        bg::read_wkt("MULTIPOLYGON(((0 0, 0 3, 3 3, 3 0, 0 0),(1 1, 2 1, 2 2, 1 2, 1 1)),((3 3,3 4,4 4,4 3,3 3)))", mpoly_ll);
+
+        projection<> prj = proj4("+proj=tmerc +ellps=WGS84 +units=m");
+
+        std::cout << bg::wkt(seg_ll) << std::endl;
+        std::cout << bg::wkt(ls_ll) << std::endl;
+        std::cout << bg::wkt(ring_ll) << std::endl;
+        std::cout << bg::wkt(poly_ll) << std::endl;
+        std::cout << bg::wkt(mpt_ll) << std::endl;
+        std::cout << bg::wkt(mls_ll) << std::endl;
+        std::cout << bg::wkt(mpoly_ll) << std::endl;
+
+        prj.forward(seg_ll, seg_xy);
+        prj.forward(ls_ll, ls_xy);
+        prj.forward(ring_ll, ring_xy);
+        prj.forward(poly_ll, poly_xy);
+        prj.forward(mpt_ll, mpt_xy);
+        prj.forward(mls_ll, mls_xy);
+        prj.forward(mpoly_ll, mpoly_xy);
+
+        std::cout << bg::wkt(seg_xy) << std::endl;
+        std::cout << bg::wkt(ls_xy) << std::endl;
+        std::cout << bg::wkt(ring_xy) << std::endl;
+        std::cout << bg::wkt(poly_xy) << std::endl;
+        std::cout << bg::wkt(mpt_xy) << std::endl;
+        std::cout << bg::wkt(mls_xy) << std::endl;
+        std::cout << bg::wkt(mpoly_xy) << std::endl;
+        
+        bg::clear(seg_ll);
+        bg::clear(ls_ll);
+        bg::clear(ring_ll);
+        bg::clear(poly_ll);
+        bg::clear(mpt_ll);
+        bg::clear(mls_ll);
+        bg::clear(mpoly_ll);
+
+        prj.inverse(seg_xy, seg_ll);
+        prj.inverse(ls_xy, ls_ll);
+        prj.inverse(ring_xy, ring_ll);
+        prj.inverse(poly_xy, poly_ll);
+        prj.inverse(mpt_xy, mpt_ll);
+        prj.inverse(mls_xy, mls_ll);
+        prj.inverse(mpoly_xy, mpoly_ll);
+
+        std::cout << bg::wkt(seg_ll) << std::endl;
+        std::cout << bg::wkt(ls_ll) << std::endl;
+        std::cout << bg::wkt(ring_ll) << std::endl;
+        std::cout << bg::wkt(poly_ll) << std::endl;
+        std::cout << bg::wkt(mpt_ll) << std::endl;
+        std::cout << bg::wkt(mls_ll) << std::endl;
+        std::cout << bg::wkt(mpoly_ll) << std::endl;
+    }
+
     return 0;
 }
