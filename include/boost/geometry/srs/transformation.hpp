@@ -153,8 +153,8 @@ public:
     }
 
 private:
-    projections::projection<Proj1, CT> m_proj1;
-    projections::projection<Proj2, CT> m_proj2;
+    projections::proj_wrapper<Proj1, CT> m_proj1;
+    projections::proj_wrapper<Proj2, CT> m_proj2;
 };
 
 } // namespace srs

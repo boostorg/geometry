@@ -17,6 +17,7 @@
 #include <string>
 
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
@@ -58,6 +59,7 @@ struct promote_to_double
         >::type type;
 };
 
+
 // Copy coordinates of dimensions >= MinDim
 template <std::size_t MinDim, typename Point1, typename Point2>
 inline void copy_higher_dimensions(Point1 const& point1, Point2 & point2)
@@ -75,35 +77,116 @@ inline void copy_higher_dimensions(Point1 const& point1, Point2 & point2)
         > ::apply(point1, point2);
 
     // TODO: fill point2 with zeros if dim1 < dim2 ?
+    // currently no need because equal dimensions are checked
 }
 
-/// Forward projection, from Latitude-Longitude to Cartesian
-template <typename Proj, typename LL, typename XY>
-inline bool forward(Proj const& proj, LL const& ll, XY& xy)
+
+// forward projection of any geometry type
+template
+<
+    typename Geometry,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct forward
 {
-    // (Geographic -> Cartesian) will be projected, rest will be copied.
-    // So first copy third or higher dimensions
-    copy_higher_dimensions<2>(ll, xy);
+    template <typename Proj>
+    struct forward_strategy
+    {
+        forward_strategy(Proj const& proj)
+            : m_proj(proj)
+        {}
 
-    return proj.forward(ll, xy);
-}
+        template <typename LL, typename XY>
+        inline bool apply(LL const& ll, XY & xy) const
+        {
+            return forward<LL>::apply(ll, xy, m_proj);
+        }
 
-/// Inverse projection, from Cartesian to Latitude-Longitude
-template <typename Proj, typename XY, typename LL>
-inline bool inverse(Proj const& proj, XY const& xy, LL& ll)
+        Proj const& m_proj;
+    };
+
+    template <typename LL, typename XY, typename Proj>
+    static inline bool apply(LL const& ll,
+                             XY & xy,
+                             Proj const& proj)
+    {
+        return resolve_strategy::transform
+                ::apply(ll, xy, forward_strategy<Proj>(proj));
+    }
+};
+
+template <typename Geometry>
+struct forward<Geometry, point_tag>
 {
-    // (Cartesian -> Geographic) will be projected, rest will be copied.
-    // So first copy third or higher dimensions
-    copy_higher_dimensions<2>(ll, xy);
+    template <typename LL, typename XY, typename Proj>
+    static inline bool apply(LL const& ll, XY & xy, Proj const& proj)
+    {
+        // (Geographic -> Cartesian) will be projected, rest will be copied.
+        // So first copy third or higher dimensions
+        projections::detail::copy_higher_dimensions<2>(ll, xy);
 
-    return proj.inverse(xy, ll);
-}
+        return proj.forward(ll, xy);
+    }
+};
+
+
+// inverse projection of any geometry type
+template
+<
+    typename Geometry,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct inverse
+{
+    template <typename Proj>
+    struct inverse_strategy
+    {
+        inverse_strategy(Proj const& proj)
+            : m_proj(proj)
+        {}
+
+        template <typename XY, typename LL>
+        inline bool apply(XY const& xy, LL & ll) const
+        {
+            return inverse<XY>::apply(xy, ll, m_proj);
+        }
+
+        Proj const& m_proj;
+    };
+
+    template <typename XY, typename LL, typename Proj>
+    static inline bool apply(XY const& xy,
+                             LL & ll,
+                             Proj const& proj)
+    {
+        return resolve_strategy::transform
+                ::apply(xy, ll, inverse_strategy<Proj>(proj));
+    }
+};
+
+template <typename Geometry>
+struct inverse<Geometry, point_tag>
+{
+    template <typename XY, typename LL, typename Proj>
+    static inline bool apply(XY const& xy, LL & ll, Proj const& proj)
+    {
+        // (Cartesian -> Geographic) will be projected, rest will be copied.
+        // So first copy third or higher dimensions
+        projections::detail::copy_higher_dimensions<2>(xy, ll);
+
+        return proj.inverse(xy, ll);
+    }
+};
+
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
+
+// proj_wrapper class and its specializations wrapps the internal projection
+// representation and implements transparent creation of projection object
 template <typename Proj, typename CT>
-class projection
+class proj_wrapper
 {
     BOOST_MPL_ASSERT_MSG((false),
                          NOT_IMPLEMENTED_FOR_THIS_PROJECTION_TAG,
@@ -111,7 +194,7 @@ class projection
 };
 
 template <typename CT>
-class projection<srs::dynamic, CT>
+class proj_wrapper<srs::dynamic, CT>
 {
     // Some projections do not work with float -> wrong results
     // select <double> from int/float/double and else selects T
@@ -121,12 +204,12 @@ class projection<srs::dynamic, CT>
     typedef projections::detail::base_v<calc_t, parameters_type> vprj_t;
 
 public:
-    projection(srs::proj4 const& params)
+    proj_wrapper(srs::proj4 const& params)
         : m_ptr(create(projections::detail::pj_init_plus<calc_t>(srs::dynamic(),
                                 params.str)))
     {}
 
-    projection(srs::epsg const& params)
+    proj_wrapper(srs::epsg const& params)
         : m_ptr(create(projections::detail::pj_init_plus<calc_t>(
                             srs::dynamic(),
                             projections::detail::code_to_string(params.code),
@@ -162,7 +245,7 @@ private:
 };
 
 template <typename Proj, typename Model, typename CT>
-class projection<srs::static_proj4<Proj, Model>, CT>
+class proj_wrapper<srs::static_proj4<Proj, Model>, CT>
 {
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
@@ -176,11 +259,11 @@ class projection<srs::static_proj4<Proj, Model>, CT>
         >::type projection_type;
 
 public:
-    projection()
+    proj_wrapper()
         : m_proj(get_parameters(srs::static_proj4<Proj, Model>()))
     {}
 
-    projection(srs::static_proj4<Proj, Model> const& params)
+    proj_wrapper(srs::static_proj4<Proj, Model> const& params)
         : m_proj(get_parameters(params))
     {}
 
@@ -197,7 +280,7 @@ private:
 };
 
 template <int Code, typename CT>
-class projection<srs::static_epsg<Code>, CT>
+class proj_wrapper<srs::static_epsg<Code>, CT>
 {
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
@@ -213,7 +296,7 @@ class projection<srs::static_epsg<Code>, CT>
         >::type projection_type;
 
 public:
-    projection()
+    proj_wrapper()
         : m_proj(projections::detail::pj_init_plus<calc_t>(
                         srs::static_epsg<Code>(),
                         epsg_traits::par(), false))
@@ -227,13 +310,49 @@ private:
 };
 
 
+// projection class implements transparent forward/inverse projection interface
+template <typename Proj, typename CT>
+class projection
+    : private proj_wrapper<Proj, CT>
+{
+    typedef proj_wrapper<Proj, CT> base_t;
+
+public:
+    projection()
+    {}
+
+    template <typename Params>
+    projection(Params const& params)
+        : base_t(params)
+    {}
+
+    /// Forward projection, from Latitude-Longitude to Cartesian
+    template <typename LL, typename XY>
+    inline bool forward(LL const& ll, XY& xy) const
+    {
+        concepts::check_concepts_and_equal_dimensions<LL const, XY>();
+
+        return projections::detail::forward<LL>::apply(ll, xy, base_t::proj());
+    }
+
+    /// Inverse projection, from Cartesian to Latitude-Longitude
+    template <typename XY, typename LL>
+    inline bool inverse(XY const& xy, LL& ll) const
+    {
+        concepts::check_concepts_and_equal_dimensions<XY const, LL>();
+
+        return projections::detail::inverse<XY>::apply(xy, ll, base_t::proj());
+    }
+};
+
+
 } // namespace projections
 
 
 namespace srs
 {
 
-
+    
 /*!
     \brief Representation of projection
     \details Either dynamic or static projection representation
@@ -255,7 +374,10 @@ class projection
 
 template <typename CT>
 class projection<srs::dynamic, CT>
+    : public projections::projection<srs::dynamic, CT>
 {
+    typedef projections::projection<srs::dynamic, CT> base_t;
+
 public:
     /*!
     \ingroup projection
@@ -268,83 +390,38 @@ public:
     \note Parameters are described in the group
     */
     projection(srs::proj4 const& params)
-        : m_projection(params)
+        : base_t(params)
     {}
 
     projection(srs::epsg const& params)
-        : m_projection(params)
+        : base_t(params)
     {}
-
-    /// Forward projection, from Latitude-Longitude to Cartesian
-    template <typename LL, typename XY>
-    bool forward(LL const& ll, XY& xy) const
-    {
-        return projections::detail::forward(m_projection.proj(), ll, xy);
-    }
-
-    /// Inverse projection, from Cartesian to Latitude-Longitude
-    template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& ll) const
-    {
-        return projections::detail::inverse(m_projection.proj(), xy, ll);
-    }
-
-private:
-    projections::projection<srs::dynamic, CT> m_projection;
 };
 
 template <typename Proj, typename Model, typename CT>
 class projection<srs::static_proj4<Proj, Model>, CT>
+    : public projections::projection<srs::static_proj4<Proj, Model>, CT>
 {
+    typedef projections::projection<srs::static_proj4<Proj, Model>, CT> base_t;
+
 public:
     projection()
     {}
 
     projection(srs::static_proj4<Proj, Model> const& params)
-        : m_projection(params)
+        : base_t(params)
     {}
-
-    /// Forward projection, from Latitude-Longitude to Cartesian
-    template <typename LL, typename XY>
-    bool forward(LL const& ll, XY& xy) const
-    {
-        return projections::detail::forward(m_projection.proj(), ll, xy);
-    }
-
-    /// Inverse projection, from Cartesian to Latitude-Longitude
-    template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& ll) const
-    {
-        return projections::detail::inverse(m_projection.proj(), xy, ll);
-    }
-
-private:
-    projections::projection<srs::static_proj4<Proj, Model>, CT> m_projection;
 };
 
 template <int Code, typename CT>
 class projection<srs::static_epsg<Code>, CT>
+    : public projections::projection<srs::static_epsg<Code>, CT>
 {
+    typedef projections::projection<srs::static_epsg<Code>, CT> base_t;
+
 public:
     projection()
     {}
-
-    /// Forward projection, from Latitude-Longitude to Cartesian
-    template <typename LL, typename XY>
-    bool forward(LL const& ll, XY& xy) const
-    {
-        return projections::detail::forward(m_projection.proj(), ll, xy);
-    }
-
-    /// Inverse projection, from Cartesian to Latitude-Longitude
-    template <typename XY, typename LL>
-    bool inverse(XY const& xy, LL& ll) const
-    {
-        return projections::detail::inverse(m_projection.proj(), xy, ll);
-    }
-
-private:
-    projections::projection<srs::static_epsg<Code>, CT> m_projection;
 };
 
 
