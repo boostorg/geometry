@@ -363,11 +363,9 @@ inline void enrich_intersection_points(Turns& turns,
                turn.cluster_id = -1;
             }
             if (for_operation == detail::overlay::operation_union
-                    && turn.both(detail::overlay::operation_union))
+                && ! turn.both(detail::overlay::operation_union))
             {
-                // For now, avoid uu including self-turns for unions (there are many)
-                // TODO: nuance this, they are necessary to separate newly formed attached holes
-                // See #case_recursive_boxes_5
+                // Only keep non-colocated self-uu-turns
                 turn.discarded = true;
                 turn.cluster_id = -1;
             }

@@ -195,8 +195,8 @@ struct traversal
     }
 
     inline bool select_source(signed_size_type turn_index,
-                              segment_identifier const& seg_id1,
-                              segment_identifier const& seg_id2) const
+                              segment_identifier const& candidate_seg_id,
+                              segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
         turn_type const& turn = m_turns[turn_index];
@@ -205,14 +205,16 @@ struct traversal
         {
             // Buffer does not use source_index (always 0)
             return turn.switch_source
-                    ? seg_id1.multi_index != seg_id2.multi_index
-                    : seg_id1.multi_index == seg_id2.multi_index;
+                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
+                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
         }
 
-        // If it is a self-turn, always switch source
         if (turn.self_turn())
         {
-            return true;
+            // Also, if it is a self-turn, stay on same ring (multi/ring)
+            return turn.switch_source
+                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
+                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
         }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
@@ -226,8 +228,8 @@ struct traversal
         }
 #endif
         return turn.switch_source
-                ? seg_id1.source_index != seg_id2.source_index
-                : seg_id1.source_index == seg_id2.source_index;
+                ? candidate_seg_id.source_index != previous_seg_id.source_index
+                : candidate_seg_id.source_index == previous_seg_id.source_index;
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -295,7 +297,7 @@ struct traversal
     inline
     bool select_noncc_operation(turn_type const& turn,
                 signed_size_type turn_index,
-                segment_identifier const& seg_id,
+                segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
     {
         bool result = false;
@@ -306,7 +308,7 @@ struct traversal
 
             if (op.operation == target_operation
                 && ! op.visited.finished()
-                && (! result || select_source(turn_index, op.seg_id, seg_id)))
+                && (! result || select_source(turn_index, op.seg_id, previous_seg_id)))
             {
                 selected_op_index = i;
                 debug_traverse(turn, op, "Candidate");

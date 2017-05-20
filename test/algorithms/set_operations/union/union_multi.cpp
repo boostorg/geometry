@@ -33,14 +33,16 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
 
+#define TEST_UNION_IGNORE(caseid, clips, holes, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, holes, points, area, ignore_validity)
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
     ut_settings ignore_validity;
     ignore_validity.test_validity = false;
-
-    // Some output is only invalid for CCW
-    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
@@ -132,14 +134,12 @@ void test_areal()
         case_108_multi[0], case_108_multi[1],
         1, 1, 20, 22.75);
 
-    // Should have 2 holes
-    // To make it valid, it is necessary to calculate and use self turns
-    // for each input. Now the two holes are connected because a turn is missing
-    // there.
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
-        case_109_multi[0], case_109_multi[1],
-        1, 1, 14, 1400,
-        ignore_validity);
+    // Should have 2 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_109_multi, 1, 2, 14, 1400);
+#else
+    TEST_UNION_IGNORE(case_109_multi, 1, 1, 14, 1400);
+#endif
 
     // Should have 9 holes, they are all separate and touching
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
@@ -202,14 +202,12 @@ void test_areal()
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         1, 2, 42, 96.75);
 
-    // Should have 10 holes.
-    // For making #5 valid, it is necessary to calculate and use self turns
-    // for each input. Now one hole is connected to another hole because a turn
-    // missing there.
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
-        case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-        3, 9, 115, 70.0,
-        ignore_validity);
+    // Should have 10 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_5, 3, 10, 118, 70.0);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_5, 3, 9, 115, 70.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
@@ -244,37 +242,22 @@ void test_areal()
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
 
-    // Invalid versions of 12/13/14
+    // Invalid input (made valid)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_12_invalid",
         case_recursive_boxes_12_invalid[0], case_recursive_boxes_12_invalid[1],
             6, 0, -1, 6.0);
 
-    if (! ccw)
-    {
-        // Handling this invalid input delivers invalid results for CCW
-        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
-            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
-                3, 0, -1, 10.25);
-    }
-    else
-    {
-        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
-            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
-                2, 0, -1, 10.25,
-                ignore_validity);
-    }
-
-    // Invalid input (validity in output is ignored)
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
-        case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
-            3, 0, -1, 4.5, ignore_validity);
+    // Invalid input for 13 cannot (yet) made valid if self-turns are used
+    TEST_UNION_IGNORE(case_recursive_boxes_13_invalid, 2, 0, -1, 10.25);
 #else
+    TEST_UNION(case_recursive_boxes_13_invalid, 3, 0, -1, 10.25);
+#endif
+
+    // Invalid input (made valid)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
         case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
             5, 0, -1, 4.5);
-#endif
-
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],
@@ -390,17 +373,19 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
-    // TODO: solve validity, it needs calculating self-turns
-    // Should have 1 hole
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
-        mysql_23023665_7[0], mysql_23023665_7[1],
-        1, 0, -1, 99.19494,
-        ignore_validity);
-    // Should have 2 holes
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_8",
-        mysql_23023665_8[0], mysql_23023665_8[1],
-        1, 1, -1, 1400.0,
-        ignore_validity);
+    // Should have 1 hole. Needs self turns.
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
+#else
+    TEST_UNION_IGNORE(mysql_23023665_7, 1, 0, -1, 99.19494);
+#endif
+
+    // Should have 2 holes. Needs self turns.
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(mysql_23023665_8, 1, 2, -1, 1400.0);
+#else
+    TEST_UNION_IGNORE(mysql_23023665_8, 1, 1, -1, 1400.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
         mysql_23023665_9[0], mysql_23023665_9[1],

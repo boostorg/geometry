@@ -225,6 +225,13 @@ struct traversal_switch_detector
 
     inline bool connects_same_region(turn_type const& turn) const
     {
+        if (turn.discarded)
+        {
+            // Discarded turns don't connect same region (otherwise discarded colocated uu turn
+            // could make a connection)
+            return false;
+        }
+
         if (turn.cluster_id == -1)
         {
             // If it is a uu/ii-turn (non clustered), it is never same region
