@@ -358,6 +358,7 @@ inline void enrich_intersection_points(Turns& turns,
             if (turn.cluster_id >= 0)
             {
                 // Avoid interfering self-turn if there are already clustered turns
+                // (for union operations, as far as known, there is no difference)
                 // TODO: avoid discarding if there are ONLY self-turns
                turn.discarded = true;
                turn.cluster_id = -1;
