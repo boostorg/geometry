@@ -188,6 +188,25 @@ void test_areal()
     TEST_UNION(case_125_multi, 1, 0, 9, 2.75);
     TEST_UNION(case_126_multi, 1, 2, 27, 52.0);
 
+    // Should have 2 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_131_multi, 1, 2, 15, 14.0);
+#else
+    TEST_UNION_IGNORE(case_131_multi, 1, 1, 15, 14.0);
+#endif
+
+    // SQL Server returns: MULTIPOLYGON (((4 4, 5.5 4.5, 6 6, 4.5 5.5, 4 4)), ((2 2, 3.5 2.5, 4 4, 2.5 3.5, 2 2)), ((0 0, 8 0, 8 8, 0 8, 0 0), (2 2, 2 4, 4 4, 4 6, 6 6, 6 4, 4 4, 4 2, 2 2)))
+    // Which is one self-connected hole with two island polygons in both parts, basically identical to what Boost.Geometry delivers
+
+    // PostGIS returns: MULTIPOLYGON(((0 0,0 8,8 8,8 0,0 0),(4 6,4 4,6 4,6 6,4 6)),((2 2,2.5 3.5,4 4,3.5 2.5,2 2),(4 4,2 4,2 2,4 2,4 4)),((4 4,4.5 5.5,6 6,5.5 4.5,4 4)))
+    // Which seems wrong because the second hole is part of a smaller polygon (?)
+    // ("POSTGIS="2.1.7 r13414" GEOS="3.5.0dev-CAPI-1.9.0 r4057")
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION_IGNORE(case_132_multi, 3, 1, 26, 60.0);
+#else
+    TEST_UNION_IGNORE(case_132_multi, 3, 1, 26, 60.0);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         1, 1, 36, 97.0);
