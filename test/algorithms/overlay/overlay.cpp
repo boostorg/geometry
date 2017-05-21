@@ -347,10 +347,21 @@ void test_overlay(std::string const& caseid,
     bg::correct(g2);
 
 #if defined(TEST_WITH_SVG)
+    bool const ccw = bg::point_order<Geometry>::value == bg::counterclockwise;
+    bool const open = bg::closure<Geometry>::value == bg::open;
+
     std::ostringstream filename;
     filename << "overlay"
         << "_" << caseid
         << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
+        << (ccw ? "_ccw" : "")
+        << (open ? "_open" : "")
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        << "_self"
+#endif
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        << "_no_rob"
+#endif
         << ".svg";
 
     std::ofstream svg(filename.str().c_str());
