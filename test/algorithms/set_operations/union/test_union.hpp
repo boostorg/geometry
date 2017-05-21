@@ -220,6 +220,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+           << "_self"
+#endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"
 #endif
