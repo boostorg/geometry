@@ -383,8 +383,13 @@ void test_overlay(std::string const& caseid,
     typedef typename boost::range_value<Geometry>::type geometry_out;
     typedef bg::detail::overlay::overlay
         <
-            Geometry, Geometry, false, OverlayType == bg::overlay_difference,
-            false, geometry_out,
+            Geometry, Geometry,
+            bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            OverlayType == bg::overlay_difference
+            ? ! bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value
+            : bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            geometry_out,
             OverlayType
         > overlay;
 
@@ -445,11 +450,11 @@ void test_overlay(std::string const& caseid,
 #define TEST_UNION_WITH(caseid, index1, index2, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
     ( #caseid "_union" #index1 "_" #index2, caseid[index1], caseid[index2], area, clips, holes)
 
-template <typename T>
+template <typename T, bool Clockwise>
 void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::polygon<point_type> polygon;
+    typedef bg::model::polygon<point_type, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_UNION(case_multi_simplex, 14.58, 1, 0);
@@ -493,6 +498,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<double>();
+    test_all<double, true>();
+//    test_all<double, false>();
     return 0;
  }
