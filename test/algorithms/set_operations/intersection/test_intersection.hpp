@@ -102,7 +102,8 @@ check_result(
             std::string message;
             bool const valid = bg::is_valid(*it, message);
             BOOST_CHECK_MESSAGE(valid,
-                "intersection: " << caseid << " not valid " << message);
+                "intersection: " << caseid << " not valid: " << message
+                << " type: " << (type_for_assert_message<G1, G2>()));
         }
     }
 

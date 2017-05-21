@@ -138,7 +138,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             std::string message;
             bool const valid = bg::is_valid(*it, message);
             BOOST_CHECK_MESSAGE(valid,
-                "union: " << caseid << " not valid " << message);
+                "union: " << caseid << " not valid: " << message
+                << " type: " << (type_for_assert_message<G1, G2>()));
         }
     }
 
