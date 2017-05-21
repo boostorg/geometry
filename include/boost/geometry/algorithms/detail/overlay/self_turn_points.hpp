@@ -23,12 +23,14 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
@@ -60,6 +62,7 @@ struct no_interrupt_policy
 
 template
 <
+    bool Reverse,
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
@@ -101,7 +104,7 @@ struct self_section_visitor
             return detail::get_turns::get_turns_in_sections
                     <
                         Geometry, Geometry,
-                        false, false,
+                        Reverse, Reverse,
                         Section, Section,
                         TurnPolicy
                     >::apply(m_source_index, m_geometry, sec1,
@@ -131,6 +134,11 @@ struct get_turns
             InterruptPolicy& interrupt_policy,
             std::size_t source_index)
     {
+        static bool const reverse =  detail::overlay::do_reverse
+            <
+                geometry::point_order<Geometry>::value
+            >::value;
+
         typedef model::box
             <
                 typename geometry::robust_point_type
@@ -145,12 +153,12 @@ struct get_turns
         typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 
         sections_type sec;
-        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec,
+        geometry::sectionalize<reverse, dimensions>(geometry, robust_policy, sec,
                                                   intersection_strategy.get_envelope_strategy());
 
         self_section_visitor
             <
-                Geometry,
+                reverse, Geometry,
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
             > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index);
 
