@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015.
-// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017.
+// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -65,6 +65,9 @@ void test_point_linestring()
 {
     typedef bg::model::linestring<P> ls;
     
+    // degenerated
+    //test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+
     test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
     test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0, 2 2, 3 2)", "0FFFFF102");
     test_geometry<P, ls>("POINT(3 2)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
@@ -113,13 +116,126 @@ void test_point_multilinestring()
 }
 
 template <typename P>
+void test_multipoint_linestring()
+{
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::linestring<P> ls;
+    
+    // degenerated
+    //test_geometry<mpt, ls>("MULTIPOINT(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2, 3 2)", "00FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "000FFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "F00FFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(1 1, 3 3)", "LINESTRING(0 0, 2 2, 3 2)", "0F0FFF102");
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0FFFFF1F2");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 3 3)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0F0FFF1F2");
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0)", "LINESTRING(0 0, 2 2)", "F0FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(2 2)", "LINESTRING(0 0, 2 2)", "F0FFFF102");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 2 2)", "LINESTRING(0 0, 2 2)", "F0FFFF1F2");
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 1 1, 0 1, 2 2)", "LINESTRING(0 0, 2 2)", "000FFF1F2");
+}
+
+template <typename P>
+void test_multipoint_multilinestring()
+{
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+    
+    test_geometry<mpt, mls>("MULTIPOINT(0 0)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "00FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "000FFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "F00FFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(1 1, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "0F0FFF102");
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2, 0 0))", "0FFFFF1F2");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2, 0 0))", "0F0FFF1F2");
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0,1 1)", "MULTILINESTRING((0 0,0 1,1 1),(1 1,1 0,0 0))", "0FFFFF1F2");
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0)", "MULTILINESTRING((0 0,1 1),(1 1,2 2))", "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0,1 1),(1 1,2 2))", "00FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1, 2 2)", "MULTILINESTRING((0 0,1 1),(1 1,2 2))", "00FFFF1F2");
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 2 2)", "MULTILINESTRING((0 0,1 1),(1 1,2 2))", "F0FFFF1F2");
+}
+
+template <typename P>
+void test_point_ring_polygon()
+{
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::polygon<P> poly;
+    
+    test_geometry<P, ring>("POINT(0 0)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "F0FFFF212");
+
+    test_geometry<P, poly>("POINT(1 1)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "0FFFFF212");
+    test_geometry<P, poly>("POINT(1 3)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "FF0FFF212");
+}
+
+template <typename P>
+void test_point_multipolygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<P, mpoly>("POINT(0 0)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "F0FFFF212");
+    test_geometry<P, mpoly>("POINT(1 1)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "0FFFFF212");
+    test_geometry<P, mpoly>("POINT(5 5)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "F0FFFF212");
+    test_geometry<P, mpoly>("POINT(6 6)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "0FFFFF212");
+    test_geometry<P, mpoly>("POINT(1 6)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "FF0FFF212");
+}
+
+template <typename P>
+void test_multipoint_ring_polygon()
+{
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::polygon<P> poly;
+    
+    test_geometry<mpt, ring>("MULTIPOINT(0 0)", "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))", "F0FFFF212");
+    test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))", "00FFFF212");
+    test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1, 4 4)", "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))", "000FFF212");
+    test_geometry<mpt, ring>("MULTIPOINT(1 1, 4 4)", "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))", "0F0FFF212");
+
+    test_geometry<mpt, poly>("MULTIPOINT(2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 3 1, 3 3, 1 3, 1 1))", "FF0FFF212");
+    test_geometry<mpt, poly>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 3 1, 3 3, 1 3, 1 1))", "F0FFFF212");
+    test_geometry<mpt, poly>("MULTIPOINT(0 0, 1 1, 2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 3 1, 3 3, 1 3, 1 1))", "F00FFF212");
+    test_geometry<mpt, poly>("MULTIPOINT(2 2, 4 4)", "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 1, 3 1, 3 3, 1 3, 1 1))", "0F0FFF212");
+}
+
+template <typename P>
+void test_multipoint_multipolygon()
+{
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+    
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "F0FFFF212");
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 1 1)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "00FFFF212");
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1, 5 5)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "00FFFF212");
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 6, 6 6)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "0F0FFF212");
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 1 6)", "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0)),((5 5, 5 9, 9 9, 9 5, 5 5)))", "F00FFF212");
+}
+
+template <typename P>
 void test_all()
 {
     test_point_point<P>();
     test_point_multipoint<P>();
     test_multipoint_multipoint<P>();
+
     test_point_linestring<P>();
     test_point_multilinestring<P>();
+    test_multipoint_linestring<P>();
+    test_multipoint_multilinestring<P>();
+
+    test_point_ring_polygon<P>();
+    test_point_multipolygon<P>();
+    test_multipoint_ring_polygon<P>();
+    test_multipoint_multipolygon<P>();
 }
 
 int test_main( int , char* [] )
