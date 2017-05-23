@@ -29,6 +29,7 @@
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
@@ -44,48 +45,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
-
-template <typename CT, typename CS_Tag>
-struct disjoint_segment_box_call_vertex_longitude
-{
-
-    template <typename Strategy>
-    static inline CT apply(CT const& lat1,
-                           CT const& lat2,
-                           CT const& vertex_lat,
-                           CT const& lon2_minus_lon1,
-                           CT,
-                           Strategy)
-    {
-        return formula::vertex_longitude<CT, CS_Tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        lon2_minus_lon1);
-    }
-};
-
-template <typename CT>
-struct disjoint_segment_box_call_vertex_longitude<CT, geographic_tag>
-{
-
-    template <typename Strategy>
-    static inline CT apply(CT const& lat1,
-                           CT const& lat2,
-                           CT const& vertex_lat,
-                           CT,
-                           CT const& alp1,
-                           Strategy const& azimuth_strategy)
-    {
-        return formula::vertex_longitude<CT, geographic_tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        alp1,
-                        azimuth_strategy.model());
-    }
-};
-
 
 template <typename CS_Tag>
 struct disjoint_segment_box_sphere_or_spheroid
@@ -103,35 +62,6 @@ private:
     }
 
 
-    template <typename CT, typename Strategy>
-    static inline CT compute_vertex_lon(CT const& lon1,
-                                        CT const& lat1,
-                                        CT const& lon2,
-                                        CT const& lat2,
-                                        CT const& vertex_lat,
-                                        CT const& alp1,
-                                        Strategy const& azimuth_strategy)
-    {
-        if (vertex_lat == lat1)
-        {
-            return lon1;
-        }
-        if (vertex_lat == lat2)
-        {
-            return lon2;
-        }
-
-        return disjoint_segment_box_call_vertex_longitude<CT, CS_Tag>
-                ::apply(lat1,
-                        lat2,
-                        vertex_lat,
-                        lon2 - lon1,
-                        alp1,
-                        azimuth_strategy)
-                + lon2;
-
-    }
-
 public:
 
     template <typename Segment, typename Box, typename Strategy>
@@ -148,14 +78,15 @@ public:
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
-        // Test simple case of intersection first
+        // Simplest cases first
 
+        // Case 1: if box contains one of segment's endpoints then they are not disjoint
         if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
         {
             return false;
         }
 
-        // Test intersection by comparing angles
+        // Case 2: disjoint if bounding boxes are disjoint
 
         typedef typename coordinate_type<segment_point_type>::type CT;
 
@@ -174,14 +105,34 @@ public:
             swap(lon1, lat1, lon2, lat2);
         }
 
-        CT alp1, a_b0, a_b1, a_b2, a_b3;
+        //Compute alp1 outside envelope and pass it to envelope_segment_impl
+        //in order for it to be used later in the algorithm
+        CT alp1;
+
+        azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
+
+        geometry::model::box<segment_point_type> box_seg;
+
+        geometry::detail::envelope::envelope_segment_impl<segment_cs_type>
+                ::template apply<geometry::radian>(lon1, lat1,
+                                                   lon2, lat2,
+                                                   box_seg,
+                                                   azimuth_strategy,
+                                                   alp1);
+        if (disjoint_box_box(box, box_seg))
+        {
+            return true;
+        }
+
+        // Case 3: test intersection by comparing angles
+
+        CT a_b0, a_b1, a_b2, a_b3;
 
         CT b_lon_min = geometry::get_as_radian<geometry::min_corner, 0>(box);
         CT b_lat_min = geometry::get_as_radian<geometry::min_corner, 1>(box);
         CT b_lon_max = geometry::get_as_radian<geometry::max_corner, 0>(box);
         CT b_lat_max = geometry::get_as_radian<geometry::max_corner, 1>(box);
 
-        azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_min, a_b0);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_min, a_b1);
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
@@ -192,45 +143,55 @@ public:
         bool b2 = alp1 > a_b2;
         bool b3 = alp1 > a_b3;
 
-        // if the box is above (below) the segment in northern (southern)
-        // hemisphere respectively then there is not intersection
+        // if not all box points on the same side of the segment then
+        // there is an intersection
         if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
             return false;
         }
 
-        // The only case not covered by the angle test above
-        // Test intersection by testing if the vertex of the geodesic segment
-        // is covered by the box
+        // Case 4: The only intersection case not covered above is when all four
+        // points of the box are above (below) the segment in northern (southern)
+        // hemisphere. Then we have to compute the vertex of the segment
 
-        geometry::model::box<segment_point_type> box_seg;
+        CT vertex_lat;
+        CT lat_sum = lat1 + lat2;
 
-        //Do not compute alp1 twice, pass the already computed alp1 to envelope_segment_impl
-        geometry::detail::envelope::envelope_segment_impl<segment_cs_type>
-                ::template apply<geometry::radian>(lon1, lat1,
-                                                   lon2, lat2,
-                                                   box_seg,
-                                                   azimuth_strategy,
-                                                   alp1);
+        if ((b0 && b1 && b2 && b3 && lat_sum > CT(0))
+                || (!(b0 && b1 && b2 && b3) && lat_sum < CT(0)))
+        {
+            CT b_lat_below; //latitude of box closest to equator
 
-        CT vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
-        CT vertex_lon = compute_vertex_lon(lon1, lat1,
-                                           lon2, lat2,
-                                           vertex_lat,
-                                           alp1,
-                                           azimuth_strategy);
+            if (lat_sum > CT(0))
+            {
+                vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
+                b_lat_below = b_lat_min;
+            } else {
+                vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(box_seg);
+                b_lat_below = b_lat_max;
+            }
 
-        segment_point_type p_vertex_rad;
-        geometry::set_from_radian<0>(p_vertex_rad, vertex_lon);
-        geometry::set_from_radian<1>(p_vertex_rad, vertex_lat);
+            //optimization TODO: computing the spherical longitude should suffice for
+            // the majority of cases
+            CT vertex_lon = geometry::formula::vertex_longitude<CT, CS_Tag>
+                                    ::apply(lon1, lat1,
+                                            lon2, lat2,
+                                            vertex_lat,
+                                            alp1,
+                                            azimuth_strategy);
 
-        Box box_rad;
-        geometry::set_from_radian<geometry::min_corner, 0>(box_rad, b_lon_min);
-        geometry::set_from_radian<geometry::min_corner, 1>(box_rad, b_lat_min);
-        geometry::set_from_radian<geometry::max_corner, 0>(box_rad, b_lon_max);
-        geometry::set_from_radian<geometry::max_corner, 1>(box_rad, b_lat_max);
+            // Check if the vertex point is within the band defined by the
+            // minimum and maximum longitude of the box; if yes, then return
+            // false if the point is above the min latitude of the box; return
+            // true in all other cases
+            if (vertex_lon >= b_lon_min && vertex_lon <= b_lon_max
+                    && std::abs(vertex_lat) > std::abs(b_lat_below))
+            {
+                return false;
+            }
+        }
 
-        return disjoint_point_box(p_vertex_rad, box_rad);
+        return true;
     }
 };
 
@@ -256,7 +217,7 @@ namespace dispatch
 
 template <typename Segment, typename Box, std::size_t DimensionCount>
 struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, false>
-    : detail::disjoint::disjoint_segment_box
+        : detail::disjoint::disjoint_segment_box
 {};
 
 
