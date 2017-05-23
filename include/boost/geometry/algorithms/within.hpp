@@ -31,6 +31,7 @@
 
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/algorithms/is_not_implemented.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -102,7 +103,8 @@ template
     typename Tag2 = typename tag<Geometry2>::type
 >
 struct within
-    : not_implemented<Tag1, Tag2>
+    //: not_implemented<Tag1, Tag2>
+    : lazy_not_implemented<bool, Tag1, Tag2>
 {};
 
 
@@ -350,6 +352,54 @@ struct within
     }
 };
 
+
+struct within_metapolicy
+{
+    template <typename Geometry1, typename Geometry2>
+    struct apply
+        : boost::is_base_of
+            <
+                nyi::not_implemented_tag,
+                dispatch::within<Geometry1, Geometry2>
+            >
+    {};
+};
+
+
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    bool NotImplemented = is_not_implemented
+                            <
+                                Geometry1,
+                                Geometry2,
+                                within_metapolicy
+                            >::value
+>
+struct within_variant
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        return within<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    }
+};
+
+template <typename Geometry1, typename Geometry2>
+struct within_variant<Geometry1, Geometry2, true>
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& ,
+                             Geometry2 const& ,
+                             Strategy const& )
+    {
+        throw geometry::not_implemented_exception();
+    }
+};
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
 struct within<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 {
@@ -367,9 +417,10 @@ struct within<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
         template <typename Geometry1>
         bool operator()(Geometry1 const& geometry1) const
         {
-            return within<Geometry1, Geometry2>::apply(geometry1,
-                                                       m_geometry2,
-                                                       m_strategy);
+            return within_variant
+                    <
+                        Geometry1, Geometry2
+                    >::apply(geometry1, m_geometry2, m_strategy);
         }
     };
 
@@ -401,9 +452,10 @@ struct within<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry2>
         bool operator()(Geometry2 const& geometry2) const
         {
-            return within<Geometry1, Geometry2>::apply(m_geometry1,
-                                                       geometry2,
-                                                       m_strategy);
+            return within_variant
+                    <
+                        Geometry1, Geometry2
+                    >::apply(m_geometry1, geometry2, m_strategy);
         }
     };
 
@@ -439,9 +491,10 @@ struct within<
         bool operator()(Geometry1 const& geometry1,
                         Geometry2 const& geometry2) const
         {
-            return within<Geometry1, Geometry2>::apply(geometry1,
-                                                       geometry2,
-                                                       m_strategy);
+            return within_variant
+                    <
+                        Geometry1, Geometry2
+                    >::apply(geometry1, geometry2, m_strategy);
         }
     };
 
