@@ -23,13 +23,24 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
-#define TEST_DIFFERENCE(caseid, clips1, points1, area1, clips2, points2, area2) \
+// Convenience macros (points are not checked)
+#define TEST_DIFFERENCE(caseid, clips1, area1, clips2, area2, clips3) \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
-    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2)
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2)
 
-#define TEST_DIFFERENCE_IGNORE(caseid, clips1, points1, area1, clips2, points2, area2) \
+#define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
-    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2, ignore_validity)
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2, ignore_validity)
+
+#define TEST_DIFFERENCE_WITH(index1, index2, caseid, clips1, area1, \
+                clips2, area2, clips3) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid "_" #index1 "_" #index2, caseid[index1], caseid[index2], \
+            clips1, -1, area1, \
+            clips2, -1, area2, \
+            clips3, -1, area1 + area2, settings)
 
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
@@ -95,10 +106,16 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
 
-    TEST_DIFFERENCE(case_123_multi, 1, 4, 0.25, 2, 9, 0.625);
-    TEST_DIFFERENCE(case_124_multi, 1, 4, 0.25, 2, 9, 0.4375);
-    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 4, 0.25, 2, 12, 0.400);
-    TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 22, 16.0, 4, 27, 27.0); // A should have 3 clips, B should have 5 clips
+    TEST_DIFFERENCE(case_123_multi, 1, 0.25, 2, 0.625, 3);
+    TEST_DIFFERENCE(case_124_multi, 1, 0.25, 2, 0.4375, 3);
+    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 0.25, 2, 0.400, 3);
+
+    // A should have 3 clips, B should have 5 clips
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_126_multi, 4, 16.0, 5, 27.0, 9);
+#else
+    TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 16.0, 4, 27.0, 7);
+#endif
 
     {
         ut_settings settings;
@@ -144,12 +161,13 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.001;
-        settings.test_validity = false;
 
-        test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120221_volker",
-            ggl_list_20120221_volker[0], ggl_list_20120221_volker[1],
-                2, 12, 7962.66, 1, 18, 2775258.93,
-                settings);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
+#else
+        settings.test_validity = false;
+        TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 1, 2775258.93, 3);
+#endif
     }
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
@@ -190,12 +208,11 @@ void test_areal()
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
-        case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-            11, 75, 26.0,
-            12, 77, 24.0,
-             5, 98, 50.0,
-            ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_1, 12, 26.0, 12, 24.0, 6);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_1, 11, 26.0, 12, 24.0, 5);
+#endif
 
     // Areas and #clips correspond with POSTGIS
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
@@ -213,19 +230,18 @@ void test_areal()
 
     // 4, input is not valid
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
-        case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-            15, -1, 22.0, // #clips should be 16
-            11, -1, 27.0, // #clips should be 12
-             8, -1, 49.0,
-            ignore_validity);
+    // Should have 16,12 clips in a,b
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_5, 16, 22.0, 12, 27.0, 10);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_5, 15, 22.0, 11, 27.0, 8);
+#endif
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
-        case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-            6, -1, 3.5,
-            3, -1, 1.5,
-            8, -1, 5.0,
-            ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_6, 7, 3.5, 3, 1.5, 9);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_6, 6, 3.5, 3, 1.5, 8);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -277,12 +293,9 @@ void test_all()
 
 
 // Test cases for integer coordinates / ccw / open
-template <typename Point, bool ClockWise, bool Closed>
-void test_specific()
+template <typename Polygon, typename MultiPolygon>
+void test_specific_areal()
 {
-    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
-    typedef bg::model::multi_polygon<polygon> multi_polygon;
-
     {
         // Spikes in a-b and b-a, failure in symmetric difference
 
@@ -294,12 +307,7 @@ void test_specific()
         settings.sym_difference = true;
 #endif
 
-        test_one<polygon, multi_polygon, multi_polygon>("ticket_11674",
-            ticket_11674[0], ticket_11674[1],
-            3, 27, 9105781.5,
-            5, 22, 119059.5,
-            2, -1, -1,
-            settings);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_11674, 3, 9105781.5, 5, 119059.5, -1);
     }
 
     {
@@ -307,25 +315,25 @@ void test_specific()
         // Spikes in a-b and b-a, failure in symmetric difference
 
         ut_settings settings;
+        settings.remove_spikes = true;
+#if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
         settings.sym_difference = false;
         settings.test_validity = false;
-        settings.remove_spikes = true;
+#endif
 
         std::string a_min_b =
-            test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_1",
-                ticket_12751[0], ticket_12751[1],
-                1, 14, 2781965.0,
-                1, 4, 597.0,
-                settings);
+            TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1, 2781965.0, 1, 597.0, 2);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        TEST_DIFFERENCE_WITH(2, 3, ticket_12751, 2, 2537992.5, 2, 294963.5, 3);
+#else
 
         // Testing consistency of testcase itself
         BOOST_CHECK_EQUAL(a_min_b, ticket_12751[2]);
 
-        test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_2",
-            ticket_12751[2], ticket_12751[3],
-            1, 18, 2537992.5,
-            2, 11, 294963.5,
-            settings);
+        TEST_DIFFERENCE_WITH(2, 3, ticket_12751, 1, 2537992.5, 2, 294963.5, 3);
+#endif
+
     }
 
     {
@@ -336,34 +344,27 @@ void test_specific()
         settings.sym_difference = false;
         settings.test_validity = false;
 
-        test_one<polygon, multi_polygon, multi_polygon>("ticket_12752",
-            ticket_12752[0], ticket_12752[1],
-            3, 22, 2776692.0,
-            3, 11, 7893.0,
-            settings);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_12752, 3, 2776692.0, 3, 7893.0, 6);
     }
+
     {
-        ut_settings settings;
-        settings.test_validity = true;
-
         std::string a_min_b =
-            test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_1",
-                ticket_10661[0], ticket_10661[1],
-                2, 11, 1441632.5,
-                2, 7, 13167454,
-                settings);
+            TEST_DIFFERENCE(ticket_10661, 2, 1441632.5, 2, 13167454, 4);
 
-        settings.test_validity = false;
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        settings.test_validity = true;
-#endif
-        test_one<polygon, multi_polygon, multi_polygon>("ticket_10661_2",
+        test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
             1, 8, 825192.0,
             1, 10, 27226370.5,
-            1, -1, 825192.0 + 27226370.5,
-            settings);
+            1, -1, 825192.0 + 27226370.5);
     }
+}
+
+template <typename Point, bool ClockWise, bool Closed>
+void test_specific()
+{
+    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
+    test_specific_areal<polygon, multi_polygon>();
 }
 
 
