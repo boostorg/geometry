@@ -305,8 +305,13 @@ inline void enrich_intersection_points(Turns& turns,
     RobustPolicy const& robust_policy,
     Strategy const& strategy)
 {
-    static const detail::overlay::operation_type for_operation
+    static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
+    static const detail::overlay::operation_type opposite_operation
+            = target_operation == detail::overlay::operation_union
+            ? detail::overlay::operation_intersection
+            : detail::overlay::operation_union;
+
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
     typedef detail::overlay::indexed_turn_operation
@@ -332,52 +337,29 @@ inline void enrich_intersection_points(Turns& turns,
          ++it)
     {
         turn_type& turn = *it;
+
         if (turn.both(detail::overlay::operation_none))
         {
             turn.discarded = true;
         }
-        if (for_operation == detail::overlay::operation_intersection
-                && turn.both(detail::overlay::operation_union))
+
+        if (turn.both(opposite_operation))
         {
             // For intersections, remove uu to avoid the need to travel
             // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
-            turn.discarded = true;
-            turn.cluster_id = -1;
-        }
-
-        if (for_operation == detail::overlay::operation_union
-                && turn.both(detail::overlay::operation_intersection))
-        {
             // Also, for union, discard ii
             turn.discarded = true;
             turn.cluster_id = -1;
         }
 
-        if (OverlayType != overlay_buffer && turn.self_turn())
+        if (OverlayType != overlay_buffer
+                && turn.self_turn()
+                && (turn.cluster_id >= 0 || ! turn.both(target_operation)))
         {
-            if (turn.cluster_id >= 0)
-            {
-                // Avoid interfering self-turn if there are already clustered turns
-                // (for union operations, as far as known, there is no difference)
-                // TODO: avoid discarding if there are ONLY self-turns
-               turn.discarded = true;
-               turn.cluster_id = -1;
-            }
-            if (for_operation == detail::overlay::operation_union
-                && ! turn.both(detail::overlay::operation_union))
-            {
-                // Only keep non-colocated self-uu-turns
-                turn.discarded = true;
-                turn.cluster_id = -1;
-            }
-
-            if (for_operation == detail::overlay::operation_intersection
-                    && ! turn.both(detail::overlay::operation_intersection))
-            {
-                // Similarly, Only keep non-colocated self-ii-turns
-                turn.discarded = true;
-                turn.cluster_id = -1;
-            }
+            // Only keep non-colocated self-uu-turns or self-ii-turns
+            // TODO (maybe): avoid discarding if there are ONLY self-turns
+           turn.discarded = true;
+           turn.cluster_id = -1;
         }
 
         if (! turn.discarded
@@ -391,7 +373,7 @@ inline void enrich_intersection_points(Turns& turns,
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
 
-    detail::overlay::create_map(turns, for_operation, mapped_vector);
+    detail::overlay::create_map(turns, target_operation, mapped_vector);
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich
@@ -405,7 +387,7 @@ inline void enrich_intersection_points(Turns& turns,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
-                    mit->second, turns, for_operation,
+                    mit->second, turns, target_operation,
                     geometry1, geometry2,
                     robust_policy, strategy);
     }
@@ -429,7 +411,7 @@ inline void enrich_intersection_points(Turns& turns,
                 Reverse1,
                 Reverse2,
                 OverlayType
-            >(clusters, turns, for_operation, geometry1, geometry2);
+            >(clusters, turns, target_operation, geometry1, geometry2);
     }
 
     if (has_cc)
