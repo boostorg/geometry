@@ -370,11 +370,11 @@ inline void enrich_intersection_points(Turns& turns,
                 turn.discarded = true;
                 turn.cluster_id = -1;
             }
-            if (OverlayType == overlay_difference
-                    && for_operation == detail::overlay::operation_intersection
-                    && turn.both(detail::overlay::operation_intersection))
+
+            if (for_operation == detail::overlay::operation_intersection
+                    && ! turn.both(detail::overlay::operation_intersection))
             {
-                // Avoid ii including self-turns for differences, for now (there are many)
+                // Similarly, Only keep non-colocated self-ii-turns
                 turn.discarded = true;
                 turn.cluster_id = -1;
             }
