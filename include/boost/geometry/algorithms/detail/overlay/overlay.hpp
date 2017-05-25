@@ -297,10 +297,10 @@ std::cout << "get turns" << std::endl;
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
         {
-            geometry::self_turns<assign_null_policy>(geometry1, strategy, robust_policy,
-                                                     turns, policy, 0);
-            geometry::self_turns<assign_null_policy>(geometry2, strategy, robust_policy,
-                                                     turns, policy, 1);
+            self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
+                strategy, robust_policy, turns, policy, 0);
+            self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
+                strategy, robust_policy, turns, policy, 1);
         }
 #endif
 

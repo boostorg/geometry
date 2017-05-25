@@ -80,7 +80,7 @@ inline bool intersects(Geometry const& geometry)
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
         <
-            turn_policy
+            false, turn_policy
         >::apply(geometry, strategy, robust_policy, turns, policy, 0);
     return policy.has_intersections;
 }
