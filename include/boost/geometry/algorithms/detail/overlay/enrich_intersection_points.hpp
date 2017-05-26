@@ -35,6 +35,8 @@
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/algorithms/within.hpp>
+
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -266,6 +268,46 @@ inline void calculate_remaining_distance(Turns& turns)
     }
 }
 
+template <typename Turns, typename Geometry0, typename Geometry1>
+inline void discard_closed_turns(Turns& turns,
+        Geometry0 const& geometry0, Geometry1 const& geometry1)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+
+    for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
+         ++it)
+    {
+        turn_type& turn = *it;
+
+        if (turn.cluster_id >= 0
+                || turn.discarded
+                || ! turn.self_turn())
+        {
+            continue;
+        }
+
+        // It is a non co-located self-turn (must be uu  because it is union)
+        // Check if it is within the other geometry, if so, it is closed.
+
+        // The sort_by_side approach does not work here (it will consider
+        // only one input geometry - the other might not be involved)
+        // Needed for #case_recursive_boxes_34
+
+        bool const within =
+                turn.operations[0].seg_id.source_index == 0
+                ? geometry::within(turn.point, geometry1)
+                : geometry::within(turn.point, geometry0);
+
+        if (within)
+        {
+            // It is in the interior of the other geometry
+            turn.discarded = true;
+        }
+    }
+}
+
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
 
@@ -410,6 +452,11 @@ inline void enrich_intersection_points(Turns& turns,
                 Reverse2,
                 OverlayType
             >(clusters, turns, target_operation, geometry1, geometry2);
+    }
+
+    if (target_operation == detail::overlay::operation_union)
+    {
+        detail::overlay::discard_closed_turns(turns, geometry1, geometry2);
     }
 
     if (has_cc)
