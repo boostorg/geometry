@@ -173,9 +173,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
 
 template <typename Turns, typename MappedVector>
-inline void create_map(Turns const& turns,
-        detail::overlay::operation_type for_operation,
-        MappedVector& mapped_vector)
+inline void create_map(Turns const& turns, MappedVector& mapped_vector)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::container_type container_type;
@@ -373,7 +371,7 @@ inline void enrich_intersection_points(Turns& turns,
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
 
-    detail::overlay::create_map(turns, target_operation, mapped_vector);
+    detail::overlay::create_map(turns, mapped_vector);
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich
