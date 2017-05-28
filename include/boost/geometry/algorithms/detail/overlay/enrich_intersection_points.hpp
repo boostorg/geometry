@@ -268,45 +268,61 @@ inline void calculate_remaining_distance(Turns& turns)
     }
 }
 
-template <typename Turns, typename Geometry0, typename Geometry1>
-inline void discard_closed_turns(Turns& turns,
-        Geometry0 const& geometry0, Geometry1 const& geometry1)
+template <overlay_type OverlayType, operation_type OperationType>
+struct discard_closed_turns
 {
-    typedef typename boost::range_value<Turns>::type turn_type;
+    template <typename Turns, typename Geometry0, typename Geometry1>
+    static inline
+    void apply(Turns& , Geometry0 const& , Geometry1 const& )
+    {}
+};
 
-    for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(turns);
-         it != boost::end(turns);
-         ++it)
+// It is only implemented for operation_union, not in buffer
+template <>
+struct discard_closed_turns<overlay_union, operation_union>
+{
+
+    template <typename Turns, typename Geometry0, typename Geometry1>
+    static inline
+    void apply(Turns& turns,
+            Geometry0 const& geometry0, Geometry1 const& geometry1)
     {
-        turn_type& turn = *it;
+        typedef typename boost::range_value<Turns>::type turn_type;
 
-        if (turn.cluster_id >= 0
-                || turn.discarded
-                || ! turn.self_turn())
+        for (typename boost::range_iterator<Turns>::type
+                it = boost::begin(turns);
+             it != boost::end(turns);
+             ++it)
         {
-            continue;
-        }
+            turn_type& turn = *it;
 
-        // It is a non co-located self-turn (must be uu  because it is union)
-        // Check if it is within the other geometry, if so, it is closed.
+            if (turn.cluster_id >= 0
+                    || turn.discarded
+                    || ! turn.self_turn())
+            {
+                continue;
+            }
 
-        // The sort_by_side approach does not work here (it will consider
-        // only one input geometry - the other might not be involved)
-        // Needed for #case_recursive_boxes_34
+            // It is a non co-located self-turn (must be uu  because it is union)
+            // Check if it is within the other geometry, if so, it is closed.
 
-        bool const within =
-                turn.operations[0].seg_id.source_index == 0
-                ? geometry::within(turn.point, geometry1)
-                : geometry::within(turn.point, geometry0);
+            // The sort_by_side approach does not work here (it will consider
+            // only one input geometry - the other might not be involved)
+            // Needed for #case_recursive_boxes_34
 
-        if (within)
-        {
-            // It is in the interior of the other geometry
-            turn.discarded = true;
+            bool const within =
+                    turn.operations[0].seg_id.source_index == 0
+                    ? geometry::within(turn.point, geometry1)
+                    : geometry::within(turn.point, geometry0);
+
+            if (within)
+            {
+                // It is in the interior of the other geometry
+                turn.discarded = true;
+            }
         }
     }
-}
+};
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
@@ -454,10 +470,11 @@ inline void enrich_intersection_points(Turns& turns,
             >(clusters, turns, target_operation, geometry1, geometry2);
     }
 
-    if (target_operation == detail::overlay::operation_union)
-    {
-        detail::overlay::discard_closed_turns(turns, geometry1, geometry2);
-    }
+    detail::overlay::discard_closed_turns
+        <
+            OverlayType,
+            target_operation
+        >::apply(turns, geometry1, geometry2);
 
     if (has_cc)
     {
