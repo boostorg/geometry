@@ -75,6 +75,26 @@ struct rank_with_rings
         return all_equal(sort_by_side::dir_from);
     }
 
+    template <typename Turns>
+    inline bool traversable(Turns const& turns) const
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        typedef typename turn_type::turn_operation_type turn_operation_type;
+
+        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+             it != rings.end(); ++it)
+        {
+            const ring_with_direction& rwd = *it;
+            turn_type const& turn = turns[rwd.turn_index];
+            turn_operation_type const& op = turn.operations[rwd.operation_index];
+            if (op.visited.finalized())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 };
 
 template <typename Sbs, typename Turns>
@@ -90,16 +110,12 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
         typename Sbs::rp const& ranked_point = sbs.m_ranked_points[i];
 
         turn_type const& turn = turns[ranked_point.turn_index];
+
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
-        if (op.visited.finalized())
-        {
-            // Skip finalized operations in aggregation
-            // to avoid selecting them
-            continue;
-        }
+
         if (! (op.operation == operation_intersection || op.operation == operation_continue))
         {
-            // Don't consider union/blocked
+            // Don't consider union/blocked (aggregate is only used for intersections)
             continue;
         }
 

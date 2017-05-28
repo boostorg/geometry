@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,24 +16,31 @@
 template <typename P>
 void test_pl()
 {
-    /*typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
 
-    // not implemented yet
-    test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 0,3 3)", true);
-    test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 1,3 3)", false);*/
+    test_geometry<mpt, ls>("MULTIPOINT(1 0,1 1)", "LINESTRING(0 0,1 0,3 3)", true);
+    test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 0,3 3)", false);
+    test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 1,3 3)", false);
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0,3 0)", "MULTILINESTRING((0 0,0 1,1 1),(1 1,1 0,0 0))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0,1 1)", "MULTILINESTRING((0 0,0 1,1 1),(1 1,1 0,0 0))", false);
 }
 
 template <typename P>
 void test_pa()
 {
-    /*typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::multi_point<P> mpt;
     typedef bg::model::polygon<P> poly;
     typedef bg::model::multi_polygon<poly> mpoly;
 
-    // not implemented yet
-    test_geometry<mpt, poly>("MULTIPOINT(0 0,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
-    test_geometry<mpt, poly>("MULTIPOINT(0 0,1 1)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);*/
+    test_geometry<mpt, poly>("MULTIPOINT(1 1,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<mpt, poly>("MULTIPOINT(0 0,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+    test_geometry<mpt, poly>("MULTIPOINT(0 0,1 1)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0,1 1)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 9,9 9,9 5,5 5)))", false);
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1,1 6)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 9,9 9,9 5,5 5)))", true);
 }
 
 template <typename P>

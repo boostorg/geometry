@@ -233,7 +233,8 @@ struct traversal_switch_detector
 
         if (operation_from_overlay<OverlayType>::value == operation_union)
         {
-            // It is a cluster, check zones of both operations
+            // It is a cluster, check zones
+            // (assigned by sort_by_side/handle colocations) of both operations
             return turn.operations[0].enriched.zone
                     == turn.operations[1].enriched.zone;
         }

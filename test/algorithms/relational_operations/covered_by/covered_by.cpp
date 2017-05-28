@@ -68,6 +68,37 @@ void test_all()
     test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
     test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", true);
 
+    // multi_point/segment
+    typedef bg::model::multi_point<P> mpt;
+    test_geometry<mpt, seg>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2)", true);
+
+    // multi_point/linestring
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 2 2)", "LINESTRING(0 0, 2 2)", true);
+    test_geometry<mpt, ls>("MULTIPOINT(1 1, 3 3)", "LINESTRING(0 0, 2 2)", false);
+
+    // multi_point/multi_linestring
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 2 2)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(1 1, 4 4)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", false);
+
+    // point/A
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+    test_geometry<P, ring>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+    test_geometry<P, poly>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+    test_geometry<P, mpoly>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
+
+    // multi_point/A
+    test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+    test_geometry<mpt, poly>("MULTIPOINT(0 0, 2 2)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+    test_geometry<mpt, poly>("MULTIPOINT(1 1, 3 3)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false);
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 2 2)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 3 3)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1, 4 4)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", false);
+
     typedef bg::model::box<P> box_type;
 
     test_geometry<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", true);

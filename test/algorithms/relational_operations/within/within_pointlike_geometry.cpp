@@ -45,6 +45,7 @@ void test_p_p()
 template <typename P>
 void test_p_l()
 {
+    typedef bg::model::multi_point<P> mpt;
     typedef bg::model::segment<P> seg;
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
@@ -65,11 +66,23 @@ void test_p_l()
     
     test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(1 1, 2 2))", true);
     test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(2 2, 3 3))", false);
+
+    test_geometry<mpt, seg>("MULTIPOINT(0 0, 1 1)", "LINESTRING(0 0, 2 2)", true);
+
+    test_geometry<mpt, ls>("MULTIPOINT(0 0, 2 2)", "LINESTRING(0 0, 2 2)", false);
+    test_geometry<mpt, ls>("MULTIPOINT(1 1, 3 3)", "LINESTRING(0 0, 2 2)", false);
+
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 2 2)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", true);
+    test_geometry<mpt, mls>("MULTIPOINT(0 0, 3 3)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", false);
+    test_geometry<mpt, mls>("MULTIPOINT(1 1, 4 4)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 3))", false);
 }
 
 template <typename P>
 void test_p_a()
 {
+    typedef bg::model::multi_point<P> mpt;
+    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> poly;
     typedef bg::model::multi_polygon<poly> mpoly;
 
@@ -116,6 +129,16 @@ void test_p_a()
                            "POLYGON((0 5, 5 0, 6 1, 5 2, 8 4, 5 6, 6 7, 5 8, 6 9, 5 10, 0 5))", true);
     test_geometry<P, poly>("POINT(4 6)",
                            "POLYGON((5 0, 0 5, 1 6, 2 5, 4 8, 6 5, 7 6, 8 5, 9 6, 10 5, 5 0))", true);
+
+    test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+
+    test_geometry<mpt, poly>("MULTIPOINT(0 0, 2 2)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false);
+    test_geometry<mpt, poly>("MULTIPOINT(1 1, 3 3)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false);
+
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 2 2)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", false);
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0, 3 3)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", false);
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1, 4 4)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", false);
 }
 
 template <typename P>

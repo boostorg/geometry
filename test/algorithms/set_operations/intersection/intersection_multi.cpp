@@ -168,7 +168,7 @@ void test_areal()
         19, 87, 12.5); // Area from SQL Server
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 10, 180, 67.0);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 11, 177, 67.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
 #endif
