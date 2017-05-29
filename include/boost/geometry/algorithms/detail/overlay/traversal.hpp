@@ -14,6 +14,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/aggregate_operations.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -209,7 +210,7 @@ struct traversal
                     : candidate_seg_id.multi_index == previous_seg_id.multi_index;
         }
 
-        if (turn.self_turn())
+        if (is_self_turn<OverlayType>(turn))
         {
             // Also, if it is a self-turn, stay on same ring (multi/ring)
             return turn.switch_source

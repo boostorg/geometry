@@ -16,6 +16,7 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -353,7 +354,7 @@ struct traversal_switch_detector
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
             if (operation_from_overlay<OverlayType>::value == operation_intersection)
             {
-                if (turn.self_turn() && turn.discarded)
+                if (is_self_turn<OverlayType>(turn) && turn.discarded)
                 {
                     // Discarded self-turn, avoid it influencing isolated regions
                     continue;

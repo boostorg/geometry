@@ -136,13 +136,6 @@ struct turn_info
     {
         return has(operation_blocked);
     }
-    inline bool self_turn() const
-    {
-        // TODO: add OverlayType to change behaviour for buffer
-        return this->operations[0].seg_id.source_index
-                == this->operations[1].seg_id.source_index;
-    }
-
 
 private :
     inline bool has12(operation_type type1, operation_type type2) const

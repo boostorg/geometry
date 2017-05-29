@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -164,7 +165,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
                 // So don't set has_traversed_turn here
             }
-            else if (both_opposite && ! turn.self_turn())
+            else if (both_opposite && ! is_self_turn<OverlayType>(turn))
             {
                 // For union, mark any ring with a ii turn as traversed
                 // For intersection, any uu - but not if it is a self-turn

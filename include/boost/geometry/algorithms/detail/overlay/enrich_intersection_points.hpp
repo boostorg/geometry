@@ -30,6 +30,7 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
@@ -298,7 +299,7 @@ struct discard_closed_turns<overlay_union, operation_union>
 
             if (turn.cluster_id >= 0
                     || turn.discarded
-                    || ! turn.self_turn())
+                    || ! is_self_turn<overlay_union>(turn))
             {
                 continue;
             }
@@ -408,9 +409,8 @@ inline void enrich_intersection_points(Turns& turns,
             turn.cluster_id = -1;
         }
 
-        if (OverlayType != overlay_buffer
-                && turn.self_turn()
-                && (turn.cluster_id >= 0 || ! turn.both(target_operation)))
+        if (detail::overlay::is_self_turn<OverlayType>(turn)
+            && (turn.cluster_id >= 0 || ! turn.both(target_operation)))
         {
             // Only keep non-colocated self-uu-turns or self-ii-turns
             // TODO (maybe): avoid discarding if there are ONLY self-turns
