@@ -934,6 +934,7 @@ static std::string case_recursive_boxes_47[2] =
 
 static std::string case_recursive_boxes_48[2] =
 {
+    // Needs discarding self-ii turns not located within the other geometry
     "MULTIPOLYGON(((6 7,6 8,7 8,7 7,6 7)))",
     "MULTIPOLYGON(((9 9,10 9,10 7,9 7,9 5,8 5,8 6,7 6,7 7,6 7,6 8,7 8,7 9,8 9,8 10,9 10,9 9),(9 8,8 8,8 7,9 7,9 8)))"
 };
