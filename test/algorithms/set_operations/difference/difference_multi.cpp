@@ -273,6 +273,59 @@ void test_areal()
             3, -1, 4.5,
             3, -1, 7.0);
 
+    TEST_DIFFERENCE(case_recursive_boxes_12, 4, 2.75, 3, 2.75, 6);
+    TEST_DIFFERENCE(case_recursive_boxes_13, 4, 4.75, 3, 5.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_14, 3, 2.0, 4, 2.5, 5);
+    TEST_DIFFERENCE(case_recursive_boxes_15, 3, 3.0, 2, 2.5, 3);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_16, 8, 6.5, 3, 5.5, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_17, 10, 7.75, 7, 5.5, 13);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_16, 7, 6.5, 3, 5.5, 8);
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_17, 9, 7.75, 6, 5.5, 11);
+#endif
+    TEST_DIFFERENCE(case_recursive_boxes_18, 2, 1.0, 1, 1.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_19, 2, 1.0, 2, 1.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_20, 2, 1.0, 0, 0.0, 2);
+
+    TEST_DIFFERENCE(case_recursive_boxes_21, 2, 1.0, 1, 1.0, 1);
+    TEST_DIFFERENCE(case_recursive_boxes_22, 2, 1.25, 2, 2.0, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_23, 2, 0.75, 1, 0.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_24, 3, 2.5, 2, 2.0, 5);
+    TEST_DIFFERENCE(case_recursive_boxes_25, 2, 2.5, 3, 2.5, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_26, 2, 1.5, 3, 2.0, 4);
+    TEST_DIFFERENCE(case_recursive_boxes_27, 1, 1.5, 3, 2.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_28, 3, 2.5, 2, 3.0, 4);
+    TEST_DIFFERENCE(case_recursive_boxes_29, 5, 7.25, 5, 4.5, 5);
+    TEST_DIFFERENCE(case_recursive_boxes_30, 6, 4.25, 3, 7.25, 7);
+
+    TEST_DIFFERENCE(case_recursive_boxes_31, 2, 2.0, 1, 0.5, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_32, 2, 2.75, 2, 1.25, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_33, 4, 3.0, 3, 6.0, 4);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_34, 7, 7.25, 1, 0.5, 8);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_34, 5, 7.25, 1, 0.5, 6);
+#endif
+    TEST_DIFFERENCE(case_recursive_boxes_35, 5, 1.75, 5, 2.75, 10);
+    TEST_DIFFERENCE(case_recursive_boxes_36, 2, 1.0, 2, 1.5, 3);
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_37, 3, 2.5, 2, 4.25, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_38, 5, 7.75, 4, 3.5, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_39, 3, 6.0, 3, 3.0, 4);
+    TEST_DIFFERENCE(case_recursive_boxes_40, 11, 14.0, 9, 13.0, 11);
+
+    TEST_DIFFERENCE(case_recursive_boxes_41, 1, 0.5, 1, 0.5, 2);
+#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // 42.a Fails with self-turns
+    TEST_DIFFERENCE(case_recursive_boxes_42, 1, 1.0, 4, 4.0, 5);
+#endif
+    TEST_DIFFERENCE(case_recursive_boxes_43, 1, 0.5, 3, 2.0, 4);
+    TEST_DIFFERENCE(case_recursive_boxes_44, 3, 5.0, 0, 0.0, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_45, 6, 20.0, 7, 20.0, 3);
+    TEST_DIFFERENCE(case_recursive_boxes_46, 4, 14.0, 5, 12.0, 5);
+    TEST_DIFFERENCE(case_recursive_boxes_47, 4, 10.0, 7, 11.0, 1);
+    TEST_DIFFERENCE(case_recursive_boxes_48, 0, 0.0, 1, 9.0, 1);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],
         mysql_21965285_b[1],
