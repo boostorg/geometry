@@ -26,16 +26,13 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
-#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
-#include <boost/geometry/strategies/side.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
