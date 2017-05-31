@@ -30,13 +30,12 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
-#include <boost/geometry/algorithms/within.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
@@ -269,61 +268,6 @@ inline void calculate_remaining_distance(Turns& turns)
     }
 }
 
-template <overlay_type OverlayType, operation_type OperationType>
-struct discard_closed_turns
-{
-    template <typename Turns, typename Geometry0, typename Geometry1>
-    static inline
-    void apply(Turns& , Geometry0 const& , Geometry1 const& )
-    {}
-};
-
-// It is only implemented for operation_union, not in buffer
-template <>
-struct discard_closed_turns<overlay_union, operation_union>
-{
-
-    template <typename Turns, typename Geometry0, typename Geometry1>
-    static inline
-    void apply(Turns& turns,
-            Geometry0 const& geometry0, Geometry1 const& geometry1)
-    {
-        typedef typename boost::range_value<Turns>::type turn_type;
-
-        for (typename boost::range_iterator<Turns>::type
-                it = boost::begin(turns);
-             it != boost::end(turns);
-             ++it)
-        {
-            turn_type& turn = *it;
-
-            if (turn.cluster_id >= 0
-                    || turn.discarded
-                    || ! is_self_turn<overlay_union>(turn))
-            {
-                continue;
-            }
-
-            // It is a non co-located self-turn (must be uu  because it is union)
-            // Check if it is within the other geometry, if so, it is closed.
-
-            // The sort_by_side approach does not work here (it will consider
-            // only one input geometry - the other might not be involved)
-            // Needed for #case_recursive_boxes_34
-
-            bool const within =
-                    turn.operations[0].seg_id.source_index == 0
-                    ? geometry::within(turn.point, geometry1)
-                    : geometry::within(turn.point, geometry0);
-
-            if (within)
-            {
-                // It is in the interior of the other geometry
-                turn.discarded = true;
-            }
-        }
-    }
-};
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
@@ -425,6 +369,12 @@ inline void enrich_intersection_points(Turns& turns,
         }
     }
 
+    detail::overlay::discard_closed_turns
+        <
+            OverlayType,
+            target_operation
+        >::apply(turns, geometry1, geometry2);
+//    detail::overlay::discard_open_turns
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
@@ -469,12 +419,6 @@ inline void enrich_intersection_points(Turns& turns,
                 OverlayType
             >(clusters, turns, target_operation, geometry1, geometry2);
     }
-
-    detail::overlay::discard_closed_turns
-        <
-            OverlayType,
-            target_operation
-        >::apply(turns, geometry1, geometry2);
 
     if (has_cc)
     {
