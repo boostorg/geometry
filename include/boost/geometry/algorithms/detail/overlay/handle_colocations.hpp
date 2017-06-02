@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <vector>
 
@@ -26,7 +27,6 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
-#  include <iostream>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <boost/geometry/io/wkt/wkt.hpp>
 #  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
