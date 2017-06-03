@@ -27,6 +27,9 @@ struct ring_with_direction
 
     std::size_t turn_index;
     int operation_index;
+    operation_type operation;
+    signed_size_type region_id;
+    bool isolated;
 
     inline bool operator<(ring_with_direction const& other) const
     {
@@ -39,6 +42,9 @@ struct ring_with_direction
         : direction(dir_unknown)
         , turn_index(-1)
         , operation_index(0)
+        , operation(operation_none)
+        , region_id(-1)
+        , isolated(false)
     {}
 };
 
@@ -73,6 +79,38 @@ struct rank_with_rings
     inline bool all_from() const
     {
         return all_equal(sort_by_side::dir_from);
+    }
+
+    inline bool is_c_i() const
+    {
+        bool has_c = false;
+        bool has_i = false;
+        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+             it != rings.end(); ++it)
+        {
+            const ring_with_direction& rwd = *it;
+            switch(rwd.operation)
+            {
+                case operation_continue : has_c = true; break;
+                case operation_intersection : has_i = true; break;
+                default : return false;
+            }
+        }
+        return has_c && has_i;
+    }
+
+    inline bool is_isolated() const
+    {
+        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+             it != rings.end(); ++it)
+        {
+            const ring_with_direction& rwd = *it;
+            if (! rwd.isolated)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     template <typename Turns>
@@ -133,6 +171,9 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
         rwd.direction = ranked_point.direction;
         rwd.turn_index = ranked_point.turn_index;
         rwd.operation_index = ranked_point.operation_index;
+        rwd.operation = op.operation;
+        rwd.region_id = op.enriched.region_id;
+        rwd.isolated = op.enriched.isolated;
 
         aggregation.back().rings.insert(rwd);
     }

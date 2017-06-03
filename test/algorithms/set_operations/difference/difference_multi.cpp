@@ -206,6 +206,8 @@ void test_areal()
             3, 14, 3.0,
             4, 21, 5.25);
 
+    TEST_DIFFERENCE(case_133_multi, 3, 16.0, 2, 8.0, 5);
+
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
@@ -325,6 +327,11 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_46, 4, 14.0, 5, 12.0, 5);
     TEST_DIFFERENCE(case_recursive_boxes_47, 4, 10.0, 7, 11.0, 1);
     TEST_DIFFERENCE(case_recursive_boxes_48, 0, 0.0, 1, 9.0, 1);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_49, 10, 22.0, 10, 17.0, 11);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_49, 9, 22.0, 10, 17.0, 10);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],

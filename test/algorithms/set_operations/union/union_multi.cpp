@@ -207,6 +207,8 @@ void test_areal()
     TEST_UNION_IGNORE(case_132_multi, 3, 1, 26, 60.0);
 #endif
 
+    TEST_UNION(case_133_multi, 2, 1, -1, 64.625);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         1, 1, 36, 97.0);
@@ -354,6 +356,11 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_46, 1, 4, 51, 33.0);
     TEST_UNION(case_recursive_boxes_47, 1, 0, -1, 22.0);
     TEST_UNION(case_recursive_boxes_48, 1, 1, -1, 10.0);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_49, 1, 3, -1, 59.0);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_49, 1, 2, -1, 59.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

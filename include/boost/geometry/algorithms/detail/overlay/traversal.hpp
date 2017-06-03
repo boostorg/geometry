@@ -460,6 +460,37 @@ struct traversal
         return true;
     }
 
+    inline bool intersection_pattern_cc_ii(std::size_t& selected_rank,
+               std::vector<sort_by_side::rank_with_rings> const& aggregation) const
+    {
+        std::size_t const n = aggregation.size();
+        if (n >= 4
+                && aggregation[0].rings.size() == 1
+                && aggregation[0].all_from()
+                && aggregation[1].rings.size() == 2
+                && aggregation[1].all_to()
+                && aggregation[1].is_c_i()
+                && aggregation[1].is_isolated()
+                && aggregation[n - 2].rings.size() == 2
+                && aggregation[n - 2].all_from()
+                && aggregation[n - 2].is_c_i()
+                && aggregation[n - 2].is_isolated()
+                && aggregation[n - 1].rings.size() == 1
+                && aggregation[n - 1].all_to())
+        {
+            // Pattern: coming from exterior ring, encountering an isolated
+            // parallel interior ring, which should be skipped, and the first
+            // left (normally intersection takes first right) should be taken.
+            // Solves cases #case_133_multi
+            // and #case_recursive_boxes_49
+
+            selected_rank = n - 1;
+            return true;
+        }
+        return false;
+    }
+
+
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
@@ -468,61 +499,68 @@ struct traversal
 
         std::size_t selected_rank = 0;
 
-        int incoming_region_id = 0;
-        std::set<int> outgoing_region_ids;
 
-        for (std::size_t i = 0; i < aggregation.size(); i++)
+        // Detect specific pattern(s)
+        bool skip = intersection_pattern_cc_ii(selected_rank, aggregation);
+
+        if (! skip)
         {
-            sort_by_side::rank_with_rings const& rwr = aggregation[i];
+            int incoming_region_id = 0;
+            std::set<int> outgoing_region_ids;
 
-            if (rwr.all_to()
-                    && rwr.traversable(m_turns)
-                    && selected_rank == 0)
+            for (std::size_t i = 0; i < aggregation.size(); i++)
             {
-                // Take the first (= right) where segments leave,
-                // having the polygon on the right side
-                selected_rank = rwr.rank;
-            }
-            if (rwr.all_from()
-                    && selected_rank > 0
-                    && outgoing_region_ids.empty())
-            {
-                // Incoming
-                break;
-            }
+                sort_by_side::rank_with_rings const& rwr = aggregation[i];
 
-            if (incoming_region_id == 0)
-            {
-                sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
-                turn_type const& turn = m_turns[rwd.turn_index];
-                incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
-            }
-            else
-            {
-                if (rwr.rings.size() == 1)
+                if (rwr.all_to()
+                        && rwr.traversable(m_turns)
+                        && selected_rank == 0)
+                {
+                    // Take the first (= right) where segments leave,
+                    // having the polygon on the right side
+                    selected_rank = rwr.rank;
+                }
+                if (rwr.all_from()
+                        && selected_rank > 0
+                        && outgoing_region_ids.empty())
+                {
+                    // Incoming
+                    break;
+                }
+
+                if (incoming_region_id == 0)
                 {
                     sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                     turn_type const& turn = m_turns[rwd.turn_index];
-                    if (rwd.direction == sort_by_side::dir_to
-                            && turn.both(operation_intersection))
+                    incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
+                }
+                else
+                {
+                    if (rwr.rings.size() == 1)
                     {
+                        sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                        turn_type const& turn = m_turns[rwd.turn_index];
+                        if (rwd.direction == sort_by_side::dir_to
+                                && turn.both(operation_intersection))
+                        {
 
-                        turn_operation_type const& op = turn.operations[rwd.operation_index];
-                        if (op.enriched.region_id != incoming_region_id
-                                && op.enriched.isolated)
-                        {
-                            outgoing_region_ids.insert(op.enriched.region_id);
-                        }
-                    }
-                    else if (! outgoing_region_ids.empty())
-                    {
-                        for (int i = 0; i < 2; i++)
-                        {
-                            int const region_id = turn.operations[i].enriched.region_id;
-                            if (outgoing_region_ids.count(region_id) == 1)
+                            turn_operation_type const& op = turn.operations[rwd.operation_index];
+                            if (op.enriched.region_id != incoming_region_id
+                                    && op.enriched.isolated)
                             {
-                                selected_rank = 0;
-                                outgoing_region_ids.erase(region_id);
+                                outgoing_region_ids.insert(op.enriched.region_id);
+                            }
+                        }
+                        else if (! outgoing_region_ids.empty())
+                        {
+                            for (int i = 0; i < 2; i++)
+                            {
+                                int const region_id = turn.operations[i].enriched.region_id;
+                                if (outgoing_region_ids.count(region_id) == 1)
+                                {
+                                    selected_rank = 0;
+                                    outgoing_region_ids.erase(region_id);
+                                }
                             }
                         }
                     }
