@@ -138,7 +138,13 @@ struct rank_with_rings
             const ring_with_direction& rwd = *it;
             turn_type const& turn = turns[rwd.turn_index];
             turn_operation_type const& op = turn.operations[rwd.operation_index];
-            if (op.visited.finalized())
+
+            // TODO: this is still necessary, but makes it order-dependent
+            // which should not be done.
+
+            // This would obsolete the whole function and should be solved
+            // in a different way
+            if (op.visited.finalized() || op.visited.visited())
             {
                 return false;
             }
