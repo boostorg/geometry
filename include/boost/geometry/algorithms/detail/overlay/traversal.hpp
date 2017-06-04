@@ -464,38 +464,92 @@ struct traversal
                std::vector<sort_by_side::rank_with_rings> const& aggregation) const
     {
         std::size_t const n = aggregation.size();
-        if (n >= 4
-                && aggregation[0].rings.size() == 1
-                && aggregation[0].all_from()
-                && aggregation[1].rings.size() == 2
-                && aggregation[1].all_to()
-                && aggregation[1].is_isolated()
-                && aggregation[n - 2].rings.size() == 2
-                && aggregation[n - 2].all_from()
-                && aggregation[n - 2].is_isolated()
-                && aggregation[n - 1].rings.size() == 1
-                && aggregation[n - 1].all_to())
+        if (n < 4)
         {
-               aggregation[1].has_only_both(operation_continue, operation_intersection)
-               && aggregation[n - 2].has_only_both(operation_continue, operation_intersection);
+            return false;
+        }
+
+        bool const incoming_ok =
+            aggregation.front().rings.size() == 1
+            && aggregation.front().all_from()
+            && aggregation.front().is_exterior()
+            && aggregation.front().has_only(operation_intersection);
+
+        if (! incoming_ok)
+        {
+            return false;
+        }
+
+        int const incoming_region_id = aggregation.front().region_id();
+
+        bool const outgoing_ok =
+            aggregation.back().rings.size() == 1
+            && aggregation.back().all_to()
+            && aggregation.back().is_exterior()
+            && aggregation.back().has_only(operation_intersection)
+            && aggregation.back().region_id() == incoming_region_id;
+
+        if (! outgoing_ok)
+        {
+            return false;
+        }
+
+        // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
+        bool ok = true;
+        for (std::size_t i = 1; i < n - 1; i += 2)
+        {
+            sort_by_side::rank_with_rings const& curr = aggregation[i];
+            sort_by_side::rank_with_rings const& next = aggregation[i + 1];
+            int const curr_id = curr.region_id();
+            int const next_id = next.region_id();
+
+            bool const possible =
+                    curr.rings.size() == 2
+                    && curr.is_interior()
+                    && curr.has_unique_region_id()
+                    && next.rings.size() == 2
+                    && next.is_interior()
+                    && next.has_unique_region_id()
+                    && curr_id == next_id
+                    && curr_id != incoming_region_id;
+
+            if (! possible)
+            {
+                ok  = false;
+                break;
+            }
+
+            bool const first =
+               curr.has_only_both(operation_continue, operation_intersection)
+               && next.has_only_both(operation_continue, operation_intersection);
 
             bool const second =
-                aggregation[1].has_only(operation_continue)
-                && aggregation[n - 2].has_only(operation_continue);
+                curr.has_only(operation_continue)
+                && next.has_only(operation_continue);
 
-            if (first || second)
+            bool const third =
+                curr.has_only(operation_intersection)
+                && next.has_only(operation_intersection);
+
+            if (! (first || second || third))
             {
-                // Pattern: coming from exterior ring, encountering an isolated
-                // parallel interior ring, which should be skipped, and the first
-                // left (normally intersection takes first right) should be taken.
-                // Solves cases #case_133_multi
-                // and #case_recursive_boxes_49
-
-                selected_rank = n - 1;
-                return true;
+                ok = false;
+                break;
             }
         }
-        return false;
+
+        if (ok)
+        {
+            // Pattern: coming from exterior ring, encountering an isolated
+            // parallel interior ring, which should be skipped, and the first
+            // left (normally intersection takes first right) should be taken.
+            // Solves cases #case_133_multi
+            // and #case_recursive_boxes_49
+
+            selected_rank = n - 1;
+            return true;
+        }
+        return ok;
     }
 
 

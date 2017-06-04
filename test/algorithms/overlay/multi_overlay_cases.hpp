@@ -574,9 +574,16 @@ static std::string case_132_multi[2] =
 
 static std::string case_133_multi[2] =
 {
-    // Zoomed in version of case_recursive_boxes_49 with extra polygons in hole
+    // Zoomed in version of case_recursive_boxes_49 with in both interiors an extra polygon (same for both)
     "MULTIPOLYGON(((0 0,0 4,2 4,2 6,4 6,4 8,10 8,10 4,8 4,8 0,0 0),(4 4,4 6,6 6,6 4,4 4)),((5 4.5,4 6,5.5 5)))",
     "MULTIPOLYGON(((2 0,2 8,8 8,8 6,10 6,10 2,6 2,6 0,2 0),(6 6,6 4,4 4,4 6,6 6)),((5 4.5,4 6,5.5 5)))"
+};
+
+static std::string case_134_multi[2] =
+{
+    // Zoomed in version of case_recursive_boxes_49 with two interior rings
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 6,4 6,4 8,10 8,10 4,8 4,8 0,0 0),(3 4,4 6,4 4,3 4),(6 6,4 6,6 7,6 6)))",
+    "MULTIPOLYGON(((2 0,2 8,8 8,8 6,10 6,10 2,6 2,6 0,2 0),(3 4,4 6,4 4,3 4),(6 6,4 6,6 7,6 6)))"
 };
 
 static std::string case_recursive_boxes_1[2] =
