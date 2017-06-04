@@ -81,22 +81,35 @@ struct rank_with_rings
         return all_equal(sort_by_side::dir_from);
     }
 
-    inline bool is_c_i() const
+    inline bool has_only(operation_type op) const
     {
-        bool has_c = false;
-        bool has_i = false;
         for (std::set<ring_with_direction>::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
-            switch(rwd.operation)
+            if (rwd.operation != op)
             {
-                case operation_continue : has_c = true; break;
-                case operation_intersection : has_i = true; break;
-                default : return false;
+                return false;
             }
         }
-        return has_c && has_i;
+        return true;
+    }
+
+    //! Check if set has both op1 and op2, but no others
+    inline bool has_only_both(operation_type op1, operation_type op2) const
+    {
+        bool has1 = false;
+        bool has2 = false;
+        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+             it != rings.end(); ++it)
+        {
+            const ring_with_direction& rwd = *it;
+
+            if (rwd.operation == op1) { has1 = true; }
+            else if (rwd.operation == op2) { has2 = true; }
+            else { return false; }
+        }
+        return has1 && has2;
     }
 
     inline bool is_isolated() const

@@ -469,23 +469,31 @@ struct traversal
                 && aggregation[0].all_from()
                 && aggregation[1].rings.size() == 2
                 && aggregation[1].all_to()
-                && aggregation[1].is_c_i()
                 && aggregation[1].is_isolated()
                 && aggregation[n - 2].rings.size() == 2
                 && aggregation[n - 2].all_from()
-                && aggregation[n - 2].is_c_i()
                 && aggregation[n - 2].is_isolated()
                 && aggregation[n - 1].rings.size() == 1
                 && aggregation[n - 1].all_to())
         {
-            // Pattern: coming from exterior ring, encountering an isolated
-            // parallel interior ring, which should be skipped, and the first
-            // left (normally intersection takes first right) should be taken.
-            // Solves cases #case_133_multi
-            // and #case_recursive_boxes_49
+               aggregation[1].has_only_both(operation_continue, operation_intersection)
+               && aggregation[n - 2].has_only_both(operation_continue, operation_intersection);
 
-            selected_rank = n - 1;
-            return true;
+            bool const second =
+                aggregation[1].has_only(operation_continue)
+                && aggregation[n - 2].has_only(operation_continue);
+
+            if (first || second)
+            {
+                // Pattern: coming from exterior ring, encountering an isolated
+                // parallel interior ring, which should be skipped, and the first
+                // left (normally intersection takes first right) should be taken.
+                // Solves cases #case_133_multi
+                // and #case_recursive_boxes_49
+
+                selected_rank = n - 1;
+                return true;
+            }
         }
         return false;
     }
