@@ -126,34 +126,6 @@ struct rank_with_rings
         return true;
     }
 
-    inline bool is_exterior() const
-    {
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
-             it != rings.end(); ++it)
-        {
-            const ring_with_direction& rwd = *it;
-            if (rwd.ring_id.ring_index >= 0)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    inline bool is_interior() const
-    {
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
-             it != rings.end(); ++it)
-        {
-            const ring_with_direction& rwd = *it;
-            if (rwd.ring_id.ring_index == -1)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     inline bool has_unique_region_id() const
     {
         int region_id = -1;

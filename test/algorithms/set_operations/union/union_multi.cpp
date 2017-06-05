@@ -368,6 +368,8 @@ void test_areal()
     TEST_UNION_IGNORE(case_recursive_boxes_51, 2, 5, -1, 75.0);
 #endif
 
+    TEST_UNION(case_recursive_boxes_52, 2, 6, -1, 77.0);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server

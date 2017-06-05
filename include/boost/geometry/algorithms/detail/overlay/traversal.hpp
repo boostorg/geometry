@@ -472,7 +472,6 @@ struct traversal
         bool const incoming_ok =
             aggregation.front().rings.size() == 1
             && aggregation.front().all_from()
-            && aggregation.front().is_exterior()
             && aggregation.front().has_only(operation_intersection);
 
         if (! incoming_ok)
@@ -485,7 +484,6 @@ struct traversal
         bool const outgoing_ok =
             aggregation.back().rings.size() == 1
             && aggregation.back().all_to()
-            && aggregation.back().is_exterior()
             && aggregation.back().has_only(operation_intersection)
             && aggregation.back().region_id() == incoming_region_id;
 
@@ -505,10 +503,10 @@ struct traversal
 
             bool const possible =
                     curr.rings.size() == 2
-                    && curr.is_interior()
+                    && curr.is_isolated()
                     && curr.has_unique_region_id()
                     && next.rings.size() == 2
-                    && next.is_interior()
+                    && next.is_isolated()
                     && next.has_unique_region_id()
                     && curr_id == next_id
                     && curr_id != incoming_region_id;
