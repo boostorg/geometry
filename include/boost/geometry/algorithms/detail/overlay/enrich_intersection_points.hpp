@@ -414,12 +414,16 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
+        // First gather cluster properties (using even clusters with
+        // discarded turns - for open turns), then clean up clusters
         detail::overlay::gather_cluster_properties
             <
                 Reverse1,
                 Reverse2,
                 OverlayType
             >(clusters, turns, target_operation, geometry1, geometry2);
+
+        detail::overlay::cleanup_clusters(turns, clusters);
     }
 
     if (has_cc)

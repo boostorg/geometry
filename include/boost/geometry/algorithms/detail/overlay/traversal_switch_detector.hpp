@@ -403,7 +403,7 @@ struct traversal_switch_detector
             {
                 signed_size_type turn_index = *sit;
                 turn_type const& turn = m_turns[turn_index];
-                if (turn.discarded || (turn.colocated_ii && ! turn.colocated_uu))
+                if (turn.colocated_ii && ! turn.colocated_uu)
                 {
                     continue;
                 }

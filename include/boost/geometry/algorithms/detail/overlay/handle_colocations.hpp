@@ -331,11 +331,7 @@ inline void assign_cluster_to_turns(Turns& turns,
     }
 }
 
-template
-<
-    typename Turns,
-    typename Clusters
->
+template <typename Turns, typename Clusters>
 inline void remove_clusters(Turns& turns, Clusters& clusters)
 {
     typename Clusters::iterator it = clusters.begin();
@@ -350,11 +346,37 @@ inline void remove_clusters(Turns& turns, Clusters& clusters)
                 = current_it->second.turn_indices;
         if (turn_indices.size() == 1)
         {
-            signed_size_type turn_index = *turn_indices.begin();
+            signed_size_type const turn_index = *turn_indices.begin();
             turns[turn_index].cluster_id = -1;
             clusters.erase(current_it);
         }
     }
+}
+
+template <typename Turns, typename Clusters>
+inline void cleanup_clusters(Turns& turns, Clusters& clusters)
+{
+    // Removes discarded turns from clusters
+    for (typename Clusters::iterator mit = clusters.begin();
+         mit != clusters.end(); ++mit)
+    {
+        cluster_info& cinfo = mit->second;
+        std::set<signed_size_type>& ids = cinfo.turn_indices;
+        for (std::set<signed_size_type>::iterator sit = ids.begin();
+             sit != ids.end(); /* no increment */)
+        {
+            std::set<signed_size_type>::iterator current_it = sit;
+            ++sit;
+
+            signed_size_type const turn_index = *current_it;
+            if (turns[turn_index].discarded)
+            {
+                ids.erase(current_it);
+            }
+        }
+    }
+
+    remove_clusters(turns, clusters);
 }
 
 template <typename Turn, typename IdSet>
@@ -629,7 +651,6 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
             do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
             OverlayType
         >(turns, clusters);
-    remove_clusters(turns, clusters);
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
