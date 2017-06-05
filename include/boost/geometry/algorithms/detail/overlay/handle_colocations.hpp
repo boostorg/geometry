@@ -737,7 +737,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         point_type turn_point; // should be all the same for all turns in cluster
 
         bool first = true;
-        for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+        for (std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
@@ -758,12 +758,19 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         sbs.find_open();
         sbs.assign_zones(for_operation);
 
+        cinfo.open_count = sbs.open_count(for_operation);
+
         // Unset the startable flag for all 'closed' zones
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
             turn_type& turn = turns[ranked.turn_index];
             turn_operation_type& op = turn.operations[ranked.operation_index];
+
+            if (for_operation == operation_union && cinfo.open_count == 0)
+            {
+                op.enriched.startable = false;
+            }
 
             if (ranked.direction != sort_by_side::dir_to)
             {
@@ -784,7 +791,6 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count(for_operation);
     }
 }
 
