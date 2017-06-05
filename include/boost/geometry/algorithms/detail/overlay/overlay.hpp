@@ -150,7 +150,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                     op_it->seg_id.ring_index
                 );
 
-            if (traversed || is_closed)
+            if (traversed || is_closed || ! op_it->enriched.startable)
             {
                 turn_info_map[ring_id].has_traversed_turn = true;
             }
