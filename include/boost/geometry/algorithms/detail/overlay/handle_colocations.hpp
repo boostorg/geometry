@@ -262,15 +262,6 @@ inline void handle_colocation_cluster(Turns& turns,
                 add_cluster_id(other_op, cluster_per_segment, ref_id);
                 id = ref_id;
             }
-
-            // In case of colocated xx turns, all other turns may NOT be
-            // followed at all. xx cannot be discarded (otherwise colocated
-            // turns are followed).
-            if (ref_turn.both(operation_blocked))
-            {
-                turn.discarded = true;
-                // We can either set or not set colocated because it is not effective on blocked turns
-            }
         }
         else
         {
