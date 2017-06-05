@@ -403,6 +403,10 @@ struct traversal_switch_detector
             {
                 signed_size_type turn_index = *sit;
                 turn_type const& turn = m_turns[turn_index];
+                if (turn.discarded || (turn.colocated_ii && ! turn.colocated_uu))
+                {
+                    continue;
+                }
                 for (int oi = 0; oi < 2; oi++)
                 {
                     int const region = get_region_id(turn.operations[oi]);
@@ -410,7 +414,7 @@ struct traversal_switch_detector
                 }
             }
             // Switch source if this cluster connects the same region
-            cinfo.switch_source = regions.size() == 1;
+            cinfo.switch_source = regions.size() <= 1;
         }
 
         // Iterate through all uu/ii turns (non-clustered)

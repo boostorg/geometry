@@ -74,12 +74,9 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
         case_58_multi[0], case_58_multi[3],
         2, 0, 21, 19.83333333);
-
-    // Was valid before but is invalid now that ii turns are discarded
-    // It should be validated in another way
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
         case_58_multi[1], case_58_multi[2],
-        1, 1, 17, 48.333333, ignore_validity);
+        1, 3, 17, 48.333333);
 
     // Constructed cases for multi/touch/equal/etc
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
@@ -208,7 +205,7 @@ void test_areal()
 #endif
 
     TEST_UNION(case_133_multi, 2, 1, -1, 64.625);
-    TEST_UNION_IGNORE(case_134_multi, 1, 1, -1, 66.0);
+    TEST_UNION(case_134_multi, 1, 2, -1, 66.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
