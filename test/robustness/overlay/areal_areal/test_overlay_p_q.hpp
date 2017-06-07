@@ -74,7 +74,7 @@ static bool test_overlay_p_q(std::string const& caseid,
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
 
-    bg::model::multi_polygon<OutputType> out_i, out_u, out_d, out_d2;
+    bg::model::multi_polygon<OutputType> out_i, out_u, out_d1, out_d2;
 
     CalculationType area_p = p_q_area(p);
     CalculationType area_q = p_q_area(q);
@@ -92,9 +92,9 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     if (settings.also_difference)
     {
-        bg::difference(p, q, out_d);
+        bg::difference(p, q, out_d1);
         bg::difference(q, p, out_d2);
-        area_d1 = p_q_area(out_d);
+        area_d1 = p_q_area(out_d1);
         area_d2 = p_q_area(out_d2);
         double sum_d1 = (area_u - area_q) - area_d1;
         double sum_d2 = (area_u - area_p) - area_d2;
@@ -181,7 +181,7 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         if (settings.also_difference)
         {
-            for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
+            for (BOOST_AUTO(it, out_d1.begin()); it != out_d1.end(); ++it)
             {
                 mapper.map(*it,
                     "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
