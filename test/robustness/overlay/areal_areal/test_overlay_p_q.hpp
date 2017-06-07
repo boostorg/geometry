@@ -34,18 +34,21 @@
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/touches.hpp>
 
 struct p_q_settings
 {
     bool svg;
     bool also_difference;
+    bool validity;
     bool wkt;
     double tolerance;
 
     p_q_settings()
         : svg(false)
         , also_difference(false)
+        , validity(false)
         , wkt(false)
         , tolerance(1.0e-3) // since rescaling to integer the tolerance should be less. Was originally 1.0e-6
     {}
@@ -104,6 +107,34 @@ static bool test_overlay_p_q(std::string const& caseid,
         if (wrong_d1 || wrong_d2)
         {
             wrong = true;
+        }
+    }
+
+    if (settings.validity)
+    {
+        std::string message;
+        if (! bg::is_valid(out_u, message))
+        {
+            std::cout << "Union is not valid: " << message << std::endl;
+            wrong = true;
+        }
+        if (! bg::is_valid(out_i, message))
+        {
+            std::cout << "Intersection is not valid: " << message << std::endl;
+            wrong = true;
+        }
+        if (settings.also_difference)
+        {
+            if (! bg::is_valid(out_d1, message))
+            {
+                std::cout << "Difference (p-q) is not valid: " << message << std::endl;
+                wrong = true;
+            }
+            if (! bg::is_valid(out_d2, message))
+            {
+                std::cout << "Difference (q-p) is not valid: " << message << std::endl;
+                wrong = true;
+            }
         }
     }
 
