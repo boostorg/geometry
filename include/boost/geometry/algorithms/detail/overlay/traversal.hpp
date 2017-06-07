@@ -460,40 +460,10 @@ struct traversal
         return true;
     }
 
-    inline bool intersection_pattern_cc_ii(std::size_t& selected_rank,
-               std::vector<sort_by_side::rank_with_rings> const& aggregation) const
+    inline bool check_pairs(std::vector<sort_by_side::rank_with_rings> const& aggregation,
+                            signed_size_type incoming_region_id) const
     {
         std::size_t const n = aggregation.size();
-        if (n < 4)
-        {
-            return false;
-        }
-
-        bool const incoming_ok =
-            aggregation.front().rings.size() == 1
-            && aggregation.front().all_from()
-            && aggregation.front().has_only(operation_intersection);
-
-        if (! incoming_ok)
-        {
-            return false;
-        }
-
-        int const incoming_region_id = aggregation.front().region_id();
-
-        bool const outgoing_ok =
-            aggregation.back().rings.size() == 1
-            && aggregation.back().all_to()
-            && aggregation.back().has_only(operation_intersection)
-            && aggregation.back().region_id() == incoming_region_id;
-
-        if (! outgoing_ok)
-        {
-            return false;
-        }
-
-        // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
-        bool ok = true;
         for (std::size_t i = 1; i < n - 1; i += 2)
         {
             sort_by_side::rank_with_rings const& curr = aggregation[i];
@@ -513,29 +483,65 @@ struct traversal
 
             if (! possible)
             {
-                ok  = false;
-                break;
+                return false;
             }
 
-            bool const first =
-               curr.has_only_both(operation_continue, operation_intersection)
-               && next.has_only_both(operation_continue, operation_intersection);
+        }
+        return true;
+    }
 
-            bool const second =
-                curr.has_only(operation_continue)
-                && next.has_only(operation_continue);
-
-            bool const third =
-                curr.has_only(operation_intersection)
-                && next.has_only(operation_intersection);
-
-            if (! (first || second || third))
-            {
-                ok = false;
-                break;
-            }
+    inline bool intersection_pattern_cc_ii(std::size_t& selected_rank,
+               std::vector<sort_by_side::rank_with_rings> const& aggregation) const
+    {
+        std::size_t const n = aggregation.size();
+        if (n < 4)
+        {
+            return false;
         }
 
+        if (! aggregation.front().all_from()
+         || ! aggregation.back().all_to())
+        {
+            return false;
+        }
+
+        // There are two options, either there is one incoming/one outgoing,
+        // or (in the case of equal polygons) there are two of them
+
+        bool const incoming_ok1 =
+            aggregation.front().rings.size() == 1
+            && aggregation.front().has_only(operation_intersection);
+
+        bool const incoming_ok2 =
+            aggregation.front().rings.size() == 2
+            && aggregation.front().has_only(operation_continue)
+            && aggregation.front().has_unique_region_id();
+
+        if (! (incoming_ok1 || incoming_ok2))
+        {
+            return false;
+        }
+
+        int const incoming_region_id = aggregation.front().region_id();
+
+        bool const outgoing_ok1 =
+            aggregation.back().rings.size() == 1
+            && aggregation.back().has_only(operation_intersection)
+            && aggregation.back().region_id() == incoming_region_id;
+
+        bool const outgoing_ok2 =
+            aggregation.back().rings.size() == 2
+            && aggregation.back().has_only(operation_continue)
+            && aggregation.back().has_unique_region_id()
+            && aggregation.back().region_id() == incoming_region_id;
+
+        if (! (outgoing_ok1 || outgoing_ok2))
+        {
+            return false;
+        }
+
+        // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
+        bool ok = check_pairs(aggregation, incoming_region_id);
         if (ok)
         {
             // Pattern: coming from exterior ring, encountering an isolated
