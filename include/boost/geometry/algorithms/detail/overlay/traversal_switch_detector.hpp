@@ -53,7 +53,8 @@ struct traversal_switch_detector
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
 
-    // For convenience
+    // Per ring, first turns are collected (in turn_indices), and later
+    // a region_id is assigned
     struct merged_ring_properties
     {
         signed_size_type region_id;
@@ -64,11 +65,26 @@ struct traversal_switch_detector
         {}
     };
 
+    struct connection_properties
+    {
+        std::size_t count;
+        std::set<signed_size_type> cluster_indices;
+        connection_properties()
+            : count(0)
+        {}
+    };
+
+    typedef std::map<signed_size_type, connection_properties> connection_map;
+
+    // Per region, a set of properties is maintained, including its connections
+    // to other regions
     struct region_properties
     {
         signed_size_type region_id;
         isolation_type isolated;
-        std::map<signed_size_type, std::size_t> connected_region_counts;
+
+        // Maps from connected region_id to their properties
+        connection_map connected_region_counts;
 
         region_properties()
             : region_id(-1)
@@ -76,8 +92,10 @@ struct traversal_switch_detector
         {}
     };
 
+    // Keeps turn indices per ring
     typedef std::map<ring_identifier, merged_ring_properties > merge_map;
     typedef std::map<signed_size_type, region_properties> region_connection_map;
+
     typedef std::set<signed_size_type>::const_iterator set_iterator;
 
     inline traversal_switch_detector(Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -101,15 +119,47 @@ struct traversal_switch_detector
             return properties.isolated;
         }
 
+        bool all_colocated = true;
+        int unique_cluster_id = -1;
+        for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
+             all_colocated && it != properties.connected_region_counts.end(); ++it)
+        {
+            connection_properties const& cprop = it->second;
+            if (cprop.cluster_indices.size() != 1)
+            {
+                // Either no cluster (non colocated point), or more clusters
+                all_colocated = false;
+            }
+            int const cluster_id = *cprop.cluster_indices.begin();
+            if (cluster_id == -1)
+            {
+                all_colocated = false;
+            }
+            else if (unique_cluster_id == -1)
+            {
+                unique_cluster_id = cluster_id;
+            }
+            else if (unique_cluster_id != cluster_id)
+            {
+                all_colocated = false;
+            }
+        }
+        if (all_colocated)
+        {
+            return isolation_yes;
+        }
+
+
         // It is isolated if there is only one connection, or if there are more connections but all
-        // of them are isolated themselves
+        // of them are isolated themselves, or if there are more connections
+        // but they are all colocated
         std::size_t non_isolation_count = 0;
         bool child_not_isolated = false;
-        for (std::map<signed_size_type, std::size_t>::const_iterator it = properties.connected_region_counts.begin();
+        for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
              it != properties.connected_region_counts.end(); ++it)
         {
             signed_size_type const region_id = it->first;
-            std::size_t const count = it->second;
+            connection_properties const& cprop = it->second;
 
             if (region_id == parent_region_id)
             {
@@ -121,7 +171,7 @@ struct traversal_switch_detector
                 // Find one of its ancestors again, this is a ring. Not isolated.
                 return isolation_no;
             }
-            if (count > 1)
+            if (cprop.count > 1)
             {
                 return isolation_no;
             }
@@ -216,9 +266,32 @@ struct traversal_switch_detector
                     // Force insertion
                     m_connected_regions[id0].region_id = id0;
                     m_connected_regions[id1].region_id = id1;
-                    // Add reference to connection
-                    m_connected_regions[id0].connected_region_counts[id1]++;
-                    m_connected_regions[id1].connected_region_counts[id0]++;
+
+                    connection_properties& prop0 = m_connected_regions[id0].connected_region_counts[id1];
+                    connection_properties& prop1 = m_connected_regions[id1].connected_region_counts[id0];
+
+                    if (turn.cluster_id < 0)
+                    {
+                        // Turn is not colocated, add reference to connection
+                        prop0.count++;
+                        prop1.count++;
+                    }
+                    else
+                    {
+                        // Turn is colocated, only add region reference if it was not yet registered
+                        if (prop0.cluster_indices.count(turn.cluster_id) == 0)
+                        {
+                            prop0.count++;
+                        }
+                        if (prop1.cluster_indices.count(turn.cluster_id) == 0)
+                        {
+                            prop1.count++;
+                        }
+                    }
+                    // Insert cluster-id (also -1 is inserted - reinsertion of
+                    // same cluster id is OK)
+                    prop0.cluster_indices.insert(turn.cluster_id);
+                    prop1.cluster_indices.insert(turn.cluster_id);
                 }
             }
         }
@@ -256,7 +329,7 @@ struct traversal_switch_detector
         }
 
         cluster_info const& cinfo = it->second;
-        for (std::set<signed_size_type>::const_iterator sit = cinfo.turn_indices.begin();
+        for (set_iterator sit = cinfo.turn_indices.begin();
              sit != cinfo.turn_indices.end(); ++sit)
         {
             turn_type const& cluster_turn = m_turns[*sit];
