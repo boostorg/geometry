@@ -599,7 +599,7 @@ struct traversal
         //Rank 1  {14[0] (s:0, r:0, m:0) i T rgn: 2 ISO ->16} {11[1] (s:1, r:1, m:0) i T rgn: 2 ISO ->16}
         //Rank 2  {14[0] (s:0, r:0, m:0) i F rgn: 2 ISO}      {11[1] (s:1, r:1, m:0) i F rgn: 2 ISO}
 
-        // LEAVING:
+        // LEAVING (select this one):
         //Rank 3  {10[0] (s:0, m:0) c T rgn: 1 ISO ->12}      {10[1] (s:1, m:0) c T rgn: 1 ISO ->12}
 
         // ADDITIONALLY: (other polygon coming in)
@@ -650,6 +650,71 @@ struct traversal
         return false;
     }
 
+    inline bool intersection_pattern_common_interior4(std::size_t& selected_rank,
+               std::vector<sort_by_side::rank_with_rings> const& aggregation) const
+    {
+        // Pattern: approaches colocated turn (exterior+interior) from same
+        // direction, but leaves in two different directions
+
+        // See #case_137_multi:
+
+        // INCOMING:
+        //Rank 0  {11[0] (s:0, m:0) i F rgn: 1 ISO}            {10[1] (s:1, m:0) i F rgn: 1 ISO}
+
+        // PAIR:
+        //Rank 1  {13[0] (s:0, r:0, m:0) i T rgn: 2 ISO ->15}  {11[1] (s:1, r:1, m:0) i T rgn: 2 ISO ->15}
+        //Rank 2  {13[0] (s:0, r:0, m:0) i F rgn: 2 ISO}       {11[1] (s:1, r:1, m:0) i F rgn: 2 ISO}
+
+        // LEAVING (in two different directions, take last one)
+        //Rank 3  {10[1] (s:1, m:0) i T rgn: 1 ISO ->0}
+        //Rank 4  {11[0] (s:0, m:0) i T rgn: 1 ISO ->12}
+
+        std::size_t const n = aggregation.size();
+        if (n < 4)
+        {
+            return false;
+        }
+
+        sort_by_side::rank_with_rings const& incoming = aggregation.front();
+        sort_by_side::rank_with_rings const& extra = aggregation[n - 2];
+        sort_by_side::rank_with_rings const& outgoing = aggregation.back();
+
+        bool const incoming_ok =
+            incoming.all_from()
+            && incoming.rings.size() == 2
+            && incoming.has_unique_region_id()
+            && incoming.has_only(operation_intersection);
+
+        if (! incoming_ok)
+        {
+            return false;
+        }
+
+        bool const outgoing_ok =
+            outgoing.all_to()
+            && outgoing.rings.size() == 1
+            && outgoing.has_only(operation_intersection)
+            && outgoing.region_id() == incoming.region_id()
+            && extra.all_to()
+            && extra.rings.size() == 1
+            && extra.has_only(operation_intersection)
+            && extra.region_id() == incoming.region_id()
+            && extra.all_to();
+
+        if (! outgoing_ok)
+        {
+            return false;
+        }
+
+        // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
+        if (check_pairs(aggregation, incoming.region_id(), 1, n - 3))
+        {
+            selected_rank = n - 1;
+            return true;
+        }
+        return false;
+    }
+
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
@@ -664,6 +729,7 @@ struct traversal
             = intersection_pattern_common_interior1(selected_rank, aggregation)
             || intersection_pattern_common_interior2(selected_rank, aggregation)
             || intersection_pattern_common_interior3(selected_rank, aggregation)
+            || intersection_pattern_common_interior4(selected_rank, aggregation)
                 ;
 
         if (! detected)

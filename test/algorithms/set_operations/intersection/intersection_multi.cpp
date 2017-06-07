@@ -157,7 +157,8 @@ void test_areal()
     TEST_INTERSECTION(case_133_multi, 2, 23, 40.625);
     TEST_INTERSECTION(case_134_multi, 1, 23, 42.0);
     TEST_INTERSECTION(case_135_multi, 1, 17, 7.0);
-    TEST_INTERSECTION(case_136_multi, 1, 17, 7.0);
+    TEST_INTERSECTION(case_136_multi, 1, 17, 6.5);
+    TEST_INTERSECTION(case_137_multi, 1, 17, 6.5);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
