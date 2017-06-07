@@ -461,10 +461,12 @@ struct traversal
     }
 
     inline bool check_pairs(std::vector<sort_by_side::rank_with_rings> const& aggregation,
-                            signed_size_type incoming_region_id) const
+                            signed_size_type incoming_region_id,
+                            std::size_t first, std::size_t last) const
     {
-        std::size_t const n = aggregation.size();
-        for (std::size_t i = 1; i < n - 1; i += 2)
+        // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
+
+        for (std::size_t i = first; i <= last; i += 2)
         {
             sort_by_side::rank_with_rings const& curr = aggregation[i];
             sort_by_side::rank_with_rings const& next = aggregation[i + 1];
@@ -490,70 +492,97 @@ struct traversal
         return true;
     }
 
-    inline bool intersection_pattern_cc_ii(std::size_t& selected_rank,
+    inline bool intersection_pattern_common_interior1(std::size_t& selected_rank,
                std::vector<sort_by_side::rank_with_rings> const& aggregation) const
     {
+        // Pattern: coming from exterior ring, encountering an isolated
+        // parallel interior ring, which should be skipped, and the first
+        // left (normally intersection takes first right) should be taken.
+        // Solves cases #case_133_multi
+        // and #case_recursive_boxes_49
+
         std::size_t const n = aggregation.size();
         if (n < 4)
         {
             return false;
         }
 
-        if (! aggregation.front().all_from()
-         || ! aggregation.back().all_to())
+        sort_by_side::rank_with_rings const& incoming = aggregation.front();
+        sort_by_side::rank_with_rings const& outgoing = aggregation.back();
+
+        bool const incoming_ok =
+            incoming.all_from()
+            && incoming.rings.size() == 1
+            && incoming.has_only(operation_intersection);
+
+        if (! incoming_ok)
         {
             return false;
         }
 
-        // There are two options, either there is one incoming/one outgoing,
-        // or (in the case of equal polygons) there are two of them
+        bool const outgoing_ok =
+            outgoing.all_to()
+            && outgoing.rings.size() == 1
+            && outgoing.has_only(operation_intersection)
+            && outgoing.region_id() == incoming.region_id();
 
-        bool const incoming_ok1 =
-            aggregation.front().rings.size() == 1
-            && aggregation.front().has_only(operation_intersection);
-
-        bool const incoming_ok2 =
-            aggregation.front().rings.size() == 2
-            && aggregation.front().has_only(operation_continue)
-            && aggregation.front().has_unique_region_id();
-
-        if (! (incoming_ok1 || incoming_ok2))
+        if (! outgoing_ok)
         {
             return false;
         }
 
-        int const incoming_region_id = aggregation.front().region_id();
+        if (check_pairs(aggregation, incoming.region_id(), 1, n - 2))
+        {
+            selected_rank = n - 1;
+            return true;
+        }
+        return false;
+    }
 
-        bool const outgoing_ok1 =
-            aggregation.back().rings.size() == 1
-            && aggregation.back().has_only(operation_intersection)
-            && aggregation.back().region_id() == incoming_region_id;
+    inline bool intersection_pattern_common_interior2(std::size_t& selected_rank,
+               std::vector<sort_by_side::rank_with_rings> const& aggregation) const
+    {
+        // Pattern: coming from two exterior rings, encountering two isolated
+        // equal interior rings
+        std::size_t const n = aggregation.size();
+        if (n < 4)
+        {
+            return false;
+        }
 
-        bool const outgoing_ok2 =
-            aggregation.back().rings.size() == 2
-            && aggregation.back().has_only(operation_continue)
-            && aggregation.back().has_unique_region_id()
-            && aggregation.back().region_id() == incoming_region_id;
+        sort_by_side::rank_with_rings const& incoming = aggregation.front();
+        sort_by_side::rank_with_rings const& outgoing = aggregation.back();
 
-        if (! (outgoing_ok1 || outgoing_ok2))
+        bool const incoming_ok =
+            incoming.all_from()
+            && incoming.rings.size() == 2
+            && incoming.has_only(operation_continue)
+            && incoming.has_unique_region_id();
+
+        if (! incoming_ok)
+        {
+            return false;
+        }
+
+        bool const outgoing_ok =
+            outgoing.all_to()
+            && outgoing.rings.size() == 2
+            && outgoing.has_only(operation_continue)
+            && outgoing.has_unique_region_id()
+            && outgoing.region_id() == incoming.region_id();
+
+        if (! outgoing_ok)
         {
             return false;
         }
 
         // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
-        bool ok = check_pairs(aggregation, incoming_region_id);
-        if (ok)
+        if (check_pairs(aggregation, incoming.region_id(), 1, n - 2))
         {
-            // Pattern: coming from exterior ring, encountering an isolated
-            // parallel interior ring, which should be skipped, and the first
-            // left (normally intersection takes first right) should be taken.
-            // Solves cases #case_133_multi
-            // and #case_recursive_boxes_49
-
             selected_rank = n - 1;
             return true;
         }
-        return ok;
+        return false;
     }
 
 
@@ -567,9 +596,11 @@ struct traversal
 
 
         // Detect specific pattern(s)
-        bool skip = intersection_pattern_cc_ii(selected_rank, aggregation);
+        bool const detected
+            = intersection_pattern_common_interior1(selected_rank, aggregation)
+            || intersection_pattern_common_interior2(selected_rank, aggregation);
 
-        if (! skip)
+        if (! detected)
         {
             int incoming_region_id = 0;
             std::set<int> outgoing_region_ids;
@@ -586,22 +617,31 @@ struct traversal
                     // having the polygon on the right side
                     selected_rank = rwr.rank;
                 }
+
+#if 1
                 if (rwr.all_from()
                         && selected_rank > 0
                         && outgoing_region_ids.empty())
                 {
                     // Incoming
+                    BG_LOG("  Incoming arc, use selected_rank " << selected_rank);
                     break;
                 }
+#endif
 
+#if 1
                 if (incoming_region_id == 0)
                 {
                     sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                     turn_type const& turn = m_turns[rwd.turn_index];
                     incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
+    BG_LOG("  Set incoming region turn="  << rwd.turn_index
+              << " size=" << rwr.rings.size()
+              << " region=" << incoming_region_id);
                 }
                 else
                 {
+    BG_LOG("  Incoming region is set, one ring , region=" << incoming_region_id);
                     if (rwr.rings.size() == 1)
                     {
                         sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
