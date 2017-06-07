@@ -209,6 +209,7 @@ void test_areal()
     TEST_DIFFERENCE(case_133_multi, 3, 16.0, 2, 8.0, 5);
     TEST_DIFFERENCE(case_134_multi, 3, 16.0, 2, 8.0, 5);
     TEST_DIFFERENCE(case_135_multi, 2, 2.0, 2, 13.0, 2);
+    TEST_DIFFERENCE(case_136_multi, 2, 2.0, 3, 13.5, 3);
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
