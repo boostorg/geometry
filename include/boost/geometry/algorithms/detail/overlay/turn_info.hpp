@@ -91,7 +91,8 @@ struct turn_info
     method_type method;
     signed_size_type cluster_id; // For multiple turns on same location, >= 0. Else -1
     bool discarded;
-    bool colocated;
+    bool colocated_ii;
+    bool colocated_uu;
     bool switch_source; // For u/u turns which can either switch or not
 
     Container operations;
@@ -100,7 +101,8 @@ struct turn_info
         : method(method_none)
         , cluster_id(-1)
         , discarded(false)
-        , colocated(false)
+        , colocated_ii(false)
+        , colocated_uu(false)
         , switch_source(false)
     {}
 

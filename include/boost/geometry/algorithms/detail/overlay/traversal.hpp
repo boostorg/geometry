@@ -137,9 +137,9 @@ struct traversal
         }
     }
 
-    //! Sets visited for ALL truns traveling to the same turn (TODO: in same direction)
+    //! Sets visited for ALL turns traveling to the same turn
     inline void set_visited_in_cluster(signed_size_type cluster_id,
-                                       signed_size_type next_turn_index)
+                                       signed_size_type rank)
     {
         typename Clusters::const_iterator mit = m_clusters.find(cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
@@ -157,7 +157,7 @@ struct traversal
             {
                 turn_operation_type& op = turn.operations[i];
                 if (op.visited.none()
-                    && op.enriched.get_next_turn_index() == next_turn_index)
+                    && op.enriched.rank == rank)
                 {
                     op.visited.set_visited();
                 }
@@ -182,10 +182,9 @@ struct traversal
         {
             op.visited.set_visited();
         }
-        if (turn.cluster_id >= 0
-                && target_operation == operation_intersection)
+        if (turn.cluster_id >= 0)
         {
-            set_visited_in_cluster(turn.cluster_id, op.enriched.get_next_turn_index());
+            set_visited_in_cluster(turn.cluster_id, op.enriched.rank);
         }
     }
 
@@ -474,6 +473,7 @@ struct traversal
             sort_by_side::rank_with_rings const& rwr = aggregation[i];
 
             if (rwr.all_to()
+                    && rwr.traversable(m_turns)
                     && selected_rank == 0)
             {
                 // Take the first (= right) where segments leave,
@@ -543,7 +543,7 @@ struct traversal
                     {
                         // This direction is already traveled before, the same
                         // cannot be traveled again
-                        return false;
+                        continue;
                     }
 
                     // Take the last turn from this rank
