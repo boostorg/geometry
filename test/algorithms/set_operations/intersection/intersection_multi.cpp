@@ -160,6 +160,10 @@ void test_areal()
     TEST_INTERSECTION(case_136_multi, 1, 17, 6.5);
     TEST_INTERSECTION(case_137_multi, 1, 17, 6.5);
 
+    TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
+    TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
+    TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
+
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
 #else

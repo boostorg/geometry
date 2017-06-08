@@ -608,6 +608,27 @@ static std::string case_137_multi[2] =
     "MULTIPOLYGON(((5 4,4 4,3 4,3 7,1 7,1 8,0 8,0 9,1 9,1 10,3 10,3 9,4 8,6 8,6 9,7 9,7 5,6 5,6 4,5 4),(5 5,5 6,6 6,6 7,4 7,4 5,5 5),(3 8,3 9,2 9,2 8,3 8)))"
 };
 
+static std::string case_138_multi[2] =
+{
+    // Zoomed in version of case_recursive_boxes_49 with in both interiors an extra polygon (different for both)
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 6,4 6,4 8,10 8,10 4,8 4,8 0,0 0),(4 4,4 6,6 6,6 4,4 4)),((4.5 4.5,4 6,5.5 5.5,4.5 4.5)))",
+    "MULTIPOLYGON(((2 0,2 8,8 8,8 6,10 6,10 2,6 2,6 0,2 0),(6 6,6 4,4 4,4 6,6 6)),((5 4.5,4 6,5.5 5, 5 4.5)))"
+};
+
+static std::string case_139_multi[2] =
+{
+    // Another zoomed in version of case_recursive_boxes_49 with different interior polygons
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 6,4 6,4 8,10 8,10 4,8 4,8 0,0 0),(4 4,4 6,6 6,6 4,4 4)),((4.5 4.5,4 6,5.5 5,4.5 4.5)))",
+    "MULTIPOLYGON(((2 0,2 8,8 8,8 6,10 6,10 2,6 2,6 0,2 0),(6 6,6 4,4 4,4 6,6 6)),((5 4.5,4 6,5.5 5, 5 4.5)))"
+};
+
+static std::string case_140_multi[2] =
+{
+    // Another zoomed in version of case_recursive_boxes_49 with different interior polygons
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 6,4 6,4 8,10 8,10 4,8 4,8 0,0 0),(4 4,4 6,6 6,6 4,4 4)),((5 4.5,4 6,5.5 5.5,5 4.5)))",
+    "MULTIPOLYGON(((2 0,2 8,8 8,8 6,10 6,10 2,6 2,6 0,2 0),(6 6,6 4,4 4,4 6,6 6)),((5 4.5,4 6,5.5 5, 5 4.5)))"
+};
+
 static std::string case_recursive_boxes_1[2] =
 {
     "MULTIPOLYGON(((1 0,0 0,0 1,1 1,1 2,0 2,0 4,2 4,2 5,3 5,3 6,1 6,1 5,0 5,0 10,9 10,9 9,7 9,7 8,6 8,6 7,8 7,8 6,9 6,9 4,8 4,8 3,10 3,10 0,6 0,6 1,5 1,5 0,1 0),(8 4,8 5,7 5,7 6,6 6,6 5,5 5,5 4,4 4,4 3,5 3,5 2,7 2,7 3,6 3,6 4,8 4),(8 1,9 1,9 2,8 2,8 1),(4 7,4 9,3 9,3 7,4 7)),((9 9,10 9,10 7,10 6,9 6,9 7,8 7,8 8,9 8,9 9)))",
