@@ -698,8 +698,7 @@ struct traversal
             && extra.all_to()
             && extra.rings.size() == 1
             && extra.has_only(operation_intersection)
-            && extra.region_id() == incoming.region_id()
-            && extra.all_to();
+            && extra.region_id() == incoming.region_id();
 
         if (! outgoing_ok)
         {
