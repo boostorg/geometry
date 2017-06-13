@@ -544,6 +544,19 @@ struct traversal
     {
         // Pattern: coming from two exterior rings, encountering two isolated
         // equal interior rings
+
+        // See (for example, for ii) #case_recursive_boxes_53:
+
+        // INCOMING:
+        // Rank 0  {11[0] (s:0, m:0) i F rgn: 1 ISO}             {13[1] (s:1, m:0) i F rgn: 1 ISO}
+
+        // PAIR:
+        // Rank 1  {13[0] (s:0, r:1, m:0) i T rgn: 3 ISO ->16}   {11[1] (s:1, r:5, m:0) i T rgn: 3 ISO ->16}
+        // Rank 2  {13[0] (s:0, r:1, m:0) i F rgn: 3 ISO}        {11[1] (s:1, r:5, m:0) i F rgn: 3 ISO}
+
+        // LEAVING (in the same direction, take last one)
+        // Rank 3  {11[0] (s:0, m:0) i T rgn: 1 ISO ->10}        {13[1] (s:1, m:0) i T rgn: 1 ISO ->10}
+
         std::size_t const n = aggregation.size();
         if (n < 4)
         {
@@ -556,7 +569,7 @@ struct traversal
         bool const incoming_ok =
             incoming.all_from()
             && incoming.rings.size() == 2
-            && incoming.has_only(operation_continue)
+            && (incoming.has_only(operation_continue) || incoming.has_only(operation_intersection))
             && incoming.has_unique_region_id();
 
         if (! incoming_ok)
@@ -567,7 +580,7 @@ struct traversal
         bool const outgoing_ok =
             outgoing.all_to()
             && outgoing.rings.size() == 2
-            && outgoing.has_only(operation_continue)
+            && (outgoing.has_only(operation_continue) || outgoing.has_only(operation_intersection))
             && outgoing.has_unique_region_id()
             && outgoing.region_id() == incoming.region_id();
 
