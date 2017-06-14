@@ -374,8 +374,13 @@ struct traversal
 
     inline bool select_from_cluster_union(signed_size_type& turn_index,
         int& op_index, signed_size_type start_turn_index,
-        sbs_type const& sbs, bool is_touching) const
+        sbs_type& sbs, bool is_touching, std::size_t open_count) const
     {
+        if (is_touching)
+        {
+            sbs.reverse();
+        }
+
         std::size_t selected_rank = 0;
         std::size_t min_rank = 0;
         bool result = false;
@@ -655,13 +660,8 @@ struct traversal
             is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
     #endif
 
-            if (is_touching)
-            {
-                sbs.reverse();
-            }
-
-            result = select_from_cluster_union(turn_index, op_index, start_turn_index, sbs,
-                                       is_touching);
+            result = select_from_cluster_union(turn_index, op_index,
+                start_turn_index, sbs, is_touching, cinfo.open_count);
         }
         else
         {
