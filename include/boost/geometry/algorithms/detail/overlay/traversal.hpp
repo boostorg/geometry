@@ -594,7 +594,7 @@ struct traversal
     }
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
-            int& op_index, bool& is_touching,
+            int& op_index,
             signed_size_type start_turn_index,
             segment_identifier const& previous_seg_id) const
     {
@@ -643,7 +643,7 @@ struct traversal
         if (is_union)
         {
     #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-            is_touching = cinfo.open_count > 1;
+            bool is_touching = cinfo.open_count > 1;
             if (is_touching)
             {
                 if (cinfo.switch_source)
@@ -657,7 +657,7 @@ struct traversal
                 }
             }
     #else
-            is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
+            bool is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
     #endif
 
             result = select_from_cluster_union(turn_index, op_index,
@@ -793,7 +793,6 @@ struct traversal
     bool select_turn(signed_size_type start_turn_index, int start_op_index,
                      signed_size_type& turn_index,
                      int& op_index,
-                     bool& is_touching,
                      int previous_op_index,
                      signed_size_type previous_turn_index,
                      segment_identifier const& previous_seg_id,
@@ -828,7 +827,7 @@ struct traversal
 
         if (current_turn.cluster_id >= 0)
         {
-            if (! select_turn_from_cluster(turn_index, op_index, is_touching,
+            if (! select_turn_from_cluster(turn_index, op_index,
                     start_turn_index, previous_seg_id))
             {
                 return false;
