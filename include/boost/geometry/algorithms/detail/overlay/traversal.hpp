@@ -569,7 +569,6 @@ struct traversal
         bool const incoming_ok =
             incoming.all_from()
             && incoming.rings.size() == 2
-            && (incoming.has_only(operation_continue) || incoming.has_only(operation_intersection))
             && incoming.has_unique_region_id();
 
         if (! incoming_ok)
@@ -580,11 +579,19 @@ struct traversal
         bool const outgoing_ok =
             outgoing.all_to()
             && outgoing.rings.size() == 2
-            && (outgoing.has_only(operation_continue) || outgoing.has_only(operation_intersection))
             && outgoing.has_unique_region_id()
             && outgoing.region_id() == incoming.region_id();
 
         if (! outgoing_ok)
+        {
+            return false;
+        }
+
+        bool const operation_ok =
+                (incoming.has_only(operation_continue) && outgoing.has_only(operation_continue))
+                 || (incoming.has_only(operation_intersection) && outgoing.has_only(operation_intersection));
+
+        if (! operation_ok)
         {
             return false;
         }
