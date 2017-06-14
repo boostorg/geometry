@@ -345,6 +345,7 @@ void test_areal()
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_52, 13, 30.0, 15, 25.0, 8);
 #endif
     TEST_DIFFERENCE(case_recursive_boxes_53, 6, 3.5, 4, 1.5, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_54, 6, 6.5, 8, 6.0, 7);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],

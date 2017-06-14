@@ -208,9 +208,12 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
 
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        if (! (op.operation == operation_intersection || op.operation == operation_continue))
+        if (! (op.operation == operation_intersection
+               || op.operation == operation_continue
+               || (op.operation == operation_blocked && ranked_point.direction == dir_from)))
         {
             // Don't consider union/blocked (aggregate is only used for intersections)
+            // Blocked is allowed for from
             continue;
         }
 
