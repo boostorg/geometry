@@ -9,9 +9,11 @@
 #include <iostream>
 
 #include <boost/geometry.hpp>
+#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
+#include <boost/geometry/algorithms/comparable_geographic_distance.hpp>
 
 #include <boost/numeric/conversion/bounds.hpp>
 
@@ -32,8 +34,7 @@ int main()
     point_type P3(0, 0.1, 9);
     point_type P4(10, 10.1, 10.0);
 
-    double const earth_a = 6378.137;
-	double const earth_b = 6356.752314245;
+	bg::srs::spheroid<double> earth;
 
     std::clock_t distance_start = std::clock();
     double distance_result1;
@@ -42,9 +43,9 @@ int main()
     for (int i=0; i<MAX; i++)
     {
          distance_result1 = bg::distance
-                (P1, P2, bg::strategy::distance::vincenty<double>(earth_a, earth_b));
+                (P1, P2, bg::strategy::distance::vincenty<bg::srs::spheroid<double> >(earth));
          distance_result2 = bg::distance
-                (P3, P4, bg::strategy::distance::vincenty<double>(earth_a, earth_b));
+                (P3, P4, bg::strategy::distance::vincenty<bg::srs::spheroid<double> >(earth));
     }
     std::clock_t distance_stop = std::clock();
     double secs_distance = double(distance_stop - distance_start) / (double)CLOCKS_PER_SEC;
@@ -57,9 +58,9 @@ int main()
     for (int i=0; i<MAX; i++)
     {
          comparable_geographic_distance_result1 = bg::comparable_geographic_distance
-                (P1, P2, bg::strategy::distance::vincenty<double>(earth_a, earth_b));
+                (P1, P2, bg::strategy::distance::vincenty<bg::srs::spheroid<double> >(earth));
          comparable_geographic_distance_result2 = bg::comparable_geographic_distance
-                (P3, P4, bg::strategy::distance::vincenty<double>(earth_a, earth_b));
+                (P3, P4, bg::strategy::distance::vincenty<bg::srs::spheroid<double> >(earth));
     }
     std::clock_t comparable_geographic_distance_stop = std::clock();
     double secs_comparable_geographic_distance = double(comparable_geographic_distance_stop - comparable_geographic_distance_start)
