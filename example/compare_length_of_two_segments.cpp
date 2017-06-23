@@ -39,7 +39,7 @@ typedef bg::model::point
 	double const earth_r = 6317.0;
 
 int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
-					                           point_type p4)
+                                        point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
@@ -56,12 +56,12 @@ int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
 	dlon = lon2 - lon1;
 
 	R1 = earth_r * (1 - earth_e2) /
-		bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
+        bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
 				     * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
 				     * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
 	R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
 
-	dis_North =	R1 * dlat;
+	dis_North = R1 * dlat;
 	dis_East = R2 * cos(lat1) * dlon;
 
 	distance_result1 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
