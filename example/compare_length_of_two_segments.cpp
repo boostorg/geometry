@@ -211,8 +211,8 @@ int main()
             }
             std::clock_t comparable_geographic_distance_stop = std::clock();
             secs_comparable_geographic_distance = double(comparable_geographic_distance_stop -
-                    comparable_geographic_distance_start)
-                / (double)CLOCKS_PER_SEC;
+                                                         comparable_geographic_distance_start)
+                                                         / (double)CLOCKS_PER_SEC;
         }
         else if (lon1 == lon3 && lat1 == lat3)
         {
@@ -224,8 +224,8 @@ int main()
             }
             std::clock_t comparable_geographic_distance_stop = std::clock();
             secs_comparable_geographic_distance = double(comparable_geographic_distance_stop -
-                    comparable_geographic_distance_start)
-                / (double)CLOCKS_PER_SEC;
+                                                         comparable_geographic_distance_start)
+                                                         / (double)CLOCKS_PER_SEC;
         }
 
         std::cout << "comparable_geographic_distance:" << comparable_geographic_distance_result << std::endl;
