@@ -39,7 +39,7 @@ typedef bg::model::point
 	double const earth_r = 6317.0;
 
 int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
-		point_type p4)
+											point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
@@ -98,7 +98,7 @@ int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
 }
 
 int compare_length_of_two_segments_haversine(point_type p1, point_type p2,
-		point_type p3, point_type p4)
+											point_type p3, point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
@@ -133,7 +133,7 @@ int compare_length_of_two_segments_haversine(point_type p1, point_type p2,
 }
 
 int compare_length_of_two_segments_cartesian_distance(point_type p1, point_type p2,
-		point_type p3, point_type p4)
+													point_type p3, point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
