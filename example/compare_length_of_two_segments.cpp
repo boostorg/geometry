@@ -39,7 +39,7 @@ typedef bg::model::point
 	double const earth_r = 6317.0;
 
 int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
-											   point_type p4)
+		point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
@@ -56,9 +56,9 @@ int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
 	dlon = lon2 - lon1;
 
 	R1 = earth_r * (1 - earth_e2) /
-		 bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
-					  * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
-				      * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
+		bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
+				* (1 - earth_e2 * bg::math::sqr(sin(lat1)))
+				* (1 - earth_e2 * bg::math::sqr(sin(lat1))));
 	R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
 
 	dis_North =	R1 * dlat;
@@ -70,9 +70,9 @@ int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
 	dlon = lon2 - lon1;
 
 	R1 = earth_r * (1 - earth_e2) / 
-		 bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
-					  * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
-					  * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
+		bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
+				* (1 - earth_e2 * bg::math::sqr(sin(lat1)))
+				* (1 - earth_e2 * bg::math::sqr(sin(lat1))));
 	R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
 
 	dis_North =	R1 * dlat;
@@ -98,7 +98,7 @@ int compare_length_of_two_segments_local_earth(point_type p1, point_type p2,
 }
 
 int compare_length_of_two_segments_haversine(point_type p1, point_type p2,
-											 point_type p3, point_type p4)
+		point_type p3, point_type p4)
 {
 	double distance_result1;
 	double distance_result2;
@@ -211,8 +211,8 @@ int main()
 			}
 			std::clock_t comparable_geographic_distance_stop = std::clock();
 			secs_comparable_geographic_distance = double(comparable_geographic_distance_stop -
-														 comparable_geographic_distance_start)
-														 / (double)CLOCKS_PER_SEC;
+					comparable_geographic_distance_start)
+				/ (double)CLOCKS_PER_SEC;
 		}
 		else if (lon1 == lon3 && lat1 == lat3)
 		{
@@ -220,12 +220,12 @@ int main()
 
 			for (int i=0; i<MAX; i++)
 			{
-				comparable_geographic_distance_result = compare_length_of_two_segments_local_earth(P1, P2, P4);         
+				comparable_geographic_distance_result = compare_length_of_two_segments_local_earth(P1, P2, P4);			
 			}
 			std::clock_t comparable_geographic_distance_stop = std::clock();
 			secs_comparable_geographic_distance = double(comparable_geographic_distance_stop -
-													     comparable_geographic_distance_start)
-														 / (double)CLOCKS_PER_SEC;
+					comparable_geographic_distance_start)
+				/ (double)CLOCKS_PER_SEC;
 		}
 
 		std::cout << "comparable_geographic_distance:" << comparable_geographic_distance_result << std::endl;
@@ -244,11 +244,11 @@ int main()
 			std::cout << "comparable_geographic_distance: P1, P2 equal to P3, P4" << std::endl;
 		}
 		std::cout << "consistency:" << (distance_result == comparable_geographic_distance_result)
-									<< std::endl;
+			<< std::endl;
 
 		std::cout << "distance (sec):" << secs_distance << std::endl;
 		std::cout << "comparable_geographic_distance (sec):" << secs_comparable_geographic_distance 
-															 << std::endl << std::endl;
+			<< std::endl << std::endl;
 	}
 
 	return 0;
