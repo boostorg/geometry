@@ -379,6 +379,12 @@ void test_areal()
     TEST_UNION_IGNORE(case_recursive_boxes_54, 1, 1, -1, 22.5);
 #endif
 
+    TEST_UNION(case_recursive_boxes_55, 3, 1, -1, 15.5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_56, 5, 1, -1, 7.75);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_56, 5, 0, -1, 7.75);
+#endif
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server
