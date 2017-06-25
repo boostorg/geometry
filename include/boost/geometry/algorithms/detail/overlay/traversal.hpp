@@ -378,38 +378,39 @@ struct traversal
         std::vector<sort_by_side::rank_with_rings> aggregation;
         sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_union);
 
-       sort_by_side::rank_with_rings const& incoming = aggregation.front();
 
-       // Take the first one outgoing for the incoming region
-       std::size_t selected_rank = 0;
-       for (std::size_t i = 1; i < aggregation.size(); i++)
-       {
-           sort_by_side::rank_with_rings const& rwr = aggregation[i];
-           if (rwr.all_to()
-                   && rwr.region_id() == incoming.region_id())
-           {
+        sort_by_side::rank_with_rings const& incoming = aggregation.front();
+
+        // Take the first one outgoing for the incoming region
+        std::size_t selected_rank = 0;
+        for (std::size_t i = 1; i < aggregation.size(); i++)
+        {
+            sort_by_side::rank_with_rings const& rwr = aggregation[i];
+            if (rwr.all_to()
+                    && rwr.region_id() == incoming.region_id())
+            {
                 selected_rank = rwr.rank;
                 break;
-           }
-       }
+            }
+        }
 
-       for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
-       {
-           typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-           if (ranked_point.rank == selected_rank
-               && ranked_point.direction == sort_by_side::dir_to)
-           {
-               turn_index = ranked_point.turn_index;
-               op_index = ranked_point.operation_index;
-               // TODO: this should be finetuned such that this condition
-               // is not necessary
-               if (! m_turns[turn_index].operations[op_index].visited.finalized())
-               {
-                   return true;
-               }
-           }
-       }
-       return false;
+        for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
+        {
+            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+            if (ranked_point.rank == selected_rank
+                    && ranked_point.direction == sort_by_side::dir_to)
+            {
+                turn_index = ranked_point.turn_index;
+                op_index = ranked_point.operation_index;
+                // TODO: this should be finetuned such that this condition
+                // is not necessary
+                if (! m_turns[turn_index].operations[op_index].visited.finalized())
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
