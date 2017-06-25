@@ -34,16 +34,15 @@
     ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
 
 #define TEST_UNION_IGNORE(caseid, clips, holes, points, area) \
-    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
-    ( #caseid, caseid[0], caseid[1], clips, holes, points, area, ignore_validity)
+   { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+     test_one<Polygon, MultiPolygon, MultiPolygon> \
+     (#caseid, caseid[0], caseid[1], \
+     clips, holes, points, area, ignore_validity); }
 
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
