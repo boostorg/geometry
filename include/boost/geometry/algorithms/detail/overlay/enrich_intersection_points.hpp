@@ -339,6 +339,7 @@ inline void enrich_intersection_points(Turns& turns,
         if (turn.both(detail::overlay::operation_none))
         {
             turn.discarded = true;
+            continue;
         }
 
         if (turn.both(opposite_operation))
@@ -348,6 +349,7 @@ inline void enrich_intersection_points(Turns& turns,
             // Also, for union, discard ii
             turn.discarded = true;
             turn.cluster_id = -1;
+            continue;
         }
 
         if (detail::overlay::is_self_turn<OverlayType>(turn)
@@ -357,6 +359,7 @@ inline void enrich_intersection_points(Turns& turns,
             // Only keep self-uu-turns or self-ii-turns
            turn.discarded = true;
            turn.cluster_id = -1;
+           continue;
         }
 
         if (! turn.discarded
