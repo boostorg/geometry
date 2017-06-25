@@ -351,10 +351,10 @@ inline void enrich_intersection_points(Turns& turns,
         }
 
         if (detail::overlay::is_self_turn<OverlayType>(turn)
-            && (turn.cluster_id >= 0 || ! turn.both(target_operation)))
+            && turn.cluster_id < 0
+            && ! turn.both(target_operation))
         {
-            // Only keep non-colocated self-uu-turns or self-ii-turns
-            // TODO (maybe): avoid discarding if there are ONLY self-turns
+            // Only keep self-uu-turns or self-ii-turns
            turn.discarded = true;
            turn.cluster_id = -1;
         }
