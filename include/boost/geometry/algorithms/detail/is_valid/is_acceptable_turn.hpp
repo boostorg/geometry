@@ -140,6 +140,19 @@ private:
             && op2.operation == optype2;
     }
 
+    template <typename Operation>
+    static inline
+    bool check_int_int(Operation const& op1,
+        Operation const& op2,
+        detail::overlay::operation_type optype)
+    {
+        // i/i is acceptable for touching interior/interior rings
+        return op1.seg_id.ring_index >= 0
+            && op2.seg_id.ring_index >= 0
+            && op1.operation == optype
+            && op2.operation == optype;
+    }
+
 public:
     template <typename Turn>
     static inline bool apply(Turn const& turn)
@@ -153,10 +166,15 @@ public:
         }
 
         operation_type const op = acceptable_operation<MultiPolygon>::value;
-        if (base::check_turn(turn, method_touch_interior, op)
-                || base::check_turn(turn, method_touch, op))
+        if ( base::check_turn(turn, method_touch_interior, op)
+          || base::check_turn(turn, method_touch, op))
         {
             return true;
+        }
+
+        if (turn.method != method_touch)
+        {
+            return false;
         }
 
         operation_type const reverse_op
@@ -164,11 +182,11 @@ public:
                 ? operation_intersection
                 : operation_union;
 
-        if (turn.method == method_touch
-            && (check_int_ext(turn.operations[0], reverse_op,
-                              turn.operations[1], op)
-             || check_int_ext(turn.operations[1], reverse_op,
-                              turn.operations[0], op)))
+        if ( check_int_int(turn.operations[0], turn.operations[1], reverse_op)
+          || check_int_ext(turn.operations[0], reverse_op,
+                           turn.operations[1], op)
+          || check_int_ext(turn.operations[1], reverse_op,
+                           turn.operations[0], op))
         {
             return true;
         }
