@@ -225,16 +225,10 @@ static bool test_overlay_p_q(std::string const& caseid,
         }
         else
         {
-            for (BOOST_AUTO(it, out_i.begin()); it != out_i.end(); ++it)
-            {
-                mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                        "stroke:rgb(255,0,0);stroke-width:4");
-            }
-            for (BOOST_AUTO(it, out_u.begin()); it != out_u.end(); ++it)
-            {
-                mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                        "stroke:rgb(255,0,255);stroke-width:4");
-            }
+            mapper.map(out_i, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,128);"
+                    "stroke:rgb(255,0,0);stroke-width:4");
+            mapper.map(out_u, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                    "stroke:rgb(255,0,255);stroke-width:4");
         }
     }
     return result;
