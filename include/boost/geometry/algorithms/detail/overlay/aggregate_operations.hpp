@@ -209,7 +209,7 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
 
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        if (! (ranked_point.rank == 0
+        if (! ((target_operation == operation_union && ranked_point.rank == 0)
                || op.operation == target_operation
                || op.operation == operation_continue
                || (op.operation == operation_blocked && ranked_point.direction == dir_from)))

@@ -373,68 +373,43 @@ struct traversal
     }
 
     inline bool select_from_cluster_union(signed_size_type& turn_index,
-        int& op_index, signed_size_type start_turn_index,
-        sbs_type& sbs, bool is_touching, std::size_t open_count) const
+        int& op_index, sbs_type& sbs) const
     {
-        if (is_touching)
-        {
-            sbs.reverse();
-        }
+        std::vector<sort_by_side::rank_with_rings> aggregation;
+        sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_union);
 
-        std::size_t selected_rank = 0;
-        std::size_t min_rank = 0;
-        bool result = false;
-        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
-        {
-            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-            if (result && ranked_point.rank > selected_rank)
-            {
-                return result;
-            }
+       sort_by_side::rank_with_rings const& incoming = aggregation.front();
 
-            turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-            turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
+       // Take the first one outgoing for the incoming region
+       std::size_t selected_rank = 0;
+       for (std::size_t i = 1; i < aggregation.size(); i++)
+       {
+           sort_by_side::rank_with_rings const& rwr = aggregation[i];
+           if (rwr.all_to()
+                   && rwr.region_id() == incoming.region_id())
+           {
+                selected_rank = rwr.rank;
+                break;
+           }
+       }
 
-            if (result && ranked_op.visited.finalized())
-            {
-                // One of the arcs in the same direction as the selected result
-                // is already traversed.
-                return false;
-            }
-
-            if (! is_touching && ranked_op.visited.finalized())
-            {
-                // Skip this one, go to next
-                min_rank = ranked_point.rank;
-                continue;
-            }
-
-            if (ranked_point.direction == sort_by_side::dir_to
-                && (ranked_point.rank > min_rank
-                    || ranked_turn.both(operation_continue)))
-            {
-                if (ranked_op.enriched.count_left == 0
-                     && ranked_op.enriched.count_right > 0)
-                {
-                    if (result && ranked_point.turn_index != start_turn_index)
-                    {
-                        // Don't override - only override if arrive at start
-                        continue;
-                    }
-
-                    turn_index = ranked_point.turn_index;
-                    op_index = ranked_point.operation_index;
-
-                    result = true;
-                    selected_rank = ranked_point.rank;
-                }
-                else if (! is_touching)
-                {
-                    return result;
-                }
-            }
-        }
-        return result;
+       for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
+       {
+           typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+           if (ranked_point.rank == selected_rank
+               && ranked_point.direction == sort_by_side::dir_to)
+           {
+               turn_index = ranked_point.turn_index;
+               op_index = ranked_point.operation_index;
+               // TODO: this should be finetuned such that this condition
+               // is not necessary
+               if (! m_turns[turn_index].operations[op_index].visited.finalized())
+               {
+                   return true;
+               }
+           }
+       }
+       return false;
     }
 
     inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
@@ -642,26 +617,7 @@ struct traversal
 
         if (is_union)
         {
-    #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-            bool is_touching = cinfo.open_count > 1;
-            if (is_touching)
-            {
-                if (cinfo.switch_source)
-                {
-                    is_touching = false;
-                    std::cout << "CLUSTER: SWITCH SOURCES at " << turn_index << std::endl;
-                }
-                else
-                {
-                    std::cout << "CLUSTER: CONTINUE at " << turn_index << std::endl;
-                }
-            }
-    #else
-            bool is_touching = cinfo.open_count > 1 && ! cinfo.switch_source;
-    #endif
-
-            result = select_from_cluster_union(turn_index, op_index,
-                start_turn_index, sbs, is_touching, cinfo.open_count);
+            result = select_from_cluster_union(turn_index, op_index, sbs);
         }
         else
         {
