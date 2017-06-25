@@ -198,11 +198,7 @@ void test_areal()
     // PostGIS returns: MULTIPOLYGON(((0 0,0 8,8 8,8 0,0 0),(4 6,4 4,6 4,6 6,4 6)),((2 2,2.5 3.5,4 4,3.5 2.5,2 2),(4 4,2 4,2 2,4 2,4 4)),((4 4,4.5 5.5,6 6,5.5 4.5,4 4)))
     // Which seems wrong because the second hole is part of a smaller polygon (?)
     // ("POSTGIS="2.1.7 r13414" GEOS="3.5.0dev-CAPI-1.9.0 r4057")
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_UNION_IGNORE(case_132_multi, 3, 1, 26, 60.0);
-#else
-    TEST_UNION_IGNORE(case_132_multi, 3, 1, 26, 60.0);
-#endif
+    TEST_UNION(case_132_multi, 3, 2, 26, 60.0);
 
     TEST_UNION(case_133_multi, 2, 1, -1, 64.625);
     TEST_UNION(case_134_multi, 1, 2, -1, 66.0);
@@ -264,22 +260,15 @@ void test_areal()
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
 
-    // Invalid input (made valid)
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_12_invalid",
-        case_recursive_boxes_12_invalid[0], case_recursive_boxes_12_invalid[1],
-            6, 0, -1, 6.0);
+    // 12, 13, 14 with invalid input. To make then valid it is necessary
+    // to break regions at self-intersection points (postponed)
 
+    TEST_UNION_IGNORE(case_recursive_boxes_12_invalid, 5, 0, -1, 6.0);
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    // Invalid input for 13 cannot (yet) made valid if self-turns are used
+    // Without self-turns, a whole part is missed
     TEST_UNION_IGNORE(case_recursive_boxes_13_invalid, 2, 0, -1, 10.25);
-#else
-    TEST_UNION(case_recursive_boxes_13_invalid, 3, 0, -1, 10.25);
 #endif
-
-    // Invalid input (made valid)
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
-        case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
-            5, 0, -1, 4.5);
+    TEST_UNION_IGNORE(case_recursive_boxes_14_invalid, 4, 0, -1, 4.5);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],
@@ -385,6 +374,14 @@ void test_areal()
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_56, 5, 0, -1, 7.75);
 #endif
+    TEST_UNION(case_recursive_boxes_57, 3, 4, -1, 19.75);
+    TEST_UNION(case_recursive_boxes_58, 6, 1, -1, 6.25);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // If there are no self-turns, an interior ring is missed
+    TEST_UNION(case_recursive_boxes_59, 1, 3, -1, 21.75);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server

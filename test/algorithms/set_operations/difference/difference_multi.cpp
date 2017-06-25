@@ -348,6 +348,13 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_54, 6, 6.5, 8, 6.0, 7);
     TEST_DIFFERENCE(case_recursive_boxes_55, 4, 5.5, 6, 7.75, 4);
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_56, 4, 4.5, 5, 2.75, 6);
+    TEST_DIFFERENCE(case_recursive_boxes_57, 5, 3.75, 9, 6.5, 10);
+    TEST_DIFFERENCE(case_recursive_boxes_58, 4, 2.25, 6, 3.75, 7);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_59, 8, 6.5, 7, 7.0, 12);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_59, 8, 6.5, 6, 7.0, 11);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
         mysql_21965285_b[0],
