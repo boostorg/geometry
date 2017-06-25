@@ -21,6 +21,7 @@
 #include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/foreach.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
 #include <boost/geometry/algorithms/union.hpp>
@@ -69,6 +70,44 @@ inline void check_input_validity(std::string const& caseid, int case_index,
     }
 }
 #endif
+
+template
+<
+    typename Geometry,
+    typename Tag = typename bg::tag<Geometry>::type
+>
+struct check_validity
+{
+    static inline
+    bool apply(Geometry const& geometry, std::string& message)
+    {
+        if (! bg::is_valid(geometry, message))
+        {
+            std::cout << bg::wkt(geometry) << std::endl;
+        }
+        return bg::is_valid(geometry, message);
+    }
+};
+
+// Specialization for vector of <geometry> (e.g. rings)
+template <typename Geometry>
+struct check_validity<Geometry, void>
+{
+    static inline
+    bool apply(Geometry const& geometry, std::string& message)
+    {
+        typedef typename boost::range_value<Geometry>::type single_type;
+        BOOST_FOREACH(single_type const& element, geometry)
+        {
+            if (! bg::is_valid(element, message))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
 
 template <typename Range>
 inline std::size_t num_points(Range const& rng, bool add_for_open = false)
@@ -121,6 +160,16 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 #endif
 
+    if (settings.test_validity)
+    {
+        std::string message;
+        bool const valid = check_validity<result_type>::apply(clip, message);
+        BOOST_CHECK_MESSAGE(valid,
+            "union: " << caseid << " not valid: " << message
+            << " type: " << (type_for_assert_message<G1, G2>()));
+    }
+
+
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
     std::size_t holes = 0;
@@ -130,17 +179,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         area += bg::area(*it);
         holes += bg::num_interior_rings(*it);
         n += bg::num_points(*it, true);
-
-        if (settings.test_validity)
-        {
-            // Check validity (currently on separate clips only)
-            // std::cout << bg::dsv(*it) << std::endl;
-            std::string message;
-            bool const valid = bg::is_valid(*it, message);
-            BOOST_CHECK_MESSAGE(valid,
-                "union: " << caseid << " not valid: " << message
-                << " type: " << (type_for_assert_message<G1, G2>()));
-        }
     }
 
 
