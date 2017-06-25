@@ -402,16 +402,26 @@ struct traversal
             {
                 turn_index = ranked_point.turn_index;
                 op_index = ranked_point.operation_index;
-                // TODO: this should be finetuned such that this condition
-                // is not necessary
-                if (! m_turns[turn_index].operations[op_index].visited.finalized())
+
+                turn_type const& turn = m_turns[turn_index];
+                turn_operation_type const& op = turn.operations[op_index];
+
+                if (op.enriched.count_left == 0
+                    && op.enriched.count_right > 0
+                    && ! op.visited.finalized())
                 {
+                    // In some cases interior rings might be generated with polygons
+                    // on both sides
+
+                    // TODO: this should be finetuned such that checking
+                    // finalized is not necessary
                     return true;
                 }
             }
         }
         return false;
     }
+
 
     inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
                                        operation_type op_type,
