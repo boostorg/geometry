@@ -194,7 +194,8 @@ struct rank_with_rings
 
 template <typename Sbs, typename Turns>
 inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& aggregation,
-                                 Turns const& turns)
+                                 Turns const& turns,
+                                 operation_type target_operation)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
@@ -208,10 +209,12 @@ inline void aggregate_operations(Sbs const& sbs, std::vector<rank_with_rings>& a
 
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        if (! (op.operation == operation_intersection
+        if (! (ranked_point.rank == 0
+               || op.operation == target_operation
                || op.operation == operation_continue
                || (op.operation == operation_blocked && ranked_point.direction == dir_from)))
         {
+            // Always take rank 0 (because self-turns are blocked)
             // Don't consider union/blocked (aggregate is only used for intersections)
             // Blocked is allowed for from
             continue;
