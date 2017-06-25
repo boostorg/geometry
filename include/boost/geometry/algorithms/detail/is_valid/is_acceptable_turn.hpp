@@ -125,6 +125,21 @@ private:
     typedef typename boost::range_value<MultiPolygon>::type polygon;
     typedef is_acceptable_turn<polygon> base;
 
+    template <typename Operation>
+    static inline
+    bool check_int_ext(Operation const& op1,
+        detail::overlay::operation_type optype1,
+        Operation const& op2,
+        detail::overlay::operation_type optype2)
+    {
+        // u/i is acceptable for touch of interior ring with another exterior ring
+        // (but only if there is a colocated uu-turn of its exterior, TODO)
+        return op1.seg_id.ring_index == -1
+            && op2.seg_id.ring_index >= 0
+            && op1.operation == optype1
+            && op2.operation == optype2;
+    }
+
 public:
     template <typename Turn>
     static inline bool apply(Turn const& turn)
@@ -138,10 +153,27 @@ public:
         }
 
         operation_type const op = acceptable_operation<MultiPolygon>::value;
+        if (base::check_turn(turn, method_touch_interior, op)
+                || base::check_turn(turn, method_touch, op))
+        {
+            return true;
+        }
 
-        return base::check_turn(turn, method_touch_interior, op)
-            || base::check_turn(turn, method_touch, op)
-            ;
+        operation_type const reverse_op
+                = op == operation_union
+                ? operation_intersection
+                : operation_union;
+
+        if (turn.method == method_touch
+            && (check_int_ext(turn.operations[0], reverse_op,
+                              turn.operations[1], op)
+             || check_int_ext(turn.operations[1], reverse_op,
+                              turn.operations[0], op)))
+        {
+            return true;
+        }
+
+        return false;
     }
 };   
 
