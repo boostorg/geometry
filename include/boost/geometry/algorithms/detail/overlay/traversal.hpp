@@ -487,30 +487,22 @@ struct traversal
                     selected_rank = rwr.rank;
                 }
 
-#if 1
                 if (rwr.all_from()
                         && selected_rank > 0
                         && outgoing_region_ids.empty())
                 {
                     // Incoming
-                    BG_LOG("  Incoming arc, use selected_rank " << selected_rank);
                     break;
                 }
-#endif
 
-#if 1
                 if (incoming_region_id == 0)
                 {
                     sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
                     turn_type const& turn = m_turns[rwd.turn_index];
                     incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
-    BG_LOG("  Set incoming region turn="  << rwd.turn_index
-              << " size=" << rwr.rings.size()
-              << " region=" << incoming_region_id);
                 }
                 else
                 {
-    BG_LOG("  Incoming region is set, one ring , region=" << incoming_region_id);
                     if (rwr.rings.size() == 1)
                     {
                         sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
