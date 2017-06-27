@@ -173,6 +173,8 @@ private:
 
             std::size_t count = boost::size(ls);
 
+            m_has_interior = false;
+
             if (count > 0)
             {
                 m_has_interior = true;

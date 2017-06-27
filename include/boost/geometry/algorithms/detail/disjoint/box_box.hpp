@@ -121,9 +121,16 @@ struct box_box<Box1, Box2, 0, DimensionCount, spherical_tag>
             // calculate positive longitude translation with b1_min as origin
             calc_t const diff_min = math::longitude_distance_unsigned<units_t>(b1_min, b2_min);
             calc_t const b2_min_transl = b1_min + diff_min; // always right of b1_min
+            calc_t b2_max_transl = b2_min_transl - constants::period() + diff2;;
 
-            if (b2_min_transl > b1_max                                // b2_min right of b1_max
-             && b2_min_transl - constants::period() + diff2 < b1_min) // b2_max left of b1_min
+            // if the translation is too close then use the original point
+            if (math::abs(b2_max_transl - b2_max) < 100 * std::numeric_limits<calc_t>::epsilon())
+            {
+                b2_max_transl = b2_max;
+            }
+
+            if (b2_min_transl > b1_max  // b2_min right of b1_max
+                    && b2_max_transl < b1_min) // b2_max left of b1_min
             {
                 return true;
             }
