@@ -7,6 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
@@ -160,6 +162,7 @@ int main(int argc, char** argv)
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
             ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
+            ("validity", po::value<bool>(&settings.validity)->default_value(true), "Include testing on validity")
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("size", po::value<int>(&field_size)->default_value(10), "Size of the field")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")

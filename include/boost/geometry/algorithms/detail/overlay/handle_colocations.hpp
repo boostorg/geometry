@@ -262,15 +262,6 @@ inline void handle_colocation_cluster(Turns& turns,
                 add_cluster_id(other_op, cluster_per_segment, ref_id);
                 id = ref_id;
             }
-
-            // In case of colocated xx turns, all other turns may NOT be
-            // followed at all. xx cannot be discarded (otherwise colocated
-            // turns are followed).
-            if (ref_turn.both(operation_blocked))
-            {
-                turn.discarded = true;
-                // We can either set or not set colocated because it is not effective on blocked turns
-            }
         }
         else
         {
@@ -331,11 +322,7 @@ inline void assign_cluster_to_turns(Turns& turns,
     }
 }
 
-template
-<
-    typename Turns,
-    typename Clusters
->
+template <typename Turns, typename Clusters>
 inline void remove_clusters(Turns& turns, Clusters& clusters)
 {
     typename Clusters::iterator it = clusters.begin();
@@ -350,11 +337,37 @@ inline void remove_clusters(Turns& turns, Clusters& clusters)
                 = current_it->second.turn_indices;
         if (turn_indices.size() == 1)
         {
-            signed_size_type turn_index = *turn_indices.begin();
+            signed_size_type const turn_index = *turn_indices.begin();
             turns[turn_index].cluster_id = -1;
             clusters.erase(current_it);
         }
     }
+}
+
+template <typename Turns, typename Clusters>
+inline void cleanup_clusters(Turns& turns, Clusters& clusters)
+{
+    // Removes discarded turns from clusters
+    for (typename Clusters::iterator mit = clusters.begin();
+         mit != clusters.end(); ++mit)
+    {
+        cluster_info& cinfo = mit->second;
+        std::set<signed_size_type>& ids = cinfo.turn_indices;
+        for (std::set<signed_size_type>::iterator sit = ids.begin();
+             sit != ids.end(); /* no increment */)
+        {
+            std::set<signed_size_type>::iterator current_it = sit;
+            ++sit;
+
+            signed_size_type const turn_index = *current_it;
+            if (turns[turn_index].discarded)
+            {
+                ids.erase(current_it);
+            }
+        }
+    }
+
+    remove_clusters(turns, clusters);
 }
 
 template <typename Turn, typename IdSet>
@@ -508,7 +521,7 @@ inline void set_colocation(Turns& turns, Clusters const& clusters)
             {
                 has_ii = true;
             }
-            if (turn.both(operation_union))
+            if (turn.both(operation_union) || turn.combination(operation_union, operation_blocked))
             {
                 has_uu = true;
             }
@@ -629,7 +642,6 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
             do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
             OverlayType
         >(turns, clusters);
-    remove_clusters(turns, clusters);
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
@@ -716,7 +728,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         point_type turn_point; // should be all the same for all turns in cluster
 
         bool first = true;
-        for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+        for (std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
         {
             signed_size_type turn_index = *sit;
@@ -737,12 +749,19 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         sbs.find_open();
         sbs.assign_zones(for_operation);
 
+        cinfo.open_count = sbs.open_count(for_operation);
+
         // Unset the startable flag for all 'closed' zones
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
             turn_type& turn = turns[ranked.turn_index];
             turn_operation_type& op = turn.operations[ranked.operation_index];
+
+            if (for_operation == operation_union && cinfo.open_count == 0)
+            {
+                op.enriched.startable = false;
+            }
 
             if (ranked.direction != sort_by_side::dir_to)
             {
@@ -763,7 +782,6 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             }
         }
 
-        cinfo.open_count = sbs.open_count(for_operation);
     }
 }
 

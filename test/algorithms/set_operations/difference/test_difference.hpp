@@ -91,10 +91,22 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
         typedef typename bg::coordinate_type<G1>::type coordinate_type;
         typedef typename bg::point_type<G1>::type point_type;
 
+        bool const ccw =
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
+        bool const open =
+            bg::closure<G1>::value == bg::open
+            || bg::closure<G2>::value == bg::open;
+
         std::ostringstream filename;
         filename << "difference_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
+            << (ccw ? "_ccw" : "")
+            << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+           << "_self"
+#endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"
 #endif
@@ -187,7 +199,8 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         std::string message;
         bool const valid = bg::is_valid(result, message);
         BOOST_CHECK_MESSAGE(valid,
-            "difference: " << caseid << " not valid " << message);
+            "difference: " << caseid << " not valid " << message
+            << " type: " << (type_for_assert_message<G1, G2>()));
     }
 #endif
 

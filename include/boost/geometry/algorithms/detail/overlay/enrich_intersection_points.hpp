@@ -26,15 +26,14 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
-#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
-#include <boost/geometry/strategies/side.hpp>
+
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -173,9 +172,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
 
 template <typename Turns, typename MappedVector>
-inline void create_map(Turns const& turns,
-        detail::overlay::operation_type for_operation,
-        MappedVector& mapped_vector)
+inline void create_map(Turns const& turns, MappedVector& mapped_vector)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::container_type container_type;
@@ -268,6 +265,7 @@ inline void calculate_remaining_distance(Turns& turns)
     }
 }
 
+
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
 
@@ -305,8 +303,13 @@ inline void enrich_intersection_points(Turns& turns,
     RobustPolicy const& robust_policy,
     Strategy const& strategy)
 {
-    static const detail::overlay::operation_type for_operation
+    static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
+    static const detail::overlay::operation_type opposite_operation
+            = target_operation == detail::overlay::operation_union
+            ? detail::overlay::operation_intersection
+            : detail::overlay::operation_union;
+
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
     typedef detail::overlay::indexed_turn_operation
@@ -332,34 +335,31 @@ inline void enrich_intersection_points(Turns& turns,
          ++it)
     {
         turn_type& turn = *it;
+
         if (turn.both(detail::overlay::operation_none))
         {
             turn.discarded = true;
+            continue;
         }
-        if (for_operation == detail::overlay::operation_intersection
-                && turn.both(detail::overlay::operation_union))
+
+        if (turn.both(opposite_operation))
         {
             // For intersections, remove uu to avoid the need to travel
             // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
-            turn.discarded = true;
-            turn.cluster_id = -1;
-        }
-
-        if (for_operation == detail::overlay::operation_union
-                && turn.both(detail::overlay::operation_intersection))
-        {
             // Also, for union, discard ii
             turn.discarded = true;
             turn.cluster_id = -1;
+            continue;
         }
 
-        if (OverlayType != overlay_buffer
-            && turn.cluster_id >= 0
-            && turn.self_turn())
+        if (detail::overlay::is_self_turn<OverlayType>(turn)
+            && turn.cluster_id < 0
+            && ! turn.both(target_operation))
         {
-            // Avoid interfering self-turn if there are already clustered turns
-            // TODO: avoid discarding if there are ONLY self-turns
+            // Only keep self-uu-turns or self-ii-turns
            turn.discarded = true;
+           turn.cluster_id = -1;
+           continue;
         }
 
         if (! turn.discarded
@@ -369,11 +369,22 @@ inline void enrich_intersection_points(Turns& turns,
         }
     }
 
+    detail::overlay::discard_closed_turns
+        <
+            OverlayType,
+            target_operation
+        >::apply(turns, geometry1, geometry2);
+    detail::overlay::discard_open_turns
+        <
+            OverlayType,
+            target_operation
+        >::apply(turns, geometry1, geometry2);
+
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
     mapped_vector_type mapped_vector;
 
-    detail::overlay::create_map(turns, for_operation, mapped_vector);
+    detail::overlay::create_map(turns, mapped_vector);
 
     // No const-iterator; contents of mapped copy is temporary,
     // and changed by enrich
@@ -387,7 +398,7 @@ inline void enrich_intersection_points(Turns& turns,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
-                    mit->second, turns, for_operation,
+                    mit->second, turns, target_operation,
                     geometry1, geometry2,
                     robust_policy, strategy);
     }
@@ -406,12 +417,16 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
+        // First gather cluster properties (using even clusters with
+        // discarded turns - for open turns), then clean up clusters
         detail::overlay::gather_cluster_properties
             <
                 Reverse1,
                 Reverse2,
                 OverlayType
-            >(clusters, turns, for_operation, geometry1, geometry2);
+            >(clusters, turns, target_operation, geometry1, geometry2);
+
+        detail::overlay::cleanup_clusters(turns, clusters);
     }
 
     if (has_cc)
