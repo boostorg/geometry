@@ -48,8 +48,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
 #if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
     #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-        { ut_settings ignore_validity; \
-        ignore_validity.test_validity = false; \
+        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
         (test_one<Polygon, Polygon, Polygon>) \
         ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 #endif
