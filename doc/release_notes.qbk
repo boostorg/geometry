@@ -19,6 +19,19 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.65]
+[/=================]
+
+[*Solved issues]
+
+[*Bugfixes]
+
+* Fix is_valid which could return false for multipolygons where an interior ring touches another interior ring
+* Fix union which could produce invalid results (for some cases, this needs to define BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+* Fix intersection (idem), but some cases are still not yet valid
+* Fix difference (idem), but some cases are still not yet valid
+
+[/=================]
 [heading Boost 1.64]
 [/=================]
 
