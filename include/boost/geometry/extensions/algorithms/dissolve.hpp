@@ -21,6 +21,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -223,7 +224,7 @@ struct dissolve_ring_or_polygon
                          turns, rings, clusters, visitor);
 
             std::map<ring_identifier, detail::overlay::ring_turn_info> map;
-            get_ring_turn_info(map, turns);
+            detail::overlay::get_ring_turn_info<overlay_dissolve>(map, turns, clusters);
 
             typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
 

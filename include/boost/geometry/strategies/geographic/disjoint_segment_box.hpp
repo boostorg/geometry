@@ -107,8 +107,6 @@ template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
                         geographic_tag, geographic_tag>
 {
-    //typedef typename point_type<Linear>::type linear_point_type;
-    //typedef typename coordinate_type<linear_point_type>::type CalculationType;
     typedef segment_box_geographic<> type;
 };
 
@@ -116,8 +114,6 @@ template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
                         geographic_tag, geographic_tag>
 {
-    //typedef typename point_type<Linear>::type linear_point_type;
-    //typedef typename coordinate_type<linear_point_type>::type CalculationType;
     typedef segment_box_geographic<> type;
 };
 

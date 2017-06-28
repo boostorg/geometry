@@ -16,6 +16,7 @@
 template <typename P>
 void test_all()
 {
+    typedef bg::model::multi_point<P> mpoint;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
@@ -151,6 +152,10 @@ void test_all()
     // Point-MultiLinestring
     test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(5 5, 6 6))", true);
     test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(0 0, 6 6))", false);
+
+    // MultiPoint-Polygon
+    test_touches<mpoint, ring>("MULTIPOINT(40 50, 30 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
+    test_touches<mpoint, polygon>("MULTIPOINT(40 50, 50 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
 
     // Linestring-Linestring
     test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(0 0,0 2)", true);
