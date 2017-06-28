@@ -1,12 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
-
-// Licensed under the Boost Software License version 1.0.
-// http://www.boost.org/users/license.html
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_disjoint_coverage
@@ -117,6 +117,24 @@ inline void test_point_multipoint()
 }
 
 template <typename P>
+inline void test_multipoint_point()
+{
+    typedef bg::model::multi_point<P> MP;
+    
+    typedef test_disjoint tester;
+
+    tester::apply("mp-p-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
+                  from_wkt<P>("POINT(0 0)"),
+                  false);
+
+    tester::apply("mp-p-02",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<P>("POINT(0 0)"),
+                  true);
+}
+
+template <typename P>
 inline void test_multipoint_multipoint()
 {
     typedef bg::model::multi_point<P> MP;
@@ -153,7 +171,7 @@ inline void test_pointlike_pointlike()
 
     test_point_point<point_type>();
     test_point_multipoint<point_type>();
-
+    test_multipoint_point<point_type>();
     test_multipoint_multipoint<point_type>();
 }
 

@@ -219,12 +219,12 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
 
     detail::self_get_turn_points::get_turns
         <
-            turn_policy
+            false, turn_policy
         >::apply(linear,
                  strategy,
                  detail::no_rescale_policy(),
                  turns,
-                 interrupt_policy);
+                 interrupt_policy, 0);
 
     detail::is_valid::debug_print_turns(turns.begin(), turns.end());
     debug_print_boundary_points(linear);

@@ -353,6 +353,52 @@ void test_geographic()
         geodesic_vincenty('i', "POINT(17.5 0.5005177748229335)"),
         geodesic_thomas('i', "POINT(17.5 0.5005178030678186)"),
         geodesic_andoyer('i', "POINT(17.5 0.5004949944844279)"));
+
+    // vertical, crossing at the pole or disjoint
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 45, -90 60)", "SEGMENT(0 50, 180 70)", 'i', "POINT(0 90)");
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 -45, -90 -60)", "SEGMENT(0 -50, 180 -70)", 'i', "POINT(0 -90)");
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 45, -90 60)", "SEGMENT(0 -50, 180 -70)", 'd');
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 -45, -90 -60)", "SEGMENT(0 50, 180 70)", 'd');
+
+    // vertical touching at the pole
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 90, 90 45)", "SEGMENT(0 90, 0 45)", 'f', "POINT(90 90)"); // should probably be (0 90)
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 90, 90 45)", "SEGMENT(0 45, 0 90)", 'a', "POINT(90 90)"); // should probably be (0 90)
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 45, 90 90)", "SEGMENT(0 90, 0 45)", 'a', "POINT(90 90)"); // should probably be (0 90)
+    test_all_strategies<segment_t, point_t>(
+        "SEGMENT(90 45, 90 90)", "SEGMENT(0 45, 0 90)", 't', "POINT(90 90)"); // should probably be (0 90)
+
+    // one vertical with endpoint at a pole
+    /*test_strategies<segment_t, point_t>(
+        "SEGMENT(0 90, 90 0)", "SEGMENT(89 45, 91 45)",
+        great_elliptic('i',    "POINT(90 45.00436354465514)"),
+        geodesic_vincenty('i', "POINT(90.00000000000112 45.00437824795338)"),
+        geodesic_thomas('i',   "POINT(90.00000000472062 45.00437824797395)"),
+        geodesic_andoyer('i',  "POINT(89.99999993672924 45.00437824794587)"));
+    test_strategies<segment_t, point_t>(
+        "SEGMENT(90 0, 0 90)", "SEGMENT(89 45, 91 45)",
+        great_elliptic('i',    "POINT(90 45.00436354465514)"),
+        geodesic_vincenty('i', "POINT(90.00000000000112 45.00437824795338)"),
+        geodesic_thomas('i',   "POINT(90.00000000472062 45.00437824797395)"),
+        geodesic_andoyer('i',  "POINT(89.99999993672924 45.00437824794587)"));
+    test_strategies<segment_t, point_t>(
+        "SEGMENT(0 -90, 90 0)", "SEGMENT(89 -45, 91 -45)",
+        great_elliptic('i',    "POINT(90 -45.00436354465514)"),
+        geodesic_vincenty('i', "POINT(90.00000000000112 -45.00437824795338)"),
+        geodesic_thomas('i',   "POINT(90.00000000472062 -45.00437824797395)"),
+        geodesic_andoyer('i',  "POINT(89.99999993672924 -45.00437824794587)"));
+    test_strategies<segment_t, point_t>(
+        "SEGMENT(90 0, 0 -90)", "SEGMENT(89 -45, 91 -45)",
+        great_elliptic('i',    "POINT(90 -45.00436354465514)"),
+        geodesic_vincenty('i', "POINT(90.00000000000112 -45.00437824795338)"),
+        geodesic_thomas('i',   "POINT(90.00000000472062 -45.00437824797395)"),
+        geodesic_andoyer('i',  "POINT(89.99999993672924 -45.00437824794587)"));*/
 }
 
 int test_main(int, char* [])

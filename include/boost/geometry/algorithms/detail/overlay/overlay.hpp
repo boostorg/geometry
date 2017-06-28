@@ -28,9 +28,11 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
@@ -87,29 +89,58 @@ struct overlay_null_visitor
     {}
 };
 
-template <typename Turns, typename TurnInfoMap>
-inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
+template
+<
+    overlay_type OverlayType,
+    typename TurnInfoMap,
+    typename Turns,
+    typename Clusters
+>
+inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::container_type container_type;
 
+    static const operation_type target_operation
+            = operation_from_overlay<OverlayType>::value;
+    static const operation_type opposite_operation
+            = target_operation == operation_union ? operation_intersection : operation_union;
+
+    signed_size_type turn_index = 0;
     for (typename boost::range_iterator<Turns const>::type
             it = boost::begin(turns);
          it != boost::end(turns);
-         ++it)
+         ++it, turn_index++)
     {
-        typename boost::range_value<Turns>::type const& turn_info = *it;
+        typename boost::range_value<Turns>::type const& turn = *it;
 
-        if (turn_info.discarded
-            && ! turn_info.any_blocked()
-            && ! turn_info.colocated)
+        bool const colocated_target = target_operation == operation_union
+                ? turn.colocated_uu : turn.colocated_ii;
+        bool const colocated_opp = target_operation == operation_union
+                ? turn.colocated_ii : turn.colocated_uu;
+        bool const both_opposite = turn.both(opposite_operation);
+
+        bool const traversed
+                = turn.operations[0].visited.finalized()
+                || turn.operations[0].visited.rejected()
+                || turn.operations[1].visited.finalized()
+                || turn.operations[1].visited.rejected()
+                || turn.both(operation_blocked)
+                || turn.combination(opposite_operation, operation_blocked);
+
+        bool is_closed = false;
+        if (turn.cluster_id >= 0 && target_operation == operation_union)
         {
-            continue;
+            typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
+            BOOST_ASSERT(mit != clusters.end());
+
+            cluster_info const& cinfo = mit->second;
+            is_closed = cinfo.open_count == 0;
         }
 
         for (typename boost::range_iterator<container_type const>::type
-                op_it = boost::begin(turn_info.operations);
-            op_it != boost::end(turn_info.operations);
+                op_it = boost::begin(turn.operations);
+            op_it != boost::end(turn.operations);
             ++op_it)
         {
             ring_identifier const ring_id
@@ -118,7 +149,34 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns)
                     op_it->seg_id.multi_index,
                     op_it->seg_id.ring_index
                 );
-            turn_info_map[ring_id].has_normal_turn = true;
+
+            if (traversed || is_closed || ! op_it->enriched.startable)
+            {
+                turn_info_map[ring_id].has_traversed_turn = true;
+            }
+            else if (both_opposite && colocated_target)
+            {
+                // For union: ii, colocated with a uu
+                // For example, two interior rings touch where two exterior rings also touch.
+                // The interior rings are not yet traversed, and should be taken from the input
+
+                // For intersection: uu, colocated with an ii
+                // unless it is two interior inner rings colocated with a uu
+
+                // So don't set has_traversed_turn here
+            }
+            else if (both_opposite && ! is_self_turn<OverlayType>(turn))
+            {
+                // For union, mark any ring with a ii turn as traversed
+                // For intersection, any uu - but not if it is a self-turn
+                turn_info_map[ring_id].has_traversed_turn = true;
+            }
+            else if (colocated_opp && ! colocated_target)
+            {
+                // For union, a turn colocated with ii and NOT with uu/ux
+                // For intersection v.v.
+                turn_info_map[ring_id].has_traversed_turn = true;
+            }
         }
     }
 }
@@ -128,11 +186,11 @@ template
 <
     typename GeometryOut, overlay_type OverlayType, bool ReverseOut,
     typename Geometry1, typename Geometry2,
-    typename OutputIterator
+    typename OutputIterator, typename Strategy
 >
 inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            OutputIterator out)
+            OutputIterator out, Strategy const& strategy)
 {
     typedef std::deque
         <
@@ -164,9 +222,9 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     std::map<ring_identifier, ring_turn_info> empty;
     std::map<ring_identifier, properties> all_of_one_of_them;
 
-    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them);
+    select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them, strategy);
     ring_container_type rings;
-    assign_parents(geometry1, geometry2, rings, all_of_one_of_them);
+    assign_parents(geometry1, geometry2, rings, all_of_one_of_them, strategy);
     return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out);
 }
 
@@ -201,7 +259,7 @@ struct overlay
             return return_if_one_input_is_empty
                 <
                     GeometryOut, OverlayType, ReverseOut
-                >(geometry1, geometry2, out);
+                >(geometry1, geometry2, out, strategy);
         }
 
         typedef typename geometry::point_type<GeometryOut>::type point_type;
@@ -238,6 +296,16 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        {
+            self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
+                strategy, robust_policy, turns, policy, 0);
+            self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
+                strategy, robust_policy, turns, policy, 1);
+        }
+#endif
+
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
@@ -271,7 +339,7 @@ std::cout << "traverse" << std::endl;
                 );
 
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
-        get_ring_turn_info(turn_info_per_ring, turns);
+        get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
         typedef ring_properties
         <
@@ -281,7 +349,7 @@ std::cout << "traverse" << std::endl;
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties);
+                selected_ring_properties, strategy);
 
         // Add rings created during traversal
         {
@@ -297,7 +365,7 @@ std::cout << "traverse" << std::endl;
             }
         }
 
-        assign_parents(geometry1, geometry2, rings, selected_ring_properties);
+        assign_parents(geometry1, geometry2, rings, selected_ring_properties, strategy);
 
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
     }

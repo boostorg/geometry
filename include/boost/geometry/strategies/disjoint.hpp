@@ -1,6 +1,7 @@
 // Boost.Geometry
 
 // Copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,7 +38,9 @@ template
     typename Tag1 = typename geometry::tag<Geometry1>::type,
     typename Tag2 = typename geometry::tag<Geometry2>::type,
     int TopDim1 = geometry::topological_dimension<Geometry1>::value,
-    int TopDim2 = geometry::topological_dimension<Geometry2>::value
+    int TopDim2 = geometry::topological_dimension<Geometry2>::value,
+    typename CsTag1 = typename cs_tag<Geometry1>::type,
+    typename CsTag2 = typename cs_tag<Geometry2>::type
 >
 struct default_strategy
     : relate::services::default_strategy

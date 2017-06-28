@@ -71,6 +71,24 @@ public :
         a2 = i_res.reverse_azimuth;
     }
 
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1) const
+    {
+        typedef typename boost::mpl::if_
+                <
+                    boost::is_void<CalculationType>, T, CalculationType
+                >::type calc_t;
+
+        typedef typename FormulaPolicy::template inverse<calc_t, false, true, false, false, false> inverse_type;
+        typedef typename inverse_type::result_type inverse_result;
+        inverse_result i_res = inverse_type::apply(calc_t(lon1_rad), calc_t(lat1_rad),
+                                                   calc_t(lon2_rad), calc_t(lat2_rad),
+                                                   m_spheroid);
+        a1 = i_res.azimuth;
+    }
+
 private :
     Spheroid m_spheroid;
 };

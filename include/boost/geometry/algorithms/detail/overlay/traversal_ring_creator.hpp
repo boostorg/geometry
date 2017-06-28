@@ -127,10 +127,8 @@ struct traversal_ring_creator
             m_visitor.visit_traverse(m_turns, previous_turn, previous_op, "Start");
         }
 
-        bool is_touching = false;
         if (! m_trav.select_turn(start_turn_index, start_op_index,
                 turn_index, op_index,
-                is_touching,
                 previous_op_index, previous_turn_index, previous_seg_id,
                 is_start))
         {
@@ -307,10 +305,26 @@ struct traversal_ring_creator
                 continue;
             }
 
-            for (int op_index = 0; op_index < 2; op_index++)
+            if (turn.both(operation_continue))
             {
+                // Traverse only one turn, the one with the SMALLEST remaining distance
+                // to avoid skipping a turn in between, which can happen in rare cases
+                // (e.g. #130)
+                turn_operation_type const& op0 = turn.operations[0];
+                turn_operation_type const& op1 = turn.operations[1];
+                int const op_index
+                        = op0.remaining_distance <= op1.remaining_distance ? 0 : 1;
+
                 traverse_with_operation(turn, turn_index, op_index,
                         rings, finalized_ring_size, state);
+            }
+            else
+            {
+                for (int op_index = 0; op_index < 2; op_index++)
+                {
+                    traverse_with_operation(turn, turn_index, op_index,
+                            rings, finalized_ring_size, state);
+                }
             }
         }
     }

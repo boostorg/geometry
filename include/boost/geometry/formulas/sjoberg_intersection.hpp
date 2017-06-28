@@ -663,6 +663,7 @@ public:
                      lon, lat, spheroid);
     }
 
+    // TODO: Currently may not work correctly if one of the endpoints is the pole
     template <typename Spheroid>
     static inline bool apply(CT const& lon_a1, CT const& lat_a1, CT const& lon_a2, CT const& lat_a2, CT const& alpha_a1,
                              CT const& lon_b1, CT const& lat_b1, CT const& lon_b2, CT const& lat_b2, CT const& alpha_b1,
@@ -700,17 +701,42 @@ public:
             return true;
         }
 
-        // vertical segments
-        if (geod1.is_Cj_zero && geod2.is_Cj_zero)
-        {
-            //TODO: the geodesics may be parallel or intersect at one of the poles
-            return false;
-        }
-        
         // (lon1 - lon2) normalized to (-180, 180]
         CT const lon1_minus_lon2 = math::longitude_distance_signed<radian>(geod2.lonj, geod1.lonj);
 
-        CT lon_sph = lon;
+        // vertical segments
+        if (geod1.is_Cj_zero && geod2.is_Cj_zero)
+        {
+            CT const pi = math::pi<CT>();
+
+            // the geodesics are parallel, the intersection point cannot be calculated
+            if ( math::equals(lon1_minus_lon2, c0)
+              || math::equals(lon1_minus_lon2 + (lon1_minus_lon2 < c0 ? pi : -pi), c0) )
+            {
+                return false;
+            }
+
+            lon = c0;
+
+            // the geodesics intersect at one of the poles
+            CT const pi_half = pi / CT(2);
+            CT const abs_lat_a1 = math::abs(lat_a1);
+            CT const abs_lat_a2 = math::abs(lat_a2);
+            if (math::equals(abs_lat_a1, abs_lat_a2))
+            {
+                lat = pi_half;
+            }
+            else
+            {
+                // pick the pole closest to one of the points of the first segment
+                CT const& closer_lat = abs_lat_a1 > abs_lat_a2 ? lat_a1 : lat_a2;
+                lat = closer_lat >= 0 ? pi_half : -pi_half;
+            }
+
+            return true;
+        }
+
+        CT lon_sph = 0;
 
         // Starting tan(beta)
         CT t = 0;
