@@ -80,6 +80,14 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(255,128,0);"
                             "stroke:rgb(0,0,0);stroke-width:1", 3);
                     break;
+                case 11 :
+                    m_mapper.map(turn.point, "fill:rgb(92,255,0);" // Greenish
+                            "stroke:rgb(0,0,0);stroke-width:1", 3);
+                    break;
+                case 21 :
+                    m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
+                            "stroke:rgb(0,0,0);stroke-width:1", 3);
+                    break;
                 case 2 :
                     label_turn(index, turn);
                     break;
@@ -264,22 +272,28 @@ struct map_visitor
             out << "#";
         }
 
-        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
-        if (turn.colocated)
+        std::string font8 = "font-family:Arial;font-size:8px";
+        std::string font6 = "font-family:Arial;font-size:6px";
+        std::string style =  "fill:rgb(0,0,255);" + font8;
+        if (turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index)
         {
-            style =  "fill:rgb(255,0,0);font-family:Arial;font-size:8px";
+            style =  "fill:rgb(255,0,255);" + font8;
+        }
+        else if (turn.colocated)
+        {
+            style =  "fill:rgb(255,0,0);" + font8;
         }
         else if (turn.discarded)
         {
-            style =  "fill:rgb(92,92,92);font-family:Arial;font-size:6px";
+            style =  "fill:rgb(92,92,92);" + font6;
         }
         else if (turn.cluster_id != -1)
         {
-            style =  "fill:rgb(0,0,255);font-family:Arial;font-size:8px";
+            style =  "fill:rgb(0,0,255);" + font8;
         }
         else if (! lab1 || ! lab2)
         {
-            style =  "fill:rgb(0,0,255);font-family:Arial;font-size:6px";
+            style =  "fill:rgb(0,0,255);" + font6;
         }
 
         add_text(turn, out.str(), style);
@@ -333,10 +347,21 @@ void test_overlay(std::string const& caseid,
     bg::correct(g2);
 
 #if defined(TEST_WITH_SVG)
+    bool const ccw = bg::point_order<Geometry>::value == bg::counterclockwise;
+    bool const open = bg::closure<Geometry>::value == bg::open;
+
     std::ostringstream filename;
     filename << "overlay"
         << "_" << caseid
         << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
+        << (ccw ? "_ccw" : "")
+        << (open ? "_open" : "")
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        << "_self"
+#endif
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        << "_no_rob"
+#endif
         << ".svg";
 
     std::ofstream svg(filename.str().c_str());
@@ -358,8 +383,13 @@ void test_overlay(std::string const& caseid,
     typedef typename boost::range_value<Geometry>::type geometry_out;
     typedef bg::detail::overlay::overlay
         <
-            Geometry, Geometry, false, OverlayType == bg::overlay_difference,
-            false, geometry_out,
+            Geometry, Geometry,
+            bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            OverlayType == bg::overlay_difference
+            ? ! bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value
+            : bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
+            geometry_out,
             OverlayType
         > overlay;
 
@@ -420,11 +450,11 @@ void test_overlay(std::string const& caseid,
 #define TEST_UNION_WITH(caseid, index1, index2, area, clips, holes) (test_overlay<multi_polygon, bg::overlay_union>) \
     ( #caseid "_union" #index1 "_" #index2, caseid[index1], caseid[index2], area, clips, holes)
 
-template <typename T>
+template <typename T, bool Clockwise>
 void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::polygon<point_type> polygon;
+    typedef bg::model::polygon<point_type, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_UNION(case_multi_simplex, 14.58, 1, 0);
@@ -468,6 +498,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<double>();
+    test_all<double, true>();
+//    test_all<double, false>();
     return 0;
  }

@@ -55,6 +55,24 @@ public :
         a2 = result.reverse_azimuth;
     }
 
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1) const
+    {
+         typedef typename boost::mpl::if_
+            <
+                boost::is_void<CalculationType>, T, CalculationType
+            >::type calc_t;
+
+        geometry::formula::result_spherical<calc_t>
+            result = geometry::formula::spherical_azimuth<calc_t, false>(
+                        calc_t(lon1_rad), calc_t(lat1_rad),
+                        calc_t(lon2_rad), calc_t(lat2_rad));
+
+        a1 = result.azimuth;
+    }
+
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

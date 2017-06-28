@@ -91,7 +91,10 @@ struct turn_info
     method_type method;
     signed_size_type cluster_id; // For multiple turns on same location, >= 0. Else -1
     bool discarded;
-    bool colocated;
+
+    // TODO: move this to enriched
+    bool colocated_ii; // Colocated with a ii turn (TODO: or a ix turn)
+    bool colocated_uu; // Colocated with a uu turn or a ux turn
     bool switch_source; // For u/u turns which can either switch or not
 
     Container operations;
@@ -100,7 +103,8 @@ struct turn_info
         : method(method_none)
         , cluster_id(-1)
         , discarded(false)
-        , colocated(false)
+        , colocated_ii(false)
+        , colocated_uu(false)
         , switch_source(false)
     {}
 
@@ -132,7 +136,6 @@ struct turn_info
     {
         return has(operation_blocked);
     }
-
 
 private :
     inline bool has12(operation_type type1, operation_type type2) const

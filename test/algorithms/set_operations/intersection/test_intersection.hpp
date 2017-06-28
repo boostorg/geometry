@@ -102,7 +102,8 @@ check_result(
             std::string message;
             bool const valid = bg::is_valid(*it, message);
             BOOST_CHECK_MESSAGE(valid,
-                "intersection: " << caseid << " not valid " << message);
+                "intersection: " << caseid << " not valid: " << message
+                << " type: " << (type_for_assert_message<G1, G2>()));
         }
     }
 
@@ -169,9 +170,12 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         std::cout << std::endl << "case " << caseid << std::endl;
     }
 
-    typedef typename bg::point_type<G1>::type point_type;
     typedef typename setop_output_type<OutputType>::type result_type;
 
+    typedef typename bg::point_type<G1>::type point_type;
+    boost::ignore_unused<point_type>();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     if (! settings.debug)
     {
         // Check _inserter behaviour with stratey
@@ -182,6 +186,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         result_type clip;
         bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy_type());
     }
+#endif
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
 
@@ -193,18 +198,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
 
-    // Check strategy passed explicitly
-    typedef typename bg::strategy::relate::services::default_strategy
-            <
-                G1, G2
-            >::type strategy_type;
-    intersection_output.clear();
-    bg::intersection(g1, g2, intersection_output, strategy_type());
-
-    check_result<G1, G2>(intersection_output, caseid, expected_count,
-        expected_holes_count, expected_point_count, expected_length_or_area,
-        settings);
-
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Check variant behaviour
     intersection_output.clear();
     bg::intersection(boost::variant<G1>(g1), g2, intersection_output);
@@ -226,6 +220,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     check_result<G1, G2>(intersection_output, caseid, expected_count,
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
+#endif
 
 #if defined(TEST_WITH_SVG)
     {
@@ -246,6 +241,9 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+            << "_self"
+#endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"
 #endif

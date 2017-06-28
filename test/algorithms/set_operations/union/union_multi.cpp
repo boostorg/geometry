@@ -33,15 +33,16 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
 
+#define TEST_UNION_IGNORE(caseid, clips, holes, points, area) \
+   { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+     test_one<Polygon, MultiPolygon, MultiPolygon> \
+     (#caseid, caseid[0], caseid[1], \
+     clips, holes, points, area, ignore_validity); }
+
+
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
-    // Some output is only invalid for CCW
-    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
@@ -72,7 +73,6 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_a",
         case_58_multi[0], case_58_multi[3],
         2, 0, 21, 19.83333333);
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_58_multi_b",
         case_58_multi[1], case_58_multi[2],
         1, 3, 17, 48.333333);
@@ -130,14 +130,12 @@ void test_areal()
         case_108_multi[0], case_108_multi[1],
         1, 1, 20, 22.75);
 
-    // Should have 2 holes
-    // To make it valid, it is necessary to calculate and use self turns
-    // for each input. Now the two holes are connected because a turn is missing
-    // there.
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_109_multi",
-        case_109_multi[0], case_109_multi[1],
-        1, 1, 14, 1400,
-        ignore_validity);
+    // Should have 2 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_109_multi, 1, 2, 14, 1400);
+#else
+    TEST_UNION_IGNORE(case_109_multi, 1, 1, 14, 1400);
+#endif
 
     // Should have 9 holes, they are all separate and touching
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_110_multi",
@@ -183,6 +181,29 @@ void test_areal()
 
     TEST_UNION(case_123_multi, 1, 0, 11, 2.75);
     TEST_UNION(case_124_multi, 1, 0, 9, 2.75);
+    TEST_UNION(case_125_multi, 1, 0, 9, 2.75);
+    TEST_UNION(case_126_multi, 1, 2, 27, 52.0);
+
+    // Should have 2 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_131_multi, 1, 2, 15, 14.0);
+#else
+    TEST_UNION_IGNORE(case_131_multi, 1, 1, 15, 14.0);
+#endif
+
+    // SQL Server returns: MULTIPOLYGON (((4 4, 5.5 4.5, 6 6, 4.5 5.5, 4 4)), ((2 2, 3.5 2.5, 4 4, 2.5 3.5, 2 2)), ((0 0, 8 0, 8 8, 0 8, 0 0), (2 2, 2 4, 4 4, 4 6, 6 6, 6 4, 4 4, 4 2, 2 2)))
+    // Which is one self-connected hole with two island polygons in both parts, basically identical to what Boost.Geometry delivers
+
+    // PostGIS returns: MULTIPOLYGON(((0 0,0 8,8 8,8 0,0 0),(4 6,4 4,6 4,6 6,4 6)),((2 2,2.5 3.5,4 4,3.5 2.5,2 2),(4 4,2 4,2 2,4 2,4 4)),((4 4,4.5 5.5,6 6,5.5 4.5,4 4)))
+    // Which seems wrong because the second hole is part of a smaller polygon (?)
+    // ("POSTGIS="2.1.7 r13414" GEOS="3.5.0dev-CAPI-1.9.0 r4057")
+    TEST_UNION(case_132_multi, 3, 2, 26, 60.0);
+
+    TEST_UNION(case_133_multi, 2, 1, -1, 64.625);
+    TEST_UNION(case_134_multi, 1, 2, -1, 66.0);
+    TEST_UNION(case_135_multi, 1, 2, -1, 22.0);
+    TEST_UNION(case_136_multi, 1, 2, -1, 22.0);
+    TEST_UNION(case_137_multi, 1, 2, -1, 22.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
@@ -198,14 +219,12 @@ void test_areal()
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
         1, 2, 42, 96.75);
 
-    // Should have 10 holes.
-    // For making #5 valid, it is necessary to calculate and use self turns
-    // for each input. Now one hole is connected to another hole because a turn
-    // missing there.
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_5",
-        case_recursive_boxes_5[0], case_recursive_boxes_5[1],
-        3, 9, 115, 70.0,
-        ignore_validity);
+    // Should have 10 holes. Needs self turns
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_5, 3, 10, 118, 70.0);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_5, 3, 9, 115, 70.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
@@ -240,30 +259,15 @@ void test_areal()
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
 
-    // Invalid versions of 12/13/14
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_12_invalid",
-        case_recursive_boxes_12_invalid[0], case_recursive_boxes_12_invalid[1],
-            6, 0, -1, 6.0);
+    // 12, 13, 14 with invalid input. To make then valid it is necessary
+    // to break regions at self-intersection points (postponed)
 
-    if (! ccw)
-    {
-        // Handling this invalid input delivers invalid results for CCW
-        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
-            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
-                3, 0, -1, 10.25);
-    }
-    else
-    {
-        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_13_invalid",
-            case_recursive_boxes_13_invalid[0], case_recursive_boxes_13_invalid[1],
-                2, 0, -1, 10.25,
-                ignore_validity);
-    }
-
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_14_invalid",
-        case_recursive_boxes_14_invalid[0], case_recursive_boxes_14_invalid[1],
-            5, 0, -1, 4.5);
-
+    TEST_UNION_IGNORE(case_recursive_boxes_12_invalid, 5, 0, -1, 6.0);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // Without self-turns, a whole part is missed
+    TEST_UNION_IGNORE(case_recursive_boxes_13_invalid, 2, 0, -1, 10.25);
+#endif
+    TEST_UNION_IGNORE(case_recursive_boxes_14_invalid, 4, 0, -1, 4.5);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],
@@ -338,6 +342,47 @@ void test_areal()
         case_recursive_boxes_38[0], case_recursive_boxes_38[1],
             2, 1, -1, 14.0);
 
+    TEST_UNION(case_recursive_boxes_46, 1, 4, 51, 33.0);
+    TEST_UNION(case_recursive_boxes_47, 1, 0, -1, 22.0);
+    TEST_UNION(case_recursive_boxes_48, 1, 1, -1, 10.0);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_49, 1, 3, -1, 59.0);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_49, 1, 2, -1, 59.0);
+#endif
+
+    TEST_UNION(case_recursive_boxes_50, 7, 4, -1, 68.0);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_51, 2, 6, -1, 75.0);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_51, 2, 5, -1, 75.0);
+#endif
+
+    TEST_UNION(case_recursive_boxes_52, 2, 6, -1, 77.0);
+    TEST_UNION(case_recursive_boxes_53, 1, 1, -1, 24.75);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_54, 1, 2, -1, 22.5);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_54, 1, 1, -1, 22.5);
+#endif
+
+    TEST_UNION(case_recursive_boxes_55, 3, 1, -1, 15.5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_56, 5, 1, -1, 7.75);
+#else
+    TEST_UNION_IGNORE(case_recursive_boxes_56, 5, 0, -1, 7.75);
+#endif
+    TEST_UNION(case_recursive_boxes_57, 3, 4, -1, 19.75);
+    TEST_UNION(case_recursive_boxes_58, 6, 1, -1, 6.25);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // If there are no self-turns, an interior ring is missed
+    TEST_UNION(case_recursive_boxes_59, 1, 3, -1, 21.75);
+#endif
+
+    TEST_UNION(case_recursive_boxes_60, 3, 0, -1, 20.5);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server
@@ -376,17 +421,19 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
-    // TODO: solve validity, it needs calculating self-turns
-    // Should have 1 hole
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
-        mysql_23023665_7[0], mysql_23023665_7[1],
-        1, 0, -1, 99.19494,
-        ignore_validity);
-    // Should have 2 holes
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_8",
-        mysql_23023665_8[0], mysql_23023665_8[1],
-        1, 1, -1, 1400.0,
-        ignore_validity);
+    // Should have 1 hole. Needs self turns.
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
+#else
+    TEST_UNION_IGNORE(mysql_23023665_7, 1, 0, -1, 99.19494);
+#endif
+
+    // Should have 2 holes. Needs self turns.
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(mysql_23023665_8, 1, 2, -1, 1400.0);
+#else
+    TEST_UNION_IGNORE(mysql_23023665_8, 1, 1, -1, 1400.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
         mysql_23023665_9[0], mysql_23023665_9[1],
@@ -423,11 +470,11 @@ void test_specific()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double>, true, true>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<double>, false, false>();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float>, true, true>();
 
 #if defined(HAVE_TTMATH)

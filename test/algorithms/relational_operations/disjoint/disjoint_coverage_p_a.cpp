@@ -1,12 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_disjoint_coverage
@@ -211,22 +212,22 @@ inline void test_multipoint_polygon()
 
     tester::apply("mp-pg-01",
                   from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
-                  from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
+                  from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
     tester::apply("mp-pg-02",
                   from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
-                  from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
+                  from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
     tester::apply("mp-pg-03",
                   from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
-                  from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
+                  from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   true);
 
     tester::apply("mp-pg-04",
                   from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
-                  from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
+                  from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   true);
 }
 
@@ -241,22 +242,22 @@ inline void test_multipoint_multipolygon()
 
     tester::apply("mp-mp-01",
                   from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
-                  from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   false);
 
     tester::apply("mp-mp-02",
                   from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
-                  from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   false);
 
     tester::apply("mp-mp-03",
                   from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
-                  from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   false);
 
     tester::apply("mp-mp-04",
                   from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
-                  from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   true);
 }
 
@@ -272,10 +273,10 @@ inline void test_pointlike_areal()
     test_point_ring<point_type>();
     test_point_box<point_type>();
 
-    // not implemented yet
-    //    test_multipoint_polygon<point_type>();
-    //    test_multipoint_multipolygon<point_type>();
-    //    test_multipoint_ring<point_type>();
+    test_multipoint_polygon<point_type>();
+    test_multipoint_multipolygon<point_type>();
+    test_multipoint_ring<point_type>();
+
     test_multipoint_box<point_type>();
 }
 

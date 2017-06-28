@@ -388,6 +388,20 @@ class winding
 
 
 public:
+    typedef typename SideStrategy::envelope_strategy_type envelope_strategy_type;
+
+    inline envelope_strategy_type get_envelope_strategy() const
+    {
+        return m_side_strategy.get_envelope_strategy();
+    }
+
+    typedef typename SideStrategy::disjoint_strategy_type disjoint_strategy_type;
+
+    inline disjoint_strategy_type get_disjoint_strategy() const
+    {
+        return m_side_strategy.get_disjoint_strategy();
+    }
+
     winding()
     {}
 
@@ -459,28 +473,44 @@ private:
 namespace services
 {
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
 } // namespace services
@@ -495,28 +525,44 @@ struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linea
 namespace strategy { namespace covered_by { namespace services
 {
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef within::winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef within::winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef within::winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
-template <typename Point, typename Geometry, typename AnyTag>
-struct default_strategy<Point, Geometry, point_tag, AnyTag, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
+template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
+struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+    typedef within::winding
+        <
+            typename geometry::point_type<PointLike>::type,
+            typename geometry::point_type<Geometry>::type
+        > type;
 };
 
 }}} // namespace strategy::covered_by::services

@@ -48,7 +48,12 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     map_type selected;
     std::map<bg::ring_identifier, bg::detail::overlay::ring_turn_info> empty;
 
-    bg::detail::overlay::select_rings<OverlayType>(geometry1, geometry2, empty, selected);
+    typedef typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry1>::type
+        >::type strategy_type;
+
+    bg::detail::overlay::select_rings<OverlayType>(geometry1, geometry2, empty, selected, strategy_type());
 
     BOOST_CHECK_EQUAL(selected.size(), expected_ids.size());
 
