@@ -232,8 +232,6 @@ void test_all()
 
     // Selection of test cases having only one cluster
 
-    TEST_INT(case_62_multi, list_of(1));
-    TEST_INT(case_63_multi, list_of(1));
     TEST_INT(case_64_multi, list_of(1));
     TEST_INT(case_72_multi, list_of(3));
     TEST_INT(case_107_multi, list_of(2));
@@ -241,19 +239,15 @@ void test_all()
     TEST_INT(case_124_multi, list_of(3));
     TEST_INT(case_recursive_boxes_1, list_of(2));
     TEST_INT(case_recursive_boxes_10, list_of(2));
-    TEST_INT(case_recursive_boxes_18, list_of(0));
-    TEST_INT(case_recursive_boxes_19, list_of(0));
     TEST_INT(case_recursive_boxes_20, list_of(2));
     TEST_INT(case_recursive_boxes_21, list_of(1));
     TEST_INT(case_recursive_boxes_22, list_of(0));
-    TEST_INT(case_recursive_boxes_23, list_of(1));
 
     TEST_UNION(case_recursive_boxes_46, list_of(2)(1)(2)(1)(1)(2)(1));
 
     TEST_UNION(case_62_multi, list_of(2));
     TEST_UNION(case_63_multi, list_of(2));
     TEST_UNION(case_64_multi, list_of(1));
-    TEST_UNION(case_72_multi, list_of(0));
     TEST_UNION(case_107_multi, list_of(1));
     TEST_UNION(case_123_multi, list_of(1));
     TEST_UNION(case_124_multi, list_of(1));
