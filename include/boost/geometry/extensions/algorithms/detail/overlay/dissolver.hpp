@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -98,11 +102,13 @@ class plusmin_policy
         typename Geometry1,
         typename Geometry2,
         typename RescalePolicy,
-        typename OutputCollection
+        typename OutputCollection,
+        typename Strategy
     >
     static inline bool check_negative(Geometry1 a, Geometry2 b, // pass-by-value
                     RescalePolicy const& rescale_policy,
-                    OutputCollection& output_collection)
+                    OutputCollection& output_collection,
+                    Strategy const& strategy)
     {
         // Precondition: a = positive, b = negative
 
@@ -111,7 +117,7 @@ class plusmin_policy
         {
             // 2: Check if there is overlap
             OutputCollection difference;
-            geometry::intersection(a, b, difference);
+            geometry::intersection(a, b, difference, strategy);
             if(difference.size() <= 0)
             {
                 return false;
@@ -137,7 +143,7 @@ class plusmin_policy
             <
                 false, false,
                 overlay::assign_null_policy
-            >(a, b, rescale_policy, turns, policy);
+            >(a, b, strategy, rescale_policy, turns, policy);
 
         if (! policy.has_intersections)
         {
@@ -152,7 +158,7 @@ class plusmin_policy
 
         // This will calculate B minus A, result is then positive
         OutputCollection difference;
-        geometry::intersection(a, b, difference);
+        geometry::intersection(a, b, difference, strategy);
 
         // Add original a to output (NOT necessary! TODO avoid this)
         {
@@ -180,15 +186,17 @@ public :
         typename Geometry1,
         typename Geometry2,
         typename RescalePolicy,
-        typename OutputCollection
+        typename OutputCollection,
+        typename Strategy
     >
     static inline bool apply(Geometry1 const& a, Geometry2 const& b,
                     RescalePolicy const& rescale_policy,
-                    OutputCollection& output_collection)
+                    OutputCollection& output_collection,
+                    Strategy const& strategy)
     {
         typedef typename geometry::coordinate_type<Geometry2>::type coordinate_type;
-        coordinate_type area_a = geometry::area(a);
-        coordinate_type area_b = geometry::area(b);
+        coordinate_type area_a = geometry::area(a, strategy.template get_area_strategy<Geometry1>());
+        coordinate_type area_b = geometry::area(b, strategy.template get_area_strategy<Geometry2>());
 
         // DEBUG
         /*
@@ -205,16 +213,16 @@ public :
         coordinate_type zero = coordinate_type();
         if (area_a > zero && area_b > zero)
         {
-            geometry::union_(a, b, output_collection);
+            geometry::union_(a, b, output_collection, strategy);
             return true;
         }
         else if (area_a > zero && area_b < zero)
         {
-            return check_negative(a, b, rescale_policy, output_collection);
+            return check_negative(a, b, rescale_policy, output_collection, strategy);
         }
         else if (area_a < zero && area_b > zero)
         {
-            return check_negative(b, a, rescale_policy, output_collection);
+            return check_negative(b, a, rescale_policy, output_collection, strategy);
         }
 
         // both negative (?) TODO
@@ -279,22 +287,30 @@ struct dissolver_generic
     template
     <
         typename Vector,
-        typename HelperVector
+        typename HelperVector,
+        typename Strategy
     >
     static inline void init_helper(Vector const& v, HelperVector& helper,
-        int index = 0, int source = 0)
+                                   Strategy const& strategy,
+                                   int index = 0, int source = 0)
     {
         typedef typename boost::range_value<Vector>::type value_type;
         typedef typename geometry::point_type<value_type>::type point_type;
         typedef model::box<point_type> box_type;
+
+        typename Strategy::envelope_strategy_type const
+            envelope_strategy = strategy.get_envelope_strategy();
+        typename Strategy::template area_strategy<value_type>::type const
+            area_strategy = strategy.template get_area_strategy<value_type>();
+
         for(typename boost::range_iterator<Vector const>::type
             it = boost::begin(v);
             it != boost::end(v);
             ++it, ++index)
         {
             helper.push_back(dissolve_helper<box_type>(index,
-                    geometry::return_envelope<box_type>(*it),
-                    geometry::area(*it),
+                    geometry::return_envelope<box_type>(*it, envelope_strategy),
+                    geometry::area(*it, area_strategy),
                     source));
         }
     }
@@ -304,15 +320,17 @@ struct dissolver_generic
         typename Element,
         typename Geometry1, typename Geometry2,
         typename RescalePolicy,
-        typename OutputCollection
+        typename OutputCollection,
+        typename Strategy
     >
     static inline bool call_policy(
             Element const& , Element const& ,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RescalePolicy const& rescale_policy,
-            OutputCollection& output_collection)
+            OutputCollection& output_collection,
+            Strategy const& strategy)
     {
-        if (! geometry::disjoint(geometry1, geometry2))
+        if (! geometry::disjoint(geometry1, geometry2, strategy))
         {
             /*std::cout << "Process " << element1.source << "/" << element1.index
                 << " and " << element2.source << "/" << element2.index
@@ -320,7 +338,7 @@ struct dissolver_generic
                 << std::endl;
             */
             return CombinePolicy::apply(geometry1, geometry2,
-                            rescale_policy, output_collection);
+                            rescale_policy, output_collection, strategy);
         }
         return false;
     }
@@ -334,6 +352,7 @@ struct dissolver_generic
         typename InputRange,
         typename RescalePolicy,
         typename OutputCollection,
+        typename Strategy,
         typename Box
     >
     static inline bool divide_and_conquer(HelperVector& helper_vector
@@ -341,6 +360,7 @@ struct dissolver_generic
                 , InputRange const& input_range
                 , RescalePolicy const& rescale_policy
                 , OutputCollection& output_collection
+                , Strategy const& strategy
                 , Box const& total_box
                 , bool& changed
                 , int iteration = 0
@@ -386,9 +406,9 @@ struct dissolver_generic
 
             // 3: recursively call function (possibly divide in other dimension)
             divide_and_conquer<1 - Dimension>(helper_vector,
-                lower_list, input_range, rescale_policy, output_collection, lower_box, changed, iteration + 1);
+                lower_list, input_range, rescale_policy, output_collection, strategy, lower_box, changed, iteration + 1);
             divide_and_conquer<1 - Dimension>(helper_vector,
-                upper_list, input_range, rescale_policy, output_collection, upper_box, changed, iteration + 1);
+                upper_list, input_range, rescale_policy, output_collection, strategy, upper_box, changed, iteration + 1);
             return changed;
         }
 
@@ -422,7 +442,8 @@ struct dissolver_generic
                                 get_geometry::apply(input_range, element1.index),
                                 get_geometry::apply(input_range, element2.index),
                                 rescale_policy,
-                                output_collection
+                                output_collection,
+                                strategy
                             )
                         )
                         || (element1.source == 0 && element2.source == 1
@@ -432,7 +453,8 @@ struct dissolver_generic
                                 get_geometry::apply(input_range, element1.index),
                                 get_geometry::apply(output_collection, element2.index),
                                 rescale_policy,
-                                output_collection
+                                output_collection,
+                                strategy
                             )
                         )
                         || (element1.source == 1 && element2.source == 0
@@ -442,7 +464,8 @@ struct dissolver_generic
                                 get_geometry::apply(output_collection, element1.index),
                                 get_geometry::apply(input_range, element2.index),
                                 rescale_policy,
-                                output_collection
+                                output_collection,
+                                strategy
                             )
                         )
                         || (element1.source == 1 && element2.source == 1
@@ -452,7 +475,8 @@ struct dissolver_generic
                                 get_geometry::apply(output_collection, element1.index),
                                 get_geometry::apply(output_collection, element2.index),
                                 rescale_policy,
-                                output_collection
+                                output_collection,
+                                strategy
                             )
                         )
                         )
@@ -474,7 +498,10 @@ struct dissolver_generic
 
         // Append new records in output collection to helper class
         init_helper(std::make_pair(boost::begin(output_collection) + n,
-            boost::end(output_collection)), helper_vector, n, 1);
+                                   boost::end(output_collection)),
+                    helper_vector,
+                    strategy,
+                    n, 1);
 
         return changed;
     }
@@ -491,11 +518,13 @@ struct dissolver_generic
     <
         typename InputRange,
         typename RescalePolicy,
-        typename OutputCollection
+        typename OutputCollection,
+        typename Strategy
     >
     static inline void apply(InputRange const& input_range
                 , RescalePolicy const& rescale_policy
                 , OutputCollection& output_collection
+                , Strategy const& strategy
                 )
     {
         typedef typename boost::range_value<OutputCollection>::type output_type;
@@ -512,7 +541,7 @@ struct dissolver_generic
         std::vector<int> index_vector;
 
 
-        init_helper(input_range, helper_vector);
+        init_helper(input_range, helper_vector, strategy);
 
         // Fill intrusive list with copies, and determine bounding box
         box_type total_box;
@@ -534,7 +563,7 @@ struct dissolver_generic
 
         bool changed = false;
         while(divide_and_conquer<1>
-            (helper_vector, index_vector, input_range, rescale_policy, unioned_collection, total_box, changed) && n < 5)
+            (helper_vector, index_vector, input_range, rescale_policy, unioned_collection, strategy, total_box, changed) && n < 5)
         {
             // Remove everything which is already dissolved.
             helper_vector.erase
@@ -632,10 +661,12 @@ struct dissolver<polygon_tag, polygon_tag, Policy>
 template
 <
     typename InputRange,
-    typename OutputCollection
+    typename OutputCollection,
+    typename Strategy
 >
 inline void dissolver(InputRange const& input_range,
-        OutputCollection& output_collection)
+                      OutputCollection& output_collection,
+                      Strategy const& strategy)
 {
     typedef typename boost::range_value<InputRange>::type geometry_in;
     typedef typename boost::range_value<OutputCollection>::type geometry_out;
@@ -647,7 +678,27 @@ inline void dissolver(InputRange const& input_range,
         typename tag<geometry_in>::type,
         typename tag<geometry_out>::type,
         detail::dissolver::plusmin_policy
-    >::apply(input_range, output_collection);
+    >::apply(input_range, detail::no_rescale_policy(),
+             output_collection, strategy);
+}
+
+template
+<
+    typename InputRange,
+    typename OutputCollection
+>
+inline void dissolver(InputRange const& input_range,
+                      OutputCollection& output_collection)
+{
+    typedef typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag
+                <
+                    typename boost::range_value<InputRange>::type
+                >::type
+        >::type strategy_type;
+
+    dissolver(input_range, output_collection, strategy_type());
 }
 
 }} // namespace boost::geometry

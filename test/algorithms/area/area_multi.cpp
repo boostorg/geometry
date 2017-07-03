@@ -34,10 +34,13 @@ void test_all()
     typedef bg::model::multi_polygon<bg::model::polygon<pt_sph> > mp_sph;
     typedef bg::model::multi_polygon<bg::model::polygon<pt_geo> > mp_geo;
 
+    // mean Earth's radius^2
+    double r2 = bg::math::sqr(bg::get_radius<0>(bg::srs::sphere<double>()));
+
     std::string poly = "MULTIPOLYGON(((0 0,0 7,4 2,2 0,0 0)))";
     test_geometry<mp_crt>(poly, 16.0);
-    test_geometry<mp_sph>(poly, 197897454752.69489);
-    test_geometry<mp_geo>(poly, 197022175077.78613);
+    test_geometry<mp_sph>(poly, 197897454752.69489 / r2);
+    test_geometry<mp_geo>(poly, 197018888665.8331);
 }
 
 int test_main( int , char* [] )

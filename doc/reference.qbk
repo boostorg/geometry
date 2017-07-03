@@ -99,7 +99,9 @@
 [include generated/crosses.qbk]
 [endsect]
 
+[section:difference difference]
 [include generated/difference.qbk]
+[endsect]
 
 [section:disjoint disjoint]
 [include generated/disjoint.qbk]
@@ -125,9 +127,9 @@
 [include generated/for_each.qbk]
 [endsect]
 
-[/section:intersection intersection]
+[section:intersection intersection]
 [include generated/intersection.qbk]
-[/endsect]
+[endsect]
 
 [section:intersects intersects]
 [include generated/intersects.qbk]
@@ -135,7 +137,9 @@
 
 [include generated/is_empty.qbk]
 
+[section:is_simple is_simple]
 [include generated/is_simple.qbk]
+[endsect]
 
 [section:is_valid is_valid]
 [include generated/is_valid.qbk]
@@ -176,9 +180,9 @@
 [include generated/simplify.qbk]
 [endsect]
 
-[/section:sym_difference sym_difference]
+[section:sym_difference sym_difference]
 [include generated/sym_difference.qbk]
-[/endsect]
+[endsect]
 
 [section:touches touches]
 [include generated/touches.qbk]
@@ -188,9 +192,9 @@
 [include generated/transform.qbk]
 [endsect]
 
-[/section:union union]
+[section:union_ union_]
 [include generated/union.qbk]
-[/endsect]
+[endsect]
 
 [include generated/unique.qbk]
 
@@ -333,7 +337,8 @@
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
 [include generated/area_surveyor.qbk]
-[/include generated/area_huiller.qbk]
+[include generated/area_spherical.qbk]
+[/include generated/area_geographic.qbk]
 [include generated/buffer_join_round.qbk]
 [include generated/buffer_join_miter.qbk]
 [include generated/buffer_end_round.qbk]

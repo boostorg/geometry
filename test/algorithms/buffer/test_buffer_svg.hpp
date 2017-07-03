@@ -162,10 +162,8 @@ private :
 
     //              If you want to see travel information
                     << std::endl
-                    << " nxt " << it->operations[0].enriched.travels_to_ip_index
-                    << "/" << it->operations[1].enriched.travels_to_ip_index
-                    << " or " << it->operations[0].enriched.next_ip_index
-                    << "/" << it->operations[1].enriched.next_ip_index
+                    << " nxt " << it->operations[0].enriched.get_next_turn_index()
+                    << "/" << it->operations[1].enriched.get_next_turn_index()
                     //<< " frac " << it->operations[0].fraction
 
     //                If you want to see (robust)point coordinates (e.g. to find duplicates)
@@ -380,8 +378,8 @@ public :
         }
     }
 
-    template <typename Mapper, typename Geometry, typename RescalePolicy>
-    void map_self_ips(Mapper& mapper, Geometry const& geometry, RescalePolicy const& rescale_policy)
+    template <typename Mapper, typename Geometry, typename Strategy, typename RescalePolicy>
+    void map_self_ips(Mapper& mapper, Geometry const& geometry, Strategy const& strategy, RescalePolicy const& rescale_policy)
     {
         typedef bg::detail::overlay::turn_info
         <
@@ -395,7 +393,7 @@ public :
         bg::self_turns
             <
                 bg::detail::overlay::assign_null_policy
-            >(geometry, rescale_policy, turns, policy);
+            >(geometry, strategy, rescale_policy, turns, policy);
 
         BOOST_FOREACH(turn_info const& turn, turns)
         {

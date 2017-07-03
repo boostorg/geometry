@@ -35,6 +35,10 @@
 #endif
 
 
+#define TEST_DIFFERENCE(caseid, clips1, points1, area1, clips2, points2, area2) \
+    (test_one<polygon, polygon, polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2)
+
 template <typename P>
 void test_all()
 {
@@ -227,6 +231,10 @@ void test_all()
         case_102[0], case_102[1],
         4, 18, 1.5,
         3, 15, 4.0625);
+
+    TEST_DIFFERENCE(case_105, 4, 20, 8.0, 1, 9, 16.0);
+    TEST_DIFFERENCE(case_106, 1, 12, 17.5, 2, 9, 32.5);
+    TEST_DIFFERENCE(case_107, 2, 16, 18.0, 2, 16, 29.0);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],

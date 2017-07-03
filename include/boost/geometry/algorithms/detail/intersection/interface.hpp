@@ -336,6 +336,7 @@ struct intersection<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIAN
     multi_linestring, or a box (for intersection of two boxes)
 \param strategy \param_strategy{intersection}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/intersection.qbk]}
 */
 template

@@ -30,10 +30,11 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+#include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -288,6 +289,27 @@ struct intersection_of_linestring_with_areal
             >::apply(boost::begin(turns), boost::end(turns));
     }
 
+    template <typename Turns>
+    static inline int inside_or_outside_turn(Turns const& turns)
+    {
+        using namespace overlay;
+        for (typename Turns::const_iterator it = turns.begin();
+                it != turns.end(); ++it)
+        {
+            operation_type op0 = it->operations[0].operation;
+            operation_type op1 = it->operations[1].operation;
+            if (op0 == operation_intersection && op1 == operation_intersection)
+            {
+                return 1; // inside
+            }
+            else if (op0 == operation_union && op1 == operation_union)
+            {
+                return -1; // outside
+            }
+        }
+        return 0;
+    }
+
     template
     <
         typename LineString, typename Areal,
@@ -331,19 +353,21 @@ struct intersection_of_linestring_with_areal
 
         if (no_crossing_turns_or_empty(turns))
         {
-            // No intersection points, it is either completely
+            // No intersection points, it is either
             // inside (interior + borders)
-            // or completely outside
+            // or outside (exterior + borders)
 
-            // Use border point (on a segment) to check this
-            // (because turn points might skip some cases)
-            point_type border_point;
-            if (! geometry::point_on_border(border_point, linestring, true))
+            // analyse the turns
+            int inside_value = inside_or_outside_turn(turns);            
+            if (inside_value == 0)
             {
-                return out;
+                // if needed analyse points of a linestring
+                // NOTE: range_in_geometry checks points of a linestring
+                // until a point inside/outside areal is found
+                inside_value = overlay::range_in_geometry(linestring, areal, strategy);
             }
-
-            if (follower::included(border_point, areal, robust_policy))
+            // add point to the output if conditions are met
+            if (inside_value != 0 && follower::included(inside_value))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
@@ -365,7 +389,7 @@ struct intersection_of_linestring_with_areal
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
-                    turns, robust_policy, out
+                    turns, robust_policy, out, strategy
                 );
     }
 };

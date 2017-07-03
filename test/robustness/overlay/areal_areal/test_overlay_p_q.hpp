@@ -9,12 +9,14 @@
 #ifndef BOOST_GEOMETRY_TEST_OVERLAY_P_Q_HPP
 #define BOOST_GEOMETRY_TEST_OVERLAY_P_Q_HPP
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 
-//#define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
+#include <boost/typeof/typeof.hpp>
 
+//#define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
 
 #include <geometry_test_common.hpp>
 

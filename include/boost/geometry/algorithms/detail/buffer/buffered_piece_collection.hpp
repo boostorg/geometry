@@ -1431,7 +1431,7 @@ struct buffered_piece_collection
             }
         }
 
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, true);
+        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, m_intersection_strategy, true);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 

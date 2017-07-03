@@ -21,7 +21,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 
-#include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
+#include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/policies/relate/intersection_points.hpp>
@@ -95,12 +95,12 @@ static void test_segment_intersection(std::string const& case_id,
 
     // Get the intersection point (or two points)
     result_type is
-        = bg::strategy::intersection::relate_cartesian_segments<>
+        = bg::strategy::intersection::cartesian_segments<>
             ::apply(s12, s34, points_policy_type(), rescale_policy, p1, p2, p3, p4);
 
     // Get just a character for Left/Right/intersects/etc, purpose is more for debugging
     bg::policies::relate::direction_type dir
-        = bg::strategy::intersection::relate_cartesian_segments<>
+        = bg::strategy::intersection::cartesian_segments<>
             ::apply(s12, s34, bg::policies::relate::segments_direction(),
                     rescale_policy, p1, p2, p3, p4);
 
@@ -155,7 +155,7 @@ static void test_segment_ratio(std::string const& case_id,
 
     // Get the intersection point (or two points)
     result_type is
-        = bg::strategy::intersection::relate_cartesian_segments<>
+        = bg::strategy::intersection::cartesian_segments<>
             ::apply(s12, s34, points_policy_type(), rescale_policy, p1, p2, p3, p4);
 
     ratio_type expected_a1(expected_pair_a1.first, expected_pair_a1.second);

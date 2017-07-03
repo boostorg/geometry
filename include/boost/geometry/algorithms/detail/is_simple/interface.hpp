@@ -109,6 +109,7 @@ struct is_simple<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \param strategy \param_strategy{is_simple}
 \return \return_check{is simple}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/is_simple.qbk]}
 */
 template <typename Geometry, typename Strategy>

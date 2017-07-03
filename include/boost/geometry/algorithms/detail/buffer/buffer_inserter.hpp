@@ -453,13 +453,14 @@ struct buffer_inserter<point_tag, Point, RingOutput>
     }
 };
 
-
+// Not a specialization, but called from specializations of ring and of polygon.
+// Calling code starts/finishes ring before/after apply
 template
 <
     typename RingInput,
     typename RingOutput
 >
-struct buffer_inserter<ring_tag, RingInput, RingOutput>
+struct buffer_inserter_ring
 {
     typedef typename point_type<RingOutput>::type output_point_type;
 
@@ -569,6 +570,43 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
     }
 };
 
+
+template
+<
+    typename RingInput,
+    typename RingOutput
+>
+struct buffer_inserter<ring_tag, RingInput, RingOutput>
+{
+    template
+    <
+        typename Collection,
+        typename DistanceStrategy,
+        typename SideStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename PointStrategy,
+        typename RobustPolicy
+    >
+    static inline strategy::buffer::result_code apply(RingInput const& ring,
+            Collection& collection,
+            DistanceStrategy const& distance,
+            SideStrategy const& side_strategy,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy,
+            PointStrategy const& point_strategy,
+            RobustPolicy const& robust_policy)
+    {
+        collection.start_new_ring();
+        strategy::buffer::result_code const code
+            = buffer_inserter_ring<RingInput, RingOutput>::apply(ring,
+                collection, distance,
+                side_strategy, join_strategy, end_strategy, point_strategy,
+                robust_policy);
+        collection.finish_ring(code);
+        return code;
+    }
+};
 
 template
 <
@@ -713,7 +751,7 @@ private:
     typedef typename ring_type<PolygonInput>::type input_ring_type;
     typedef typename ring_type<PolygonOutput>::type output_ring_type;
 
-    typedef buffer_inserter<ring_tag, input_ring_type, output_ring_type> policy;
+    typedef buffer_inserter_ring<input_ring_type, output_ring_type> policy;
 
 
     template

@@ -237,6 +237,19 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("102",
                 case_102[0], case_102[1], 1, 1, 17, 8.75);
 
+    test_one<Polygon, Polygon, Polygon>("103",
+                case_103[0], case_103[1],
+                1, 0, 5, 1.0);
+    test_one<Polygon, Polygon, Polygon>("104",
+                case_104[0], case_104[1],
+                1, 0, 5, 100.0);
+
+    test_one<Polygon, Polygon, Polygon>("105",
+                case_105[0], case_105[1], 1, 0, 5, 100);
+
+    test_one<Polygon, Polygon, Polygon>("108",
+                case_108[0], case_108[1], 1, 0, 13, 5.0);
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],
@@ -484,13 +497,13 @@ void test_all()
 
     test_areal<ring, polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
     test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 #endif

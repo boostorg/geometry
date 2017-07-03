@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
@@ -15,6 +17,7 @@
 #include <iterator>
 
 #include <boost/range.hpp>
+#include <boost/throw_exception.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -307,7 +310,7 @@ public:
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
         if (enter_count != 0)
         {
-            throw inconsistent_turns_exception();
+            BOOST_THROW_EXCEPTION(inconsistent_turns_exception());
         }
 #else
         BOOST_GEOMETRY_ASSERT(enter_count == 0);

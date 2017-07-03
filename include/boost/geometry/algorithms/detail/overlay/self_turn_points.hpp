@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -57,10 +58,6 @@ struct no_interrupt_policy
 };
 
 
-
-
-class self_ip_exception : public geometry::exception {};
-
 template
 <
     typename Geometry,
@@ -77,17 +74,20 @@ struct self_section_visitor
     RobustPolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
+    std::size_t m_source_index;
 
     inline self_section_visitor(Geometry const& g,
                                 IntersectionStrategy const& is,
                                 RobustPolicy const& rp,
                                 Turns& turns,
-                                InterruptPolicy& ip)
+                                InterruptPolicy& ip,
+                                std::size_t source_index)
         : m_geometry(g)
         , m_intersection_strategy(is)
         , m_rescale_policy(rp)
         , m_turns(turns)
         , m_interrupt_policy(ip)
+        , m_source_index(source_index)
     {}
 
     template <typename Section>
@@ -97,26 +97,21 @@ struct self_section_visitor
                 && ! sec1.duplicate
                 && ! sec2.duplicate)
         {
-            detail::get_turns::get_turns_in_sections
+            // false if interrupted
+            return detail::get_turns::get_turns_in_sections
                     <
                         Geometry, Geometry,
                         false, false,
                         Section, Section,
                         TurnPolicy
-                    >::apply(
-                            0, m_geometry, sec1,
-                            0, m_geometry, sec2,
-                            false,
-                            m_intersection_strategy,
-                            m_rescale_policy,
-                            m_turns, m_interrupt_policy);
+                    >::apply(m_source_index, m_geometry, sec1,
+                             m_source_index, m_geometry, sec2,
+                             false,
+                             m_intersection_strategy,
+                             m_rescale_policy,
+                             m_turns, m_interrupt_policy);
         }
-        if (BOOST_GEOMETRY_CONDITION(m_interrupt_policy.has_intersections))
-        {
-            // TODO: we should give partition an interrupt policy.
-            // Now we throw, and catch below, to stop the partition loop.
-            throw self_ip_exception();
-        }
+
         return true;
     }
 
@@ -133,7 +128,8 @@ struct get_turns
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
             Turns& turns,
-            InterruptPolicy& interrupt_policy)
+            InterruptPolicy& interrupt_policy,
+            std::size_t source_index)
     {
         typedef model::box
             <
@@ -149,29 +145,24 @@ struct get_turns
         typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 
         sections_type sec;
-        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec);
+        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec,
+                                                  intersection_strategy.get_envelope_strategy());
 
         self_section_visitor
             <
                 Geometry,
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
-            > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy);
+            > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index);
 
-        try
-        {
-            geometry::partition
-                <
-                    box_type
-                >::apply(sec, visitor,
-                         detail::section::get_section_box(),
-                         detail::section::overlaps_section_box());
-        }
-        catch(self_ip_exception const& )
-        {
-            return false;
-        }
+        // false if interrupted
+        geometry::partition
+            <
+                box_type
+            >::apply(sec, visitor,
+                     detail::section::get_section_box(),
+                     detail::section::overlaps_section_box());
 
-        return true;
+        return ! interrupt_policy.has_intersections;
     }
 };
 
@@ -226,7 +217,8 @@ struct self_get_turn_points
             Strategy const& ,
             RobustPolicy const& ,
             Turns& ,
-            InterruptPolicy& )
+            InterruptPolicy& ,
+            std::size_t)
     {
         return true;
     }
@@ -290,7 +282,9 @@ template
 inline void self_turns(Geometry const& geometry,
                        IntersectionStrategy const& strategy,
                        RobustPolicy const& robust_policy,
-                       Turns& turns, InterruptPolicy& interrupt_policy)
+                       Turns& turns,
+                       InterruptPolicy& interrupt_policy,
+                       std::size_t source_index = 0)
 {
     concepts::check<Geometry const>();
 
@@ -301,7 +295,7 @@ inline void self_turns(Geometry const& geometry,
                 typename tag<Geometry>::type,
                 Geometry,
                 turn_policy
-            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy);
+            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy, source_index);
 }
 
 

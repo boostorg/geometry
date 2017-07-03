@@ -361,6 +361,7 @@ template <typename Turn, typename IdSet>
 inline void discard_ie_turn(Turn& turn, IdSet& ids, signed_size_type id)
 {
     turn.discarded = true;
+    // Set cluster id to -1, but don't clear colocated flags
     turn.cluster_id = -1;
     // To remove it later from clusters
     ids.insert(id);
@@ -378,6 +379,13 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
                        segment_identifier const& int_seg_0,
                        segment_identifier const& other_seg_1)
 {
+    if (ext_seg_0.source_index == ext_seg_1.source_index)
+    {
+        // External turn is a self-turn, dont discard internal turn for this
+        return false;
+    }
+
+
     // Compares two segment identifiers from two turns (external / one internal)
 
     // From first turn [0], both are from same polygon (multi_index),
@@ -411,6 +419,7 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 template
 <
     bool Reverse0, bool Reverse1, // Reverse interpretation interior/exterior
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters
 >
@@ -434,19 +443,6 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
             turn_type& turn = turns[*it];
             segment_identifier const& seg_0 = turn.operations[0].seg_id;
             segment_identifier const& seg_1 = turn.operations[1].seg_id;
-
-            if (turn.both(operation_intersection)
-                    && Reverse0 == Reverse1)
-            {
-                if (   is_interior<Reverse0>(seg_0)
-                    && is_interior<Reverse1>(seg_1))
-                {
-                    // ii touch with, two interior rings
-                    discard_ie_turn(turn, ids_to_remove, *it);
-                }
-
-                continue;
-            }
 
             if (! (turn.both(operation_union)
                    || turn.combination(operation_union, operation_blocked)))
@@ -487,6 +483,53 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
     }
 }
 
+template
+<
+    typename Turns,
+    typename Clusters
+>
+inline void set_colocation(Turns& turns, Clusters const& clusters)
+{
+    typedef std::set<signed_size_type>::const_iterator set_iterator;
+    typedef typename boost::range_value<Turns>::type turn_type;
+
+    for (typename Clusters::const_iterator cit = clusters.begin();
+         cit != clusters.end(); ++cit)
+    {
+        cluster_info const& cinfo = cit->second;
+        std::set<signed_size_type> const& ids = cinfo.turn_indices;
+
+        bool has_ii = false;
+        bool has_uu = false;
+        for (set_iterator it = ids.begin(); it != ids.end(); ++it)
+        {
+            turn_type const& turn = turns[*it];
+            if (turn.both(operation_intersection))
+            {
+                has_ii = true;
+            }
+            if (turn.both(operation_union))
+            {
+                has_uu = true;
+            }
+        }
+        if (has_ii || has_uu)
+        {
+            for (set_iterator it = ids.begin(); it != ids.end(); ++it)
+            {
+                turn_type& turn = turns[*it];
+                if (has_ii)
+                {
+                    turn.colocated_ii = true;
+                }
+                if (has_uu)
+                {
+                    turn.colocated_uu = true;
+                }
+            }
+        }
+    }
+}
 
 // Checks colocated turns and flags combinations of uu/other, possibly a
 // combination of a ring touching another geometry's interior ring which is
@@ -498,6 +541,7 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -578,10 +622,12 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     }
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
+    set_colocation(turns, clusters);
     discard_interior_exterior_turns
         <
             do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
-            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2
+            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
+            OverlayType
         >(turns, clusters);
     remove_clusters(turns, clusters);
 
@@ -598,7 +644,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
             std::cout << geometry::wkt(turns[toi.turn_index].point)
                 << std::boolalpha
                 << " discarded=" << turns[toi.turn_index].discarded
-                << " colocated=" << turns[toi.turn_index].colocated
+                << " colocated(uu)=" << turns[toi.turn_index].colocated_uu
+                << " colocated(ii)=" << turns[toi.turn_index].colocated_ii
                 << " " << operation_char(turns[toi.turn_index].operations[0].operation)
                 << " "  << turns[toi.turn_index].operations[0].seg_id
                 << " "  << turns[toi.turn_index].operations[0].fraction
@@ -634,6 +681,7 @@ struct is_turn_index
 template
 <
     bool Reverse1, bool Reverse2,
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
@@ -651,7 +699,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();
@@ -703,6 +751,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
             op.enriched.count_left = ranked.count_left;
             op.enriched.count_right = ranked.count_right;
+            op.enriched.rank = ranked.rank;
             op.enriched.zone = ranked.zone;
 
             if ((for_operation == operation_union

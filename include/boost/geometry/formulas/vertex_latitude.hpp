@@ -12,9 +12,9 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_MAXIMUM_LATITUDE_HPP
 #define BOOST_GEOMETRY_FORMULAS_MAXIMUM_LATITUDE_HPP
 
-#include <boost/geometry/formulas/spherical.hpp>
-#include <boost/geometry/algorithms/detail/flattening.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/spherical.hpp>
 #include <boost/mpl/assert.hpp>
 
 namespace boost { namespace geometry { namespace formula
@@ -55,7 +55,7 @@ public:
                            T2 const& alp1,
                            Spheroid const& spheroid)
     {
-        CT const f = detail::flattening<CT>(spheroid);
+        CT const f = formula::flattening<CT>(spheroid);
 
         CT const e2 = f * (CT(2) - f);
         CT const sin_alp1 = sin(alp1);
@@ -76,7 +76,7 @@ public:
                            T2 const& alp1,
                            Spheroid const& spheroid)
     {
-        CT const f = detail::flattening<CT>(spheroid);
+        CT const f = formula::flattening<CT>(spheroid);
 
         CT const one_minus_f = (CT(1) - f);
 

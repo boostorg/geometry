@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014, 2015, 2017.
 // Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
@@ -13,6 +14,8 @@
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LA_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LA_HPP
+
+#include <boost/throw_exception.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 
@@ -404,7 +407,7 @@ struct get_turn_info_linear_areal
                 std::cout << "TURN: Unknown method: " << method << std::endl;
 #endif
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-                throw turn_info_exception(method);
+                BOOST_THROW_EXCEPTION(turn_info_exception(method));
 #endif
             }
             break;
