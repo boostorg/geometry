@@ -189,6 +189,17 @@ void test_linestring_linestring()
 }
 
 template <typename P>
+void test_linestring_linestring_radians()
+{
+    typedef bg::model::linestring<P> ls;
+
+    test_geometry<ls, ls>("LINESTRING(0 -0.31415926535897897853,0.26179938779914918578 0,-0.034906585039886556254 0.13962634015954622502,-0.12217304763960294689 0.12217304763960294689)",
+                          "LINESTRING(-0.034906585039886556254 0.13962634015954622502,-0.26179938779914918578 0)", false);
+
+}
+
+
+template <typename P>
 void test_linestring_multi_linestring()
 {
     typedef bg::model::linestring<P> ls;
@@ -256,6 +267,10 @@ void test_all()
     test_multi_linestring_multi_linestring<P>();
 
     test_point_polygon<P>();
+
+    test_linestring_linestring_radians<bg::model::point<double, 2,
+                                 bg::cs::spherical_equatorial<bg::radian> > >();
+
 }
 
 
