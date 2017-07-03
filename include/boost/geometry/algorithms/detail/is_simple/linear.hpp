@@ -219,7 +219,7 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
 
     detail::self_get_turn_points::get_turns
         <
-            turn_policy
+            false, turn_policy
         >::apply(linear,
                  strategy,
                  detail::no_rescale_policy(),

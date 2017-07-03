@@ -102,7 +102,8 @@ check_result(
             std::string message;
             bool const valid = bg::is_valid(*it, message);
             BOOST_CHECK_MESSAGE(valid,
-                "intersection: " << caseid << " not valid " << message);
+                "intersection: " << caseid << " not valid: " << message
+                << " type: " << (type_for_assert_message<G1, G2>()));
         }
     }
 
@@ -240,6 +241,9 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+            << "_self"
+#endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"
 #endif
