@@ -11,10 +11,14 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ENVELOPE_SEGMENT_HPP
 
+
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
-#include <boost/geometry/strategies/geographic/azimuth_geographic.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -24,10 +28,9 @@ namespace strategy { namespace envelope
 
 template
 <
-    typename CalculationType,
-    typename Spheroid = geometry::srs::spheroid<CalculationType>,
-    template <typename, bool, bool, bool, bool, bool> class Inverse =
-        geometry::formula::thomas_inverse
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = geometry::srs::spheroid<double>,
+    typename CalculationType = void
 >
 class geographic_segment
 {
@@ -50,9 +53,9 @@ public:
 
         geometry::strategy::azimuth::geographic
             <
-                CalculationType,
+                FormulaPolicy,
                 Spheroid,
-                Inverse
+                CalculationType
             > azimuth_geographic(m_spheroid);
 
         typedef typename coordinate_system<Point1>::type::units units_type;
@@ -81,7 +84,12 @@ namespace services
 template <typename CalculationType>
 struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::envelope::geographic_segment<CalculationType> type;
+    typedef strategy::envelope::geographic_segment
+        <
+            strategy::andoyer,
+            srs::spheroid<double>,
+            CalculationType
+        > type;
 };
 
 }

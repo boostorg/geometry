@@ -94,7 +94,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     // Declare output (vector of rings or multi_polygon)
     typedef typename setop_output_type<OutputType>::type result_type;
-    result_type clip, clip_s;
+    result_type clip;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     std::cout << "*** UNION " << caseid << std::endl;
@@ -108,12 +108,18 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     // Check normal behaviour
     bg::union_(g1, g2, clip);
 
-    // Check strategy passed explicitly
-    typedef typename bg::strategy::intersection::services::default_strategy
-        <
-            typename bg::cs_tag<OutputType>::type
-        >::type strategy_type;
-    bg::union_(g1, g2, clip_s, strategy_type());
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    {
+        // Check strategy passed explicitly
+        result_type clip_s;
+        typedef typename bg::strategy::intersection::services::default_strategy
+            <
+                typename bg::cs_tag<OutputType>::type
+            >::type strategy_type;
+        bg::union_(g1, g2, clip_s, strategy_type());
+        BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
+    }
+#endif
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
@@ -197,8 +203,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 #endif
 
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
-
-    BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
 
 #if defined(TEST_WITH_SVG)
     {

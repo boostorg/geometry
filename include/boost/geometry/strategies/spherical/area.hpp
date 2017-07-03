@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HPP
 
 
 #include <boost/geometry/formulas/area_formulas.hpp>
@@ -25,19 +25,27 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Spherical area calculation by trapezoidal rule
+\brief Spherical area calculation
+\ingroup strategies
+\details Calculates area on the surface of a sphere using the trapezoidal rule
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
 
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
 }
-
 */
 template
 <
     typename PointOfSegment,
-    bool LongSegment = false,
     typename CalculationType = void
 >
 class spherical
 {
+    // Enables special handling of long segments
+    static const bool LongSegment = false;
+
 typedef typename boost::mpl::if_c
     <
         boost::is_void<CalculationType>::type::value,
@@ -99,19 +107,23 @@ public :
     typedef excess_sum state_type;
     typedef geometry::srs::sphere<CT> sphere_type;
 
-    inline spherical(sphere_type sphere = sphere_type())
-        : m_sphere(sphere)
+    // For backward compatibility reasons the radius is set to 1
+    inline spherical()
+        : m_sphere(1.0)
     {}
 
-    inline spherical(CT radius) //backward compatibility
-        : m_sphere()
-    {
-        geometry::set_radius<0>(m_sphere, radius);
-    }
+    template <typename T>
+    explicit inline spherical(geometry::srs::sphere<T> const& sphere)
+        : m_sphere(geometry::get_radius<0>(sphere))
+    {}
+
+    explicit inline spherical(CT const& radius)
+        : m_sphere(radius)
+    {}
 
     inline void apply(PointOfSegment const& p1,
-                PointOfSegment const& p2,
-                excess_sum& state) const
+                      PointOfSegment const& p2,
+                      excess_sum& state) const
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
@@ -167,4 +179,4 @@ struct default_strategy<spherical_polar_tag, Point>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_SPHERICAL_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HPP

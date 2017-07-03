@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2015, 2017.
 // Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
@@ -16,6 +17,7 @@
 
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/throw_exception.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -643,7 +645,7 @@ struct collinear : public base_turn_handler
         // causes currently cycling include problems
         typedef typename geometry::coordinate_type<Point1>::type ctype;
         ctype const dx = get<0>(a) - get<0>(b);
-        ctype const dy = get<1>(b) - get<1>(b);
+        ctype const dy = get<1>(a) - get<1>(b);
         return dx * dx + dy * dy;
     }
 };
@@ -1102,7 +1104,7 @@ struct get_turn_info
                 std::cout << "TURN: Unknown method: " << method << std::endl;
 #endif
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-                throw turn_info_exception(method);
+                BOOST_THROW_EXCEPTION(turn_info_exception(method));
 #endif
             }
             break;

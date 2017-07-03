@@ -475,6 +475,7 @@ struct union_<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM
 \param strategy \param_strategy{union_}
 \note Called union_ because union is a reserved word.
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/union.qbk]}
 */
 template

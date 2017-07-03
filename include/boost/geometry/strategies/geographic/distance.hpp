@@ -25,6 +25,7 @@
 #include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
@@ -39,7 +40,7 @@ namespace strategy { namespace distance
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class InverseFormula = formula::andoyer_inverse,
+    typename FormulaPolicy = strategy::andoyer,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -73,7 +74,7 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return InverseFormula
+        return FormulaPolicy::template inverse
             <
                 typename calculation_type<Point1, Point2>::type,
                 true, false, false, false, false
@@ -98,11 +99,11 @@ namespace services
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class Formula,
+    typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType
 >
-struct tag<geographic<Formula, Spheroid, CalculationType> >
+struct tag<geographic<FormulaPolicy, Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
 };
@@ -110,39 +111,39 @@ struct tag<geographic<Formula, Spheroid, CalculationType> >
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class Formula,
+    typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType,
     typename P1,
     typename P2
 >
-struct return_type<geographic<Formula, Spheroid, CalculationType>, P1, P2>
-    : geographic<Formula, Spheroid, CalculationType>::template calculation_type<P1, P2>
+struct return_type<geographic<FormulaPolicy, Spheroid, CalculationType>, P1, P2>
+    : geographic<FormulaPolicy, Spheroid, CalculationType>::template calculation_type<P1, P2>
 {};
 
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class Formula,
+    typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType
 >
-struct comparable_type<geographic<Formula, Spheroid, CalculationType> >
+struct comparable_type<geographic<FormulaPolicy, Spheroid, CalculationType> >
 {
-    typedef geographic<Formula, Spheroid, CalculationType> type;
+    typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
 };
 
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class Formula,
+    typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType
 >
-struct get_comparable<geographic<Formula, Spheroid, CalculationType> >
+struct get_comparable<geographic<FormulaPolicy, Spheroid, CalculationType> >
 {
-    static inline geographic<Formula, Spheroid, CalculationType>
-        apply(geographic<Formula, Spheroid, CalculationType> const& input)
+    static inline geographic<FormulaPolicy, Spheroid, CalculationType>
+        apply(geographic<FormulaPolicy, Spheroid, CalculationType> const& input)
     {
         return input;
     }
@@ -150,17 +151,17 @@ struct get_comparable<geographic<Formula, Spheroid, CalculationType> >
 
 template
 <
-    template<typename, bool, bool, bool, bool, bool> class Formula,
+    typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType,
     typename P1,
     typename P2
 >
-struct result_from_distance<geographic<Formula, Spheroid, CalculationType>, P1, P2>
+struct result_from_distance<geographic<FormulaPolicy, Spheroid, CalculationType>, P1, P2>
 {
     template <typename T>
-    static inline typename return_type<geographic<Formula, Spheroid, CalculationType>, P1, P2>::type
-        apply(geographic<Formula, Spheroid, CalculationType> const& , T const& value)
+    static inline typename return_type<geographic<FormulaPolicy, Spheroid, CalculationType>, P1, P2>::type
+        apply(geographic<FormulaPolicy, Spheroid, CalculationType> const& , T const& value)
     {
         return value;
     }
@@ -172,7 +173,7 @@ struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, ge
 {
     typedef strategy::distance::geographic
                 <
-                    formula::andoyer_inverse,
+                    strategy::andoyer,
                     srs::spheroid
                         <
                             typename select_coordinate_type<Point1, Point2>::type

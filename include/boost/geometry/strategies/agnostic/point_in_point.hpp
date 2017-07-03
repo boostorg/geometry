@@ -42,10 +42,14 @@ struct point_in_point
 namespace services
 {
 
-template <typename Point, typename PointLike, typename Tag2, typename AnyCS1, typename AnyCS2>
-struct default_strategy<Point, PointLike, point_tag, Tag2, pointlike_tag, pointlike_tag, AnyCS1, AnyCS2>
+template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2, typename AnyCS1, typename AnyCS2>
+struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, AnyCS1, AnyCS2>
 {
-    typedef strategy::within::point_in_point<Point, typename point_type<PointLike>::type> type;
+    typedef strategy::within::point_in_point
+        <
+            typename point_type<PointLike1>::type,
+            typename point_type<PointLike2>::type
+        > type;
 };
 
 
@@ -61,10 +65,14 @@ struct default_strategy<Point, PointLike, point_tag, Tag2, pointlike_tag, pointl
 namespace strategy { namespace covered_by { namespace services
 {
 
-template <typename Point, typename PointLike, typename Tag2, typename AnyCS1, typename AnyCS2>
-struct default_strategy<Point, PointLike, point_tag, Tag2, pointlike_tag, pointlike_tag, AnyCS1, AnyCS2>
+template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2, typename AnyCS1, typename AnyCS2>
+struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, AnyCS1, AnyCS2>
 {
-    typedef strategy::within::point_in_point<Point, typename point_type<PointLike>::type> type;
+    typedef strategy::within::point_in_point
+        <
+            typename point_type<PointLike1>::type,
+            typename point_type<PointLike2>::type
+        > type;
 };
 
 }}} // namespace strategy::covered_by::services

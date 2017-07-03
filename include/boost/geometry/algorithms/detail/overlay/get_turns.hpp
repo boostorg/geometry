@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2016, 2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
@@ -45,7 +45,6 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
-#include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
@@ -90,6 +89,9 @@ namespace detail { namespace get_turns
 struct no_interrupt_policy
 {
     static bool const enabled = false;
+
+    // variable required by self_get_turn_points::get_turns
+    static bool const has_intersections = false;
 
     template <typename Range>
     static inline bool apply(Range const&)
@@ -419,6 +421,7 @@ struct section_visitor
     {
         if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box))
         {
+            // false if interrupted
             return get_turns_in_sections
                     <
                         Geometry1,
@@ -426,13 +429,12 @@ struct section_visitor
                         Reverse1, Reverse2,
                         Section, Section,
                         TurnPolicy
-                    >::apply(
-                            m_source_id1, m_geometry1, sec1,
-                            m_source_id2, m_geometry2, sec2,
-                            false,
-                            m_intersection_strategy,
-                            m_rescale_policy,
-                            m_turns, m_interrupt_policy);
+                    >::apply(m_source_id1, m_geometry1, sec1,
+                             m_source_id2, m_geometry2, sec2,
+                             false,
+                             m_intersection_strategy,
+                             m_rescale_policy,
+                             m_turns, m_interrupt_policy);
         }
         return true;
     }
@@ -474,10 +476,13 @@ public:
         sections_type sec1, sec2;
         typedef boost::mpl::vector_c<std::size_t, 0, 1> dimensions;
 
+        typename IntersectionStrategy::envelope_strategy_type const
+            envelope_strategy = intersection_strategy.get_envelope_strategy();
+
         geometry::sectionalize<Reverse1, dimensions>(geometry1, robust_policy,
-                sec1, 0);
+                sec1, envelope_strategy, 0);
         geometry::sectionalize<Reverse2, dimensions>(geometry2, robust_policy,
-                sec2, 1);
+                sec2, envelope_strategy, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor

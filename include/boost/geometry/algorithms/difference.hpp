@@ -346,6 +346,7 @@ struct difference<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_
 \param output_collection the output collection
 \param strategy \param_strategy{difference}
 
+\qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/difference.qbk]}
 */
 template

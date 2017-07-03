@@ -29,16 +29,28 @@
 [*Breaking changes]
 
 * ublas_transformer is renamed to matrix_transformer
+* explicit modifier is added to constructors of rtree index::dynamic_* parameters
+* strategy::area::huiller replaced by strategy::area::spherical
 
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/363 363] Missing includes in geometry/index/parameters.hpp
 * [@https://github.com/boostorg/geometry/issues/364 364] within(Linear, Areal) compilation error when arguments use different point types
+* [@https://github.com/boostorg/geometry/issues/370 370] Buffer Seg Faults with Ring as Input
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/11899 11899] boost::geometry::equals doesn't handle open polygons
+* [@https://svn.boost.org/trac/boost/ticket/11930 11930] Inaccuracy of area::huiller strategy
+* [@https://svn.boost.org/trac/boost/ticket/11931 11931] Wrong spherical area with pole encircling polygons
+* [@https://svn.boost.org/trac/boost/ticket/12410 12410] Lack of support of geographic coordinate system in correct()
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
-* [@https://svn.boost.org/trac/boost/ticket/12861 12566] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
+* [@https://svn.boost.org/trac/boost/ticket/12861 12861] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
+* [@https://svn.boost.org/trac/boost/ticket/12885 12885] Use BOOST_THROW_EXCEPTION instead of throw
+
+[*Bugfixes]
+
+* Fix distance_measure in get_turn_info
 
 [/=================]
 [heading Boost 1.63]

@@ -4,13 +4,14 @@
 #  Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 #  Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 #  Copyright (c) 2009-2012 Mateusz Loskot (mateusz@loskot.net), London, UK
+#  Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland
 # 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 #  http://www.boost.org/LICENSE_1_0.txt)
 # ============================================================================
 
-import os, sys
+import os, sys, shutil
 
 script_dir = os.path.dirname(__file__)
 os.chdir(os.path.abspath(script_dir))
@@ -44,10 +45,11 @@ def run_command(command):
     if os.system(command) != 0:
         raise Exception("Error running %s" % command)
 
-def remove_all_files(dir):
-    if os.path.exists(dir):
-        for f in os.listdir(dir):
-            os.remove(dir+f)
+def remove_all_files(dir_relpath):
+    if os.path.exists(dir_relpath):
+        dir_abspath = os.path.join(os.getcwd(), dir_relpath)
+        print("Boost.Geometry is cleaning Doxygen files in %s" % dir_abspath)
+        shutil.rmtree(dir_abspath, ignore_errors=True)
 
 def call_doxygen():
     os.chdir("doxy")
@@ -123,7 +125,8 @@ strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "distance::cross_track", "distance::cross_track_point_box"
     , "distance::projected_point"
     , "within::winding", "within::franklin", "within::crossings_multiply"
-    , "area::surveyor", "area::huiller"
+    , "area::surveyor", "area::spherical"
+    #, "area::geographic"
     , "buffer::point_circle", "buffer::point_square"
     , "buffer::join_round", "buffer::join_miter"
     , "buffer::end_round", "buffer::end_flat"
@@ -187,6 +190,13 @@ class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 os.chdir("index")
 execfile("make_qbk.py")
 os.chdir("..")
+
+# Clean up generated intermediate files
+if "--release-build" in sys.argv:
+    remove_all_files("doxy/doxygen_output/xml/")
+    remove_all_files("doxy/doxygen_output/html_by_doxygen/")
+    remove_all_files("index/xml/")
+    remove_all_files("index/html_by_doxygen/")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
 if "--release-build" not in sys.argv:

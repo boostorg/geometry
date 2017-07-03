@@ -130,18 +130,15 @@ private:
                                            CalculationType& lat1,
                                            CalculationType& lon2,
                                            CalculationType& lat2,
+                                           CalculationType a1,
+                                           CalculationType a2,
                                            Strategy const& strategy)
     {
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
 
-        CalculationType lon1_rad = math::as_radian<Units>(lon1);
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
-        CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
-
-        CalculationType a1, a2;
-        strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a2);
 
         if (lat1 > lat2)
         {
@@ -189,12 +186,11 @@ private:
         }
     }
 
-    template <typename Units, typename CalculationType, typename Strategy>
-    static inline void apply(CalculationType& lon1,
-                             CalculationType& lat1,
-                             CalculationType& lon2,
-                             CalculationType& lat2,
-                             Strategy const& strategy)
+    template <typename Units, typename CalculationType>
+    static inline void special_cases(CalculationType& lon1,
+                                     CalculationType& lat1,
+                                     CalculationType& lon2,
+                                     CalculationType& lat2)
     {
         typedef math::detail::constants_on_spheroid
             <
@@ -249,23 +245,19 @@ private:
             lon1 += constants::period();
             swap(lon1, lat1, lon2, lat2);
         }
-
-        compute_box_corners<Units>(lon1, lat1, lon2, lat2, strategy);
     }
 
-public:
-    template <
-            typename Units,
-            typename CalculationType,
-            typename Box,
-            typename Strategy
-            >
-    static inline void apply(CalculationType lon1,
-                             CalculationType lat1,
-                             CalculationType lon2,
-                             CalculationType lat2,
-                             Box& mbr,
-                             Strategy const& strategy)
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box
+    >
+    static inline void create_box(CalculationType lon1,
+                                  CalculationType lat1,
+                                  CalculationType lon2,
+                                  CalculationType lat2,
+                                  Box& mbr)
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
 
@@ -275,8 +267,6 @@ public:
             >::type helper_box_type;
 
         helper_box_type radian_mbr;
-
-        apply<Units>(lon1, lat1, lon2, lat2, strategy);
 
         geometry::set
             <
@@ -299,6 +289,85 @@ public:
             >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
 
         transform_units(radian_mbr, mbr);
+    }
+
+
+    template <typename Units, typename CalculationType, typename Strategy>
+    static inline void apply(CalculationType& lon1,
+                             CalculationType& lat1,
+                             CalculationType& lon2,
+                             CalculationType& lat2,
+                             Strategy const& strategy)
+    {
+        special_cases<Units>(lon1, lat1, lon2, lat2);
+
+        CalculationType lon1_rad = math::as_radian<Units>(lon1);
+        CalculationType lat1_rad = math::as_radian<Units>(lat1);
+        CalculationType lon2_rad = math::as_radian<Units>(lon2);
+        CalculationType lat2_rad = math::as_radian<Units>(lat2);
+        CalculationType alp1, alp2;
+        strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp1, alp2);
+
+        compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
+    }
+
+    template <typename Units, typename CalculationType, typename Strategy>
+    static inline void apply(CalculationType& lon1,
+                             CalculationType& lat1,
+                             CalculationType& lon2,
+                             CalculationType& lat2,
+                             Strategy const& strategy,
+                             CalculationType alp1)
+    {
+        special_cases<Units>(lon1, lat1, lon2, lat2);
+
+        CalculationType lon1_rad = math::as_radian<Units>(lon1);
+        CalculationType lat1_rad = math::as_radian<Units>(lat1);
+        CalculationType lon2_rad = math::as_radian<Units>(lon2);
+        CalculationType lat2_rad = math::as_radian<Units>(lat2);
+        CalculationType alp2;
+        strategy.apply(lon2_rad, lat2_rad, lon1_rad, lat1_rad, alp2);
+        alp2 += math::pi<CalculationType>();
+
+        compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
+    }
+
+public:
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box,
+        typename Strategy
+    >
+    static inline void apply(CalculationType lon1,
+                             CalculationType lat1,
+                             CalculationType lon2,
+                             CalculationType lat2,
+                             Box& mbr,
+                             Strategy const& strategy)
+    {
+        apply<Units>(lon1, lat1, lon2, lat2, strategy);
+        create_box<Units>(lon1, lat1, lon2, lat2, mbr);
+    }
+
+    template
+    <
+        typename Units,
+        typename CalculationType,
+        typename Box,
+        typename Strategy
+    >
+    static inline void apply(CalculationType lon1,
+                             CalculationType lat1,
+                             CalculationType lon2,
+                             CalculationType lat2,
+                             Box& mbr,
+                             Strategy const& strategy,
+                             CalculationType alp1)
+    {
+        apply<Units>(lon1, lat1, lon2, lat2, strategy, alp1);
+        create_box<Units>(lon1, lat1, lon2, lat2, mbr);
     }
 };
 

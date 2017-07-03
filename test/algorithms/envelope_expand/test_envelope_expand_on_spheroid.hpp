@@ -11,9 +11,11 @@
 #ifndef BOOST_GEOMETRY_TEST_ENVELOPE_EXPAND_ON_SPHEROID_HPP
 #define BOOST_GEOMETRY_TEST_ENVELOPE_EXPAND_ON_SPHEROID_HPP
 
+
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <algorithm>
+#include <iostream>
 
 #include <boost/type_traits/is_same.hpp>
 
@@ -27,6 +29,37 @@
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+
+
+struct rng
+{
+    typedef double type;
+
+    rng(double l, double h)
+        : lo(l), hi(h)
+    {
+        BOOST_GEOMETRY_ASSERT(lo <= hi);
+    }
+
+    friend rng operator*(rng const& l, double v) { return rng(l.lo * v, l.hi * v); }
+
+    friend bool operator<=(rng const& l, rng const& r) { return l.lo <= r.hi; }
+    friend bool operator<=(double l, rng const& r) { return l <= r.hi; }
+    friend bool operator<=(rng const& l, double r) { return l.lo <= r; }
+
+    friend bool operator<(rng const& l, rng const& r) { return !operator<=(r, l); }
+    friend bool operator<(double l, rng const& r) { return !operator<=(r, l); }
+    friend bool operator<(rng const& l, double r) { return !operator<=(r, l); }
+
+    friend bool operator==(double l, rng const& r) { return r.lo <= l && l <= r.hi; }
+
+    friend std::ostream & operator<<(std::ostream & os, rng const& v)
+    {
+        return (os << "[" << v.lo << ", " << v.hi << "]");
+    }
+
+    double lo, hi;
+};
 
 
 template <typename Units>
@@ -49,10 +82,14 @@ struct other_system_info<bg::cs::spherical_equatorial<bg::radian> >
     typedef bg::degree units;
     typedef bg::cs::spherical_equatorial<units> type;
 
-    template <typename T>
-    static inline T convert(T const& value)
+    static inline double convert(double value)
     {
-        return value * bg::math::r2d<T>();
+        return value * bg::math::r2d<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::r2d<double>();
     }
 };
 
@@ -62,10 +99,14 @@ struct other_system_info<bg::cs::spherical_equatorial<bg::degree> >
     typedef bg::radian units;
     typedef bg::cs::spherical_equatorial<units> type;
 
-    template <typename T>
-    static inline T convert(T const& value)
+    static inline double convert(double value)
     {
-        return value * bg::math::d2r<T>();
+        return value * bg::math::d2r<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::d2r<double>();
     }
 };
 
@@ -75,10 +116,14 @@ struct other_system_info<bg::cs::geographic<bg::radian> >
     typedef bg::degree units;
     typedef bg::cs::geographic<units> type;
 
-    template <typename T>
-    static inline T convert(T const& value)
+    static inline double convert(double value)
     {
-        return value * bg::math::r2d<T>();
+        return value * bg::math::r2d<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::r2d<double>();
     }
 };
 
@@ -88,13 +133,16 @@ struct other_system_info<bg::cs::geographic<bg::degree> >
     typedef bg::radian units;
     typedef bg::cs::geographic<units> type;
 
-    template <typename T>
-    static inline T convert(T const& value)
+    static inline double convert(double value)
     {
-        return value * bg::math::d2r<T>();
+        return value * bg::math::d2r<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::d2r<double>();
     }
 };
-
 
 
 class equals_with_tolerance
@@ -118,10 +166,98 @@ private:
 public:
     equals_with_tolerance(double tolerence) : m_tolerence(tolerence) {}
 
-    template <typename T>
-    inline bool operator()(T const& value1, T const& value2) const
+    inline bool operator()(double value1, double value2) const
     {
         return check_close(value1, value2, m_tolerence);
+    }
+
+    inline bool operator()(double l, rng const& r) const
+    {
+        return (r.lo < l && l < r.hi)
+            || check_close(l, r.lo, m_tolerence)
+            || check_close(l, r.hi, m_tolerence);
+    }
+};
+
+
+bool equals_with_eps(double l, double r)
+{
+    return bg::math::equals(l, r);
+}
+
+bool equals_with_eps(double l, rng r)
+{
+    return (r.lo < l && l < r.hi)
+        || bg::math::equals(l, r.lo)
+        || bg::math::equals(l, r.hi);
+}
+
+
+template
+<
+    typename Box,
+    std::size_t DimensionCount = bg::dimension<Box>::value
+>
+struct box_check_equals
+{
+    template <typename T1, typename T2, typename T3, typename T4>
+    static inline bool apply(Box const& box,
+                             T1 const& lon_min, T2 const& lat_min, double,
+                             T3 const& lon_max, T4 const& lat_max, double,
+                             double tol)
+    {
+        equals_with_tolerance equals(tol);
+
+#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        // check latitude with tolerance when necessary
+        return equals_with_eps(bg::get<0, 0>(box), lon_min)
+            && (bg::get<0, 1>(box) < 0
+                ? equals(bg::get<0, 1>(box), lat_min)
+                : equals_with_eps(bg::get<0, 1>(box), lat_min))
+            && equals_with_eps(bg::get<1, 0>(box), lon_max)
+            && (bg::get<1, 1>(box) > 0
+                ? equals(bg::get<1, 1>(box), lat_max)
+                : equals_with_eps(bg::get<1, 1>(box), lat_max));
+#else
+        // check latitude with tolerance when necessary
+        return bg::get<0, 0>(box) == lon_min
+            && (bg::get<0, 1>(box) < 0
+                ? equals(bg::get<0, 1>(box), lat_min)
+                : bg::get<0, 1>(box) == lat_min)
+            && bg::get<1, 0>(box) == lon_max
+            && (bg::get<1, 1>(box) > 0
+                ? equals(bg::get<1, 1>(box), lat_max)
+                : bg::get<1, 1>(box) == lat_max);
+#endif
+    }
+};
+
+template <typename Box>
+struct box_check_equals<Box, 3>
+{
+    template <typename T1, typename T2, typename T3, typename T4>
+    static inline bool apply(Box const& box,
+                             T1 const& lon_min, T2 const& lat_min, double height_min,
+                             T3 const& lon_max, T4 const& lat_max, double height_max,
+                             double tol)
+    {
+#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+        equals_with_tolerance equals(tol);
+
+        return box_check_equals<Box, 2>::apply(box,
+                                               lon_min, lat_min, height_min,
+                                               lon_max, lat_max, height_max,
+                                               tol)
+            && equals(bg::get<0, 2>(box), height_min)
+            && equals(bg::get<1, 2>(box), height_max);
+#else
+        return box_equals<Box, 2>::apply(box,
+                                         lon_min, lat_min, height_min,
+                                         lon_max, lat_max, height_max,
+                                         tol)
+            && bg::get<0, 2>(box) == height_min
+            && bg::get<1, 2>(box) == height_max;
+#endif
     }
 };
 
@@ -136,48 +272,22 @@ struct box_equals
 {
     static inline bool apply(Box1 const& box1, Box2 const& box2, double tol)
     {
-        equals_with_tolerance equals(tol);
-
-#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-        // check latitude with tolerance when necessary
-        return bg::math::equals(bg::get<0, 0>(box1), bg::get<0, 0>(box2))
-            && (bg::get<0, 1>(box1) < 0
-                ? equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-                : bg::math::equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2)))
-            && bg::math::equals(bg::get<1, 0>(box1), bg::get<1, 0>(box2))
-            && (bg::get<1, 1>(box1) > 0
-                ? equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2))
-                : bg::math::equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2)));
-#else
-        // check latitude with tolerance when necessary
-        return bg::get<0, 0>(box1) == bg::get<0, 0>(box2)
-            && (bg::get<0, 1>(box1) < 0
-                ? equals(bg::get<0, 1>(box1), bg::get<0, 1>(box2))
-                : bg::get<0, 1>(box1) == bg::get<0, 1>(box2))
-            && bg::get<1, 0>(box1) == bg::get<1, 0>(box2)
-            && (bg::get<1, 1>(box1) > 0
-                ? equals(bg::get<1, 1>(box1), bg::get<1, 1>(box2))
-                : bg::get<1, 1>(box1) == bg::get<1, 1>(box2));
-#endif
+        return box_check_equals<Box1>::apply(box1,
+                    bg::get<0, 0>(box2), bg::get<0, 1>(box2), 0.0,
+                    bg::get<1, 0>(box2), bg::get<1, 1>(box2), 0.0,
+                    tol);
     }
 };
 
-template <typename Box1, typename Box2>
+template<typename Box1, typename Box2>
 struct box_equals<Box1, Box2, 3>
 {
     static inline bool apply(Box1 const& box1, Box2 const& box2, double tol)
     {
-#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
-        equals_with_tolerance equals(tol);
-
-        return box_equals<Box1, Box2, 2>::apply(box1, box2, tol)
-            && equals(bg::get<0, 2>(box1), bg::get<0, 2>(box2))
-            && equals(bg::get<1, 2>(box1), bg::get<1, 2>(box2));
-#else
-        return box_equals<Box1, Box2, 2>::apply(box1, box2, tol)
-            && bg::get<0, 2>(box1) == bg::get<0, 2>(box2)
-            && bg::get<1, 2>(box1) == bg::get<1, 2>(box2);
-#endif
+        return box_check_equals<Box1>::apply(box1,
+                    bg::get<0, 0>(box2), bg::get<0, 1>(box2), bg::get<0, 2>(box2),
+                    bg::get<1, 0>(box2), bg::get<1, 1>(box2), bg::get<1, 2>(box2),
+                    tol);
     }
 };
 

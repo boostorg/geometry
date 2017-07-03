@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,6 +21,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -35,6 +40,8 @@
 #include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/strategies/intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -70,6 +77,7 @@ public :
             typename Operation,
             typename Rings,
             typename Turns,
+            typename IntersectionStrategy,
             typename RobustPolicy,
             typename Visitor
         >
@@ -77,14 +85,15 @@ public :
                 Rings& rings,
                 typename boost::range_value<Rings>::type& ring,
                 Turns& turns,
-                typename boost::range_value<Turns>::type const& turn,
+                typename boost::range_value<Turns>::type const& /*turn*/,
                 Operation& operation,
                 detail::overlay::traverse_error_type,
                 Geometry const& ,
                 Geometry const& ,
+                IntersectionStrategy const& ,
                 RobustPolicy const& ,
                 state_type& state,
-                Visitor const& visitor
+                Visitor const& /*visitor*/
                 )
     {
         state.m_good = false;
@@ -140,10 +149,11 @@ public :
 template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
 {
-    template <typename RescalePolicy, typename OutputIterator>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry const& geometry,
                 RescalePolicy const& rescale_policy,
-                OutputIterator out)
+                OutputIterator out,
+                Strategy const& strategy)
     {
         typedef typename point_type<Geometry>::type point_type;
 
@@ -159,7 +169,7 @@ struct dissolve_ring_or_polygon
         geometry::self_turns
             <
                 detail::overlay::assign_null_policy
-            >(geometry, rescale_policy, turns, policy);
+            >(geometry, strategy, rescale_policy, turns, policy);
 
         // The dissolve process is not necessary if there are no turns at all
 
@@ -179,14 +189,12 @@ struct dissolve_ring_or_polygon
             dissolve_overlay_visitor visitor;
 
             // Enrich/traverse the polygons twice: once for union...
-            typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Geometry>::type
-            >::type side_strategy_type;
+            typename Strategy::side_strategy_type const
+                side_strategy = strategy.get_side_strategy();
 
             enrich_intersection_points<false, false, overlay_dissolve>(turns,
                         clusters, geometry, geometry, rescale_policy,
-                        side_strategy_type());
+                        side_strategy);
 
             detail::overlay::traverse
                 <
@@ -194,15 +202,16 @@ struct dissolve_ring_or_polygon
                     Geometry, Geometry,
                     overlay_dissolve,
                     backtrack_for_dissolve<Geometry>
-                >::apply(geometry, geometry, rescale_policy,
-                            turns, rings, clusters, visitor);
+                >::apply(geometry, geometry,
+                         strategy, rescale_policy,
+                         turns, rings, clusters, visitor);
 
             clear_visit_info(turns);
 
             // ... and for intersection
             enrich_intersection_points<false, false, overlay_intersection>(turns,
                         clusters, geometry, geometry, rescale_policy,
-                        side_strategy_type());
+                        side_strategy);
 
             detail::overlay::traverse
                 <
@@ -210,17 +219,18 @@ struct dissolve_ring_or_polygon
                     Geometry, Geometry,
                     overlay_intersection,
                     backtrack_for_dissolve<Geometry>
-                >::apply(geometry, geometry, rescale_policy,
-                            turns, rings, clusters, visitor);
+                >::apply(geometry, geometry,
+                         strategy, rescale_policy,
+                         turns, rings, clusters, visitor);
 
             std::map<ring_identifier, detail::overlay::ring_turn_info> map;
-            get_ring_turn_info(map, turns);
+            detail::overlay::get_ring_turn_info<overlay_dissolve>(map, turns, clusters);
 
             typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected);
+            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected, strategy);
 
             // Add intersected rings
             {
@@ -235,7 +245,7 @@ struct dissolve_ring_or_polygon
                 }
             }
 
-            detail::overlay::assign_parents(geometry, rings, selected, true);
+            detail::overlay::assign_parents(geometry, rings, selected, strategy, true);
             return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
 
         }
@@ -294,8 +304,10 @@ struct dissolve<ring_tag, ring_tag, Ring, RingOut>
     \tparam Geometry geometry type
     \tparam OutputIterator type of intersection container
         (e.g. vector of "intersection/turn point"'s)
+    \tparam Strategy type of a strategy
     \param geometry first geometry
     \param out output iterator getting dissolved geometry
+    \param strategy a strategy
     \note Currently dissolve with a (multi)linestring does NOT remove internal
         overlap, it only tries to connect multiple line end-points.
         TODO: we should change this behaviour and add a separate "connect"
@@ -305,9 +317,12 @@ template
 <
     typename GeometryOut,
     typename Geometry,
-    typename OutputIterator
+    typename OutputIterator,
+    typename Strategy
 >
-inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator out)
+inline OutputIterator dissolve_inserter(Geometry const& geometry,
+                                        OutputIterator out,
+                                        Strategy const& strategy)
 {
     concepts::check<Geometry const>();
     concepts::check<GeometryOut>();
@@ -326,16 +341,46 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator
         typename tag<GeometryOut>::type,
         Geometry,
         GeometryOut
-    >::apply(geometry, robust_policy, out);
+    >::apply(geometry, robust_policy, out, strategy);
+}
+
+/*!
+    \brief Removes self intersections from a geometry
+    \ingroup overlay
+    \tparam Geometry geometry type
+    \tparam OutputIterator type of intersection container
+        (e.g. vector of "intersection/turn point"'s)
+    \param geometry first geometry
+    \param out output iterator getting dissolved geometry
+    \note Currently dissolve with a (multi)linestring does NOT remove internal
+        overlap, it only tries to connect multiple line end-points.
+        TODO: we should change this behaviour and add a separate "connect"
+        algorithm, and let dissolve work like polygon.
+ */
+template
+<
+    typename GeometryOut,
+    typename Geometry,
+    typename OutputIterator
+>
+inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator out)
+{
+    typedef typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<Geometry>::type
+        >::type strategy_type;
+
+    return dissolve_inserter<GeometryOut>(geometry, out, strategy_type());
 }
 
 
 template
 <
     typename Geometry,
-    typename Collection
+    typename Collection,
+    typename Strategy
 >
-inline void dissolve(Geometry const& geometry, Collection& output_collection)
+inline void dissolve(Geometry const& geometry, Collection& output_collection, Strategy const& strategy)
 {
     concepts::check<Geometry const>();
 
@@ -349,7 +394,24 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection)
         typename tag<geometry_out>::type,
         Geometry,
         geometry_out
-    >::apply(geometry, detail::no_rescale_policy(), std::back_inserter(output_collection));
+    >::apply(geometry, detail::no_rescale_policy(),
+             std::back_inserter(output_collection),
+             strategy);
+}
+
+template
+<
+    typename Geometry,
+    typename Collection
+>
+inline void dissolve(Geometry const& geometry, Collection& output_collection)
+{
+    typedef typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<Geometry>::type
+        >::type strategy_type;
+
+    dissolve(geometry, output_collection, strategy_type());
 }
 
 

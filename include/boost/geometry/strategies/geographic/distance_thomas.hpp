@@ -15,9 +15,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_THOMAS_HPP
 
 
-#include <boost/geometry/formulas/thomas_inverse.hpp>
-
 #include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,18 +39,18 @@ namespace strategy { namespace distance
 */
 template
 <
-    typename Spheroid,
+    typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class thomas
     : public strategy::distance::geographic
         <
-            formula::thomas_inverse, Spheroid, CalculationType
+            strategy::thomas, Spheroid, CalculationType
         >
 {
     typedef strategy::distance::geographic
         <
-            formula::thomas_inverse, Spheroid, CalculationType
+            strategy::thomas, Spheroid, CalculationType
         > base_type;
 
 public :

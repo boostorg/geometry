@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014.
 // Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
@@ -20,6 +21,25 @@
 
 
 namespace bgm = bg::model;
+
+template <typename P>
+void test_pointlike()
+{
+    typedef bgm::multi_point<P> mpt;
+
+    test_geometry<P, P>("ptpt2d_1", "POINT(0 0)", "POINT(0 0)", true);
+    test_geometry<P, P>("ptpt2d_2", "POINT(0 0)", "POINT(1 1)", false);
+
+    test_geometry<P, mpt>("ptmpt2d_1", "POINT(0 0)", "MULTIPOINT(0 0)", true);
+    test_geometry<P, mpt>("ptmpt2d_1", "POINT(0 0)", "MULTIPOINT(0 0, 1 1)", false);
+
+    test_geometry<mpt, P>("mptpt2d_1", "MULTIPOINT(0 0)", "POINT(0 0)", true);
+    test_geometry<mpt, P>("mptpt2d_1", "MULTIPOINT(0 0, 1 1)", "POINT(0 0)", false);
+
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 2 2)", false);
+    test_geometry<mpt, mpt>("mptmpt2d_1", "MULTIPOINT(0 0, 1 1)", "MULTIPOINT(2 2, 3 3)", false);
+}
 
 template <typename P>
 void test_segment_segment()
@@ -111,6 +131,43 @@ void test_multilinestring_multilinestring()
 }
 
 template <typename P>
+void test_polygons()
+{
+    typedef bg::model::polygon<P, true, true> poly_cw_c;
+    typedef bg::model::polygon<P, true, false> poly_cw_o;
+    typedef bg::model::polygon<P, false, true> poly_ccw_c;
+    typedef bg::model::polygon<P, false, false> poly_ccw_o;
+    typedef bg::model::box<P> box;
+
+    std::string wkt1 = "POLYGON((-18 1, -23 1, -23 -3, -18 -3))";
+    std::string wkt2 = "POLYGON((-23 1, -23 -3, -18 -3, -18 1))";
+
+    test_geometry<poly_cw_c, poly_cw_c>("polys_cw_c_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_cw_o>("polys_cw_c_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_ccw_c>("polys_cw_c_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, poly_ccw_o>("polys_cw_c_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_c, box>("polys_cw_c_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_cw_o, poly_cw_c>("polys_cw_o_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_cw_o>("polys_cw_o_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_ccw_c>("polys_cw_o_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, poly_ccw_o>("polys_cw_o_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_cw_o, box>("polys_cw_o_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_ccw_c, poly_cw_c>("polys_ccw_c_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_cw_o>("polys_ccw_c_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_ccw_c>("polys_ccw_c_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, poly_ccw_o>("polys_ccw_c_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_c, box>("polys_cw_o_box", wkt1, wkt2, true, true);
+
+    test_geometry<poly_ccw_o, poly_cw_c>("polys_ccw_o_cw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_cw_o>("polys_ccw_o_cw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_ccw_c>("polys_ccw_o_ccw_c", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, poly_ccw_o>("polys_ccw_o_ccw_o", wkt1, wkt2, true, true);
+    test_geometry<poly_ccw_o, box>("polys_ccw_o_box", wkt1, wkt2, true, true);
+}
+
+template <typename P>
 void test_all()
 {
     typedef bg::model::box<P> box;
@@ -191,10 +248,12 @@ void test_all()
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,2 1,2 2,1 2,1 1))",
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(2 2,1 2,1 1,2 1,2 2))", true);
 
+    test_pointlike<P>();
     test_segment_segment<P>();
     test_linestring_linestring<P>();
     test_linestring_multilinestring<P>();
     test_multilinestring_multilinestring<P>();
+    test_polygons<P>();
 }
 
 
