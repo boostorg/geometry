@@ -74,7 +74,11 @@ struct self_intersects
         detail::disjoint::disjoint_interrupt_policy policy;
         detail::self_get_turn_points::get_turns
             <
+<<<<<<< HEAD
                 turn_policy
+=======
+                false, turn_policy
+>>>>>>> develop
             >::apply(geometry, strategy, robust_policy, turns, policy, 0);
         return policy.has_intersections;
     }

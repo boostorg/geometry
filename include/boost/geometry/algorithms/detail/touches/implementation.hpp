@@ -445,7 +445,11 @@ struct self_touches
         rescale_policy_type robust_policy;
         detail::self_get_turn_points::get_turns
         <
+<<<<<<< HEAD
             policy_type
+=======
+            false, policy_type
+>>>>>>> develop
         >::apply(geometry, strategy, robust_policy, turns, policy, 0);
 
         return policy.result();

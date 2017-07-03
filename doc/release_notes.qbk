@@ -19,6 +19,21 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.65]
+[/=================]
+
+[*Solved issues]
+
+* [@https://svn.boost.org/trac/boost/ticket/12410 12410] Lack of support of geographic coordinate system in correct()
+
+[*Bugfixes]
+
+* Fix is_valid which could return false for multipolygons where an interior ring touches another interior ring
+* Fix union which could produce invalid results (for some cases, this needs to define BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+* Fix intersection (idem), but some cases are still not yet valid
+* Fix difference (idem), but some cases are still not yet valid
+
+[/=================]
 [heading Boost 1.64]
 [/=================]
 
@@ -43,7 +58,10 @@
 * [@https://svn.boost.org/trac/boost/ticket/11899 11899] boost::geometry::equals doesn't handle open polygons
 * [@https://svn.boost.org/trac/boost/ticket/11930 11930] Inaccuracy of area::huiller strategy
 * [@https://svn.boost.org/trac/boost/ticket/11931 11931] Wrong spherical area with pole encircling polygons
+<<<<<<< HEAD
 * [@https://svn.boost.org/trac/boost/ticket/12410 12410] Lack of support of geographic coordinate system in correct()
+=======
+>>>>>>> develop
 * [@https://svn.boost.org/trac/boost/ticket/12566 12566] Ambiguous template instantiation in equal_to<> when pair value contains raw pointer
 * [@https://svn.boost.org/trac/boost/ticket/12861 12861] Segmentation fault in stdlibc++ (gcc 4.8.2) affecting rtree
 * [@https://svn.boost.org/trac/boost/ticket/12885 12885] Use BOOST_THROW_EXCEPTION instead of throw

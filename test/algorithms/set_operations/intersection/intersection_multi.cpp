@@ -154,6 +154,19 @@ void test_areal()
     TEST_INTERSECTION(case_129_multi, 1, 20, 20.5);
     TEST_INTERSECTION(case_130_multi, 2, 30, 39.0);
 
+<<<<<<< HEAD
+=======
+    TEST_INTERSECTION(case_133_multi, 2, 23, 40.625);
+    TEST_INTERSECTION(case_134_multi, 1, 23, 42.0);
+    TEST_INTERSECTION(case_135_multi, 1, 17, 7.0);
+    TEST_INTERSECTION(case_136_multi, 1, 17, 6.5);
+    TEST_INTERSECTION(case_137_multi, 1, 17, 6.5);
+
+    TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
+    TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
+    TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
+
+>>>>>>> develop
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
 #else
@@ -282,6 +295,24 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_43, 2, 0, 22.5);
     TEST_INTERSECTION(case_recursive_boxes_44, 2, 0, 3.0);
     TEST_INTERSECTION(case_recursive_boxes_45, 7, 0, 12.0);
+<<<<<<< HEAD
+=======
+    TEST_INTERSECTION(case_recursive_boxes_46, 6, -1, 7.0);
+    TEST_INTERSECTION(case_recursive_boxes_47, 1, 5, 1.0);
+    TEST_INTERSECTION(case_recursive_boxes_48, 1, 5, 1.0);
+    TEST_INTERSECTION(case_recursive_boxes_49, 7, 57, 20.0);
+    TEST_INTERSECTION(case_recursive_boxes_50, 9, 71, 26.0);
+    TEST_INTERSECTION(case_recursive_boxes_51, 14, 79, 19.0);
+    TEST_INTERSECTION(case_recursive_boxes_52, 8, -1, 22.0);
+    TEST_INTERSECTION(case_recursive_boxes_53, 1, -1, 19.75);
+    TEST_INTERSECTION(case_recursive_boxes_54, 3, -1, 10.0);
+    TEST_INTERSECTION(case_recursive_boxes_55, 5, -1, 2.25);
+    TEST_INTERSECTION(case_recursive_boxes_56, 1, -1, 0.5);
+    TEST_INTERSECTION(case_recursive_boxes_57, 10, -1, 9.5);
+    TEST_INTERSECTION(case_recursive_boxes_58, 1, -1, 0.25);
+    TEST_INTERSECTION(case_recursive_boxes_59, 8, -1, 8.25);
+    TEST_INTERSECTION(case_recursive_boxes_60, 8, -1, 10.0);
+>>>>>>> develop
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
