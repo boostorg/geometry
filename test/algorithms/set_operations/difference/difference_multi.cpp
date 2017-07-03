@@ -42,6 +42,10 @@
             clips2, -1, area2, \
             clips3, -1, area1 + area2, settings)
 
+#define TEST_DIFFERENCE_IGNORE(caseid, clips1, points1, area1, clips2, points2, area2) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, points1, area1, clips2, points2, area2, ignore_validity)
+
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
@@ -106,6 +110,12 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 5, 1.0, 1, 5, 1.0);
 
+<<<<<<< HEAD
+    TEST_DIFFERENCE(case_123_multi, 1, 4, 0.25, 2, 9, 0.625);
+    TEST_DIFFERENCE(case_124_multi, 1, 4, 0.25, 2, 9, 0.4375);
+    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 4, 0.25, 2, 12, 0.400);
+    TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 22, 16.0, 4, 27, 27.0); // A should have 3 clips, B should have 5 clips
+=======
     TEST_DIFFERENCE(case_123_multi, 1, 0.25, 2, 0.625, 3);
     TEST_DIFFERENCE(case_124_multi, 1, 0.25, 2, 0.4375, 3);
     TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 0.25, 2, 0.400, 3);
@@ -116,6 +126,7 @@ void test_areal()
 #else
     TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 16.0, 4, 27.0, 7);
 #endif
+>>>>>>> develop
 
     {
         ut_settings settings;
@@ -403,6 +414,46 @@ void test_specific_areal()
         // Ticket 12751 (Volker)
         // Spikes in a-b and b-a, failure in symmetric difference
 
+<<<<<<< HEAD
+        ut_settings settings;
+        settings.sym_difference = false;
+        settings.test_validity = false;
+        settings.remove_spikes = true;
+
+        std::string a_min_b =
+            test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_1",
+                ticket_12751[0], ticket_12751[1],
+                1, 14, 2781965.0,
+                1, 4, 597.0,
+                settings);
+
+        // Testing consistency of testcase itself
+        BOOST_CHECK_EQUAL(a_min_b, ticket_12751[2]);
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_12751_2",
+            ticket_12751[2], ticket_12751[3],
+            1, 18, 2537992.5,
+            2, 11, 294963.5,
+            settings);
+    }
+
+    {
+        // Ticket 12752 (Volker)
+        // Spikes in a-b and b-a, failure in symmetric difference
+
+        ut_settings settings;
+        settings.sym_difference = false;
+        settings.test_validity = false;
+
+        test_one<polygon, multi_polygon, multi_polygon>("ticket_12752",
+            ticket_12752[0], ticket_12752[1],
+            3, 22, 2776692.0,
+            3, 11, 7893.0,
+            settings);
+    }
+    {
+=======
+>>>>>>> develop
         ut_settings settings;
         settings.remove_spikes = true;
 #if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)

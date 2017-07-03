@@ -219,6 +219,12 @@ struct traversal
                     : candidate_seg_id.multi_index == previous_seg_id.multi_index;
         }
 
+        // If it is a self-turn, always switch source
+        if (turn.self_turn())
+        {
+            return true;
+        }
+
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         if (turn.switch_source)
         {
@@ -230,8 +236,13 @@ struct traversal
         }
 #endif
         return turn.switch_source
+<<<<<<< HEAD
+                ? seg_id1.source_index != seg_id2.source_index
+                : seg_id1.source_index == seg_id2.source_index;
+=======
                 ? candidate_seg_id.source_index != previous_seg_id.source_index
                 : candidate_seg_id.source_index == previous_seg_id.source_index;
+>>>>>>> develop
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -452,10 +463,49 @@ struct traversal
         return true;
     }
 
+    inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
+                                       operation_type op_type,
+                                       sort_by_side::direction_type dir) const
+    {
+        typedef std::set<sort_by_side::ring_with_direction>::const_iterator sit_type;
+        for (sit_type it = rwr.rings.begin(); it != rwr.rings.end(); ++it)
+        {
+            sort_by_side::ring_with_direction const& rwd = *it;
+            if (rwd.direction != dir)
+            {
+                return false;
+            }
+            turn_type const& turn = m_turns[rwd.turn_index];
+            if (! turn.both(op_type))
+            {
+                return false;
+            }
+
+            // Check if this is not yet taken
+            turn_operation_type const& op = turn.operations[rwd.operation_index];
+            if (op.visited.finalized())
+            {
+                return false;
+            }
+
+        }
+        return true;
+    }
+
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
         std::vector<sort_by_side::rank_with_rings> aggregation;
+<<<<<<< HEAD
+        sort_by_side::aggregate_operations(sbs, aggregation, m_turns);
+
+        std::size_t selected_rank = 0;
+
+        int incoming_region_id = 0;
+        std::set<int> outgoing_region_ids;
+
+        for (std::size_t i = 0; i < aggregation.size(); i++)
+=======
         sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_intersection);
 
         std::size_t selected_rank = 0;
@@ -470,10 +520,65 @@ struct traversal
                 ;
 
         if (! detected)
+>>>>>>> develop
         {
             int incoming_region_id = 0;
             std::set<int> outgoing_region_ids;
 
+<<<<<<< HEAD
+            if (rwr.all_to()
+                    && rwr.traversable(m_turns)
+                    && selected_rank == 0)
+            {
+                // Take the first (= right) where segments leave,
+                // having the polygon on the right side
+                selected_rank = rwr.rank;
+            }
+            if (rwr.all_from()
+                    && selected_rank > 0
+                    && outgoing_region_ids.empty())
+            {
+                // Incoming
+                break;
+            }
+
+            if (incoming_region_id == 0)
+            {
+                sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                turn_type const& turn = m_turns[rwd.turn_index];
+                incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
+            }
+            else
+            {
+                if (rwr.rings.size() == 1)
+                {
+                    sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
+                    turn_type const& turn = m_turns[rwd.turn_index];
+                    if (rwd.direction == sort_by_side::dir_to
+                            && turn.both(operation_intersection))
+                    {
+
+                        turn_operation_type const& op = turn.operations[rwd.operation_index];
+                        if (op.enriched.region_id != incoming_region_id
+                                && op.enriched.isolated)
+                        {
+                            outgoing_region_ids.insert(op.enriched.region_id);
+                        }
+                    }
+                    else if (! outgoing_region_ids.empty())
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            int const region_id = turn.operations[i].enriched.region_id;
+                            if (outgoing_region_ids.count(region_id) == 1)
+                            {
+                                selected_rank = 0;
+                                outgoing_region_ids.erase(region_id);
+                            }
+                        }
+                    }
+                }
+=======
             for (std::size_t i = 0; i < aggregation.size(); i++)
             {
                 sort_by_side::rank_with_rings const& rwr = aggregation[i];
@@ -532,6 +637,7 @@ struct traversal
                         }
                     }
                 }
+>>>>>>> develop
             }
         }
 
@@ -786,7 +892,11 @@ struct traversal
 
         if (current_turn.cluster_id >= 0)
         {
+<<<<<<< HEAD
+            if (! select_turn_from_cluster(turn_index, op_index, is_touching,
+=======
             if (! select_turn_from_cluster(turn_index, op_index,
+>>>>>>> develop
                     start_turn_index, previous_seg_id))
             {
                 return false;

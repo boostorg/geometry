@@ -118,7 +118,10 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                 ? turn.colocated_uu : turn.colocated_ii;
         bool const colocated_opp = target_operation == operation_union
                 ? turn.colocated_ii : turn.colocated_uu;
+<<<<<<< HEAD
+=======
         bool const both_opposite = turn.both(opposite_operation);
+>>>>>>> develop
 
         bool const traversed
                 = turn.operations[0].visited.finalized()
@@ -127,6 +130,8 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                 || turn.operations[1].visited.rejected()
                 || turn.both(operation_blocked)
                 || turn.combination(opposite_operation, operation_blocked);
+<<<<<<< HEAD
+=======
 
         bool is_closed = false;
         if (turn.cluster_id >= 0 && target_operation == operation_union)
@@ -137,6 +142,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             cluster_info const& cinfo = mit->second;
             is_closed = cinfo.open_count == 0;
         }
+>>>>>>> develop
 
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
@@ -150,17 +156,64 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                     op_it->seg_id.ring_index
                 );
 
+<<<<<<< HEAD
+            if (traversed)
+            {
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
+            }
+
+            if (turn.both(opposite_operation) && colocated_target)
+=======
             if (traversed || is_closed || ! op_it->enriched.startable)
             {
                 turn_info_map[ring_id].has_traversed_turn = true;
             }
             else if (both_opposite && colocated_target)
+>>>>>>> develop
             {
                 // For union: ii, colocated with a uu
                 // For example, two interior rings touch where two exterior rings also touch.
                 // The interior rings are not yet traversed, and should be taken from the input
 
                 // For intersection: uu, colocated with an ii
+<<<<<<< HEAD
+                continue;
+            }
+
+            // unless it is two interior inner rings colocated with a uu
+            if (turn.both(opposite_operation))
+            {
+                // For union, mark any ring with a ii turn as traversed
+                // For intersection, any uu
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
+            }
+            else if (colocated_opp && ! colocated_target)
+            {
+                // For union, a turn colocated with ii and NOT with uu
+                // For intersection v.v.
+                turn_info_map[ring_id].has_traversed_turn = true;
+                continue;
+            }
+
+            if (turn.cluster_id >= 0)
+            {
+                // Check other turns in same cluster
+
+                typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
+                BOOST_ASSERT(mit != clusters.end());
+
+                cluster_info const& cinfo = mit->second;
+
+                if (target_operation == operation_union && cinfo.open_count == 0)
+                {
+                    // It is not traversed, and there is no way out for a union,
+                    // so register it as traversed to avoid including the ring
+                    turn_info_map[ring_id].has_traversed_turn = true;
+                    continue;
+                }
+=======
                 // unless it is two interior inner rings colocated with a uu
 
                 // So don't set has_traversed_turn here
@@ -176,6 +229,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                 // For union, a turn colocated with ii and NOT with uu/ux
                 // For intersection v.v.
                 turn_info_map[ring_id].has_traversed_turn = true;
+>>>>>>> develop
             }
         }
     }
@@ -298,10 +352,17 @@ std::cout << "get turns" << std::endl;
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
         {
+<<<<<<< HEAD
+            geometry::self_turns<assign_null_policy>(geometry1, strategy, robust_policy,
+                                                     turns, policy, 0);
+            geometry::self_turns<assign_null_policy>(geometry2, strategy, robust_policy,
+                                                     turns, policy, 1);
+=======
             self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
                 strategy, robust_policy, turns, policy, 0);
             self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
                 strategy, robust_policy, turns, policy, 1);
+>>>>>>> develop
         }
 #endif
 

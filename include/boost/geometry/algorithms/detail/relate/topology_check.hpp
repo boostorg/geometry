@@ -165,6 +165,8 @@ private:
 
         m_endpoints.reserve(boost::size(m_mls) * 2);
 
+        m_has_interior = false;
+
         typedef typename boost::range_iterator<MultiLinestring const>::type ls_iterator;
         for ( ls_iterator it = boost::begin(m_mls) ; it != boost::end(m_mls) ; ++it )
         {

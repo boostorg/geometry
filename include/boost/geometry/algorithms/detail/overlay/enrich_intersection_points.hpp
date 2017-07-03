@@ -264,7 +264,10 @@ inline void calculate_remaining_distance(Turns& turns)
         }
     }
 }
+<<<<<<< HEAD
+=======
 
+>>>>>>> develop
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
@@ -335,6 +338,41 @@ inline void enrich_intersection_points(Turns& turns,
          ++it)
     {
         turn_type& turn = *it;
+<<<<<<< HEAD
+        if (turn.both(detail::overlay::operation_none))
+        {
+            turn.discarded = true;
+        }
+        if (for_operation == detail::overlay::operation_intersection
+                && turn.both(detail::overlay::operation_union))
+        {
+            // For intersections, remove uu to avoid the need to travel
+            // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
+            turn.discarded = true;
+            turn.cluster_id = -1;
+        }
+
+        if (for_operation == detail::overlay::operation_union
+                && turn.both(detail::overlay::operation_intersection))
+        {
+            // Also, for union, discard ii
+            turn.discarded = true;
+            turn.cluster_id = -1;
+        }
+
+        if (OverlayType != overlay_buffer
+            && turn.cluster_id >= 0
+            && turn.self_turn())
+        {
+            // Avoid interfering self-turn if there are already clustered turns
+            // TODO: avoid discarding if there are ONLY self-turns
+           turn.discarded = true;
+        }
+
+        if (! turn.discarded
+            && turn.both(detail::overlay::operation_continue))
+        {
+=======
 
         if (turn.both(detail::overlay::operation_none))
         {
@@ -365,6 +403,7 @@ inline void enrich_intersection_points(Turns& turns,
         if (! turn.discarded
             && turn.both(detail::overlay::operation_continue))
         {
+>>>>>>> develop
             has_cc = true;
         }
     }
@@ -417,16 +456,23 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
+<<<<<<< HEAD
+=======
         // First gather cluster properties (using even clusters with
         // discarded turns - for open turns), then clean up clusters
+>>>>>>> develop
         detail::overlay::gather_cluster_properties
             <
                 Reverse1,
                 Reverse2,
                 OverlayType
+<<<<<<< HEAD
+            >(clusters, turns, for_operation, geometry1, geometry2);
+=======
             >(clusters, turns, target_operation, geometry1, geometry2);
 
         detail::overlay::cleanup_clusters(turns, clusters);
+>>>>>>> develop
     }
 
     if (has_cc)

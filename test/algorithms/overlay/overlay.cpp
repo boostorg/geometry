@@ -276,11 +276,19 @@ struct map_visitor
         std::string font6 = "font-family:Arial;font-size:6px";
         std::string style =  "fill:rgb(0,0,255);" + font8;
         if (turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index)
+<<<<<<< HEAD
         {
             style =  "fill:rgb(255,0,255);" + font8;
         }
         else if (turn.colocated)
         {
+=======
+        {
+            style =  "fill:rgb(255,0,255);" + font8;
+        }
+        else if (turn.colocated)
+        {
+>>>>>>> develop
             style =  "fill:rgb(255,0,0);" + font8;
         }
         else if (turn.discarded)

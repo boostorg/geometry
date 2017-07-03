@@ -148,7 +148,11 @@ struct get_turns
         typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 
         sections_type sec;
+<<<<<<< HEAD
+        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec,
+=======
         geometry::sectionalize<Reverse, dimensions>(geometry, robust_policy, sec,
+>>>>>>> develop
                                                   intersection_strategy.get_envelope_strategy());
 
         self_section_visitor
@@ -342,9 +346,16 @@ inline void self_turns(Geometry const& geometry,
 
     detail::self_get_turn_points::self_turns
             <
+<<<<<<< HEAD
+                typename tag<Geometry>::type,
+                Geometry,
+                turn_policy
+            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy, source_index);
+=======
                 reverse,
                 AssignPolicy
             >(geometry, strategy, robust_policy, turns, interrupt_policy, source_index);
+>>>>>>> develop
 }
 
 

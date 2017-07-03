@@ -159,6 +159,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
     }
 #endif
+<<<<<<< HEAD
+=======
 
     if (settings.test_validity)
     {
@@ -169,6 +171,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << " type: " << (type_for_assert_message<G1, G2>()));
     }
 
+>>>>>>> develop
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
