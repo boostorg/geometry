@@ -45,7 +45,7 @@ struct side_calculator
 {
     inline side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
                            Qi const& qi, Qj const& qj, Qk const& qk,
-                           SideStrategy side_strategy)
+                           SideStrategy const& side_strategy)
         : m_pi(pi), m_pj(pj), m_pk(pk)
         , m_qi(qi), m_qj(qj), m_qk(qk)
         , m_side_strategy(side_strategy)
