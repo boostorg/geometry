@@ -45,7 +45,7 @@ struct side_calculator
 {
     inline side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
                            Qi const& qi, Qj const& qj, Qk const& qk,
-                           SideStrategy const& side_strategy)
+                           SideStrategy side_strategy)
         : m_pi(pi), m_pj(pj), m_pk(pk)
         , m_qi(qi), m_qj(qj), m_qk(qk)
         , m_side_strategy(side_strategy)
@@ -66,7 +66,7 @@ struct side_calculator
     Qj const& m_qj;
     Qk const& m_qk;
 
-    SideStrategy const& m_side_strategy;
+    SideStrategy m_side_strategy;
 };
 
 template <typename Point1, typename Point2, typename RobustPolicy>
