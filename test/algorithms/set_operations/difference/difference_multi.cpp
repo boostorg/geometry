@@ -106,7 +106,7 @@ void test_areal()
 
     TEST_DIFFERENCE(case_123_multi, 1, 0.25, 2, 0.625, 3);
     TEST_DIFFERENCE(case_124_multi, 1, 0.25, 2, 0.4375, 3);
-    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 0.25, 2, 0.400, 3);
+    TEST_DIFFERENCE(case_125_multi, 1, 0.25, 2, 0.400, 3);
 
     // A should have 3 clips, B should have 5 clips
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
