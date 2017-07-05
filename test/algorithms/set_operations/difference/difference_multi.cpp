@@ -30,9 +30,10 @@
                 clips3, -1, area1 + area2)
 
 #define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
+    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
-                clips3, -1, area1 + area2, ignore_validity)
+                clips3, -1, area1 + area2, ignore_validity); }
 
 #define TEST_DIFFERENCE_WITH(index1, index2, caseid, clips1, area1, \
                 clips2, area2, clips3) \
@@ -46,9 +47,6 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
     ut_settings sym_settings;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     sym_settings.sym_difference = false;
@@ -94,7 +92,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
-            3, 13, 1.65, 3, 17, 6.15, ignore_validity);
+            3, 13, 1.65, 3, 17, 6.15);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
@@ -108,7 +106,7 @@ void test_areal()
 
     TEST_DIFFERENCE(case_123_multi, 1, 0.25, 2, 0.625, 3);
     TEST_DIFFERENCE(case_124_multi, 1, 0.25, 2, 0.4375, 3);
-    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 0.25, 2, 0.400, 3);
+    TEST_DIFFERENCE(case_125_multi, 1, 0.25, 2, 0.400, 3);
 
     // A should have 3 clips, B should have 5 clips
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
@@ -178,11 +176,7 @@ void test_areal()
             tolerance(0.001));
 
     // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
-    test_one<Polygon, MultiPolygon, MultiPolygon>("bug_21155501",
-        bug_21155501[0], bug_21155501[1],
-            1, 9, 3.758937,
-            0, 0, 0.0,
-            ignore_validity);
+    TEST_DIFFERENCE_IGNORE(bug_21155501, 1, 3.758937, 0, 0.0, 1);
 #endif
 
     // Areas and #clips correspond with POSTGIS (except sym case)
