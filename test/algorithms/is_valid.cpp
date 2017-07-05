@@ -1192,11 +1192,8 @@ inline void test_open_multipolygons()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 {
-    bool const allow_duplicates = true;
-    bool const do_not_allow_duplicates = !allow_duplicates;
-
-    test_open_multipolygons<point_type, allow_duplicates>();
-    test_open_multipolygons<point_type, do_not_allow_duplicates>();
+    test_open_multipolygons<point_type, true>();
+    test_open_multipolygons<point_type, false>();
 }
 
 
