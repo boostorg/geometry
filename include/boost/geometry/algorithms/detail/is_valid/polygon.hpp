@@ -45,6 +45,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
@@ -216,14 +217,26 @@ protected:
             , m_strategy(strategy)
         {}
 
+        template <typename Item>
+        inline bool is_within(Item const& first, Item const& second)
+        {
+            typename point_type<Polygon>::type point;
+            typedef detail::point_on_border::point_on_range<true> pob;
+
+            // TODO: this should check for a point on the interior, instead
+            // of on border. Or it should check using the overlap function.
+
+            return pob::apply(point, points_begin(first), points_end(first))
+                    && geometry::within(point, second, m_strategy);
+        }
+
         template <typename Iterator, typename Box>
         inline bool apply(partition_item<Iterator, Box> const& item1,
                           partition_item<Iterator, Box> const& item2)
         {
             if (! items_overlap
-                && (geometry::within(*points_begin(*item1.get()), *item2.get(), m_strategy)
-                    || geometry::within(*points_begin(*item2.get()), *item1.get(), m_strategy))
-                )
+                && (is_within(*item1.get(), *item2.get())
+                  || is_within(*item2.get(), *item1.get())))
             {
                 items_overlap = true;
                 return false; // interrupt
