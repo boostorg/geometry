@@ -142,10 +142,20 @@ struct buffered_piece_collection
             robust_point_type
         >::type robust_comparable_radius_type;
 
-    typedef typename strategy::side::services::default_strategy
+    typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
+
+    typedef typename IntersectionStrategy::template area_strategy
         <
-            typename cs_tag<point_type>::type
-        >::type side_strategy;
+            point_type
+        >::type area_strategy_type;
+
+    typedef typename IntersectionStrategy::template area_strategy
+        <
+            robust_point_type
+        >::type robust_area_strategy_type;
+
+    typedef typename area_strategy_type::return_type area_result_type;
+    typedef typename robust_area_strategy_type::return_type robust_area_result_type;
 
     typedef typename geometry::rescale_policy_type
         <
@@ -306,7 +316,10 @@ struct buffered_piece_collection
 
     cluster_type m_clusters;
 
-    IntersectionStrategy const& m_intersection_strategy;
+    IntersectionStrategy m_intersection_strategy;
+    side_strategy_type m_side_strategy;
+    area_strategy_type m_area_strategy;
+    robust_area_strategy_type m_robust_area_strategy;
     RobustPolicy const& m_robust_policy;
 
     struct redundant_turn
@@ -321,6 +334,9 @@ struct buffered_piece_collection
                               RobustPolicy const& robust_policy)
         : m_first_piece_index(-1)
         , m_intersection_strategy(intersection_strategy)
+        , m_side_strategy(intersection_strategy.get_side_strategy())
+        , m_area_strategy(intersection_strategy.template get_area_strategy<point_type>())
+        , m_robust_area_strategy(intersection_strategy.template get_area_strategy<robust_point_type>())
         , m_robust_policy(robust_policy)
     {}
 
@@ -699,7 +715,7 @@ struct buffered_piece_collection
             ++it)
         {
             piece& pc = *it;
-            if (geometry::area(pc.robust_ring) < 0)
+            if (geometry::area(pc.robust_ring, m_robust_area_strategy) < 0)
             {
                 // Rings can be ccw:
                 // - in a concave piece
@@ -1220,14 +1236,9 @@ struct buffered_piece_collection
 
     inline void enrich()
     {
-        typedef typename strategy::side::services::default_strategy
-        <
-            typename cs_tag<Ring>::type
-        >::type side_strategy_type;
-
         enrich_intersection_points<false, false, overlay_buffer>(m_turns,
                     m_clusters, offsetted_rings, offsetted_rings,
-                    m_robust_policy, side_strategy_type());
+                    m_robust_policy, m_side_strategy);
     }
 
     // Discards all rings which do have not-OK intersection points only.
@@ -1314,7 +1325,7 @@ struct buffered_piece_collection
             buffered_ring<Ring>& ring = *it;
             if (! ring.has_intersections()
                 && boost::size(ring) > 0u
-                && geometry::area(ring) < 0)
+                && geometry::area(ring, m_area_strategy) < 0)
             {
                 if (! point_coveredby_original(geometry::range::front(ring)))
                 {
@@ -1391,7 +1402,7 @@ struct buffered_piece_collection
     template <typename GeometryOutput, typename OutputIterator>
     inline OutputIterator assign(OutputIterator out) const
     {
-        typedef detail::overlay::ring_properties<point_type> properties;
+        typedef detail::overlay::ring_properties<point_type, area_result_type> properties;
 
         std::map<ring_identifier, properties> selected;
 
@@ -1407,7 +1418,7 @@ struct buffered_piece_collection
             if (! it->has_intersections()
                 && ! it->is_untouched_outside_original)
             {
-                properties p = properties(*it);
+                properties p = properties(*it, m_area_strategy);
                 if (p.valid)
                 {
                     ring_identifier id(0, index, -1);
@@ -1423,7 +1434,7 @@ struct buffered_piece_collection
                 it != boost::end(traversed_rings);
                 ++it, ++index)
         {
-            properties p = properties(*it);
+            properties p = properties(*it, m_area_strategy);
             if (p.valid)
             {
                 ring_identifier id(2, index, -1);
