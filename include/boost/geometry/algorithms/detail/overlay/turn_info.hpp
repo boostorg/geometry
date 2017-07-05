@@ -89,6 +89,7 @@ struct turn_info
 
     Point point;
     method_type method;
+    bool touch_only; // True in case of method touch(interior) and lines do not cross
     signed_size_type cluster_id; // For multiple turns on same location, >= 0. Else -1
     bool discarded;
 
@@ -101,6 +102,7 @@ struct turn_info
 
     inline turn_info()
         : method(method_none)
+        , touch_only(false)
         , cluster_id(-1)
         , discarded(false)
         , colocated_ii(false)

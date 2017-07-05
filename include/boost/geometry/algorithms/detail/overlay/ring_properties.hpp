@@ -27,11 +27,11 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-template <typename Point>
+template <typename Point, typename AreaType>
 struct ring_properties
 {
     typedef Point point_type;
-    typedef typename default_area_result<Point>::type area_type;
+    typedef AreaType area_type;
 
     bool valid;
 
@@ -56,13 +56,13 @@ struct ring_properties
         , parent_area(-1)
     {}
 
-    template <typename RingOrBox>
-    inline ring_properties(RingOrBox const& ring_or_box)
+    template <typename RingOrBox, typename AreaStrategy>
+    inline ring_properties(RingOrBox const& ring_or_box, AreaStrategy const& strategy)
         : reversed(false)
         , discarded(false)
         , parent_area(-1)
     {
-        this->area = geometry::area(ring_or_box);
+        this->area = geometry::area(ring_or_box, strategy);
         valid = geometry::point_on_border(this->point, ring_or_box);
     }
 

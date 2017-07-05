@@ -190,6 +190,7 @@ struct touch_interior : public base_turn_handler
             // Q turns left on the right side of P (test "MR3")
             // Both directions for "intersection"
             both(ti, operation_intersection);
+            ti.touch_only = true;
         }
         else if (side_qi_p == 1 && side_qk_p == 1 && side_qk_q == -1)
         {
@@ -197,6 +198,7 @@ struct touch_interior : public base_turn_handler
             // Union: take both operation
             // Intersection: skip
             both(ti, operation_union);
+            ti.touch_only = true;
         }
         else if (side_qi_p == side_qk_p && side_qi_p == side_qk_q)
         {
@@ -207,6 +209,7 @@ struct touch_interior : public base_turn_handler
             unsigned int index = side_qk_q == 1 ? index_q : index_p;
             ti.operations[index].operation = operation_union;
             ti.operations[1 - index].operation = operation_intersection;
+            ti.touch_only = true;
         }
         else if (side_qk_p == 0)
         {
@@ -346,6 +349,7 @@ struct touch : public base_turn_handler
                 if (side_pk_q2 == -side_qk_q)
                 {
                     ui_else_iu(! q_turns_left, ti);
+                    ti.touch_only = true;
                     return;
                 }
 
@@ -357,6 +361,10 @@ struct touch : public base_turn_handler
                     if (block_q)
                     {
                         ti.operations[1].operation = operation_blocked;
+                    }
+                    else
+                    {
+                        ti.touch_only = true;
                     }
                     //block_second(block_q, ti);
                     return;
@@ -373,6 +381,10 @@ struct touch : public base_turn_handler
                             : side_qi_p1 == 1 || side_qk_p1 == 1
                             ? operation_union
                             : operation_intersection;
+                if (! block_q)
+                {
+                    ti.touch_only = true;
+                }
 
                 return;
             }
@@ -400,6 +412,7 @@ struct touch : public base_turn_handler
                 if (side_pk_q1 == side_qk_p1)
                 {
                     uu_else_ii(right_to_left, ti);
+                    ti.touch_only = true;
                     return;
                 }
             }
@@ -418,6 +431,7 @@ struct touch : public base_turn_handler
                 if (side_pk_q2 == side_qk_p1)
                 {
                     ui_else_iu(right_to_left, ti);
+                    ti.touch_only = true;
                     return;
                 }
             }

@@ -89,12 +89,15 @@ private:
     {
         boost::ignore_unused(visitor);
 
-        // collect all polygons that have turns
+        // collect all polygons that have crossing turns
         std::set<signed_size_type> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
-            multi_indices.insert(tit->operations[0].seg_id.multi_index);
-            multi_indices.insert(tit->operations[1].seg_id.multi_index);
+            if (! tit->touch_only)
+            {
+                multi_indices.insert(tit->operations[0].seg_id.multi_index);
+                multi_indices.insert(tit->operations[1].seg_id.multi_index);
+            }
         }
 
         typedef geometry::model::box<typename point_type<MultiPolygon>::type> box_type;

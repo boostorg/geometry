@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -306,7 +307,7 @@ public :
         //Segment lay on meridian
         if (math::equals(lon1, lon2))
         {
-            return std::max(lat1, lat2);
+            return (std::max)(lat1, lat2);
         }
         BOOST_ASSERT(lon1 < lon2);
 
