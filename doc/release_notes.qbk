@@ -36,7 +36,8 @@
 [*Bugfixes]
 
 * Fix is_valid which could return false for multipolygons where an interior ring touches another interior ring
-* Fix union which could produce invalid results (for some cases, this needs to define BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+* Fix is_valid which could return false for multipolygons where a polygon was located in an interior ring, all touching each other
+* Fix union which could produce invalid results (for some cases, this needs to define BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
 * Fix intersection (idem), but some cases are still not yet valid
 * Fix difference (idem), but some cases are still not yet valid
 * Fix propagation of area strategy into the internals of various algorithms from intersection strategy
