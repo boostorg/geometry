@@ -33,15 +33,13 @@
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
 #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
-    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         2, 12, 6.42);

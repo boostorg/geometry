@@ -197,7 +197,16 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             typename geometry::ring_type<GeometryOut>::type
         > ring_container_type;
 
-    typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
+    typedef typename geometry::point_type<Geometry1>::type point_type1;
+
+    typedef ring_properties
+        <
+            point_type1,
+            typename Strategy::template area_strategy
+                <
+                    point_type1
+                >::type::return_type
+        > properties;
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
@@ -309,7 +318,7 @@ std::cout << "get turns" << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
-        typename Strategy::side_strategy_type side_strategy;
+        typename Strategy::side_strategy_type side_strategy = strategy.get_side_strategy();
         cluster_type clusters;
 
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
@@ -341,10 +350,13 @@ std::cout << "traverse" << std::endl;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
+        typedef typename Strategy::template area_strategy<point_type>::type area_strategy_type;
+
         typedef ring_properties
-        <
-            typename geometry::point_type<GeometryOut>::type
-        > properties;
+            <
+                point_type,
+                typename area_strategy_type::return_type
+            > properties;
 
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;
@@ -353,13 +365,15 @@ std::cout << "traverse" << std::endl;
 
         // Add rings created during traversal
         {
+            area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
+
             ring_identifier id(2, 0, -1);
             for (typename boost::range_iterator<ring_container_type>::type
                     it = boost::begin(rings);
                  it != boost::end(rings);
                  ++it)
             {
-                selected_ring_properties[id] = properties(*it);
+                selected_ring_properties[id] = properties(*it, area_strategy);
                 selected_ring_properties[id].reversed = ReverseOut;
                 id.multi_index++;
             }

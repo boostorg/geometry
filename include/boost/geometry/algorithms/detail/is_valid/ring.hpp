@@ -115,7 +115,10 @@ struct is_properly_oriented
                 geometry::closure<Ring>::value
             > ring_area_type;
 
-        typedef typename default_area_result<Ring>::type area_result_type;
+        typedef typename Strategy::template area_strategy
+            <
+                point_type
+            >::type::return_type area_result_type;
 
         typename ring_area_predicate
             <
