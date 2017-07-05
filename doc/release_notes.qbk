@@ -30,7 +30,7 @@
 [*Solved issues]
 
 * [@https://svn.boost.org/trac/boost/ticket/12410 12410] Lack of support of geographic coordinate system in correct()
-* [@https://svn.boost.org/trac/boost/ticket/13040 13040] Wrong result of non-cartesian intersection strategies for segments near poles.
+* [@https://svn.boost.org/trac/boost/ticket/13035 13035] Wrong result of non-cartesian intersection strategies for segments near poles.
 * [@https://svn.boost.org/trac/boost/ticket/13057 13057] Wrong result of intersects() for linestrings caused by numerical issue in disjoint() for boxes.
 
 [*Bugfixes]
