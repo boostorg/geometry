@@ -89,7 +89,10 @@
 [include generated/clear.qbk]
 [include generated/convert.qbk]
 [include generated/convex_hull.qbk]
+
+[section:correct correct]
 [include generated/correct.qbk]
+[endsect]
 
 [section:covered_by covered_by]
 [include generated/covered_by.qbk]
