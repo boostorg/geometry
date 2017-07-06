@@ -45,9 +45,9 @@ public:
     {
         result_type result;
 
-        T distance_result1;
-        T distance_result2;
-        T lon1, lat1, lon2, lat2, lon3, lat3, lon4, lat4;
+        CT distance_result1;
+        CT distance_result2;
+        CT lon1, lat1, lon2, lat2, lon3, lat3, lon4, lat4;
 
         lon1 = bg::get_as_radian<0>(p1);
         lat1 = bg::get_as_radian<1>(p1);
@@ -63,20 +63,23 @@ public:
         distance_result2 = bg::math::hav(lat4 - lat3)
             + cos(lat3) * cos(lat4) * bg::math::hav(lon4 - lon3);
     
-        T sub = distance_result1 - distance_result2;
+        CT sub = distance_result1 - distance_result2;
     
-        if (sub < -EPS)
+        if (sub < -BOOST_GEOMETRY_EPS)
         {
             result.value = 1;
         }
-        else if (sub > EPS)
+        else if (sub > BOOST_GEOMETRY_EPS)
         {
             result.value = 2;
         }
-        else if (fabs(sub) < EPS)
+        else if (fabs(sub) < BOOST_GEOMETRY_EPS)
         {
             result.value = 3;
         }   
     }
-}
+};
+
+}}} // namespace boost::geometry::formula
+
 #endif //BOOST_GEOMETRY_FORMULAS_COMPARE_DISTANCE_HAVERSINE_HPP

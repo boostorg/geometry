@@ -38,30 +38,31 @@ public:
                                     Spheriod const& spheriod)
     {
         result_type result;
-        T distance_result1;
-        T distance_result2;
+        CT distance_result1;
+        CT distance_result2;
  
         distance_result1 = bg::distance
             (p1, p2, bg::strategy::distance::pythagoras<void>());
         distance_result2 = bg::distance
             (p3, p4, bg::strategy::distance::pythagoras<void>());
  
-        T sub = distance_result1 - distance_result2;
+        CT sub = distance_result1 - distance_result2;
  
-        if (sub < -EPS)
+        if (sub < -BOOST_GEOMETRY_EPS)
         {
             result.value = 1;
         }
-        else if (sub > EPS)
+        else if (sub > BOOST_GEOMETRY_EPS)
         {
             result.value = 2;
         }
-        else if (fabs(sub) < EPS)
+        else if (fabs(sub) < BOOST_GEOMETRY_EPS)
         {
             result.value = 3;
         }
     }
-}
-        
+};
+
+}}} // namespace boost::geometry::formula
 
 #endif //BOOST_GEOMETRY_FORMULAS_CARTESINE_DISTANCE_HPP
