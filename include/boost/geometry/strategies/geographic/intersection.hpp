@@ -289,6 +289,8 @@ private:
         typedef typename select_calculation_type
             <Segment1, Segment2, CalculationType>::type calc_t;
 
+        static const calc_t c0 = 0;
+
         // normalized spheroid
         srs::spheroid<calc_t> spheroid = normalized_spheroid<calc_t>(m_spheroid);
 
@@ -325,31 +327,80 @@ private:
 
         // TODO: no need to call inverse formula if we know that the points are equal
         // distance can be set to 0 in this case and azimuth may be not calculated
-        bool const is_equal_a1_b1 = equals_point_point(a1, b1);
-        bool const is_equal_a2_b1 = equals_point_point(a2, b1);
+        bool is_equal_a1_b1 = equals_point_point(a1, b1);
+        bool is_equal_a2_b1 = equals_point_point(a2, b1);
+        bool degen_neq_coords = false;
 
-        inverse_result res_b1_b2 = inverse_dist_azi::apply(b1_lon, b1_lat, b2_lon, b2_lat, spheroid);
-        inverse_result res_b1_a1 = inverse_dist_azi::apply(b1_lon, b1_lat, a1_lon, a1_lat, spheroid);
-        inverse_result res_b1_a2 = inverse_dist_azi::apply(b1_lon, b1_lat, a2_lon, a2_lat, spheroid);
-        sides.set<0>(is_equal_a1_b1 ? 0 : formula::azimuth_side_value(res_b1_a1.azimuth, res_b1_b2.azimuth),
-                     is_equal_a2_b1 ? 0 : formula::azimuth_side_value(res_b1_a2.azimuth, res_b1_b2.azimuth));
-        if (sides.same<0>())
+        inverse_result res_b1_b2, res_b1_a1, res_b1_a2;
+        if (! b_is_point)
         {
-            // Both points are at the same side of other segment, we can leave
-            return Policy::disjoint();
+            res_b1_b2 = inverse_dist_azi::apply(b1_lon, b1_lat, b2_lon, b2_lat, spheroid);
+            if (math::equals(res_b1_b2.distance, c0))
+            {
+                b_is_point = true;
+                degen_neq_coords = true;
+            }
+            else
+            {
+                res_b1_a1 = inverse_dist_azi::apply(b1_lon, b1_lat, a1_lon, a1_lat, spheroid);
+                if (math::equals(res_b1_a1.distance, c0))
+                {
+                    is_equal_a1_b1 = true;
+                }
+                res_b1_a2 = inverse_dist_azi::apply(b1_lon, b1_lat, a2_lon, a2_lat, spheroid);
+                if (math::equals(res_b1_a2.distance, c0))
+                {
+                    is_equal_a2_b1 = true;
+                }
+                sides.set<0>(is_equal_a1_b1 ? 0 : formula::azimuth_side_value(res_b1_a1.azimuth, res_b1_b2.azimuth),
+                             is_equal_a2_b1 ? 0 : formula::azimuth_side_value(res_b1_a2.azimuth, res_b1_b2.azimuth));
+                if (sides.same<0>())
+                {
+                    // Both points are at the same side of other segment, we can leave
+                    return Policy::disjoint();
+                }
+            }
         }
 
-        bool const is_equal_a1_b2 = equals_point_point(a1, b2);
+        bool is_equal_a1_b2 = equals_point_point(a1, b2);
 
-        inverse_result res_a1_a2 = inverse_dist_azi::apply(a1_lon, a1_lat, a2_lon, a2_lat, spheroid);
-        inverse_result res_a1_b1 = inverse_dist_azi::apply(a1_lon, a1_lat, b1_lon, b1_lat, spheroid);
-        inverse_result res_a1_b2 = inverse_dist_azi::apply(a1_lon, a1_lat, b2_lon, b2_lat, spheroid);
-        sides.set<1>(is_equal_a1_b1 ? 0 : formula::azimuth_side_value(res_a1_b1.azimuth, res_a1_a2.azimuth),
-                     is_equal_a1_b2 ? 0 : formula::azimuth_side_value(res_a1_b2.azimuth, res_a1_a2.azimuth));
-        if (sides.same<1>())
+        inverse_result res_a1_a2, res_a1_b1, res_a1_b2;
+        if (! a_is_point)
         {
-            // Both points are at the same side of other segment, we can leave
-            return Policy::disjoint();
+            res_a1_a2 = inverse_dist_azi::apply(a1_lon, a1_lat, a2_lon, a2_lat, spheroid);
+            if (math::equals(res_a1_a2.distance, c0))
+            {
+                a_is_point = true;
+                degen_neq_coords = true;
+            }
+            else
+            {
+                res_a1_b1 = inverse_dist_azi::apply(a1_lon, a1_lat, b1_lon, b1_lat, spheroid);
+                if (math::equals(res_a1_b1.distance, c0))
+                {
+                    is_equal_a1_b1 = true;
+                }
+                res_a1_b2 = inverse_dist_azi::apply(a1_lon, a1_lat, b2_lon, b2_lat, spheroid);
+                if (math::equals(res_a1_b2.distance, c0))
+                {
+                    is_equal_a1_b2 = true;
+                }
+                sides.set<1>(is_equal_a1_b1 ? 0 : formula::azimuth_side_value(res_a1_b1.azimuth, res_a1_a2.azimuth),
+                             is_equal_a1_b2 ? 0 : formula::azimuth_side_value(res_a1_b2.azimuth, res_a1_a2.azimuth));
+                if (sides.same<1>())
+                {
+                    // Both points are at the same side of other segment, we can leave
+                    return Policy::disjoint();
+                }
+            }
+        }
+
+        if(a_is_point && b_is_point)
+        {
+            return is_equal_a1_b2
+                ? Policy::degenerate(a, true)
+                : Policy::disjoint()
+                ;
         }
 
         // NOTE: at this point the segments may still be disjoint
@@ -379,11 +430,11 @@ private:
         {
             if (a_is_point)
             {
-                return collinear_one_degenerated<Policy, calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, is_b_reversed);
+                return collinear_one_degenerated<Policy, calc_t>(a, true, b1, b2, a1, a2, res_b1_b2, res_b1_a1, res_b1_a2, is_b_reversed, degen_neq_coords);
             }
             else if (b_is_point)
             {
-                return collinear_one_degenerated<Policy, calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, is_a_reversed);
+                return collinear_one_degenerated<Policy, calc_t>(b, false, a1, a2, b1, b2, res_a1_a2, res_a1_b1, res_a1_b2, is_a_reversed, degen_neq_coords);
             }
             else
             {
@@ -392,16 +443,16 @@ private:
                 // use shorter segment
                 if (res_a1_a2.distance <= res_b1_b2.distance)
                 {
-                    calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_b1, dist_a1_a2, dist_a1_b1);
-                    calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_b2, dist_a1_a2, dist_a1_b2);
+                    calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_b1, res_a1_b2, dist_a1_a2, dist_a1_b1);
+                    calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_b2, res_a1_b1, dist_a1_a2, dist_a1_b2);
                     dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
                     dist_b1_a1 = -dist_a1_b1;
                     dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
                 }
                 else
                 {
-                    calculate_collinear_data(b1, b2, a1, a2, res_b1_b2, res_b1_a1, dist_b1_b2, dist_b1_a1);
-                    calculate_collinear_data(b1, b2, a1, a2, res_b1_b2, res_b1_a2, dist_b1_b2, dist_b1_a2);
+                    calculate_collinear_data(b1, b2, a1, a2, res_b1_b2, res_b1_a1, res_b1_a2, dist_b1_b2, dist_b1_a1);
+                    calculate_collinear_data(b1, b2, a1, a2, res_b1_b2, res_b1_a2, res_b1_a1, dist_b1_b2, dist_b1_a2);
                     dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
                     dist_a1_b1 = -dist_b1_a1;
                     dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
@@ -549,11 +600,13 @@ private:
                                   Point1 const& a1, Point1 const& a2,
                                   Point2 const& b1, Point2 const& b2,
                                   ResultInverse const& res_a1_a2,
-                                  ResultInverse const& res_a1_bi,
-                                  bool is_other_reversed)
+                                  ResultInverse const& res_a1_b1,
+                                  ResultInverse const& res_a1_b2,
+                                  bool is_other_reversed,
+                                  bool degen_neq_coords)
     {
         CalcT dist_1_2, dist_1_o;
-        if (! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_bi, dist_1_2, dist_1_o))
+        if (! calculate_collinear_data(a1, a2, b1, b2, res_a1_a2, res_a1_b1, res_a1_b2, dist_1_2, dist_1_o, degen_neq_coords))
         {
             return Policy::disjoint();
         }
@@ -574,13 +627,16 @@ private:
     static inline bool calculate_collinear_data(Point1 const& a1, Point1 const& a2, // in
                                                 Point2 const& b1, Point2 const& b2, // in
                                                 ResultInverse const& res_a1_a2,     // in
-                                                ResultInverse const& res_a1_bi,     // in
-                                                CalcT& dist_a1_a2, CalcT& dist_a1_bi) // out
+                                                ResultInverse const& res_a1_b1,     // in
+                                                ResultInverse const& res_a1_b2,     // in
+                                                CalcT& dist_a1_a2,                  // out
+                                                CalcT& dist_a1_bi,                  // out
+                                                bool degen_neq_coords = false)      // in
     {
         dist_a1_a2 = res_a1_a2.distance;
 
-        dist_a1_bi = res_a1_bi.distance;
-        if (! same_direction(res_a1_bi.azimuth, res_a1_a2.azimuth))
+        dist_a1_bi = res_a1_b1.distance;
+        if (! same_direction(res_a1_b1.azimuth, res_a1_a2.azimuth))
         {
             dist_a1_bi = -dist_a1_bi;
         }
@@ -596,6 +652,22 @@ private:
         {
             dist_a1_bi = dist_a1_a2;
             return true;
+        }
+
+        // check the other endpoint of a very short segment near the pole
+        if (degen_neq_coords)
+        {
+            static CalcT const c0 = 0;
+            if (math::equals(res_a1_b2.distance, c0))
+            {
+                dist_a1_bi = 0;
+                return true;
+            }
+            else if (math::equals(dist_a1_a2 - res_a1_b2.distance, c0))
+            {
+                dist_a1_bi = dist_a1_a2;
+                return true;
+            }
         }
 
         // or i1 is on b
@@ -825,8 +897,9 @@ private:
     static inline bool is_endpoint_equal(CalcT const& dist,
                                          P1 const& ai, P2 const& b1, P2 const& b2)
     {
+        static CalcT const c0 = 0;
         using geometry::detail::equals::equals_point_point;
-        return is_near(dist) && (equals_point_point(ai, b1) || equals_point_point(ai, b2));
+        return is_near(dist) && (equals_point_point(ai, b1) || equals_point_point(ai, b2) || math::equals(dist, c0));
     }
 
     template <typename CalcT>
