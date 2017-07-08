@@ -249,7 +249,7 @@ inline bool intersection_pattern_common_interior4(std::size_t& selected_rank,
     //Rank 1  {13[0] (s:0, r:0, m:0) i T rgn: 2 ISO ->15}  {11[1] (s:1, r:1, m:0) i T rgn: 2 ISO ->15}
     //Rank 2  {13[0] (s:0, r:0, m:0) i F rgn: 2 ISO}       {11[1] (s:1, r:1, m:0) i F rgn: 2 ISO}
 
-    // LEAVING (in two different directions, take last one)
+    // LEAVING (in two different directions, take penultimate one)
     //Rank 3  {10[1] (s:1, m:0) i T rgn: 1 ISO ->0}
     //Rank 4  {11[0] (s:0, m:0) i T rgn: 1 ISO ->12}
 
@@ -292,7 +292,7 @@ inline bool intersection_pattern_common_interior4(std::size_t& selected_rank,
     // Check if pairs 1,2 (and possibly 3,4 and 5,6 etc) satisfy
     if (check_pairs(aggregation, incoming.region_id(), 1, n - 3))
     {
-        selected_rank = n - 1;
+        selected_rank = n - 2;
         return true;
     }
     return false;
