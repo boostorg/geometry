@@ -47,11 +47,6 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings sym_settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    sym_settings.sym_difference = false;
-#endif
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
             case_multi_simplex[0], case_multi_simplex[1],
             5, 21, 5.58, 4, 17, 2.58);
@@ -357,12 +352,18 @@ void test_areal()
 #endif
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
-        mysql_21965285_b[0],
-        mysql_21965285_b[1],
-        2, -1, 183.71376870369406,
-        2, -1, 131.21376870369406,
-        sym_settings);
+    {
+        ut_settings sym_settings;
+    #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        sym_settings.sym_difference = false;
+    #endif
+        test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
+            mysql_21965285_b[0],
+            mysql_21965285_b[1],
+            2, -1, 183.71376870369406,
+            2, -1, 131.21376870369406,
+            sym_settings);
+    }
 }
 
 
@@ -384,11 +385,9 @@ void test_specific_areal()
         // Spikes in a-b and b-a, failure in symmetric difference
 
         ut_settings settings;
+#if !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
         settings.sym_difference = false;
         settings.test_validity = false;
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        settings.test_validity = true;
-        settings.sym_difference = true;
 #endif
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674, 3, 9105781.5, 5, 119059.5, -1);
