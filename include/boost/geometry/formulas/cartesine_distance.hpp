@@ -18,9 +18,13 @@
 #define BOOST_GEOMETRY_EPS 1e-9
 
 namespace bg = boost::geometry;
-namespace boost { namespace geometry { namespace formula
-{
+namespace boost { namespace geometry 
+{ 
 
+namespace formula
+{
+/*\brief Compare length of two segments using cartesian distance
+ * */
 template <typename CT>
 class cartesine_distance
 {
