@@ -72,8 +72,8 @@ public:
     
         CT const distance_result1 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
         
-        dlat = lat2 - lat1;
-        dlon = lon2 - lon1;
+        dlat = lat4 - lat1;
+        dlon = lon4 - lon1;
        
         R1 = earth_r * (1 - earth_e2) / 
              bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
