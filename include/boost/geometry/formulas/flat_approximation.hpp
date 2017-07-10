@@ -11,11 +11,11 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_FLAT_APPROXIMATION_HPP
 #define BOOST_GEOMETRY_FORMULAS_FLAT_APPROXIMATION_HPP
 
-#include <boost/geometry/core/radian.hpp>
-#include <boost/geometru/core/access.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/srs.hpp>
 
-#include <boost/geometry/util/conditon.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -23,6 +23,8 @@
 #include <boost/geometry/formulas/result_compare_distance.hpp>
 
 #define BOOST_GEOMETRY_EPS 1e-9
+
+namespace bg = boost::geometry;
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -31,7 +33,7 @@ class flat_approximation
 {
     
 public:
-    typedef result_compare_distance<CT> result_type;
+    typedef int result_type;
     template 
     <
         typename T,
@@ -44,65 +46,62 @@ public:
     {
         result_type result;
         
-        CT distance_result1;
-        CT distance_result2;
-        CT lon1, lat1, lon2, lat2, lon4, lat4;
-        CT dlat, dlon, R1, R2, dis_North, dis_East;
+        CT const c2 = CT(2);
+        CT const earth_r = CT(6317.0);
+        CT const earth_f = formula::flattening<CT>(spheriod);
+        CT const earth_e2 = earth_f * (c2 - earth_f); 
 
-        lon1 = bg::get_as_radian<0>(p1);
-        lat1 = bg::get_as_radian<1>(p1);
-        lon2 = bg::get_as_radian<0>(p2);    
-        lat2 = bg::get_as_radian<1>(p2);    
-        lon4 = bg::get_as_radian<0>(p4);
-        lat4 = bg::get_as_radian<1>(p4);
+        CT const lon1 = bg::get_as_radian<0>(p1);
+        CT const lat1 = bg::get_as_radian<1>(p1);
+        CT const lon2 = bg::get_as_radian<0>(p2);    
+        CT const lat2 = bg::get_as_radian<1>(p2);    
+        CT const lon4 = bg::get_as_radian<0>(p4);
+        CT const lat4 = bg::get_as_radian<1>(p4);
+        
+        CT dlat = lat2 - lat1;
+        CT dlon = lon2 - lon1;
+        
+        CT R1 = earth_r * (1 - earth_e2) /
+                      bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
+                              * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
+                              * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
+        CT R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
+        
+        CT dis_North = R1 * dlat;
+        CT dis_East = R2 * cos(lat1) * dlon;
     
+        CT const distance_result1 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
+        
         dlat = lat2 - lat1;
         dlon = lon2 - lon1;
-    
-        R1 = earth_r * (1 - earth_e2) /
-             bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
-                          * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
-                          * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
-        R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
-    
-        dis_North = R1 * dlat;
-        dis_East = R2 * cos(lat1) * dlon;
-    
-        distance_result1 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
-    
-        dlat = lat2 - lat1;
-        dlon = lon2 - lon1;
-    
+       
         R1 = earth_r * (1 - earth_e2) / 
              bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(lat1)))
-                          * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
-                          * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
+                     * (1 - earth_e2 * bg::math::sqr(sin(lat1)))
+                     * (1 - earth_e2 * bg::math::sqr(sin(lat1))));
         R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(lat1)));
-    
+       
         dis_North = R1 * dlat;
         dis_East = R2 * cos(lat1) * dlon;
-    
-        distance_result2 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
-        CT sub = distance_result1 - distance_result2;
+        
+        CT const distance_result2 = bg::math::sqrt(bg::math::sqr(dis_North) + bg::math::sqr(dis_East));
+   
+        CT const sub = distance_result1 - distance_result2;
     
         if (sub < -BOOST_GEOMETRY_EPS)
         {
-            result.value = 1;
+            result = 1;
         }
         else if (sub > BOOST_GEOMETRY_EPS)
         {
-            result.value = 2;
+            result = 2;
         }
         else if (fabs(sub) < BOOST_GEOMETRY_EPS)
         {
-            result.value = 3;
-        }   
+            result = 3;
+        }  
+        return result; 
     }
-private:
-    double earth_f = 1 / 298.257223563;
-    double earth_e2 = earth_f * (2 - earth_f);
-    double earth_r = 6317.0;
-
 };
 
 }}} // namespace boost::geometry::formula

@@ -11,12 +11,13 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_CARTESINE_DISTANCE_HPP
 #define BOOST_GEOMETRY_FORMULAS_CARTESINE_DISTANCE_HPP
 
-#include <boost/geometry/util/conditon.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/formulas/result_compare_distance.hpp>
 
 #define BOOST_GEOMETRY_EPS 1e-9
+
+namespace bg = boost::geometry;
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -25,7 +26,7 @@ class cartesine_distance
 {
     
 public:
-    typedef result_compare_distance<CT> result_type;
+    typedef int result_type;
     template 
     <
         typename T,
@@ -38,27 +39,25 @@ public:
                                     Spheriod const& spheriod)
     {
         result_type result;
-        CT distance_result1;
-        CT distance_result2;
  
-        distance_result1 = bg::distance
+        CT const distance_result1 = bg::distance
             (p1, p2, bg::strategy::distance::pythagoras<void>());
-        distance_result2 = bg::distance
+        CT const distance_result2 = bg::distance
             (p3, p4, bg::strategy::distance::pythagoras<void>());
  
-        CT sub = distance_result1 - distance_result2;
+        CT const sub = distance_result1 - distance_result2;
  
         if (sub < -BOOST_GEOMETRY_EPS)
         {
-            result.value = 1;
+            result = 1;
         }
         else if (sub > BOOST_GEOMETRY_EPS)
         {
-            result.value = 2;
+            result = 2;
         }
         else if (fabs(sub) < BOOST_GEOMETRY_EPS)
         {
-            result.value = 3;
+            result = 3;
         }
     }
 };

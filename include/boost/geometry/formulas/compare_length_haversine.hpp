@@ -11,11 +11,11 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_COMPARE_DISTANCE_HAVERSINE_HPP
 #define BOOST_GEOMETRY_FORMULAS_COMPARE_DISTANCE_HAVERSINE_HPP
 
-#include <boost/geometry/core/radian.hpp>
-#include <boost/geometru/core/access.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/srs.hpp>
 
-#include <boost/geometry/util/conditon.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -23,6 +23,8 @@
 #include <boost/geometry/formulas/result_compare_distance.hpp>
 
 #define BOOST_GEOMETRY_EPS 1e-9
+
+namespace bg = boost::geometry;
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -31,7 +33,7 @@ class compare_length_haversine
 {
     
 public:
-    typedef result_compare_distance<CT> result_type;
+    typedef int result_type;
     template 
     <
         typename T,
@@ -45,38 +47,35 @@ public:
     {
         result_type result;
 
-        CT distance_result1;
-        CT distance_result2;
-        CT lon1, lat1, lon2, lat2, lon3, lat3, lon4, lat4;
+        CT const lon1 = bg::get_as_radian<0>(p1);
+        CT const lat1 = bg::get_as_radian<1>(p1);
+        CT const lon2 = bg::get_as_radian<0>(p2);    
+        CT const lat2 = bg::get_as_radian<1>(p2);    
+        CT const lon3 = bg::get_as_radian<0>(p3);
+        CT const lat3 = bg::get_as_radian<1>(p3);
+        CT const lon4 = bg::get_as_radian<0>(p4);
+        CT const lat4 = bg::get_as_radian<1>(p4);
 
-        lon1 = bg::get_as_radian<0>(p1);
-        lat1 = bg::get_as_radian<1>(p1);
-        lon2 = bg::get_as_radian<0>(p2);    
-        lat2 = bg::get_as_radian<1>(p2);    
-        lon3 = bg::get_as_radian<0>(p3);
-        lat3 = bg::get_as_radian<1>(p3);
-        lon4 = bg::get_as_radian<0>(p4);
-        lat4 = bg::get_as_radian<1>(p4);
-
-        distance_result1 = bg::math::hav(lat2 - lat1)
-            + cos(lat1) * cos(lat2) * bg::math::hav(lon2 - lon1);
-        distance_result2 = bg::math::hav(lat4 - lat3)
-            + cos(lat3) * cos(lat4) * bg::math::hav(lon4 - lon3);
+        CT const distance_result1 = bg::math::hav(lat2 - lat1)
+                 + cos(lat1) * cos(lat2) * bg::math::hav(lon2 - lon1);
+        CT const distance_result2 = bg::math::hav(lat4 - lat3)
+                 + cos(lat3) * cos(lat4) * bg::math::hav(lon4 - lon3);
     
-        CT sub = distance_result1 - distance_result2;
+        CT const sub = distance_result1 - distance_result2;
     
         if (sub < -BOOST_GEOMETRY_EPS)
         {
-            result.value = 1;
+            result = 1;
         }
         else if (sub > BOOST_GEOMETRY_EPS)
         {
-            result.value = 2;
+            result = 2;
         }
         else if (fabs(sub) < BOOST_GEOMETRY_EPS)
         {
-            result.value = 3;
+            result = 3;
         }   
+        return result;
     }
 };
 
