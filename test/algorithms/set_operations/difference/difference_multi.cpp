@@ -351,6 +351,10 @@ void test_areal()
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_60, 5, 5.25, 5, 5.25, 8);
 #endif
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
+#if defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // Misses one triangle
+    TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
+#endif
 
     {
         ut_settings sym_settings;

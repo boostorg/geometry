@@ -52,9 +52,7 @@ struct discard_closed_turns<overlay_union, operation_union>
         {
             turn_type& turn = *it;
 
-            if (turn.cluster_id >= 0
-                    || turn.discarded
-                    || ! is_self_turn<overlay_union>(turn))
+            if (turn.discarded || ! is_self_turn<overlay_union>(turn))
             {
                 continue;
             }
@@ -89,9 +87,7 @@ struct discard_self_intersection_turns
         {
             turn_type& turn = *it;
 
-            if (turn.cluster_id >= 0
-                    || turn.discarded
-                    || ! is_self_turn<overlay_intersection>(turn))
+            if (turn.discarded || ! is_self_turn<overlay_intersection>(turn))
             {
                 continue;
             }
