@@ -1,4 +1,3 @@
-
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 

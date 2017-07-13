@@ -44,13 +44,13 @@ typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
 
 // Strategies for point-segment distance
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::andoyer, double>
+typedef bg::strategy::distance::cross_track_geo<bg::strategy::andoyer, stype, double>
         andoyer_strategy;
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::thomas, double>
+typedef bg::strategy::distance::cross_track_geo<bg::strategy::thomas, stype, double>
         thomas_strategy;
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::vincenty, double>
+typedef bg::strategy::distance::cross_track_geo<bg::strategy::vincenty, stype, double>
         vincenty_strategy;
 
 //===========================================================================

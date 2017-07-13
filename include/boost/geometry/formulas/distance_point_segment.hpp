@@ -25,26 +25,25 @@ template
         typename Inverse_type_distance,
         typename Direct_type
 >
-class cross_track_geo_formula{
+class distance_point_segment{
 
 public:
 
+    template <typename Spheroid>
     CT static inline apply(CT lon1, CT lat1, //p1
                            CT lon2, CT lat2, //p2
-                           CT lon3, CT lat3) //query point p3
+                           CT lon3, CT lat3, //query point p3
+                           Spheroid const& spheroid,
+                           CT earth_radius =
+                           geometry::srs::sphere<CT>().get_radius<1>())
     {
 
         int print = 0;
 
         // Constants
-        geometry::srs::spheroid<CT> spheroid;
         CT const f = flattening<CT>(spheroid);
         CT const pi = math::pi<CT>();
         CT const half_pi = math::pi<CT>() / CT(2);
-        geometry::srs::sphere<CT> sphere;
-        CT const earth_radius = sphere.get_radius<1>();
-        //CT const earth_radius = 6372795;
-        //CT const earth_radius = 6378137;
 
         // Convert to radians
         lon1 = math::as_radian<Units>(lon1);

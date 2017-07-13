@@ -49,18 +49,15 @@ namespace boost { namespace geometry
 namespace strategy { namespace distance
 {
 
-
 /*!
-\brief Strategy functor for distance point to segment calculation
+\brief Strategy functor for distance point to segment calculation on ellipsoid
 \ingroup strategies
-\details Class which calculates the distance of a point to a segment, for points on a sphere or globe
-\see http://williams.best.vwh.net/avform.htm
+\details Class which calculates the distance of a point to a segment, for points
+on the ellipsoid
+\see https://arxiv.org/abs/1102.1215
+\tparam FormulaPolicy underlying point-point distance strategy
+\tparam Spheroid is the spheroidal model used
 \tparam CalculationType \tparam_calculation
-\tparam Strategy underlying point-point distance strategy
-\qbk{
-[heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
-}
 */
 template
 <
@@ -84,21 +81,21 @@ public :
           >
     {};
 
-    inline cross_track_geo()
+    struct distance_strategy
+    {
+        typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
+    };
+
+    inline typename distance_strategy::type get_distance_strategy() const
+    {
+        typedef typename distance_strategy::type distance_type;
+        return distance_type(m_spheroid);
+    }
+
+    explicit cross_track_geo(Spheroid const& spheroid = Spheroid())
+        : m_spheroid(spheroid)
     {}
 
-    typedef geographic
-                    <
-                        FormulaPolicy, Spheroid, CalculationType
-                    >   DistanceStrategy;
-
- /*
-    template <typename T>
-    inline T comparable_to_distance(T& a) const
-    {
-        return a;
-    }
-*/
     template <typename Point, typename PointOfSegment>
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
@@ -136,7 +133,7 @@ public :
                     false
                 > direct_type;
 
-        return geometry::formula::cross_track_geo_formula
+        return geometry::formula::distance_point_segment
                 <
                     CT,
                     units_type,
@@ -145,14 +142,12 @@ public :
                     direct_type
                 >::apply(get<0>(sp1), get<1>(sp1),
                          get<0>(sp2), get<1>(sp2),
-                         get<0>(p), get<1>(p));
+                         get<0>(p), get<1>(p),
+                         m_spheroid);
     }
 
-    //TODO: apply a more general strategy getter
-    inline DistanceStrategy get_distance_strategy() const
-    {
-        return DistanceStrategy();
-    }
+private :
+    Spheroid m_spheroid;
 
 };
 
@@ -278,32 +273,6 @@ public :
     }
 };
 
-/*
-template
-<
-    typename FormulaPolicy,
-    typename P,
-    typename PS
->
-struct result_from_comparable
-    <
-        cross_track_geo<FormulaPolicy>, P, PS
-    >
-{
-private :
-    typedef cross_track_geo<FormulaPolicy> strategy_type;
-//    typedef typename return_type<strategy_type, P, PS>::type return_type;
-public :
-    template <typename T>
-    static inline T apply(strategy_type const& strategy,
-                          T const& comparable_distance)
-    {
-        //T c = T(2.0) * asin(math::sqrt(a));
-        //return c * strategy.radius();
-        return comparable_distance;
-    }
-};
-*/
 
 template <typename Point, typename PointOfSegment>
 struct default_strategy
