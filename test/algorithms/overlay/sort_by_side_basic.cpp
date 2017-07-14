@@ -89,13 +89,14 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
 
     // Define sorter, sorting counter-clockwise such that polygons are on the
     // right side
+    typedef typename Strategy::side_strategy_type side_strategy;
     typedef bg::detail::overlay::sort_by_side::side_sorter
         <
             false, false, overlay_union,
-            point_type, std::less<int>
+            point_type, side_strategy, std::less<int>
         > sbs_type;
 
-    sbs_type sbs;
+    sbs_type sbs(strategy.get_side_strategy());
 
     std::cout << "Case: " << case_id << std::endl;
 
@@ -187,7 +188,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
         }
         else
         {
-            BOOST_CHECK_MESSAGE(right_count[rank] == ranked_point.count_right,
+            BOOST_CHECK_MESSAGE(right_count[rank] == int(ranked_point.count_right),
                                 "  caseid="  << case_id
                                 << " ranks: conflict in right_count="  << ranked_point.count_right
                                 << " vs " << right_count[rank]);
