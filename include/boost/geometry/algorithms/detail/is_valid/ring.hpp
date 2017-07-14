@@ -198,7 +198,7 @@ struct is_valid_ring
         return
             is_topologically_closed<Ring, closure>::apply(ring, visitor)
             && ! has_duplicates<Ring, closure>::apply(ring, visitor)
-            && ! has_spikes<Ring, closure>::apply(ring, visitor)
+            && ! has_spikes<Ring, closure>::apply(ring, visitor, strategy.get_side_strategy())
             && (! CheckSelfIntersections
                 || has_valid_self_turns<Ring>::apply(ring, visitor, strategy))
             && is_properly_oriented<Ring, IsInteriorRing>::apply(ring, visitor, strategy);
