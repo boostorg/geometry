@@ -20,20 +20,12 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/formulas/result_compare_distance.hpp>
-
 #define BOOST_GEOMETRY_EPS 1e-9
 
 namespace bg = boost::geometry;
-namespace boost { namespace geometry 
-{ 
-
-namespace formula
+namespace boost { namespace geometry { namespace formula
 {
 
-/*\brief Compare length of two segments using haversine
- *\see http://en.wikipedia.org/wiki/Haversine_formula
- * */
 template <typename CT>
 class compare_length_haversine
 {

@@ -20,23 +20,11 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/formulas/result_compare_distance.hpp>
-
 #define BOOST_GEOMETRY_EPS 1e-9
 
 namespace bg = boost::geometry;
-namespace boost { namespace geometry 
-{ 
-
-namespace formula
+namespace boost { namespace geometry { namespace formula
 {
-
-/*!
-\brief Point-point distance approximation taking flattening into account
-\ingroup comparable_distance
-\tparam Spheroid The reference spheroid model
-\see http://www.codeguru.com/Cpp/Cpp/algorithms/article.php/c5115 (implementation)
-*/
 
 template 
 <
@@ -115,14 +103,18 @@ private:
         CT const sin_lat2 = sin(la2);
         CT const cos_lat2 = cos(la2);
 
+        // H,G,T = infinity if cos_d = 1 or cos_d = -1
+        // lat1 == +-90 && lat2 == +-90
+        // lat1 == lat2 && lon1 == lon2
         CT cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
+        // on some platforms cos_d may be outside valid range
         if (cos_d < -c1)
             cos_d = -c1;
         else if (cos_d > c1)
             cos_d = c1;
 
-        CT const d = acos(cos_d); 
-        CT const sin_d = sin(d); 
+        CT const d = acos(cos_d); // [0, pi]
+        CT const sin_d = sin(d);  // [-1, 1]
 
         CT const K = math::sqr(sin_lat1-sin_lat2);
         CT const L = math::sqr(sin_lat1+sin_lat2);
@@ -130,6 +122,7 @@ private:
 
         CT const one_minus_cos_d = c1 - cos_d;
         CT const one_plus_cos_d = c1 + cos_d;
+        // cos_d = 1 or cos_d = -1 means that the points are antipodal
 
         CT const H = math::equals(one_minus_cos_d, c0) ?
                         c0 :
