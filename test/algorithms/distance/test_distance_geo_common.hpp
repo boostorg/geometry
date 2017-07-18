@@ -34,7 +34,6 @@
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/algorithms/comparable_distance.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -78,18 +77,6 @@ struct check_equal
                              T const& expected)
     {
         equal_to<T>::apply(expected, detected);
-        /*
-          TODO:
-          Ideally we would want the following, but it does not work well
-          approximate equality test.
-        BOOST_CHECK_MESSAGE(equal_to<T>::apply(expected, detected),
-             "case ID: " << case_id << "-" << subcase_id << "; "
-             << "G1: " << bg::wkt(geometry1)
-             << " - "
-             << "G2: " << bg::wkt(geometry2)
-             << " -> Detected: " << detected
-             << "; Expected: " << expected);
-        */
     }
 };
 
@@ -109,29 +96,6 @@ struct test_distance_of_geometries
 template <typename Geometry1, typename Geometry2>
 struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 {
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(std::string const& case_id,
-               std::string const& wkt1,
-               std::string const& wkt2,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy,
-               bool test_reversed = true)
-    {
-        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
-        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
-
-        apply(case_id, geometry1, geometry2,
-              expected_distance, expected_comparable_distance,
-              strategy, test_reversed);
-    }
-
     template <typename DistanceType, typename Strategy>
     static inline
     void apply(std::string const& case_id,
@@ -145,7 +109,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
         apply(case_id, geometry1, geometry2,
-              expected_distance, expected_distance,
+              expected_distance,
               strategy, test_reversed);
     }
 
@@ -153,7 +117,6 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
     template
     <
         typename DistanceType,
-        typename ComparableDistanceType,
         typename Strategy
     >
     static inline
@@ -161,7 +124,6 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                Geometry1 const& geometry1,
                Geometry2 const& geometry2,
                DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
                Strategy const& strategy,
                bool test_reversed = true)
     {
@@ -193,24 +155,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
             >::type::value;
 
         BOOST_CHECK(same_regular);
-/*
-        typedef typename bg::default_comparable_distance_result
-            <
-                Geometry1, Geometry2
-            >::type default_comparable_distance_result;
-        typedef typename services::return_type
-            <
-                typename services::comparable_type<Strategy>::type,
-                Geometry1,
-                Geometry2
-            >::type comparable_distance_result_from_strategy;
-        static const bool same_comparable = boost::is_same
-            <
-                default_comparable_distance_result,
-                comparable_distance_result_from_strategy
-            >::type::value;
-        BOOST_CHECK( same_comparable );
-*/
+
         // check distance with passed strategy
         distance_result_from_strategy dist =
             bg::distance(geometry1, geometry2, strategy);
@@ -232,47 +177,17 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
             >::apply(case_id, "b", geometry1, geometry2,
                      dist_brute_force, expected_distance);
 
-/*
-        // check comparable distance with passed strategy
-        comparable_distance_result_from_strategy cdist =
-            bg::comparable_distance(geometry1, geometry2, strategy);
-        check_equal
-            <
-                default_comparable_distance_result
-            >::apply(case_id, "c", geometry1, geometry2,
-                     cdist, expected_comparable_distance);
-        // check against the comparable distance computed in a
-        // brute-force manner
-        default_comparable_distance_result cdist_brute_force
-            = distance_brute_force(geometry1,
-                                   geometry2,
-                                   services::get_comparable
-                                       <
-                                           Strategy
-                                       >::apply(strategy));
-        check_equal
-            <
-                default_comparable_distance_result
-            >::apply(case_id, "d", geometry1, geometry2,
-                     cdist_brute_force, expected_comparable_distance);
-*/
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << string_from_type<typename bg::coordinate_type<Geometry1>::type>::name()
                   << string_from_type<typename bg::coordinate_type<Geometry2>::type>::name()
                   << " -> "
                   << string_from_type<default_distance_result>::name()
-                  //<< string_from_type<default_comparable_distance_result>::name()
                   << std::endl;
-        //std::cout << "strategy radius: " << strategy.radius() << std::endl;
         std::cout << "expected distance = "
                   << expected_distance << " ; "
-                  << "expected comp. distance = "
-          //        << expected_comparable_distance
                   << std::endl;
         std::cout << "distance = "
                   << dist << " ; "
-                  << "comp. distance = "
-                  //<< cdist
                   << std::endl;
 
         if ( !test_reversed )
@@ -291,15 +206,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                     default_distance_result
                 >::apply(case_id, "ra", geometry2, geometry1,
                          dist, expected_distance);
-/*
-            // check comparable distance with given strategy
-            cdist = bg::comparable_distance(geometry2, geometry1, strategy);
-            check_equal
-                <
-                    default_comparable_distance_result
-                >::apply(case_id, "rc", geometry2, geometry1,
-                         cdist, expected_comparable_distance);
-*/
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "distance[reversed args] = "
                       << dist << " ; "

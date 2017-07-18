@@ -1,4 +1,3 @@
-
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
@@ -30,9 +29,6 @@ typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 
 namespace services = bg::strategy::distance::services;
 typedef bg::default_distance_result<point_type>::type return_type;
-
-//typedef bg::strategy::distance::haversine<double> point_point_strategy;
-//typedef bg::strategy::distance::cross_track<> point_segment_strategy;
 
 typedef bg::srs::spheroid<double> stype;
 
@@ -68,18 +64,6 @@ pp_distance(std::string const& wkt1,
 }
 
 template <typename Strategy>
-inline bg::default_comparable_distance_result<point_type>::type
-pp_comparable_distance(std::string const& wkt1,
-                       std::string const& wkt2,
-                       Strategy const&)
-{
-    point_type p1, p2;
-    bg::read_wkt(wkt1, p1);
-    bg::read_wkt(wkt2, p2);
-    return bg::comparable_distance(p1, p2);
-}
-
-template <typename Strategy>
 inline bg::default_distance_result<point_type>::type
 ps_distance(std::string const& wkt1,
             std::string const& wkt2,
@@ -90,44 +74,6 @@ ps_distance(std::string const& wkt1,
     bg::read_wkt(wkt1, p);
     bg::read_wkt(wkt2, s);
     return bg::distance(p, s, strategy);
-}
-
-template <typename Strategy>
-inline bg::default_comparable_distance_result<point_type>::type
-ps_comparable_distance(std::string const& wkt1,
-                       std::string const& wkt2,
-                       Strategy const& strategy)
-{
-    point_type p;
-    segment_type s;
-    bg::read_wkt(wkt1, p);
-    bg::read_wkt(wkt2, s);
-    return bg::comparable_distance(p, s, strategy);
-}
-
-template <typename Strategy, typename T>
-T to_comparable(Strategy const& strategy, T const& distance)
-{
-    namespace services = bg::strategy::distance::services;
-
-    typedef typename services::comparable_type
-        <
-            Strategy
-        >::type comparable_strategy;
-
-    typedef typename services::result_from_distance
-        <
-            comparable_strategy,
-            point_type,
-            bg::point_type<segment_type>::type
-        > get_comparable_distance;
-
-    comparable_strategy cstrategy = services::get_comparable
-        <
-            Strategy
-        >::apply(strategy);
-
-    return get_comparable_distance::apply(cstrategy, distance);
 }
 
 //===========================================================================
@@ -360,11 +306,7 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
-    //test_distance_point_segment(andoyer_strategy());
-    //test_distance_point_segment(thomas_strategy());
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
-    //test_distance_point_segment(point_segment_strategy(earth_radius_km));
-    //test_distance_point_segment(point_segment_strategy(earth_radius_miles));
 }

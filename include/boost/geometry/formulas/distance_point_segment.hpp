@@ -11,8 +11,11 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_GEO_HPP
 #define BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_GEO_HPP
 
-#include <boost/geometry/formulas/thomas_direct.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
+
+#ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
+#define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
+#endif
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -23,27 +26,59 @@ template
         typename Units,
         typename Inverse_type_azimuth,
         typename Inverse_type_distance,
-        typename Direct_type
+        typename Direct_type,
+        bool EnableClosestPoint = false
 >
 class distance_point_segment{
 
 public:
 
+    struct result_distance_point_segment
+    {
+        result_distance_point_segment()
+            : distance(0)
+            , closest_point_lon(0)
+            , closest_point_lat(0)
+        {}
+
+        CT distance;
+        CT closest_point_lon;
+        CT closest_point_lat;
+    };
+
     template <typename Spheroid>
-    CT static inline apply(CT lon1, CT lat1, //p1
-                           CT lon2, CT lat2, //p2
-                           CT lon3, CT lat3, //query point p3
-                           Spheroid const& spheroid,
-                           CT earth_radius =
+    result_distance_point_segment
+    static inline non_iterative_case(CT lon1, CT lat1, //p1
+                                     CT lon2, CT lat2, //p2
+                                     Spheroid const& spheroid)
+    {
+        result_distance_point_segment result;
+        result.distance = Inverse_type_distance::apply(lon1, lat1,
+                                                       lon2, lat2,
+                                                       spheroid).distance;
+        if (EnableClosestPoint)
+        {
+            result.closest_point_lon = lon1;
+            result.closest_point_lat = lat1;
+        }
+        return result;
+    }
+
+    template <typename Spheroid>
+    result_distance_point_segment
+    static inline apply(CT lon1, CT lat1, //p1
+                        CT lon2, CT lat2, //p2
+                        CT lon3, CT lat3, //query point p3
+                        Spheroid const& spheroid,
+                        CT earth_radius =
                            geometry::srs::sphere<CT>().get_radius<1>())
     {
-
-        int print = 0;
+        result_distance_point_segment result;
 
         // Constants
         CT const f = flattening<CT>(spheroid);
         CT const pi = math::pi<CT>();
-        CT const half_pi = math::pi<CT>() / CT(2);
+        CT const half_pi = pi / CT(2);
 
         // Convert to radians
         lon1 = math::as_radian<Units>(lon1);
@@ -64,13 +99,13 @@ public:
         {
             if (lon3 <= lon1)
             {
-                return Inverse_type_distance::apply(lon1, lat1, lon3, lat3, spheroid).distance;
+                return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
             }
             if (lon3 >= lon2)
             {
-                return Inverse_type_distance::apply(lon2, lat2, lon3, lat3, spheroid).distance;
+                return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
             }
-            return Inverse_type_distance::apply(lon3, lat1, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
         //segment on meridian
@@ -82,23 +117,23 @@ public:
             }
             if (lat3 <= lat1)
             {
-                return Inverse_type_distance::apply(lon1, lat1, lon3, lat3, spheroid).distance;
+                return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
             }
             if (lat3 >= lat2)
             {
-                return Inverse_type_distance::apply(lon2, lat2, lon3, lat3, spheroid).distance;
+                return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
             }
-            return Inverse_type_distance::apply(lon1, lat3, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon1, lat3, lon3, lat3, spheroid);
         }
 
         // Easy cases
         if (lon3 <= lon1 && lat3 <= lat1)
         {
-            return Inverse_type_distance::apply(lon1, lat1, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
         }
         if (lon3 >= lon2 && lat3 <= lat2)
         {
-            return Inverse_type_distance::apply(lon2, lat2, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
         }
 
         // Compute a1 (GEO)
@@ -107,17 +142,11 @@ public:
 
         CT a312 = a1 - a13;
 
-        if (print)
-        {
-            std::cout << "a1=" << a1 * math::r2d<CT>() << std::endl;
-            std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
-            std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
-        }
         if (a312 > half_pi)
         {
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p1
-            return Inverse_type_distance::apply(lon1, lat1, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
         }
 
         CT a2 = pi + Inverse_type_azimuth::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
@@ -125,17 +154,25 @@ public:
 
         CT a321 = a2 - a23;
 
-        if (print)
-        {
-            std::cout << "a2=" << a2 * math::r2d<CT>() << std::endl;
-            std::cout << "a23=" << a13 * math::r2d<CT>() << std::endl;
-            std::cout << "a321=" << a321 * math::r2d<CT>() << std::endl;
-        }
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+        std::cout << "segment=(" << lon1 * math::r2d<CT>();
+        std::cout << "," << lat1 * math::r2d<CT>();
+        std::cout << "),(" << lon2 * math::r2d<CT>();
+        std::cout << "," << lat2 * math::r2d<CT>();
+        std::cout << ")\np=(" << lon3 * math::r2d<CT>();
+        std::cout << "," << lat3 * math::r2d<CT>();
+        std::cout << ")\na1=" << a1 * math::r2d<CT>() << std::endl;
+        std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
+        std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
+        std::cout << "a2=" << a2 * math::r2d<CT>() << std::endl;
+        std::cout << "a23=" << a13 * math::r2d<CT>() << std::endl;
+        std::cout << "a321=" << a321 * math::r2d<CT>() << std::endl;
+#endif
         if (a321 < half_pi)
         {
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p2
-            return Inverse_type_distance::apply(lon2, lat2, lon3, lat3, spheroid).distance;
+            return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
         }
 
         // Guess s14 (SPHERICAL)
@@ -153,35 +190,27 @@ public:
 
         geometry::strategy::distance::haversine<CT> str(earth_radius);
         CT s13 = str.apply(p1, p3);
-        /*
-        // Closest point is one of the segment's endpoints
-        if (s34 == s13)
-        {
-            return Inverse_type_distance::apply(lon1, lat1, lon3, lat3, spheroid).distance;
-        }
-        CT s23 = str.apply(p2, p3);
-        if (s34 == s23)
-        {
-            return Inverse_type_distance::apply(lon2, lat2, lon3, lat3, spheroid).distance;
-        }
-*/
-        CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius)) * earth_radius;
+        CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius) ) * earth_radius;
 
-        if (print)
-        {
-            std::cout << "s34=" << s34 << std::endl;
-            std::cout << "s13=" << s13 << std::endl;
-            std::cout << "s14=" << s14 << std::endl;
-            std::cout << "===============" << std::endl;
-        }
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+        std::cout << "s34=" << s34 << std::endl;
+        std::cout << "s13=" << s13 << std::endl;
+        std::cout << "s14=" << s14 << std::endl;
+        std::cout << "===============" << std::endl;
+#endif
 
         // Update s14 (using Newton method)
         CT prev_distance = 0;
         geometry::formula::result_direct<CT> res14;
         geometry::formula::result_inverse<CT> res34;
 
-        for (int i=0; i<20; ++i)
-        {
+        int counter = 0; // robustness
+        CT g4;
+        CT delta_g4;
+
+        do{
+            prev_distance = res34.distance;
+
             // Solve the direct problem to find p4 (GEO)
             res14 = Direct_type::apply(lon1, lat1, s14, a1, spheroid);
 
@@ -190,11 +219,9 @@ public:
 
             CT a4 = Inverse_type_azimuth::apply(res14.lon2, res14.lat2, lon2, lat2, spheroid).azimuth;
             res34 = Inverse_type_distance::apply(res14.lon2, res14.lat2, lon3, lat3, spheroid);
-            CT g4 = res34.azimuth - a4;
+            g4 = res34.azimuth - a4;
 
             // Normalize g4
-            CT delta_g4;
-
             if (g4 < 0 && g4 < -pi)//close to -270
             {
                 delta_g4 = g4 + 1.5 * pi;
@@ -217,31 +244,44 @@ public:
             CT der = M43 / m34;
             s14 = s14 - delta_g4 / der;
 
-            //Print
-            if (print)
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
+                         "," << res14.lat2 * math::r2d<CT>() << std::endl;
+            std::cout << "delta_g4=" << delta_g4  << std::endl;
+            std::cout << "g4=" << g4 * math::r2d<CT>() << std::endl;
+            std::cout << "der=" << der  << std::endl;
+            std::cout << "new_s14=" << s14 << std::endl;
+            std::cout << std::setprecision(16) << "dist     =" << res34.distance << std::endl;
+            std::cout << "---------end of step " << counter << std::endl<< std::endl;
+#endif
+            result.distance = prev_distance;
+
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            if (g4 == half_pi)
             {
-                std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
-                             "," << res14.lat2 * math::r2d<CT>() << std::endl;
-                std::cout << "delta_g4=" << delta_g4  << std::endl;
-                std::cout << "g4=" << g4 * math::r2d<CT>() << std::endl;
-                std::cout << "der=" << der  << std::endl;
-                std::cout << "new_s14=" << s14 << std::endl;
-                std::cout << "dist     =" << res34.distance << std::endl;
-                std::cout << "---------end of step " << i << std::endl<< std::endl;
+                std::cout << "Stop msg: g4 == half_pi" << std::endl;
             }
-
-            if (g4 == math::pi<CT>()/2 || (res34.distance >= prev_distance && prev_distance!=0) || delta_g4 == 0)
+            if (res34.distance >= prev_distance && prev_distance != 0)
             {
-                //std::cout << "stop" << std::endl;
-                return prev_distance;
+                std::cout << "Stop msg: res34.distance >= prev_distance" << std::endl;
             }
-            prev_distance = res34.distance;
+            if (delta_g4 == 0)
+            {
+                std::cout << "Stop msg: delta_g4 == 0" << std::endl;
+            }
+            if (counter == 19)
+            {
+                std::cout << "Stop msg: counter" << std::endl;
+            }
+#endif
 
-        }
+        } while (g4 != half_pi
+                 && (prev_distance > res34.distance || prev_distance == 0)
+                 && delta_g4 != 0
+                 && ++counter < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS ) ;
 
-        ////////////////////////////TESTING
-
-        std::cout << "dist     =" << res34.distance << std::endl;
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+        std::cout << "distance=" << res34.distance << std::endl;
 
         point p4(res14.lon2, res14.lat2);
         CT s34_sph = str.apply(p4, p3);
@@ -270,15 +310,15 @@ public:
 
         if (res34.distance <= p4_plus && res34.distance <= p4_minus)
         {
-            std::cout << "Closest point computed" << std::endl << std::endl;
+            std::cout << "Closest point computed" << std::endl;
         }
         else
         {
-            std::cout << "There is a closer point nearby!" << std::endl;
+            std::cout << "There is a closer point nearby" << std::endl;
         }
+#endif
 
-        CT min_dist_endpoints = std::min(s31,s32);
-        return std::min(res34.distance, min_dist_endpoints);
+        return result;
     }
 
 };

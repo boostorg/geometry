@@ -65,6 +65,9 @@ template <typename Strategy> struct get_comparable
 template <typename Strategy, typename P1, typename P2>
 struct result_from_distance {};
 
+
+
+
 // Default strategy
 
 

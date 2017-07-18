@@ -133,7 +133,7 @@ public :
                     false
                 > direct_type;
 
-        return geometry::formula::distance_point_segment
+        return (geometry::formula::distance_point_segment
                 <
                     CT,
                     units_type,
@@ -143,7 +143,7 @@ public :
                 >::apply(get<0>(sp1), get<1>(sp1),
                          get<0>(sp2), get<1>(sp2),
                          get<0>(p), get<1>(p),
-                         m_spheroid);
+                         m_spheroid)).distance;
     }
 
 private :
