@@ -17,6 +17,14 @@
 #define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
 #endif
 
+/*!
+\brief Algorithm to compute the distance between a segment and a point using
+       direct and inverse geodesic problems as subroutines. The algorithm
+       approximates the distance by an iterative Newton method.
+\see C.F.F.Karney - Geodesics on an ellipsoid of revolution,
+      https://arxiv.org/abs/1102.1215
+*/
+
 namespace boost { namespace geometry { namespace formula
 {
 
