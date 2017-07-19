@@ -118,7 +118,6 @@ struct geographic_segments
         return strategy_type(m_spheroid);
     }
 
-    template <typename Geometry>
     struct distance_strategy
     {
         typedef distance::geographic
@@ -129,10 +128,9 @@ struct geographic_segments
             > type;
     };
 
-    template <typename Geometry>
-    inline typename distance_strategy<Geometry>::type get_distance_strategy() const
+    inline typename distance_strategy::type get_distance_strategy() const
     {
-        typedef typename distance_strategy<Geometry>::type strategy_type;
+        typedef typename distance_strategy::type strategy_type;
         return strategy_type(m_spheroid);
     }
 
