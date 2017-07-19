@@ -537,6 +537,9 @@ struct traversal
 
         if (selected_rank > 0)
         {
+            typename turn_operation_type::comparable_distance_type
+                    min_remaining_distance = 0;
+
             std::size_t selected_index = sbs.m_ranked_points.size();
             for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
             {
@@ -554,8 +557,13 @@ struct traversal
                         continue;
                     }
 
-                    // Take the last turn from this rank
-                    selected_index = i;
+                    // Take turn with the smallest remaining distance
+                    if (selected_index == sbs.m_ranked_points.size()
+                            || ranked_op.remaining_distance < min_remaining_distance)
+                    {
+                        selected_index = i;
+                        min_remaining_distance = ranked_op.remaining_distance;
+                    }
                 }
             }
 
