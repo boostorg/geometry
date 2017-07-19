@@ -422,36 +422,6 @@ struct traversal
         return false;
     }
 
-
-    inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
-                                       operation_type op_type,
-                                       sort_by_side::direction_type dir) const
-    {
-        typedef std::set<sort_by_side::ring_with_direction>::const_iterator sit_type;
-        for (sit_type it = rwr.rings.begin(); it != rwr.rings.end(); ++it)
-        {
-            sort_by_side::ring_with_direction const& rwd = *it;
-            if (rwd.direction != dir)
-            {
-                return false;
-            }
-            turn_type const& turn = m_turns[rwd.turn_index];
-            if (! turn.both(op_type))
-            {
-                return false;
-            }
-
-            // Check if this is not yet taken
-            turn_operation_type const& op = turn.operations[rwd.operation_index];
-            if (op.visited.finalized())
-            {
-                return false;
-            }
-
-        }
-        return true;
-    }
-
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
