@@ -150,7 +150,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                     op_it->seg_id.ring_index
                 );
 
-            if (traversed || is_closed || ! op_it->enriched.startable)
+            if (traversed || is_closed)
             {
                 turn_info_map[ring_id].has_traversed_turn = true;
             }
@@ -171,7 +171,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                 // For intersection, any uu - but not if it is a self-turn
                 turn_info_map[ring_id].has_traversed_turn = true;
             }
-            else if (colocated_opp && ! colocated_target)
+            else if (colocated_opp
+                     && ! colocated_target
+                     && ! turn.both(opposite_operation))
             {
                 // For union, a turn colocated with ii and NOT with uu/ux
                 // For intersection v.v.
