@@ -239,10 +239,6 @@ inline void calculate_remaining_distance(Turns& turns)
          ++it)
     {
         turn_type& turn = *it;
-        if (! turn.both(detail::overlay::operation_continue))
-        {
-           continue;
-        }
 
         op_type& op0 = turn.operations[0];
         op_type& op1 = turn.operations[1];
