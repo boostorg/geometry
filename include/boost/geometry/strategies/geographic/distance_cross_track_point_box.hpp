@@ -22,7 +22,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/formulas/cross_track_geo.hpp>
+#include <boost/geometry/formulas/distance_point_segment.hpp>
 #include <boost/geometry/formulas/cross_track_point_box.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>

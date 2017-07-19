@@ -83,6 +83,15 @@ public :
                      m_spheroid).distance;
     }
 
+    //TODO: special case for distance; do it more efficiently
+    //see https://en.wikipedia.org/wiki/Meridian_arc#Meridian_distance_on_the_ellipsoid
+    template <typename Point1, typename Point2>
+    inline typename calculation_type<Point1, Point2>::type
+    meridian(Point1 const& point1, Point2 const& point2) const
+    {
+        return apply(point1, point2);
+    }
+
     inline Spheroid const& model() const
     {
         return m_spheroid;

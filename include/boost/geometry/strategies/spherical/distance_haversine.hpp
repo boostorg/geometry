@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -75,6 +80,13 @@ public :
                );
     }
 
+    template <typename Point1, typename Point2>
+    static inline typename calculation_type<Point1, Point2>::type
+    meridian(Point1 const& p1, Point2 const& p2)
+    {
+        return get_as_radian<1>(p1) - get_as_radian<1>(p2);
+    }
+
     inline RadiusType radius() const
     {
         return m_radius;
@@ -112,13 +124,10 @@ A mathematically equivalent formula, which is less subject
     to rounding error for short distances is:
     d=2*asin(sqrt((sin((lat1-lat2) / 2))^2
     + cos(lat1)*cos(lat2)*(sin((lon1-lon2) / 2))^2))
-
-
 \qbk{
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 }
-
 */
 template
 <
@@ -159,6 +168,20 @@ public :
         calculation_type const a = comparable_type::apply(p1, p2);
         calculation_type const c = calculation_type(2.0) * asin(math::sqrt(a));
         return calculation_type(m_radius) * c;
+    }
+
+    /*!
+    \brief meridian distance calculation
+    \return the calculated distance (including multiplying with radius)
+    \param p1 first point
+    \param p2 second point
+    */
+    template <typename Point1, typename Point2>
+    inline typename calculation_type<Point1, Point2>::type
+    meridian(Point1 const& p1, Point2 const& p2) const
+    {
+        typedef typename calculation_type<Point1, Point2>::type calculation_type;
+        return calculation_type(m_radius) * comparable_type::meridian(p1, p2);
     }
 
     /*!
