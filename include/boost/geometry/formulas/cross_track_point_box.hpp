@@ -1,4 +1,3 @@
-
 // Boost.Geometry
 
 // Copyright (c) 2014-2017 Oracle and/or its affiliates.
@@ -13,7 +12,6 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_POINT_BOX_HPP
 #define BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_POINT_BOX_HPP
 
-#include <boost/geometry/formulas/thomas_direct.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
 
 namespace boost { namespace geometry { namespace formula
