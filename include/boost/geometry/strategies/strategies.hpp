@@ -72,6 +72,7 @@
 #include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
 #include <boost/geometry/strategies/spherical/envelope_segment.hpp>
@@ -83,6 +84,8 @@
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/strategies/geographic/envelope_segment.hpp>
