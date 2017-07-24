@@ -112,8 +112,8 @@ public :
                     <
                         Strategy, box_point_type1, box_point_type2
                     //>::apply(ps_strategy, radius() * (lat_min1 - lat_max2));
-                    >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, lat_min1),
-                                                                                       box_point_type2(0, lat_max2)));
+                    //>::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, lat_min1),
+                      >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min1, lat_max2));
             }
             else if (lat_max1 < lat_min2)
             {
@@ -121,8 +121,9 @@ public :
                     <
                         Strategy, box_point_type1, box_point_type2
                     //>::apply(ps_strategy, radius() * (lat_min2 - lat_max1));
-                    >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, lat_min2),
-                                                                                       box_point_type2(0, lat_max1)));
+                    //>::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, latmin2),
+                    //                                                                   box_point_type2(0, lat_max1)));
+                    >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min2, lat_max1));
             }
             else
             {
@@ -190,6 +191,7 @@ public :
             }
             return ps_strategy.apply(bottom_right1, top_left2, bottom_left2);
         }
+        return ReturnType(0);
     }
 
 };

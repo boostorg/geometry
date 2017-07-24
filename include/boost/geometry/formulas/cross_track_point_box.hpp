@@ -72,12 +72,16 @@ public :
         {
             if (plat > lat_max)
             {
-
+                //std::cout << "plat=" << plat << std::endl;
+                //std::cout << "lat_max=" << lat_max << std::endl;
+                //std::cout << "radius=" << ps_strategy.get_distance_strategy().radius() << std::endl;
+                //std::cout << "r1=" << ps_strategy.get_distance_strategy().radius() * (plat - lat_max) << std::endl;
+                //std::cout << "r2=" << ps_strategy.get_distance_strategy().meridian(plat, lat_max) << std::endl;
                 return geometry::strategy::distance::services::result_from_distance
                         <
                         Strategy, Point, box_point_type
-                        //>::apply(ps_strategy, ps_strategy.radius() * (plat - lat_max));
-                        >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(Point(0, plat),Point(0, lat_max)));
+                        //>::apply(ps_strategy, ps_strategy.get_distance_strategy().radius() * (plat - lat_max));
+                        >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(plat, lat_max));
                 //get_strategy(ps_strategy) --> haversine
                 //haversine special case for vertical distance
             }
@@ -87,7 +91,7 @@ public :
                         <
                         Strategy, Point, box_point_type
                         //>::apply(ps_strategy, ps_strategy.radius() * (lat_min - plat));
-                        >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(Point(0, lat_min),Point(0, plat)));
+                        >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min, plat));
             }
             else
             {

@@ -211,6 +211,19 @@ struct distance_brute_force
 > : detail::distance_brute_force::distance_from_bg
 {};
 
+template
+<
+    typename Box1,
+    typename Box2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Box1, Box2, Strategy,
+    box_tag, box_tag, false
+> : detail::distance_brute_force::distance_from_bg
+{};
+
 
 template
 <

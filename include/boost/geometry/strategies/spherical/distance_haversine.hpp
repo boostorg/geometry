@@ -80,11 +80,10 @@ public :
                );
     }
 
-    template <typename Point1, typename Point2>
-    static inline typename calculation_type<Point1, Point2>::type
-    meridian(Point1 const& p1, Point2 const& p2)
+    template <typename T1, typename T2>
+    inline RadiusType meridian(T1 lat1, T2 lat2) const
     {
-        return get_as_radian<1>(p1) - get_as_radian<1>(p2);
+        return m_radius * (lat1 - lat2);
     }
 
     inline RadiusType radius() const
@@ -176,12 +175,11 @@ public :
     \param p1 first point
     \param p2 second point
     */
-    template <typename Point1, typename Point2>
-    inline typename calculation_type<Point1, Point2>::type
-    meridian(Point1 const& p1, Point2 const& p2) const
+
+    template <typename T1, typename T2>
+    inline RadiusType meridian(T1 lat1, T2 lat2) const
     {
-        typedef typename calculation_type<Point1, Point2>::type calculation_type;
-        return calculation_type(m_radius) * comparable_type::meridian(p1, p2);
+        return m_radius * (lat1 - lat2);
     }
 
     /*!

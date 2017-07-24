@@ -450,6 +450,7 @@ void test_distance_point_box(Strategy const& strategy)
     tester::apply("pb4-2c2", "POINT(-180 20)", box4,
                   "POINT(-180 20)", "SEGMENT(75 -45,75 65)", ps,
                   strategy);
+
 }
 
 BOOST_AUTO_TEST_CASE( test_point_box )

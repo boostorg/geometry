@@ -82,7 +82,7 @@ public :
                      get_as_radian<0>(point2), get_as_radian<1>(point2),
                      m_spheroid).distance;
     }
-
+/*
     //TODO: special case for distance; do it more efficiently
     //see https://en.wikipedia.org/wiki/Meridian_arc#Meridian_distance_on_the_ellipsoid
     template <typename Point1, typename Point2>
@@ -90,6 +90,14 @@ public :
     meridian(Point1 const& point1, Point2 const& point2) const
     {
         return apply(point1, point2);
+    }
+*/
+
+    inline double meridian(double lat1, double lat2) const
+    {
+        typedef geometry::model::point<double, 2,
+                           geometry::cs::geographic<geometry::radian> > point;
+        return apply(point(0,lat1), point(0,lat2));
     }
 
     inline Spheroid const& model() const
