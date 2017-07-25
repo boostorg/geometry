@@ -60,7 +60,6 @@ public :
         ReturnType lon_max2 = geometry::get_as_radian<0>(top_right2);
         ReturnType const lat_max2 = geometry::get_as_radian<1>(top_right2);
 
-        ReturnType const pi = math::pi<ReturnType>();
         ReturnType const two_pi = math::two_pi<ReturnType>();
 
         // Test which sides of the boxes are closer and if boxes cross

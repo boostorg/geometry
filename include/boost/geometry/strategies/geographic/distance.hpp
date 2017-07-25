@@ -93,9 +93,10 @@ public :
     }
 */
 
-    inline double meridian(double lat1, double lat2) const
+    template <typename T>
+    inline double meridian(T lat1, T lat2) const
     {
-        typedef geometry::model::point<double, 2,
+        typedef geometry::model::point<T, 2,
                            geometry::cs::geographic<geometry::radian> > point;
         return apply(point(0,lat1), point(0,lat2));
     }

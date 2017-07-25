@@ -55,13 +55,16 @@ to cross track
 */
 template
 <
-    typename Strategy = cross_track_geo<>,
+    typename FormulaPolicy = strategy::andoyer,
+    //typename Strategy = cross_track_geo<>,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class cross_track_point_box_geo
 {
 public:
+    typedef cross_track_geo<FormulaPolicy, Spheroid, CalculationType> Strategy;
+
     template <typename Point, typename Box>
     struct return_type
         : services::return_type<Strategy, Point, typename point_type<Box>::type>
@@ -74,6 +77,7 @@ public:
     inline typename return_type<Point, Box>::type
     apply(Point const& point, Box const& box) const
     {
+
 #if !defined(BOOST_MSVC)
         BOOST_CONCEPT_ASSERT
             (
@@ -83,7 +87,9 @@ public:
                     >)
             );
 #endif
+
         typedef typename return_type<Point, Box>::type return_type;
+
         return geometry::formula::cross_track_point_box
                                        <return_type>::apply(point, box, Strategy());
     }
@@ -178,7 +184,7 @@ public:
     }
 };
 
-
+/*
 // define cross_track_point_box<default_point_segment_strategy> as
 // default point-box strategy for geographic coordinate system
 template <typename Point, typename Box, typename Strategy>
@@ -204,8 +210,32 @@ struct default_strategy
                 >::type
         > type;
 };
+*/
 
+template <typename Point, typename Box>
+struct default_strategy
+    <
+        point_tag, box_tag, Point, Box,
+        geographic_tag, geographic_tag
+    >
+{
+    typedef cross_track_point_box_geo<> type;
+};
 
+template <typename Box, typename Point>
+struct default_strategy
+    <
+        box_tag, point_tag, Box, Point,
+        geographic_tag, geographic_tag
+    >
+{
+    typedef typename default_strategy
+        <
+            point_tag, box_tag, Point, Box,
+            geographic_tag, geographic_tag
+        >::type type;
+};
+/*
 template <typename Box, typename Point, typename Strategy>
 struct default_strategy
     <
@@ -221,7 +251,7 @@ struct default_strategy
             Strategy
         >::type type;
 };
-
+*/
 
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

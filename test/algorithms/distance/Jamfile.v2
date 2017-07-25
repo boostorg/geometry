@@ -19,6 +19,7 @@ test-suite boost-geometry-algorithms-distance
     [ run distance.cpp                     : : : : algorithms_distance ]
     [ run distance_areal_areal.cpp         : : : : algorithms_distance_areal_areal ]
     [ run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_pl_l ]
+    [ run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_point_box ]
     [ run distance_linear_areal.cpp        : : : : algorithms_distance_linear_areal ]
     [ run distance_linear_linear.cpp       : : : : algorithms_distance_linear_linear ]
     [ run distance_pointlike_areal.cpp     : : : : algorithms_distance_pointlike_areal ]
