@@ -244,7 +244,7 @@ struct get_comparable<cross_track_geo<FormulaPolicy, Spheroid, CalculationType> 
         >::type comparable_type;
 public :
     static inline comparable_type
-    apply(cross_track_geo<FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    apply(cross_track_geo<FormulaPolicy, Spheroid, CalculationType> const&)
     {
         return comparable_type();
     }

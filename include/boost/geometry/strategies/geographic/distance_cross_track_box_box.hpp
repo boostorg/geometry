@@ -55,13 +55,16 @@ to cross track
 */
 template
 <
-    typename Strategy = cross_track_geo<>,
+    typename FormulaPolicy = strategy::andoyer,
+    //typename Strategy = cross_track_geo<>,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class cross_track_box_box_geo
 {
 public:
+    typedef cross_track_geo<FormulaPolicy, Spheroid, CalculationType> Strategy;
+
     template <typename Box1, typename Box2>
     struct return_type
         : services::return_type<Strategy, typename point_type<Box1>::type, typename point_type<Box2>::type>
@@ -105,28 +108,28 @@ struct tag<cross_track_box_box_geo<Strategy, Spheroid, CalculationType> >
 };
 
 
-template <typename Strategy, typename Spheroid, typename CalculationType, typename P, typename Box>
-struct return_type<cross_track_box_box_geo<Strategy, Spheroid, CalculationType>, P, Box>
+template <typename Strategy, typename Spheroid, typename CalculationType, typename Box1, typename Box2>
+struct return_type<cross_track_box_box_geo<Strategy, Spheroid, CalculationType>, Box1, Box2>
     : cross_track_box_box_geo
         <
             Strategy, Spheroid, CalculationType
-        >::template return_type<P, Box>
+        >::template return_type<Box1, Box2>
 {};
 
-template <typename Strategy, typename Spheroid, typename P, typename Box>
-struct return_type<cross_track_box_box_geo<Strategy, Spheroid>, P, Box>
+template <typename Strategy, typename Spheroid, typename Box1, typename Box2>
+struct return_type<cross_track_box_box_geo<Strategy, Spheroid>, Box1, Box2>
     : cross_track_box_box_geo
         <
             Strategy, Spheroid
-        >::template return_type<P, Box>
+        >::template return_type<Box1, Box2>
 {};
 
-template <typename Strategy, typename P, typename Box>
-struct return_type<cross_track_box_box_geo<Strategy>, P, Box>
+template <typename Strategy, typename Box1, typename Box2>
+struct return_type<cross_track_box_box_geo<Strategy>, Box1, Box2>
     : cross_track_box_box_geo
         <
             Strategy
-        >::template return_type<P, Box>
+        >::template return_type<Box1, Box2>
 {};
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
@@ -181,7 +184,7 @@ public:
     }
 };
 
-
+/*
 // define cross_track_box_box<default_point_segment_strategy> as
 // default box-box strategy for the geographic coordinate system
 template <typename Box1, typename Box2, typename Strategy>
@@ -206,6 +209,17 @@ struct default_strategy
                     Strategy
                 >::type
         > type;
+};
+*/
+
+template <typename Box1, typename Box2>
+struct default_strategy
+    <
+        box_tag, box_tag, Box1, Box2,
+        geographic_tag, geographic_tag
+    >
+{
+    typedef cross_track_box_box_geo<> type;
 };
 
 
