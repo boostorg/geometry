@@ -298,6 +298,89 @@ inline bool intersection_pattern_common_interior4(std::size_t& selected_rank,
     return false;
 }
 
+inline bool intersection_pattern_common_interior5(std::size_t& selected_rank,
+           std::vector<sort_by_side::rank_with_rings> const& aggregation)
+{
+    // Pattern: isolated regions
+
+    // See #case_recursive_boxes_65
+
+    // INCOMING:
+    //    Rank 0  {19[0] (s:0, r:2, m:0) i F rgn: 4 ISO}
+
+    //    Rank 1  {19[1] (s:1, m:0) i T rgn: 1 ISO FIN ->18 (2.5)}
+    //    Rank 2  {21[1] (s:1, m:2) i F rgn: 1 ISO}
+    //    Rank 3  {21[1] (s:1, m:2) i T rgn: 1 ISO ->17 (2)}
+    //    Rank 4  {19[1] (s:1, m:0) i F rgn: 1 ISO FIN}
+
+    // LEAVING (take this one):
+    //    Rank 5  {19[0] (s:0, r:2, m:0) i T rgn: 4 ISO ->22 (1)}
+
+    std::size_t const n = aggregation.size();
+    if (n < 3)
+    {
+        return false;
+    }
+
+    sort_by_side::rank_with_rings const& incoming = aggregation.front();
+    sort_by_side::rank_with_rings const& outgoing = aggregation.back();
+
+    bool const incoming_ok =
+        incoming.all_from()
+        && incoming.has_unique_region_id()
+        && incoming.is_isolated();
+
+    if (! incoming_ok)
+    {
+        return false;
+    }
+
+    const int incoming_region_id = incoming.region_id();
+
+    bool const outgoing_ok =
+        outgoing.all_to()
+        && outgoing.has_unique_region_id()
+        && outgoing.is_isolated()
+        && outgoing.region_id() == incoming_region_id;
+
+    if (! outgoing_ok)
+    {
+        return false;
+    }
+
+    selected_rank = n - 1;
+    bool other_region = true;
+
+    // Assumed is that other regions go (T) and come back (F)
+    for (std::size_t i = 1; i < n - 1; i++)
+    {
+        sort_by_side::rank_with_rings const& rwr = aggregation[i];
+        if (! rwr.has_unique_region_id() || ! rwr.is_isolated())
+        {
+            return false;
+        }
+        const int region_id = rwr.region_id();
+        if (other_region && region_id != incoming_region_id)
+        {
+            // OK
+        }
+        else if (other_region && region_id == incoming_region_id)
+        {
+            // OK, next phase (same region as incoming region)
+            selected_rank = i;
+            other_region = false;
+        }
+        else if (! other_region && region_id != incoming_region_id)
+        {
+            // After that the region is the same is incoming, it should
+            // stay like that
+            return false;
+        }
+    }
+
+    return true;
+}
+
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
