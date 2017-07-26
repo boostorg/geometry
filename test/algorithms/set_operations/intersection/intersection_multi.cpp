@@ -314,6 +314,7 @@ void test_areal()
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 3, -1, 17.25);
 #endif
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_65, 3, -1, 17.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
