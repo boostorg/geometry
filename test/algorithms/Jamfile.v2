@@ -33,6 +33,7 @@ test-suite boost-geometry-algorithms
     [ run is_convex.cpp                : : : : algorithms_is_convex ]
     [ run is_empty.cpp                 : : : : algorithms_is_empty ]
     [ run is_simple.cpp                : : : : algorithms_is_simple ]
+    [ run is_simple_geo.cpp            : : : : algorithms_is_simple_geo ]
     [ run is_valid.cpp                 : : : : algorithms_is_valid ]
     [ run is_valid_failure.cpp         : : : : algorithms_is_valid_failure ]
     [ run make.cpp                     : : : : algorithms_make ]

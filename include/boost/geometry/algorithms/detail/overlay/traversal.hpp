@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -94,6 +99,7 @@ template
     typename Turns,
     typename Clusters,
     typename RobustPolicy,
+    typename SideStrategy,
     typename Visitor
 >
 struct traversal
@@ -108,17 +114,19 @@ struct traversal
     typedef sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType,
-            point_type, side_compare_type
+            point_type, SideStrategy, side_compare_type
         > sbs_type;
 
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            RobustPolicy const& robust_policy, Visitor& visitor)
+            RobustPolicy const& robust_policy, SideStrategy const& strategy,
+            Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
         , m_robust_policy(robust_policy)
+        , m_strategy(strategy)
         , m_visitor(visitor)
     {
     }
@@ -587,7 +595,7 @@ struct traversal
         cluster_info const& cinfo = mit->second;
         std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
-        sbs_type sbs;
+        sbs_type sbs(m_strategy);
 
         for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
              sit != ids.end(); ++sit)
@@ -633,7 +641,7 @@ struct traversal
                     turn_type const& current_turn,
                     segment_identifier const& previous_seg_id)
     {
-        sbs_type sbs;
+        sbs_type sbs(m_strategy);
 
         // Add this turn to the sort-by-side sorter
         for (int i = 0; i < 2; i++)
@@ -825,6 +833,7 @@ private :
     Turns& m_turns;
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
+    SideStrategy m_strategy;
     Visitor& m_visitor;
 };
 
