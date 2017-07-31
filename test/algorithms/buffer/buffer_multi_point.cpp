@@ -24,6 +24,8 @@ static std::string const grid_a = "MULTIPOINT(5 0,6 0,7 0,  5 1,7 1,  0 13,8 13)
 static std::string const mysql_report_2015_02_25_1 = "MULTIPOINT(-9 19,9 -6,-4 4,16 -14,-3 16,14 9)";
 static std::string const mysql_report_2015_02_25_2 = "MULTIPOINT(-2 11,-15 3,6 4,-14 0,20 -7,-17 -1)";
 
+static std::string const mysql_report_3 = "MULTIPOINT(0 0,0 0,0 0,0 0,0 0)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -78,6 +80,18 @@ void test_all()
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy,
             bg::strategy::buffer::point_circle(800), 115057490003226.125, 1.0);
+
+    {
+        multi_point_type g;
+        bg::read_wkt(mysql_report_3, g);
+        test_buffer<polygon>("mysql_report_3", g,
+            bg::strategy::buffer::join_round(36),
+            bg::strategy::buffer::end_round(36),
+            distance_strategy(1),
+            side_strategy,
+            bg::strategy::buffer::point_circle(36),
+            true, 1, 0, 3.12566719800474635, 1.0, NULL);
+    }
 }
 
 template <typename P>

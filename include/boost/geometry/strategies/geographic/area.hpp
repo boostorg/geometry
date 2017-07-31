@@ -83,7 +83,7 @@ protected :
         CT const m_e2;  // squared eccentricity
         CT const m_ep2; // squared second eccentricity
         CT const m_ep;  // second eccentricity
-        CT const m_c2;  // authalic radius
+        CT const m_c2;  // squared authalic radius
 
         inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
@@ -92,11 +92,26 @@ protected :
                  * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
-            , m_c2((m_a2 / CT(2.0)) +
-              ((math::sqr(get_radius<2>(spheroid)) * boost::math::atanh(math::sqrt(m_e2)))
-               / (CT(2.0) * math::sqrt(m_e2))))
+            , m_c2(authalic_radius(spheroid, m_a2, m_e2))
         {}
     };
+
+    static inline CT authalic_radius(Spheroid const& sph, CT const& a2, CT const& e2)
+    {
+        CT const c0 = 0;
+
+        if (math::equals(e2, c0))
+        {
+            return a2;
+        }
+
+        CT const sqrt_e2 = math::sqrt(e2);
+        CT const c2 = 2;
+
+        return (a2 / c2) +
+                  ((math::sqr(get_radius<2>(sph)) * boost::math::atanh(sqrt_e2))
+                   / (c2 * sqrt_e2));
+    }
 
     struct area_sums
     {
