@@ -370,6 +370,8 @@ void test_areal()
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_65, 4, 4.25, 7, 3.0, 11);
 #endif
 
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_66, 5, 4.75, 7, 4.0, 9);
+
     {
         ut_settings sym_settings;
     #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
