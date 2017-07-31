@@ -751,7 +751,9 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
-        // Unset the startable flag for all 'closed' zones
+        // Unset the startable flag for all 'closed' zones. This does not
+        // apply for self-turns, because those counts are not from both
+        // polygons
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
@@ -772,6 +774,13 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             op.enriched.count_right = ranked.count_right;
             op.enriched.rank = ranked.rank;
             op.enriched.zone = ranked.zone;
+
+            if (OverlayType != overlay_difference
+                    && is_self_turn<OverlayType>(turn))
+            {
+                // Difference needs the self-turns, TODO: investigate
+                continue;
+            }
 
             if ((for_operation == operation_union
                     && ranked.count_left != 0)
