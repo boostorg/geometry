@@ -2,6 +2,11 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -697,11 +702,13 @@ template
     typename Turns,
     typename Clusters,
     typename Geometry1,
-    typename Geometry2
+    typename Geometry2,
+    typename SideStrategy
 >
 inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         operation_type for_operation,
-        Geometry1 const& geometry1, Geometry2 const& geometry2)
+        Geometry1 const& geometry1, Geometry2 const& geometry2,
+        SideStrategy const& strategy)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::point_type point_type;
@@ -711,7 +718,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();
@@ -724,7 +731,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             continue;
         }
 
-        sbs_type sbs;
+        sbs_type sbs(strategy);
         point_type turn_point; // should be all the same for all turns in cluster
 
         bool first = true;

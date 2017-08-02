@@ -127,26 +127,31 @@ class piece_turn_visitor
 
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_begin_iterator(Iterator& it_begin, Iterator it_beyond,
-            signed_size_type& index, int dir, Box const& other_bounding_box)
+                                    signed_size_type& index, int dir,
+                                    Box const& this_bounding_box,
+                                    Box const& other_bounding_box)
     {
         for(; it_begin != it_beyond
                 && it_begin + 1 != it_beyond
                 && detail::section::preceding<Dimension>(dir, *(it_begin + 1),
-                    other_bounding_box, m_robust_policy);
+                                                         this_bounding_box,
+                                                         other_bounding_box,
+                                                         m_robust_policy);
             ++it_begin, index++)
         {}
     }
 
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_end_iterator(Iterator it_begin, Iterator& it_beyond,
-            int dir, Box const& other_bounding_box)
+                                  int dir, Box const& this_bounding_box,
+                                  Box const& other_bounding_box)
     {
         while (it_beyond != it_begin
             && it_beyond - 1 != it_begin
             && it_beyond - 2 != it_begin)
         {
             if (detail::section::exceeding<Dimension>(dir, *(it_beyond - 2),
-                        other_bounding_box, m_robust_policy))
+                        this_bounding_box, other_bounding_box, m_robust_policy))
             {
                 --it_beyond;
             }
@@ -192,23 +197,23 @@ class piece_turn_visitor
         // Set begin/end of monotonic ranges, in both x/y directions
         signed_size_type index1 = sec1_first_index;
         move_begin_iterator<0>(it1_first, it1_beyond, index1,
-                    section1.directions[0], section2.bounding_box);
+                    section1.directions[0], section1.bounding_box, section2.bounding_box);
         move_end_iterator<0>(it1_first, it1_beyond,
-                    section1.directions[0], section2.bounding_box);
+                    section1.directions[0], section1.bounding_box, section2.bounding_box);
         move_begin_iterator<1>(it1_first, it1_beyond, index1,
-                    section1.directions[1], section2.bounding_box);
+                    section1.directions[1], section1.bounding_box, section2.bounding_box);
         move_end_iterator<1>(it1_first, it1_beyond,
-                    section1.directions[1], section2.bounding_box);
+                    section1.directions[1], section1.bounding_box, section2.bounding_box);
 
         signed_size_type index2 = sec2_first_index;
         move_begin_iterator<0>(it2_first, it2_beyond, index2,
-                    section2.directions[0], section1.bounding_box);
+                    section2.directions[0], section2.bounding_box, section1.bounding_box);
         move_end_iterator<0>(it2_first, it2_beyond,
-                    section2.directions[0], section1.bounding_box);
+                    section2.directions[0], section2.bounding_box, section1.bounding_box);
         move_begin_iterator<1>(it2_first, it2_beyond, index2,
-                    section2.directions[1], section1.bounding_box);
+                    section2.directions[1], section2.bounding_box, section1.bounding_box);
         move_end_iterator<1>(it2_first, it2_beyond,
-                    section2.directions[1], section1.bounding_box);
+                    section2.directions[1], section2.bounding_box, section1.bounding_box);
 
         turn_type the_model;
         the_model.operations[0].piece_index = piece1.index;

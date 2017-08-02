@@ -25,6 +25,7 @@
 [*Improvements]
 
 * Add correct() overload taking area strategy
+* Add is_convex() overload taking side strategy
 * Add missing relational operations (covered_by, crosses, equals, etc.) for MultiPoint/AnyGeometry
 
 [*Solved issues]
@@ -43,6 +44,7 @@
 * Fix propagation of area strategy into the internals of various algorithms from intersection strategy
 * Fix uninitialized variable in relate and reference to temporary in overlay
 * Fix error in disjoint for geographic Segment/Box
+* Fix handling of non-cartesian geometries in various algorithms
 
 [/=================]
 [heading Boost 1.64]
