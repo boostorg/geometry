@@ -985,9 +985,12 @@ inline void sectionalize(Geometry const& geometry,
             typename cs_tag<Geometry>::type
         >::type envelope_strategy_type;
 
-    sectionalize<Reverse, DimensionVector>(geometry, robust_policy, sections,
-                                           envelope_strategy_type(),
-                                           source_index, max_count);
+    boost::geometry::sectionalize
+        <
+            Reverse, DimensionVector
+        >(geometry, robust_policy, sections,
+          envelope_strategy_type(),
+          source_index, max_count);
 }
 
 }} // namespace boost::geometry
