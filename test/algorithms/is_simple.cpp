@@ -13,36 +13,7 @@
 #define BOOST_TEST_MODULE test_is_simple
 #endif
 
-#include <iostream>
-#include <string>
-
-#include <boost/assert.hpp>
-#include <boost/variant/variant.hpp>
-
-#include <boost/test/included/unit_test.hpp>
-
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/multi_point.hpp>
-#include <boost/geometry/geometries/multi_linestring.hpp>
-#include <boost/geometry/geometries/multi_polygon.hpp>
-
-#include <boost/geometry/strategies/strategies.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-
-#include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/is_simple.hpp>
-
-#include <from_wkt.hpp>
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-#include "pretty_print_geometry.hpp"
-#endif
+#include "test_is_simple.hpp"
 
 
 namespace bg = ::boost::geometry;
@@ -59,71 +30,6 @@ typedef bg::model::multi_point<point_type>              multi_point_type;
 typedef bg::model::multi_polygon<open_ccw_polygon_type> multi_polygon_type;
 // box
 typedef bg::model::box<point_type>                      box_type;
-
-
-//----------------------------------------------------------------------------
-
-
-template <typename CSTag, typename Geometry>
-void test_simple(Geometry const& geometry, bool expected_result,
-                 bool check_validity = true)
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "=======" << std::endl;
-#endif
-
-    bool simple = bg::is_simple(geometry);
-
-    BOOST_ASSERT( ! check_validity || bg::is_valid(geometry) );
-    BOOST_CHECK_MESSAGE( simple == expected_result,
-        "Expected: " << expected_result
-        << " detected: " << simple
-        << " wkt: " << bg::wkt(geometry) );
-
-    typedef typename bg::strategy::intersection::services::default_strategy
-        <
-            CSTag
-        >::type strategy_type;
-
-    bool simple_s = bg::is_simple(geometry, strategy_type());
-
-    BOOST_CHECK_EQUAL(simple, simple_s);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "Geometry: ";
-    pretty_print_geometry<Geometry>::apply(std::cout, geometry);
-    std::cout << std::endl;
-    std::cout << std::boolalpha;
-    std::cout << "is simple: " << simple << std::endl;
-    std::cout << "expected result: " << expected_result << std::endl;
-    std::cout << "=======" << std::endl;
-    std::cout << std::endl << std::endl;
-    std::cout << std::noboolalpha;
-#endif
-}
-
-
-template <typename Geometry>
-void test_simple(Geometry const& geometry,
-                 bool expected_result,
-                 bool check_validity = true)
-{
-    typedef typename bg::cs_tag<Geometry>::type cs_tag;
-    test_simple<cs_tag>(geometry, expected_result, check_validity);
-}
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-void test_simple(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& variant_geometry,
-                 bool expected_result,
-                 bool check_validity = true)
-{
-    typedef typename bg::cs_tag<T0>::type cs_tag;
-    test_simple<cs_tag>(variant_geometry, expected_result, check_validity);
-}
-
-
-
-//----------------------------------------------------------------------------
 
 
 BOOST_AUTO_TEST_CASE( test_is_simple_point )

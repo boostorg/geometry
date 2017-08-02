@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015.
-// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017.
+// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -136,11 +136,21 @@ struct sections : std::vector<section<Box, DimensionCount> >
 namespace detail { namespace sectionalize
 {
 
+// NOTE: This utility will NOT work for latitudes, dimension 1 in spherical
+// and geographic coordinate system because in these coordinate systems
+// e.g. a segment on northern hemisphere may go towards greater latitude
+// and then towards lesser latitude.
 template
 <
+    typename Point,
     typename DimensionVector,
     std::size_t Index,
-    std::size_t Count
+    std::size_t Count,
+    typename CastedCSTag = typename tag_cast
+                            <
+                                typename cs_tag<Point>::type,
+                                spherical_tag
+                            >::type
 >
 struct get_direction_loop
 {
@@ -161,20 +171,66 @@ struct get_direction_loop
 
         get_direction_loop
         <
+            Point,
             DimensionVector,
             Index + 1,
-            Count
+            Count,
+            CastedCSTag
         >::apply(seg, directions);
     }
 };
 
-template <typename DimensionVector, std::size_t Count>
-struct get_direction_loop<DimensionVector, Count, Count>
+template
+<
+    typename Point,
+    typename DimensionVector,
+    std::size_t Count
+>
+struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
+{
+    typedef typename boost::mpl::at_c<DimensionVector, 0>::type dimension;
+
+    template <typename Segment>
+    static inline void apply(Segment const& seg,
+                int directions[Count])
+    {
+        typedef typename coordinate_type<Segment>::type coordinate_type;
+        typedef typename coordinate_system<Point>::type::units units_t;
+
+        coordinate_type const diff = math::longitude_distance_signed
+                                        <
+                                            units_t, coordinate_type
+                                        >(geometry::get<0, 0>(seg),
+                                          geometry::get<1, 0>(seg));
+
+        coordinate_type zero = coordinate_type();
+        directions[0] = diff > zero ? 1 : diff < zero ? -1 : 0;
+
+        get_direction_loop
+        <
+            Point,
+            DimensionVector,
+            1,
+            Count,
+            spherical_tag
+        >::apply(seg, directions);
+    }
+};
+
+template
+<
+    typename Point,
+    typename DimensionVector,
+    std::size_t Count,
+    typename CastedCSTag
+>
+struct get_direction_loop<Point, DimensionVector, Count, Count, CastedCSTag>
 {
     template <typename Segment>
     static inline void apply(Segment const&, int [Count])
     {}
 };
+
 
 //! Copy one static array to another
 template <typename T, std::size_t Index, std::size_t Count>
@@ -410,7 +466,7 @@ struct sectionalize_part
             int direction_classes[dimension_count] = {0};
             get_direction_loop
             <
-                DimensionVector, 0, dimension_count
+                Point, DimensionVector, 0, dimension_count
             >::apply(robust_segment, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
@@ -929,9 +985,12 @@ inline void sectionalize(Geometry const& geometry,
             typename cs_tag<Geometry>::type
         >::type envelope_strategy_type;
 
-    sectionalize<Reverse, DimensionVector>(geometry, robust_policy, sections,
-                                           envelope_strategy_type(),
-                                           source_index, max_count);
+    boost::geometry::sectionalize
+        <
+            Reverse, DimensionVector
+        >(geometry, robust_policy, sections,
+          envelope_strategy_type(),
+          source_index, max_count);
 }
 
 }} // namespace boost::geometry
