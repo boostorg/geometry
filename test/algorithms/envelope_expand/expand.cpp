@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -95,7 +100,11 @@ void test_2d()
 template <typename Point>
 void test_spherical_degree()
 {
-    bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
+    // it doesn't work with normalization of input enabled
+    //bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
+    Point p;
+    bg::read_wkt("POINT(179.73 71.56)", p);
+    bg::model::box<Point> b(p, p);
 
     test_expand<Point>(b, "POINT(179.73 71.56)",
             "(179.73,71.56),(179.73,71.56)");
@@ -104,17 +113,19 @@ void test_spherical_degree()
 
     // It detects that this point is lying RIGHT of the others,
     //      and then it "expands" it.
-    // It might be argued that "181.22" is displayed instead. However, they are
-    // the same.
     test_expand<Point>(b, "POINT(-178.78 70.78)",
-            "(177.47,70.78),(-178.78,71.56)");
+            "(177.47,70.78),(181.22,71.56)");
 }
 
 
 template <typename Point>
 void test_spherical_radian()
 {
-    bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
+    // it doesn't work with normalization of input enabled
+    //bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
+    Point p;
+    bg::read_wkt("POINT(3.128 1.249)", p);
+    bg::model::box<Point> b(p, p);
 
     test_expand<Point>(b, "POINT(3.128 1.249)",
             "(3.128,1.249),(3.128,1.249)");
@@ -123,10 +134,8 @@ void test_spherical_radian()
 
     // It detects that this point is lying RIGHT of the others,
     //      and then it "expands" it.
-    // It might be argued that "181.22" is displayed instead. However, they are
-    // the same.
     test_expand<Point>(b, "POINT(-3.121 1.235)",
-            "(3.097,1.235),(-3.121,1.249)");
+            "(3.097,1.235),(3.16219,1.249)");
 }
 
 int test_main(int, char* [])
@@ -141,6 +150,8 @@ int test_main(int, char* [])
 
     test_spherical_degree<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
     test_spherical_radian<bg::model::point<double, 2, bg::cs::spherical<bg::radian> > >();
+    test_spherical_degree<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+    test_spherical_radian<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::radian> > >();
 
 
 #if defined(HAVE_TTMATH)
