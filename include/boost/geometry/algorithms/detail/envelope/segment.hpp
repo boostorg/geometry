@@ -383,8 +383,6 @@ struct envelope_one_segment
         envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr, strategy);
         detail::expand::point_loop
             <
-                strategy::compare::default_strategy,
-                strategy::compare::default_strategy,
                 Dimension,
                 DimensionCount
             >::apply(mbr, p2, strategy);
