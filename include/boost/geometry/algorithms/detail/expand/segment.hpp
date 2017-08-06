@@ -85,15 +85,36 @@ struct expand
         Box, Segment,
         box_tag, segment_tag,
         CSTagOut, CSTag
+    >
+{
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THESE_COORDINATE_SYSTEMS,
+                         (types<CSTagOut, CSTag>()));
+};
+
+template
+<
+    typename Box, typename Segment
+>
+struct expand
+    <
+        Box, Segment,
+        box_tag, segment_tag,
+        cartesian_tag, cartesian_tag
     > : detail::expand::expand_indexed
         <
             0, dimension<Segment>::value
         >
-{
-    BOOST_MPL_ASSERT_MSG((boost::is_same<CSTagOut, CSTag>::value),
-                         COORDINATE_SYSTEMS_MUST_BE_THE_SAME,
-                         (types<CSTagOut, CSTag>()));
-};
+{};
+
+template <typename Box, typename Segment>
+struct expand
+    <
+        Box, Segment,
+        box_tag, segment_tag,
+        spherical_polar_tag, spherical_polar_tag
+    > : detail::expand::segment
+{};
 
 template <typename Box, typename Segment>
 struct expand

@@ -26,8 +26,8 @@ namespace math
 namespace detail
 {
 
-
-template <typename CoordinateType, typename Units>
+// CoordinateType, radian, true
+template <typename CoordinateType, typename Units, bool IsEquatorial = true>
 struct constants_on_spheroid
 {
     static inline CoordinateType period()
@@ -38,6 +38,13 @@ struct constants_on_spheroid
     static inline CoordinateType half_period()
     {
         return math::pi<CoordinateType>();
+    }
+
+    static inline CoordinateType quarter_period()
+    {
+        static CoordinateType const
+            pi_half = math::pi<CoordinateType>() / CoordinateType(2);
+        return pi_half;
     }
 
     static inline CoordinateType min_longitude()
@@ -65,7 +72,22 @@ struct constants_on_spheroid
 };
 
 template <typename CoordinateType>
-struct constants_on_spheroid<CoordinateType, degree>
+struct constants_on_spheroid<CoordinateType, radian, false>
+    : constants_on_spheroid<CoordinateType, radian, true>
+{
+    static inline CoordinateType min_latitude()
+    {
+        return CoordinateType(0);
+    }
+
+    static inline CoordinateType max_latitude()
+    {
+        return math::pi<CoordinateType>();
+    }
+};
+
+template <typename CoordinateType>
+struct constants_on_spheroid<CoordinateType, degree, true>
 {
     static inline CoordinateType period()
     {
@@ -75,6 +97,11 @@ struct constants_on_spheroid<CoordinateType, degree>
     static inline CoordinateType half_period()
     {
         return CoordinateType(180.0);
+    }
+
+    static inline CoordinateType quarter_period()
+    {
+        return CoordinateType(90.0);
     }
 
     static inline CoordinateType min_longitude()
@@ -98,6 +125,21 @@ struct constants_on_spheroid<CoordinateType, degree>
     }
 };
 
+template <typename CoordinateType>
+struct constants_on_spheroid<CoordinateType, degree, false>
+    : constants_on_spheroid<CoordinateType, degree, true>
+{
+    static inline CoordinateType min_latitude()
+    {
+        return CoordinateType(0);
+    }
+
+    static inline CoordinateType max_latitude()
+    {
+        return CoordinateType(180.0);
+    }
+};
+
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
@@ -112,7 +154,7 @@ inline CoordinateType latitude_convert_ep(CoordinateType const& lat)
                 Units
             > constants;
 
-    return constants::max_latitude() - lat;
+    return constants::quarter_period() - lat;
 }
 
 
@@ -128,7 +170,7 @@ static bool is_latitude_pole(T const& lat)
     return math::equals(math::abs(IsEquatorial
                                     ? lat
                                     : math::latitude_convert_ep<Units>(lat)),
-                        constants::max_latitude());
+                        constants::quarter_period());
 
 }
 

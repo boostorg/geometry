@@ -223,15 +223,25 @@ struct expand
         BoxOut, Point,
         box_tag, point_tag,
         CSTagOut, CSTag
+    >
+{
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THESE_COORDINATE_SYSTEMS,
+                         (types<CSTagOut, CSTag>()));
+};
+
+
+template <typename BoxOut, typename Point>
+struct expand
+    <
+        BoxOut, Point,
+        box_tag, point_tag,
+        cartesian_tag, cartesian_tag
     > : detail::expand::point_loop
         <
             0, dimension<Point>::value
         >
-{
-    BOOST_MPL_ASSERT_MSG((boost::is_same<CSTagOut, CSTag>::value),
-                         COORDINATE_SYSTEMS_MUST_BE_THE_SAME,
-                         (types<CSTagOut, CSTag>()));
-};
+{};
 
 template <typename BoxOut, typename Point>
 struct expand

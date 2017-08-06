@@ -240,9 +240,15 @@ struct envelope_range_of_boxes
                 RangeOfBoxes const
             >::type iterator_type;
 
+        static const bool is_equatorial = ! boost::is_same
+                                            <
+                                                typename cs_tag<box_type>::type,
+                                                spherical_polar_tag
+                                            >::value;
+
         typedef math::detail::constants_on_spheroid
             <
-                coordinate_type, units_type
+                coordinate_type, units_type, is_equatorial
             > constants;
 
         typedef longitude_interval<coordinate_type> interval_type;

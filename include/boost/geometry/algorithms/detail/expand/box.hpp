@@ -81,13 +81,10 @@ struct expand
         BoxOut, BoxIn,
         box_tag, box_tag,
         CSTagOut, CSTag
-    > : detail::expand::expand_indexed
-        <
-            0, dimension<BoxIn>::value
-        >
+    >
 {
-    BOOST_MPL_ASSERT_MSG((boost::is_same<CSTagOut, CSTag>::value),
-                         COORDINATE_SYSTEMS_MUST_BE_THE_SAME,
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THESE_COORDINATE_SYSTEMS,
                          (types<CSTagOut, CSTag>()));
 };
 
@@ -96,7 +93,28 @@ struct expand
     <
         BoxOut, BoxIn,
         box_tag, box_tag,
+        cartesian_tag, cartesian_tag
+    > : detail::expand::expand_indexed
+        <
+            0, dimension<BoxIn>::value
+        >
+{};
+
+template <typename BoxOut, typename BoxIn>
+struct expand
+    <
+        BoxOut, BoxIn,
+        box_tag, box_tag,
         spherical_equatorial_tag, spherical_equatorial_tag
+    > : detail::expand::box_on_spheroid
+{};
+
+template <typename BoxOut, typename BoxIn>
+struct expand
+    <
+        BoxOut, BoxIn,
+        box_tag, box_tag,
+        spherical_polar_tag, spherical_polar_tag
     > : detail::expand::box_on_spheroid
 {};
 
