@@ -204,7 +204,7 @@ void test_2d_sort()
 template <typename P>
 void test_spherical()
 {
-    typedef typename bg::coordinate_type<P>::type ct;
+    //typedef typename bg::coordinate_type<P>::type ct;
 
     std::vector<P> v;
     v.push_back(bg::make<P>( 180.00, 70.56));
