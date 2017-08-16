@@ -314,7 +314,7 @@ void test_areal()
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 3, -1, 17.25);
 #endif
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_65, 3, -1, 17.25);
+    TEST_INTERSECTION(case_recursive_boxes_65, 3, -1, 17.25);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_66, 4, -1, 16.0);
