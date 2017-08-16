@@ -123,7 +123,8 @@ struct traversal
     {
     }
 
-    inline void finalize_visit_info()
+    template <typename TurnInfoMap>
+    inline void finalize_visit_info(TurnInfoMap& turn_info_map)
     {
         for (typename boost::range_iterator<Turns>::type
             it = boost::begin(m_turns);
@@ -134,6 +135,18 @@ struct traversal
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type& op = turn.operations[i];
+                if (op.visited.visited()
+                    || op.visited.started()
+                    || op.visited.finished() )
+                {
+                    ring_identifier const ring_id
+                        (
+                            op.seg_id.source_index,
+                            op.seg_id.multi_index,
+                            op.seg_id.ring_index
+                        );
+                   turn_info_map[ring_id].has_traversed_turn = true;
+                }
                 op.visited.finalize();
             }
         }

@@ -99,34 +99,26 @@ template
 inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type turn_operation_type;
     typedef typename turn_type::container_type container_type;
 
     static const operation_type target_operation
             = operation_from_overlay<OverlayType>::value;
     static const operation_type opposite_operation
-            = target_operation == operation_union ? operation_intersection : operation_union;
+            = target_operation == operation_union
+            ? operation_intersection
+            : operation_union;
 
-    signed_size_type turn_index = 0;
     for (typename boost::range_iterator<Turns const>::type
             it = boost::begin(turns);
          it != boost::end(turns);
-         ++it, turn_index++)
+         ++it)
     {
-        typename boost::range_value<Turns>::type const& turn = *it;
+        turn_type const& turn = *it;
 
+        bool const both_opposite = turn.both(opposite_operation);
         bool const colocated_target = target_operation == operation_union
                 ? turn.colocated_uu : turn.colocated_ii;
-        bool const colocated_opp = target_operation == operation_union
-                ? turn.colocated_ii : turn.colocated_uu;
-        bool const both_opposite = turn.both(opposite_operation);
-
-        bool const traversed
-                = turn.operations[0].visited.finalized()
-                || turn.operations[0].visited.rejected()
-                || turn.operations[1].visited.finalized()
-                || turn.operations[1].visited.rejected()
-                || turn.both(operation_blocked)
-                || turn.combination(opposite_operation, operation_blocked);
 
         bool is_closed = false;
         if (turn.cluster_id >= 0 && target_operation == operation_union)
@@ -143,46 +135,34 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             op_it != boost::end(turn.operations);
             ++op_it)
         {
-            ring_identifier const ring_id
-                (
-                    op_it->seg_id.source_index,
-                    op_it->seg_id.multi_index,
-                    op_it->seg_id.ring_index
-                );
+            turn_operation_type const& op = *op_it;
 
-            if (traversed || is_closed)
-            {
-                turn_info_map[ring_id].has_traversed_turn = true;
-            }
-            else if (both_opposite && colocated_target)
-            {
-                // For union: ii, colocated with a uu
-                // For example, two interior rings touch where two exterior rings also touch.
-                // The interior rings are not yet traversed, and should be taken from the input
+            // Block, for example, i for union and u for intersection
+            // Don't block self-uu for intersection
+            // Don't block self-ii for union
+            // Don't block i/u if there is an ii too, for a union
+            bool opposite_op = op.operation == opposite_operation
+                    && ! colocated_target
+                    && ! (both_opposite
+                          && is_self_turn<OverlayType>(turn));
 
-                // For intersection: uu, colocated with an ii
-                // unless it is two interior inner rings colocated with a uu
+            if (opposite_op
+                    || is_closed
+                    || turn.both(operation_blocked)
+                    || turn.combination(opposite_operation, operation_blocked))
+            {
+                ring_identifier const ring_id
+                    (
+                        op.seg_id.source_index,
+                        op.seg_id.multi_index,
+                        op.seg_id.ring_index
+                    );
 
-                // So don't set has_traversed_turn here
-            }
-            else if (both_opposite && ! is_self_turn<OverlayType>(turn))
-            {
-                // For union, mark any ring with a ii turn as traversed
-                // For intersection, any uu - but not if it is a self-turn
-                turn_info_map[ring_id].has_traversed_turn = true;
-            }
-            else if (colocated_opp
-                     && ! colocated_target
-                     && ! turn.both(opposite_operation))
-            {
-                // For union, a turn colocated with ii and NOT with uu/ux
-                // For intersection v.v.
-                turn_info_map[ring_id].has_traversed_turn = true;
+                turn_info_map[ring_id].has_blocked_turn = true;
             }
         }
     }
 }
-
 
 template
 <

@@ -41,6 +41,7 @@ template
     typename Geometry1,
     typename Geometry2,
     typename Turns,
+    typename TurnInfoMap,
     typename Clusters,
     typename IntersectionStrategy,
     typename RobustPolicy,
@@ -60,13 +61,15 @@ struct traversal_ring_creator
         = operation_from_overlay<OverlayType>::value;
 
     inline traversal_ring_creator(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            Turns& turns, Clusters const& clusters,
+            Turns& turns, TurnInfoMap& turn_info_map,
+            Clusters const& clusters,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy, Visitor& visitor)
         : m_trav(geometry1, geometry2, turns, clusters, robust_policy,visitor)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
+        , m_turn_info_map(turn_info_map)
         , m_clusters(clusters)
         , m_intersection_strategy(intersection_strategy)
         , m_robust_policy(robust_policy)
@@ -274,7 +277,7 @@ struct traversal_ring_creator
                 clean_closing_dups_and_spikes(ring, m_robust_policy);
                 rings.push_back(ring);
 
-                m_trav.finalize_visit_info();
+                m_trav.finalize_visit_info(m_turn_info_map);
                 finalized_ring_size++;
             }
         }
@@ -335,6 +338,7 @@ private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns& m_turns;
+    TurnInfoMap& m_turn_info_map; // contains turn-info information per ring
     Clusters const& m_clusters;
     IntersectionStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
