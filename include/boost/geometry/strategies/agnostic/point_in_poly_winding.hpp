@@ -26,6 +26,9 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
+#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategies/geographic/side.hpp>
+#include <boost/geometry/strategies/spherical/ssf.hpp>
 
 
 namespace boost { namespace geometry
@@ -34,292 +37,16 @@ namespace boost { namespace geometry
 namespace strategy { namespace within
 {
 
-// 1 deg or pi/180 rad
-template <typename Point,
-          typename CalculationType = typename coordinate_type<Point>::type>
-struct winding_small_angle
-{
-    typedef typename coordinate_system<Point>::type cs_t;
-    typedef math::detail::constants_on_spheroid
-        <
-            CalculationType,
-            typename cs_t::units
-        > constants;
-
-    static inline CalculationType apply()
-    {
-        return constants::half_period() / CalculationType(180);
-    }
-};
-
-
-// Fix for https://svn.boost.org/trac/boost/ticket/9628
-// For floating point coordinates, the <D> coordinate of a point is compared
-// with the segment's points using some EPS. If the coordinates are "equal"
-// the sides are calculated. Therefore we can treat a segment as a long areal
-// geometry having some width. There is a small ~triangular area somewhere
-// between the segment's effective area and a segment's line used in sides
-// calculation where the segment is on the one side of the line but on the
-// other side of a segment (due to the width).
-// Below picture assuming D = 1, if D = 0 horiz<->vert, E<->N, RIGHT<->UP.
-// For the s1 of a segment going NE the real side is RIGHT but the point may
-// be detected as LEFT, like this:
-//                     RIGHT
-//                 ___----->
-//                  ^      O Pt  __ __
-//                 EPS     __ __
-//                  v__ __ BUT DETECTED AS LEFT OF THIS LINE
-//             _____7
-//       _____/
-// _____/
-// In the code below actually D = 0, so segments are nearly-vertical
-// Called when the point is on the same level as one of the segment's points
-// but the point is not aligned with a vertical segment
-template <typename CSTag>
-struct winding_side_equal
-{
-    typedef typename strategy::side::services::default_strategy
-        <
-            CSTag
-        >::type strategy_side_type;
-
-    template <typename Point, typename PointOfSegment>
-    static inline int apply(Point const& point,
-                            PointOfSegment const& se,
-                            int count)
-    {
-        typedef typename coordinate_type<PointOfSegment>::type scoord_t;
-        typedef typename coordinate_system<PointOfSegment>::type::units units_t;
-
-        if (math::equals(get<1>(point), get<1>(se)))
-            return 0;
-
-        // Create a horizontal segment intersecting the original segment's endpoint
-        // equal to the point, with the derived direction (E/W).
-        PointOfSegment ss1, ss2;
-        set<1>(ss1, get<1>(se));
-        set<0>(ss1, get<0>(se));
-        set<1>(ss2, get<1>(se));
-        scoord_t ss20 = get<0>(se);
-        if (count > 0)
-        {
-            ss20 += winding_small_angle<PointOfSegment>::apply();
-        }
-        else
-        {
-            ss20 -= winding_small_angle<PointOfSegment>::apply();
-        }
-        math::normalize_longitude<units_t>(ss20);
-        set<0>(ss2, ss20);
-
-        // Check the side using this vertical segment
-        return strategy_side_type::apply(ss1, ss2, point);
-    }
-};
-// The optimization for cartesian
-template <>
-struct winding_side_equal<cartesian_tag>
-{
-    template <typename Point, typename PointOfSegment>
-    static inline int apply(Point const& point,
-                            PointOfSegment const& se,
-                            int count)
-    {
-        // NOTE: for D=0 the signs would be reversed
-        return math::equals(get<1>(point), get<1>(se)) ?
-                0 :
-                get<1>(point) < get<1>(se) ?
-                    // assuming count is equal to 1 or -1
-                    -count : // ( count > 0 ? -1 : 1) :
-                    count;   // ( count > 0 ? 1 : -1) ;
-    }
-};
-
-
-template <typename Point,
-          typename CalculationType,
-          typename CSTag = typename cs_tag<Point>::type>
-struct winding_check_touch
-{
-    typedef CalculationType calc_t;
-    typedef typename coordinate_system<Point>::type::units units_t;
-    typedef math::detail::constants_on_spheroid<CalculationType, units_t> constants;
-
-    template <typename PointOfSegment, typename State>
-    static inline int apply(Point const& point,
-                            PointOfSegment const& seg1,
-                            PointOfSegment const& seg2,
-                            State& state,
-                            bool& eq1,
-                            bool& eq2)
-    {
-        calc_t const pi = constants::half_period();
-        calc_t const pi2 = pi / calc_t(2);
-
-        calc_t const px = get<0>(point);
-        calc_t const s1x = get<0>(seg1);
-        calc_t const s2x = get<0>(seg2);
-        calc_t const py = get<1>(point);
-        calc_t const s1y = get<1>(seg1);
-        calc_t const s2y = get<1>(seg2);
-
-        // NOTE: lat in {-90, 90} and arbitrary lon
-        //  it doesn't matter what lon it is if it's a pole
-        //  so e.g. if one of the segment endpoints is a pole
-        //  then only the other lon matters
-        
-        bool eq1_strict = math::equals(s1x, px);
-        bool eq2_strict = math::equals(s2x, px);
-
-        eq1 = eq1_strict // lon strictly equal to s1
-           || math::equals(s1y, pi2) || math::equals(s1y, -pi2); // s1 is pole
-        eq2 = eq2_strict // lon strictly equal to s2
-           || math::equals(s2y, pi2) || math::equals(s2y, -pi2); // s2 is pole
-        
-        // segment overlapping pole
-        calc_t s1x_anti = s1x + constants::half_period();
-        math::normalize_longitude<units_t, calc_t>(s1x_anti);
-        bool antipodal = math::equals(s2x, s1x_anti);
-        if (antipodal)
-        {
-            eq1 = eq2 = eq1 || eq2;
-
-            // segment overlapping pole and point is pole
-            if (math::equals(py, pi2) || math::equals(py, -pi2))
-            {
-                eq1 = eq2 = true;
-            }
-        }
-        
-        // Both equal p -> segment vertical
-        // The only thing which has to be done is check if point is ON segment
-        if (eq1 && eq2)
-        {
-            // segment endpoints on the same sides of the globe
-            if (! antipodal
-                // p's lat between segment endpoints' lats
-                ? (s1y <= py && s2y >= py) || (s2y <= py && s1y >= py)
-                // going through north or south pole?
-                : (pi - s1y - s2y <= pi
-                    ? (eq1_strict && s1y <= py) || (eq2_strict && s2y <= py) // north
-                        || math::equals(py, pi2) // point on north pole
-                    : (eq1_strict && s1y >= py) || (eq2_strict && s2y >= py)) // south
-                        || math::equals(py, -pi2) // point on south pole
-                )
-            {
-                state.m_touches = true;
-            }
-            return true;
-        }
-        return false;
-    }
-};
-// The optimization for cartesian
-template <typename Point, typename CalculationType>
-struct winding_check_touch<Point, CalculationType, cartesian_tag>
-{
-    typedef CalculationType calc_t;
-
-    template <typename PointOfSegment, typename State>
-    static inline bool apply(Point const& point,
-                             PointOfSegment const& seg1,
-                             PointOfSegment const& seg2,
-                             State& state,
-                             bool& eq1,
-                             bool& eq2)
-    {
-        calc_t const px = get<0>(point);
-        calc_t const s1x = get<0>(seg1);
-        calc_t const s2x = get<0>(seg2);
-
-        eq1 = math::equals(s1x, px);
-        eq2 = math::equals(s2x, px);
-
-        // Both equal p -> segment vertical
-        // The only thing which has to be done is check if point is ON segment
-        if (eq1 && eq2)
-        {
-            calc_t const py = get<1>(point);
-            calc_t const s1y = get<1>(seg1);
-            calc_t const s2y = get<1>(seg2);
-            if ((s1y <= py && s2y >= py) || (s2y <= py && s1y >= py))
-            {
-                state.m_touches = true;
-            }
-            return true;
-        }
-        return false;
-    }
-};
-
-
-// Called if point is not aligned with a vertical segment
-template <typename Point,
-          typename CalculationType,
-          typename CSTag = typename cs_tag<Point>::type>
-struct winding_calculate_count
-{
-    typedef CalculationType calc_t;
-    typedef typename coordinate_system<Point>::type::units units_t;
-
-    static inline bool greater(calc_t const& l, calc_t const& r)
-    {
-        calc_t diff = l - r;
-        math::normalize_longitude<units_t, calc_t>(diff);
-        return diff > calc_t(0);
-    }
-
-    static inline int apply(calc_t const& p,
-                            calc_t const& s1, calc_t const& s2,
-                            bool eq1, bool eq2)
-    {
-        // Probably could be optimized by avoiding normalization for some comparisons
-        // e.g. s1 > p could be calculated from p > s1
-
-        // If both segment endpoints were poles below checks wouldn't be enough
-        // but this means that either both are the same or that they are N/S poles
-        // and therefore the segment is not valid.
-        // If needed (eq1 && eq2 ? 0) could be returned
-
-        return
-              eq1 ? (greater(s2, p) ?  1 : -1)      // Point on level s1, E/W depending on s2
-            : eq2 ? (greater(s1, p) ? -1 :  1)      // idem
-            : greater(p, s1) && greater(s2, p) ?  2 // Point between s1 -> s2 --> E
-            : greater(p, s2) && greater(s1, p) ? -2 // Point between s2 -> s1 --> W
-            : 0;
-    }
-};
-// The optimization for cartesian
-template <typename Point, typename CalculationType>
-struct winding_calculate_count<Point, CalculationType, cartesian_tag>
-{
-    typedef CalculationType calc_t;
-    
-    static inline int apply(calc_t const& p,
-                            calc_t const& s1, calc_t const& s2,
-                            bool eq1, bool eq2)
-    {
-        return
-              eq1 ? (s2 > p ?  1 : -1)  // Point on level s1, E/W depending on s2
-            : eq2 ? (s1 > p ? -1 :  1)  // idem
-            : s1 < p && s2 > p ?  2     // Point between s1 -> s2 --> E
-            : s2 < p && s1 > p ? -2     // Point between s2 -> s1 --> W
-            : 0;
-    }
-};
-
 
 /*!
-\brief Within detection using winding rule
+\brief Within detection using winding rule in cartesian coordinate system.
 \ingroup strategies
 \tparam Point \tparam_point
 \tparam PointOfSegment \tparam_segment_point
-\tparam SideStrategy Side strategy
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
 \note The implementation is inspired by terralib http://www.terralib.org (LGPL)
 \note but totally revised afterwards, especially for cases on segments
-\note Only dependant on "side", -> agnostic, suitable for spherical/latlong
 
 \qbk{
 [heading See also]
@@ -330,14 +57,12 @@ template
 <
     typename Point,
     typename PointOfSegment = Point,
-    typename SideStrategy = typename strategy::side::services::default_strategy
-                                <
-                                    typename cs_tag<Point>::type
-                                >::type,
     typename CalculationType = void
 >
-class winding
+class cartesian_winding
 {
+    typedef side::side_by_triangle<CalculationType> side_strategy_type;
+
     typedef typename select_calculation_type
         <
             Point,
@@ -357,10 +82,7 @@ class winding
         }
 
     public :
-        friend class winding;
-
-        template <typename P, typename CT, typename CST>
-        friend struct winding_check_touch;
+        friend class cartesian_winding;
 
         inline counter()
             : m_count(0)
@@ -369,23 +91,231 @@ class winding
 
     };
 
-    static inline int check_segment(Point const& point,
-                PointOfSegment const& seg1, PointOfSegment const& seg2,
-                counter& state, bool& eq1, bool& eq2)
+public:
+    typedef typename side_strategy_type::envelope_strategy_type envelope_strategy_type;
+
+    static inline envelope_strategy_type get_envelope_strategy()
     {
-        if (winding_check_touch<Point, calculation_type>
-                ::apply(point, seg1, seg2, state, eq1, eq2))
+        return side_strategy_type::get_envelope_strategy();
+    }
+
+    typedef typename side_strategy_type::disjoint_strategy_type disjoint_strategy_type;
+
+    static inline disjoint_strategy_type get_disjoint_strategy()
+    {
+        return side_strategy_type::get_disjoint_strategy();
+    }
+
+    // Typedefs and static methods to fulfill the concept
+    typedef Point point_type;
+    typedef PointOfSegment segment_point_type;
+    typedef counter state_type;
+
+    static inline bool apply(Point const& point,
+                             PointOfSegment const& s1, PointOfSegment const& s2,
+                             counter& state)
+    {
+        bool eq1 = false;
+        bool eq2 = false;
+
+        int count = check_segment(point, s1, s2, state, eq1, eq2);
+        if (count != 0)
+        {
+            int side = 0;
+            if (count == 1 || count == -1)
+            {
+                side = side_equal(point, eq1 ? s1 : s2, count);
+            }
+            else // count == 2 || count == -2
+            {
+                // 1 left, -1 right
+                side = side_strategy_type::apply(s1, s2, point);
+            }
+            
+            if (side == 0)
+            {
+                // Point is lying on segment
+                state.m_touches = true;
+                state.m_count = 0;
+                return false;
+            }
+
+            // Side is NEG for right, POS for left.
+            // The count is -2 for left, 2 for right (or -1/1)
+            // Side positive thus means RIGHT and LEFTSIDE or LEFT and RIGHTSIDE
+            // See accompagnying figure (TODO)
+            if (side * count > 0)
+            {
+                state.m_count += count;
+            }
+        }
+        return ! state.m_touches;
+    }
+
+    static inline int result(counter const& state)
+    {
+        return state.code();
+    }
+
+private:
+    static inline int check_segment(Point const& point,
+                                    PointOfSegment const& seg1,
+                                    PointOfSegment const& seg2,
+                                    counter& state,
+                                    bool& eq1, bool& eq2)
+    {
+        if (check_touch(point, seg1, seg2, state, eq1, eq2))
         {
             return 0;
         }
 
+        return calculate_count(point, seg1, seg2, eq1, eq2);
+    }
+
+    static inline bool check_touch(Point const& point,
+                                   PointOfSegment const& seg1,
+                                   PointOfSegment const& seg2,
+                                   counter& state,
+                                   bool& eq1, bool& eq2)
+    {
+        calculation_type const px = get<0>(point);
+        calculation_type const s1x = get<0>(seg1);
+        calculation_type const s2x = get<0>(seg2);
+
+        eq1 = math::equals(s1x, px);
+        eq2 = math::equals(s2x, px);
+
+        // Both equal p -> segment vertical
+        // The only thing which has to be done is check if point is ON segment
+        if (eq1 && eq2)
+        {
+            calculation_type const py = get<1>(point);
+            calculation_type const s1y = get<1>(seg1);
+            calculation_type const s2y = get<1>(seg2);
+            if ((s1y <= py && s2y >= py) || (s2y <= py && s1y >= py))
+            {
+                state.m_touches = true;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static inline int calculate_count(Point const& point,
+                                      PointOfSegment const& seg1,
+                                      PointOfSegment const& seg2,
+                                      bool eq1, bool eq2)
+    {
         calculation_type const p = get<0>(point);
         calculation_type const s1 = get<0>(seg1);
         calculation_type const s2 = get<0>(seg2);
-        return winding_calculate_count<Point, calculation_type>
-                    ::apply(p, s1, s2, eq1, eq2);
+
+        return eq1 ? (s2 > p ?  1 : -1)  // Point on level s1, E/W depending on s2
+             : eq2 ? (s1 > p ? -1 :  1)  // idem
+             : s1 < p && s2 > p ?  2     // Point between s1 -> s2 --> E
+             : s2 < p && s1 > p ? -2     // Point between s2 -> s1 --> W
+             : 0;
     }
 
+    static inline int side_equal(Point const& point,
+                                 PointOfSegment const& se,
+                                 int count)
+    {
+        // NOTE: for D=0 the signs would be reversed
+        return math::equals(get<1>(point), get<1>(se)) ?
+                0 :
+                get<1>(point) < get<1>(se) ?
+                    // assuming count is equal to 1 or -1
+                    -count : // ( count > 0 ? -1 : 1) :
+                    count;   // ( count > 0 ? 1 : -1) ;
+    }
+};
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
+template
+<
+    typename Point,
+    typename PointOfSegment = Point,
+    typename SideStrategy = typename strategy::side::services::default_strategy
+                                <
+                                    typename cs_tag<Point>::type
+                                >::type,
+    typename CalculationType = void
+>
+class spherical_winding_base
+{
+    typedef typename select_calculation_type
+        <
+            Point,
+            PointOfSegment,
+            CalculationType
+        >::type calculation_type;
+
+    typedef typename coordinate_system<Point>::type::units units_t;
+    typedef math::detail::constants_on_spheroid<calculation_type, units_t> constants;
+    
+    /*! subclass to keep state */
+    class counter
+    {
+        int m_count;
+        //int m_count_n;
+        int m_count_s;
+        int m_raw_count;
+        int m_raw_count_anti;
+        bool m_touches;
+
+        inline int code() const
+        {
+            if (m_touches)
+            {
+                return 0;
+            }
+            
+            if (m_raw_count != 0 && m_raw_count_anti != 0)
+            {
+                if (m_raw_count > 0) // right, wrap around south pole
+                {
+                    return (m_count + m_count_s) == 0 ? -1 : 1;
+                }
+                else // left, wrap around north pole
+                {
+                    //return (m_count + m_count_n) == 0 ? -1 : 1;
+                    // m_count_n is 0
+                    return m_count == 0 ? -1 : 1;
+                }
+            }
+
+            return m_count == 0 ? -1 : 1;
+        }
+
+    public :
+        friend class spherical_winding_base;
+
+        inline counter()
+            : m_count(0)
+            //, m_count_n(0)
+            , m_count_s(0)
+            , m_raw_count(0)
+            , m_raw_count_anti(0)
+            , m_touches(false)
+        {}
+
+    };
+
+    struct count_info
+    {
+        explicit count_info(int c = 0, bool ia = false)
+            : count(c)
+            , is_anti(ia)
+        {}
+
+        int count;
+        bool is_anti;
+    };
 
 public:
     typedef typename SideStrategy::envelope_strategy_type envelope_strategy_type;
@@ -402,11 +332,12 @@ public:
         return m_side_strategy.get_disjoint_strategy();
     }
 
-    winding()
+    spherical_winding_base()
     {}
 
-    explicit winding(SideStrategy const& side_strategy)
-        : m_side_strategy(side_strategy)
+    template <typename Model>
+    explicit spherical_winding_base(Model const& model)
+        : m_side_strategy(model)
     {}
 
     // Typedefs and static methods to fulfill the concept
@@ -418,41 +349,73 @@ public:
                       PointOfSegment const& s1, PointOfSegment const& s2,
                       counter& state) const
     {
-        typedef typename cs_tag<Point>::type cs_t;
-
         bool eq1 = false;
         bool eq2 = false;
-        boost::ignore_unused(eq2);
+        bool s_antipodal = false;
 
-        int count = check_segment(point, s1, s2, state, eq1, eq2);
-        if (count != 0)
+        count_info ci = check_segment(point, s1, s2, state, eq1, eq2, s_antipodal);
+        if (ci.count != 0)
         {
-            int side = 0;
-            if (count == 1 || count == -1)
+            if (! ci.is_anti)
             {
-                side = winding_side_equal<cs_t>::apply(point, eq1 ? s1 : s2, count);
-            }
-            else // count == 2 || count == -2
-            {
-                // 1 left, -1 right
-                side = m_side_strategy.apply(s1, s2, point);
-            }
-            
-            if (side == 0)
-            {
-                // Point is lying on segment
-                state.m_touches = true;
-                state.m_count = 0;
-                return false;
-            }
+                int side = 0;
+                if (ci.count == 1 || ci.count == -1)
+                {
+                    side = side_equal(point, eq1 ? s1 : s2, ci, s1, s2);
+                }
+                else // count == 2 || count == -2
+                {
+                    if (! s_antipodal)
+                    {
+                        // 1 left, -1 right
+                        side = m_side_strategy.apply(s1, s2, point);
+                    }
+                    else
+                    {
+                        calculation_type const pi = constants::half_period();
+                        calculation_type const s1_lat = get<1>(s1);
+                        calculation_type const s2_lat = get<1>(s2);
 
-            // Side is NEG for right, POS for left.
-            // The count is -2 for down, 2 for up (or -1/1)
-            // Side positive thus means UP and LEFTSIDE or DOWN and RIGHTSIDE
-            // See accompagnying figure (TODO)
-            if (side * count > 0)
+                        side = math::sign(ci.count)
+                             * (pi - s1_lat - s2_lat <= pi // segment goes through north pole
+                                ? -1 // going right all points will be on right side
+                                : 1); // going right all points will be on left side
+                    }
+                }
+            
+                if (side == 0)
+                {
+                    // Point is lying on segment
+                    state.m_touches = true;
+                    state.m_count = 0;
+                    return false;
+                }
+
+                // Side is NEG for right, POS for left.
+                // The count is -2 for left, 2 for right (or -1/1)
+                // Side positive thus means RIGHT and LEFTSIDE or LEFT and RIGHTSIDE
+                // See accompagnying figure (TODO)
+                if (side * ci.count > 0)
+                {
+                    state.m_count += ci.count;
+                }
+
+                state.m_raw_count += ci.count;
+            }
+            else
             {
-                state.m_count += count;
+                // Count negated because the segment is on the other side of the globe
+                // so it is reversed to match this side of the globe
+
+                // Assuming geometry wraps around north pole, for segments on the other side of the globe
+                // the point will always be RIGHT+RIGHTSIDE or LEFT+LEFTSIDE, so side*-count always < 0
+                //state.m_count_n -= 0;
+
+                // Assuming geometry wraps around south pole, for segments on the other side of the globe
+                // the point will always be RIGHT+LEFTSIDE or LEFT+RIGHTSIDE, so side*-count always > 0
+                state.m_count_s -= ci.count;
+
+                state.m_raw_count_anti -= ci.count;
             }
         }
         return ! state.m_touches;
@@ -464,7 +427,410 @@ public:
     }
 
 private:
+
+    static inline count_info check_segment(Point const& point,
+                                    PointOfSegment const& seg1,
+                                    PointOfSegment const& seg2,
+                                    counter& state,
+                                    bool& eq1, bool& eq2, bool& s_antipodal)
+    {
+        if (check_touch(point, seg1, seg2, state, eq1, eq2, s_antipodal))
+        {
+            return count_info(0, false);
+        }
+
+        return calculate_count(point, seg1, seg2, eq1, eq2, s_antipodal);
+    }
+
+    static inline int check_touch(Point const& point,
+                                  PointOfSegment const& seg1,
+                                  PointOfSegment const& seg2,
+                                  counter& state,
+                                  bool& eq1,
+                                  bool& eq2,
+                                  bool& s_antipodal)
+    {
+        calculation_type const c0 = 0;
+        calculation_type const c2 = 2;
+        calculation_type const pi = constants::half_period();
+        calculation_type const half_pi = pi / c2;
+
+        calculation_type const p_lon = get<0>(point);
+        calculation_type const s1_lon = get<0>(seg1);
+        calculation_type const s2_lon = get<0>(seg2);
+        calculation_type const p_lat = get<1>(point);
+        calculation_type const s1_lat = get<1>(seg1);
+        calculation_type const s2_lat = get<1>(seg2);
+
+        // NOTE: lat in {-90, 90} and arbitrary lon
+        //  it doesn't matter what lon it is if it's a pole
+        //  so e.g. if one of the segment endpoints is a pole
+        //  then only the other lon matters
+        
+        bool eq1_strict = longitudes_equal(s1_lon, p_lon);
+        bool eq2_strict = longitudes_equal(s2_lon, p_lon);
+        bool eq1_anti = false;
+        bool eq2_anti = false;
+
+        calculation_type const anti_p_lon = p_lon + (p_lon <= c0 ? pi : -pi);
+
+        eq1 = eq1_strict // lon strictly equal to s1
+            || (eq1_anti = longitudes_equal(s1_lon, anti_p_lon)) // anti-lon strictly equal to s1
+            || math::equals(math::abs(s1_lat), half_pi); // s1 is pole
+        eq2 = eq2_strict // lon strictly equal to s2
+            || (eq2_anti = longitudes_equal(s2_lon, anti_p_lon)) // anti-lon strictly equal to s2
+            || math::equals(math::abs(s2_lat), half_pi); // s2 is pole
+
+        // segment overlapping pole
+        calculation_type const s_lon_diff = math::longitude_distance_signed<units_t>(s1_lon, s2_lon);
+        s_antipodal = math::equals(s_lon_diff, pi);
+        if (s_antipodal)
+        {
+            eq1 = eq2 = eq1 || eq2;
+
+            // segment overlapping pole and point is pole
+            if (math::equals(math::abs(p_lat), half_pi))
+            {
+                eq1 = eq2 = true;
+            }
+        }
+        
+        // Both equal p -> segment vertical
+        // The only thing which has to be done is check if point is ON segment
+        if (eq1 && eq2)
+        {
+            // segment endpoints on the same sides of the globe
+            if (! s_antipodal)
+            {
+                // p's lat between segment endpoints' lats
+                if ( (s1_lat <= p_lat && s2_lat >= p_lat) || (s2_lat <= p_lat && s1_lat >= p_lat) )
+                {
+                    if (!eq1_anti || !eq2_anti)
+                    {
+                        state.m_touches = true;
+                    }
+                }
+            }
+            else
+            {
+                // going through north or south pole?
+                if (pi - s1_lat - s2_lat <= pi)
+                {
+                    if ( (eq1_strict && s1_lat <= p_lat) || (eq2_strict && s2_lat <= p_lat) // north
+                            || math::equals(p_lat, half_pi) ) // point on north pole
+                    {
+                        state.m_touches = true;
+                    }
+                    else if (! eq1_strict && ! eq2_strict && math::equals(p_lat, -half_pi) ) // point on south pole
+                    {
+                        return false;
+                    }
+                }
+                else // south pole
+                {
+                    if ( (eq1_strict && s1_lat >= p_lat) || (eq2_strict && s2_lat >= p_lat) // south
+                            || math::equals(p_lat, -half_pi) ) // point on south pole
+                    {
+                        state.m_touches = true;
+                    }
+                    else if (! eq1_strict && ! eq2_strict && math::equals(p_lat, half_pi) ) // point on north pole
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Called if point is not aligned with a vertical segment
+    static inline count_info calculate_count(Point const& point,
+                                             PointOfSegment const& seg1,
+                                             PointOfSegment const& seg2,
+                                             bool eq1, bool eq2, bool s_antipodal)
+    {
+        // If both segment endpoints were poles below checks wouldn't be enough
+        // but this means that either both are the same or that they are N/S poles
+        // and therefore the segment is not valid.
+        // If needed (eq1 && eq2 ? 0) could be returned
+
+        calculation_type const c0 = 0;
+        calculation_type const c2 = 2;
+        calculation_type const pi = constants::half_period();
+        calculation_type const half_pi = pi / c2;
+
+        calculation_type const p = get<0>(point);
+        calculation_type const s1 = get<0>(seg1);
+        calculation_type const s2 = get<0>(seg2);
+
+        calculation_type const s1_p = math::longitude_distance_signed<units_t>(s1, p);
+        
+        if (s_antipodal)
+        {
+            return count_info(s1_p < c0 ? -2 : 2, false); // choose W/E
+        }
+
+        calculation_type const s1_s2 = math::longitude_distance_signed<units_t>(s1, s2);
+
+        if (eq1 || eq2) // Point on level s1 or s2
+        {
+            return count_info(s1_s2 < c0 ? -1 : 1, // choose W/E
+                              longitudes_equal(p + pi, (eq1 ? s1 : s2)));
+        }
+
+        // Point between s1 and s2
+        if ( math::sign(s1_p) == math::sign(s1_s2)
+          && math::abs(s1_p) < math::abs(s1_s2) )
+        {
+            return count_info(s1_s2 < c0 ? -2 : 2, false); // choose W/E
+        }
+        
+        calculation_type const s1_p_anti = math::longitude_distance_signed<units_t>(s1, p + pi);
+
+        // Anti-Point between s1 and s2
+        if ( math::sign(s1_p_anti) == math::sign(s1_s2)
+          && math::abs(s1_p_anti) < math::abs(s1_s2) )
+        {
+            return count_info(s1_s2 < c0 ? -2 : 2, true); // choose W/E
+        }
+
+        return count_info(0, false);
+    }
+
+
+    // Fix for https://svn.boost.org/trac/boost/ticket/9628
+    // For floating point coordinates, the <D> coordinate of a point is compared
+    // with the segment's points using some EPS. If the coordinates are "equal"
+    // the sides are calculated. Therefore we can treat a segment as a long areal
+    // geometry having some width. There is a small ~triangular area somewhere
+    // between the segment's effective area and a segment's line used in sides
+    // calculation where the segment is on the one side of the line but on the
+    // other side of a segment (due to the width).
+    // Below picture assuming D = 1, if D = 0 horiz<->vert, E<->N, RIGHT<->UP.
+    // For the s1 of a segment going NE the real side is RIGHT but the point may
+    // be detected as LEFT, like this:
+    //                     RIGHT
+    //                 ___----->
+    //                  ^      O Pt  __ __
+    //                 EPS     __ __
+    //                  v__ __ BUT DETECTED AS LEFT OF THIS LINE
+    //             _____7
+    //       _____/
+    // _____/
+    // In the code below actually D = 0, so segments are nearly-vertical
+    // Called when the point is on the same level as one of the segment's points
+    // but the point is not aligned with a vertical segment
+    inline int side_equal(Point const& point,
+                          PointOfSegment const& se,
+                          count_info const& ci,
+                          PointOfSegment const& s1, PointOfSegment const& s2) const
+    {
+        typedef typename coordinate_type<PointOfSegment>::type scoord_t;
+        typedef typename coordinate_system<PointOfSegment>::type::units units_t;
+
+        if (math::equals(get<1>(point), get<1>(se)))
+        {
+            return 0;
+        }
+
+        // Create a horizontal segment intersecting the original segment's endpoint
+        // equal to the point, with the derived direction (E/W).
+        PointOfSegment ss1, ss2;
+        set<1>(ss1, get<1>(se));
+        set<0>(ss1, get<0>(se));
+        set<1>(ss2, get<1>(se));
+        scoord_t ss20 = get<0>(se);
+        if (ci.count > 0)
+        {
+            ss20 += small_angle();
+        }
+        else
+        {
+            ss20 -= small_angle();
+        }
+        math::normalize_longitude<units_t>(ss20);
+        set<0>(ss2, ss20);
+
+        // Check the side using this vertical segment
+        return m_side_strategy.apply(ss1, ss2, point);
+    }
+
+    // 1 deg or pi/180 rad
+    static inline calculation_type small_angle()
+    {
+        return constants::half_period() / calculation_type(180);
+    };
+
+    static inline bool longitudes_equal(calculation_type const& lon1, calculation_type const& lon2)
+    {
+        return math::equals(
+                math::longitude_distance_signed<units_t>(lon1, lon2),
+                calculation_type(0));
+    }
+
     SideStrategy m_side_strategy;
+};
+
+
+template
+<
+    typename Point,
+    typename PointOfSegment,
+    typename CalculationType,
+    typename CSTag = typename tag_cast
+                        <
+                            typename cs_tag<Point>::type,
+                            spherical_tag
+                        >::type
+>
+struct winding_base_type
+{
+    BOOST_MPL_ASSERT_MSG(false,
+                         NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM,
+                         (CSTag));
+};
+
+template <typename Point, typename PointOfSegment, typename CalculationType>
+struct winding_base_type<Point, PointOfSegment, CalculationType, cartesian_tag>
+{
+    typedef within::cartesian_winding<Point, PointOfSegment, CalculationType> type;
+};
+
+template <typename Point, typename PointOfSegment, typename CalculationType>
+struct winding_base_type<Point, PointOfSegment, CalculationType, spherical_tag>
+{
+    typedef within::detail::spherical_winding_base
+        <
+            Point,
+            PointOfSegment,
+            typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<Point>::type
+                >::type,
+            CalculationType
+        > type;
+};
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+/*!
+\brief Within detection using winding rule in spherical coordinate system.
+\ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
+ */
+template
+<
+    typename Point,
+    typename PointOfSegment = Point,
+    typename CalculationType = void
+>
+class spherical_winding
+    : public within::detail::spherical_winding_base
+        <
+            Point,
+            PointOfSegment,
+            side::spherical_side_formula<CalculationType>,
+            CalculationType
+        >
+{};
+
+
+/*!
+\brief Within detection using winding rule in geographic coordinate system.
+\ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam FormulaPolicy Geodesic formula policy
+\tparam Spheroid Spheroid model
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
+ */
+template
+<
+    typename Point,
+    typename PointOfSegment = Point,
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
+class geographic_winding
+    : public within::detail::spherical_winding_base
+        <
+            Point,
+            PointOfSegment,
+            side::geographic<FormulaPolicy, Spheroid, CalculationType>,
+            CalculationType
+        >
+{
+    typedef within::detail::spherical_winding_base
+        <
+            Point,
+            PointOfSegment,
+            side::geographic<FormulaPolicy, Spheroid, CalculationType>,
+            CalculationType
+        > base_t;
+
+public:
+    geographic_winding()
+    {}
+
+    explicit geographic_winding(Spheroid const& model)
+        : base_t(model)
+    {}
+};
+
+
+/*!
+\brief Within detection using winding rule. Side strategy used internally is
+       choosen based on Point's coordinate system.
+\ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
+ */
+template
+<
+    typename Point,
+    typename PointOfSegment = Point,
+    typename CalculationType = void
+>
+class winding
+    : public within::detail::winding_base_type<Point, PointOfSegment, CalculationType>::type
+{
+    typedef typename within::detail::winding_base_type
+        <
+            Point, PointOfSegment, CalculationType
+        >::type base_t;
+
+public:
+    winding() {}
+
+    template <typename Model>
+    explicit winding(Model const& model)
+        : base_t(model)
+    {}
 };
 
 
@@ -476,7 +842,7 @@ namespace services
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef winding
+    typedef cartesian_winding
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -486,7 +852,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef winding
+    typedef within::detail::spherical_winding_base
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -496,7 +862,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef winding
+    typedef cartesian_winding
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -506,7 +872,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, li
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef winding
+    typedef within::detail::spherical_winding_base
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -528,7 +894,7 @@ namespace strategy { namespace covered_by { namespace services
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, cartesian_tag, cartesian_tag>
 {
-    typedef within::winding
+    typedef within::cartesian_winding
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -538,7 +904,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, polygonal_tag, spherical_tag, spherical_tag>
 {
-    typedef within::winding
+    typedef within::detail::spherical_winding_base
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -548,7 +914,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, cartesian_tag, cartesian_tag>
 {
-    typedef within::winding
+    typedef within::cartesian_winding
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
@@ -558,7 +924,7 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, li
 template <typename PointLike, typename Geometry, typename AnyTag1, typename AnyTag2>
 struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, linear_tag, spherical_tag, spherical_tag>
 {
-    typedef within::winding
+    typedef within::detail::spherical_winding_base
         <
             typename geometry::point_type<PointLike>::type,
             typename geometry::point_type<Geometry>::type
