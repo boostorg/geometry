@@ -78,11 +78,12 @@ struct geographic_segments
     template <typename Geometry1, typename Geometry2>
     struct point_in_geometry_strategy
     {
-        typedef strategy::within::winding
+        typedef strategy::within::geographic_winding
             <
                 typename point_type<Geometry1>::type,
                 typename point_type<Geometry2>::type,
-                side_strategy_type,
+                FormulaPolicy,
+                Spheroid,
                 CalculationType
             > type;
     };
@@ -95,7 +96,7 @@ struct geographic_segments
             <
                 Geometry1, Geometry2
             >::type strategy_type;
-        return strategy_type(get_side_strategy());
+        return strategy_type(m_spheroid);
     }
 
     template <typename Geometry>
