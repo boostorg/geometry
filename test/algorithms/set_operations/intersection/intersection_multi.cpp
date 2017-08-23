@@ -323,6 +323,8 @@ void test_areal()
 #endif
 
     TEST_INTERSECTION(case_recursive_boxes_67, 5, -1, 2.5);
+    TEST_INTERSECTION(case_recursive_boxes_68, 8, -1, 9.5);
+    TEST_INTERSECTION(case_recursive_boxes_69, 6, -1, 3.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
