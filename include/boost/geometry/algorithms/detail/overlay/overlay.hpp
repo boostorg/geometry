@@ -299,6 +299,7 @@ std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy = strategy.get_side_strategy();
         cluster_type clusters;
+        std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
                 clusters, geometry1, geometry2,
@@ -322,11 +323,11 @@ std::cout << "traverse" << std::endl;
                     strategy,
                     robust_policy,
                     turns, rings,
+                    turn_info_per_ring,
                     clusters,
                     visitor
                 );
 
-        std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
         typedef typename Strategy::template area_strategy<point_type>::type area_strategy_type;
