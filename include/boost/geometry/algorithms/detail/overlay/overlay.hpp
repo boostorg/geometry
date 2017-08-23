@@ -116,9 +116,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
     {
         turn_type const& turn = *it;
 
-        bool const colocated_target = target_operation == operation_union
-                ? turn.colocated_uu : turn.colocated_ii;
-
         bool is_closed = false;
         if (turn.cluster_id >= 0 && target_operation == operation_union)
         {
@@ -144,7 +141,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             if (is_closed
                 || turn.any_blocked()
                 || (op.operation == opposite_operation
-                    && ! colocated_target
+                    && ! turn.has_colocated_both
                     && ! (turn.both(opposite_operation)
                           && is_self_turn<OverlayType>(turn))))
             {

@@ -499,6 +499,7 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
 
 template
 <
+    overlay_type OverlayType,
     typename Turns,
     typename Clusters
 >
@@ -513,32 +514,26 @@ inline void set_colocation(Turns& turns, Clusters const& clusters)
         cluster_info const& cinfo = cit->second;
         std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
-        bool has_ii = false;
-        bool has_uu = false;
+        bool both_target = false;
         for (set_iterator it = ids.begin(); it != ids.end(); ++it)
         {
             turn_type const& turn = turns[*it];
-            if (turn.both(operation_intersection))
+            if (turn.both(operation_from_overlay<OverlayType>::value))
             {
-                has_ii = true;
-            }
-            if (turn.both(operation_union))
-            {
-                has_uu = true;
+                both_target = true;
+                break;
             }
         }
-        if (has_ii || has_uu)
+
+        if (both_target)
         {
             for (set_iterator it = ids.begin(); it != ids.end(); ++it)
             {
                 turn_type& turn = turns[*it];
-                if (has_ii)
+
+                if (both_target)
                 {
-                    turn.colocated_ii = true;
-                }
-                if (has_uu)
-                {
-                    turn.colocated_uu = true;
+                    turn.has_colocated_both = true;
                 }
             }
         }
@@ -636,7 +631,9 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     }
 
     assign_cluster_to_turns(turns, clusters, cluster_per_segment);
-    set_colocation(turns, clusters);
+    // Get colocated information here and not later, to keep information
+    // on turns which are discarded afterwards
+    set_colocation<OverlayType>(turns, clusters);
     discard_interior_exterior_turns
         <
             do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
