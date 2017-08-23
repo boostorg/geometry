@@ -118,7 +118,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
         bool cluster_checked = false;
         bool has_blocked = false;
-        bool is_closed = false;
 
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
@@ -137,29 +136,35 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             {
                 turn_info_map[ring_id].has_blocked_turn = true;
             }
-
             if (turn_info_map[ring_id].has_traversed_turn
                     || turn_info_map[ring_id].has_blocked_turn)
             {
                 continue;
             }
 
+            if (target_operation == operation_union
+                    && ! is_self_turn<OverlayType>(turn)
+                    && op.enriched.count_left > 0)
+            {
+                // Avoid including untraversed rings in unions which have
+                // polygons on their left side
+                turn_info_map[ring_id].has_blocked_turn = true;
+                continue;
+            }
+
             // Check information in colocated turns
             if (! cluster_checked && turn.cluster_id >= 0)
             {
-                check_colocation(has_blocked, is_closed,
-                                 turn.cluster_id, turns, clusters);
+                check_colocation(has_blocked, turn.cluster_id, turns, clusters);
                 cluster_checked = true;
             }
 
-            // Block closed rings (for union), rings where anything is blocked,
+            // Block rings where any other turn is blocked,
             // and (with exceptions): i for union and u for intersection
             // Exceptions: don't block self-uu for intersection
             //             don't block self-ii for union
             //             don't block (for union) i/u if there is an self-ii too
             if (has_blocked
-                || turn.any_blocked()
-                || (is_closed && target_operation == operation_union)
                 || (op.operation == opposite_operation
                     && ! turn.has_colocated_both
                     && ! (turn.both(opposite_operation)

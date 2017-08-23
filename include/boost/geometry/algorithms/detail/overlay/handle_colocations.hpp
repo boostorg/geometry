@@ -545,14 +545,12 @@ template
     typename Turns,
     typename Clusters
 >
-inline void check_colocation(bool& has_blocked, bool& is_closed,
-        int cluster_id,
-        Turns const& turns, Clusters const& clusters)
+inline void check_colocation(bool& has_blocked,
+        int cluster_id, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
 
     has_blocked = false;
-    is_closed = false;
 
     typename Clusters::const_iterator mit = clusters.find(cluster_id);
     if (mit == clusters.end())
@@ -561,8 +559,6 @@ inline void check_colocation(bool& has_blocked, bool& is_closed,
     }
 
     cluster_info const& cinfo = mit->second;
-
-    is_closed = cinfo.open_count == 0;
 
     for (std::set<signed_size_type>::const_iterator it
          = cinfo.turn_indices.begin();
