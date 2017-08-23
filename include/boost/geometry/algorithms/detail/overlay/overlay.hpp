@@ -116,15 +116,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
     {
         turn_type const& turn = *it;
 
+        bool cluster_checked = false;
+        bool has_blocked = false;
         bool is_closed = false;
-        if (turn.cluster_id >= 0 && target_operation == operation_union)
-        {
-            typename Clusters::const_iterator mit = clusters.find(turn.cluster_id);
-            BOOST_ASSERT(mit != clusters.end());
-
-            cluster_info const& cinfo = mit->second;
-            is_closed = cinfo.open_count == 0;
-        }
 
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
@@ -132,26 +126,45 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             ++op_it)
         {
             turn_operation_type const& op = *op_it;
+            ring_identifier const ring_id
+                (
+                    op.seg_id.source_index,
+                    op.seg_id.multi_index,
+                    op.seg_id.ring_index
+                );
+
+            if (turn.any_blocked())
+            {
+                turn_info_map[ring_id].has_blocked_turn = true;
+            }
+
+            if (turn_info_map[ring_id].has_traversed_turn
+                    || turn_info_map[ring_id].has_blocked_turn)
+            {
+                continue;
+            }
+
+            // Check information in colocated turns
+            if (! cluster_checked && turn.cluster_id >= 0)
+            {
+                check_colocation(has_blocked, is_closed,
+                                 turn.cluster_id, turns, clusters);
+                cluster_checked = true;
+            }
 
             // Block closed rings (for union), rings where anything is blocked,
             // and (with exceptions): i for union and u for intersection
             // Exceptions: don't block self-uu for intersection
             //             don't block self-ii for union
             //             don't block (for union) i/u if there is an self-ii too
-            if (is_closed
+            if (has_blocked
                 || turn.any_blocked()
+                || (is_closed && target_operation == operation_union)
                 || (op.operation == opposite_operation
                     && ! turn.has_colocated_both
                     && ! (turn.both(opposite_operation)
                           && is_self_turn<OverlayType>(turn))))
             {
-                ring_identifier const ring_id
-                    (
-                        op.seg_id.source_index,
-                        op.seg_id.multi_index,
-                        op.seg_id.ring_index
-                    );
-
                 turn_info_map[ring_id].has_blocked_turn = true;
             }
         }
