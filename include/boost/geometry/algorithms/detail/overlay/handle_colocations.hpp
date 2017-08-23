@@ -521,7 +521,7 @@ inline void set_colocation(Turns& turns, Clusters const& clusters)
             {
                 has_ii = true;
             }
-            if (turn.both(operation_union) || turn.combination(operation_union, operation_blocked))
+            if (turn.both(operation_union))
             {
                 has_uu = true;
             }

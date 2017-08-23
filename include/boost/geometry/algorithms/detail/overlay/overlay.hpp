@@ -116,7 +116,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
     {
         turn_type const& turn = *it;
 
-        bool const both_opposite = turn.both(opposite_operation);
         bool const colocated_target = target_operation == operation_union
                 ? turn.colocated_uu : turn.colocated_ii;
 
@@ -137,19 +136,17 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
         {
             turn_operation_type const& op = *op_it;
 
-            // Block, for example, i for union and u for intersection
-            // Don't block self-uu for intersection
-            // Don't block self-ii for union
-            // Don't block i/u if there is an ii too, for a union
-            bool opposite_op = op.operation == opposite_operation
+            // Block closed rings (for union), rings where anything is blocked,
+            // and (with exceptions): i for union and u for intersection
+            // Exceptions: don't block self-uu for intersection
+            //             don't block self-ii for union
+            //             don't block (for union) i/u if there is an self-ii too
+            if (is_closed
+                || turn.any_blocked()
+                || (op.operation == opposite_operation
                     && ! colocated_target
-                    && ! (both_opposite
-                          && is_self_turn<OverlayType>(turn));
-
-            if (opposite_op
-                    || is_closed
-                    || turn.both(operation_blocked)
-                    || turn.combination(opposite_operation, operation_blocked))
+                    && ! (turn.both(opposite_operation)
+                          && is_self_turn<OverlayType>(turn))))
             {
                 ring_identifier const ring_id
                     (
