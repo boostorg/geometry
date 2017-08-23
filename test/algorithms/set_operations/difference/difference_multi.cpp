@@ -371,6 +371,7 @@ void test_areal()
 #endif
 
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_66, 5, 4.75, 7, 4.0, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_67, 7, 6.25, 9, 6.0, 10);
 
     {
         ut_settings sym_settings;
