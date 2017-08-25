@@ -78,18 +78,18 @@ private:
                                    Spheriod const& spher)
     {
         CT const c2 = CT(2);
-        CT const earth_r = spher.get_radius(); 
-        CT const earth_f = formula::flattening<CT>(spher);
-        CT const earth_e2 = earth_f * (c2 - earth_f); 
+        CT const spher_r = get_radius<0>(spher); 
+        CT const spher_f = formula::flattening<CT>(spher);
+        CT const spher_e2 = spher_f * (c2 - spher_f); 
         
         CT const dlat = la2 - la1;
         CT const dlon = lo2 - lo1;
         
-        CT const R1 = earth_r * (1 - earth_e2) /
-                      bg::math::sqrt((1 - earth_e2 * bg::math::sqr(sin(la1)))
-                              * (1 - earth_e2 * bg::math::sqr(sin(la1)))
-                              * (1 - earth_e2 * bg::math::sqr(sin(la1))));
-        CT const R2 = earth_r / bg::math::sqrt(1 - earth_e2 * bg::math::sqr(sin(la1)));
+        CT const R1 = spher_r * (1 - spher_e2) /
+                      bg::math::sqrt((1 - spher_e2 * bg::math::sqr(sin(la1)))
+                              * (1 - spher_e2 * bg::math::sqr(sin(la1)))
+                              * (1 - spher_e2 * bg::math::sqr(sin(la1))));
+        CT const R2 = spher_r / bg::math::sqrt(1 - spher_e2 * bg::math::sqr(sin(la1)));
         
         CT const dis_North = R1 * dlat;
         CT const dis_East = R2 * cos(la1) * dlon;
