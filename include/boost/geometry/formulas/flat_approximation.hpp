@@ -14,9 +14,12 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -26,7 +29,11 @@ namespace bg = boost::geometry;
 namespace boost { namespace geometry { namespace formula
 {
 
-template <typename CT>
+template 
+<
+    typename CT,
+    typename Geometry
+>
 class flat_approximation
 {
     
@@ -75,11 +82,11 @@ private:
                                    CT const& la1,
                                    CT const& lo2,
                                    CT const& la2,
-                                   Spheriod const& spher)
+                                   Geometry const& spher)
     {
         CT const c2 = CT(2);
         CT const spher_r = get_radius<0>(spher); 
-        CT const spher_f = formula::flattening<CT>(spher);
+        CT const spher_f = formula::flattening<CT, Geometry>(spher);
         CT const spher_e2 = spher_f * (c2 - spher_f); 
         
         CT const dlat = la2 - la1;

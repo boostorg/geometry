@@ -8,27 +8,29 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifdef BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_LAMBERT_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_LAMBERT_HPP
 #define BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_LAMBERT_HPP
 
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 #define BOOST_GEOMETRY_EPS 1e-9
 
-namespace boost ( namespace geometry { namespace formula
+namespace boost { namespace geometry { namespace formula
 {
 
 template
 <
-    typename CT,
-    typename Spheriod
+    typename CT
 >
 class compare_length_lambert
 {
@@ -37,13 +39,14 @@ public:
     typedef int result_type;
     template
     <
-        typename T
+        typename T,
+        typename Geometry
     >
-    static inlin result_type apply(T const& p1,
+    static inline result_type apply(T const& p1,
                                    T const& p2,
                                    T const& p3,
                                    T const& p4,
-                                   Spheriod const& spheriod)
+                                   Geometry const& spheriod)
     {
         result_type result;
 
@@ -77,16 +80,17 @@ public:
     }
 
 private:
+    template<typename Geometry>
     static inline CT lambert_distance(CT const& lo1,
                                       CT const& la1,
                                       CT const& lo2,
                                       CT const& la2,
-                                      Spheriod const& spher)
+                                      Geometry const& spher)
     {   
         CT const c4 = CT(4);
         CT const c1 = CT(1);
-        CT const spher_f = formula::flattening<CT>(spher);
-        CT const spher_a = get radius<0>(spher);
+        CT const spher_f = formula::flattening<CT, Geometry>(spher);
+        CT const spher_a = get_radius<0>(spher);
         
         CT const sin_lat1 = sin(la1);
         CT const cos_lat1 = cos(la1);

@@ -14,9 +14,12 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -28,8 +31,7 @@ namespace boost { namespace geometry { namespace formula
 
 template 
 <
-    typename CT,
-    typename Spheriod         
+    typename CT
 >
 class compare_length_andoyer 
 {
@@ -38,13 +40,14 @@ public:
     typedef int result_type;
     template 
     <
-        typename T
+        typename T,
+        typename Geometry
     >
     static inline result_type apply(T const& p1,
                                     T const& p2,
                                     T const& p3,
                                     T const& p4,
-                                    Spheriod const& spheriod)
+                                    Geometry const& spheriod)
     {
         result_type result;
 
@@ -78,11 +81,12 @@ public:
     }
 
 private:
+    template<typename Geometry>
     static inline CT andoyer_distance(CT const& lo1,
                                       CT const& la1,
                                       CT const& lo2,
                                       CT const& la2,
-                                      Spheriod const& spher)
+                                      Geometry const& spher)
     {
         CT const c0 = CT(0);
         
@@ -93,7 +97,7 @@ private:
 
         CT const c1 = CT(1);
         CT const pi = math::pi<CT>();
-        CT const f = formula::flattening<CT>(spher);
+        CT const f = formula::flattening<CT, Geometry>(spher);
 
         CT const dlon = lo2 - lo1;
         CT const sin_dlon = sin(dlon);
