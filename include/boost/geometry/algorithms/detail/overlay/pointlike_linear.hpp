@@ -32,7 +32,6 @@
 
 #include <boost/geometry/algorithms/detail/not.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
-#include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
