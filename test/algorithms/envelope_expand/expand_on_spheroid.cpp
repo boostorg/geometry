@@ -1,10 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2016, Oracle and/or its affiliates.
+// Copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -702,6 +703,26 @@ BOOST_AUTO_TEST_CASE( expand_segment_sphere )
                   from_wkt<B>("BOX(10 -90,130 -90)"),
                   from_wkt<G>("SEGMENT(10 -30,100 45)"),
                   10, -90, 100, 45);
+}
+
+BOOST_AUTO_TEST_CASE( expand_segment_spherical_polar )
+{
+    typedef bg::cs::spherical<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::box<point_type> B;
+    typedef bg::model::segment<point_type> G;
+    typedef test_expand_on_spheroid tester;
+
+    tester::apply("s02",
+                  from_wkt<B>("BOX(20 20,50 50)"),
+                  from_wkt<G>("SEGMENT(10 10,40 20)"),
+                  10, 10, 50, 50);
+
+    // segment ending at the north pole
+    tester::apply("s04",
+                  from_wkt<B>("BOX(5 15,50 50)"),
+                  from_wkt<G>("SEGMENT(40 45,80 0)"),
+                  5, 0, 50, 50);
 }
 
 BOOST_AUTO_TEST_CASE( expand_segment_spheroid )

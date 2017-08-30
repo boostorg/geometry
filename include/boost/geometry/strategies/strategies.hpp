@@ -70,11 +70,11 @@
 
 #include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
-#include <boost/geometry/strategies/spherical/compare_circular.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/compare.hpp>
 #include <boost/geometry/strategies/spherical/envelope_segment.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
