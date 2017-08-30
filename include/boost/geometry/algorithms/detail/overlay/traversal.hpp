@@ -131,7 +131,8 @@ struct traversal
     {
     }
 
-    inline void finalize_visit_info()
+    template <typename TurnInfoMap>
+    inline void finalize_visit_info(TurnInfoMap& turn_info_map)
     {
         for (typename boost::range_iterator<Turns>::type
             it = boost::begin(m_turns);
@@ -142,6 +143,18 @@ struct traversal
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type& op = turn.operations[i];
+                if (op.visited.visited()
+                    || op.visited.started()
+                    || op.visited.finished() )
+                {
+                    ring_identifier const ring_id
+                        (
+                            op.seg_id.source_index,
+                            op.seg_id.multi_index,
+                            op.seg_id.ring_index
+                        );
+                   turn_info_map[ring_id].has_traversed_turn = true;
+                }
                 op.visited.finalize();
             }
         }
@@ -430,36 +443,6 @@ struct traversal
         return false;
     }
 
-
-    inline bool all_operations_of_type(sort_by_side::rank_with_rings const& rwr,
-                                       operation_type op_type,
-                                       sort_by_side::direction_type dir) const
-    {
-        typedef std::set<sort_by_side::ring_with_direction>::const_iterator sit_type;
-        for (sit_type it = rwr.rings.begin(); it != rwr.rings.end(); ++it)
-        {
-            sort_by_side::ring_with_direction const& rwd = *it;
-            if (rwd.direction != dir)
-            {
-                return false;
-            }
-            turn_type const& turn = m_turns[rwd.turn_index];
-            if (! turn.both(op_type))
-            {
-                return false;
-            }
-
-            // Check if this is not yet taken
-            turn_operation_type const& op = turn.operations[rwd.operation_index];
-            if (op.visited.finalized())
-            {
-                return false;
-            }
-
-        }
-        return true;
-    }
-
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
@@ -475,6 +458,7 @@ struct traversal
             || intersection_pattern_common_interior2(selected_rank, aggregation)
             || intersection_pattern_common_interior3(selected_rank, aggregation)
             || intersection_pattern_common_interior4(selected_rank, aggregation)
+            || intersection_pattern_common_interior5(selected_rank, aggregation)
                 ;
 
         if (! detected)
@@ -545,6 +529,9 @@ struct traversal
 
         if (selected_rank > 0)
         {
+            typename turn_operation_type::comparable_distance_type
+                    min_remaining_distance = 0;
+
             std::size_t selected_index = sbs.m_ranked_points.size();
             for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
             {
@@ -562,8 +549,13 @@ struct traversal
                         continue;
                     }
 
-                    // Take the last turn from this rank
-                    selected_index = i;
+                    // Take turn with the smallest remaining distance
+                    if (selected_index == sbs.m_ranked_points.size()
+                            || ranked_op.remaining_distance < min_remaining_distance)
+                    {
+                        selected_index = i;
+                        min_remaining_distance = ranked_op.remaining_distance;
+                    }
                 }
             }
 

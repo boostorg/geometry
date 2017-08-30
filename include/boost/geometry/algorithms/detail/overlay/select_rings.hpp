@@ -41,10 +41,12 @@ namespace detail { namespace overlay
 struct ring_turn_info
 {
     bool has_traversed_turn;
+    bool has_blocked_turn;
     bool within_other;
 
     ring_turn_info()
         : has_traversed_turn(false)
+        , has_blocked_turn(false)
         , within_other(false)
     {}
 };
@@ -265,9 +267,9 @@ inline void update_ring_selection(Geometry1 const& geometry1,
             info = tcit->second; // Copy by value
         }
 
-        if (info.has_traversed_turn)
+        if (info.has_traversed_turn || info.has_blocked_turn)
         {
-            // This turn is traversed (or blocked),
+            // This turn is traversed or blocked,
             // don't include the original ring
             continue;
         }
