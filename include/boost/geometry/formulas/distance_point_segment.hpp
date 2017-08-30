@@ -25,6 +25,8 @@
       https://arxiv.org/abs/1102.1215
 */
 
+#define BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -32,14 +34,17 @@ template
 <
         typename CT,
         typename Units,
-        typename Inverse_type_azimuth,
-        typename Inverse_type_distance,
-        typename Direct_type,
+        template <typename, bool, bool, bool, bool ,bool> class Inverse,
+        template <typename, bool, bool, bool, bool> class Direct,
         bool EnableClosestPoint = false
 >
 class distance_point_segment{
 
 public:
+
+    typedef Inverse<CT, true, false, false, false, false> inverse_distance_type;
+    typedef Inverse<CT, false, true, false, false, false> inverse_azimuth_type;
+    typedef Direct<CT, true, false, false, false> direct_distance_type;
 
     struct result_distance_point_segment
     {
@@ -61,7 +66,7 @@ public:
                                      Spheroid const& spheroid)
     {
         result_distance_point_segment result;
-        result.distance = Inverse_type_distance::apply(lon1, lat1,
+        result.distance = inverse_distance_type::apply(lon1, lat1,
                                                        lon2, lat2,
                                                        spheroid).distance;
         if (EnableClosestPoint)
@@ -77,10 +82,11 @@ public:
     static inline apply(CT lon1, CT lat1, //p1
                         CT lon2, CT lat2, //p2
                         CT lon3, CT lat3, //query point p3
-                        Spheroid const& spheroid,
-                        CT earth_radius =
-                           geometry::srs::sphere<CT>().get_radius<1>())
+                        Spheroid const& spheroid)
     {
+        CT earth_radius = (CT(2) * spheroid.get_radius<1>()
+                           + spheroid.get_radius<2>()) / CT(3);
+
         result_distance_point_segment result;
 
         // Constants
@@ -145,8 +151,8 @@ public:
         }
 
         // Compute a1 (GEO)
-        CT a1 = Inverse_type_azimuth::apply(lon1, lat1, lon2, lat2, spheroid).azimuth;
-        CT a13 = Inverse_type_azimuth::apply(lon1, lat1, lon3, lat3, spheroid).azimuth;
+        CT a1 = inverse_azimuth_type::apply(lon1, lat1, lon2, lat2, spheroid).azimuth;
+        CT a13 = inverse_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid).azimuth;
 
         CT a312 = a1 - a13;
 
@@ -157,8 +163,8 @@ public:
             return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
         }
 
-        CT a2 = pi + Inverse_type_azimuth::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
-        CT a23 = Inverse_type_azimuth::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
+        CT a2 = pi + inverse_azimuth_type::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
+        CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
 
         CT a321 = a2 - a23;
 
@@ -220,13 +226,15 @@ public:
             prev_distance = res34.distance;
 
             // Solve the direct problem to find p4 (GEO)
-            res14 = Direct_type::apply(lon1, lat1, s14, a1, spheroid);
+            res14 = direct_distance_type::apply(lon1, lat1, s14, a1, spheroid);
 
             // Solve an inverse problem to find g4
             // g4 is the angle between segment (p1,p2) and segment (p3,p4) that meet on p4 (GEO)
 
-            CT a4 = Inverse_type_azimuth::apply(res14.lon2, res14.lat2, lon2, lat2, spheroid).azimuth;
-            res34 = Inverse_type_distance::apply(res14.lon2, res14.lat2, lon3, lat3, spheroid);
+            CT a4 = inverse_azimuth_type::apply(res14.lon2, res14.lat2,
+                                                lon2, lat2, spheroid).azimuth;
+            res34 = inverse_distance_type::apply(res14.lon2, res14.lat2,
+                                                 lon3, lat3, spheroid);
             g4 = res34.azimuth - a4;
 
             // Normalize g4
@@ -296,20 +304,20 @@ public:
 
         std::cout << "s34(sph) =" << s34_sph << std::endl;
         std::cout << "s34(geo) ="
-                  << Inverse_type_distance::apply(get<0>(p4), get<1>(p4), lon3, lat3, spheroid).distance
+                  << inverse_distance_type::apply(get<0>(p4), get<1>(p4), lon3, lat3, spheroid).distance
                   << ", p4=(" << get<0>(p4) * math::r2d<double>() << ","
                               << get<1>(p4) * math::r2d<double>() << ")"
                   << std::endl;
 
-        CT s31 = Inverse_type_distance::apply(lon3, lat3, lon1, lat1, spheroid).distance;
-        CT s32 = Inverse_type_distance::apply(lon3, lat3, lon2, lat2, spheroid).distance;
+        CT s31 = inverse_distance_type::apply(lon3, lat3, lon1, lat1, spheroid).distance;
+        CT s32 = inverse_distance_type::apply(lon3, lat3, lon2, lat2, spheroid).distance;
 
-        CT a4 = Inverse_type_azimuth::apply(get<0>(p4), get<1>(p4), lon2, lat2, spheroid).azimuth;
-        geometry::formula::result_direct<CT> res4 = Direct_type::apply(get<0>(p4), get<1>(p4), .04, a4, spheroid);
-        CT p4_plus = Inverse_type_distance::apply(res4.lon2, res4.lat2, lon3, lat3, spheroid).distance;
+        CT a4 = inverse_azimuth_type::apply(get<0>(p4), get<1>(p4), lon2, lat2, spheroid).azimuth;
+        geometry::formula::result_direct<CT> res4 = direct_distance_type::apply(get<0>(p4), get<1>(p4), .04, a4, spheroid);
+        CT p4_plus = inverse_distance_type::apply(res4.lon2, res4.lat2, lon3, lat3, spheroid).distance;
 
-        geometry::formula::result_direct<CT> res1 = Direct_type::apply(lon1, lat1, s14-.04, a1, spheroid);
-        CT p4_minus = Inverse_type_distance::apply(res1.lon2, res1.lat2, lon3, lat3, spheroid).distance;
+        geometry::formula::result_direct<CT> res1 = direct_distance_type::apply(lon1, lat1, s14-.04, a1, spheroid);
+        CT p4_minus = inverse_distance_type::apply(res1.lon2, res1.lat2, lon3, lat3, spheroid).distance;
 
         std::cout << "s31=" << s31 << "\ns32=" << s32
                   << "\np4_plus=" << p4_plus << ", p4=(" << res4.lon2 * math::r2d<double>() << "," << res4.lat2 * math::r2d<double>() << ")"

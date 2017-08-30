@@ -65,7 +65,7 @@ template
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-class cross_track_geo
+class geographic_cross_track
 {
 public :
     template <typename Point, typename PointOfSegment>
@@ -92,7 +92,7 @@ public :
         return distance_type(m_spheroid);
     }
 
-    explicit cross_track_geo(Spheroid const& spheroid = Spheroid())
+    explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
 
@@ -104,42 +104,12 @@ public :
 
         typedef typename return_type<Point, PointOfSegment>::type CT;
 
-        typedef typename FormulaPolicy::template inverse
-                <
-                    CT,
-                    false,
-                    true,
-                    false,
-                    false,
-                    false
-                > inverse_type_azimuth;
-
-        typedef typename FormulaPolicy::template inverse
-                <
-                    CT,
-                    true,
-                    true,
-                    false,
-                    true,
-                    true
-                > inverse_type_distance;
-
-        typedef typename FormulaPolicy::template direct
-                <
-                    CT,
-                    true,
-                    false,
-                    false,
-                    false
-                > direct_type;
-
         return (geometry::formula::distance_point_segment
                 <
                     CT,
                     units_type,
-                    inverse_type_azimuth,
-                    inverse_type_distance,
-                    direct_type
+                    FormulaPolicy::template inverse,
+                    FormulaPolicy::template direct
                 >::apply(get<0>(sp1), get<1>(sp1),
                          get<0>(sp2), get<1>(sp2),
                          get<0>(p), get<1>(p),
@@ -159,7 +129,7 @@ namespace services
 
 //tags
 template <typename FormulaPolicy>
-struct tag<cross_track_geo<FormulaPolicy> >
+struct tag<geographic_cross_track<FormulaPolicy> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
@@ -169,7 +139,7 @@ template
         typename FormulaPolicy,
         typename Spheroid
 >
-struct tag<cross_track_geo<FormulaPolicy, Spheroid> >
+struct tag<geographic_cross_track<FormulaPolicy, Spheroid> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
@@ -180,7 +150,7 @@ template
         typename Spheroid,
         typename CalculationType
 >
-struct tag<cross_track_geo<FormulaPolicy, Spheroid, CalculationType> >
+struct tag<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
@@ -188,8 +158,8 @@ struct tag<cross_track_geo<FormulaPolicy, Spheroid, CalculationType> >
 
 //return types
 template <typename FormulaPolicy, typename P, typename PS>
-struct return_type<cross_track_geo<FormulaPolicy>, P, PS>
-    : cross_track_geo<FormulaPolicy>::template return_type<P, PS>
+struct return_type<geographic_cross_track<FormulaPolicy>, P, PS>
+    : geographic_cross_track<FormulaPolicy>::template return_type<P, PS>
 {};
 
 template
@@ -199,8 +169,8 @@ template
         typename P,
         typename PS
 >
-struct return_type<cross_track_geo<FormulaPolicy, Spheroid>, P, PS>
-    : cross_track_geo<FormulaPolicy, Spheroid>::template return_type<P, PS>
+struct return_type<geographic_cross_track<FormulaPolicy, Spheroid>, P, PS>
+    : geographic_cross_track<FormulaPolicy, Spheroid>::template return_type<P, PS>
 {};
 
 template
@@ -211,8 +181,8 @@ template
         typename P,
         typename PS
 >
-struct return_type<cross_track_geo<FormulaPolicy, Spheroid, CalculationType>, P, PS>
-    : cross_track_geo<FormulaPolicy, Spheroid, CalculationType>::template return_type<P, PS>
+struct return_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>, P, PS>
+    : geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>::template return_type<P, PS>
 {};
 
 //comparable types
@@ -222,9 +192,9 @@ template
         typename Spheroid,
         typename CalculationType
 >
-struct comparable_type<cross_track_geo<FormulaPolicy, Spheroid, CalculationType> >
+struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
 {
-    typedef cross_track_geo
+    typedef geographic_cross_track
         <
             FormulaPolicy, Spheroid, CalculationType
         >  type;
@@ -236,15 +206,15 @@ template
         typename Spheroid,
         typename CalculationType
 >
-struct get_comparable<cross_track_geo<FormulaPolicy, Spheroid, CalculationType> >
+struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
 {
     typedef typename comparable_type
         <
-            cross_track_geo<FormulaPolicy, Spheroid, CalculationType>
+            geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
         >::type comparable_type;
 public :
     static inline comparable_type
-    apply(cross_track_geo<FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
     {
         return comparable_type();
     }
@@ -257,17 +227,17 @@ template
     typename P,
     typename PS
 >
-struct result_from_distance<cross_track_geo<FormulaPolicy>, P, PS>
+struct result_from_distance<geographic_cross_track<FormulaPolicy>, P, PS>
 {
 private :
-    typedef typename cross_track_geo
+    typedef typename geographic_cross_track
         <
             FormulaPolicy
         >::template return_type<P, PS>::type return_type;
 public :
     template <typename T>
     static inline return_type
-    apply(cross_track_geo<FormulaPolicy> const& , T const& distance)
+    apply(geographic_cross_track<FormulaPolicy> const& , T const& distance)
     {
         return distance;
     }
@@ -281,7 +251,7 @@ struct default_strategy
         geographic_tag, geographic_tag
     >
 {
-    typedef cross_track_geo<> type;
+    typedef geographic_cross_track<> type;
 };
 
 
