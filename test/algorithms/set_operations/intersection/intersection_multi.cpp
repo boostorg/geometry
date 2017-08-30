@@ -325,6 +325,12 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_67, 5, -1, 2.5);
     TEST_INTERSECTION(case_recursive_boxes_68, 8, -1, 9.5);
     TEST_INTERSECTION(case_recursive_boxes_69, 6, -1, 3.25);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_70, 6, -1, 18.5);
+#else
+    // Misses a necessary self-turn and therefore a ring
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_70, 3, -1, 18.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

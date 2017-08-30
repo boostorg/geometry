@@ -102,7 +102,14 @@ struct discard_self_intersection_turns
                 continue;
             }
 
-            // It is a non co-located ii self-turn
+            if (turn.cluster_id >= 0 && turn.has_colocated_both)
+            {
+                // Don't delete a self-ii-turn colocated with another ii-turn
+                // (for example #case_recursive_boxes_70)
+                continue;
+            }
+
+            // It is a ii self-turn
             // Check if it is within the other geometry
             // If not, it can be ignored
 
