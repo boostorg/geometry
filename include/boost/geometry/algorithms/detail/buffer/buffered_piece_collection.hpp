@@ -46,6 +46,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -1369,12 +1370,14 @@ struct buffered_piece_collection
                 overlay_buffer,
                 backtrack_for_buffer
             > traverser;
+        std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
         traversed_rings.clear();
         buffer_overlay_visitor visitor;
         traverser::apply(offsetted_rings, offsetted_rings,
                         m_intersection_strategy, m_robust_policy,
                         m_turns, traversed_rings,
+                        turn_info_per_ring,
                         m_clusters, visitor);
     }
 
