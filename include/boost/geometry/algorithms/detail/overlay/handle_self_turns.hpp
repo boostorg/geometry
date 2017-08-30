@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/within.hpp>
@@ -24,9 +25,9 @@ namespace detail { namespace overlay
 
 struct discard_turns
 {
-    template <typename Turns, typename Geometry0, typename Geometry1>
+    template <typename Turns, typename Clusters, typename Geometry0, typename Geometry1>
     static inline
-    void apply(Turns& , Geometry0 const& , Geometry1 const& )
+    void apply(Turns& , Clusters const& , Geometry0 const& , Geometry1 const& )
     {}
 };
 
@@ -38,9 +39,9 @@ template <>
 struct discard_closed_turns<overlay_union, operation_union>
 {
 
-    template <typename Turns, typename Geometry0, typename Geometry1>
+    template <typename Turns, typename Clusters, typename Geometry0, typename Geometry1>
     static inline
-    void apply(Turns& turns,
+    void apply(Turns& turns, Clusters const& clusters,
             Geometry0 const& geometry0, Geometry1 const& geometry1)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
@@ -73,9 +74,38 @@ struct discard_closed_turns<overlay_union, operation_union>
 
 struct discard_self_intersection_turns
 {
-    template <typename Turns, typename Geometry0, typename Geometry1>
+private :
+
+    template <typename Turns, typename Clusters>
     static inline
-    void apply(Turns& turns,
+    bool any_blocked(signed_size_type cluster_id,
+            const Turns& turns, Clusters const& clusters)
+    {
+        typename Clusters::const_iterator cit = clusters.find(cluster_id);
+        if (cit == clusters.end())
+        {
+            return false;
+        }
+        cluster_info const& cinfo = cit->second;
+        for (std::set<signed_size_type>::const_iterator it
+             = cinfo.turn_indices.begin();
+             it != cinfo.turn_indices.end(); ++it)
+        {
+            typename boost::range_value<Turns>::type const& turn = turns[*it];
+            if (turn.any_blocked())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+public :
+
+    template <typename Turns, typename Clusters,
+              typename Geometry0, typename Geometry1>
+    static inline
+    void apply(Turns& turns, Clusters const& clusters,
             Geometry0 const& geometry0, Geometry1 const& geometry1)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
@@ -106,7 +136,12 @@ struct discard_self_intersection_turns
             {
                 // Don't delete a self-ii-turn colocated with another ii-turn
                 // (for example #case_recursive_boxes_70)
-                continue;
+                // But for some cases (#case_58_iet) they should be deleted,
+                // there are many self-turns there and also blocked turns there
+                if (! any_blocked(turn.cluster_id, turns, clusters))
+                {
+                    continue;
+                }
             }
 
             // It is a ii self-turn

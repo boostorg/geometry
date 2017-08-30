@@ -369,12 +369,12 @@ inline void enrich_intersection_points(Turns& turns,
         <
             OverlayType,
             target_operation
-        >::apply(turns, geometry1, geometry2);
+        >::apply(turns, clusters, geometry1, geometry2);
     detail::overlay::discard_open_turns
         <
             OverlayType,
             target_operation
-        >::apply(turns, geometry1, geometry2);
+        >::apply(turns, clusters, geometry1, geometry2);
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
