@@ -49,12 +49,14 @@ template
     typename Turns,
     typename Clusters,
     typename Geometry1,
-    typename Geometry2
+    typename Geometry2,
+    typename SideStrategy
 >
 std::vector<std::size_t> test_gather_cluster_properties(std::string const& case_id,
         Clusters& clusters, Turns& turns,
         bg::detail::overlay::operation_type for_operation,
-        Geometry1 const& geometry1, Geometry2 const& geometry2)
+        Geometry1 const& geometry1, Geometry2 const& geometry2,
+        SideStrategy const& strategy)
 {
     using namespace boost::geometry;
     using namespace boost::geometry::detail::overlay;
@@ -69,7 +71,7 @@ std::vector<std::size_t> test_gather_cluster_properties(std::string const& case_
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, OverlayType, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();
@@ -82,7 +84,7 @@ std::vector<std::size_t> test_gather_cluster_properties(std::string const& case_
             return result;
         }
 
-        sbs_type sbs;
+        sbs_type sbs(strategy);
         point_type turn_point; // should be all the same for all turns in cluster
 
         bool first = true;
@@ -165,7 +167,7 @@ std::vector<std::size_t> apply_overlay(std::string const& case_id,
     // Gather cluster properties, with test option
     return test_gather_cluster_properties<Reverse1, Reverse2, OverlayType>(case_id,
             clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
-                geometry1, geometry2);
+                geometry1, geometry2, strategy.get_side_strategy());
 }
 
 

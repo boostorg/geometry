@@ -494,7 +494,7 @@ struct buffered_piece_collection
         for (typename occupation_map_type::iterator it = occupation_map.begin();
             it != occupation_map.end(); ++it)
         {
-            it->second.get_left_turns(it->first, m_turns);
+            it->second.get_left_turns(it->first, m_turns, m_side_strategy);
         }
     }
 

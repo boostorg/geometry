@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -59,7 +64,7 @@ template
     typename Turns,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,
-    typename Strategy
+    typename SideStrategy
 >
 inline void enrich_sort(Operations& operations,
             Turns const& turns,
@@ -67,7 +72,7 @@ inline void enrich_sort(Operations& operations,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
-            Strategy const& /*strategy*/)
+            SideStrategy const& strategy)
 {
     std::sort(boost::begin(operations),
             boost::end(operations),
@@ -77,8 +82,9 @@ inline void enrich_sort(Operations& operations,
                     typename boost::range_value<Operations>::type,
                     Geometry1, Geometry2,
                     RobustPolicy,
+                    SideStrategy,
                     Reverse1, Reverse2
-                >(turns, for_operation, geometry1, geometry2, robust_policy));
+                >(turns, for_operation, geometry1, geometry2, robust_policy, strategy));
 }
 
 
@@ -275,7 +281,7 @@ inline void calculate_remaining_distance(Turns& turns)
 \tparam Clusters type of cluster container
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Strategy side strategy type
+\tparam SideStrategy side strategy type
 \param turns container containing intersection points
 \param clusters container containing clusters
 \param geometry1 \param_geometry
@@ -291,13 +297,13 @@ template
     typename Clusters,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,
-    typename Strategy
+    typename SideStrategy
 >
 inline void enrich_intersection_points(Turns& turns,
     Clusters& clusters,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
     RobustPolicy const& robust_policy,
-    Strategy const& strategy)
+    SideStrategy const& strategy)
 {
     static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
@@ -420,7 +426,8 @@ inline void enrich_intersection_points(Turns& turns,
                 Reverse1,
                 Reverse2,
                 OverlayType
-            >(clusters, turns, target_operation, geometry1, geometry2);
+            >(clusters, turns, target_operation,
+              geometry1, geometry2, strategy);
 
         detail::overlay::cleanup_clusters(turns, clusters);
     }
