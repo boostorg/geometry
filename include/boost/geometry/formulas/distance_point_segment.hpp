@@ -25,8 +25,6 @@
       https://arxiv.org/abs/1102.1215
 */
 
-#define BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
-
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -42,7 +40,7 @@ class distance_point_segment{
 
 public:
 
-    typedef Inverse<CT, true, false, false, false, false> inverse_distance_type;
+    typedef Inverse<CT, true, false, false, true, true> inverse_distance_type;
     typedef Inverse<CT, false, true, false, false, false> inverse_azimuth_type;
     typedef Direct<CT, true, false, false, false> direct_distance_type;
 
@@ -266,6 +264,9 @@ public:
             std::cout << "delta_g4=" << delta_g4  << std::endl;
             std::cout << "g4=" << g4 * math::r2d<CT>() << std::endl;
             std::cout << "der=" << der  << std::endl;
+            std::cout << "M43=" << M43 << std::endl;
+            std::cout << "spherical limit=" << cos(s14/earth_radius) << std::endl;
+            std::cout << "m34=" << m34 << std::endl;
             std::cout << "new_s14=" << s14 << std::endl;
             std::cout << std::setprecision(16) << "dist     =" << res34.distance << std::endl;
             std::cout << "---------end of step " << counter << std::endl<< std::endl;
