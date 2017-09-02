@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_ANDOYER_HPP
-#define BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_ANDOYER_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_ANDOYER_SECOND_HPP
+#define BOOST_GEOMETRY_FORMULAS_COMPARE_LENGTH_ANDOYER_SECOND_HPP
 
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -31,7 +31,7 @@ template
 <
     typename CT
 >
-class compare_length_andoyer 
+class compare_length_andoyer_second
 {
     
 public:
@@ -58,8 +58,8 @@ public:
         CT const lon4 = bg::get_as_radian<0>(p4);
         CT const lat4 = bg::get_as_radian<1>(p4);
     
-        CT const distance_result1 = andoyer_distance(lon1, lat1, lon2, lat2, spheriod);
-        CT const distance_result2 = andoyer_distance(lon3, lat3, lon4, lat4, spheriod);
+        CT const distance_result1 = andoyer_distance_second(lon1, lat1, lon2, lat2, spheriod);
+        CT const distance_result2 = andoyer_distance_second(lon3, lat3, lon4, lat4, spheriod);
 
         CT const sub = distance_result1 - distance_result2;
     
@@ -80,64 +80,48 @@ public:
 
 private:
     template<typename Geometry>
-    static inline CT andoyer_distance(CT const& lo1,
-                                      CT const& la1,
-                                      CT const& lo2,
-                                      CT const& la2,
-                                      Geometry const& spher)
+    static inline CT andoyer_distance_second(CT const& lo1,
+                                             CT const& la1,
+                                             CT const& lo2,
+                                             CT const& la2,
+                                             Geometry const& spher)
     {
         CT const c0 = CT(0);
-        
+        CT const c1 = CT(1);
+        CT const c2 = CT(2);
+        CT const c3 = CT(3);
         if ( math::equals(lo1, lo2) && math::equals(la1, la2) )
         {
             return c0;
         }
 
-        CT const c1 = CT(1);
+        CT const a = get_radius<0>(spher);
         CT const pi = math::pi<CT>();
         CT const f = formula::flattening<CT, Geometry>(spher);
 
-        CT const dlon = lo2 - lo1;
-        CT const sin_dlon = sin(dlon);
-        CT const cos_dlon = cos(dlon);
-        CT const sin_lat1 = sin(la1);
-        CT const cos_lat1 = cos(la1);
-        CT const sin_lat2 = sin(la2);
-        CT const cos_lat2 = cos(la2);
+        CT const F = (la1 + la2) / c2;
+        CT const G = (la1 - la2) / c2;
+        CT const L = (lo1 - lo2) / c2;
 
-        // H,G,T = infinity if cos_d = 1 or cos_d = -1
-        // lat1 == +-90 && lat2 == +-90
-        // lat1 == lat2 && lon1 == lon2
-        CT cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
-        // on some platforms cos_d may be outside valid range
-        if (cos_d < -c1)
-            cos_d = -c1;
-        else if (cos_d > c1)
-            cos_d = c1;
+        CT const sin_g = sin(G);
+        CT const sin_l = sin(L);
+        CT const sin_f = sin(F);
+        CT const cos_g = cos(G);
+        CT const cos_l = cos(L);
+        CT const cos_f = cos(F);
 
-        CT const d = acos(cos_d); // [0, pi]
-        CT const sin_d = sin(d);  // [-1, 1]
+        CT const S = math::sqr(sin_g) * math::sqr(cos_l) 
+                   + math::sqr(cos_f) * math::sqr(sin_l);
+        CT const C = math::sqr(cos_g) * math::sqr(cos_l) 
+                   + math::sqr(sin_f) * math::sqr(sin_l);
+        CT const W = atan(math::sqrt(S / C));
+        CT const R = sqrt(S * C) / W;
+        CT const D = c2 * W * a;
+        CT const H_1 = (c3 * R - c1) / (c2 * C);
+        CT const H_2 = (c3 * R + c1) / (c2 * S);
 
-        CT const K = math::sqr(sin_lat1-sin_lat2);
-        CT const L = math::sqr(sin_lat1+sin_lat2);
-        CT const three_sin_d = CT(3) * sin_d;
-
-        CT const one_minus_cos_d = c1 - cos_d;
-        CT const one_plus_cos_d = c1 + cos_d;
-        // cos_d = 1 or cos_d = -1 means that the points are antipodal
-
-        CT const H = math::equals(one_minus_cos_d, c0) ?
-                        c0 :
-                        (d + three_sin_d) / one_minus_cos_d;
-        CT const G = math::equals(one_plus_cos_d, c0) ?
-                        c0 :
-                        (d - three_sin_d) / one_plus_cos_d;
-
-        CT const dd = -(f/CT(4))*(H*K+G*L);
-
-        CT const a = get_radius<0>(spher);
-
-        return a * (d + dd);
+        return D * (c1 + f * H_1 * math::sqr(sin_f) * math::sqr(cos_g) 
+                    - f * H_2 * math::sqr(cos_f) * math::sqr(sin_g));
     }
 };
 

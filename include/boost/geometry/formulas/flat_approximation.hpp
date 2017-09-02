@@ -1,8 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2017 Oracle and/or its affiliates.
-
-// Contributed and/or modified by Ruoyun Jing, on behalf of Oracle
+// Copyright (c) 2017, Ruoyun Jing, Northwest University, China.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
