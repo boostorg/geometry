@@ -13,7 +13,8 @@
 
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-#include <boost/geometry/algorithms/detail/relate/less.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -214,7 +215,7 @@ private:
 
         if (! m_endpoints.empty() )
         {
-            std::sort(m_endpoints.begin(), m_endpoints.end(), relate::less());
+            std::sort(m_endpoints.begin(), m_endpoints.end(), geometry::less<>());
             m_has_boundary = find_odd_count(m_endpoints.begin(), m_endpoints.end());
         }
 
@@ -224,7 +225,7 @@ private:
     template <typename It, typename Point>
     static inline std::size_t count_equal(It first, It last, Point const& point)
     {
-        std::pair<It, It> rng = std::equal_range(first, last, point, relate::less());
+        std::pair<It, It> rng = std::equal_range(first, last, point, geometry::less<>());
         return (std::size_t)std::distance(rng.first, rng.second);
     }
 

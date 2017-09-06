@@ -229,8 +229,11 @@ void test_point_polygon()
                            "POLYGON((30 0,30 30,90 30, 90 0, 30 0))",
                            false);
     // extended
-    test_geometry<P, poly>("POINT(0 -90)",
-                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+    test_geometry<P, poly>("POINT(0 90)",
+                           "POLYGON((0 80, 0 81, -90 80, -180 80, 90 80, 0 80))",
+                           true);
+    test_geometry<P, poly>("POINT(0 90)",
+                           "POLYGON((0 80, -90 80, -90 81, -180 80, 90 80, 0 80))",
                            true);
     test_geometry<P, poly>("POINT(0 89)",
                            "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
@@ -238,6 +241,50 @@ void test_point_polygon()
     test_geometry<P, poly>("POINT(-180 89)",
                            "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
                            true);
+    test_geometry<P, poly>("POINT(0 -90)",
+                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+                           true);
+    test_geometry<P, poly>("POINT(0 -89)",
+                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+                           true);
+    test_geometry<P, poly>("POINT(1 -90)",
+                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+                           true);
+    test_geometry<P, poly>("POINT(1 -89)",
+                           "POLYGON((0 -80,90 -80, -180 -80, -90 -80, 0 -80))",
+                           true);
+    test_geometry<P, poly>("POINT(1 90)",
+                           "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
+                           true);
+    test_geometry<P, poly>("POINT(1 90)",
+                           "POLYGON((0 80,-90 80, -180 80, 90 80, 0 80))",
+                           true);
+
+
+
+    // MySQL report 08.2017
+    test_geometry<P, poly>("POINT(-179 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           false);
+    // extended
+    test_geometry<P, poly>("POINT(179 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           false);
+    test_geometry<P, poly>("POINT(180 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           false);
+    test_geometry<P, poly>("POINT(-179 0)",
+                           "POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 10))",
+                           false);
+    test_geometry<P, poly>("POINT(179 0)",
+                           "POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 10))",
+                           false);
+    test_geometry<P, poly>("POINT(-179 0)",
+                           "POLYGON((0 0, 0 1, 1 0, 0 -1, 0 0))",
+                           false);
+    test_geometry<P, poly>("POINT(179 0)",
+                           "POLYGON((0 0, 0 1, 1 0, 0 -1, 0 0))",
+                           false);
 }
 
 
