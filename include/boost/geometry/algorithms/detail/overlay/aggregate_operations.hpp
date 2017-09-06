@@ -25,7 +25,7 @@ struct ring_with_direction
     ring_identifier ring_id;
     direction_type direction;
 
-    std::size_t turn_index;
+    signed_size_type turn_index;
     int operation_index;
     operation_type operation;
     signed_size_type region_id;
