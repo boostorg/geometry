@@ -514,7 +514,7 @@ struct traversal
                         {
                             for (int i = 0; i < 2; i++)
                             {
-                                int const region_id = turn.operations[i].enriched.region_id;
+                                signed_size_type const region_id = turn.operations[i].enriched.region_id;
                                 if (outgoing_region_ids.count(region_id) == 1)
                                 {
                                     selected_rank = 0;

@@ -132,7 +132,7 @@ struct rank_with_rings
 
     inline bool has_unique_region_id() const
     {
-        int region_id = -1;
+        signed_size_type region_id = -1;
         for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
@@ -149,9 +149,9 @@ struct rank_with_rings
         return true;
     }
 
-    inline int region_id() const
+    inline signed_size_type region_id() const
     {
-        int region_id = -1;
+        signed_size_type region_id = -1;
         for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {

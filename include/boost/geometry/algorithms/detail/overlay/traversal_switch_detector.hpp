@@ -352,7 +352,7 @@ struct traversal_switch_detector
 
 
     void create_region(signed_size_type& new_region_id, ring_identifier const& ring_id,
-                merged_ring_properties& properties, int region_id = -1)
+                merged_ring_properties& properties, signed_size_type region_id = -1)
     {
         if (properties.region_id > 0)
         {
@@ -400,7 +400,7 @@ struct traversal_switch_detector
     }
 
     void propagate_region(signed_size_type& new_region_id,
-            ring_identifier const& ring_id, int region_id)
+            ring_identifier const& ring_id, signed_size_type region_id)
     {
         typename merge_map::iterator it = m_turns_per_ring.find(ring_id);
         if (it != m_turns_per_ring.end())

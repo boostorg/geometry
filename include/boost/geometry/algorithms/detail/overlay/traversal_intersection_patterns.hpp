@@ -32,8 +32,8 @@ inline bool check_pairs(std::vector<sort_by_side::rank_with_rings> const& aggreg
     {
         sort_by_side::rank_with_rings const& curr = aggregation[i];
         sort_by_side::rank_with_rings const& next = aggregation[i + 1];
-        int const curr_id = curr.region_id();
-        int const next_id = next.region_id();
+        signed_size_type const curr_id = curr.region_id();
+        signed_size_type const next_id = next.region_id();
 
         bool const possible =
                 curr.rings.size() == 2
@@ -335,7 +335,7 @@ inline bool intersection_pattern_common_interior5(std::size_t& selected_rank,
         return false;
     }
 
-    const int incoming_region_id = incoming.region_id();
+    signed_size_type const incoming_region_id = incoming.region_id();
 
     bool const outgoing_ok =
         outgoing.all_to()
@@ -359,7 +359,7 @@ inline bool intersection_pattern_common_interior5(std::size_t& selected_rank,
         {
             return false;
         }
-        const int region_id = rwr.region_id();
+        signed_size_type const region_id = rwr.region_id();
         if (other_region && region_id != incoming_region_id)
         {
             // OK
