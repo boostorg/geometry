@@ -5,11 +5,12 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -77,48 +78,57 @@ namespace dispatch
 template
 <
     typename Box, typename Segment,
-    typename StrategyLess, typename StrategyGreater,
     typename CSTagOut, typename CSTag
 >
 struct expand
     <
         Box, Segment,
-        StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         CSTagOut, CSTag
-    > : detail::expand::expand_indexed
-        <
-            0, dimension<Segment>::value, StrategyLess, StrategyGreater
-        >
+    >
 {
-    BOOST_MPL_ASSERT_MSG((boost::is_same<CSTagOut, CSTag>::value),
-                         COORDINATE_SYSTEMS_MUST_BE_THE_SAME,
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THESE_COORDINATE_SYSTEMS,
                          (types<CSTagOut, CSTag>()));
 };
 
 template
 <
-    typename Box, typename Segment,
-    typename StrategyLess, typename StrategyGreater
+    typename Box, typename Segment
 >
 struct expand
     <
         Box, Segment,
-        StrategyLess, StrategyGreater,
+        box_tag, segment_tag,
+        cartesian_tag, cartesian_tag
+    > : detail::expand::expand_indexed
+        <
+            0, dimension<Segment>::value
+        >
+{};
+
+template <typename Box, typename Segment>
+struct expand
+    <
+        Box, Segment,
+        box_tag, segment_tag,
+        spherical_polar_tag, spherical_polar_tag
+    > : detail::expand::segment
+{};
+
+template <typename Box, typename Segment>
+struct expand
+    <
+        Box, Segment,
         box_tag, segment_tag,
         spherical_equatorial_tag, spherical_equatorial_tag
     > : detail::expand::segment
 {};
 
-template
-<
-    typename Box, typename Segment,
-    typename StrategyLess, typename StrategyGreater
->
+template <typename Box, typename Segment>
 struct expand
     <
         Box, Segment,
-        StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         geographic_tag, geographic_tag
     > : detail::expand::segment

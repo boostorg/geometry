@@ -32,7 +32,7 @@ struct point_in_point
 {
     static inline bool apply(Point1 const& point1, Point2 const& point2)
     {
-        return detail::equals::equals_point_point(point1, point2);
+        return geometry::detail::equals::equals_point_point(point1, point2);
     }
 };
 

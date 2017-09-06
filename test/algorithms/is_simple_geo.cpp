@@ -29,6 +29,19 @@ typedef bg::model::multi_polygon<open_ccw_polygon_type> multi_polygon_type;
 typedef bg::model::box<point_type>                      box_type;
 
 
+BOOST_AUTO_TEST_CASE( test_is_simple_geo_multipoint )
+{
+    typedef multi_point_type G;
+
+    bg::strategy::intersection::geographic_segments<> s;
+
+    test_simple_s(from_wkt<G>("MULTIPOINT(0 90, 0 90)"), s, false);
+    test_simple_s(from_wkt<G>("MULTIPOINT(0 90, 1 90)"), s, false);
+    test_simple_s(from_wkt<G>("MULTIPOINT(0 -90, 0 -90)"), s, false);
+    test_simple_s(from_wkt<G>("MULTIPOINT(0 -90, 1 -90)"), s, false);
+    test_simple_s(from_wkt<G>("MULTIPOINT(0 80, 1 80)"), s, true);
+}
+
 BOOST_AUTO_TEST_CASE( test_is_simple_geo_linestring )
 {
     typedef linestring_type G;
@@ -39,6 +52,18 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_linestring )
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 0, 90 0)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 50, 90 0)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 -50, 90 0)"), s, true);
+
+    // invalid linestrings
+    test_simple_s(from_wkt<G>("LINESTRING(0 90, 0 90)"), s, false, false);
+    test_simple_s(from_wkt<G>("LINESTRING(0 -90, 0 -90)"), s, false, false);
+    test_simple_s(from_wkt<G>("LINESTRING(0 90, 1 90)"), s, false, false);
+    test_simple_s(from_wkt<G>("LINESTRING(0 -90, 1 -90)"), s, false, false);
+
+    // FAILING
+    //test_simple_s(from_wkt<G>("LINESTRING(0 90, 0 80, 1 80, 0 90)"), s, false);
+    //test_simple_s(from_wkt<G>("LINESTRING(0 -90, 0 -80, 1 -80, 0 -90)"), s, false);
+    //test_simple_s(from_wkt<G>("LINESTRING(0 90, 0 80, 1 80, 1 90)"), s, false);
+    //test_simple_s(from_wkt<G>("LINESTRING(0 -90, 0 -80, 1 -80, 1 -90)"), s, false);
 
     test_simple_s(from_wkt<G>("LINESTRING(35 0, 110 36, 159 0, 82 30)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(135 0, -150 36, -101 0, -178 30)"), s, false);
@@ -51,6 +76,10 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_multilinestring )
     typedef multi_linestring_type G;
 
     bg::strategy::intersection::geographic_segments<> s;
+
+    // FAILING
+    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 90, 0 80),(1 90, 1 80))"), s, false);
+    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 -90, 0 -80),(1 -90, 1 -80))"), s, false);
 
     test_simple_s(from_wkt<G>("MULTILINESTRING((35 0, 110 36),(159 0, 82 30))"), s, false);
     test_simple_s(from_wkt<G>("MULTILINESTRING((135 0, -150 36),(-101 0, -178 30))"), s, false);

@@ -121,7 +121,7 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         template <typename Point>
         bool apply(Point const& boundary_point)
         {
-            if (! std::binary_search(m_points.begin(), m_points.end(), boundary_point, relate::less()))
+            if (! std::binary_search(m_points.begin(), m_points.end(), boundary_point, geometry::less<>()))
             {
                 m_boundary_found = true;
                 return false;
@@ -143,7 +143,7 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         typedef typename boost::range_value<MultiPoint>::type point_type;
         typedef std::vector<point_type> points_type;
         points_type points(boost::begin(multi_point), boost::end(multi_point));
-        std::sort(points.begin(), points.end(), relate::less());
+        std::sort(points.begin(), points.end(), geometry::less<>());
 
         boundary_visitor<points_type> visitor(points);
         tc.for_each_boundary_point(visitor);
