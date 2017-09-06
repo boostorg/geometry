@@ -59,8 +59,8 @@ struct indexed_loop
 
         coordinate_type const coord = get<Index, Dimension>(source);
 
-        std::less<coordinate_type> const less;
-        std::greater<coordinate_type> const greater;
+        std::less<coordinate_type> less;
+        std::greater<coordinate_type> greater;
         
         if (less(coord, get<min_corner, Dimension>(box)))
         {
