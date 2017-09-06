@@ -345,7 +345,7 @@ struct traversal_switch_detector
     }
 
 
-    inline int get_region_id(turn_operation_type const& op) const
+    inline signed_size_type get_region_id(turn_operation_type const& op) const
     {
         return op.enriched.region_id;
     }
@@ -464,7 +464,7 @@ struct traversal_switch_detector
             }
 
             // A touching cluster, gather regions
-            std::set<int> regions;
+            std::set<signed_size_type> regions;
 
             std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
@@ -478,8 +478,8 @@ struct traversal_switch_detector
                 turn_type const& turn = m_turns[turn_index];
                 for (int oi = 0; oi < 2; oi++)
                 {
-                    int const region = get_region_id(turn.operations[oi]);
-                    regions.insert(region);
+                    signed_size_type const region_id = get_region_id(turn.operations[oi]);
+                    regions.insert(region_id);
                 }
             }
             // Switch source if this cluster connects the same region
@@ -509,8 +509,8 @@ struct traversal_switch_detector
                 continue;
             }
 
-            int const region0 = get_region_id(turn.operations[0]);
-            int const region1 = get_region_id(turn.operations[1]);
+            signed_size_type const region0 = get_region_id(turn.operations[0]);
+            signed_size_type const region1 = get_region_id(turn.operations[1]);
 
             // Switch sources for same region
             turn.switch_source = region0 == region1;

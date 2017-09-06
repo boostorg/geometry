@@ -463,8 +463,8 @@ struct traversal
 
         if (! detected)
         {
-            int incoming_region_id = 0;
-            std::set<int> outgoing_region_ids;
+            signed_size_type incoming_region_id = 0;
+            std::set<signed_size_type> outgoing_region_ids;
 
             for (std::size_t i = 0; i < aggregation.size(); i++)
             {
