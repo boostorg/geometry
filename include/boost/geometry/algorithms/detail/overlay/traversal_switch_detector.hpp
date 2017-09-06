@@ -120,7 +120,7 @@ struct traversal_switch_detector
         }
 
         bool all_colocated = true;
-        int unique_cluster_id = -1;
+        signed_size_type unique_cluster_id = -1;
         for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
              all_colocated && it != properties.connected_region_counts.end(); ++it)
         {
@@ -130,7 +130,7 @@ struct traversal_switch_detector
                 // Either no cluster (non colocated point), or more clusters
                 all_colocated = false;
             }
-            int const cluster_id = *cprop.cluster_indices.begin();
+            signed_size_type const cluster_id = *cprop.cluster_indices.begin();
             if (cluster_id == -1)
             {
                 all_colocated = false;
