@@ -396,6 +396,13 @@ void test_areal()
             2, -1, 131.21376870369406,
             sym_settings);
     }
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 1, 4.30697514e-7, 3, 152.0642, 4);
+#else
+    // Misses one turn which is actually weird because there are no self-turns involved
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 0, 0, 3, 152.0642, 3);
+#endif
 }
 
 
