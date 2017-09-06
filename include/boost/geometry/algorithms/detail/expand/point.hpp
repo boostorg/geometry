@@ -63,8 +63,8 @@ struct point_loop
                 Point, Box
             >::type coordinate_type;
 
-        std::less<coordinate_type> const less;
-        std::greater<coordinate_type> const greater;
+        std::less<coordinate_type> less;
+        std::greater<coordinate_type> greater;
 
         coordinate_type const coord = get<Dimension>(source);
 
