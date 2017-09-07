@@ -208,6 +208,8 @@ struct intersection_of_linestring_with_areal
     }
 #endif
 
+#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
+
     class is_crossing_turn
     {
         // return true is the operation is intersection or blocked
@@ -310,6 +312,91 @@ struct intersection_of_linestring_with_areal
         return 0;
     }
 
+#else // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
+
+    template <typename Linestring, typename Areal, typename Strategy, typename Turns>
+    static inline bool simple_turns_analysis(Linestring const& linestring,
+                                             Areal const& areal,
+                                             Strategy const& strategy,
+                                             Turns const& turns,
+                                             int & inside_value)
+    {
+        using namespace overlay;
+
+        bool found_continue = false;
+        bool found_intersection = false;
+        bool found_union = false;
+        bool found_front = false;
+
+        for (typename Turns::const_iterator it = turns.begin();
+                it != turns.end(); ++it)
+        {
+            method_type const method = it->method;
+            operation_type const op = it->operations[0].operation;
+
+            if (method == method_crosses)
+            {
+                return false;
+            }
+            else if (op == operation_intersection)
+            {
+                found_intersection = true;
+            }
+            else if (op == operation_union)
+            {
+                found_union = true;
+            }
+            else if (op == operation_continue)
+            {
+                found_continue = true;
+            }
+
+            if ((found_intersection || found_continue) && found_union)
+            {
+                return false;
+            }
+
+            if (it->operations[0].position == position_front)
+            {
+                found_front = true;
+            }
+        }
+
+        if (found_front)
+        {
+            if (found_intersection)
+            {
+                inside_value = 1; // inside
+            }
+            else if (found_union)
+            {
+                inside_value = -1; // outside
+            }
+            else // continue and blocked
+            {
+                inside_value = 0;
+            }
+            return true;
+        }
+
+        // if needed analyse points of a linestring
+        // NOTE: range_in_geometry checks points of a linestring
+        // until a point inside/outside areal is found
+        // TODO: Could be replaced with point_in_geometry() because found_front is false
+        inside_value = range_in_geometry(linestring, areal, strategy);
+
+        if ( (found_intersection && inside_value == -1) // going in from outside
+          || (found_continue && inside_value == -1) // going on boundary from outside
+          || (found_union && inside_value == 1) ) // going out from inside
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+#endif // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
+
     template
     <
         typename LineString, typename Areal,
@@ -336,14 +423,30 @@ struct intersection_of_linestring_with_areal
                 > follower;
 
         typedef typename point_type<LineStringOut>::type point_type;
+#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
         typedef detail::overlay::traversal_turn_info
-        <
-            point_type,
-            typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
-        > turn_info;
+            <
+                point_type,
+                typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+            > turn_info;
+#else
+        typedef detail::overlay::turn_info
+            <
+                point_type,
+                typename geometry::segment_ratio_type<point_type, RobustPolicy>::type,
+                detail::overlay::turn_operation_linear
+                    <
+                        point_type,
+                        typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+                    >
+            > turn_info;
+#endif
         std::deque<turn_info> turns;
 
         detail::get_turns::no_interrupt_policy policy;
+
+#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
+
         geometry::get_turns
             <
                 false,
@@ -366,7 +469,7 @@ struct intersection_of_linestring_with_areal
                 // until a point inside/outside areal is found
                 inside_value = overlay::range_in_geometry(linestring, areal, strategy);
             }
-            // add point to the output if conditions are met
+            // add linestring to the output if conditions are met
             if (inside_value != 0 && follower::included(inside_value))
             {
                 LineStringOut copy;
@@ -375,6 +478,46 @@ struct intersection_of_linestring_with_areal
             }
             return out;
         }
+
+#else // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
+        
+        typedef detail::overlay::get_turn_info_linear_areal
+            <
+                detail::overlay::assign_null_policy
+            > turn_policy;
+
+        dispatch::get_turns
+            <
+                typename geometry::tag<LineString>::type,
+                typename geometry::tag<Areal>::type,
+                LineString,
+                Areal,
+                false,
+                (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
+                turn_policy
+            >::apply(0, linestring, 1, areal,
+                     strategy, robust_policy,
+                     turns, policy);
+
+        int inside_value = 0;
+        if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value))
+        {
+            // No intersection points, it is either
+            // inside (interior + borders)
+            // or outside (exterior + borders)
+
+            // add linestring to the output if conditions are met
+            if (inside_value != 0 && follower::included(inside_value))
+            {
+                LineStringOut copy;
+                geometry::convert(linestring, copy);
+                *out++ = copy;
+            }
+
+            return out;
+        }
+        
+#endif // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
         int index = 0;
