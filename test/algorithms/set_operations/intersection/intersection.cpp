@@ -616,6 +616,13 @@ void test_areal_linear()
         "POLYGON((25 0,0 15,30 15,22 10,25 0))",
         "LINESTRING(25 0, 0 15,20 15)",
         1, 3, 49.15475947422650 /*sqrt(25^2+15^2)+20*/);
+
+    typedef typename bg::point_type<Polygon>::type P;
+
+    test_one_lp<P, Polygon, LineString>("case30p",
+        "POLYGON((25 0,0 15,30 15,22 10,25 0))",
+        "LINESTRING(10 15,20 15)",
+        2, 2, 0);
 }
 
 
