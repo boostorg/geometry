@@ -502,12 +502,13 @@ struct intersection_of_linestring_with_areal
         int inside_value = 0;
         if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value))
         {
-            // No intersection points, it is either
+            // No crossing the boundary, it is either
             // inside (interior + borders)
             // or outside (exterior + borders)
+            // or on boundary
 
             // add linestring to the output if conditions are met
-            if (inside_value != 0 && follower::included(inside_value))
+            if (follower::included(inside_value))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
