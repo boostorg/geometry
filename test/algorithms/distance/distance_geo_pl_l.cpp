@@ -301,12 +301,318 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
 }
 
 //===========================================================================
+
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_point_linestring(Strategy_pp const& strategy_pp,
+                                    Strategy_ps const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/linestring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, linestring_type> tester;
+
+    tester::apply("p-l-01",
+                  "POINT(0 0)",
+                  "LINESTRING(2 0,2 0)",
+                  pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-l-02",
+                  "POINT(0 0)",
+                  "LINESTRING(2 0,3 0)",
+                  pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-l-03",
+                  "POINT(2.5 3)",
+                  "LINESTRING(2 0,3 0)",
+                  pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-l-04",
+                  "POINT(2 0)",
+                  "LINESTRING(2 0,3 0)",
+                  0,
+                  strategy_ps);
+    tester::apply("p-l-05",
+                  "POINT(3 0)",
+                  "LINESTRING(2 0,3 0)",
+                  0,
+                  strategy_ps);
+    tester::apply("p-l-06",
+                  "POINT(2.5 0)",
+                  "LINESTRING(2 0,3 0)",
+                  0,
+                  strategy_ps);
+    tester::apply("p-l-07",
+                  "POINT(7.5 10)",
+                  "LINESTRING(1 0,2 0,3 0,4 0,5 0,6 0,7 0,8 0,9 0)",
+                  ps_distance("POINT(7.5 10)", "SEGMENT(7 0,8 0)", strategy_ps),
+                  strategy_ps);
+    tester::apply("p-l-08",
+                  "POINT(7.5 10)",
+                  "LINESTRING(1 1,2 1,3 1,4 1,5 1,6 1,7 1,20 2,21 2)",
+                  ps_distance("POINT(7.5 10)", "SEGMENT(7 1,20 2)", strategy_ps),
+                  strategy_ps);
+}
+
+void test_distance_point_linestring_strategies()
+{
+    typedef test_distance_of_geometries<point_type, linestring_type> tester;
+
+    tester::apply("p-l-03",
+                  "POINT(2.5 3)",
+                  "LINESTRING(2 1,3 1)",
+                  221147.24332788656,
+                  vincenty_strategy());
+
+    tester::apply("p-l-03",
+                  "POINT(2.5 3)",
+                  "LINESTRING(2 1,3 1)",
+                  221147.36682199029,
+                  thomas_strategy());
+
+    tester::apply("p-l-03",
+                  "POINT(2.5 3)",
+                  "LINESTRING(2 1,3 1)",
+                  221144.76527049288,
+                  andoyer_strategy());
+}
+
+//===========================================================================
+
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_point_multilinestring(Strategy_pp const& strategy_pp,
+                                         Strategy_ps const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/multilinestring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            point_type, multi_linestring_type
+        > tester;
+
+    tester::apply("p-ml-01",
+                  "POINT(0 0)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
+                  pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-ml-02",
+                  "POINT(2.5 3)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
+                  pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-ml-03",
+                  "POINT(2 0)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
+                  0,
+                  strategy_ps);
+    tester::apply("p-ml-04",
+                  "POINT(3 0)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
+                  0,
+                  strategy_ps);
+    tester::apply("p-ml-05",
+                  "POINT(2.5 0)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
+                  0,
+                  strategy_ps);
+    tester::apply("p-ml-06",
+                  "POINT(7.5 10)",
+                  "MULTILINESTRING((-5 0,-3 0),(2 0,3 0,4 0,5 0,6 0,20 1,21 1))",
+                  ps_distance("POINT(7.5 10)", "SEGMENT(6 0,20 1)", strategy_ps),
+                  strategy_ps);
+    tester::apply("p-ml-07",
+                  "POINT(-8 10)",
+                  "MULTILINESTRING((-20 10,-19 11,-18 10,-6 0,-5 0,-3 0),(2 0,6 0,20 1,21 1))",
+                  ps_distance("POINT(-8 10)", "SEGMENT(-6 0,-18 10)", strategy_ps),
+                  strategy_ps);
+}
+
+//===========================================================================
+
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_linestring_multipoint(Strategy_pp const& strategy_pp,
+                                         Strategy_ps const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/multipoint distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            linestring_type, multi_point_type
+        > tester;
+
+    tester::apply("l-mp-01",
+                  "LINESTRING(2 0,0 2,100 80)",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
+                  strategy_ps);
+
+    tester::apply("l-mp-02",
+                  "LINESTRING(4 0,0 4,100 80)",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  ps_distance("POINT(1 1)", "SEGMENT(0 4,4 0)", strategy_ps),
+                  strategy_ps);
+    tester::apply("l-mp-03",
+                  "LINESTRING(1 1,2 2,100 80)",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  0,
+                  strategy_ps);
+    tester::apply("l-mp-04",
+                  "LINESTRING(3 3,4 4,100 80)",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
+                  strategy_ps);
+    tester::apply("l-mp-05",
+                  "LINESTRING(0 0,10 0,10 10,0 10,0 0)",
+                  "MULTIPOINT(1 -1,80 80,5 0,150 90)",
+                  0,
+                  strategy_ps);
+}
+
+//===========================================================================
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_multipoint_multilinestring(Strategy_pp const& strategy_pp,
+                                              Strategy_ps const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multipoint/multilinestring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            multi_point_type, multi_linestring_type
+        > tester;
+
+    tester::apply("mp-ml-01",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "MULTILINESTRING((2 0,0 2),(2 2,3 3))",
+                  ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
+                  strategy_ps);
+    tester::apply("mp-ml-02",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "MULTILINESTRING((3 0,0 3),(4 4,5 5))",
+                  ps_distance("POINT(1 1)", "SEGMENT(3 0,0 3)", strategy_ps),
+                  strategy_ps);
+    tester::apply("mp-ml-03",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "MULTILINESTRING((4 4,5 5),(1 1,2 2))",
+                  0,
+                  strategy_ps);
+    tester::apply("mp-ml-04",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "MULTILINESTRING((4 4,3 3),(4 4,5 5))",
+                  pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
+                  strategy_ps);
+}
+
+//===========================================================================
+
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_multipoint_segment(Strategy_pp const& strategy_pp,
+                                      Strategy_ps const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multipoint/segment distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<multi_point_type, segment_type> tester;
+
+    tester::apply("mp-s-01",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "SEGMENT(2 0,0 2)",
+                  ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
+                  strategy_ps);
+    tester::apply("mp-s-02",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "SEGMENT(0 -3,1 -10)",
+                  pp_distance("POINT(0 0)", "POINT(0 -3)", strategy_pp),
+                  strategy_ps);
+    tester::apply("mp-s-03",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "SEGMENT(1 1,2 2)",
+                  0,
+                  strategy_ps);
+    tester::apply("mp-s-04",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "SEGMENT(3 3,4 4)",
+                  pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
+                  strategy_ps);
+    tester::apply("mp-s-05",
+                  "MULTIPOINT(0 0,1 0,0 1,1 1)",
+                  "SEGMENT(0.5 -3,1 -10)",
+                  pp_distance("POINT(1 0)", "POINT(0.5 -3)", strategy_pp),
+                  strategy_ps);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_empty_input_pointlike_linear(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "testing on empty inputs... " << std::flush;
+#endif
+    bg::model::linestring<Point> line_empty;
+    bg::model::multi_point<Point> multipoint_empty;
+    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
+
+    Point point = from_wkt<Point>("POINT(0 0)");
+    bg::model::linestring<Point> line =
+        from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
+
+    // 1st geometry is empty
+    //test_empty_input(multipoint_empty, line, strategy);
+
+    // 2nd geometry is empty
+    test_empty_input(point, line_empty, strategy);
+    test_empty_input(point, multiline_empty, strategy);
+
+    // both geometries are empty
+    //test_empty_input(multipoint_empty, line_empty, strategy);
+    //test_empty_input(multipoint_empty, multiline_empty, strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << "done!" << std::endl;
+#endif
+}
+
+//===========================================================================
 //===========================================================================
 //===========================================================================
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
+    //TODO: Operations with multipoints need geographic pt-box strategy
+    //before activating
+
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
+
+    test_distance_point_linestring(vincenty_pp(), vincenty_strategy());
+    test_distance_point_linestring(thomas_pp(), thomas_strategy());
+    test_distance_point_linestring(andoyer_pp(), andoyer_strategy());
+    test_distance_point_linestring_strategies();
+
+    test_distance_point_multilinestring(vincenty_pp(), vincenty_strategy());
+    test_distance_point_multilinestring(thomas_pp(), thomas_strategy());
+    test_distance_point_multilinestring(andoyer_pp(), andoyer_strategy());
+
+    //    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
+    //    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
+    //    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
+
+    //    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
+    //    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
+    //    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
+
+    //    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
+    //    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
+    //    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
+
+    test_empty_input_pointlike_linear<point_type>(vincenty_strategy());
 }
