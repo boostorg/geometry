@@ -107,6 +107,7 @@ public:
         }
 
         //segment on equator
+        //TODO: use the meridian distance when it'll be available
         if (math::equals(lat1, 0) && math::equals(lat2, 0))
         {
             if (lon3 <= lon1)

@@ -250,54 +250,57 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   pp_distance("POINT(2.5 5)", "POINT(2 4)", strategy_pp),
                   strategy_ps);
 
-
-    //Nearly antipodal points not treated correctly in BG so far
-/*
     // very small distances to segment
     tester::apply("p-s-07",
                   "POINT(90 1e-3)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  110.57427582147321,
-                  //1e-3 * d2r * 6335439.3272858784,
-                  //to_comparable(strategy, 1e-3 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-3)", strategy_pp),
                   strategy_ps);
     tester::apply("p-s-08",
                   "POINT(90 1e-4)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  6176.4469462110519,
-                  //1e-4 * d2r * 6335439.3272858784,
-                  //1e-4 * d2r * strategy.radius(),
-                  //to_comparable(strategy, 1e-4 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-4)", strategy_pp),
                   strategy_ps);
     tester::apply("p-s-09",
                   "POINT(90 1e-5)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  4917.5121192812849,
-                  //1e-5 * d2r * strategy.radius(),
-                  //to_comparable(strategy, 1e-5 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-5)", strategy_pp),
                   strategy_ps);
     tester::apply("p-s-10",
                   "POINT(90 1e-6)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  4997.0354014473833,
-                  //1e-6 * d2r * strategy.radius(),
-                  //to_comparable(strategy, 1e-6 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-6)", strategy_pp),
                   strategy_ps);
     tester::apply("p-s-11",
                   "POINT(90 1e-7)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  109854.20732250962,
-                  //1e-7 * d2r * strategy.radius(),
-                  //to_comparable(strategy, 1e-7 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-7)", strategy_pp),
                   strategy_ps);
     tester::apply("p-s-12",
                   "POINT(90 1e-8)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1372504.9365672076,
-                  //1e-8 * d2r * strategy.radius(),
-                  //to_comparable(strategy, 1e-8 * d2r * strategy.radius()),
+                  pp_distance("POINT(90 0)", "POINT(90 1e-8)", strategy_pp),
                   strategy_ps);
-*/
+
+    // very large distance to segment
+    tester::apply("p-s-13",
+                  "POINT(90 90)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  pp_distance("POINT(90 0)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-s-14",
+                  "POINT(90 90)",
+                  "SEGMENT(0.5 -89,175.5 -89)",
+                  pp_distance("POINT(90 -89)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+    // degenerate segment
+    tester::apply("p-s-14",
+                  "POINT(90 90)",
+                  "SEGMENT(0.5 -90,175.5 -90)",
+                  pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+
+
 }
 
 //===========================================================================
