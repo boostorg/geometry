@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_GEO_HPP
 
 #include <boost/geometry/formulas/result_direct.hpp>
+#include <boost/geometry/formulas/mean_radius.hpp>
 
 #ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
 #define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
@@ -82,8 +83,7 @@ public:
                         CT lon3, CT lat3, //query point p3
                         Spheroid const& spheroid)
     {
-        CT earth_radius = (CT(2) * spheroid.get_radius<1>()
-                           + spheroid.get_radius<2>()) / CT(3);
+        CT const earth_radius = geometry::formula::mean_radius<CT>(spheroid);
 
         result_distance_point_segment result;
 
