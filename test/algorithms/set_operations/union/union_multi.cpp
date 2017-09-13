@@ -393,6 +393,7 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_69, 4, 0, -1, 16.25);
     TEST_UNION(case_recursive_boxes_70, 1, 0, -1, 25.0);
     TEST_UNION(case_recursive_boxes_71, 4, 2, -1, 15.75);
+    TEST_UNION(case_recursive_boxes_72, 10, 0, -1, 15.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

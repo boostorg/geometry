@@ -393,12 +393,49 @@ struct traversal
         return true;
     }
 
+    inline int select_turn_in_cluster_union(std::size_t selected_rank,
+            typename sbs_type::rp const& ranked_point,
+            signed_size_type start_turn_index, int start_op_index) const
+    {
+        // Returns 0 if it not OK
+        // Returns 1 if it OK
+        // Returns 2 if it OK and start turn matches
+        // Returns 3 if it OK and start turn and start op both match
+        if (ranked_point.rank != selected_rank
+            || ranked_point.direction != sort_by_side::dir_to)
+        {
+            return 0;
+        }
+
+        turn_type const& turn = m_turns[ranked_point.turn_index];
+        turn_operation_type const& op = turn.operations[ranked_point.operation_index];
+
+        // Check counts: in some cases interior rings might be generated with
+        // polygons on both sides
+
+        // Check finalized: TODO: this should be finetuned, it is not necessary
+        bool const ok = op.enriched.count_left == 0
+            && op.enriched.count_right > 0
+            && ! op.visited.finalized();
+
+        if (! ok)
+        {
+            return 0;
+        }
+
+        return ranked_point.turn_index == start_turn_index
+                && ranked_point.operation_index == start_op_index ? 3
+            : ranked_point.turn_index == start_turn_index ? 2
+            : 1
+            ;
+    }
+
     inline bool select_from_cluster_union(signed_size_type& turn_index,
-        int& op_index, sbs_type& sbs) const
+        int& op_index, sbs_type& sbs,
+        signed_size_type start_turn_index, int start_op_index) const
     {
         std::vector<sort_by_side::rank_with_rings> aggregation;
         sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_union);
-
 
         sort_by_side::rank_with_rings const& incoming = aggregation.front();
 
@@ -415,32 +452,31 @@ struct traversal
             }
         }
 
+        int best_code = 0;
+        bool result = false;
         for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
         {
             typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-            if (ranked_point.rank == selected_rank
-                    && ranked_point.direction == sort_by_side::dir_to)
+
+            if (ranked_point.rank > selected_rank)
             {
+                // Sorted on rank, so it makes no sense to continue
+                break;
+            }
+
+            int const code
+                = select_turn_in_cluster_union(selected_rank, ranked_point,
+                    start_turn_index, start_op_index);
+
+            if (code > best_code)
+            {
+                // It is 1 or higher and matching better than previous
                 turn_index = ranked_point.turn_index;
                 op_index = ranked_point.operation_index;
-
-                turn_type const& turn = m_turns[turn_index];
-                turn_operation_type const& op = turn.operations[op_index];
-
-                if (op.enriched.count_left == 0
-                    && op.enriched.count_right > 0
-                    && ! op.visited.finalized())
-                {
-                    // In some cases interior rings might be generated with polygons
-                    // on both sides
-
-                    // TODO: this should be finetuned such that checking
-                    // finalized is not necessary
-                    return true;
-                }
+                result = true;
             }
         }
-        return false;
+        return result;
     }
 
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
@@ -573,7 +609,7 @@ struct traversal
 
     inline bool select_turn_from_cluster(signed_size_type& turn_index,
             int& op_index,
-            signed_size_type start_turn_index,
+            signed_size_type start_turn_index, int start_op_index,
             segment_identifier const& previous_seg_id) const
     {
         bool const is_union = target_operation == operation_union;
@@ -620,7 +656,8 @@ struct traversal
 
         if (is_union)
         {
-            result = select_from_cluster_union(turn_index, op_index, sbs);
+            result = select_from_cluster_union(turn_index, op_index, sbs,
+                start_turn_index, start_op_index);
         }
         else
         {
@@ -787,7 +824,7 @@ struct traversal
         if (current_turn.cluster_id >= 0)
         {
             if (! select_turn_from_cluster(turn_index, op_index,
-                    start_turn_index, previous_seg_id))
+                    start_turn_index, start_op_index, previous_seg_id))
             {
                 return false;
             }
