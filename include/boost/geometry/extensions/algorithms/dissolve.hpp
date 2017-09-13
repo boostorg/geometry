@@ -226,7 +226,13 @@ struct dissolve_ring_or_polygon
             std::map<ring_identifier, detail::overlay::ring_turn_info> map;
             detail::overlay::get_ring_turn_info<overlay_dissolve>(map, turns, clusters);
 
-            typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
+            typedef typename geometry::point_type<Geometry>::type point_type;
+            typedef typename Strategy::template area_strategy
+                <
+                    point_type
+                >::type area_strategy_type;
+            typedef typename area_strategy_type::return_type area_result_type;
+            typedef detail::overlay::ring_properties<point_type, area_result_type> properties;
 
             std::map<ring_identifier, properties> selected;
 
@@ -234,13 +240,15 @@ struct dissolve_ring_or_polygon
 
             // Add intersected rings
             {
+                area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
+
                 ring_identifier id(2, 0, -1);
                 for (typename boost::range_iterator<std::vector<ring_type> const>::type
                         it = boost::begin(rings);
                         it != boost::end(rings);
                         ++it)
                 {
-                    selected[id] = properties(*it);
+                    selected[id] = properties(*it, area_strategy);
                     id.multi_index++;
                 }
             }

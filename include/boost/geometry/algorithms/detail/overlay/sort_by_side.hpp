@@ -2,6 +2,11 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,7 +23,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/strategies/side.hpp>
 
 namespace boost { namespace geometry
 {
@@ -106,17 +110,13 @@ struct less_false
     }
 };
 
-template <typename Point, typename LessOnSame, typename Compare>
+template <typename Point, typename SideStrategy, typename LessOnSame, typename Compare>
 struct less_by_side
 {
-    typedef typename strategy::side::services::default_strategy
-        <
-            typename cs_tag<Point>::type
-        >::type side;
-
-    less_by_side(const Point& p1, const Point& p2)
+    less_by_side(const Point& p1, const Point& p2, SideStrategy const& strategy)
         : m_p1(p1)
         , m_p2(p2)
+        , m_strategy(strategy)
     {}
 
     template <typename T>
@@ -125,8 +125,8 @@ struct less_by_side
         LessOnSame on_same;
         Compare compare;
 
-        int const side_first = side::apply(m_p1, m_p2, first.point);
-        int const side_second = side::apply(m_p1, m_p2, second.point);
+        int const side_first = m_strategy.apply(m_p1, m_p2, first.point);
+        int const side_second = m_strategy.apply(m_p1, m_p2, second.point);
 
         if (side_first == 0 && side_second == 0)
         {
@@ -166,7 +166,7 @@ struct less_by_side
 
         // They are both left, both right, and/or both collinear (with each other and/or with p1,p2)
         // Check mutual side
-        int const side_second_wrt_first = side::apply(m_p2, first.point, second.point);
+        int const side_second_wrt_first = m_strategy.apply(m_p2, first.point, second.point);
 
         if (side_second_wrt_first == 0)
         {
@@ -184,6 +184,7 @@ struct less_by_side
 
 private :
     Point m_p1, m_p2;
+    SideStrategy const& m_strategy;
 };
 
 // Sorts vectors in counter clockwise order (by default)
@@ -193,6 +194,7 @@ template
     bool Reverse2,
     overlay_type OverlayType,
     typename Point,
+    typename SideStrategy,
     typename Compare
 >
 struct side_sorter
@@ -223,9 +225,10 @@ private :
     };
 
 public :
-    side_sorter()
+    side_sorter(SideStrategy const& strategy)
         : m_origin_count(0)
         , m_origin_segment_distance(0)
+        , m_strategy(strategy)
     {}
 
     template <typename Operation, typename Geometry1, typename Geometry2>
@@ -309,8 +312,8 @@ public :
         //    to give colinear points
 
         // Sort by side and assign rank
-        less_by_side<Point, less_by_index, Compare> less_unique(m_origin, turn_point);
-        less_by_side<Point, less_false, Compare> less_non_unique(m_origin, turn_point);
+        less_by_side<Point, SideStrategy, less_by_index, Compare> less_unique(m_origin, turn_point, m_strategy);
+        less_by_side<Point, SideStrategy, less_false, Compare> less_non_unique(m_origin, turn_point, m_strategy);
 
         std::sort(m_ranked_points.begin(), m_ranked_points.end(), less_unique);
 
@@ -425,6 +428,7 @@ public :
     Point m_origin;
     std::size_t m_origin_count;
     int m_origin_segment_distance;
+    SideStrategy m_strategy;
 
 private :
 

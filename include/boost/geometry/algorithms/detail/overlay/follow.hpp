@@ -157,6 +157,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
+        typename SideStrategy,
         typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
@@ -164,6 +165,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type , Point const& point,
                 Operation const& operation,
+                SideStrategy const& ,
                 RobustPolicy const& ,
                 OutputIterator& )
     {
@@ -180,6 +182,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
+        typename SideStrategy,
         typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
@@ -187,6 +190,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& ,
+                SideStrategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
@@ -195,7 +199,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         detail::copy_segments::copy_segments_linestring
             <
                 false, RemoveSpikes
-            >::apply(linestring, segment_id, index, robust_policy, current_piece);
+            >::apply(linestring, segment_id, index, strategy, robust_policy, current_piece);
         detail::overlay::append_no_duplicates(current_piece, point);
         if (::boost::size(current_piece) > 1)
         {
@@ -254,6 +258,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
+        typename SideStrategy,
         typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
@@ -261,11 +266,12 @@ struct action_selector<overlay_difference, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& operation,
+                SideStrategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
         normal_action::leave(current_piece, linestring, segment_id, index,
-                    point, operation, robust_policy, out);
+                    point, operation, strategy, robust_policy, out);
     }
 
     template
@@ -275,6 +281,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
+        typename SideStrategy,
         typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
@@ -282,11 +289,12 @@ struct action_selector<overlay_difference, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& operation,
+                SideStrategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
         normal_action::enter(current_piece, linestring, segment_id, index,
-                    point, operation, robust_policy, out);
+                    point, operation, strategy, robust_policy, out);
     }
 
     template
@@ -456,7 +464,7 @@ public :
                 entered = true;
                 action::enter(current_piece, linestring, current_segment_id,
                     iit->seg_id.segment_index, it->point, *iit,
-                    robust_policy,
+                    strategy, robust_policy,
                     out);
             }
             else if (following::is_leaving(*it, *iit, entered, first, linestring, polygon, pt_in_poly_strategy))
@@ -466,7 +474,7 @@ public :
                 entered = false;
                 action::leave(current_piece, linestring, current_segment_id,
                     iit->seg_id.segment_index, it->point, *iit,
-                    robust_policy,
+                    strategy, robust_policy,
                     out);
             }
             first = false;
@@ -480,7 +488,7 @@ public :
                 >::apply(linestring,
                          current_segment_id,
                          static_cast<signed_size_type>(boost::size(linestring) - 1),
-                         robust_policy,
+                         strategy, robust_policy,
                          current_piece);
         }
 

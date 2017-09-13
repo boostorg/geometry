@@ -31,6 +31,9 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
+#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+
 
 template <typename P, typename T>
 void test_with_point(std::string const& /*caseid*/,
@@ -46,7 +49,12 @@ void test_with_point(std::string const& /*caseid*/,
     P si = bg::make<P>(si_x, si_y);
     P sj = bg::make<P>(sj_x, sj_y);
 
-    int order = bg::detail::overlay::get_relative_order<P>::apply(pi, pj, ri, rj, si, sj);
+    typedef typename bg::strategy::side::services::default_strategy
+        <
+            typename bg::cs_tag<P>::type
+        >::type strategy_type;
+
+    int order = bg::detail::overlay::get_relative_order::apply(pi, pj, ri, rj, si, sj, strategy_type());
 
     BOOST_CHECK_EQUAL(order, expected_order);
 

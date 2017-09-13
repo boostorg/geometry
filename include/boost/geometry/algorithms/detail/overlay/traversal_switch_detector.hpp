@@ -120,7 +120,7 @@ struct traversal_switch_detector
         }
 
         bool all_colocated = true;
-        int unique_cluster_id = -1;
+        signed_size_type unique_cluster_id = -1;
         for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
              all_colocated && it != properties.connected_region_counts.end(); ++it)
         {
@@ -130,7 +130,7 @@ struct traversal_switch_detector
                 // Either no cluster (non colocated point), or more clusters
                 all_colocated = false;
             }
-            int const cluster_id = *cprop.cluster_indices.begin();
+            signed_size_type const cluster_id = *cprop.cluster_indices.begin();
             if (cluster_id == -1)
             {
                 all_colocated = false;
@@ -345,14 +345,14 @@ struct traversal_switch_detector
     }
 
 
-    inline int get_region_id(turn_operation_type const& op) const
+    inline signed_size_type get_region_id(turn_operation_type const& op) const
     {
         return op.enriched.region_id;
     }
 
 
     void create_region(signed_size_type& new_region_id, ring_identifier const& ring_id,
-                merged_ring_properties& properties, int region_id = -1)
+                merged_ring_properties& properties, signed_size_type region_id = -1)
     {
         if (properties.region_id > 0)
         {
@@ -400,7 +400,7 @@ struct traversal_switch_detector
     }
 
     void propagate_region(signed_size_type& new_region_id,
-            ring_identifier const& ring_id, int region_id)
+            ring_identifier const& ring_id, signed_size_type region_id)
     {
         typename merge_map::iterator it = m_turns_per_ring.find(ring_id);
         if (it != m_turns_per_ring.end())
@@ -464,7 +464,7 @@ struct traversal_switch_detector
             }
 
             // A touching cluster, gather regions
-            std::set<int> regions;
+            std::set<signed_size_type> regions;
 
             std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
@@ -476,14 +476,10 @@ struct traversal_switch_detector
             {
                 signed_size_type turn_index = *sit;
                 turn_type const& turn = m_turns[turn_index];
-                if (turn.colocated_ii && ! turn.colocated_uu)
-                {
-                    continue;
-                }
                 for (int oi = 0; oi < 2; oi++)
                 {
-                    int const region = get_region_id(turn.operations[oi]);
-                    regions.insert(region);
+                    signed_size_type const region_id = get_region_id(turn.operations[oi]);
+                    regions.insert(region_id);
                 }
             }
             // Switch source if this cluster connects the same region
@@ -513,8 +509,8 @@ struct traversal_switch_detector
                 continue;
             }
 
-            int const region0 = get_region_id(turn.operations[0]);
-            int const region1 = get_region_id(turn.operations[1]);
+            signed_size_type const region0 = get_region_id(turn.operations[0]);
+            signed_size_type const region1 = get_region_id(turn.operations[1]);
 
             // Switch sources for same region
             turn.switch_source = region0 == region1;

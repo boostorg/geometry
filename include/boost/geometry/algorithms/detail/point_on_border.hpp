@@ -84,43 +84,49 @@ struct midpoint_helper<Point, DimensionCount, DimensionCount>
 template <bool Midpoint>
 struct point_on_range
 {
+    // Version with iterator
+    template<typename Point, typename Iterator>
+    static inline bool apply(Point& point, Iterator begin, Iterator end)
+    {
+        Iterator it = begin;
+        if (it == end)
+        {
+            return false;
+        }
+
+        if (! Midpoint)
+        {
+            geometry::detail::conversion::convert_point_to_point(*it, point);
+            return true;
+        }
+
+        Iterator prev = it++;
+
+        // Go to next non-duplicate point
+        while (it != end
+            && detail::equals::equals_point_point(*it, *prev))
+        {
+            prev = it++;
+        }
+        if (it != end)
+        {
+            return midpoint_helper
+                <
+                    Point,
+                    0, dimension<Point>::value
+                >::apply(point, *prev, *it);
+        }
+        return false;
+    }
+
+    // Version with range
     template<typename Point, typename Range>
     static inline bool apply(Point& point, Range const& range)
     {
         typedef typename geometry::cs_tag<Point>::type cs_tag;
         BOOST_STATIC_ASSERT((! Midpoint || boost::is_same<cs_tag, cartesian_tag>::value));
 
-        const std::size_t n = boost::size(range);
-        if (Midpoint && n > 1)
-        {
-            typedef typename boost::range_iterator
-                <
-                    Range const
-                >::type iterator;
-
-            iterator it = boost::begin(range);
-            iterator prev = it++;
-            while (it != boost::end(range)
-                && detail::equals::equals_point_point(*it, *prev))
-            {
-                prev = it++;
-            }
-            if (it != boost::end(range))
-            {
-                return midpoint_helper
-                    <
-                        Point,
-                        0, dimension<Point>::value
-                    >::apply(point, *prev, *it);
-            }
-        }
-
-        if (n > 0)
-        {
-            geometry::detail::conversion::convert_point_to_point(*boost::begin(range), point);
-            return true;
-        }
-        return false;
+        return apply(point, boost::begin(range), boost::end(range));
     }
 };
 

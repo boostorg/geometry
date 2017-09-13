@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
@@ -32,6 +31,8 @@
 #include <boost/geometry/geometries/box.hpp>
 
 #include <boost/geometry/index/rtree.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
@@ -63,7 +64,7 @@ struct multi_point_point
     }
 };
 
-// NOTE: currently the strategy is ignored, math::equals() is used inside relate::less
+// NOTE: currently the strategy is ignored, math::equals() is used inside geometry::less<>
 struct multi_point_multi_point
 {
     template <typename MultiPoint1, typename MultiPoint2, typename Strategy>
@@ -73,7 +74,7 @@ struct multi_point_multi_point
     {
         typedef typename boost::range_value<MultiPoint2>::type point2_type;
 
-        relate::less const less = relate::less();
+        geometry::less<> const less = geometry::less<>();
 
         std::vector<point2_type> points2(boost::begin(multi_point2), boost::end(multi_point2));
         std::sort(points2.begin(), points2.end(), less);

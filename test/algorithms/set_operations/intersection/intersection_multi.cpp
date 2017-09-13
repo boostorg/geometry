@@ -33,15 +33,13 @@
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
 #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
-    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity)
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         2, 12, 6.42);
@@ -307,6 +305,32 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_58, 1, -1, 0.25);
     TEST_INTERSECTION(case_recursive_boxes_59, 8, -1, 8.25);
     TEST_INTERSECTION(case_recursive_boxes_60, 8, -1, 10.0);
+    TEST_INTERSECTION(case_recursive_boxes_61, 2, -1, 20.0);
+    TEST_INTERSECTION(case_recursive_boxes_62, 9, -1, 10.5);
+
+    TEST_INTERSECTION(case_recursive_boxes_63, 11, -1, 5.75);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_64, 5, -1, 17.25);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 3, -1, 17.25);
+#endif
+    TEST_INTERSECTION(case_recursive_boxes_65, 3, -1, 17.25);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_66, 4, -1, 16.0);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_66, 2, -1, 16.0);
+#endif
+
+    TEST_INTERSECTION(case_recursive_boxes_67, 5, -1, 2.5);
+    TEST_INTERSECTION(case_recursive_boxes_68, 8, -1, 9.5);
+    TEST_INTERSECTION(case_recursive_boxes_69, 6, -1, 3.25);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_70, 6, -1, 18.5);
+#else
+    // Misses a necessary self-turn and therefore a ring
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_70, 3, -1, 18.0);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -340,6 +364,8 @@ void test_areal()
 #else
     TEST_INTERSECTION_IGNORE(mysql_23023665_12, 1, -1, 11.812440191387557);
 #endif
+
+    TEST_INTERSECTION(mysql_regression_1_65_2017_08_31, 2, -1, 29.9022122);
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>

@@ -107,21 +107,19 @@ static inline bool within_selected_input(Item const& item2,
 }
 
 
-template <typename Point>
+template <typename Point, typename AreaType>
 struct ring_info_helper
 {
-    typedef typename geometry::default_area_result<Point>::type area_type;
-
     ring_identifier id;
-    area_type real_area;
-    area_type abs_area;
+    AreaType real_area;
+    AreaType abs_area;
     model::box<Point> envelope;
 
     inline ring_info_helper()
         : real_area(0), abs_area(0)
     {}
 
-    inline ring_info_helper(ring_identifier i, area_type a)
+    inline ring_info_helper(ring_identifier i, AreaType const& a)
         : id(i), real_area(a), abs_area(geometry::math::abs(a))
     {}
 };
@@ -234,11 +232,15 @@ inline void assign_parents(Geometry1 const& geometry1,
     typedef typename RingMap::mapped_type ring_info_type;
     typedef typename ring_info_type::point_type point_type;
     typedef model::box<point_type> box_type;
+    typedef typename Strategy::template area_strategy
+        <
+            point_type
+        >::type::return_type area_result_type;
 
     typedef typename RingMap::iterator map_iterator_type;
 
     {
-        typedef ring_info_helper<point_type> helper;
+        typedef ring_info_helper<point_type, area_result_type> helper;
         typedef std::vector<helper> vector_type;
         typedef typename boost::range_iterator<vector_type const>::type vector_iterator_type;
 
