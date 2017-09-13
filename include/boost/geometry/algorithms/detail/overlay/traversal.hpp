@@ -485,6 +485,7 @@ struct traversal
             if (code > best_code)
             {
                 // It is 1 or higher and matching better than previous
+                best_code = code;
                 turn_index = ranked_point.turn_index;
                 op_index = ranked_point.operation_index;
                 result = true;
