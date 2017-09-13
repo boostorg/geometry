@@ -147,13 +147,27 @@ struct traversal
                     || op.visited.started()
                     || op.visited.finished() )
                 {
-                    ring_identifier const ring_id
+                   ring_identifier const ring_id
                         (
                             op.seg_id.source_index,
                             op.seg_id.multi_index,
                             op.seg_id.ring_index
                         );
                    turn_info_map[ring_id].has_traversed_turn = true;
+
+                   if (op.operation == operation_continue)
+                   {
+                       // Continue operations should mark the other operation
+                       // as traversed too
+                       turn_operation_type& other_op = turn.operations[1 - i];
+                       ring_identifier const other_ring_id
+                            (
+                                other_op.seg_id.source_index,
+                                other_op.seg_id.multi_index,
+                                other_op.seg_id.ring_index
+                            );
+                       turn_info_map[other_ring_id].has_traversed_turn = true;
+                   }
                 }
                 op.visited.finalize();
             }
