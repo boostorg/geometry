@@ -15,11 +15,10 @@
 #include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/area_formulas.hpp>
-#include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/authalic_radius_sqr.hpp>
+#include <boost/geometry/formulas/eccentricity_sqr.hpp>
 
 #include <boost/geometry/strategies/geographic/parameters.hpp>
-
-#include <boost/math/special_functions/atanh.hpp>
 
 
 namespace boost { namespace geometry
@@ -88,30 +87,15 @@ protected :
         inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
             , m_a2(math::sqr(get_radius<0>(spheroid)))
-            , m_e2(formula::flattening<CT>(spheroid)
-                 * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
+            , m_e2(formula::eccentricity_sqr<CT>(spheroid))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
-            , m_c2(authalic_radius(spheroid, m_a2, m_e2))
+            , m_c2(formula_dispatch::authalic_radius_sqr
+                    <
+                        CT, Spheroid, srs_spheroid_tag
+                    >::apply(m_a2, m_e2))
         {}
     };
-
-    static inline CT authalic_radius(Spheroid const& sph, CT const& a2, CT const& e2)
-    {
-        CT const c0 = 0;
-
-        if (math::equals(e2, c0))
-        {
-            return a2;
-        }
-
-        CT const sqrt_e2 = math::sqrt(e2);
-        CT const c2 = 2;
-
-        return (a2 / c2) +
-                  ((math::sqr(get_radius<2>(sph)) * boost::math::atanh(sqrt_e2))
-                   / (c2 * sqrt_e2));
-    }
 
     struct area_sums
     {
