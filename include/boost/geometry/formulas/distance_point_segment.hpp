@@ -184,7 +184,6 @@ public:
         std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
         std::cout << "cos(a312)=" << cos(a312) << std::endl;
 #endif
-        //if (a312 > half_pi)
         if (projection1 < 0.0)
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
@@ -194,9 +193,6 @@ public:
             // outside of segment on the side of p1
             return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
         }
-
-//        CT a2 = pi + inverse_azimuth_type::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
-//        CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
 
         CT a2 = res12.reverse_azimuth - pi;
         CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
@@ -211,7 +207,6 @@ public:
 #endif
         CT projection2 = cos( a321 ) * d2 / d3;
 
-        //if (a321 < half_pi)
         if (projection2 < 0.0)
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
