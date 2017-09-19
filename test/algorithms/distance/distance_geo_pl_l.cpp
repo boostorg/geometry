@@ -109,6 +109,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(2 0,3 0)",
                   0,
                   strategy_ps);
+    tester::apply("p-s-05",
+                  "POINT(2.5 0)",
+                  "SEGMENT(2 0,3 0)",
+                  0,
+                  strategy_ps);
     tester::apply("p-s-06",
                   "POINT(3.5 3)",
                   "SEGMENT(2 0,3 0)",
@@ -254,6 +259,20 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(0 0,0 90)",
                   pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", andoyer_pp()),
                   andoyer_strategy());
+
+    //degenerate segment
+    tester::apply("p-s-deg",
+                  "POINT(1 80)",
+                  "SEGMENT(0 0,0 0)",
+                  pp_distance("POINT(0 0)", "POINT(1 80)", strategy_pp),
+                  strategy_ps);
+
+    //point on segment
+    tester::apply("p-s-deg",
+                  "POINT(0 80)",
+                  "SEGMENT(0 0,0 90)",
+                  0,
+                  strategy_ps);
 
     // very small distances to segment
     tester::apply("p-s-07",
