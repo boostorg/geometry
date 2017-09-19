@@ -43,6 +43,7 @@ public:
 
     typedef Inverse<CT, true, false, false, true, true> inverse_distance_quantities_type;
     typedef Inverse<CT, false, true, false, false, false> inverse_azimuth_type;
+    typedef Inverse<CT, false, true, true, false, false> inverse_azimuth_reverse_type;
     typedef Direct<CT, true, false, false, false> direct_distance_type;
 
     struct result_distance_point_segment
@@ -110,6 +111,9 @@ public:
         //TODO: use the meridian distance when it'll be available
         if (math::equals(lat1, 0) && math::equals(lat2, 0))
         {
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            std::cout << "Equatorial segment" << std::endl;
+#endif
             if (lon3 <= lon1)
             {
                 return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
@@ -121,51 +125,52 @@ public:
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
-        //segment on meridian
-        if (math::equals(lon1, lon2))
+        //TODO no quantities needed ?
+        CT d1 = inverse_distance_quantities_type::apply(lon1, lat1,
+                                                        lon3, lat3, spheroid).distance;
+        CT d3 = inverse_distance_quantities_type::apply(lon1, lat1,
+                                                        lon2, lat2, spheroid).distance;
+
+        if (geometry::math::equals(d3, 0.0))
         {
-            if (lat1 > lat2)
+            // "Degenerate" segment, return either d1 or d2
+            result_distance_point_segment result;
+            result.distance = d1;
+            if (EnableClosestPoint)
             {
-                std::swap(lat1, lat2);
+                result.closest_point_lon = lon1;
+                result.closest_point_lat = lat1;
             }
-            if (lat3 <= lat1)
-            {
-                return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
-            }
-            if (lat3 >= lat2)
-            {
-                return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
-            }
-            return non_iterative_case(lon1, lat3, lon3, lat3, spheroid);
+            return result;
         }
 
-        // Easy cases
-        if (lon3 <= lon1 && lat3 <= lat1)
-        {
-            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
-        }
-        if (lon3 >= lon2 && lat3 <= lat2)
-        {
-            return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
-        }
+        CT d2 = inverse_distance_quantities_type::apply(lon2, lat2,
+                                                        lon3, lat3, spheroid).distance;
 
         // Compute a1 (GEO)
-        CT a1 = inverse_azimuth_type::apply(lon1, lat1, lon2, lat2, spheroid).azimuth;
+        geometry::formula::result_inverse<CT> res12 =
+                inverse_azimuth_reverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+        CT a1 = res12.azimuth;
         CT a13 = inverse_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid).azimuth;
 
-        CT a312 = a1 - a13;
+        CT a312 = a13 - a1;
 
-        if (a312 > half_pi)
+        if (geometry::math::equals(a312, 0.0))
         {
-            // projection of p3 on geodesic spanned by segment (p1,p2) fall
-            // outside of segment on the side of p1
-            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            std::cout << "point on segment" << std::endl;
+#endif
+            result_distance_point_segment result;
+            result.distance = 0.0;
+            if (EnableClosestPoint)
+            {
+                result.closest_point_lon = lon3;
+                result.closest_point_lat = lat3;
+            }
+            return result;
         }
 
-        CT a2 = pi + inverse_azimuth_type::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
-        CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
-
-        CT a321 = a2 - a23;
+        CT projection1 = cos( a312 ) * d1 / d3;
 
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
         std::cout << "segment=(" << lon1 * math::r2d<CT>();
@@ -177,12 +182,41 @@ public:
         std::cout << ")\na1=" << a1 * math::r2d<CT>() << std::endl;
         std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
         std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
+        std::cout << "cos(a312)=" << cos(a312) << std::endl;
+#endif
+        //if (a312 > half_pi)
+        if (projection1 < 0.0)
+        {
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            std::cout << "projection closer to p1" << std::endl;
+#endif
+            // projection of p3 on geodesic spanned by segment (p1,p2) fall
+            // outside of segment on the side of p1
+            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
+        }
+
+//        CT a2 = pi + inverse_azimuth_type::apply(lon2, lat2, lon1, lat1, spheroid).azimuth;
+//        CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
+
+        CT a2 = res12.reverse_azimuth - pi;
+        CT a23 = inverse_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid).azimuth;
+
+        CT a321 = a23 - a2;
+
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
         std::cout << "a2=" << a2 * math::r2d<CT>() << std::endl;
         std::cout << "a23=" << a13 * math::r2d<CT>() << std::endl;
         std::cout << "a321=" << a321 * math::r2d<CT>() << std::endl;
+        std::cout << "cos(a321)=" << cos(a321) << std::endl;
 #endif
-        if (a321 < half_pi)
+        CT projection2 = cos( a321 ) * d2 / d3;
+
+        //if (a321 < half_pi)
+        if (projection2 < 0.0)
         {
+#ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+            std::cout << "projection closer to p2" << std::endl;
+#endif
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p2
             return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);

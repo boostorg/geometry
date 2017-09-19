@@ -249,6 +249,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 5)", "POINT(2 4)", strategy_pp),
                   strategy_ps);
+    tester::apply("p-s-mer4",
+                  "POINT(1 80)",
+                  "SEGMENT(0 0,0 90)",
+                  pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", andoyer_pp()),
+                  andoyer_strategy());
 
     // very small distances to segment
     tester::apply("p-s-07",

@@ -10,6 +10,7 @@
 // http://www.boost.org/users/license.html
 
 #include <iostream>
+#define BOOST_GEOMETRY_TEST_DEBUG
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_spherical_equatorial_pl_l
@@ -158,6 +159,14 @@ void test_distance_point_segment(Strategy const& strategy)
                   pp_distance("POINT(3 0)", "POINT(3.5 3)", strategy),
                   pp_comparable_distance("POINT(3 0)",
                                          "POINT(3.5 3)",
+                                         strategy),
+                  strategy);
+    tester::apply("p-s-07",
+                  "POINT(0 0)",
+                  "SEGMENT(0 10,10 10)",
+                  ps_distance("POINT(0 0)", "SEGMENT(10 10,0 10)", strategy),
+                  pp_comparable_distance("POINT(0 0)",
+                                         "POINT(0 10)",
                                          strategy),
                   strategy);
     // very small distances to segment
