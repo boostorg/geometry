@@ -111,6 +111,35 @@ struct traversal_switch_detector
     {
     }
 
+    bool has_single_connection_point(region_properties const& properties) const
+    {
+        signed_size_type const unassigned_id = m_turns.size() + 1;
+        signed_size_type first_turn_id = unassigned_id;
+        for (typename connection_map::const_iterator it
+             = properties.connected_region_counts.begin();
+             it != properties.connected_region_counts.end(); ++it)
+        {
+            connection_properties const& cprop = it->second;
+            if (cprop.unique_turn_ids.size() != 1)
+            {
+                // Multiple turns or clusters on this region
+                return false;
+            }
+
+            signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
+
+            if (first_turn_id == unassigned_id)
+            {
+                first_turn_id = unique_turn_id;
+            }
+            else if (first_turn_id != unique_turn_id)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     isolation_type get_isolation(region_properties const& properties,
                                  signed_size_type parent_region_id,
                                  const std::set<signed_size_type>& visited)
@@ -120,32 +149,7 @@ struct traversal_switch_detector
             return properties.isolated;
         }
 
-        bool single_connection_point = true;
-        signed_size_type const unassigned_id = m_turns.size() + 1;
-        signed_size_type first_turn_id = unassigned_id;
-        for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
-             it != properties.connected_region_counts.end(); ++it)
-        {
-            connection_properties const& cprop = it->second;
-            if (cprop.unique_turn_ids.size() != 1)
-            {
-                // More turns or clusters on this region
-                single_connection_point = false;
-                break;
-            }
-            signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
-
-            if (first_turn_id == unassigned_id)
-            {
-                first_turn_id = unique_turn_id;
-            }
-            else if (first_turn_id != unique_turn_id)
-            {
-                single_connection_point = false;
-                break;
-            }
-        }
-        if (single_connection_point)
+        if (has_single_connection_point(properties))
         {
             return isolation_yes;
         }
