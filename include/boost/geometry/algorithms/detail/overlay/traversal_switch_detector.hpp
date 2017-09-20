@@ -68,7 +68,8 @@ struct traversal_switch_detector
     struct connection_properties
     {
         std::size_t count;
-        std::set<signed_size_type> cluster_indices;
+        // Contains turn-index OR, if clustered, minus-cluster_id
+        std::set<signed_size_type> unique_turn_ids;
         connection_properties()
             : count(0)
         {}
@@ -119,36 +120,35 @@ struct traversal_switch_detector
             return properties.isolated;
         }
 
-        bool all_colocated = true;
-        signed_size_type unique_cluster_id = -1;
+        bool single_connection_point = true;
+        signed_size_type const unassigned_id = m_turns.size() + 1;
+        signed_size_type first_turn_id = unassigned_id;
         for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
-             all_colocated && it != properties.connected_region_counts.end(); ++it)
+             it != properties.connected_region_counts.end(); ++it)
         {
             connection_properties const& cprop = it->second;
-            if (cprop.cluster_indices.size() != 1)
+            if (cprop.unique_turn_ids.size() != 1)
             {
-                // Either no cluster (non colocated point), or more clusters
-                all_colocated = false;
+                // More turns or clusters on this region
+                single_connection_point = false;
+                break;
             }
-            signed_size_type const cluster_id = *cprop.cluster_indices.begin();
-            if (cluster_id == -1)
+            signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
+
+            if (first_turn_id == unassigned_id)
             {
-                all_colocated = false;
+                first_turn_id = unique_turn_id;
             }
-            else if (unique_cluster_id == -1)
+            else if (first_turn_id != unique_turn_id)
             {
-                unique_cluster_id = cluster_id;
-            }
-            else if (unique_cluster_id != cluster_id)
-            {
-                all_colocated = false;
+                single_connection_point = false;
+                break;
             }
         }
-        if (all_colocated)
+        if (single_connection_point)
         {
             return isolation_yes;
         }
-
 
         // It is isolated if there is only one connection, or if there are more connections but all
         // of them are isolated themselves, or if there are more connections
@@ -281,28 +281,20 @@ struct traversal_switch_detector
                 connection_properties& prop0 = m_connected_regions[id0].connected_region_counts[id1];
                 connection_properties& prop1 = m_connected_regions[id1].connected_region_counts[id0];
 
-                if (turn.cluster_id < 0)
+                signed_size_type const unique_turn_id
+                        = turn.is_clustered() ? -turn.cluster_id : turn_index;
+
+                // Reference this turn or cluster to later check uniqueness on ring
+                if (prop0.unique_turn_ids.count(unique_turn_id) == 0)
                 {
-                    // Turn is not colocated, add reference to connection
                     prop0.count++;
-                    prop1.count++;
+                    prop0.unique_turn_ids.insert(unique_turn_id);
                 }
-                else
+                if (prop1.unique_turn_ids.count(unique_turn_id) == 0)
                 {
-                    // Turn is colocated, only add region reference if it was not yet registered
-                    if (prop0.cluster_indices.count(turn.cluster_id) == 0)
-                    {
-                        prop0.count++;
-                    }
-                    if (prop1.cluster_indices.count(turn.cluster_id) == 0)
-                    {
-                        prop1.count++;
-                    }
+                    prop1.count++;
+                    prop1.unique_turn_ids.insert(unique_turn_id);
                 }
-                // Insert cluster-id (also -1 is inserted - reinsertion of
-                // same cluster id is OK)
-                prop0.cluster_indices.insert(turn.cluster_id);
-                prop1.cluster_indices.insert(turn.cluster_id);
             }
         }
     }
