@@ -176,7 +176,7 @@ void test_areal()
         19, 87, 12.5); // Area from SQL Server
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 11, 177, 67.0);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 169, 67.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
 #endif
@@ -312,7 +312,7 @@ void test_areal()
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_64, 5, -1, 17.25);
 #else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 3, -1, 17.25);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 4, -1, 17.25);
 #endif
     TEST_INTERSECTION(case_recursive_boxes_65, 3, -1, 17.25);
 
@@ -335,6 +335,11 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_71, 3, -1, 1.75);
     TEST_INTERSECTION(case_recursive_boxes_72, 8, -1, 4.5);
     TEST_INTERSECTION(case_recursive_boxes_73, 3, -1, 18.5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_74, 3, -1, 20.25);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_74, 2, -1, 20.25);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

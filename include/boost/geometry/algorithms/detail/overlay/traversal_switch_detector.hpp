@@ -48,7 +48,13 @@ template
 >
 struct traversal_switch_detector
 {
-    enum isolation_type { isolation_unknown = -1, isolation_no = 0, isolation_yes = 1 };
+    enum isolation_type
+    {
+        isolation_unknown = -1,
+        isolation_no = 0,
+        isolation_yes = 1,
+        isolation_multiple = 2
+    };
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type turn_operation_type;
@@ -111,26 +117,45 @@ struct traversal_switch_detector
     {
     }
 
-    bool has_single_connection_point(region_properties const& properties) const
+    bool one_connection_to_another_region(region_properties const& region) const
     {
-        signed_size_type const unassigned_id = m_turns.size() + 1;
-        signed_size_type first_turn_id = unassigned_id;
-        for (typename connection_map::const_iterator it
-             = properties.connected_region_counts.begin();
-             it != properties.connected_region_counts.end(); ++it)
+        if (region.connected_region_counts.size() == 1)
+        {
+            connection_properties const& cprop = region.connected_region_counts.begin()->second;
+            return cprop.count <= 1;
+        }
+        return region.connected_region_counts.empty();
+    }
+
+    // TODO: might be combined with previous
+    bool multiple_connections_to_one_region(region_properties const& region) const
+    {
+        if (region.connected_region_counts.size() == 1)
+        {
+            connection_properties const& cprop = region.connected_region_counts.begin()->second;
+            return cprop.count > 1;
+        }
+        return false;
+    }
+
+    bool one_connection_to_multiple_regions(region_properties const& region) const
+    {
+        bool first = true;
+        signed_size_type first_turn_id = 0;
+        for (typename connection_map::const_iterator it = region.connected_region_counts.begin();
+             it != region.connected_region_counts.end(); ++it)
         {
             connection_properties const& cprop = it->second;
-            if (cprop.unique_turn_ids.size() != 1)
+
+            if (cprop.count != 1)
             {
-                // Multiple turns or clusters on this region
                 return false;
             }
-
             signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
-
-            if (first_turn_id == unassigned_id)
+            if (first)
             {
                 first_turn_id = unique_turn_id;
+                first = false;
             }
             else if (first_turn_id != unique_turn_id)
             {
@@ -140,85 +165,95 @@ struct traversal_switch_detector
         return true;
     }
 
-    isolation_type get_isolation(region_properties const& properties,
-                                 signed_size_type parent_region_id,
-                                 const std::set<signed_size_type>& visited)
+    // TODO: might be combined with previous
+    bool has_only_isolated_children(region_properties const& region) const
     {
-        if (properties.isolated != isolation_unknown)
-        {
-            return properties.isolated;
-        }
+        bool first = true;
+        signed_size_type first_turn_id = 0;
 
-        if (has_single_connection_point(properties))
-        {
-            return isolation_yes;
-        }
-
-        // It is isolated if there is only one connection, or if there are more connections but all
-        // of them are isolated themselves, or if there are more connections
-        // but they are all colocated
-        std::size_t non_isolation_count = 0;
-        bool child_not_isolated = false;
-        for (typename connection_map::const_iterator it = properties.connected_region_counts.begin();
-             it != properties.connected_region_counts.end(); ++it)
+        for (typename connection_map::const_iterator it = region.connected_region_counts.begin();
+             it != region.connected_region_counts.end(); ++it)
         {
             signed_size_type const region_id = it->first;
             connection_properties const& cprop = it->second;
 
-            if (region_id == parent_region_id)
+            if (cprop.count != 1)
             {
-                // Normal situation, skip its direct parent
-                continue;
-            }
-            if (visited.count(region_id) > 0)
-            {
-                // Find one of its ancestors again, this is a ring. Not isolated.
-                return isolation_no;
-            }
-            if (cprop.count > 1)
-            {
-                return isolation_no;
+                return false;
             }
 
-            typename region_connection_map::iterator mit = m_connected_regions.find(region_id);
+            typename region_connection_map::const_iterator mit = m_connected_regions.find(region_id);
             if (mit == m_connected_regions.end())
             {
                 // Should not occur
-                continue;
+                return false;
             }
 
-            std::set<signed_size_type> vis = visited;
-            vis.insert(parent_region_id);
-
-            region_properties& prop = mit->second;
-            if (prop.isolated == isolation_unknown)
+            region_properties const& connected_region = mit->second;
+            if (connected_region.isolated != isolation_yes
+                    && connected_region.isolated != isolation_multiple)
             {
-                isolation_type const iso = get_isolation(prop, properties.region_id, vis);
-                prop.isolated = iso;
-                if (iso == isolation_no)
+                signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
+                if (first)
                 {
-                    child_not_isolated = true;
+                    first_turn_id = unique_turn_id;
+                    first = false;
+                }
+                else if (first_turn_id != unique_turn_id)
+                {
+                    return false;
                 }
             }
-            if (prop.isolated == isolation_no)
-            {
-                non_isolation_count++;
-            }
         }
-
-        return child_not_isolated || non_isolation_count > 1 ? isolation_no : isolation_yes;
+        // If there is only one connection (with a 'parent'), and all other
+        // connections are itself isolated, it is isolated
+        return true;
     }
 
     void get_isolated_regions()
     {
-        for (typename region_connection_map::iterator it = m_connected_regions.begin();
+        typedef typename region_connection_map::iterator it_type;
+
+        // First time: check regions isolated (one connection only),
+        // semi-isolated (multiple connections between same region),
+        // and complex isolated (connection with multiple rings but all
+        // at same point)
+        for (it_type it = m_connected_regions.begin();
              it != m_connected_regions.end(); ++it)
         {
             region_properties& properties = it->second;
-            if (properties.isolated == isolation_unknown)
+            if (one_connection_to_another_region(properties))
             {
-                std::set<signed_size_type> visited;
-                properties.isolated = get_isolation(properties, properties.region_id, visited);
+                properties.isolated = isolation_yes;
+            }
+            else if (multiple_connections_to_one_region(properties))
+            {
+                properties.isolated = isolation_multiple;
+            }
+            else if (one_connection_to_multiple_regions(properties))
+            {
+                properties.isolated = isolation_yes;
+            }
+        }
+
+        // Propagate isolation to next level
+        // TODO: should be optimized
+        std::size_t defensive_check = 0;
+        bool changed = true;
+        while (changed && defensive_check++ < m_connected_regions.size())
+        {
+            changed = false;
+            for (it_type it = m_connected_regions.begin();
+                 it != m_connected_regions.end(); ++it)
+            {
+                region_properties& properties = it->second;
+
+                if (properties.isolated == isolation_unknown
+                        && has_only_isolated_children(properties))
+                {
+                    properties.isolated = isolation_yes;
+                    changed = true;
+                }
             }
         }
     }
