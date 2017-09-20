@@ -342,6 +342,7 @@ std::cout << "traverse" << std::endl;
                     clusters,
                     visitor
                 );
+        visitor.visit_turns(3, turns);
 
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
