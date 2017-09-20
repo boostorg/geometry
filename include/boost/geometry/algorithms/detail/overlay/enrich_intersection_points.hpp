@@ -118,7 +118,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
             // Cluster behaviour: next should point after cluster, unless
             // their seg_ids are not the same
-            while (turn.cluster_id != -1
+            while (turn.is_clustered()
                    && it->turn_index != next->turn_index
                    && turn.cluster_id == turns[next->turn_index].cluster_id
                    && op.seg_id == turns[next->turn_index].operations[next->operation_index].seg_id)
@@ -355,12 +355,11 @@ inline void enrich_intersection_points(Turns& turns,
         }
 
         if (detail::overlay::is_self_turn<OverlayType>(turn)
-            && turn.cluster_id < 0
+            && ! turn.is_clustered()
             && ! turn.both(target_operation))
         {
             // Only keep self-uu-turns or self-ii-turns
            turn.discarded = true;
-           turn.cluster_id = -1;
            continue;
         }
 

@@ -219,7 +219,7 @@ struct traversal
         {
             op.visited.set_visited();
         }
-        if (turn.cluster_id >= 0)
+        if (turn.is_clustered())
         {
             set_visited_in_cluster(turn.cluster_id, op.enriched.rank);
         }
@@ -280,7 +280,7 @@ struct traversal
 
         // It is not a dead end if there is an operation to continue, or of
         // there is a cluster (assuming for now we can get out of the cluster)
-        return turn.cluster_id >= 0
+        return turn.is_clustered()
             || turn.has(target_operation)
             || turn.has(operation_continue);
     }
@@ -630,7 +630,7 @@ struct traversal
         bool const is_union = target_operation == operation_union;
 
         turn_type const& turn = m_turns[turn_index];
-        BOOST_ASSERT(turn.cluster_id >= 0);
+        BOOST_ASSERT(turn.is_clustered());
 
         typename Clusters::const_iterator mit = m_clusters.find(turn.cluster_id);
         BOOST_ASSERT(mit != m_clusters.end());
@@ -814,7 +814,7 @@ struct traversal
         if (target_operation == operation_intersection)
         {
             bool const back_at_start_cluster
-                    = current_turn.cluster_id >= 0
+                    = current_turn.is_clustered()
                     && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
 
             if (turn_index == start_turn_index || back_at_start_cluster)
@@ -825,7 +825,7 @@ struct traversal
                 return true;
             }
 
-            if (current_turn.cluster_id < 0
+            if (! current_turn.is_clustered()
                 && current_turn.both(operation_intersection))
             {
                 if (analyze_ii_intersection(turn_index, op_index,
@@ -836,7 +836,7 @@ struct traversal
             }
         }
 
-        if (current_turn.cluster_id >= 0)
+        if (current_turn.is_clustered())
         {
             if (! select_turn_from_cluster(turn_index, op_index,
                     start_turn_index, start_op_index, previous_seg_id))

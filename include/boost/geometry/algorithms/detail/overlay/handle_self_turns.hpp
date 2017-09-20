@@ -198,7 +198,7 @@ public :
                 continue;
             }
 
-            if (turn.cluster_id >= 0 && turn.has_colocated_both)
+            if (turn.is_clustered() && turn.has_colocated_both)
             {
                 // Don't delete a self-ii-turn colocated with another ii-turn
                 // (for example #case_recursive_boxes_70)

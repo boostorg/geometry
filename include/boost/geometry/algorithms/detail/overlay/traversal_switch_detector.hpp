@@ -316,7 +316,7 @@ struct traversal_switch_detector
             return false;
         }
 
-        if (turn.cluster_id == -1)
+        if (! turn.is_clustered())
         {
             // If it is a uu/ii-turn (non clustered), it is never same region
             return ! (turn.both(operation_union) || turn.both(operation_intersection));
@@ -504,7 +504,7 @@ struct traversal_switch_detector
 
             if (turn.discarded
                     || turn.blocked()
-                    || turn.cluster_id >= 0
+                    || turn.is_clustered()
                     || ! (turn.both(operation_union) || turn.both(operation_intersection)))
             {
                 // Skip discarded, blocked, non-uu/ii and clustered turns
@@ -536,7 +536,7 @@ struct traversal_switch_detector
             turn_type const& turn = m_turns[turn_index];
 
             if ((turn.both(operation_union) || turn.both(operation_intersection))
-                 && turn.cluster_id < 0)
+                 && ! turn.is_clustered())
             {
                 std::cout << "UU/II SWITCH RESULT "
                              << turn_index << " -> "
