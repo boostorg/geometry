@@ -238,7 +238,7 @@ struct traversal_switch_detector
         }
     }
 
-    void assign_regions()
+    void assign_region_ids()
     {
         for (typename merge_map::const_iterator it
              = m_turns_per_ring.begin(); it != m_turns_per_ring.end(); ++it)
@@ -259,40 +259,50 @@ struct traversal_switch_detector
                         op.enriched.region_id = properties.region_id;
                     }
                 }
-                signed_size_type const& id0 = turn.operations[0].enriched.region_id;
-                signed_size_type const& id1 = turn.operations[1].enriched.region_id;
-                if (id0 != id1 && id0 != -1 && id1 != -1)
+            }
+        }
+    }
+
+    void assign_connected_regions()
+    {
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type const& turn = m_turns[turn_index];
+
+            signed_size_type const& id0 = turn.operations[0].enriched.region_id;
+            signed_size_type const& id1 = turn.operations[1].enriched.region_id;
+
+            if (id0 != id1 && id0 != -1 && id1 != -1)
+            {
+                // Force insertion
+                m_connected_regions[id0].region_id = id0;
+                m_connected_regions[id1].region_id = id1;
+
+                connection_properties& prop0 = m_connected_regions[id0].connected_region_counts[id1];
+                connection_properties& prop1 = m_connected_regions[id1].connected_region_counts[id0];
+
+                if (turn.cluster_id < 0)
                 {
-                    // Force insertion
-                    m_connected_regions[id0].region_id = id0;
-                    m_connected_regions[id1].region_id = id1;
-
-                    connection_properties& prop0 = m_connected_regions[id0].connected_region_counts[id1];
-                    connection_properties& prop1 = m_connected_regions[id1].connected_region_counts[id0];
-
-                    if (turn.cluster_id < 0)
+                    // Turn is not colocated, add reference to connection
+                    prop0.count++;
+                    prop1.count++;
+                }
+                else
+                {
+                    // Turn is colocated, only add region reference if it was not yet registered
+                    if (prop0.cluster_indices.count(turn.cluster_id) == 0)
                     {
-                        // Turn is not colocated, add reference to connection
                         prop0.count++;
+                    }
+                    if (prop1.cluster_indices.count(turn.cluster_id) == 0)
+                    {
                         prop1.count++;
                     }
-                    else
-                    {
-                        // Turn is colocated, only add region reference if it was not yet registered
-                        if (prop0.cluster_indices.count(turn.cluster_id) == 0)
-                        {
-                            prop0.count++;
-                        }
-                        if (prop1.cluster_indices.count(turn.cluster_id) == 0)
-                        {
-                            prop1.count++;
-                        }
-                    }
-                    // Insert cluster-id (also -1 is inserted - reinsertion of
-                    // same cluster id is OK)
-                    prop0.cluster_indices.insert(turn.cluster_id);
-                    prop1.cluster_indices.insert(turn.cluster_id);
                 }
+                // Insert cluster-id (also -1 is inserted - reinsertion of
+                // same cluster id is OK)
+                prop0.cluster_indices.insert(turn.cluster_id);
+                prop1.cluster_indices.insert(turn.cluster_id);
             }
         }
     }
@@ -438,7 +448,7 @@ struct traversal_switch_detector
             }
         }
 
-        // All rings having turns are in the map. Now iterate them
+        // All rings having turns are in turns/ring map. Process them.
         {
             signed_size_type new_region_id = 1;
             for (typename merge_map::iterator it
@@ -447,7 +457,8 @@ struct traversal_switch_detector
                 create_region(new_region_id, it->first, it->second);
             }
 
-            assign_regions();
+            assign_region_ids();
+            assign_connected_regions();
             get_isolated_regions();
             assign_isolation();
         }
