@@ -86,7 +86,24 @@ public:
         return non_iterative_case(lon1, lat1, distance);
     }
 
-
+    template <typename T>
+    T static inline normalize(T g4)
+    {
+        CT const pi = math::pi<CT>();
+        if (g4 < 0 && g4 < -pi)//close to -270
+        {
+            return g4 + 1.5 * pi;
+        }
+        else if (g4 > 0 && g4 > pi)//close to 270
+        {
+            return - g4 + 1.5 * pi;
+        }
+        else if (g4 < 0 && g4 > -pi)//close to -90
+        {
+            return -g4 - pi/2;
+        }
+        return g4 - pi/2;
+    }
 
     template <typename Spheroid>
     result_distance_point_segment
@@ -121,7 +138,7 @@ public:
 
         //segment on equator
         //TODO: use the meridian distance when it'll be available
-        if (math::equals(lat1, 0) && math::equals(lat2, 0))
+        if (math::equals(lat1, c0) && math::equals(lat2, c0))
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
             std::cout << "Equatorial segment" << std::endl;
@@ -214,10 +231,11 @@ public:
         }
 
         // Guess s14 (SPHERICAL)
-        typedef geometry::model::point<
-                                        CT, 2,
-                                        geometry::cs::spherical_equatorial<geometry::radian>
-                                      > point;
+        typedef geometry::model::point
+                <
+                    CT, 2,
+                    geometry::cs::spherical_equatorial<geometry::radian>
+                > point;
 
         CT bet1 = atan((1 - f) * tan(lon1));
         CT bet2 = atan((1 - f) * tan(lon2));
@@ -264,27 +282,11 @@ public:
                                                             lon3, lat3, spheroid);
             g4 = res34.azimuth - a4;
 
-            // Normalize g4
-            if (g4 < 0 && g4 < -pi)//close to -270
-            {
-                delta_g4 = g4 + 1.5 * pi;
-            }
-            else if (g4 > 0 && g4 > pi)//close to 270
-            {
-                delta_g4 = - g4 + 1.5 * pi;
-            }
-            else if (g4 < 0 && g4 > -pi)//close to -90
-            {
-                delta_g4 = -g4 - pi/2;
-            }
-            else //close to 90
-            {
-                delta_g4 = g4 - pi/2;
-            }
+            delta_g4 = normalize(g4);
 
             CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
             CT m34 = res34.reduced_length;
-            CT der = M43 / m34;
+            CT der = (M43 / m34) * sin(g4);
             s14 = s14 - delta_g4 / der;
 
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG

@@ -247,8 +247,8 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-mer2",
                   "POINT(2.5 3)",
                   "SEGMENT(2 2,2 4)",
-                  pp_distance("POINT(2.5 3)", "POINT(2 3)", strategy_pp),
-                  strategy_ps);
+                  pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", andoyer_pp()),
+                  andoyer_strategy());
     tester::apply("p-s-mer3",
                   "POINT(2.5 5)",
                   "SEGMENT(2 2,2 4)",
