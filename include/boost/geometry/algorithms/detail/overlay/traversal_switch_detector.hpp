@@ -148,6 +148,15 @@ struct traversal_switch_detector
 
     bool one_connection_to_another_region(region_properties const& region) const
     {
+        // For example:
+        // +----------------------+
+        // |                   __ |
+        // |                  /  \|
+        // |                 |    x
+        // |                  \__/|
+        // |                      |
+        // +----------------------+
+
         if (region.connected_region_counts.size() == 1)
         {
             connection_properties const& cprop = region.connected_region_counts.begin()->second;
@@ -159,6 +168,18 @@ struct traversal_switch_detector
     // TODO: might be combined with previous
     bool multiple_connections_to_one_region(region_properties const& region) const
     {
+        // For example:
+        // +----------------------+
+        // |                   __ |
+        // |                  /  \|
+        // |                 |    x
+        // |                  \  /|
+        // |                  /  \|
+        // |                 |    x
+        // |                  \__/|
+        // |                      |
+        // +----------------------+
+
         if (region.connected_region_counts.size() == 1)
         {
             connection_properties const& cprop = region.connected_region_counts.begin()->second;
@@ -169,6 +190,15 @@ struct traversal_switch_detector
 
     bool one_connection_to_multiple_regions(region_properties const& region) const
     {
+        // For example:
+        // +----------------------+
+        // |                   __ | __
+        // |                  /  \|/  |
+        // |                 |    x   |
+        // |                  \__/|\__|
+        // |                      |
+        // +----------------------+
+
         bool first = true;
         signed_size_type first_turn_id = 0;
         for (typename connection_map::const_iterator it = region.connected_region_counts.begin();
