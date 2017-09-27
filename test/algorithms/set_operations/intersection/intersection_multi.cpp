@@ -162,6 +162,10 @@ void test_areal()
     TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
     TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
 
+    // TODO: isolated region with multiple connection should be handled
+    // differently
+    TEST_INTERSECTION_IGNORE(case_141_multi, 2, -1, 74.5);
+
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
 #else
