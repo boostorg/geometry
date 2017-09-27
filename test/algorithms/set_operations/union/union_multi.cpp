@@ -204,6 +204,10 @@ void test_areal()
     TEST_UNION(case_135_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_136_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_137_multi, 1, 2, -1, 22.0);
+    TEST_UNION(case_138_multi, 2, 1, -1, 65.225);
+    TEST_UNION(case_139_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
