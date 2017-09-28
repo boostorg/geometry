@@ -30,15 +30,18 @@ namespace boost { namespace geometry { namespace formula
 \brief Compute the arc length of an ellipse.
 */
 
-template <typename CT>
+template <typename CT, unsigned int Order = 1>
 class elliptic_arc_length
 {
+
+public :
+
     // Distance computation on meridians using series approximations
-    // to elliptic integrals.
+    // to elliptic integrals. Formula to compute distance from lattitude 0 to lat
     // https://en.wikipedia.org/wiki/Meridian_arc
-    // latitudes are assumed to be in radians
-    template <unsigned int Order, typename T, typename Spheroid>
-    CT series_expansion(T lat, Spheroid const& spheroid)
+    // latitudes are assumed to be in radians and in [-pi/2,pi/2]
+    template <typename T, typename Spheroid>
+    static CT apply(T lat, Spheroid const& spheroid)
     {
         CT const a = get_radius<0>(spheroid);
         CT const f = formula::flattening<CT>(spheroid);
@@ -91,31 +94,16 @@ class elliptic_arc_length
         C6 += 0.227864583 * n5;
         CT C10 = -0.54140625 * n5;
 
-        // Order 5 otr higher
+        // Order 5 or higher
         return M * (C0 * lat + C2 * sin(2*lat) + C4 * sin(4*lat)
                   + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat));
 
     }
 
-public :
-
-    template
-    <
-        unsigned int Order = 2,
-        typename T1,
-        typename T2,
-        typename Spheroid
-    >
-    CT apply(T1 lat1, T2 lat2, Spheroid const& spheroid)
-    {
-        return series_expansion<Order>(lat2, spheroid)
-              - series_expansion<Order>(lat1, spheroid);
-    }
-
     // Iterative method to elliptic arc length based on
     // http://www.codeguru.com/cpp/cpp/algorithms/article.php/c5115/
     // Geographic-Distance-and-Azimuth-Calculations.htm
-    // latitudes are assumed to be in radians
+    // latitudes are assumed to be in radians and in [-pi/2,pi/2]
     template <typename T1, typename T2, typename Spheroid>
     CT interative_method(T1 lat1,
                          T2 lat2,

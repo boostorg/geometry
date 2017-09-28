@@ -2,7 +2,6 @@
 
 // Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -74,44 +73,28 @@ public:
 
         CT const c0 = CT(0);
         CT const c1 = CT(1);
+        CT const pi = math::pi<CT>();
         CT const f = formula::flattening<CT>(spheroid);
 
-        CT d; //the spherical distance
-        CT dlon;
-        CT cos_d;
-        CT cos_dlon;
-        CT sin_dlon;
-        CT cos_lat1;
-        CT cos_lat2;
+        CT const dlon = lon2 - lon1;
+        CT const sin_dlon = sin(dlon);
+        CT const cos_dlon = cos(dlon);
         CT const sin_lat1 = sin(lat1);
+        CT const cos_lat1 = cos(lat1);
         CT const sin_lat2 = sin(lat2);
+        CT const cos_lat2 = cos(lat2);
 
-        if (math::equals(lon1, lon2) )
-        {
-            d = lat1 - lat2;
-            cos_d = cos(d);
-        }
-        else
-        {
-            dlon = lon2 - lon1;
-            sin_dlon = sin(dlon);
-            cos_dlon = cos(dlon);
-            cos_lat1 = cos(lat1);
-            cos_lat2 = cos(lat2);
+        // H,G,T = infinity if cos_d = 1 or cos_d = -1
+        // lat1 == +-90 && lat2 == +-90
+        // lat1 == lat2 && lon1 == lon2
+        CT cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
+        // on some platforms cos_d may be outside valid range
+        if (cos_d < -c1)
+            cos_d = -c1;
+        else if (cos_d > c1)
+            cos_d = c1;
 
-            // H,G,T = infinity if cos_d = 1 or cos_d = -1
-            // lat1 == +-90 && lat2 == +-90
-            // lat1 == lat2 && lon1 == lon2
-            cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
-            // on some platforms cos_d may be outside valid range
-            if (cos_d < -c1)
-                cos_d = -c1;
-            else if (cos_d > c1)
-                cos_d = c1;
-
-            d = acos(cos_d); // [0, pi]
-        }
-
+        CT const d = acos(cos_d); // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
 
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
@@ -140,8 +123,6 @@ public:
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
-            CT const pi = math::pi<CT>();
-
             // sin_d = 0 <=> antipodal points
             if (math::equals(sin_d, c0))
             {
@@ -149,11 +130,6 @@ public:
                 // dA = inf
                 // azimuth = -inf
                 result.azimuth = lat1 <= lat2 ? c0 : pi;
-            }
-            // meridian segment
-            else if (math::equals(lon1, lon2))
-            {
-                result.azimuth = c0;
             }
             else
             {
@@ -238,7 +214,7 @@ private:
     static inline void normalize_azimuth(CT & azimuth, CT const& A, CT const& dA)
     {
         CT const c0 = 0;
-        
+
         if (A >= c0) // A indicates Eastern hemisphere
         {
             if (dA >= c0) // A altered towards 0

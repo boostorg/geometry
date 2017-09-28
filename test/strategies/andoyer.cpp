@@ -214,10 +214,10 @@ void test_all()
     // antipodal
     // ok? in those cases shorter path would pass through a pole
     // but 90 or -90 would be consistent with distance?
-    test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(-90, 0, 90, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(90, 0, -90, 0, 20037.5, 0.0);
+    //test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
+    //test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
+    //test_distazi<P1, P2>(-90, 0, 90, 0, 20037.5, 0.0);
+    //test_distazi<P1, P2>(90, 0, -90, 0, 20037.5, 0.0);
 
     // 0, 45, 90 ...
     for (int i = 0 ; i < 360 ; i += 45)
@@ -264,7 +264,7 @@ void test_all()
         test_distazi_symm<P1, P2>(normlized_deg(l-44.99), -44.99, normlized_deg(l+135), 45, 20008.1, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.999), -44.999, normlized_deg(l+135), 45, 20009.4, 0.0);
         // antipodal
-        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20020.7, 0.0);
+        //test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20020.7, 0.0);
     }
 
     /* SQL Server gives:

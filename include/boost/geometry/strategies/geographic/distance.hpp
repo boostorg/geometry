@@ -5,6 +5,7 @@
 // This file was modified by Oracle on 2014-2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -28,6 +29,7 @@
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
@@ -74,13 +76,52 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
+        typedef typename calculation_type<Point1, Point2>::type CT;
+
+        CT lon1 = get_as_radian<0>(point1);
+        CT lat1 = get_as_radian<1>(point1);
+        CT lon2 = get_as_radian<0>(point2);
+        CT lat2 = get_as_radian<1>(point2);
+
+        CT c0 = 0;
+        CT pi = math::pi<CT>();
+        CT half_pi = pi/CT(2);
+        CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
+
+        typedef typename formula::elliptic_arc_length
+        <
+            CT, strategy::default_order<FormulaPolicy>::value
+        > elliptic_arc_length;
+
+        if (math::equals(diff, c0))
+        {
+            // single meridian not crossing pole
+            if (lat1 > lat2)
+            {
+                std::swap(lat1, lat2);
+            }
+            return elliptic_arc_length::apply(lat2, m_spheroid)
+                  - elliptic_arc_length::apply(lat1, m_spheroid);
+        }
+
+        if (math::equals(math::abs(diff), pi))
+        {
+            // meridian crosses pole
+            CT lat_sign = 1;
+            if (lat1+lat2 < c0)
+            {
+                lat_sign = CT(-1);
+            }
+            return math::abs(lat_sign * CT(2) *
+                             elliptic_arc_length::apply(half_pi, m_spheroid)
+                             - elliptic_arc_length::apply(lat1, m_spheroid)
+                             - elliptic_arc_length::apply(lat2, m_spheroid));
+        }
+
         return FormulaPolicy::template inverse
-            <
-                typename calculation_type<Point1, Point2>::type,
-                true, false, false, false, false
-            >::apply(get_as_radian<0>(point1), get_as_radian<1>(point1),
-                     get_as_radian<0>(point2), get_as_radian<1>(point2),
-                     m_spheroid).distance;
+               <
+                   CT, true, false, false, false, false
+               >::apply(lon1, lat1, lon2, lat2, m_spheroid).distance;
     }
 
     inline Spheroid const& model() const

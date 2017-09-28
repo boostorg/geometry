@@ -14,6 +14,7 @@
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
+#include <boost/geometry/formulas/elliptic_arc_length.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/integral_c.hpp>
