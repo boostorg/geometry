@@ -24,9 +24,17 @@ void normalize_deg(double & deg)
         deg += 360.0;
 }
 
-void check_one(double result, double expected, double reference, double reference_error,
+
+#define BOOST_GEOMETRY_CHECK_CLOSE( L, R, T, M )        BOOST_TEST_TOOL_IMPL( 0, \
+    ::boost::test_tools::check_is_close_t(), M, CHECK, CHECK_MSG, (L)(R)(::boost::math::fpc::percent_tolerance(T)) )
+
+
+void check_one(std::string const& name,
+               double result, double expected, double reference, double reference_error,
                bool normalize = false, bool check_reference_only = false)
 {
+    std::string id = name.empty() ? "" : (name + " : ");
+
     if (normalize)
     {
         normalize_deg(result);
@@ -45,19 +53,22 @@ void check_one(double result, double expected, double reference, double referenc
         {
             bool is_close = abs_result <= 30 * eps && abs_expected <= 30 * eps;
             BOOST_CHECK_MESSAGE((is_close),
-                std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
         else if (res_max > 100 * eps)
         {
-            BOOST_CHECK_CLOSE(result, expected, 0.1);
+            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.1,
+                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
         else if (res_max > 10 * eps)
         {
-            BOOST_CHECK_CLOSE(result, expected, 10);
+            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 10,
+                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
         else if (res_max > eps)
         {
-            BOOST_CHECK_CLOSE(result, expected, 1000);
+            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 1000,
+                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
         }
     }
 
@@ -66,7 +77,14 @@ void check_one(double result, double expected, double reference, double referenc
     double ref_diff = bg::math::abs(result - reference);
     double ref_max = (std::max)(bg::math::abs(result), bg::math::abs(reference));
     bool is_ref_close = ref_diff <= reference_error || ref_diff <= reference_error * ref_max;
-    BOOST_CHECK_MESSAGE((is_ref_close), std::setprecision(20) << "result {" << result << "} and reference {" << reference << "} not close enough.");
+    BOOST_CHECK_MESSAGE((is_ref_close),
+        id << std::setprecision(20) << "result {" << result << "} and reference {" << reference << "} not close enough.");
+}
+
+void check_one(double result, double expected, double reference, double reference_error,
+               bool normalize = false, bool check_reference_only = false)
+{
+    check_one("", result, expected, reference, reference_error, normalize, check_reference_only);
 }
 
 #endif // BOOST_GEOMETRY_TEST_FORMULA_HPP
