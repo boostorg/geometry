@@ -345,6 +345,8 @@ void test_areal()
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_74, 2, -1, 20.25);
 #endif
 
+    TEST_INTERSECTION(case_recursive_boxes_75, 5, -1, 16.75);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
         2, 10, 6.0); // Area from SQL Server

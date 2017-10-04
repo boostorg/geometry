@@ -510,6 +510,7 @@ struct traversal
             || intersection_pattern_common_interior3(selected_rank, aggregation)
             || intersection_pattern_common_interior4(selected_rank, aggregation)
             || intersection_pattern_common_interior5(selected_rank, aggregation)
+            || intersection_pattern_common_interior6(selected_rank, aggregation)
                 ;
 
         if (! detected)
