@@ -463,28 +463,11 @@ struct traversal_switch_detector
                     == turn.operations[1].enriched.zone;
         }
 
-        // If a cluster contains an ii/cc it is not same region (for intersection)
-        typename Clusters::const_iterator it = m_clusters.find(turn.cluster_id);
-        if (it == m_clusters.end())
-        {
-            // Should not occur
-            return true;
-        }
-
-        cluster_info const& cinfo = it->second;
-        for (set_iterator sit = cinfo.turn_indices.begin();
-             sit != cinfo.turn_indices.end(); ++sit)
-        {
-            turn_type const& cluster_turn = m_turns[*sit];
-            if (cluster_turn.both(operation_union)
-                   || cluster_turn.both(operation_intersection))
-            {
-                return false;
-            }
-        }
-
-        // It is the same region
-        return false;
+        // For an intersection, two regions connect if they are not ii
+        // (ii-regions are isolated) or, in some cases, not iu (for example
+        // when a multi-polygon is inside an interior ring and connecting it)
+        return ! (turn.both(operation_intersection)
+                  || turn.combination(operation_intersection, operation_union));
     }
 
 
