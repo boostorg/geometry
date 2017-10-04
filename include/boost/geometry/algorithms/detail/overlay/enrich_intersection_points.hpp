@@ -257,7 +257,7 @@ inline void calculate_remaining_distance(Turns& turns)
 
         int const to_index0 = op0.enriched.get_next_turn_index();
         int const to_index1 = op1.enriched.get_next_turn_index();
-        if (to_index1 >= 0
+        if (to_index0 >= 0
                 && to_index1 >= 0
                 && to_index0 != to_index1)
         {
