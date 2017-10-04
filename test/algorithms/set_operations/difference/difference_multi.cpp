@@ -397,6 +397,13 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_72, 6, 6.5, 7, 4.0, 10);
     TEST_DIFFERENCE(case_recursive_boxes_73, 4, 1.75, 5, 4.0, 8);
 
+    TEST_DIFFERENCE(case_recursive_boxes_74, 3, 3.00, 3, 1.5, 5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_75, 7, 4.5, 4, 2.0, 11);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_75, 5, 4.5, 4, 2.0, 9);
+#endif
+
     {
         ut_settings sym_settings;
     #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
