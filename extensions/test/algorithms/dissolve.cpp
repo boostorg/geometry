@@ -95,7 +95,18 @@ namespace
     // Hole: self-intersecting hole
     std::string const dissolve_h4 = "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 3,3 2.5,1 3.5,1.5 3.5,1 1))";
 
-    // Testcases send by Johan Doré at September 24, 2017:
+    std::string const multi_three_triangles = "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))";
+    std::string const multi_simplex_two = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)))";
+    std::string const multi_simplex_three = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)))";
+    std::string const multi_simplex_four = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((5 5,7 7,8 4,5 5)))";
+    std::string const multi_disjoint = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((1 6,2 10,5 7,1 6)),((3 4,5 6,6 2,3 4)),((6 5,8 7,9 4,6 5)))";
+    std::string const multi_new_interior = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((3 1,5 4,8 4,3 1)))";
+
+    // Testcases sent on GGL mailing list - report Javier - 2011, March 7
+    std::string const ggl_list_20110307_javier_01_a = "MULTIPOLYGON(((560 -400, 600 -400, 600 -440, 560 -440, 560 -400)), ((480 -400, 520 -400, 520 -440, 480 -440, 480 -400)), ((600 -320, 640 -320, 640 -360, 600 -360, 600 -320)), ((520 -400, 560 -400, 560 -440, 520 -440, 520 -400)))";
+    std::string const ggl_list_20110307_javier_01_b = "POLYGON((0 0, 2000 0, 2000 -2000, 0 -2000, 0 0), (560 -400, 560 -440, 600 -440, 600 -400, 560 -400), (480 -400, 480 -440, 520 -440, 520 -400, 480 -400), (600 -320, 600 -360, 640 -360, 640 -320, 600 -320), (520 -400, 520 -440, 560 -440, 560 -400, 520 -400))";
+
+    // Testcases sent by Johan Doré at September 24, 2017:
     std::string const dissolve_mail_2017_09_24_a = "POLYGON((0 1, 1 0, 1 1, 0 0, 0 1))"; // two triangles
     std::string const dissolve_mail_2017_09_24_b = "POLYGON((1 0, 0 0, 0 4, 4 4, 4 0))"; // input is not closed
     std::string const dissolve_mail_2017_09_24_c = "POLYGON((0 0, 1 0, 0 -1, 0.0001 1))"; // spike and not closed
@@ -451,12 +462,15 @@ void test_one(std::string const& caseid, std::string const& wkt,
 #define TEST_DISSOLVE(caseid, area, clips, holes, points) \
     (test_one<polygon, polygon>) ( #caseid, caseid, holes, points, area, clips)
 
+#define TEST_MULTI(caseid, area, clips, holes, points) \
+    (test_one<multi_polygon, polygon>) ( #caseid, caseid, holes, points, area, clips)
 
 template <typename P>
 void test_all()
 {
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 6);
     TEST_DISSOLVE(dissolve_2, 7.9296875, 1, 1, 12);
@@ -499,6 +513,18 @@ void test_all()
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
+    TEST_MULTI(multi_three_triangles, 42.614078674948232, 1, 1, 13);
+    TEST_MULTI(multi_simplex_two, 14.7, 1, 0, 8);
+    TEST_MULTI(multi_simplex_three, 16.7945, 1, 0, 14);
+    TEST_MULTI(multi_simplex_four, 20.7581, 1, 0, 18);
+    TEST_MULTI(multi_disjoint, 24.0, 4, 0, 16);
+    TEST_MULTI(multi_new_interior, 19.5206, 1, 1, 18);
+    TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 14);
+
+    TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 19);
+    TEST_DISSOLVE(dissolve_ticket17, 0.00920834633689, 1, 1, 228);
+    TEST_DISSOLVE(dissolve_reallife, 91756.916526794434, 1, 0, 25);
+
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Reported by Artem Pavlenko at gitter - until now these did not work yet
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
@@ -510,44 +536,6 @@ void test_all()
         "POLYGON((337 176,602 377,294 372,581 166,453 449,337 176))",
         0, 0, 0); // TODO: expected
 #endif
-
-    // Multi-geometries
-    {
-        typedef bg::model::multi_polygon<polygon> multi_polygon;
-
-        test_one<multi_polygon, polygon>("three_triangles",
-            "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))" ,
-            1, 13, 42.614078674948232, 1);
-
-        test_one<multi_polygon, polygon>("simplex_two",
-            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)))",
-            0, 8, 14.7, 1);
-        test_one<multi_polygon, polygon>("simplex_three",
-            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)))",
-            0, 14, 16.7945, 1);
-        test_one<multi_polygon, polygon>("simplex_four",
-            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((5 5,7 7,8 4,5 5)))",
-            0, 18, 20.7581, 1);
-
-        // disjoint
-        test_one<multi_polygon, polygon>("simplex_disjoint",
-            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((1 6,2 10,5 7,1 6)),((3 4,5 6,6 2,3 4)),((6 5,8 7,9 4,6 5)))",
-            0, 16, 24.0, 4);
-
-        // new hole of four
-        test_one<multi_polygon, polygon>("new_hole",
-            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((3 1,5 4,8 4,3 1)))",
-            1, 18, 19.5206, 1);
-
-        // GGL mailing list - report Javier - 2011, March 7
-        test_one<multi_polygon, polygon>("ggl_list_20110307_javier_01_a",
-            "MULTIPOLYGON(((560 -400, 600 -400, 600 -440, 560 -440, 560 -400)), ((480 -400, 520 -400, 520 -440, 480 -440, 480 -400)), ((600 -320, 640 -320, 640 -360, 600 -360, 600 -320)), ((520 -400, 560 -400, 560 -440, 520 -440, 520 -400)))",
-            0, 14, 6400, 2);
-
-        test_one<polygon, polygon>("ggl_list_20110307_javier_01_b",
-            "POLYGON((0 0, 2000 0, 2000 -2000, 0 -2000, 0 0), (560 -400, 560 -440, 600 -440, 600 -400, 560 -400), (480 -400, 480 -440, 520 -440, 520 -400, 480 -400), (600 -320, 600 -360, 640 -360, 640 -320, 600 -320), (520 -400, 520 -440, 560 -440, 560 -400, 520 -400))",
-            2, 19, 3993600, 1);
-    }
 
 /*
     //Should be solved (completely) differently
@@ -566,8 +554,6 @@ void test_all()
         0, 11, 25.6158412);
 */
 
-    TEST_DISSOLVE(dissolve_ticket17, 0.00920834633689, 1, 1, 228);
-    TEST_DISSOLVE(dissolve_reallife, 91756.916526794434, 1, 0, 25);
 }
 
 
