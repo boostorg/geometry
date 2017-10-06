@@ -40,33 +40,64 @@
 #  include <boost/geometry/io/svg/write_svg_multi.hpp>
 #endif
 
+#if defined(TEST_WITH_SVG)
 template <typename Mapper>
-struct map_segment
+struct map_visitor
 {
-    map_segment(Mapper& m)
-        : m_mapper(&m)
+    map_visitor(Mapper& mapper)
+        : m_mapper(mapper)
     {}
 
-    map_segment<Mapper>& operator=(map_segment<Mapper> const& other)
+    void print(char const* header)
+    {}
+
+    template <typename Turns>
+    void print(char const* header, Turns const& turns, int turn_index)
     {
-        if(this != &other)
+        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
+        stream(turns, turns[turn_index], turns[turn_index].operations[0], header, style);
+    }
+
+    template <typename Turns>
+    void print(char const* header, Turns const& turns, int turn_index, int op_index)
+    {
+        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
+        stream(turns, turns[turn_index], turns[turn_index].operations[op_index], header, style);
+    }
+
+    template <typename Turns>
+    void visit_turns(int phase, Turns const& turns)
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        BOOST_FOREACH(turn_type const& turn, turns)
         {
-            this->m_mapper = other.m_mapper;
+            switch (phase)
+            {
+                case 1 : // after self_turns
+                    m_mapper.map(turn.point, "fill:rgb(255,128,0);"
+                            "stroke:rgb(0,0,0);stroke-width:1", 4);
+                    break;
+                // TODO: add enriched information as label
+            }
         }
-        return *this;
     }
 
+    template <typename Clusters, typename Turns>
+    void visit_clusters(Clusters const& , Turns const& ) {}
 
-    template <typename Segment>
-    inline void operator()(Segment const& s)
-    {
-        // create a little offset
-        m_mapper->map(s, "opacity:0.6;fill:none;stroke:rgb(0,0,0);stroke-width:2");
-    }
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse(Turns const& , Turn const& , Operation const& , char const*)
+    {}
 
-    Mapper* m_mapper;
+    template <typename Turns, typename Turn, typename Operation>
+    void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
+                               bg::detail::overlay::traverse_error_type )
+    {}
+
+    Mapper& m_mapper;
 };
 
+#endif
 
 template <typename Geometry>
 std::string as_wkt(Geometry const& geometry)
@@ -106,7 +137,31 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         // This will optionally also create SVG with turn-debug information
         strategy_type strategy;
+
+
+#if ! defined(TEST_WITH_SVG)
         bg::detail::overlay::overlay_null_visitor visitor;
+#else
+        std::ostringstream filename;
+        filename << "dissolve_" << caseid << "_"
+            << string_from_type<coordinate_type>::name()
+            << ".svg";
+
+        std::ofstream svg(filename.str().c_str());
+
+        typedef bg::svg_mapper
+            <
+                typename bg::point_type<Geometry>::type
+            > mapper_type;
+
+        mapper_type mapper(svg, 500, 500);
+        mapper.add(geometry);
+
+        mapper.map(geometry, "fill-opacity:0.5;fill:rgb(153,204,0);"
+            "stroke:rgb(153,204,0);stroke-width:3;fill-rule:nonzero");
+
+        map_visitor<mapper_type> visitor(mapper);
+#endif
 
         bg::dispatch::dissolve
             <
@@ -116,6 +171,14 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
                 GeometryOut
             >::apply(geometry, robust_policy, std::back_inserter(dissolved1),
                      strategy, visitor);
+
+#if defined(TEST_WITH_SVG)
+        BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
+        {
+           mapper.map(dissolved, "fill:none;stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:8;");
+        }
+#endif
+
     }
 
     // Check dissolve_inserter
@@ -178,37 +241,6 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
             BOOST_CHECK_MESSAGE(wkt1 == wkt3, caseid << " : output differs: " << wkt1 << " VERSUS " << wkt3);
         }
     }
-
-
-#if defined(TEST_WITH_SVG)
-    {
-        std::ostringstream filename;
-        filename << "dissolve_"
-            << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << ".svg";
-
-        std::ofstream svg(filename.str().c_str());
-
-        typedef
-        bg::svg_mapper
-            <
-                typename bg::point_type<Geometry>::type
-            > mapper_type;
-
-        mapper_type mapper(svg, 500, 500);
-        mapper.add(geometry);
-
-        mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1;fill-rule:nonzero");
-
-        bg::for_each_segment(geometry, map_segment<mapper_type>(mapper));
-
-        BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
-        {
-           mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
-        }
-    }
-#endif
 }
 
 

@@ -140,6 +140,8 @@ struct dissolve_ring_or_polygon
                 detail::overlay::assign_null_policy
             >(geometry, strategy, rescale_policy, turns, policy);
 
+        visitor.visit_turns(1, turns);
+
         // The dissolve process is not necessary if there are no turns at all
 
         if (boost::size(turns) > 0)
@@ -164,6 +166,10 @@ struct dissolve_ring_or_polygon
                         clusters, geometry, geometry, rescale_policy,
                         side_strategy);
 
+            visitor.visit_turns(2, turns);
+
+            visitor.visit_clusters(clusters, turns);
+
             std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
             detail::overlay::traverse
@@ -176,12 +182,15 @@ struct dissolve_ring_or_polygon
                          strategy, rescale_policy,
                          turns, rings, turn_info_per_ring, clusters, visitor);
 
-            clear_visit_info(turns);
+            visitor.visit_turns(3, turns);
 
             // ... and for intersection
+            clear_visit_info(turns);
             enrich_intersection_points<false, false, overlay_intersection>(turns,
                         clusters, geometry, geometry, rescale_policy,
                         side_strategy);
+
+            visitor.visit_turns(4, turns);
 
             detail::overlay::traverse
                 <
@@ -192,6 +201,8 @@ struct dissolve_ring_or_polygon
                 >::apply(geometry, geometry,
                          strategy, rescale_policy,
                          turns, rings, turn_info_per_ring, clusters, visitor);
+
+            visitor.visit_turns(5, turns);
 
             detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
