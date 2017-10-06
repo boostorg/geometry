@@ -68,6 +68,14 @@ struct map_segment
 };
 
 
+template <typename Geometry>
+std::string as_wkt(Geometry const& geometry)
+{
+    std::ostringstream out;
+    out << bg::wkt(geometry);
+    return out.str();
+}
+
 template <typename GeometryOut, typename Geometry>
 void test_dissolve(std::string const& caseid, Geometry const& geometry,
         std::size_t /*expected_hole_count*/, std::size_t expected_point_count,
@@ -79,17 +87,65 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
     //std::cout << bg::area(geometry) << std::endl;
 
-    std::vector<GeometryOut> dissolved_vector;
-    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
+    std::vector<GeometryOut> dissolved1;
+
+    // Check dispatch::dissolve
+    {
+        typedef typename bg::strategy::intersection::services::default_strategy
+            <
+                typename bg::cs_tag<Geometry>::type
+            >::type strategy_type;
+
+        typedef typename bg::rescale_policy_type
+            <
+                typename bg::point_type<Geometry>::type
+            >::type rescale_policy_type;
+
+        rescale_policy_type robust_policy
+                = bg::get_rescale_policy<rescale_policy_type>(geometry);
+
+        // This will optionally also create SVG with turn-debug information
+        strategy_type strategy;
+        bg::detail::overlay::overlay_null_visitor visitor;
+
+        bg::dispatch::dissolve
+            <
+                typename bg::tag<Geometry>::type,
+                typename bg::tag<GeometryOut>::type,
+                Geometry,
+                GeometryOut
+            >::apply(geometry, robust_policy, std::back_inserter(dissolved1),
+                     strategy, visitor);
+    }
+
+    // Check dissolve_inserter
+    std::vector<GeometryOut> dissolved2;
+    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
+
+    // Check dissolve and difference dissolve/dissolve_inserter
+    std::vector<GeometryOut> dissolved3;
+    bg::dissolve(geometry, dissolved3);
+
+    // Make output unique (TODO: this should probably be moved to dissolve itself)
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
+    {
+        bg::unique(dissolved);
+    }
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    {
+        bg::unique(dissolved);
+    }
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
+    {
+        bg::unique(dissolved);
+    }
 
     typename bg::default_area_result<Geometry>::type length_or_area = 0;
     //std::size_t holes = 0;
     std::size_t count = 0;
 
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
     {
-        bg::unique(dissolved);
-
         length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
 
@@ -108,10 +164,19 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     //BOOST_CHECK_EQUAL(holes, expected_hole_count);
     BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
 
-    // Compile check, it should also compile inplace, outputting to the same geometry
+    BOOST_CHECK_EQUAL(dissolved1.size(), dissolved2.size());
+    BOOST_CHECK_EQUAL(dissolved1.size(), dissolved3.size());
+    if (dissolved1.size() == dissolved2.size()
+            && dissolved1.size() == dissolved3.size())
     {
-        std::vector<GeometryOut> dissolved;
-        bg::dissolve(geometry, dissolved);
+        for (std::size_t i = 0; i < dissolved1.size(); i++)
+        {
+            std::string const wkt1 = as_wkt(dissolved1[i]);
+            std::string const wkt2 = as_wkt(dissolved2[i]);
+            std::string const wkt3 = as_wkt(dissolved3[i]);
+            BOOST_CHECK_MESSAGE(wkt1 == wkt2, caseid << " : output differs: " << wkt1 << " VERSUS " << wkt2);
+            BOOST_CHECK_MESSAGE(wkt1 == wkt3, caseid << " : output differs: " << wkt1 << " VERSUS " << wkt3);
+        }
     }
 
 
@@ -138,8 +203,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         bg::for_each_segment(geometry, map_segment<mapper_type>(mapper));
 
-
-        BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+        BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
         {
            mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
         }
@@ -191,8 +255,6 @@ void test_one(std::string const& caseid, std::string const& wkt,
 }
 
 
-
-
 template <typename P>
 void test_all()
 {
@@ -232,12 +294,10 @@ void test_all()
         0, 6, 16);
 #endif
 
-
     // Non intersection, but with duplicate
     test_one<polygon, polygon>("d1",
         "POLYGON((0 0,0 4,4 0,4 0,0 0))",
         0, 4, 8);
-
 
     // With many duplicates
     test_one<polygon, polygon>("d2",
