@@ -225,8 +225,7 @@ struct dissolve_ring_or_polygon
                          strategy, rescale_policy,
                          turns, rings, turn_info_per_ring, clusters, visitor);
 
-            std::map<ring_identifier, detail::overlay::ring_turn_info> map;
-            detail::overlay::get_ring_turn_info<overlay_dissolve>(map, turns, clusters);
+            detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
             typedef typename geometry::point_type<Geometry>::type point_type;
             typedef typename Strategy::template area_strategy
@@ -238,7 +237,7 @@ struct dissolve_ring_or_polygon
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_dissolve>(geometry, map, selected, strategy);
+            detail::overlay::select_rings<overlay_dissolve>(geometry, turn_info_per_ring, selected, strategy);
 
             // Add intersected rings
             {

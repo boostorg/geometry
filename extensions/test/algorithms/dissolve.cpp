@@ -247,7 +247,7 @@ void test_all()
     // Hole: interior tangent to exterior
     test_one<polygon, polygon>("h1",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 2,2 4,3 2,1 2))",
-        0, 5, 16);
+        0, 6, 16);
 
     // Hole: interior intersecting exterior
     test_one<polygon, polygon>("h2",
