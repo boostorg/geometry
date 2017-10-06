@@ -164,108 +164,104 @@ struct dissolve_ring_or_polygon
 
         visitor.visit_turns(1, turns);
 
-        // The dissolve process is not necessary if there are no turns at all
-
-        if (boost::size(turns) > 0)
+        if (boost::size(turns) == 0)
         {
-            typedef typename ring_type<Geometry>::type ring_type;
-            typedef std::vector<ring_type> out_vector;
-            out_vector rings;
-
-            typedef std::map
-                <
-                    signed_size_type,
-                    detail::overlay::cluster_info
-                > cluster_type;
-
-            cluster_type clusters;
-
-            // Enrich/traverse the polygons twice: first for union...
-            typename Strategy::side_strategy_type const
-                side_strategy = strategy.get_side_strategy();
-
-            enrich_intersection_points<false, false, overlay_dissolve_union>(turns,
-                        clusters, geometry, geometry, rescale_policy,
-                        side_strategy);
-
-            visitor.visit_turns(2, turns);
-
-            visitor.visit_clusters(clusters, turns);
-
-            std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
-
-            detail::overlay::traverse
-                <
-                    false, false,
-                    Geometry, Geometry,
-                    overlay_dissolve_union,
-                    backtrack_for_dissolve<Geometry>
-                >::apply(geometry, geometry,
-                         strategy, rescale_policy,
-                         turns, rings, turn_info_per_ring, clusters, visitor);
-
-            visitor.visit_turns(3, turns);
-
-            // ... and then for intersection
-            clear(turns);
-            enrich_intersection_points<false, false, overlay_dissolve_intersection>(turns,
-                        clusters, geometry, geometry, rescale_policy,
-                        side_strategy);
-
-            visitor.visit_turns(4, turns);
-
-            detail::overlay::traverse
-                <
-                    false, false,
-                    Geometry, Geometry,
-                    overlay_dissolve_intersection,
-                    backtrack_for_dissolve<Geometry>
-                >::apply(geometry, geometry,
-                         strategy, rescale_policy,
-                         turns, rings, turn_info_per_ring, clusters, visitor);
-
-            visitor.visit_turns(5, turns);
-
-            detail::overlay::get_ring_turn_info<overlay_dissolve_union>(turn_info_per_ring, turns, clusters);
-
-            typedef typename geometry::point_type<Geometry>::type point_type;
-            typedef typename Strategy::template area_strategy
-                <
-                    point_type
-                >::type area_strategy_type;
-            typedef typename area_strategy_type::return_type area_result_type;
-            typedef detail::overlay::ring_properties<point_type, area_result_type> properties;
-
-            std::map<ring_identifier, properties> selected;
-
-            detail::overlay::select_rings<overlay_dissolve_union>(geometry, turn_info_per_ring, selected, strategy);
-
-            // Add intersected rings
-            {
-                area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
-
-                ring_identifier id(2, 0, -1);
-                for (typename boost::range_iterator<std::vector<ring_type> const>::type
-                        it = boost::begin(rings);
-                        it != boost::end(rings);
-                        ++it)
-                {
-                    selected[id] = properties(*it, area_strategy);
-                    id.multi_index++;
-                }
-            }
-
-            detail::overlay::assign_parents(geometry, rings, selected, strategy, true);
-            return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
-
-        }
-        else
-        {
+            // No self-turns, then add original geometry
             GeometryOut g;
             geometry::convert(geometry, g);
             *out++ = g;
             return out;
         }
+
+        typedef typename ring_type<Geometry>::type ring_type;
+        typedef std::vector<ring_type> out_vector;
+        out_vector rings;
+
+        typedef std::map
+            <
+                signed_size_type,
+                detail::overlay::cluster_info
+            > cluster_type;
+
+        cluster_type clusters;
+
+        // Enrich/traverse the polygons twice: first for union...
+        typename Strategy::side_strategy_type const
+            side_strategy = strategy.get_side_strategy();
+
+        enrich_intersection_points<false, false, overlay_dissolve_union>(turns,
+                    clusters, geometry, geometry, rescale_policy,
+                    side_strategy);
+
+        visitor.visit_turns(2, turns);
+
+        visitor.visit_clusters(clusters, turns);
+
+        std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
+
+        detail::overlay::traverse
+            <
+                false, false,
+                Geometry, Geometry,
+                overlay_dissolve_union,
+                backtrack_for_dissolve<Geometry>
+            >::apply(geometry, geometry,
+                     strategy, rescale_policy,
+                     turns, rings, turn_info_per_ring, clusters, visitor);
+
+        visitor.visit_turns(3, turns);
+
+        // ... and then for intersection
+        clear(turns);
+        enrich_intersection_points<false, false, overlay_dissolve_intersection>(turns,
+                    clusters, geometry, geometry, rescale_policy,
+                    side_strategy);
+
+        visitor.visit_turns(4, turns);
+
+        detail::overlay::traverse
+            <
+                false, false,
+                Geometry, Geometry,
+                overlay_dissolve_intersection,
+                backtrack_for_dissolve<Geometry>
+            >::apply(geometry, geometry,
+                     strategy, rescale_policy,
+                     turns, rings, turn_info_per_ring, clusters, visitor);
+
+        visitor.visit_turns(5, turns);
+
+        detail::overlay::get_ring_turn_info<overlay_dissolve_union>(turn_info_per_ring, turns, clusters);
+
+        typedef typename geometry::point_type<Geometry>::type point_type;
+        typedef typename Strategy::template area_strategy
+            <
+                point_type
+            >::type area_strategy_type;
+        typedef typename area_strategy_type::return_type area_result_type;
+        typedef detail::overlay::ring_properties<point_type, area_result_type> properties;
+
+        std::map<ring_identifier, properties> selected;
+
+        detail::overlay::select_rings<overlay_dissolve_union>(geometry, turn_info_per_ring, selected, strategy);
+
+        // Add intersected rings
+        {
+            area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
+
+            ring_identifier id(2, 0, -1);
+            for (typename boost::range_iterator<std::vector<ring_type> const>::type
+                    it = boost::begin(rings);
+                    it != boost::end(rings);
+                    ++it)
+            {
+                selected[id] = properties(*it, area_strategy);
+                id.multi_index++;
+            }
+        }
+
+        detail::overlay::assign_parents(geometry, rings, selected, strategy, true);
+        return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
     }
 };
 

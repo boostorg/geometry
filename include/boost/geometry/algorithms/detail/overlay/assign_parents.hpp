@@ -372,7 +372,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 }
 
 
-// Version for one geometry (called by buffer)
+// Version for one geometry (called by buffer/dissolve)
 template
 <
     typename Geometry,
