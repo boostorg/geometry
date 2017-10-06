@@ -110,50 +110,19 @@ public :
     }
 };
 
-struct dissolve_overlay_visitor
-{
-public :
-    void print(char const* /*header*/)
-    {
-    }
-
-    template <typename Turns>
-    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/)
-    {
-    }
-
-    template <typename Turns>
-    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/, int /*op_index*/)
-    {
-    }
-
-    template <typename Turns>
-    void visit_turns(int , Turns const& ) {}
-
-    template <typename Clusters, typename Turns>
-    void visit_clusters(Clusters const& , Turns const& ) {}
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& /*turns*/, Turn const& /*turn*/, Operation const& /*op*/, const char* /*header*/)
-    {
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
-            detail::overlay::traverse_error_type )
-    {}
-};
-
-
-
 template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
 {
-    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
+    template
+    <
+        typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
     static inline OutputIterator apply(Geometry const& geometry,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
-                Strategy const& strategy)
+                Strategy const& strategy,
+                Visitor& visitor)
     {
         typedef typename point_type<Geometry>::type point_type;
 
@@ -186,7 +155,6 @@ struct dissolve_ring_or_polygon
                 > cluster_type;
 
             cluster_type clusters;
-            dissolve_overlay_visitor visitor;
 
             // Enrich/traverse the polygons twice: once for union...
             typename Strategy::side_strategy_type const
@@ -344,13 +312,15 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry,
     rescale_policy_type robust_policy
         = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
+    detail::overlay::overlay_null_visitor visitor;
+
     return dispatch::dissolve
     <
         typename tag<Geometry>::type,
         typename tag<GeometryOut>::type,
         Geometry,
         GeometryOut
-    >::apply(geometry, robust_policy, out, strategy);
+    >::apply(geometry, robust_policy, out, strategy, visitor);
 }
 
 /*!
@@ -397,6 +367,8 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection, St
 
     concepts::check<geometry_out>();
 
+    detail::overlay::overlay_null_visitor visitor;
+
     dispatch::dissolve
     <
         typename tag<Geometry>::type,
@@ -405,7 +377,7 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection, St
         geometry_out
     >::apply(geometry, detail::no_rescale_policy(),
              std::back_inserter(output_collection),
-             strategy);
+             strategy, visitor);
 }
 
 template
