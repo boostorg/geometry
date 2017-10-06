@@ -386,23 +386,22 @@ void test_all()
     test_one<polygon, polygon>("3",
         "POLYGON((0 2,2 4,2 0,4 2,0 2))",
         0, 8, 4.0);
+#endif
 
     // Self tangent - polygons are now included twice
     test_one<polygon, polygon>("4",
         "POLYGON((0 0,0 4,4 4,4 0,2 4,0 0))",
-        0, 8, 8.0);
-
+        0, 7, 8.0);
 
     // Self tangent in corner - polygons are now included twice
     test_one<polygon, polygon>("5",
         "POLYGON((0 0,0 4,4 4,4 0,0 4,2 0,0 0))",
-        0, 8, 12.0);
+        0, 7, 12.0);
 
     // With spike
     test_one<polygon, polygon>("6",
         "POLYGON((0 0,0 4,4 4,4 2,6 2,4 2,4 0,0 0))",
         0, 6, 16);
-#endif
 
     // Non intersection, but with duplicate
     test_one<polygon, polygon>("d1",
@@ -508,11 +507,9 @@ void test_all()
             "MULTIPOLYGON(((560 -400, 600 -400, 600 -440, 560 -440, 560 -400)), ((480 -400, 520 -400, 520 -440, 480 -440, 480 -400)), ((600 -320, 640 -320, 640 -360, 600 -360, 600 -320)), ((520 -400, 560 -400, 560 -440, 520 -440, 520 -400)))",
             1, 14, 6400);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
         test_one<polygon, polygon>("ggl_list_20110307_javier_01_b",
             "POLYGON((0 0, 2000 0, 2000 -2000, 0 -2000, 0 0), (560 -400, 560 -440, 600 -440, 600 -400, 560 -400), (480 -400, 480 -440, 520 -440, 520 -400, 480 -400), (600 -320, 600 -360, 640 -360, 640 -320, 600 -320), (520 -400, 520 -440, 560 -440, 560 -400, 520 -400))",
             1, 19, 3993600);
-#endif
     }
 
 
