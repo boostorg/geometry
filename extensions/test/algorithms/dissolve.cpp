@@ -18,6 +18,7 @@
 // To check results
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 
@@ -262,6 +263,19 @@ private :
 
 #endif
 
+//! Unittest settings: validity, tolerance
+struct ut_settings
+{
+    double percentage;
+    bool test_validity;
+
+    explicit ut_settings(double p = 0.001, bool tv = true)
+        : percentage(p)
+        , test_validity(tv)
+    {}
+
+};
+
 template <typename Geometry>
 std::string as_wkt(Geometry const& geometry)
 {
@@ -272,10 +286,11 @@ std::string as_wkt(Geometry const& geometry)
 
 template <typename GeometryOut, typename Geometry>
 void test_dissolve(std::string const& caseid, Geometry const& geometry,
+        double expected_area,
         std::size_t expected_clip_count,
         std::size_t expected_hole_count,
         std::size_t expected_point_count,
-        double expected_length_or_area, double percentage)
+        ut_settings const& settings)
 {
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
 
@@ -350,9 +365,19 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     std::vector<GeometryOut> dissolved2;
     bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
 
-    // Check dissolve and difference dissolve/dissolve_inserter
-    std::vector<GeometryOut> dissolved3;
+    // Check dissolve and validity, assuming GeometryOut is a single polygon
+    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
+    multi_polygon dissolved3;
     bg::dissolve(geometry, dissolved3);
+
+    if (settings.test_validity)
+    {
+        std::string message;
+        bool const valid = bg::is_valid(dissolved3, message);
+        BOOST_CHECK_MESSAGE(valid,
+                "dissolve: " << caseid
+                << " geometry is not valid: " << message);
+    }
 
     // Make output unique (TODO: this should probably be moved to dissolve itself)
     BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
@@ -396,7 +421,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
             );
 
     BOOST_CHECK_EQUAL(holes, expected_hole_count);
-    BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
+    BOOST_CHECK_CLOSE(length_or_area, expected_area, settings.percentage);
 
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved2.size());
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved3.size());
@@ -417,17 +442,19 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
 template <typename Geometry, typename GeometryOut>
 void test_one(std::string const& caseid, std::string const& wkt,
-        std::size_t expected_hole_count, std::size_t expected_point_count,
-        double expected_length_or_area,
-        std::size_t expected_clip_count = 0, // to be moved later
-        double percentage = 0.001)
+        double expected_area,
+        std::size_t expected_clip_count,
+        std::size_t expected_hole_count,
+        std::size_t expected_point_count,
+        ut_settings const& settings)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
 
     test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
         expected_clip_count, expected_hole_count, expected_point_count,
-        expected_length_or_area, percentage);
+        settings);
 
 #ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
     // Test different combinations of a multi-polygon
@@ -452,18 +479,24 @@ void test_one(std::string const& caseid, std::string const& wkt,
             out << "_" << index;
             geometry2.push_back(geometry[index]);
         }
-        test_dissolve<GeometryOut>(out.str(), geometry2, expected_hole_count,
-                expected_point_count, expected_length_or_area, percentage);
+        test_dissolve<GeometryOut>(out.str(), geometry2, expected_area,
+                expected_clip_count, expected_hole_count, expected_point_count, settings);
     } while (std::next_permutation(indices.begin(), indices.end()));
 #endif
 
 }
 
-#define TEST_DISSOLVE(caseid, area, clips, holes, points) \
-    (test_one<polygon, polygon>) ( #caseid, caseid, holes, points, area, clips)
+#define TEST_DISSOLVE(caseid, area, clips, holes, points) { \
+    ut_settings settings; \
+    (test_one<polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
-#define TEST_MULTI(caseid, area, clips, holes, points) \
-    (test_one<multi_polygon, polygon>) ( #caseid, caseid, holes, points, area, clips)
+#define TEST_DISSOLVE_IGNORE(caseid, area, clips, holes, points) { \
+    ut_settings settings; settings.test_validity = false; \
+    (test_one<polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
+
+#define TEST_MULTI(caseid, area, clips, holes, points) { \
+    ut_settings settings; \
+    (test_one<multi_polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
 template <typename P>
 void test_all()
@@ -493,10 +526,11 @@ void test_all()
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
-    // These are not all complete yet
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 5);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.4999, 1, 0, 4);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
+    // These do not have closed input, and output is not closed either. TODO.
+    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 5);
+    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_c, 0.4999, 1, 0, 4);
+    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
+
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
 
