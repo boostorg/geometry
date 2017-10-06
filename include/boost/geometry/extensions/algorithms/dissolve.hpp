@@ -196,6 +196,8 @@ struct dissolve_ring_or_polygon
                         clusters, geometry, geometry, rescale_policy,
                         side_strategy);
 
+            std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
+
             detail::overlay::traverse
                 <
                     false, false,
@@ -204,7 +206,7 @@ struct dissolve_ring_or_polygon
                     backtrack_for_dissolve<Geometry>
                 >::apply(geometry, geometry,
                          strategy, rescale_policy,
-                         turns, rings, clusters, visitor);
+                         turns, rings, turn_info_per_ring, clusters, visitor);
 
             clear_visit_info(turns);
 
@@ -221,7 +223,7 @@ struct dissolve_ring_or_polygon
                     backtrack_for_dissolve<Geometry>
                 >::apply(geometry, geometry,
                          strategy, rescale_policy,
-                         turns, rings, clusters, visitor);
+                         turns, rings, turn_info_per_ring, clusters, visitor);
 
             std::map<ring_identifier, detail::overlay::ring_turn_info> map;
             detail::overlay::get_ring_turn_info<overlay_dissolve>(map, turns, clusters);
