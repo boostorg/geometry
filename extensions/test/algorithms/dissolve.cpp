@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2017 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -38,6 +38,7 @@
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #  include <boost/geometry/io/svg/write_svg_multi.hpp>
+#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 
 #if defined(TEST_WITH_SVG)
@@ -69,6 +70,7 @@ struct map_visitor
     void visit_turns(int phase, Turns const& turns)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
+        std:size_t index = 0;
         BOOST_FOREACH(turn_type const& turn, turns)
         {
             switch (phase)
@@ -77,8 +79,14 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(255,128,0);"
                             "stroke:rgb(0,0,0);stroke-width:1", 4);
                     break;
-                // TODO: add enriched information as label
+                case 3 : // after enrich/traverse for union
+                    label_turn(index, turn, -5, "fill:rgb(0,0,128);");
+                    break;
+                case 5 : // after enrich/traverse for intersection
+                    label_turn(index, turn, 5, "fill:rgb(0,0,0);");
+                    break;
             }
+            index++;
         }
     }
 
@@ -93,6 +101,76 @@ struct map_visitor
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
                                bg::detail::overlay::traverse_error_type )
     {}
+
+private :
+
+    template <typename Turn>
+    bool label_operation(Turn const& turn, std::size_t index, std::ostream& os)
+    {
+        os << bg::operation_char(turn.operations[index].operation);
+        bool result = false;
+        if (! turn.discarded)
+        {
+            if (turn.operations[index].enriched.next_ip_index != -1)
+            {
+                os << "->" << turn.operations[index].enriched.next_ip_index;
+                if (turn.operations[index].enriched.next_ip_index != -1)
+                {
+                    result = true;
+                }
+            }
+            else
+            {
+                os << "->"  << turn.operations[index].enriched.travels_to_ip_index;
+                if (turn.operations[index].enriched.travels_to_ip_index != -1)
+                {
+                    result = true;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    template <typename Turn>
+    void label_turn(std::size_t index, Turn const& turn, int y_offset, std::string const& color)
+    {
+        std::ostringstream out;
+        out << index << " ";
+        if (turn.cluster_id != -1)
+        {
+            out << " c=" << turn.cluster_id << " ";
+        }
+        bool lab1 = label_operation(turn, 0, out);
+        out << " / ";
+        bool lab2 = label_operation(turn, 1, out);
+        if (turn.switch_source)
+        {
+            out << "#";
+        }
+        if (turn.discarded)
+        {
+            out << "!";
+        }
+
+        std::string font8 = "font-family:Arial;font-size:6px";
+        std::string font6 = "font-family:Arial;font-size:4px";
+        std::string style =  color + ";" + font8;
+        if (turn.discarded)
+        {
+            style =  "fill:rgb(92,92,92);" + font6;
+        }
+        else if (turn.cluster_id != -1)
+        {
+            style =  color + ";" + font8;
+        }
+        else if (! lab1 || ! lab2)
+        {
+            style =  color + ";" + font6;
+        }
+
+        m_mapper.text(turn.point, out.str(), style, 5, y_offset, 6);
+    }
 
     Mapper& m_mapper;
 };
