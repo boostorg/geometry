@@ -399,22 +399,20 @@ void test_all()
         "POLYGON((1 2,1 1,2 1,2 2.25,3 2.25,3 0,0 0,0 3,3 3,2.75 2,1 2))",
         1, 12, 7.9296875);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Self intersecting in last segment
     test_one<polygon, polygon>("3",
         "POLYGON((0 2,2 4,2 0,4 2,0 2))",
         0, 8, 4.0);
-#endif
 
     // Self tangent - polygons are now included twice
     test_one<polygon, polygon>("4",
         "POLYGON((0 0,0 4,4 4,4 0,2 4,0 0))",
-        0, 7, 8.0);
+        0, 8, 8.0);
 
     // Self tangent in corner - polygons are now included twice
     test_one<polygon, polygon>("5",
         "POLYGON((0 0,0 4,4 4,4 0,0 4,2 0,0 0))",
-        0, 7, 12.0);
+        0, 8, 12.0);
 
     // With spike
     test_one<polygon, polygon>("6",
@@ -461,16 +459,14 @@ void test_all()
         "POLYGON((5 0,2.5 9,9.5 3.5,0.5 3.5,7.5 9,5 0))",
         0, 11, 25.6158412);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 99.99, 2, 0, 6);
-#endif
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
     // These are not all complete yet
     TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 5);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.4999, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.0018011, 1, 0, 64);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.0003612064, 2, 0, 64);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 1, 0, 69);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 2, 0, 69);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon>("pentagram_rev",
@@ -478,20 +474,24 @@ void test_all()
         0, 11, 25.6158412);
 
     // Poygons contain too many polygons
+#endif
 
     // CCW polygons should turn CW after dissolve
     test_one<polygon, polygon>("cw",
         "POLYGON((2 8,8 8,8 0,0 0,0 6,4 6,4 4,2 4,2 8))",
         0, 7, 60);
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon>("ccw",
         "POLYGON((2 8,2 4,4 4,4 6,0 6,0 0,8 0,8 8,2 8))",
         0, 12, 64); // TODO: should have the same, 7, 60. The polygon is dissolved (splitted) but the extra polygon is still on top of the other
+#endif
 
     // https://svn.boost.org/trac/boost/ticket/10713
     test_one<polygon, polygon>("ticket_10713",
         "POLYGON((-0.7189743518829346 4.1308121681213379, 0.0831791982054710 4.1034231185913086, 0.1004156470298767 4.1107301712036133, 0.1044322624802589 4.1026973724365234, 0.0831791982054710 4.1034231185913086, -0.7711903452873230 3.7412264347076416, -0.7189743518829346 4.1308121681213379))",
         0, 8, 0.157052766);
 
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Reported by Artem Pavlenko at gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
     test_one<polygon, polygon>("artem1",
