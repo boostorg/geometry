@@ -113,6 +113,28 @@ public :
 template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
 {
+    template <typename Turns>
+    static inline void clear(Turns& turns)
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+
+        for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+            it != boost::end(turns);
+            ++it)
+        {
+            turn_type& turn = *it;
+            turn.discarded = false;
+            turn.cluster_id = -1;
+            turn.has_colocated_both = false;
+            turn.switch_source = false;
+            turn.touch_only = false;
+        }
+
+        clear_visit_info(turns);
+    }
+
+
     template
     <
         typename RescalePolicy, typename OutputIterator,
@@ -158,7 +180,7 @@ struct dissolve_ring_or_polygon
 
             cluster_type clusters;
 
-            // Enrich/traverse the polygons twice: once for union...
+            // Enrich/traverse the polygons twice: first for union...
             typename Strategy::side_strategy_type const
                 side_strategy = strategy.get_side_strategy();
 
@@ -184,8 +206,8 @@ struct dissolve_ring_or_polygon
 
             visitor.visit_turns(3, turns);
 
-            // ... and for intersection
-            clear_visit_info(turns);
+            // ... and then for intersection
+            clear(turns);
             enrich_intersection_points<false, false, overlay_intersection>(turns,
                         clusters, geometry, geometry, rescale_policy,
                         side_strategy);
