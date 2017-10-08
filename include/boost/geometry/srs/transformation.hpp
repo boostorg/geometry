@@ -35,21 +35,50 @@ namespace boost { namespace geometry
 namespace projections { namespace detail
 {
 
-template
-<
-    typename RangeOrPoint,
-    typename Tag = typename geometry::tag<RangeOrPoint>::type
->
-struct transform
+struct transform_range
 {
-    template <typename Proj1, typename Proj2>
+    template <typename Proj1, typename Proj2, typename Range>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             RangeOrPoint & range)
+                             Range & range)
     {
         pj_transform(proj1.proj(), proj1.proj().params(),
                      proj2.proj(), proj2.proj().params(),
                      range);
     }
+};
+
+template <typename Policy>
+struct transform_multi
+{
+    template <typename Proj1, typename Proj2, typename Multi>
+    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+                             Multi & multi)
+    {
+        apply(proj1, proj2, boost::begin(multi), boost::end(multi));
+    }
+
+private:
+    template <typename Proj1, typename Proj2, typename FwdIt>
+    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+                             FwdIt first, FwdIt last)
+    {
+        for ( ; first != last ; ++first )
+        {
+            Policy::apply(proj1, proj2, *first);
+        }
+    }
+};
+
+template
+<
+    typename Geometry,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct transform
+{
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THIS_GEOMETRY,
+                         (Geometry));
 };
 
 template <typename Point>
@@ -63,11 +92,74 @@ struct transform<Point, point_tag>
 
         std::pair<Point*, Point*> range = std::make_pair(ptr, ptr + 1);
 
-        pj_transform(proj1.proj(), proj1.proj().params(),
-                     proj2.proj(), proj2.proj().params(),
-                     range);
+        transform_range::apply(proj1, proj2, range);
     }
 };
+
+template <typename MultiPoint>
+struct transform<MultiPoint, multi_point_tag>
+    : transform_range
+{};
+
+template <typename Segment>
+struct transform<Segment, segment_tag>
+{
+    template <typename Proj1, typename Proj2>
+    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+                             Segment & segment)
+    {
+        typedef typename geometry::point_type<Segment>::type point_type;
+
+        point_type points[2];
+
+        geometry::detail::assign_point_from_index<0>(segment, points[0]);
+        geometry::detail::assign_point_from_index<1>(segment, points[1]);
+
+        transform_range::apply(proj1, proj2, points);
+
+        geometry::detail::assign_point_to_index<0>(points[0], segment);
+        geometry::detail::assign_point_to_index<1>(points[1], segment);
+    }
+};
+
+template <typename Linestring>
+struct transform<Linestring, linestring_tag>
+    : transform_range
+{};
+
+template <typename MultiLinestring>
+struct transform<MultiLinestring, multi_linestring_tag>
+    : transform_multi<transform_range>
+{};
+
+template <typename Ring>
+struct transform<Ring, ring_tag>
+    : transform_range
+{};
+
+template <typename Polygon>
+struct transform<Polygon, polygon_tag>
+{
+    template <typename Proj1, typename Proj2>
+    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+                             Polygon & poly)
+    {
+        transform_range::apply(proj1, proj2, geometry::exterior_ring(poly));
+        transform_multi<transform_range>::apply(proj1, proj2, geometry::interior_rings(poly));
+    }
+};
+
+template <typename MultiPolygon>
+struct transform<MultiPolygon, multi_polygon_tag>
+    : transform_multi
+        <
+            transform
+                <
+                    typename boost::range_value<MultiPolygon>::type,
+                    polygon_tag
+                >
+        >
+{};
 
 
 }} // namespace projections::detail
@@ -100,7 +192,7 @@ public:
     {}
 
     template <typename Parameters1>
-    transformation(Parameters1 const& parameters1)
+    explicit transformation(Parameters1 const& parameters1)
         : m_proj1(parameters1)
     {}
 
@@ -110,9 +202,11 @@ public:
         , m_proj2(parameters2)
     {}
 
-    template <typename RangeOrPointIn, typename RangeOrPointOut>
-    bool forward(RangeOrPointIn const& in, RangeOrPointOut & out) const
+    template <typename GeometryIn, typename GeometryOut>
+    bool forward(GeometryIn const& in, GeometryOut & out) const
     {
+        // TODO: no need to convert the whole geometry
+        // would be ok to do this per-range
         if (boost::addressof(in) != boost::addressof(out))
             geometry::convert(in, out);
 
@@ -120,7 +214,7 @@ public:
         {
             projections::detail::transform
                 <
-                    RangeOrPointOut
+                    GeometryOut
                 >::apply(m_proj1, m_proj2, out);
             
             return true;
@@ -131,9 +225,11 @@ public:
         }
     }
 
-    template <typename RangeOrPointIn, typename RangeOrPointOut>
-    bool inverse(RangeOrPointIn const& in, RangeOrPointOut & out) const
+    template <typename GeometryIn, typename GeometryOut>
+    bool inverse(GeometryIn const& in, GeometryOut & out) const
     {
+        // TODO: no need to convert the whole geometry
+        // would be ok to do this per-range
         if (boost::addressof(in) != boost::addressof(out))
             geometry::convert(in, out);
 
@@ -141,7 +237,7 @@ public:
         {
             projections::detail::transform
                 <
-                    RangeOrPointOut
+                    GeometryOut
                 >::apply(m_proj2, m_proj1, out);
 
             return true;
