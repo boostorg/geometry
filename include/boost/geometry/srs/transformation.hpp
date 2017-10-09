@@ -17,8 +17,13 @@
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
-#include <boost/geometry/srs/projection.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
+#include <boost/geometry/srs/projection.hpp>
 #include <boost/geometry/srs/projections/impl/pj_transform.hpp>
 
 #include <boost/mpl/assert.hpp>
@@ -35,36 +40,199 @@ namespace boost { namespace geometry
 namespace projections { namespace detail
 {
 
+template <typename T1, typename T2>
+inline bool same_object(T1 const& , T2 const& )
+{
+    return false;
+}
+
+template <typename T>
+inline bool same_object(T const& o1, T const& o2)
+{
+    return boost::addressof(o1) == boost::addressof(o2);
+}
+
+template <typename G1, typename G2>
+struct same_tags
+{
+    static const bool value = boost::is_same
+        <
+            typename geometry::tag<G1>::type,
+            typename geometry::tag<G2>::type
+        >::value;
+};
+
+template <typename Geometry, typename CT>
+struct transform_geometry_point_type
+{
+    typedef typename geometry::point_type<Geometry>::type point_type;
+
+    typedef geometry::model::point
+        <   
+            typename select_most_precise
+                <
+                    typename geometry::coordinate_type<point_type>::type,
+                    CT
+                >::type,
+            geometry::dimension<point_type>::type::value,
+            typename geometry::coordinate_system<point_type>::type
+        > type;
+};
+
+// TODO: Instead of using proper geometries consider using std::vector<>
+// instead of MPt, Ls and Ring to avoid including models.
+// It would also be possible to avoid using Seg model.
+
+template
+<
+    typename Geometry,
+    typename CT,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct transform_geometry_type
+{};
+
+template <typename Point, typename CT>
+struct transform_geometry_type<Point, CT, point_tag>
+    : transform_geometry_point_type<Point, CT>
+{};
+
+template <typename MultiPoint, typename CT>
+struct transform_geometry_type<MultiPoint, CT, multi_point_tag>
+{
+    typedef geometry::model::multi_point
+        <
+            typename transform_geometry_point_type<MultiPoint, CT>::type
+        > type;
+};
+
+template <typename Segment, typename CT>
+struct transform_geometry_type<Segment, CT, segment_tag>
+{
+    typedef geometry::model::segment
+        <
+            typename transform_geometry_point_type<Segment, CT>::type
+        > type;
+};
+
+template <typename Linestring, typename CT>
+struct transform_geometry_type<Linestring, CT, linestring_tag>
+{
+    typedef geometry::model::linestring
+        <
+            typename transform_geometry_point_type<Linestring, CT>::type
+        > type;
+};
+
+template <typename Ring, typename CT>
+struct transform_geometry_type<Ring, CT, ring_tag>
+{
+    typedef geometry::model::ring
+        <
+            typename transform_geometry_point_type<Ring, CT>::type,
+            point_order<Ring>::value == clockwise,
+            closure<Ring>::value == closed
+        > type;
+};
+
+template
+<
+    typename OutGeometry,
+    typename CT,
+    bool EnableTemporary = ! boost::is_same
+                                <
+                                    typename select_most_precise
+                                        <
+                                            typename geometry::coordinate_type<OutGeometry>::type,
+                                            CT
+                                        >::type,
+                                    typename geometry::coordinate_type<OutGeometry>::type
+                                >::type::value
+>
+struct transform_geometry_wrapper
+{
+    typedef typename transform_geometry_type<OutGeometry, CT>::type type;
+
+    template <typename InGeometry>
+    transform_geometry_wrapper(InGeometry const& in, OutGeometry & out)
+        : m_out(out)
+    {
+        if (! same_object(in, m_temp))
+            geometry::convert(in, m_temp);
+    }
+
+    type & get() { return m_temp; }
+    void finish() { geometry::convert(m_temp, m_out); }
+
+private:
+    type m_temp;
+    OutGeometry & m_out;
+};
+
+template
+<
+    typename OutGeometry,
+    typename CT
+>
+struct transform_geometry_wrapper<OutGeometry, CT, false>
+{
+    typedef OutGeometry type;
+
+    template <typename InGeometry>
+    transform_geometry_wrapper(InGeometry const& in, OutGeometry & out)
+        : m_out(out)
+    {
+        if (! same_object(in, out))
+            geometry::convert(in, out);
+    }
+
+    OutGeometry & get() { return m_out; }
+    void finish() {}
+
+private:
+    OutGeometry & m_out;
+};
+
+template <typename CT>
 struct transform_range
 {
-    template <typename Proj1, typename Proj2, typename Range>
+    template <typename Proj1, typename Proj2, typename RangeIn, typename RangeOut>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             Range & range)
+                             RangeIn const& in, RangeOut & out)
     {
+        transform_geometry_wrapper<RangeOut, CT> wrapper(in, out);
+
         pj_transform(proj1.proj(), proj1.proj().params(),
                      proj2.proj(), proj2.proj().params(),
-                     range);
+                     wrapper.get());
+
+        wrapper.finish();
     }
 };
 
 template <typename Policy>
 struct transform_multi
 {
-    template <typename Proj1, typename Proj2, typename Multi>
+    template <typename Proj1, typename Proj2, typename MultiIn, typename MultiOut>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             Multi & multi)
+                             MultiIn const& in, MultiOut & out)
     {
-        apply(proj1, proj2, boost::begin(multi), boost::end(multi));
+        if (! same_object(in, out))
+            range::resize(out, boost::size(in));
+
+        apply(proj1, proj2,
+              boost::begin(in), boost::end(in),
+              boost::begin(out));
     }
 
 private:
-    template <typename Proj1, typename Proj2, typename FwdIt>
+    template <typename Proj1, typename Proj2, typename InIt, typename OutIt>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             FwdIt first, FwdIt last)
+                             InIt in_first, InIt in_last, OutIt out_first)
     {
-        for ( ; first != last ; ++first )
+        for ( ; in_first != in_last ; ++in_first, ++out_first )
         {
-            Policy::apply(proj1, proj2, *first);
+            Policy::apply(proj1, proj2, *in_first, *out_first);
         }
     }
 };
@@ -72,90 +240,111 @@ private:
 template
 <
     typename Geometry,
+    typename CT,
     typename Tag = typename geometry::tag<Geometry>::type
 >
 struct transform
-{
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_GEOMETRY,
-                         (Geometry));
-};
+    : not_implemented<Tag>
+{};
 
-template <typename Point>
-struct transform<Point, point_tag>
+template <typename Point, typename CT>
+struct transform<Point, CT, point_tag>
 {
-    template <typename Proj1, typename Proj2>
+    template <typename Proj1, typename Proj2, typename PointIn, typename PointOut>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             Point & point)
+                             PointIn const& in, PointOut & out)
     {
-        Point * ptr = boost::addressof(point);
+        transform_geometry_wrapper<PointOut, CT> wrapper(in, out);
 
-        std::pair<Point*, Point*> range = std::make_pair(ptr, ptr + 1);
+        typedef typename transform_geometry_wrapper<PointOut, CT>::type point_type;
+        point_type * ptr = boost::addressof(wrapper.get());
 
-        transform_range::apply(proj1, proj2, range);
+        std::pair<point_type *, point_type *> range = std::make_pair(ptr, ptr + 1);
+
+        pj_transform(proj1.proj(), proj1.proj().params(),
+                     proj2.proj(), proj2.proj().params(),
+                     range);
+
+        wrapper.finish();
     }
 };
 
-template <typename MultiPoint>
-struct transform<MultiPoint, multi_point_tag>
-    : transform_range
+template <typename MultiPoint, typename CT>
+struct transform<MultiPoint, CT, multi_point_tag>
+    : transform_range<CT>
 {};
 
-template <typename Segment>
-struct transform<Segment, segment_tag>
+template <typename Segment, typename CT>
+struct transform<Segment, CT, segment_tag>
 {
-    template <typename Proj1, typename Proj2>
+    template <typename Proj1, typename Proj2, typename SegmentIn, typename SegmentOut>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             Segment & segment)
+                             SegmentIn const& in, SegmentOut & out)
     {
-        typedef typename geometry::point_type<Segment>::type point_type;
+        transform_geometry_wrapper<SegmentOut, CT> wrapper(in, out);
+
+        typedef typename geometry::point_type
+            <
+                typename transform_geometry_wrapper<SegmentOut, CT>::type
+            >::type point_type;
 
         point_type points[2];
 
-        geometry::detail::assign_point_from_index<0>(segment, points[0]);
-        geometry::detail::assign_point_from_index<1>(segment, points[1]);
+        geometry::detail::assign_point_from_index<0>(wrapper.get(), points[0]);
+        geometry::detail::assign_point_from_index<1>(wrapper.get(), points[1]);
 
-        transform_range::apply(proj1, proj2, points);
+        std::pair<point_type*, point_type*> range = std::make_pair(points, points + 2);
 
-        geometry::detail::assign_point_to_index<0>(points[0], segment);
-        geometry::detail::assign_point_to_index<1>(points[1], segment);
+        pj_transform(proj1.proj(), proj1.proj().params(),
+                     proj2.proj(), proj2.proj().params(),
+                     range);
+
+        geometry::detail::assign_point_to_index<0>(points[0], wrapper.get());
+        geometry::detail::assign_point_to_index<1>(points[1], wrapper.get());
+
+        wrapper.finish();
     }
 };
 
-template <typename Linestring>
-struct transform<Linestring, linestring_tag>
-    : transform_range
+template <typename Linestring, typename CT>
+struct transform<Linestring, CT, linestring_tag>
+    : transform_range<CT>
 {};
 
-template <typename MultiLinestring>
-struct transform<MultiLinestring, multi_linestring_tag>
-    : transform_multi<transform_range>
+template <typename MultiLinestring, typename CT>
+struct transform<MultiLinestring, CT, multi_linestring_tag>
+    : transform_multi<transform_range<CT> >
 {};
 
-template <typename Ring>
-struct transform<Ring, ring_tag>
-    : transform_range
+template <typename Ring, typename CT>
+struct transform<Ring, CT, ring_tag>
+    : transform_range<CT>
 {};
 
-template <typename Polygon>
-struct transform<Polygon, polygon_tag>
+template <typename Polygon, typename CT>
+struct transform<Polygon, CT, polygon_tag>
 {
-    template <typename Proj1, typename Proj2>
+    template <typename Proj1, typename Proj2, typename PolygonIn, typename PolygonOut>
     static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
-                             Polygon & poly)
+                             PolygonIn const& in, PolygonOut & out)
     {
-        transform_range::apply(proj1, proj2, geometry::exterior_ring(poly));
-        transform_multi<transform_range>::apply(proj1, proj2, geometry::interior_rings(poly));
+        transform_range<CT>::apply(proj1, proj2,
+                                   geometry::exterior_ring(in),
+                                   geometry::exterior_ring(out));
+        transform_multi<transform_range<CT> >::apply(proj1, proj2,
+                                                     geometry::interior_rings(in),
+                                                     geometry::interior_rings(out));
     }
 };
 
-template <typename MultiPolygon>
-struct transform<MultiPolygon, multi_polygon_tag>
+template <typename MultiPolygon, typename CT>
+struct transform<MultiPolygon, CT, multi_polygon_tag>
     : transform_multi
         <
             transform
                 <
                     typename boost::range_value<MultiPolygon>::type,
+                    CT,
                     polygon_tag
                 >
         >
@@ -184,7 +373,6 @@ template
 >
 class transformation
 {
-    // TODO: currently the cordinate type of RangeOut is used instead
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
 public:
@@ -205,17 +393,17 @@ public:
     template <typename GeometryIn, typename GeometryOut>
     bool forward(GeometryIn const& in, GeometryOut & out) const
     {
-        // TODO: no need to convert the whole geometry
-        // would be ok to do this per-range
-        if (boost::addressof(in) != boost::addressof(out))
-            geometry::convert(in, out);
+        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
+                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
+                             (GeometryIn, GeometryOut));
 
         try
         {
             projections::detail::transform
                 <
-                    GeometryOut
-                >::apply(m_proj1, m_proj2, out);
+                    GeometryOut,
+                    calc_t
+                >::apply(m_proj1, m_proj2, in, out);
             
             return true;
         }
@@ -228,17 +416,17 @@ public:
     template <typename GeometryIn, typename GeometryOut>
     bool inverse(GeometryIn const& in, GeometryOut & out) const
     {
-        // TODO: no need to convert the whole geometry
-        // would be ok to do this per-range
-        if (boost::addressof(in) != boost::addressof(out))
-            geometry::convert(in, out);
+        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
+                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
+                             (GeometryIn, GeometryOut));
 
         try
         {
             projections::detail::transform
                 <
-                    GeometryOut
-                >::apply(m_proj2, m_proj1, out);
+                    GeometryOut,
+                    calc_t
+                >::apply(m_proj2, m_proj1, in, out);
 
             return true;
         }
