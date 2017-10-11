@@ -132,6 +132,21 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                     op.seg_id.ring_index
                 );
 
+            if (! is_self_turn<OverlayType>(turn)
+                && (
+                    (target_operation == operation_union
+                      && op.enriched.count_left > 0)
+                  || (target_operation == operation_intersection
+                      && op.enriched.count_right <= 2)))
+            {
+                // Avoid including untraversed rings which have polygons on
+                // their left side (union) or not two on their right side (int)
+                // This can only be done for non-self-turns because of count
+                // information
+                turn_info_map[ring_id].has_blocked_turn = true;
+                continue;
+            }
+
             if (turn.any_blocked())
             {
                 turn_info_map[ring_id].has_blocked_turn = true;
@@ -139,16 +154,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             if (turn_info_map[ring_id].has_traversed_turn
                     || turn_info_map[ring_id].has_blocked_turn)
             {
-                continue;
-            }
-
-            if (target_operation == operation_union
-                    && ! is_self_turn<OverlayType>(turn)
-                    && op.enriched.count_left > 0)
-            {
-                // Avoid including untraversed rings in unions which have
-                // polygons on their left side
-                turn_info_map[ring_id].has_blocked_turn = true;
                 continue;
             }
 
