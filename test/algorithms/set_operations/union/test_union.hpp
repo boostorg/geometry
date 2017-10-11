@@ -19,8 +19,10 @@
 
 #include <geometry_test_common.hpp>
 #include "../setop_output_type.hpp"
+#include "../check_validity.hpp"
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/foreach.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
 #include <boost/geometry/algorithms/union.hpp>
@@ -70,6 +72,8 @@ inline void check_input_validity(std::string const& caseid, int case_index,
 }
 #endif
 
+
+
 template <typename Range>
 inline std::size_t num_points(Range const& rng, bool add_for_open = false)
 {
@@ -94,7 +98,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     // Declare output (vector of rings or multi_polygon)
     typedef typename setop_output_type<OutputType>::type result_type;
-    result_type clip, clip_s;
+    result_type clip;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     std::cout << "*** UNION " << caseid << std::endl;
@@ -108,12 +112,28 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     // Check normal behaviour
     bg::union_(g1, g2, clip);
 
-    // Check strategy passed explicitly
-    typedef typename bg::strategy::intersection::services::default_strategy
-        <
-            typename bg::cs_tag<OutputType>::type
-        >::type strategy_type;
-    bg::union_(g1, g2, clip_s, strategy_type());
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    {
+        // Check strategy passed explicitly
+        result_type clip_s;
+        typedef typename bg::strategy::intersection::services::default_strategy
+            <
+                typename bg::cs_tag<OutputType>::type
+            >::type strategy_type;
+        bg::union_(g1, g2, clip_s, strategy_type());
+        BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
+    }
+#endif
+
+    if (settings.test_validity)
+    {
+        std::string message;
+        bool const valid = check_validity<result_type>::apply(clip, message);
+        BOOST_CHECK_MESSAGE(valid,
+            "union: " << caseid << " not valid: " << message
+            << " type: " << (type_for_assert_message<G1, G2>()));
+    }
+
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
@@ -124,16 +144,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         area += bg::area(*it);
         holes += bg::num_interior_rings(*it);
         n += bg::num_points(*it, true);
-
-        if (settings.test_validity)
-        {
-            // Check validity (currently on separate clips only)
-            // std::cout << bg::dsv(*it) << std::endl;
-            std::string message;
-            bool const valid = bg::is_valid(*it, message);
-            BOOST_CHECK_MESSAGE(valid,
-                "union: " << caseid << " not valid " << message);
-        }
     }
 
 
@@ -198,8 +208,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
 
-    BOOST_CHECK_EQUAL(num_points(clip), num_points(clip_s));
-
 #if defined(TEST_WITH_SVG)
     {
         bool const ccw =
@@ -215,6 +223,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+           << "_self"
+#endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"
 #endif

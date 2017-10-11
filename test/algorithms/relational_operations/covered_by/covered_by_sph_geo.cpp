@@ -79,12 +79,42 @@ void test_box_box()
     test_geometry<box_t, box_t>("BOX(-179.9 1, -177.872408 1)", "BOX(179.08882 0, 182.127592 2)", true);
 }
 
+template <typename P>
+void test_point_polygon()
+{
+    typename boost::mpl::if_
+        <
+            boost::is_same<typename bg::cs_tag<P>::type, bg::geographic_tag>,
+            bg::strategy::within::geographic_winding<P>,
+            bg::strategy::within::spherical_winding<P>
+        >::type s;
+
+    typedef bg::model::polygon<P> poly;
+
+    // MySQL report 08.2017
+    test_geometry<P, poly>("POINT(-179 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           false);
+    test_geometry<P, poly>("POINT(-179 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           false,
+                           s);
+
+    test_geometry<P, poly>("POINT(1 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           true);
+    test_geometry<P, poly>("POINT(1 0)",
+                           "POLYGON((0 0, 0 2, 2 0, 0 -2, 0 0))",
+                           true,
+                           s);
+}
 
 template <typename P>
 void test_cs()
 {
     test_point_box<P>();
     test_box_box<P>();
+    test_point_polygon<P>();
 }
 
 

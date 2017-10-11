@@ -373,7 +373,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         // self_ips NYI here
     }
 #elif defined(TEST_WITH_SVG)
-    buffer_mapper.map_self_ips(mapper, buffered, rescale_policy_output);
+    buffer_mapper.map_self_ips(mapper, buffered, strategy, rescale_policy_output);
 #endif
 
     // Check for self-intersections

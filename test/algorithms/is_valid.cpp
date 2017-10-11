@@ -811,6 +811,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 template <typename Point, bool AllowDuplicates>
 inline void test_open_multipolygons()
 {
+    // WKT of multipolygons should be defined as ccw, open
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
@@ -948,6 +950,24 @@ inline void test_open_multipolygons()
         // polygon contains a spike
         test::apply("mpg20", open_mpgn, false);
     }
+
+    // Interior ring touches exterior ring, which at that same point touches another exterior ring in (1 2)
+    test::apply
+        ("mpg21",
+        "MULTIPOLYGON(((2 3,1 2,1 0,2 0,2 1,4 3),(2 2,1.5 1.5,1 2)),((0 3,0 2,1 2)))",
+         true);
+
+    // Two interior rings touch each other in (10 5)
+    test::apply
+        ("mpg22",
+        "MULTIPOLYGON(((10 5,5 10,0 5,5 0),(10 5,5 4,4 6)),((10 5,10 0,20 0,20 10,10 10),(10 5,18 8,15 3)))",
+         true);
+
+    // Two polygons, one inside interior of other one, touching all at same point (0,0)
+    test::apply
+        ("mpg23",
+        "MULTIPOLYGON(((0 0,10 0,10 10,0 10),(0 0,1 9,9 9,9 1)),((0 0,8 2,8 8,2 8)))",
+         true);
 
     // MySQL report 12.06.2015
     {
@@ -1172,11 +1192,8 @@ inline void test_open_multipolygons()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 {
-    bool const allow_duplicates = true;
-    bool const do_not_allow_duplicates = !allow_duplicates;
-
-    test_open_multipolygons<point_type, allow_duplicates>();
-    test_open_multipolygons<point_type, do_not_allow_duplicates>();
+    test_open_multipolygons<point_type, true>();
+    test_open_multipolygons<point_type, false>();
 }
 
 

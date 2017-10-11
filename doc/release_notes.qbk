@@ -19,6 +19,34 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.65]
+[/=================]
+
+[*Improvements]
+
+* Add correct() overload taking area strategy
+* Add is_convex() overload taking side strategy
+* Add missing relational operations (covered_by, crosses, equals, etc.) for MultiPoint/AnyGeometry
+
+[*Solved issues]
+
+* [@https://svn.boost.org/trac/boost/ticket/12410 12410] Lack of support of geographic coordinate system in correct()
+* [@https://svn.boost.org/trac/boost/ticket/13035 13035] Wrong result of non-cartesian intersection strategies for segments near poles.
+* [@https://svn.boost.org/trac/boost/ticket/13057 13057] Wrong result of intersects() for linestrings caused by numerical issue in disjoint() for boxes.
+
+[*Bugfixes]
+
+* Fix is_valid which could return false for multipolygons where an interior ring touches another interior ring
+* Fix is_valid which could return false for multipolygons where a polygon was located in an interior ring, all touching each other
+* Fix union which could produce invalid results (for some cases, this needs to define BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+* Fix intersection (idem), but some cases are still not yet valid
+* Fix difference (idem), but some cases are still not yet valid
+* Fix propagation of area strategy into the internals of various algorithms from intersection strategy
+* Fix uninitialized variable in relate and reference to temporary in overlay
+* Fix error in disjoint for geographic Segment/Box
+* Fix handling of non-cartesian geometries in various algorithms
+
+[/=================]
 [heading Boost 1.64]
 [/=================]
 

@@ -15,11 +15,10 @@
 #include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/formulas/area_formulas.hpp>
-#include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/authalic_radius_sqr.hpp>
+#include <boost/geometry/formulas/eccentricity_sqr.hpp>
 
 #include <boost/geometry/strategies/geographic/parameters.hpp>
-
-#include <boost/math/special_functions/atanh.hpp>
 
 
 namespace boost { namespace geometry
@@ -83,18 +82,18 @@ protected :
         CT const m_e2;  // squared eccentricity
         CT const m_ep2; // squared second eccentricity
         CT const m_ep;  // second eccentricity
-        CT const m_c2;  // authalic radius
+        CT const m_c2;  // squared authalic radius
 
         inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
             , m_a2(math::sqr(get_radius<0>(spheroid)))
-            , m_e2(formula::flattening<CT>(spheroid)
-                 * (CT(2.0) - CT(formula::flattening<CT>(spheroid))))
+            , m_e2(formula::eccentricity_sqr<CT>(spheroid))
             , m_ep2(m_e2 / (CT(1.0) - m_e2))
             , m_ep(math::sqrt(m_ep2))
-            , m_c2((m_a2 / CT(2.0)) +
-              ((math::sqr(get_radius<2>(spheroid)) * boost::math::atanh(math::sqrt(m_e2)))
-               / (CT(2.0) * math::sqrt(m_e2))))
+            , m_c2(formula_dispatch::authalic_radius_sqr
+                    <
+                        CT, Spheroid, srs_spheroid_tag
+                    >::apply(m_a2, m_e2))
         {}
     };
 

@@ -202,6 +202,18 @@ void test_areal_linear()
         "LINESTRING(-1 -1,10 10)",
         "POLYGON((5 5,15 15,15 5,5 5))",
         1, 2, 6 * std::sqrt(2.0));
+
+#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    test_one_lp<LineString, LineString, Polygon>("case37_1",
+        "LINESTRING(1 1,2 2)",
+        "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,1 2,2 2,2 1,1 1))",
+        1, 2, std::sqrt(2.0));
+
+    test_one_lp<LineString, LineString, Polygon>("case37_2",
+        "LINESTRING(1 1,2 2,3 3)",
+        "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,1 2,2 2,2 1,1 1))",
+        1, 2, std::sqrt(2.0));
+#endif
 }
 
 template <typename P>

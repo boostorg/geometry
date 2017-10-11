@@ -325,6 +325,30 @@ struct validity_tester_areal
 };
 
 
+template <bool AllowDuplicates>
+struct validity_tester_geo_areal
+{
+    template <typename Geometry>
+    static inline bool apply(Geometry const& geometry)
+    {
+        bg::is_valid_default_policy<AllowDuplicates> visitor;
+        bg::strategy::intersection::geographic_segments<> s;
+        return bg::is_valid(geometry, visitor, s);
+    }
+
+    template <typename Geometry>
+    static inline std::string reason(Geometry const& geometry)
+    {
+        std::ostringstream oss;
+        bg::failing_reason_policy<AllowDuplicates> visitor(oss);
+        bg::strategy::intersection::geographic_segments<> s;
+        bg::is_valid(geometry, visitor, s);
+        return oss.str();
+    }
+
+};
+
+
 //----------------------------------------------------------------------------
 
 

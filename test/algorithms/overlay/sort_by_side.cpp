@@ -16,29 +16,52 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/foreach.hpp>
 
 #include "multi_overlay_cases.hpp"
 
-static const std::size_t default_result = 9999;
+
+namespace
+{
+
+template <typename T>
+std::string as_string(std::vector<T> const& v)
+{
+    std::stringstream out;
+    bool first = true;
+    BOOST_FOREACH(T const& value, v)
+    {
+        out << (first ? "[" : " , ") << value;
+        first = false;
+    }
+    out << (first ? "" : "]");
+    return out.str();
+}
+
+}
 
 // Adapted copy of handle_colocations::gather_cluster_properties
 template
 <
     bool Reverse1, bool Reverse2,
+    bg::overlay_type OverlayType,
     typename Turns,
     typename Clusters,
     typename Geometry1,
-    typename Geometry2
+    typename Geometry2,
+    typename SideStrategy
 >
-std::size_t test_gather_cluster_properties(std::string const& case_id,
+std::vector<std::size_t> test_gather_cluster_properties(std::string const& case_id,
         Clusters& clusters, Turns& turns,
         bg::detail::overlay::operation_type for_operation,
-        Geometry1 const& geometry1, Geometry2 const& geometry2)
+        Geometry1 const& geometry1, Geometry2 const& geometry2,
+        SideStrategy const& strategy)
 {
     using namespace boost::geometry;
     using namespace boost::geometry::detail::overlay;
 
-    std::size_t result = default_result;
+    std::vector<std::size_t> result;
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::point_type point_type;
@@ -48,51 +71,48 @@ std::size_t test_gather_cluster_properties(std::string const& case_id,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, point_type, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
         > sbs_type;
 
-    // Only test the FIRST cluster (for now)
-    typename Clusters::iterator mit = clusters.begin();
-    if (mit == clusters.end())
+    for (typename Clusters::iterator mit = clusters.begin();
+         mit != clusters.end(); ++mit)
     {
-        return result;
-    }
-
-    cluster_info& cinfo = mit->second;
-    std::set<signed_size_type> const& ids = cinfo.turn_indices;
-    if (ids.empty())
-    {
-        return result;
-    }
-
-    sbs_type sbs;
-    point_type turn_point; // should be all the same for all turns in cluster
-
-    bool first = true;
-    for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
-         sit != ids.end(); ++sit)
-    {
-        signed_size_type turn_index = *sit;
-        turn_type const& turn = turns[turn_index];
-        if (first)
+        cluster_info& cinfo = mit->second;
+        std::set<signed_size_type> const& ids = cinfo.turn_indices;
+        if (ids.empty())
         {
-            turn_point = turn.point;
+            return result;
         }
-        for (int i = 0; i < 2; i++)
+
+        sbs_type sbs(strategy);
+        point_type turn_point; // should be all the same for all turns in cluster
+
+        bool first = true;
+        for (typename std::set<signed_size_type>::const_iterator sit = ids.begin();
+             sit != ids.end(); ++sit)
         {
-            turn_operation_type const& op = turn.operations[i];
-            sbs.add(op, turn_index, i, geometry1, geometry2, first);
-            first = false;
+            signed_size_type turn_index = *sit;
+            turn_type const& turn = turns[turn_index];
+            if (first)
+            {
+                turn_point = turn.point;
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type const& op = turn.operations[i];
+                sbs.add(op, turn_index, i, geometry1, geometry2, first);
+                first = false;
+            }
         }
+        sbs.apply(turn_point);
+
+        sbs.find_open();
+        sbs.assign_zones(for_operation);
+
+        cinfo.open_count = sbs.open_count(for_operation);
+        result.push_back(cinfo.open_count);
     }
-    sbs.apply(turn_point);
-
-    sbs.find_open();
-    sbs.assign_zones(for_operation);
-
-    cinfo.open_count = sbs.open_count(for_operation);
-
-    return cinfo.open_count;
+    return result;
 }
 
 
@@ -105,7 +125,7 @@ template
     typename Geometry1, typename Geometry2,
     typename RobustPolicy, typename Strategy
 >
-std::size_t apply_overlay(std::string const& case_id,
+std::vector<std::size_t> apply_overlay(std::string const& case_id,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
             Strategy const& strategy)
@@ -119,11 +139,6 @@ std::size_t apply_overlay(std::string const& case_id,
         typename bg::segment_ratio_type<point_type, RobustPolicy>::type
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
-
-    /*typedef std::deque
-        <
-            typename bg::ring_type<GeometryOut>::type
-        > ring_container_type;*/
 
     // Define the clusters, mapping cluster_id -> turns
     typedef std::map
@@ -149,22 +164,17 @@ std::size_t apply_overlay(std::string const& case_id,
                 robust_policy,
                 side_strategy);
 
-    if (clusters.size() == 1)
-    {
-        // Now gather cluster properties again, with test option
-        return test_gather_cluster_properties<Reverse1, Reverse2>(case_id,
-                clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
-                    geometry1, geometry2);
-    }
-
-    return default_result;
+    // Gather cluster properties, with test option
+    return test_gather_cluster_properties<Reverse1, Reverse2, OverlayType>(case_id,
+            clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
+                geometry1, geometry2, strategy.get_side_strategy());
 }
 
 
 template <typename Geometry, bg::overlay_type OverlayType>
 void test_sort_by_side(std::string const& case_id,
         std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_open_count)
+        std::vector<std::size_t> const& expected_open_count)
 {
 //    std::cout << case_id << std::endl;
 
@@ -196,14 +206,13 @@ void test_sort_by_side(std::string const& case_id,
 
     strategy_type strategy;
 
-    std::size_t open_count = apply_overlay<OverlayType, false, false, false, geometry_out>(case_id, g1, g2,
-                    robust_policy,
-                    strategy);
+    std::vector<std::size_t> result = apply_overlay<OverlayType, false, false, false, geometry_out>(case_id, g1, g2,
+                    robust_policy, strategy);
 
-    BOOST_CHECK_MESSAGE(open_count == expected_open_count,
+    BOOST_CHECK_MESSAGE(result == expected_open_count,
                         "  caseid="  << case_id
-                        << " open count: expected="  << expected_open_count
-                        << " detected="  << open_count);
+                        << " open count: expected="  << as_string(expected_open_count)
+                        << " detected="  << as_string(result));
 }
 
 
@@ -214,6 +223,8 @@ void test_sort_by_side(std::string const& case_id,
 #define TEST_UNION(caseid, exp) { (test_sort_by_side<multi_polygon, bg::overlay_union>) \
     ( #caseid "_union", caseid[0], caseid[1], exp); }
 
+using boost::assign::list_of;
+
 template <typename T>
 void test_all()
 {
@@ -223,41 +234,35 @@ void test_all()
 
     // Selection of test cases having only one cluster
 
-    TEST_INT(case_62_multi, 1);
-    TEST_INT(case_63_multi, 1);
-    TEST_INT(case_64_multi, 1);
-    TEST_INT(case_72_multi, 3);
-    TEST_INT(case_107_multi, 2);
-    TEST_INT(case_123_multi, 3);
-    TEST_INT(case_124_multi, 3);
-    TEST_INT(case_recursive_boxes_1, 2);
-    TEST_INT(case_recursive_boxes_10, 2);
-    TEST_INT(case_recursive_boxes_18, 0);
-    TEST_INT(case_recursive_boxes_19, 0);
-    TEST_INT(case_recursive_boxes_20, 2);
-    TEST_INT(case_recursive_boxes_21, 1);
-    TEST_INT(case_recursive_boxes_22, 0);
-    TEST_INT(case_recursive_boxes_23, 1);
+    TEST_INT(case_64_multi, list_of(1));
+    TEST_INT(case_72_multi, list_of(3));
+    TEST_INT(case_107_multi, list_of(2));
+    TEST_INT(case_123_multi, list_of(3));
+    TEST_INT(case_124_multi, list_of(3));
+    TEST_INT(case_recursive_boxes_10, list_of(2));
+    TEST_INT(case_recursive_boxes_20, list_of(2));
+    TEST_INT(case_recursive_boxes_21, list_of(1));
+    TEST_INT(case_recursive_boxes_22, list_of(0));
 
-    TEST_UNION(case_62_multi, 2);
-    TEST_UNION(case_63_multi, 2);
-    TEST_UNION(case_64_multi, 1);
-    TEST_UNION(case_72_multi, 0);
-    TEST_UNION(case_107_multi, 1);
-    TEST_UNION(case_123_multi, 1);
-    TEST_UNION(case_124_multi, 1);
-    TEST_UNION(case_recursive_boxes_1, 1);
-    TEST_UNION(case_recursive_boxes_10, 1);
-    TEST_UNION(case_recursive_boxes_18, 3);
-    TEST_UNION(case_recursive_boxes_19, 3);
-    TEST_UNION(case_recursive_boxes_20, 2);
-    TEST_UNION(case_recursive_boxes_21, 1);
-    TEST_UNION(case_recursive_boxes_22, 1);
-    TEST_UNION(case_recursive_boxes_23, 3);
+    TEST_UNION(case_recursive_boxes_46, list_of(2)(1)(2)(1)(1)(2)(1));
+
+    TEST_UNION(case_62_multi, list_of(2));
+    TEST_UNION(case_63_multi, list_of(2));
+    TEST_UNION(case_64_multi, list_of(1));
+    TEST_UNION(case_107_multi, list_of(1));
+    TEST_UNION(case_123_multi, list_of(1));
+    TEST_UNION(case_124_multi, list_of(1));
+    TEST_UNION(case_recursive_boxes_10, list_of(1));
+    TEST_UNION(case_recursive_boxes_18, list_of(3));
+    TEST_UNION(case_recursive_boxes_19, list_of(3));
+    TEST_UNION(case_recursive_boxes_20, list_of(2));
+    TEST_UNION(case_recursive_boxes_21, list_of(1));
+    TEST_UNION(case_recursive_boxes_22, list_of(1));
+    TEST_UNION(case_recursive_boxes_23, list_of(3));
 }
 
 int test_main(int, char* [])
 {
     test_all<double>();
     return 0;
- }
+}

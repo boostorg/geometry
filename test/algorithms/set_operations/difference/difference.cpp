@@ -35,6 +35,20 @@
 #endif
 
 
+// Convenience macros (points are not checked)
+#define TEST_DIFFERENCE(caseid, clips1, area1, clips2, area2, clips3) \
+    (test_one<polygon, polygon, polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2)
+
+#if !defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+#define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
+    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+    (test_one<polygon, polygon, polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2, ignore_validity); }
+#endif
+
 template <typename P>
 void test_all()
 {
@@ -43,9 +57,6 @@ void test_all()
     typedef bg::model::ring<P> ring;
 
     typedef typename bg::coordinate_type<P>::type ct;
-
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
 
     ut_settings sym_settings;
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
@@ -200,8 +211,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("case_80",
         case_80[0], case_80[1],
         1, 9, 44.5,
-        1, 10, 84.5,
-        ignore_validity);
+        1, 10, 84.5);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // Fails, holes are not subtracted
@@ -227,6 +237,10 @@ void test_all()
         case_102[0], case_102[1],
         4, 18, 1.5,
         3, 15, 4.0625);
+
+    TEST_DIFFERENCE(case_105, 4, 8.0, 1, 16.0, 5);
+    TEST_DIFFERENCE(case_106, 1, 17.5, 2, 32.5, 3);
+    TEST_DIFFERENCE(case_107, 2, 18.0, 2, 29.0, 4);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
@@ -356,10 +370,18 @@ void test_all()
     }
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
-        ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
-        1, -1, 2.8570121719168924,
-        1, -1, 64.498061986388564);
+    {
+        // symmetric difference is not valid due to robustness issue, it has
+        // two turns (touch_only) and a midpoint is located in other polygon
+        ut_settings ignore_validity;
+        ignore_validity.test_validity = false;
+
+        test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
+            ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
+            1, -1, 2.8570121719168924,
+            1, -1, 64.498061986388564,
+                ignore_validity);
+    }
 #endif
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
@@ -515,57 +537,32 @@ void test_all()
     ***/
 
     // Should have 2 outputs
-    int const correction_for_invalidity = 1; // should be 0
-    test_one<polygon, polygon, polygon>("mysql_21977775",
-        mysql_21977775[0], mysql_21977775[1],
-        2 - correction_for_invalidity, -1, 160.856568913,
-        2, -1, 92.3565689126,
-        ignore_validity);
-
-    // also mysql_23023665
-    test_one<polygon, polygon, polygon>("mysql_21965285",
-        mysql_21965285[0], mysql_21965285[1],
-        1, 2, -1, 92.0,
-        1, 1, -1, 14.0,
-        1, 2, -1, 92.0 + 14.0);
-
-    test_one<polygon, polygon, polygon>("mysql_23023665_1",
-        mysql_23023665_1[0], mysql_23023665_1[1],
-        1, 2, -1, 92.0,
-        1, 1, -1, 142.5,
-        ignore_validity);
-
-    test_one<polygon, polygon, polygon>("mysql_23023665_2",
-        mysql_23023665_2[0], mysql_23023665_2[1],
-        1, 2, -1, 96.0,
-        1, 1, -1, 16.0,
-        ignore_validity);
-
-    test_one<polygon, polygon, polygon>("mysql_23023665_3",
-        mysql_23023665_3[0], mysql_23023665_3[1],
-        1, 2, -1, 225.0,
-        1, 1, -1, 66.0,
-        ignore_validity);
-
-    test_one<polygon, polygon, polygon>("mysql_23023665_5",
-        mysql_23023665_5[0], mysql_23023665_5[1],
-        2 - correction_for_invalidity, 2 - correction_for_invalidity, -1, 165.23735,
-        2, 2, -1, 105.73735,
-        ignore_validity);
-
-    test_one<polygon, polygon, polygon>("mysql_23023665_6",
-        mysql_23023665_6[0], mysql_23023665_6[1],
-        2, 2, -1, 105.68756,
-        3, 3, -1, 10.18756
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        , ignore_validity
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(mysql_21977775,
+                           2, 160.856568913, 2, 92.3565689126, 4);
+#else
+    TEST_DIFFERENCE_IGNORE(mysql_21977775,
+                           1, 160.856568913, 2, 92.3565689126, 3);
 #endif
-        );
-    test_one<polygon, polygon, polygon>("mysql_23023665_13",
-        mysql_23023665_13[0], mysql_23023665_13[1],
-        3 - correction_for_invalidity, 3 - correction_for_invalidity, -1, 99.74526,
-        3, 3, -1, 37.74526,
-        ignore_validity);
+
+    TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
+
+    TEST_DIFFERENCE(mysql_23023665_1, 1, 92.0, 1, 142.5, 2);
+    TEST_DIFFERENCE(mysql_23023665_2, 1, 96.0, 1, 16.0, 2);
+    TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
+#else
+    TEST_DIFFERENCE_IGNORE(mysql_23023665_5, 1, 165.23735, 2, 105.73735, 3);
+#endif
+
+    TEST_DIFFERENCE(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6);
+#else
+    TEST_DIFFERENCE_IGNORE(mysql_23023665_13, 2, 99.74526, 3, 37.74526, 5);
+#endif
 }
 
 
@@ -591,21 +588,12 @@ void test_specific()
         2, 8, 489763.5,
         1, 4, 6731652.0);
 
-    {
-        ut_settings settings;
-        settings.test_validity = false;
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        settings.test_validity = true;
+    // Generates spikes, both a-b and b-a
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(ticket_11676, 2, 2537992.5, 2, 294963.5, 3);
+#else
+    TEST_DIFFERENCE_IGNORE(ticket_11676, 1, 2537992.5, 2, 294963.5, 2);
 #endif
-
-        // Generates spikes, both a-b and b-a
-        test_one<polygon, polygon, polygon>("ticket_11676",
-            ticket_11676[0], ticket_11676[1],
-            1, 18, 2537992.5,
-            2, 11, 294963.5,
-            2, -1, 2537992.5 + 294963.5,
-            settings);
-    }
 }
 
 

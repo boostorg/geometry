@@ -32,9 +32,6 @@ void test_areal()
 {
     typedef typename bg::coordinate_type<Polygon>::type ct;
 
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 0, 13, 11.526367);
@@ -237,6 +234,19 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("102",
                 case_102[0], case_102[1], 1, 1, 17, 8.75);
 
+    test_one<Polygon, Polygon, Polygon>("103",
+                case_103[0], case_103[1],
+                1, 0, 5, 1.0);
+    test_one<Polygon, Polygon, Polygon>("104",
+                case_104[0], case_104[1],
+                1, 0, 5, 100.0);
+
+    test_one<Polygon, Polygon, Polygon>("105",
+                case_105[0], case_105[1], 1, 0, 5, 100);
+
+    test_one<Polygon, Polygon, Polygon>("108",
+                case_108[0], case_108[1], 1, 0, 13, 5.0);
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],
@@ -368,9 +378,13 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
             1, 1, 10, 7.5);
 
-    test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
-            1, 0, -1, 3461.3203125,
-            ignore_validity);
+    {
+        ut_settings ignore_validity;
+        ignore_validity.test_validity = false;
+        test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
+                1, 0, -1, 3461.3203125,
+                ignore_validity);
+    }
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             1, 0, -1, 350.55102539);
     test_one<Polygon, Polygon, Polygon>("geos_3", geos_3[0], geos_3[1],
@@ -384,24 +398,18 @@ void test_areal()
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, if_typed<ct, double>(18, 23), 4.60853,
-                ignore_validity);
+                1, 0, 23, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, if_typed<ct, double>(18, 23), 4.60853,
-                ignore_validity);
-#endif
-
+                1, 0, 23, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, if_typed<ct, float>(14, 13), 13.6569);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, 13, 13.6569);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
                 1, 0, -1, 16.5711);
@@ -425,12 +433,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.4853);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
                 1, 0, 18, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, 18, 18.5710);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, 19, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
@@ -449,7 +456,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-                1, 0, 217, 36.752837, ignore_validity);
+                1, 0, 217, 36.752837);
 #else
                 1, 1, 217, 36.752837);
 #endif
@@ -484,13 +491,13 @@ void test_all()
 
     test_areal<ring, polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
     test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 #endif

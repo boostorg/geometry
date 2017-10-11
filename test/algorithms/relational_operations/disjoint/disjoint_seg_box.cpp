@@ -9,8 +9,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -29,6 +27,7 @@
 #include <geometry_test_common.hpp>
 
 #include "test_disjoint_seg_box.hpp"
+
 
 namespace bg = boost::geometry;
 
@@ -73,7 +72,6 @@ void disjoint_tests_1()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
                                                              "SEGMENT(0 0, 4 0)",
                                                              true);
-
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(1 1,3 3)",
                                                              "SEGMENT(2 2, 4 4)",
                                                              false);
@@ -153,6 +151,102 @@ void disjoint_tests_with_strategy(bool expected_result)
              expected_result, geographic_vincenty);
 }
 
+template <typename P>
+void disjoint_tests_sph_geo()
+{
+    //Case A: box intersects without containing the vertex
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 6, 120 7)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 -6, 120 -7)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             false);
+
+    //Case B: box intersects and contains the vertex
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 9, 120 10)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 -10, 120 -9)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             false);
+
+    //Case C: bounding boxes disjoint
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 10, 10 20)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             true);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 -20, 10 -10)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             true);
+
+    //Case D: bounding boxes intersect but box segment are disjoint
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 9, 0.1 20)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             true);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 -20, 0.1 -9)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             true);
+
+    //Case E: geodesic intersects box but box segment are disjoint
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(121 0, 122 10)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             true);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(121 -10, 122 0)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             true);
+
+    //Case F: segment crosses box
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(100 0, 110 20)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(100 -20, 110 0)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             false);
+
+    //Case G: box contains one segment endpoint
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(110 0, 130 10)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(110 -10, 130 0)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             false);
+
+    //Case H: box below segment
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(50 0, 70 6)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             true);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(50 -6, 70 0)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             true);
+
+    //Case I: box contains segment
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(-10 0, 130 10)",
+                                                             "SEGMENT(0 5, 120 5)",
+                                                             false);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(-10 -10, 130 0)",
+                                                             "SEGMENT(0 -5, 120 -5)",
+                                                             false);
+
+    //ascending segment
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 10, 120 10.1)",
+                                                             "SEGMENT(0 5, 120 5.1)",
+                                                             false);
+
+    //descending segment
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 9.8, 120 10)",
+                                                             "SEGMENT(0 5, 120 4.9)",
+                                                             false);
+
+    //ascending segment both hemispheres
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(100 5, 120 6)",
+                                                             "SEGMENT(0 -1, 120 4.9)",
+                                                             false);
+
+    //descending segment both hemispheres
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 5, 20 6)",
+                                                             "SEGMENT(0 4.9, 120 -1)",
+                                                             false);
+}
+
 template <typename CT>
 void test_all()
 {
@@ -179,6 +273,9 @@ void test_all()
     disjoint_tests_4<geo_point>(false);
 
     disjoint_tests_with_strategy<geo_point, CT>(false);
+
+    disjoint_tests_sph_geo<sph_point>();
+    disjoint_tests_sph_geo<geo_point>();
 }
 
 

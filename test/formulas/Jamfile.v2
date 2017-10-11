@@ -1,6 +1,6 @@
 # Boost.Geometry
 #
-# Copyright (c) 2016, Oracle and/or its affiliates.
+# Copyright (c) 2016-2017, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
@@ -13,4 +13,5 @@ test-suite boost-geometry-formulas
     [ run inverse.cpp                        : : : : formulas_inverse ]
     [ run direct.cpp                         : : : : formulas_direct ]
     [ run intersection.cpp                   : : : : formulas_intersection ]
+    [ run vertex_longitude.cpp               : : : : formulas_vertex_longitude ]
     ;

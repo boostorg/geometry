@@ -5,6 +5,11 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -17,6 +22,7 @@
 
 
 #include <cstddef>
+#include <functional>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -25,9 +31,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
-
-#include <boost/geometry/strategies/compare.hpp>
-#include <boost/geometry/policies/compare.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,7 +43,6 @@ namespace detail { namespace expand
 
 template
 <
-    typename StrategyLess, typename StrategyGreater,
     std::size_t Dimension, std::size_t DimensionCount
 >
 struct nsphere_loop
@@ -48,20 +50,10 @@ struct nsphere_loop
     template <typename Box, typename NSphere>
     static inline void apply(Box& box, NSphere const& source)
     {
-        typedef typename strategy::compare::detail::select_strategy
-            <
-                StrategyLess, 1, NSphere, Dimension
-            >::type less_type;
-
-        typedef typename strategy::compare::detail::select_strategy
-            <
-                StrategyGreater, -1, NSphere, Dimension
-            >::type greater_type;
-
         typedef typename select_coordinate_type<NSphere, Box>::type coordinate_type;
 
-        less_type less;
-        greater_type greater;
+        std::less<coordinate_type> const less;
+        std::greater<coordinate_type> const greater;
 
         coordinate_type const min_coord = get<Dimension>(source) - get_radius<0>(source);
         coordinate_type const max_coord = get<Dimension>(source) + get_radius<0>(source);
@@ -78,7 +70,6 @@ struct nsphere_loop
 
         nsphere_loop
             <
-                StrategyLess, StrategyGreater,
                 Dimension + 1, DimensionCount
             >::apply(box, source);
     }
@@ -87,12 +78,10 @@ struct nsphere_loop
 
 template
 <
-    typename StrategyLess, typename StrategyGreater,
     std::size_t DimensionCount
 >
 struct nsphere_loop
     <
-        StrategyLess, StrategyGreater,
         DimensionCount, DimensionCount
     >
 {
@@ -112,13 +101,11 @@ namespace dispatch
 // Box + Nsphere -> new box containing also nsphere
 template
 <
-    typename BoxOut, typename NSphere,
-    typename StrategyLess, typename StrategyGreater
+    typename BoxOut, typename NSphere
 >
-struct expand<BoxOut, NSphere, StrategyLess, StrategyGreater, box_tag, nsphere_tag>
+struct expand<BoxOut, NSphere, box_tag, nsphere_tag>
     : detail::expand::nsphere_loop
         <
-            StrategyLess, StrategyGreater,
             0, dimension<NSphere>::type::value
         >
 {};

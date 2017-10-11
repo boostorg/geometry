@@ -23,12 +23,14 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
@@ -60,6 +62,7 @@ struct no_interrupt_policy
 
 template
 <
+    bool Reverse,
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
@@ -74,17 +77,20 @@ struct self_section_visitor
     RobustPolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
+    std::size_t m_source_index;
 
     inline self_section_visitor(Geometry const& g,
                                 IntersectionStrategy const& is,
                                 RobustPolicy const& rp,
                                 Turns& turns,
-                                InterruptPolicy& ip)
+                                InterruptPolicy& ip,
+                                std::size_t source_index)
         : m_geometry(g)
         , m_intersection_strategy(is)
         , m_rescale_policy(rp)
         , m_turns(turns)
         , m_interrupt_policy(ip)
+        , m_source_index(source_index)
     {}
 
     template <typename Section>
@@ -98,11 +104,11 @@ struct self_section_visitor
             return detail::get_turns::get_turns_in_sections
                     <
                         Geometry, Geometry,
-                        false, false,
+                        Reverse, Reverse,
                         Section, Section,
                         TurnPolicy
-                    >::apply(0, m_geometry, sec1,
-                             0, m_geometry, sec2,
+                    >::apply(m_source_index, m_geometry, sec1,
+                             m_source_index, m_geometry, sec2,
                              false,
                              m_intersection_strategy,
                              m_rescale_policy,
@@ -116,7 +122,7 @@ struct self_section_visitor
 
 
 
-template<typename TurnPolicy>
+template <bool Reverse, typename TurnPolicy>
 struct get_turns
 {
     template <typename Geometry, typename IntersectionStrategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
@@ -125,7 +131,8 @@ struct get_turns
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
             Turns& turns,
-            InterruptPolicy& interrupt_policy)
+            InterruptPolicy& interrupt_policy,
+            std::size_t source_index)
     {
         typedef model::box
             <
@@ -141,13 +148,14 @@ struct get_turns
         typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 
         sections_type sec;
-        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec);
+        geometry::sectionalize<Reverse, dimensions>(geometry, robust_policy, sec,
+                                                  intersection_strategy.get_envelope_strategy());
 
         self_section_visitor
             <
-                Geometry,
+                Reverse, Geometry,
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
-            > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy);
+            > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index);
 
         // false if interrupted
         geometry::partition
@@ -172,6 +180,7 @@ namespace dispatch
 
 template
 <
+    bool Reverse,
     typename GeometryTag,
     typename Geometry,
     typename TurnPolicy
@@ -183,26 +192,28 @@ struct self_get_turn_points
 
 template
 <
+    bool Reverse,
     typename Ring,
     typename TurnPolicy
 >
 struct self_get_turn_points
     <
-        ring_tag, Ring,
+        Reverse, ring_tag, Ring,
         TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns<TurnPolicy>
+    : detail::self_get_turn_points::get_turns<Reverse, TurnPolicy>
 {};
 
 
 template
 <
+    bool Reverse,
     typename Box,
     typename TurnPolicy
 >
 struct self_get_turn_points
     <
-        box_tag, Box,
+        Reverse, box_tag, Box,
         TurnPolicy
     >
 {
@@ -212,7 +223,8 @@ struct self_get_turn_points
             Strategy const& ,
             RobustPolicy const& ,
             Turns& ,
-            InterruptPolicy& )
+            InterruptPolicy& ,
+            std::size_t)
     {
         return true;
     }
@@ -221,35 +233,76 @@ struct self_get_turn_points
 
 template
 <
+    bool Reverse,
     typename Polygon,
     typename TurnPolicy
 >
 struct self_get_turn_points
     <
-        polygon_tag, Polygon,
+        Reverse, polygon_tag, Polygon,
         TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns<TurnPolicy>
+    : detail::self_get_turn_points::get_turns<Reverse, TurnPolicy>
 {};
 
 
 template
 <
+    bool Reverse,
     typename MultiPolygon,
     typename TurnPolicy
 >
 struct self_get_turn_points
     <
-        multi_polygon_tag, MultiPolygon,
+        Reverse, multi_polygon_tag, MultiPolygon,
         TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns<TurnPolicy>
+    : detail::self_get_turn_points::get_turns<Reverse, TurnPolicy>
 {};
 
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace self_get_turn_points
+{
+
+// Version where Reverse can be specified manually. TODO: 
+// can most probably be merged with self_get_turn_points::get_turn
+template
+<
+    bool Reverse,
+    typename AssignPolicy,
+    typename Geometry,
+    typename IntersectionStrategy,
+    typename RobustPolicy,
+    typename Turns,
+    typename InterruptPolicy
+>
+inline void self_turns(Geometry const& geometry,
+                       IntersectionStrategy const& strategy,
+                       RobustPolicy const& robust_policy,
+                       Turns& turns,
+                       InterruptPolicy& interrupt_policy,
+                       std::size_t source_index = 0)
+{
+    concepts::check<Geometry const>();
+
+    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> turn_policy;
+
+    dispatch::self_get_turn_points
+            <
+                Reverse,
+                typename tag<Geometry>::type,
+                Geometry,
+                turn_policy
+            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy, source_index);
+}
+
+}} // namespace detail::self_get_turn_points
+#endif // DOXYGEN_NO_DETAIL
 
 /*!
     \brief Calculate self intersections of a geometry
@@ -277,18 +330,21 @@ inline void self_turns(Geometry const& geometry,
                        IntersectionStrategy const& strategy,
                        RobustPolicy const& robust_policy,
                        Turns& turns,
-                       InterruptPolicy& interrupt_policy)
+                       InterruptPolicy& interrupt_policy,
+                       std::size_t source_index = 0)
 {
     concepts::check<Geometry const>();
 
-    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> turn_policy;
+    static bool const reverse =  detail::overlay::do_reverse
+        <
+            geometry::point_order<Geometry>::value
+        >::value;
 
-    dispatch::self_get_turn_points
+    detail::self_get_turn_points::self_turns
             <
-                typename tag<Geometry>::type,
-                Geometry,
-                turn_policy
-            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy);
+                reverse,
+                AssignPolicy
+            >(geometry, strategy, robust_policy, turns, interrupt_policy, source_index);
 }
 
 

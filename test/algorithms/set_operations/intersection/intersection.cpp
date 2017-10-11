@@ -42,6 +42,16 @@
 
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
+#define TEST_INTERSECTION(caseid, clips, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area)
+
+#if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+    #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+        (test_one<Polygon, Polygon, Polygon>) \
+        ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
+#endif
 
 template <typename Polygon>
 void test_areal()
@@ -49,10 +59,6 @@ void test_areal()
     typedef typename bg::coordinate_type<Polygon>::type ct;
     bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
     bool const open = bg::closure<Polygon>::value == bg::open;
-
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
 
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
@@ -167,19 +173,20 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
+    {
+        ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
+
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<Polygon, Polygon, Polygon>("isovist",
-        isovist1[0], isovist1[1],
-        1, 19, 88.4178,
-        ignore_validity);
-#else
-    // SQL Server gives: 88.1920416352664
-    // PostGIS gives:    88.19203677911
-    test_one<Polygon, Polygon, Polygon>("isovist",
-        isovist1[0], isovist1[1],
-        1, 19, 88.19203,
-        ut_settings(if_typed_tt<ct>(0.01, 0.1)));
+        settings.test_validity = false;
 #endif
+
+        // SQL Server gives: 88.1920416352664
+        // PostGIS gives:    88.19203677911
+        test_one<Polygon, Polygon, Polygon>("isovist",
+            isovist1[0], isovist1[1],
+            1, 19, 88.192037,
+            settings);
+    }
 
     test_one<Polygon, Polygon, Polygon>("geos_1",
         geos_1[0], geos_1[1],
@@ -339,6 +346,24 @@ void test_areal()
         case_102[0], case_102[1],
         0, -1, 3.1875);
 
+    test_one<Polygon, Polygon, Polygon>("case_103",
+        case_103[0], case_103[1],
+        1, -1, 0.5);
+    test_one<Polygon, Polygon, Polygon>("case_104",
+        case_104[0], case_104[1],
+        0, -1, 0.0);
+
+    TEST_INTERSECTION(case_105, 1, 34, 76.0);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_106, 2, -1, 3.5);
+    TEST_INTERSECTION(case_107, 3, -1, 3.0);
+#else
+    TEST_INTERSECTION_IGNORE(case_106, 0, -1, 3.5);
+    TEST_INTERSECTION_IGNORE(case_107, 0, -1, 3.0);
+#endif
+
+
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
         0, -1, 0.0);
@@ -353,10 +378,11 @@ void test_areal()
         2, -1, 183.71376870369406);
 
     // Needs self-intersections to solve validity
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_6",
-        mysql_23023665_6[0], mysql_23023665_6[1],
-        1, -1, 11.812440191387557,
-        ignore_validity);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
+#else
+    TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
