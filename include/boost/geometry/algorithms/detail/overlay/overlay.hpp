@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
+#include <boost/geometry/algorithms/detail/overlay/needs_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -305,9 +306,13 @@ std::cout << "get turns" << std::endl;
         visitor.visit_turns(1, turns);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        if (needs_self_turns<Geometry1>::apply(geometry1))
         {
             self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
                 strategy, robust_policy, turns, policy, 0);
+        }
+        if (needs_self_turns<Geometry2>::apply(geometry2))
+        {
             self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
                 strategy, robust_policy, turns, policy, 1);
         }
