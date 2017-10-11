@@ -100,6 +100,70 @@ private :
         return false;
     }
 
+    template <typename Turns, typename Clusters>
+    static inline
+    bool is_self_cluster(signed_size_type cluster_id,
+            const Turns& turns, Clusters const& clusters)
+    {
+        typename Clusters::const_iterator cit = clusters.find(cluster_id);
+        if (cit == clusters.end())
+        {
+            return false;
+        }
+
+        cluster_info const& cinfo = cit->second;
+        for (std::set<signed_size_type>::const_iterator it
+             = cinfo.turn_indices.begin();
+             it != cinfo.turn_indices.end(); ++it)
+        {
+            if (! is_self_turn<overlay_intersection>(turns[*it]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template <typename Turn, typename Geometry0, typename Geometry1>
+    static inline
+    bool within(Turn const& turn, Geometry0 const& geometry0,
+                Geometry1 const& geometry1)
+    {
+        return turn.operations[0].seg_id.source_index == 0
+            ? geometry::within(turn.point, geometry1)
+            : geometry::within(turn.point, geometry0);
+    }
+
+    template <typename Turns, typename Clusters,
+              typename Geometry0, typename Geometry1>
+    static inline
+    void discard_clusters(Turns& turns, Clusters const& clusters,
+            Geometry0 const& geometry0, Geometry1 const& geometry1)
+    {
+        for (typename Clusters::const_iterator cit = clusters.begin();
+             cit != clusters.end(); ++cit)
+        {
+            signed_size_type cluster_id = cit->first;
+
+            // If there are only self-turns in the cluster, the cluster should
+            // be located within the other geometry, for intersection
+            if (is_self_cluster(cluster_id, turns, clusters))
+            {
+                cluster_info const& cinfo = cit->second;
+                if (! within(turns[*cinfo.turn_indices.begin()], geometry0, geometry1))
+                {
+                    // Discard all turns in cluster
+                    for (std::set<signed_size_type>::const_iterator sit = cinfo.turn_indices.begin();
+                         sit != cinfo.turn_indices.end(); ++sit)
+                    {
+                        turns[*sit].discarded = true;
+                    }
+                }
+            }
+        }
+    }
+
 public :
 
     template <typename Turns, typename Clusters,
@@ -108,6 +172,8 @@ public :
     void apply(Turns& turns, Clusters const& clusters,
             Geometry0 const& geometry0, Geometry1 const& geometry1)
     {
+        discard_clusters(turns, clusters, geometry0, geometry1);
+
         typedef typename boost::range_value<Turns>::type turn_type;
 
         for (typename boost::range_iterator<Turns>::type
@@ -132,7 +198,7 @@ public :
                 continue;
             }
 
-            if (turn.cluster_id >= 0 && turn.has_colocated_both)
+            if (turn.is_clustered() && turn.has_colocated_both)
             {
                 // Don't delete a self-ii-turn colocated with another ii-turn
                 // (for example #case_recursive_boxes_70)
@@ -147,13 +213,7 @@ public :
             // It is a ii self-turn
             // Check if it is within the other geometry
             // If not, it can be ignored
-
-            bool const within =
-                    turn.operations[0].seg_id.source_index == 0
-                    ? geometry::within(turn.point, geometry1)
-                    : geometry::within(turn.point, geometry0);
-
-            if (! within)
+            if (! within(turn, geometry0, geometry1))
             {
                 // It is not within another geometry, discard the turn
                 turn.discarded = true;

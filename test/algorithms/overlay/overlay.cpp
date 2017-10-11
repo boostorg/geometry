@@ -88,7 +88,7 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
                             "stroke:rgb(0,0,0);stroke-width:1", 3);
                     break;
-                case 2 :
+                case 3 :
                     label_turn(index, turn);
                     break;
             }

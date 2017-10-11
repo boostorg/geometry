@@ -153,7 +153,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             }
 
             // Check information in colocated turns
-            if (! cluster_checked && turn.cluster_id >= 0)
+            if (! cluster_checked && turn.is_clustered())
             {
                 check_colocation(has_blocked, turn.cluster_id, turns, clusters);
                 cluster_checked = true;
@@ -342,6 +342,7 @@ std::cout << "traverse" << std::endl;
                     clusters,
                     visitor
                 );
+        visitor.visit_turns(3, turns);
 
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
