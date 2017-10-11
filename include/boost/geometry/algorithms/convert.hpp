@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -29,10 +33,8 @@
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
-#include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
@@ -134,11 +136,21 @@ struct segment_to_range
     }
 };
 
+struct default_convert_point_policy
+{
+    template <typename Point1, typename Point2>
+    static inline void apply(Point1 const& point1, Point2 & point2)
+    {
+        geometry::detail::conversion::convert_point_to_point(point1, point2);
+    }
+};
+
 template
 <
     typename Range1,
     typename Range2,
-    bool Reverse = false
+    bool Reverse = false,
+    typename ConvertPointPolicy = default_convert_point_policy
 >
 struct range_to_range
 {
@@ -179,7 +191,9 @@ struct range_to_range
             it != boost::end(view) && i < n;
             ++it, ++i)
         {
-            geometry::append(destination, *it);
+            typename boost::range_value<Range2>::type point;
+            ConvertPointPolicy::apply(*it, point);
+            range::push_back(destination, point);
         }
     }
 };
