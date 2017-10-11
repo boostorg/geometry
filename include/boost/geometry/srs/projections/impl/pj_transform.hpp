@@ -257,7 +257,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         for( std::size_t i = 0; i < point_count; i++ )
         {
-            point_type const& point = geometry::range::at(range, i);
+            point_type & point = geometry::range::at(range, i);
             set_z(point, get_z(point) * srcdefn.vto_meter);
         }
     }
@@ -365,18 +365,12 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             {
                 point_type & point = range::at(range, i);
 
-                model::point<coord_t, 2, cs::cartesian> projected_loc;
-                model::point<coord_t, 2, cs::geographic<radian> > geodetic_loc;
-
-                set<0>(projected_loc, get<0>(point));
-                set<1>(projected_loc, get<1>(point));
-
-                if( get<0>(projected_loc) == HUGE_VAL )
+                if( get<0>(point) == HUGE_VAL )
                     continue;
 
                 try
                 {
-                    pj_inv(srcprj, srcdefn, projected_loc, geodetic_loc);
+                    pj_inv(srcprj, srcdefn, point, point);
                 }
                 catch(projection_exception const& e)
                 {
@@ -387,13 +381,10 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                             || transient_error[-e.code()] == 0) ) {
                         BOOST_RETHROW
                     } else {
-                        set<0>(geodetic_loc, HUGE_VAL);
-                        set<1>(geodetic_loc, HUGE_VAL);
+                        set<0>(point, HUGE_VAL);
+                        set<1>(point, HUGE_VAL);
                     }
                 }
-
-                set<0>(point, get<0>(geodetic_loc));
-                set<1>(point, get<1>(geodetic_loc));
             }
         }
     }
@@ -538,17 +529,11 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             {
                 point_type & point = range::at(range, i);
 
-                model::point<coord_t, 2, cs::cartesian> projected_loc;
-                model::point<coord_t, 2, cs::geographic<radian> > geodetic_loc;
-
-                set<0>(geodetic_loc, get<0>(point));
-                set<1>(geodetic_loc, get<1>(point));
-
-                if( get<0>(geodetic_loc) == HUGE_VAL )
+                if( get<0>(point) == HUGE_VAL )
                     continue;
 
                 try {
-                    pj_fwd(dstprj, dstdefn, geodetic_loc, projected_loc);
+                    pj_fwd(dstprj, dstdefn, point, point);
                 } catch (projection_exception const& e) {
                     if( (e.code() != 33 /*EDOM*/
                          && e.code() != 34 /*ERANGE*/ )
@@ -557,13 +542,10 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                             || transient_error[-e.code()] == 0) ) {
                         BOOST_RETHROW
                     } else {
-                        set<0>(projected_loc, HUGE_VAL);
-                        set<1>(projected_loc, HUGE_VAL);
+                        set<0>(point, HUGE_VAL);
+                        set<1>(point, HUGE_VAL);
                     }
                 }
-
-                set<0>(point, get<0>(projected_loc));
-                set<1>(point, get<1>(projected_loc));
             }
         }
     }
@@ -582,6 +564,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             if( x == HUGE_VAL )
                 continue;
 
+            // TODO - units-dependant constants could be used instead
             while( x < dstdefn.long_wrap_center - math::pi<coord_t>() )
                 x += math::two_pi<coord_t>();
             while( x > dstdefn.long_wrap_center + math::pi<coord_t>() )
@@ -598,7 +581,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         for( std::size_t i = 0; i < point_count; i++ )
         {
-            point_type const& point = geometry::range::at(range, i);
+            point_type & point = geometry::range::at(range, i);
             set_z(point, get_z(point) * dstdefn.vfr_meter);
         }
     }

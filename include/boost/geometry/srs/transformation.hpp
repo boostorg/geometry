@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
@@ -25,6 +25,8 @@
 
 #include <boost/geometry/srs/projection.hpp>
 #include <boost/geometry/srs/projections/impl/pj_transform.hpp>
+
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
@@ -62,8 +64,41 @@ struct same_tags
         >::value;
 };
 
+template
+<
+    typename PtIn,
+    typename PtOut,
+    bool SameUnits = geometry::is_radian
+                        <
+                            typename geometry::coordinate_system<PtIn>::type
+                        >::type::value
+                     ==
+                     geometry::is_radian
+                        <
+                            typename geometry::coordinate_system<PtOut>::type
+                        >::type::value
+>
+struct transform_geometry_point_coordinates
+{
+    static inline void apply(PtIn const& in, PtOut & out)
+    {
+        geometry::set<0>(out, geometry::get<0>(in));
+        geometry::set<1>(out, geometry::get<1>(in));
+    }
+};
+
+template <typename PtIn, typename PtOut>
+struct transform_geometry_point_coordinates<PtIn, PtOut, false>
+{
+    static inline void apply(PtIn const& in, PtOut & out)
+    {
+        geometry::set_from_radian<0>(out, geometry::get_as_radian<0>(in));
+        geometry::set_from_radian<1>(out, geometry::get_as_radian<1>(in));
+    }
+};
+
 template <typename Geometry, typename CT>
-struct transform_geometry_point_type
+struct transform_geometry_point
 {
     typedef typename geometry::point_type<Geometry>::type point_type;
 
@@ -77,11 +112,35 @@ struct transform_geometry_point_type
             geometry::dimension<point_type>::type::value,
             typename geometry::coordinate_system<point_type>::type
         > type;
+
+    template <typename PtIn, typename PtOut>
+    static inline void apply(PtIn const& in, PtOut & out)
+    {
+        transform_geometry_point_coordinates<PtIn, PtOut>::apply(in, out);
+        projections::detail::copy_higher_dimensions<2>(in, out);
+    }
 };
 
-// TODO: Instead of using proper geometries consider using std::vector<>
-// instead of MPt, Ls and Ring to avoid including models.
-// It would also be possible to avoid using Seg model.
+template <typename Geometry, typename CT>
+struct transform_geometry_range_base
+{
+    template <typename In, typename Out>
+    static inline void apply(In const& in, Out & out)
+    {
+        // Change the order and/or closure if needed
+        // In - arbitrary geometry
+        // Out - either Geometry or std::vector
+        // So the order and closure of In and Geometry shoudl be compared
+        // std::vector's order is assumed to be the same as of Geometry
+        geometry::detail::conversion::range_to_range
+            <
+                In,
+                Out,
+                geometry::point_order<In>::value != geometry::point_order<Out>::value,
+                transform_geometry_point<Geometry, CT>
+            >::apply(in, out);
+    }
+};
 
 template
 <
@@ -89,49 +148,68 @@ template
     typename CT,
     typename Tag = typename geometry::tag<Geometry>::type
 >
-struct transform_geometry_type
+struct transform_geometry
 {};
 
 template <typename Point, typename CT>
-struct transform_geometry_type<Point, CT, point_tag>
-    : transform_geometry_point_type<Point, CT>
+struct transform_geometry<Point, CT, point_tag>
+    : transform_geometry_point<Point, CT>
 {};
 
-template <typename MultiPoint, typename CT>
-struct transform_geometry_type<MultiPoint, CT, multi_point_tag>
-{
-    typedef geometry::model::multi_point
-        <
-            typename transform_geometry_point_type<MultiPoint, CT>::type
-        > type;
-};
-
 template <typename Segment, typename CT>
-struct transform_geometry_type<Segment, CT, segment_tag>
+struct transform_geometry<Segment, CT, segment_tag>
 {
     typedef geometry::model::segment
         <
-            typename transform_geometry_point_type<Segment, CT>::type
+            typename transform_geometry_point<Segment, CT>::type
+        > type;
+
+    template <typename In, typename Out>
+    static inline void apply(In const& in, Out & out)
+    {
+        apply<0>(in, out);
+        apply<1>(in, out);
+    }
+
+private:
+    template <std::size_t Index, typename In, typename Out>
+    static inline void apply(In const& in, Out & out)
+    {
+        geometry::detail::indexed_point_view<In const, Index> in_pt0(in);
+        geometry::detail::indexed_point_view<Out, Index> out_pt0(out);
+        transform_geometry_point<Segment, CT>::apply(in_pt0, out_pt0);
+    }
+};
+
+template <typename MultiPoint, typename CT>
+struct transform_geometry<MultiPoint, CT, multi_point_tag>
+    : transform_geometry_range_base<MultiPoint, CT>
+{
+    typedef model::multi_point
+        <
+            typename transform_geometry_point<MultiPoint, CT>::type
         > type;
 };
 
-template <typename Linestring, typename CT>
-struct transform_geometry_type<Linestring, CT, linestring_tag>
+template <typename LineString, typename CT>
+struct transform_geometry<LineString, CT, linestring_tag>
+    : transform_geometry_range_base<LineString, CT>
 {
-    typedef geometry::model::linestring
+    typedef model::linestring
         <
-            typename transform_geometry_point_type<Linestring, CT>::type
+            typename transform_geometry_point<LineString, CT>::type
         > type;
 };
 
 template <typename Ring, typename CT>
-struct transform_geometry_type<Ring, CT, ring_tag>
+struct transform_geometry<Ring, CT, ring_tag>
+    : transform_geometry_range_base<Ring, CT>
 {
-    typedef geometry::model::ring
+    typedef model::ring
         <
-            typename transform_geometry_point_type<Ring, CT>::type,
-            point_order<Ring>::value == clockwise,
-            closure<Ring>::value == closed
+            typename transform_geometry_point<Ring, CT>::type,
+            geometry::point_order<Ring>::value == clockwise,
+            geometry::closure<Ring>::value == closed
         > type;
 };
 
@@ -151,18 +229,19 @@ template
 >
 struct transform_geometry_wrapper
 {
-    typedef typename transform_geometry_type<OutGeometry, CT>::type type;
+    typedef transform_geometry<OutGeometry, CT> transform;
+    typedef typename transform::type type;
 
     template <typename InGeometry>
     transform_geometry_wrapper(InGeometry const& in, OutGeometry & out)
         : m_out(out)
     {
         if (! same_object(in, m_temp))
-            geometry::convert(in, m_temp);
+            transform::apply(in, m_temp);
     }
 
     type & get() { return m_temp; }
-    void finish() { geometry::convert(m_temp, m_out); }
+    void finish() { geometry::convert(m_temp, m_out); } // this is always copy 1:1 without changing the order or closure
 
 private:
     type m_temp;
@@ -176,6 +255,7 @@ template
 >
 struct transform_geometry_wrapper<OutGeometry, CT, false>
 {
+    typedef transform_geometry<OutGeometry, CT> transform;
     typedef OutGeometry type;
 
     template <typename InGeometry>
@@ -183,7 +263,7 @@ struct transform_geometry_wrapper<OutGeometry, CT, false>
         : m_out(out)
     {
         if (! same_object(in, out))
-            geometry::convert(in, out);
+            transform::apply(in, out);
     }
 
     OutGeometry & get() { return m_out; }
