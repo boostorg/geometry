@@ -280,6 +280,7 @@ struct traversal_switch_detector
                     // For now:
                     return false;
                 }
+            }
 
             if (connected_region.isolated != isolation_yes && ! multiple)
             {
