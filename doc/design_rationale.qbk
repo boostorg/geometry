@@ -546,7 +546,7 @@ where a strategy is specified explicitly and constructed with a radius.
 [heading Point Concept]
 The five traits classes mentioned in the previous sections form together the
 Point Concept. Any point type for which specializations are implemented in
-the traits namespace should be accepted a as valid type. So the Point Concept
+the traits namespace should be accepted as a valid type. So the Point Concept
 consists of:
 
 * a specialization for `traits::tag`
