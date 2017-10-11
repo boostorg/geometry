@@ -661,7 +661,9 @@ struct traversal
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        if (OverlayType != overlay_buffer)
+        if (OverlayType != overlay_buffer
+                && OverlayType != overlay_dissolve_union
+                && OverlayType != overlay_dissolve_intersection)
         {
             return;
         }
@@ -689,6 +691,9 @@ struct traversal
 
         bool const correct
                 = ! start_turn.both(operation_union)
+                  && start_op.seg_id.source_index == other_op.seg_id.source_index
+                  && start_op.seg_id.multi_index == other_op.seg_id.multi_index
+                  && start_op.seg_id.ring_index == other_op.seg_id.ring_index
                   && start_op.seg_id.segment_index == to_vertex_index;
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
