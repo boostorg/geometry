@@ -57,7 +57,6 @@
 #include <boost/geometry/srs/projections/impl/pj_msfn.hpp>
 #include <boost/geometry/srs/projections/impl/pj_qsfn.hpp>
 
-#include <boost/geometry/srs/projections/epsg_traits.hpp>
 
 namespace boost { namespace geometry
 {

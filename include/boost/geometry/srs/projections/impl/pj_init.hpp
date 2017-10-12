@@ -51,7 +51,6 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/condition.hpp>
 
-#include <boost/geometry/srs/parameters.hpp>
 #include <boost/geometry/srs/projections/impl/dms_parser.hpp>
 #include <boost/geometry/srs/projections/impl/pj_datum_set.hpp>
 #include <boost/geometry/srs/projections/impl/pj_datums.hpp>
@@ -59,6 +58,7 @@
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/pj_units.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
+#include <boost/geometry/srs/projections/proj4_params.hpp>
 
 
 namespace boost { namespace geometry { namespace projections

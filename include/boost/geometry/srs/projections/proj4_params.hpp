@@ -1,17 +1,14 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry
 
-// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
-
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_SRS_PARAMETERS_HPP
-#define BOOST_GEOMETRY_SRS_PARAMETERS_HPP
+#ifndef BOOST_GEOMETRY_SRS_PROJECTIONS_PROJ4_PARAMS_HPP
+#define BOOST_GEOMETRY_SRS_PROJECTIONS_PROJ4_PARAMS_HPP
 
 
 #include <string>
@@ -36,16 +33,6 @@ struct proj4
     {}
 
     std::string str;
-};
-
-
-struct epsg
-{
-    explicit epsg(int c)
-        : code(c)
-    {}
-
-    int code;
 };
 
 
@@ -83,13 +70,6 @@ struct static_proj4
 };
 
 
-template <int Code>
-struct static_epsg
-{
-    static const int code = Code;
-};
-
-
 }}} // namespace boost::geometry::srs
 
-#endif // BOOST_GEOMETRY_SRS_PARAMETERS_HPP
+#endif // BOOST_GEOMETRY_SRS_PROJECTIONS_PROJ4_PARAMS_HPP

@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_SRS_ELLPS_HPP
-#define BOOST_GEOMETRY_SRS_ELLPS_HPP
+#ifndef BOOST_GEOMETRY_SRS_PROJECTIONS_ELLPS_HPP
+#define BOOST_GEOMETRY_SRS_PROJECTIONS_ELLPS_HPP
 
 
 #include <boost/geometry/srs/sphere.hpp>
@@ -123,4 +123,4 @@ BOOST_GEOMETRY_PROJECTIONS_DETAIL_SPHER_R   (sphere, 6370997.0)
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_SRS_ELLPS_HPP
+#endif // BOOST_GEOMETRY_SRS_PROJECTIONS_ELLPS_HPP

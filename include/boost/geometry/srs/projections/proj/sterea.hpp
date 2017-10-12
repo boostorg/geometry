@@ -51,7 +51,6 @@
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_gauss.hpp>
 
-#include <boost/geometry/srs/projections/epsg_traits.hpp>
 
 namespace boost { namespace geometry
 {

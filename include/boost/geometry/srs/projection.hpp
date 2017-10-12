@@ -21,15 +21,13 @@
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
-#include <boost/geometry/srs/ellps.hpp>
-#include <boost/geometry/srs/parameters.hpp>
-#include <boost/geometry/srs/projections/epsg.hpp>
-#include <boost/geometry/srs/projections/epsg_traits.hpp>
+#include <boost/geometry/srs/projections/ellps.hpp>
 #include <boost/geometry/srs/projections/exception.hpp>
 #include <boost/geometry/srs/projections/factory.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/pj_init.hpp>
+#include <boost/geometry/srs/projections/proj4_params.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
@@ -58,7 +56,6 @@ struct promote_to_double
             double, CT
         >::type type;
 };
-
 
 // Copy coordinates of dimensions >= MinDim
 template <std::size_t MinDim, typename Point1, typename Point2>
@@ -178,10 +175,26 @@ struct inverse<Geometry, point_tag>
     }
 };
 
-
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
+
+template <typename Params, typename CT>
+struct dynamic_parameters
+{
+    BOOST_MPL_ASSERT_MSG((false),
+                         NOT_IMPLEMENTED_FOR_THESE_PARAMETERS,
+                         (Params));
+};
+
+template <typename CT>
+struct dynamic_parameters<srs::proj4, CT>
+{
+    static inline projections::parameters<CT> apply(srs::proj4 const& params)
+    {
+        return projections::detail::pj_init_plus<CT>(srs::dynamic(), params.str);
+    }  
+};
 
 // proj_wrapper class and its specializations wrapps the internal projection
 // representation and implements transparent creation of projection object
@@ -189,7 +202,7 @@ template <typename Proj, typename CT>
 class proj_wrapper
 {
     BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION_TAG,
+                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION,
                          (Proj));
 };
 
@@ -204,16 +217,9 @@ class proj_wrapper<srs::dynamic, CT>
     typedef projections::detail::base_v<calc_t, parameters_type> vprj_t;
 
 public:
-    proj_wrapper(srs::proj4 const& params)
-        : m_ptr(create(projections::detail::pj_init_plus<calc_t>(srs::dynamic(),
-                                params.str)))
-    {}
-
-    proj_wrapper(srs::epsg const& params)
-        : m_ptr(create(projections::detail::pj_init_plus<calc_t>(
-                            srs::dynamic(),
-                            projections::detail::code_to_string(params.code),
-                            false)))
+    template <typename Params>
+    proj_wrapper(Params const& params)
+        : m_ptr(create(projections::dynamic_parameters<Params, calc_t>::apply(params)))
     {}
 
     vprj_t const& proj() const { return *m_ptr; }
@@ -279,36 +285,6 @@ private:
     projection_type m_proj;
 };
 
-template <int Code, typename CT>
-class proj_wrapper<srs::static_epsg<Code>, CT>
-{
-    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
-
-    typedef projections::detail::epsg_traits<Code> epsg_traits;
-
-    typedef projections::parameters<calc_t> parameters_type;
-    typedef typename projections::detail::static_projection_type
-        <
-            typename epsg_traits::type,
-            typename epsg_traits::srs_tag,
-            calc_t,
-            parameters_type
-        >::type projection_type;
-
-public:
-    proj_wrapper()
-        : m_proj(projections::detail::pj_init_plus<calc_t>(
-                        srs::static_epsg<Code>(),
-                        epsg_traits::par(), false))
-    {}
-
-    projection_type const& proj() const { return m_proj; }
-    projection_type & mutable_proj() { return m_proj; }
-
-private:
-    projection_type m_proj;
-};
-
 
 // projection class implements transparent forward/inverse projection interface
 template <typename Proj, typename CT>
@@ -345,7 +321,6 @@ public:
     }
 };
 
-
 } // namespace projections
 
 
@@ -368,7 +343,7 @@ template
 class projection
 {
     BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION_TAG,
+                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION,
                          (Proj));
 };
 
@@ -389,11 +364,8 @@ public:
         for the Madagascar projection.
     \note Parameters are described in the group
     */
-    projection(srs::proj4 const& params)
-        : base_t(params)
-    {}
-
-    projection(srs::epsg const& params)
+    template <typename Params>
+    projection(Params const& params)
         : base_t(params)
     {}
 };
@@ -412,18 +384,6 @@ public:
         : base_t(params)
     {}
 };
-
-template <int Code, typename CT>
-class projection<srs::static_epsg<Code>, CT>
-    : public projections::projection<srs::static_epsg<Code>, CT>
-{
-    typedef projections::projection<srs::static_epsg<Code>, CT> base_t;
-
-public:
-    projection()
-    {}
-};
-
 
 } // namespace srs
 

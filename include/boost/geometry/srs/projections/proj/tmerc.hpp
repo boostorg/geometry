@@ -50,7 +50,6 @@
 #include <boost/geometry/srs/projections/impl/function_overloads.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
 
-#include <boost/geometry/srs/projections/epsg_traits.hpp>
 
 namespace boost { namespace geometry
 {

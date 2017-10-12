@@ -45,9 +45,9 @@
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/srs/parameters.hpp>
 #include <boost/geometry/srs/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/proj4_params.hpp>
 
 
 namespace boost { namespace geometry { namespace projections {

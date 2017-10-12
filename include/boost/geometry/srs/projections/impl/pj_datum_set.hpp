@@ -45,7 +45,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <boost/geometry/srs/parameters.hpp>
+#include <boost/geometry/srs/projections/exception.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/pj_datums.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
 
