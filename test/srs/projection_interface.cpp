@@ -15,6 +15,7 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/srs/epsg.hpp>
 #include <boost/geometry/srs/projection.hpp>
 
 

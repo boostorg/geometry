@@ -15,6 +15,7 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/srs/epsg.hpp>
 #include <boost/geometry/strategies/transform/project_transformer.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>

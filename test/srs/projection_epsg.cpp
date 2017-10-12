@@ -25,6 +25,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/srs/epsg.hpp>
 #include <boost/geometry/srs/projection.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
