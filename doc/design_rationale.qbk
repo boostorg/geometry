@@ -637,6 +637,20 @@ and modify our distance function:
 Of course also the apply functions in the dispatch specializations will return a result like this.
 They have a strategy as a template parameter everywhere, making the less verbose version possible.
 
+[heading Axis Order]
+
+This is an important note for users who develop GIS applications, require compliance with OGC
+standards or use variety of coordinate reference systems (CRS).
+
+Boost.Geometry convention is that coordinate values of 2D tuple is always given according to
+mathematical axis order: X,Y. Considering GIS applications, that always means easting,northing or,
+in terms of geographic coordinate system: longitude,latitude.
+Boost.Geometry does not allow or respect coordinate values listed in the axis order as
+specified by coordinate reference system (CRS).
+
+In practice, users may easily adapt point types with alternate axis ordering and
+specify coordinate access in order as expected by Boost.Geometry.
+
 [heading Summary]
 
 In this design rationale, __boost_geometry__ is step by step designed using tag dispatching, 
