@@ -189,7 +189,7 @@ namespace projections
                     /* if too far from given values of x,y, repeat with better approximation of phi,lam */
                     } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
 
-                    if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
+                    //if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                 }
 
                 static inline std::string get_name()
