@@ -560,8 +560,8 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         {
             point_type & point = range::at(range, i);
             coord_t x = get_as_radian<0>(point);
-
-            if( x == HUGE_VAL )
+            
+            if( get<0>(point) == HUGE_VAL )
                 continue;
 
             // TODO - units-dependant constants could be used instead
@@ -631,7 +631,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
     {
         point_type & point = range::at(rng, i);
 
-        if( get<1>(point) == HUGE_VAL  )
+        if( get<0>(point) == HUGE_VAL  )
             continue;
 
         T X = 0, Y = 0, Z = 0;
