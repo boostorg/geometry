@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/side_andoyer.hpp>
 

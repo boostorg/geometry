@@ -28,6 +28,7 @@
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/strategies/geographic/side_vincenty.hpp>
 
