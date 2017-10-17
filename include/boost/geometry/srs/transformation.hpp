@@ -54,16 +54,6 @@ inline bool same_object(T const& o1, T const& o2)
     return boost::addressof(o1) == boost::addressof(o2);
 }
 
-template <typename G1, typename G2>
-struct same_tags
-{
-    static const bool value = boost::is_same
-        <
-            typename geometry::tag<G1>::type,
-            typename geometry::tag<G2>::type
-        >::value;
-};
-
 template
 <
     typename PtIn,
@@ -136,9 +126,8 @@ struct transform_geometry_range_base
             <
                 In,
                 Out,
-                geometry::point_order<In>::value != geometry::point_order<Out>::value,
-                transform_geometry_point<Geometry, CT>
-            >::apply(in, out);
+                geometry::point_order<In>::value != geometry::point_order<Out>::value
+            >::apply(in, out, transform_geometry_point<Geometry, CT>());
     }
 };
 
@@ -175,9 +164,9 @@ private:
     template <std::size_t Index, typename In, typename Out>
     static inline void apply(In const& in, Out & out)
     {
-        geometry::detail::indexed_point_view<In const, Index> in_pt0(in);
-        geometry::detail::indexed_point_view<Out, Index> out_pt0(out);
-        transform_geometry_point<Segment, CT>::apply(in_pt0, out_pt0);
+        geometry::detail::indexed_point_view<In const, Index> in_pt(in);
+        geometry::detail::indexed_point_view<Out, Index> out_pt(out);
+        transform_geometry_point<Segment, CT>::apply(in_pt, out_pt);
     }
 };
 
@@ -212,6 +201,7 @@ struct transform_geometry<Ring, CT, ring_tag>
             geometry::closure<Ring>::value == closed
         > type;
 };
+
 
 template
 <
@@ -277,16 +267,27 @@ template <typename CT>
 struct transform_range
 {
     template <typename Proj1, typename Proj2, typename RangeIn, typename RangeOut>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              RangeIn const& in, RangeOut & out)
     {
         transform_geometry_wrapper<RangeOut, CT> wrapper(in, out);
 
-        pj_transform(proj1.proj(), proj1.proj().params(),
-                     proj2.proj(), proj2.proj().params(),
-                     wrapper.get());
+        bool res = true;
+        try
+        {
+            res = pj_transform(proj1.proj(), proj1.proj().params(),
+                               proj2.proj(), proj2.proj().params(),
+                               wrapper.get());
+        }
+        catch (...)
+        {
+            res = false;
+        }
 
+        // TODO: support invalid points
         wrapper.finish();
+
+        return res;
     }
 };
 
@@ -294,26 +295,31 @@ template <typename Policy>
 struct transform_multi
 {
     template <typename Proj1, typename Proj2, typename MultiIn, typename MultiOut>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              MultiIn const& in, MultiOut & out)
     {
         if (! same_object(in, out))
             range::resize(out, boost::size(in));
 
-        apply(proj1, proj2,
-              boost::begin(in), boost::end(in),
-              boost::begin(out));
+        return apply(proj1, proj2,
+                     boost::begin(in), boost::end(in),
+                     boost::begin(out));
     }
 
 private:
     template <typename Proj1, typename Proj2, typename InIt, typename OutIt>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              InIt in_first, InIt in_last, OutIt out_first)
     {
+        bool res = true;
         for ( ; in_first != in_last ; ++in_first, ++out_first )
         {
-            Policy::apply(proj1, proj2, *in_first, *out_first);
+            if ( ! Policy::apply(proj1, proj2, *in_first, *out_first) )
+            {
+                res = false;
+            }
         }
+        return res;
     }
 };
 
@@ -331,7 +337,7 @@ template <typename Point, typename CT>
 struct transform<Point, CT, point_tag>
 {
     template <typename Proj1, typename Proj2, typename PointIn, typename PointOut>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              PointIn const& in, PointOut & out)
     {
         transform_geometry_wrapper<PointOut, CT> wrapper(in, out);
@@ -341,11 +347,21 @@ struct transform<Point, CT, point_tag>
 
         std::pair<point_type *, point_type *> range = std::make_pair(ptr, ptr + 1);
 
-        pj_transform(proj1.proj(), proj1.proj().params(),
-                     proj2.proj(), proj2.proj().params(),
-                     range);
+        bool res = true;
+        try
+        {
+            res = pj_transform(proj1.proj(), proj1.proj().params(),
+                               proj2.proj(), proj2.proj().params(),
+                               range);
+        }
+        catch(...)
+        {
+            res = false;
+        }
 
         wrapper.finish();
+
+        return res;
     }
 };
 
@@ -358,7 +374,7 @@ template <typename Segment, typename CT>
 struct transform<Segment, CT, segment_tag>
 {
     template <typename Proj1, typename Proj2, typename SegmentIn, typename SegmentOut>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              SegmentIn const& in, SegmentOut & out)
     {
         transform_geometry_wrapper<SegmentOut, CT> wrapper(in, out);
@@ -375,14 +391,24 @@ struct transform<Segment, CT, segment_tag>
 
         std::pair<point_type*, point_type*> range = std::make_pair(points, points + 2);
 
-        pj_transform(proj1.proj(), proj1.proj().params(),
-                     proj2.proj(), proj2.proj().params(),
-                     range);
+        bool res = true;
+        try
+        {
+            res = pj_transform(proj1.proj(), proj1.proj().params(),
+                               proj2.proj(), proj2.proj().params(),
+                               range);
+        }
+        catch(...)
+        {
+            res = false;
+        }
 
         geometry::detail::assign_point_to_index<0>(points[0], wrapper.get());
         geometry::detail::assign_point_to_index<1>(points[1], wrapper.get());
 
         wrapper.finish();
+
+        return res;
     }
 };
 
@@ -405,15 +431,22 @@ template <typename Polygon, typename CT>
 struct transform<Polygon, CT, polygon_tag>
 {
     template <typename Proj1, typename Proj2, typename PolygonIn, typename PolygonOut>
-    static inline void apply(Proj1 const& proj1, Proj2 const& proj2,
+    static inline bool apply(Proj1 const& proj1, Proj2 const& proj2,
                              PolygonIn const& in, PolygonOut & out)
     {
-        transform_range<CT>::apply(proj1, proj2,
-                                   geometry::exterior_ring(in),
-                                   geometry::exterior_ring(out));
-        transform_multi<transform_range<CT> >::apply(proj1, proj2,
-                                                     geometry::interior_rings(in),
-                                                     geometry::interior_rings(out));
+        bool r1 = transform_range
+                    <
+                        CT
+                    >::apply(proj1, proj2,
+                             geometry::exterior_ring(in),
+                             geometry::exterior_ring(out));
+        bool r2 = transform_multi
+                    <
+                        transform_range<CT>
+                     >::apply(proj1, proj2,
+                              geometry::interior_rings(in),
+                              geometry::interior_rings(out));
+        return r1 && r2;
     }
 };
 
@@ -477,20 +510,11 @@ public:
                              NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
                              (GeometryIn, GeometryOut));
 
-        try
-        {
-            projections::detail::transform
+        return projections::detail::transform
                 <
                     GeometryOut,
                     calc_t
                 >::apply(m_proj1, m_proj2, in, out);
-            
-            return true;
-        }
-        catch(...)
-        {
-            return false;
-        }
     }
 
     template <typename GeometryIn, typename GeometryOut>
@@ -500,20 +524,11 @@ public:
                              NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
                              (GeometryIn, GeometryOut));
 
-        try
-        {
-            projections::detail::transform
+        return projections::detail::transform
                 <
                     GeometryOut,
                     calc_t
                 >::apply(m_proj2, m_proj1, in, out);
-
-            return true;
-        }
-        catch(...)
-        {
-            return false;
-        }
     }
 
 private:

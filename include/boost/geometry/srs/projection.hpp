@@ -16,8 +16,8 @@
 
 #include <string>
 
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
@@ -27,7 +27,10 @@
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/pj_init.hpp>
+#include <boost/geometry/srs/projections/invalid_point.hpp>
 #include <boost/geometry/srs/projections/proj4_params.hpp>
+
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
@@ -46,6 +49,16 @@ namespace projections
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
+
+template <typename G1, typename G2>
+struct same_tags
+{
+    static const bool value = boost::is_same
+        <
+            typename geometry::tag<G1>::type,
+            typename geometry::tag<G2>::type
+        >::value;
+};
 
 template <typename CT>
 struct promote_to_double
@@ -78,102 +91,202 @@ inline void copy_higher_dimensions(Point1 const& point1, Point2 & point2)
 }
 
 
-// forward projection of any geometry type
-template
-<
-    typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type
->
-struct forward
-{
-    template <typename Proj>
-    struct forward_strategy
-    {
-        forward_strategy(Proj const& proj)
-            : m_proj(proj)
-        {}
-
-        template <typename LL, typename XY>
-        inline bool apply(LL const& ll, XY & xy) const
-        {
-            return forward<LL>::apply(ll, xy, m_proj);
-        }
-
-        Proj const& m_proj;
-    };
-
-    template <typename LL, typename XY, typename Proj>
-    static inline bool apply(LL const& ll,
-                             XY & xy,
-                             Proj const& proj)
-    {
-        return resolve_strategy::transform
-                ::apply(ll, xy, forward_strategy<Proj>(proj));
-    }
-};
-
-template <typename Geometry>
-struct forward<Geometry, point_tag>
+struct forward_point_projection_policy
 {
     template <typename LL, typename XY, typename Proj>
     static inline bool apply(LL const& ll, XY & xy, Proj const& proj)
     {
-        // (Geographic -> Cartesian) will be projected, rest will be copied.
-        // So first copy third or higher dimensions
-        projections::detail::copy_higher_dimensions<2>(ll, xy);
-
         return proj.forward(ll, xy);
     }
 };
 
-
-// inverse projection of any geometry type
-template
-<
-    typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type
->
-struct inverse
-{
-    template <typename Proj>
-    struct inverse_strategy
-    {
-        inverse_strategy(Proj const& proj)
-            : m_proj(proj)
-        {}
-
-        template <typename XY, typename LL>
-        inline bool apply(XY const& xy, LL & ll) const
-        {
-            return inverse<XY>::apply(xy, ll, m_proj);
-        }
-
-        Proj const& m_proj;
-    };
-
-    template <typename XY, typename LL, typename Proj>
-    static inline bool apply(XY const& xy,
-                             LL & ll,
-                             Proj const& proj)
-    {
-        return resolve_strategy::transform
-                ::apply(xy, ll, inverse_strategy<Proj>(proj));
-    }
-};
-
-template <typename Geometry>
-struct inverse<Geometry, point_tag>
+struct inverse_point_projection_policy
 {
     template <typename XY, typename LL, typename Proj>
     static inline bool apply(XY const& xy, LL & ll, Proj const& proj)
     {
-        // (Cartesian -> Geographic) will be projected, rest will be copied.
-        // So first copy third or higher dimensions
-        projections::detail::copy_higher_dimensions<2>(xy, ll);
-
         return proj.inverse(xy, ll);
     }
 };
+
+template <typename PointPolicy>
+struct project_point
+{
+    template <typename P1, typename P2, typename Proj>
+    static inline bool apply(P1 const& p1, P2 & p2, Proj const& proj)
+    {
+        // (Geographic -> Cartesian) will be projected, rest will be copied.
+        // So first copy third or higher dimensions
+        projections::detail::copy_higher_dimensions<2>(p1, p2);
+
+        if (! PointPolicy::apply(p1, p2, proj))
+        {
+            // For consistency with transformation
+            set_invalid_point(p2);
+            return false;
+        }
+
+        return true;
+    }
+};
+
+template <typename PointPolicy>
+struct project_range
+{
+    template <typename Proj>
+    struct convert_policy
+    {
+        explicit convert_policy(Proj const& proj)
+            : m_proj(proj)
+            , m_result(true)
+        {}
+
+        template <typename Point1, typename Point2>
+        inline void apply(Point1 const& point1, Point2 & point2)
+        {
+            if (! project_point<PointPolicy>::apply(point1, point2, m_proj) )
+                m_result = false;
+        }
+
+        bool result() const
+        {
+            return m_result;
+        }
+
+    private:
+        Proj const& m_proj;
+        bool m_result;
+    };
+
+    template <typename R1, typename R2, typename Proj>
+    static inline bool apply(R1 const& r1, R2 & r2, Proj const& proj)
+    {
+        return geometry::detail::conversion::range_to_range
+            <
+                R1, R2,
+                geometry::point_order<R1>::value != geometry::point_order<R2>::value
+            >::apply(r1, r2, convert_policy<Proj>(proj)).result();
+    }
+};
+
+template <typename Policy>
+struct project_multi
+{
+    template <typename G1, typename G2, typename Proj>
+    static inline bool apply(G1 const& g1, G2 & g2, Proj const& proj)
+    {
+        range::resize(g2, boost::size(g1));
+        return apply(boost::begin(g1), boost::end(g1),
+                     boost::begin(g2),
+                     proj);
+    }
+
+private:
+    template <typename It1, typename It2, typename Proj>
+    static inline bool apply(It1 g1_first, It1 g1_last, It2 g2_first, Proj const& proj)
+    {
+        bool result = true;
+        for ( ; g1_first != g1_last ; ++g1_first, ++g2_first )
+        {
+            if (! Policy::apply(*g1_first, *g2_first, proj))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+};
+
+template
+<
+    typename Geometry,
+    typename PointPolicy,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct project_geometry
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, point_tag>
+    : project_point<PointPolicy>
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, multi_point_tag>
+    : project_range<PointPolicy>
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, segment_tag>
+{
+    template <typename G1, typename G2, typename Proj>
+    static inline bool apply(G1 const& g1, G2 & g2, Proj const& proj)
+    {
+        bool r1 = apply<0>(g1, g2, proj);
+        bool r2 = apply<1>(g1, g2, proj);
+        return r1 && r2;
+    }
+
+private:
+    template <std::size_t Index, typename G1, typename G2, typename Proj>
+    static inline bool apply(G1 const& g1, G2 & g2, Proj const& proj)
+    {
+        geometry::detail::indexed_point_view<G1 const, Index> pt1(g1);
+        geometry::detail::indexed_point_view<G2, Index> pt2(g2);
+        return project_point<PointPolicy>::apply(pt1, pt2, proj);
+    }
+};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, linestring_tag>
+    : project_range<PointPolicy>
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, multi_linestring_tag>
+    : project_multi< project_range<PointPolicy> >
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, ring_tag>
+    : project_range<PointPolicy>
+{};
+
+template <typename Geometry, typename PointPolicy>
+struct project_geometry<Geometry, PointPolicy, polygon_tag>
+{
+    template <typename G1, typename G2, typename Proj>
+    static inline bool apply(G1 const& g1, G2 & g2, Proj const& proj)
+    {
+        bool r1 = project_range
+                    <
+                        PointPolicy
+                    >::apply(geometry::exterior_ring(g1),
+                             geometry::exterior_ring(g2),
+                             proj);
+        bool r2 = project_multi
+                    <
+                        project_range<PointPolicy>
+                    >::apply(geometry::interior_rings(g1),
+                             geometry::interior_rings(g2),
+                             proj);
+        return r1 && r2;
+    }
+};
+
+template <typename MultiPolygon, typename PointPolicy>
+struct project_geometry<MultiPolygon, PointPolicy, multi_polygon_tag>
+    : project_multi
+        <
+            project_geometry
+            <
+                typename boost::range_value<MultiPolygon>::type,
+                PointPolicy,
+                polygon_tag
+            >
+        >
+{};
+
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
@@ -306,18 +419,34 @@ public:
     template <typename LL, typename XY>
     inline bool forward(LL const& ll, XY& xy) const
     {
+        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<LL, XY>::value),
+                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
+                             (LL, XY));
+
         concepts::check_concepts_and_equal_dimensions<LL const, XY>();
 
-        return projections::detail::forward<LL>::apply(ll, xy, base_t::proj());
+        return projections::detail::project_geometry
+                <
+                    LL,
+                    projections::detail::forward_point_projection_policy
+                >::apply(ll, xy, base_t::proj());
     }
 
     /// Inverse projection, from Cartesian to Latitude-Longitude
     template <typename XY, typename LL>
     inline bool inverse(XY const& xy, LL& ll) const
     {
+        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<XY, LL>::value),
+                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
+                             (XY, LL));
+
         concepts::check_concepts_and_equal_dimensions<XY const, LL>();
 
-        return projections::detail::inverse<XY>::apply(xy, ll, base_t::proj());
+        return projections::detail::project_geometry
+                <
+                    XY,
+                    projections::detail::inverse_point_projection_policy
+                >::apply(xy, ll, base_t::proj());
     }
 };
 

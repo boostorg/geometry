@@ -45,6 +45,7 @@
 
 #include <boost/geometry/srs/projections/impl/geocent.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
+#include <boost/geometry/srs/projections/invalid_point.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
@@ -156,13 +157,6 @@ private:
 // Boost.Geometry helpers end
 // -----------------------------------------------------------
 
-/*
-template <typename T>
-static int pj_adjust_axis( projCtx ctx, const char *axis, int denormalize_flag,
-                           long point_count, int point_offset,
-                           T & x, T & y, T & z );
-*/
-
 /*#ifndef SRS_WGS84_SEMIMAJOR
 #define SRS_WGS84_SEMIMAJOR 6378137.0
 #endif
@@ -223,7 +217,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
 /************************************************************************/
 
 template <typename SrcPrj, typename DstPrj2, typename Par, typename Range>
-inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
+inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                          DstPrj2 const& dstprj, Par const& dstdefn,
                          Range & range)
 
@@ -232,23 +226,13 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     typedef typename coordinate_type<point_type>::type coord_t;
     static const std::size_t dimension = geometry::dimension<point_type>::value;
     std::size_t point_count = boost::size(range);
-
-    /*if( point_offset == 0 )
-        point_offset = 1;*/
+    bool result = true;
 
 /* -------------------------------------------------------------------- */
 /*      Transform unusual input coordinate axis orientation to          */
 /*      standard form if needed.                                        */
 /* -------------------------------------------------------------------- */
-    /*if( strcmp(srcdefn->axis,"enu") != 0 )
-    {
-        int err;
-
-        err = pj_adjust_axis( srcdefn->ctx, srcdefn->axis,
-                              0, point_count, point_offset, x, y, z );
-        if( err != 0 )
-            return err;
-    }*/
+    // Ignored
 
 /* -------------------------------------------------------------------- */
 /*      Transform Z to meters if it isn't already.                      */
@@ -277,7 +261,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             for(std::size_t i = 0; i < point_count; i++ )
             {
                 point_type & point = range::at(range, i);
-                if( get<0>(point) != HUGE_VAL )
+                if( ! is_invalid_point(point) )
                 {
                     set<0>(point, get<0>(point) * srcdefn.to_meter);
                     set<1>(point, get<1>(point) * srcdefn.to_meter);
@@ -365,7 +349,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             {
                 point_type & point = range::at(range, i);
 
-                if( get<0>(point) == HUGE_VAL )
+                if( is_invalid_point(point) )
                     continue;
 
                 try
@@ -377,17 +361,20 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                     if( (e.code() != 33 /*EDOM*/
                         && e.code() != 34 /*ERANGE*/ )
                         && (e.code() > 0
-                            || e.code() < -44 || point_count == 1
+                            || e.code() < -44 /*|| point_count == 1*/
                             || transient_error[-e.code()] == 0) ) {
                         BOOST_RETHROW
                     } else {
-                        set<0>(point, HUGE_VAL);
-                        set<1>(point, HUGE_VAL);
+                        set_invalid_point(point);
+                        result = false;
+                        if (point_count == 1)
+                            return result;
                     }
                 }
             }
         }
     }
+
 /* -------------------------------------------------------------------- */
 /*      But if they are already lat long, adjust for the prime          */
 /*      meridian if there is one in effect.                             */
@@ -398,7 +385,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         {
             point_type & point = range::at(range, i);
 
-            if( get<0>(point) != HUGE_VAL )
+            if( ! is_invalid_point(point) )
                 set<0>(point, get<0>(point) + srcdefn.from_greenwich);
         }
     }
@@ -419,7 +406,10 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Convert datums if needed, and possible.                         */
 /* -------------------------------------------------------------------- */
-    pj_datum_transform( srcdefn, dstdefn, range );
+    if ( ! pj_datum_transform( srcdefn, dstdefn, range ) )
+    {
+        result = false;
+    }
 
 /* -------------------------------------------------------------------- */
 /*      Do we need to translate from ellipsoidal to geoid vertical      */
@@ -444,7 +434,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         {
             point_type & point = range::at(range, i);
 
-            if( get<0>(point) != HUGE_VAL )
+            if( ! is_invalid_point(point) )
                 set<0>(point, get<0>(point) - dstdefn.from_greenwich);
         }
     }
@@ -462,15 +452,19 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         // NOTE: In the original code the return value of the following
         // function is not checked
         range_wrapper<Range, false> rng(range);
-        pj_geodetic_to_geocentric( dstdefn.a_orig, dstdefn.es_orig,
-                                   rng );
-
+        int err = pj_geodetic_to_geocentric( dstdefn.a_orig, dstdefn.es_orig,
+                                             rng );
+        if( err == -14 )
+            result = false;
+        else
+            BOOST_THROW_EXCEPTION( projection_exception(err) );
+            
         if( dstdefn.fr_meter != 1.0 )
         {
             for( std::size_t i = 0; i < point_count; i++ )
             {
                 point_type & point = range::at(range, i);
-                if( get<0>(point) != HUGE_VAL )
+                if( ! is_invalid_point(point) )
                 {
                     set<0>(point, get<0>(point) * dstdefn.fr_meter);
                     set<1>(point, get<1>(point) * dstdefn.fr_meter);
@@ -529,21 +523,24 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             {
                 point_type & point = range::at(range, i);
 
-                if( get<0>(point) == HUGE_VAL )
+                if( is_invalid_point(point) )
                     continue;
 
                 try {
                     pj_fwd(dstprj, dstdefn, point, point);
                 } catch (projection_exception const& e) {
+
                     if( (e.code() != 33 /*EDOM*/
                          && e.code() != 34 /*ERANGE*/ )
                         && (e.code() > 0
-                            || e.code() < -44 || point_count == 1
+                            || e.code() < -44 /*|| point_count == 1*/
                             || transient_error[-e.code()] == 0) ) {
                         BOOST_RETHROW
                     } else {
-                        set<0>(point, HUGE_VAL);
-                        set<1>(point, HUGE_VAL);
+                        set_invalid_point(point);
+                        result = false;
+                        if (point_count == 1)
+                            return result;
                     }
                 }
             }
@@ -561,7 +558,7 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             point_type & point = range::at(range, i);
             coord_t x = get_as_radian<0>(point);
             
-            if( get<0>(point) == HUGE_VAL )
+            if( is_invalid_point(point) )
                 continue;
 
             // TODO - units-dependant constants could be used instead
@@ -590,15 +587,9 @@ inline void pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /*      Transform normalized axes into unusual output coordinate axis   */
 /*      orientation if needed.                                          */
 /* -------------------------------------------------------------------- */
-    /*if( strcmp(dstdefn->axis,"enu") != 0 )
-    {
-        int err;
+    // Ignored
 
-        err = pj_adjust_axis( dstdefn->ctx, dstdefn->axis,
-                              1, point_count, point_offset, x, y, z );
-        if( err != 0 )
-            return err;
-    }*/
+    return result;
 }
 
 /************************************************************************/
@@ -631,7 +622,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
     {
         point_type & point = range::at(rng, i);
 
-        if( get<0>(point) == HUGE_VAL  )
+        if( is_invalid_point(point) )
             continue;
 
         T X = 0, Y = 0, Z = 0;
@@ -642,8 +633,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
                                                X, Y, Z ) != 0 )
         {
             ret_errno = -14;
-            set<0>(point, HUGE_VAL);
-            set<1>(point, HUGE_VAL);
+            set_invalid_point(point);
             /* but keep processing points! */
         }
         else
@@ -685,7 +675,7 @@ inline int pj_geocentric_to_geodetic( T const& a, T const& es,
     {
         point_type & point = range::at(rng, i);
 
-        if( get<0>(point) == HUGE_VAL )
+        if( is_invalid_point(point) )
             continue;
 
         T Longitude = 0, Latitude = 0, Height = 0;
@@ -770,7 +760,7 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
         {
             point_type & point = range::at(rng, i);
             
-            if( get<0>(point) == HUGE_VAL )
+            if( is_invalid_point(point) )
                 continue;
 
             set<0>(point,                   get<0>(point) + Dx_BF(defn));
@@ -784,7 +774,7 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
         {
             point_type & point = range::at(rng, i);
 
-            if( get<0>(point) == HUGE_VAL )
+            if( is_invalid_point(point) )
                 continue;
 
             coord_t x = get<0>(point);
@@ -827,7 +817,7 @@ inline int pj_geocentric_from_wgs84( Par const& defn,
         {
             point_type & point = range::at(rng, i);
 
-            if( get<0>(point) == HUGE_VAL )
+            if( is_invalid_point(point) )
                 continue;
 
             set<0>(point,                   get<0>(point) - Dx_BF(defn));
@@ -841,11 +831,10 @@ inline int pj_geocentric_from_wgs84( Par const& defn,
         {
             point_type & point = range::at(rng, i);
 
-            coord_t x = get<0>(point);
-
-            if( x == HUGE_VAL )
+            if( is_invalid_point(point) )
                 continue;
 
+            coord_t x = get<0>(point);
             coord_t y = get<1>(point);
             coord_t z = range_wrapper.get_z(i);
 
@@ -881,11 +870,12 @@ inline bool pj_datum_check_error(int err)
 /************************************************************************/
 
 template <typename Par, typename Range>
-inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
+inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
                                 Range & range )
 
 {
     typedef typename Par::type calc_t;
+    bool result = true;
 
     calc_t      src_a, src_es, dst_a, dst_es;
 
@@ -897,13 +887,13 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /* -------------------------------------------------------------------- */
     if( srcdefn.datum_type == PJD_UNKNOWN
         || dstdefn.datum_type == PJD_UNKNOWN )
-        return;
+        return result;
 
 /* -------------------------------------------------------------------- */
 /*      Short cut if the datums are identical.                          */
 /* -------------------------------------------------------------------- */
     if( pj_compare_datums( srcdefn, dstdefn ) )
-        return;
+        return result;
 
     src_a = srcdefn.a_orig;
     src_es = srcdefn.es_orig;
@@ -956,6 +946,8 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
         int err = pj_geodetic_to_geocentric( src_a, src_es, z_range );
         if (pj_datum_check_error(err))
             BOOST_THROW_EXCEPTION( projection_exception(err) );
+        else if (err != 0)
+            result = false;
 
 /* -------------------------------------------------------------------- */
 /*      Convert between datums.                                         */
@@ -990,6 +982,8 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
         err = pj_geocentric_to_geodetic( dst_a, dst_es, z_range );
         if (pj_datum_check_error(err))
             BOOST_THROW_EXCEPTION( projection_exception(err) );
+        else if (err != 0)
+            result = false;
     }
 
 /* -------------------------------------------------------------------- */
@@ -1005,121 +999,8 @@ inline void pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
         }
     }*/
 
-    return;
+    return result;
 }
-
-///************************************************************************/
-///*                           pj_adjust_axis()                           */
-///*                                                                      */
-///*      Normalize or de-normalized the x/y/z axes.  The normal form     */
-///*      is "enu" (easting, northing, up).                               */
-///************************************************************************/
-//static int pj_adjust_axis( projCtx ctx,
-//                           const char *axis, int denormalize_flag,
-//                           long point_count, int point_offset,
-//                           double *x, double *y, double *z )
-//
-//{
-//    double x_in, y_in, z_in = 0.0;
-//    int i, i_axis;
-//
-//    if( !denormalize_flag )
-//    {
-//        for( i = 0; i < point_count; i++ )
-//        {
-//            x_in = x[point_offset*i];
-//            y_in = y[point_offset*i];
-//            if( z )
-//                z_in = z[point_offset*i];
-//
-//            for( i_axis = 0; i_axis < 3; i_axis++ )
-//            {
-//                double value;
-//
-//                if( i_axis == 0 )
-//                    value = x_in;
-//                else if( i_axis == 1 )
-//                    value = y_in;
-//                else
-//                    value = z_in;
-//
-//                switch( axis[i_axis] )
-//                {
-//                  case 'e':
-//                    x[point_offset*i] = value;
-//                    break;
-//                  case 'w':
-//                    x[point_offset*i] = -value;
-//                    break;
-//                  case 'n':
-//                    y[point_offset*i] = value;
-//                    break;
-//                  case 's':
-//                    y[point_offset*i] = -value;
-//                    break;
-//                  case 'u':
-//                    if( z )
-//                        z[point_offset*i] = value;
-//                    break;
-//                  case 'd':
-//                    if( z )
-//                        z[point_offset*i] = -value;
-//                    break;
-//                  default:
-//                    pj_ctx_set_errno( ctx, PJD_ERR_AXIS );
-//                    return PJD_ERR_AXIS;
-//                }
-//            } /* i_axis */
-//        } /* i (point) */
-//    }
-//
-//    else /* denormalize */
-//    {
-//        for( i = 0; i < point_count; i++ )
-//        {
-//            x_in = x[point_offset*i];
-//            y_in = y[point_offset*i];
-//            if( z )
-//                z_in = z[point_offset*i];
-//
-//            for( i_axis = 0; i_axis < 3; i_axis++ )
-//            {
-//                double *target;
-//
-//                if( i_axis == 2 && z == NULL )
-//                    continue;
-//
-//                if( i_axis == 0 )
-//                    target = x;
-//                else if( i_axis == 1 )
-//                    target = y;
-//                else
-//                    target = z;
-//
-//                switch( axis[i_axis] )
-//                {
-//                  case 'e':
-//                    target[point_offset*i] = x_in; break;
-//                  case 'w':
-//                    target[point_offset*i] = -x_in; break;
-//                  case 'n':
-//                    target[point_offset*i] = y_in; break;
-//                  case 's':
-//                    target[point_offset*i] = -y_in; break;
-//                  case 'u':
-//                    target[point_offset*i] = z_in; break;
-//                  case 'd':
-//                    target[point_offset*i] = -z_in; break;
-//                  default:
-//                    pj_ctx_set_errno( ctx, PJD_ERR_AXIS );
-//                    return PJD_ERR_AXIS;
-//                }
-//            } /* i_axis */
-//        } /* i (point) */
-//    }
-//
-//    return 0;
-//}
 
 } // namespace detail
 
