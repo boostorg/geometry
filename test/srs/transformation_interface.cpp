@@ -38,7 +38,7 @@ void test_geometries()
     std::cout << std::setprecision(12);
 
     double d2r = math::d2r<T>();
-    double r2d = math::r2d<T>();
+    //double r2d = math::r2d<T>();
 
     std::string from = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
     std::string to = "+proj=longlat +ellps=airy +datum=OSGB36 +no_defs";
@@ -137,14 +137,14 @@ void test_combinations(std::string const& from, std::string const& to)
     typedef model::point<double, 2, cs::cartesian> xy;
     typedef model::point<double, 2, cs::geographic<degree> > ll_d;
     typedef model::point<double, 2, cs::geographic<radian> > ll_r;
-    typedef model::point<double, 3, cs::cartesian> xyz;
-    typedef model::point<double, 3, cs::geographic<degree> > llz_d;
-    typedef model::point<double, 3, cs::geographic<radian> > llz_r;
+    //typedef model::point<double, 3, cs::cartesian> xyz;
+    //typedef model::point<double, 3, cs::geographic<degree> > llz_d;
+    //typedef model::point<double, 3, cs::geographic<radian> > llz_r;
 
     std::cout << std::setprecision(12);
 
     double d2r = math::d2r<double>();
-    double r2d = math::r2d<double>();
+    //double r2d = math::r2d<double>();
 
     transformation<> tr((proj4(from)), (proj4(to)));
 
