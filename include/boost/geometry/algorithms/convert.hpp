@@ -136,21 +136,11 @@ struct segment_to_range
     }
 };
 
-struct default_convert_point_policy
-{
-    template <typename Point1, typename Point2>
-    static inline void apply(Point1 const& point1, Point2 & point2)
-    {
-        geometry::detail::conversion::convert_point_to_point(point1, point2);
-    }
-};
-
 template
 <
     typename Range1,
     typename Range2,
-    bool Reverse = false,
-    typename ConvertPointPolicy = default_convert_point_policy
+    bool Reverse = false
 >
 struct range_to_range
 {
@@ -165,7 +155,23 @@ struct range_to_range
             geometry::closure<Range1>::value
         >::type view_type;
 
+    struct default_policy
+    {
+        template <typename Point1, typename Point2>
+        static inline void apply(Point1 const& point1, Point2 & point2)
+        {
+            geometry::detail::conversion::convert_point_to_point(point1, point2);
+        }
+    };
+    
     static inline void apply(Range1 const& source, Range2& destination)
+    {
+        apply(source, destination, default_policy());
+    }
+
+    template <typename ConvertPointPolicy>
+    static inline ConvertPointPolicy apply(Range1 const& source, Range2& destination,
+                                           ConvertPointPolicy convert_point)
     {
         geometry::clear(destination);
 
@@ -192,9 +198,11 @@ struct range_to_range
             ++it, ++i)
         {
             typename boost::range_value<Range2>::type point;
-            ConvertPointPolicy::apply(*it, point);
+            convert_point.apply(*it, point);
             range::push_back(destination, point);
         }
+
+        return convert_point;
     }
 };
 
