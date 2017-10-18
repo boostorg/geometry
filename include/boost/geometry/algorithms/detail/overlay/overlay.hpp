@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
+#include <boost/geometry/algorithms/detail/overlay/needs_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
@@ -132,6 +133,21 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                     op.seg_id.ring_index
                 );
 
+            if (! is_self_turn<OverlayType>(turn)
+                && (
+                    (target_operation == operation_union
+                      && op.enriched.count_left > 0)
+                  || (target_operation == operation_intersection
+                      && op.enriched.count_right <= 2)))
+            {
+                // Avoid including untraversed rings which have polygons on
+                // their left side (union) or not two on their right side (int)
+                // This can only be done for non-self-turns because of count
+                // information
+                turn_info_map[ring_id].has_blocked_turn = true;
+                continue;
+            }
+
             if (turn.any_blocked())
             {
                 turn_info_map[ring_id].has_blocked_turn = true;
@@ -139,16 +155,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             if (turn_info_map[ring_id].has_traversed_turn
                     || turn_info_map[ring_id].has_blocked_turn)
             {
-                continue;
-            }
-
-            if (target_operation == operation_union
-                    && ! is_self_turn<OverlayType>(turn)
-                    && op.enriched.count_left > 0)
-            {
-                // Avoid including untraversed rings in unions which have
-                // polygons on their left side
-                turn_info_map[ring_id].has_blocked_turn = true;
                 continue;
             }
 
@@ -300,9 +306,13 @@ std::cout << "get turns" << std::endl;
         visitor.visit_turns(1, turns);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        if (needs_self_turns<Geometry1>::apply(geometry1))
         {
             self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
                 strategy, robust_policy, turns, policy, 0);
+        }
+        if (needs_self_turns<Geometry2>::apply(geometry2))
+        {
             self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
                 strategy, robust_policy, turns, policy, 1);
         }
