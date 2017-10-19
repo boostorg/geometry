@@ -134,7 +134,7 @@ struct wkt_range
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                Range const& range, bool force_closure)
+                Range const& range, bool force_closure = ForceClosurePossible)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
@@ -254,14 +254,17 @@ struct wkt_box
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Box const& box, bool force_closure)
     {
-        // Convert to open cw ring, then stream. In this case the box can be
-        // specified as open and close (by force_closure)
-        typedef model::ring<point_type, true, false> ring_type;
-        ring_type ring;
-        geometry::convert(box, ring);
-        os << "POLYGON(";
-        wkt_sequence<ring_type>::apply(os, ring, force_closure);
-        os << ")";
+        // Convert to a clockwire ring, then stream.
+        // Never close it based on last point (box might be empty and
+        // that should result in POLYGON((0 0,0 0,0 0,0 0, ...)) )
+        if (force_closure)
+        {
+            do_apply<model::ring<point_type, true, true> >(os, box);
+        }
+        else
+        {
+            do_apply<model::ring<point_type, true, false> >(os, box);
+        }
     }
 
     private:
@@ -271,6 +274,18 @@ struct wkt_box
             // Only streaming of boxes with two dimensions is support, otherwise it is a polyhedron!
             //assert_dimension<B, 2>();
         }
+
+        template <typename RingType, typename Char, typename Traits>
+        static inline void do_apply(std::basic_ostream<Char, Traits>& os,
+                    Box const& box)
+        {
+            RingType ring;
+            geometry::convert(box, ring);
+            os << "POLYGON(";
+            wkt_sequence<RingType, false>::apply(os, ring);
+            os << ")";
+        }
+
 };
 
 
@@ -293,7 +308,7 @@ struct wkt_segment
         // In Boost.Geometry a segment is represented
         // in WKT-format like (for 2D): LINESTRING(x y,x y)
         os << "LINESTRING";
-        wkt_sequence<sequence, false>::apply(os, points, false);
+        wkt_sequence<sequence, false>::apply(os, points);
     }
 
     private:
@@ -482,7 +497,10 @@ class wkt_manipulator
 {
 public:
 
-    inline wkt_manipulator(Geometry const& g, bool force_closure = true)
+    // Boost.Geometry, by default, closes polygons explictly, but not rings
+    // NOTE: this might change in the future!
+    inline wkt_manipulator(Geometry const& g,
+            bool force_closure = ! boost::is_same<typename tag<Geometry>::type, ring_tag>::value)
         : m_geometry(g)
         , m_force_closure(force_closure)
     {}
