@@ -254,7 +254,8 @@ struct wkt_box
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Box const& box, bool force_closure)
     {
-        // Convert to open cw ring, then stream
+        // Convert to open cw ring, then stream. In this case the box can be
+        // specified as open and close (by force_closure)
         typedef model::ring<point_type, true, false> ring_type;
         ring_type ring;
         geometry::convert(box, ring);
