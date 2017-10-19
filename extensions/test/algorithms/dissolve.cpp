@@ -16,6 +16,7 @@
 #include <boost/geometry/extensions/multi/algorithms/dissolve.hpp>
 
 // To check results
+#include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
@@ -451,6 +452,10 @@ void test_one(std::string const& caseid, std::string const& wkt,
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
 
+    // If defined as closed, it should be closed. The algorithm itself
+    // cannot close it without making a copy.
+    bg::correct_closure(geometry);
+
     test_dissolve<GeometryOut>(caseid, geometry,
         expected_area,
         expected_clip_count, expected_hole_count, expected_point_count,
@@ -526,10 +531,9 @@ void test_all()
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
-    // These do not have closed input, and output is not closed either. TODO.
-    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 5);
-    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_c, 0.4999, 1, 0, 4);
-    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
+    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 5);
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
