@@ -11,8 +11,6 @@
 
 #include <geometry_test_common.hpp>
 
-#include <iostream>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/srs/epsg.hpp>
@@ -35,8 +33,6 @@ int test_main(int, char*[])
     typedef point<double, 2, cs::cartesian> point_xy;
     //typedef polygon<point_ll> polygon_ll;
     //typedef polygon<point_xy> polygon_xy;
-
-    std::cout << std::setprecision(12);
 
     {
         point_ll pt_ll(1, 1);

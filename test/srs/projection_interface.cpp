@@ -11,13 +11,12 @@
 
 #include <geometry_test_common.hpp>
 
-#include <iostream>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/srs/epsg.hpp>
 #include <boost/geometry/srs/projection.hpp>
 
+#include "check_geometry.hpp"
 
 int test_main(int, char*[])
 {
@@ -27,60 +26,64 @@ int test_main(int, char*[])
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
     typedef point<double, 2, cs::cartesian> point_xy;
-
-    std::cout << std::setprecision(12);
-
+    
     {
         point_ll pt_ll(1, 1);
+        point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
         projection<> prj = proj4("+proj=tmerc +ellps=WGS84 +units=m");
         
-        std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
-        std::cout << wkt(pt_xy) << std::endl;
-        prj.inverse(pt_xy, pt_ll);
-        std::cout << wkt(pt_ll) << std::endl;
+        test::check_geometry(pt_xy, "POINT(111308.33561309829 110591.34223734379)", 0.001);
+
+        prj.inverse(pt_xy, pt_ll2);
+        test::check_geometry(pt_ll2, "POINT(1 1)", 0.001);
     }
 
     {
         point_ll pt_ll(1, 1);
+        point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
         projection<> prj = epsg(2000);
 
-        std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
-        std::cout << wkt(pt_xy) << std::endl;
-        prj.inverse(pt_xy, pt_ll);
-        std::cout << wkt(pt_ll) << std::endl;
+        test::check_geometry(pt_xy, "POINT(9413505.3284665551 237337.74515944949)", 0.001);
+
+        prj.inverse(pt_xy, pt_ll2);
+        // TODO: investigate this wierd result
+        test::check_geometry(pt_ll2, "POINT(-2.4463131191981073 1.5066638962045082)", 0.001);
     }
 
     {
         point_ll pt_ll(1, 1);
+        point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
         // default WGS84 spheroid and additional parameters
         projection<static_proj4<proj::tmerc> > prj;
 
-        std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
-        std::cout << wkt(pt_xy) << std::endl;
-        prj.inverse(pt_xy, pt_ll);
-        std::cout << wkt(pt_ll) << std::endl;
+        test::check_geometry(pt_xy, "POINT(111308.33561309829 110591.34223734379)", 0.001);
+
+        prj.inverse(pt_xy, pt_ll2);
+        test::check_geometry(pt_ll2, "POINT(1 1)", 0.001);
     }
 
     {
         point_ll pt_ll(1, 1);
+        point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
         projection<static_epsg<2000> > prj;
 
-        std::cout << wkt(pt_ll) << std::endl;
         prj.forward(pt_ll, pt_xy);
-        std::cout << wkt(pt_xy) << std::endl;
-        prj.inverse(pt_xy, pt_ll);
-        std::cout << wkt(pt_ll) << std::endl;
+        test::check_geometry(pt_xy, "POINT(9413505.3284665551 237337.74515944949)", 0.001);
+
+        prj.inverse(pt_xy, pt_ll2);
+        // TODO: investigate this wierd result
+        test::check_geometry(pt_ll2, "POINT(-2.4463131191981073 1.5066638962045082)", 0.001);
     }
 
     {
@@ -122,24 +125,12 @@ int test_main(int, char*[])
         point_ll pt_ll(1, 1);
         point_xy pt_xy(0, 0);
 
-        try {
-            projection<> prj1 = proj4("");
-        } catch (exception & e) {
-            std::cerr << e.what() << std::endl;
-        }
-
-        try {
-            projection<> prj2 = proj4("+proj=abcd");
-        } catch (exception & e) {
-            std::cerr << e.what() << std::endl;
-        }
-
-        try {
-            projection<> prj3 = proj4("+proj=bacon +a=6400000");
-            prj3.inverse(pt_xy, pt_ll);
-        } catch (exception & e) {
-            std::cerr << e.what() << std::endl;
-        }
+        BOOST_CHECK_THROW(projection<> prj1((proj4(""))), bg::projection_exception);
+        
+        BOOST_CHECK_THROW(projection<> prj1((proj4("+proj=abcd"))), bg::projection_exception);
+        
+        projection<> prj3 = proj4("+proj=bacon +a=6400000");
+        BOOST_CHECK_THROW(prj3.inverse(pt_xy, pt_ll), bg::projection_exception);
     }
 
     {
@@ -168,14 +159,6 @@ int test_main(int, char*[])
 
         projection<> prj = proj4("+proj=tmerc +ellps=WGS84 +units=m");
 
-        std::cout << bg::wkt(seg_ll) << std::endl;
-        std::cout << bg::wkt(ls_ll) << std::endl;
-        std::cout << bg::wkt(ring_ll) << std::endl;
-        std::cout << bg::wkt(poly_ll) << std::endl;
-        std::cout << bg::wkt(mpt_ll) << std::endl;
-        std::cout << bg::wkt(mls_ll) << std::endl;
-        std::cout << bg::wkt(mpoly_ll) << std::endl;
-
         prj.forward(seg_ll, seg_xy);
         prj.forward(ls_ll, ls_xy);
         prj.forward(ring_ll, ring_xy);
@@ -184,14 +167,14 @@ int test_main(int, char*[])
         prj.forward(mls_ll, mls_xy);
         prj.forward(mpoly_ll, mpoly_xy);
 
-        std::cout << bg::wkt(seg_xy) << std::endl;
-        std::cout << bg::wkt(ls_xy) << std::endl;
-        std::cout << bg::wkt(ring_xy) << std::endl;
-        std::cout << bg::wkt(poly_xy) << std::endl;
-        std::cout << bg::wkt(mpt_xy) << std::endl;
-        std::cout << bg::wkt(mls_xy) << std::endl;
-        std::cout << bg::wkt(mpoly_xy) << std::endl;
-        
+        test::check_geometry(seg_xy, "LINESTRING(0 0,111308 110591)", 0.001);
+        test::check_geometry(ls_xy, "LINESTRING(0 0,111308 110591,222550 221285)", 0.001);
+        test::check_geometry(ring_xy, "POLYGON((0 0,0 110574,111308 110591,111325 0,0 0))", 0.001);
+        test::check_geometry(poly_xy, "POLYGON((0 0,0 331726,333657 332183,334112 0,0 0),(111308 110591,222651 110642,222550 221285,111258 221183,111308 110591))", 0.001);
+        test::check_geometry(mpt_xy, "MULTIPOINT((0 0),(111308 110591),(222550 221285))", 0.001);
+        test::check_geometry(mls_xy, "MULTILINESTRING((0 0,111308 110591),(222550 221285,333657 332183))", 0.001);
+        test::check_geometry(mpoly_xy, "MULTIPOLYGON(((0 0,0 331726,333657 332183,334112 0,0 0),(111308 110591,222651 110642,222550 221285,111258 221183,111308 110591)),((333657 332183,333302 442913,444561 443388,445034 332540,333657 332183)))", 0.001);
+                
         bg::clear(seg_ll);
         bg::clear(ls_ll);
         bg::clear(ring_ll);
@@ -208,13 +191,13 @@ int test_main(int, char*[])
         prj.inverse(mls_xy, mls_ll);
         prj.inverse(mpoly_xy, mpoly_ll);
 
-        std::cout << bg::wkt(seg_ll) << std::endl;
-        std::cout << bg::wkt(ls_ll) << std::endl;
-        std::cout << bg::wkt(ring_ll) << std::endl;
-        std::cout << bg::wkt(poly_ll) << std::endl;
-        std::cout << bg::wkt(mpt_ll) << std::endl;
-        std::cout << bg::wkt(mls_ll) << std::endl;
-        std::cout << bg::wkt(mpoly_ll) << std::endl;
+        test::check_geometry(seg_ll, "LINESTRING(0 0, 1 1)", 0.001);
+        test::check_geometry(ls_ll, "LINESTRING(0 0, 1 1, 2 2)", 0.001);
+        test::check_geometry(ring_ll, "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))", 0.001);
+        test::check_geometry(poly_ll, "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0),(1 1, 2 1, 2 2, 1 2, 1 1))", 0.001);
+        test::check_geometry(mpt_ll, "MULTIPOINT(0 0, 1 1, 2 2)", 0.001);
+        test::check_geometry(mls_ll, "MULTILINESTRING((0 0, 1 1),(2 2, 3 3))", 0.001);
+        test::check_geometry(mpoly_ll, "MULTIPOLYGON(((0 0, 0 3, 3 3, 3 0, 0 0),(1 1, 2 1, 2 2, 1 2, 1 1)),((3 3,3 4,4 4,4 3,3 3)))", 0.001);
     }
 
     return 0;

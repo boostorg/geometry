@@ -11,11 +11,11 @@
 
 #include <geometry_test_common.hpp>
 
-#include <iostream>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/srs/transformation.hpp>
+
+#include "check_geometry.hpp"
 
 //#include <proj_api.h>
 
@@ -73,14 +73,14 @@ void test_geometries()
         tr.forward(mls, mls2);
         tr.forward(mpoly, mpoly2);
 
-        std::cout << wkt(pt2) << std::endl;
-        std::cout << wkt(seg2) << std::endl;
-        std::cout << wkt(ls2) << std::endl;
-        std::cout << wkt(rg2) << std::endl;
-        std::cout << wkt(poly2) << std::endl;
-        std::cout << wkt(mpt2) << std::endl;
-        std::cout << wkt(mls2) << std::endl;
-        std::cout << wkt(mpoly2) << std::endl;
+        test::check_geometry(pt2, "POINT(0.322952937968 0.9459567165)", 0.001);
+        test::check_geometry(seg2, "LINESTRING(0.322952937968 0.9459567165,0.322952937968 0.9459567165)", 0.001);
+        test::check_geometry(ls2, "LINESTRING(0.322952937968 0.9459567165)", 0.001);
+        test::check_geometry(rg2, "POLYGON((0.322952937968 0.9459567165))", 0.001);
+        test::check_geometry(poly2, "POLYGON((0.322952937968 0.9459567165))", 0.001);
+        test::check_geometry(mpt2, "MULTIPOINT((0.322952937968 0.9459567165))", 0.001);
+        test::check_geometry(mls2, "MULTILINESTRING((0.322952937968 0.9459567165))", 0.001);
+        test::check_geometry(mpoly2, "MULTIPOLYGON(((0.322952937968 0.9459567165)))", 0.001);
         
         tr.inverse(pt2, pt);
         tr.inverse(seg2, seg);
@@ -90,15 +90,15 @@ void test_geometries()
         tr.inverse(mpt2, mpt);
         tr.inverse(mls2, mls);
         tr.inverse(mpoly2, mpoly);
-
-        std::cout << wkt(pt) << std::endl;
-        std::cout << wkt(seg) << std::endl;
-        std::cout << wkt(ls) << std::endl;
-        std::cout << wkt(rg) << std::endl;
-        std::cout << wkt(poly) << std::endl;
-        std::cout << wkt(mpt) << std::endl;
-        std::cout << wkt(mls) << std::endl;
-        std::cout << wkt(mpoly) << std::endl;
+        
+        test::check_geometry(pt, "POINT(0.322885911738 0.945968454552)", 0.001);
+        test::check_geometry(seg, "LINESTRING(0.322885911738 0.945968454552,0.322885911738 0.945968454552)", 0.001);
+        test::check_geometry(ls, "LINESTRING(0.322885911738 0.945968454552)", 0.001);
+        test::check_geometry(rg, "POLYGON((0.322885911738 0.945968454552))", 0.001);
+        test::check_geometry(poly, "POLYGON((0.322885911738 0.945968454552))", 0.001);
+        test::check_geometry(mpt, "MULTIPOINT((0.322885911738 0.945968454552))", 0.001);
+        test::check_geometry(mls, "MULTILINESTRING((0.322885911738 0.945968454552))", 0.001);
+        test::check_geometry(mpoly, "MULTIPOLYGON(((0.322885911738 0.945968454552)))", 0.001);
     }
 
     /*{
@@ -116,19 +116,22 @@ void test_geometries()
 }
 
 template <typename P1, typename P2, typename Tr>
-inline void test_combination(Tr const& tr, double lon, double lat)
+inline void test_combination(Tr const& tr, P1 const& pt,
+                             std::string const& expected)
 {
     using namespace boost::geometry;
 
-    P1 pt(lon, lat);
     P2 pt2;
 
     tr.forward(pt, pt2);
 
-    std::cout << wkt(pt) << " -> " << wkt(pt2) << std::endl;
+    test::check_geometry(pt2, expected, 0.001);
 }
 
-void test_combinations(std::string const& from, std::string const& to)
+void test_combinations(std::string const& from, std::string const& to,
+                       std::string const& in_deg,
+                       std::string const& expected_deg,
+                       std::string const& expected_rad)
 {
     using namespace boost::geometry;
     using namespace boost::geometry::model;
@@ -141,27 +144,22 @@ void test_combinations(std::string const& from, std::string const& to)
     //typedef model::point<double, 3, cs::geographic<degree> > llz_d;
     //typedef model::point<double, 3, cs::geographic<radian> > llz_r;
 
-    std::cout << std::setprecision(12);
-
-    double d2r = math::d2r<double>();
-    //double r2d = math::r2d<double>();
-
     transformation<> tr((proj4(from)), (proj4(to)));
 
-    double lon_d = 18.5;
-    double lat_d = 54.2;
-    double lon_r = lon_d * d2r;
-    double lat_r = lat_d * d2r;
+    ll_d d;
+    bg::read_wkt(in_deg, d);
+    ll_r r(bg::get_as_radian<0>(d), bg::get_as_radian<1>(d));
+    xy c(bg::get<0>(r), bg::get<1>(r));
 
-    test_combination<xy, xy>(tr, lon_r, lat_r);
-    test_combination<xy, ll_r>(tr, lon_r, lat_r);
-    test_combination<xy, ll_d>(tr, lon_r, lat_r);
-    test_combination<ll_r, xy>(tr, lon_r, lat_r);
-    test_combination<ll_r, ll_r>(tr, lon_r, lat_r);
-    test_combination<ll_r, ll_d>(tr, lon_r, lat_r);
-    test_combination<ll_d, xy>(tr, lon_d, lat_d);
-    test_combination<ll_d, ll_r>(tr, lon_d, lat_d);
-    test_combination<ll_d, ll_d>(tr, lon_d, lat_d);
+    test_combination<xy, xy>(tr, c, expected_rad);
+    test_combination<xy, ll_r>(tr, c, expected_rad);
+    test_combination<xy, ll_d>(tr, c, expected_deg);
+    test_combination<ll_r, xy>(tr, r, expected_rad);
+    test_combination<ll_r, ll_r>(tr, r, expected_rad);
+    test_combination<ll_r, ll_d>(tr, r, expected_deg);
+    test_combination<ll_d, xy>(tr, d, expected_rad);
+    test_combination<ll_d, ll_r>(tr, d, expected_rad);
+    test_combination<ll_d, ll_d>(tr, d, expected_deg);
 }
 
 int test_main(int, char*[])
@@ -170,9 +168,15 @@ int test_main(int, char*[])
     test_geometries<float>();
     
     test_combinations("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
-                      "+proj=longlat +ellps=airy +datum=OSGB36 +no_defs");
+                      "+proj=longlat +ellps=airy +datum=OSGB36 +no_defs",
+                      "POINT(18.5 54.2)",
+                      "POINT(18.5038403269 54.1993274575)",
+                      "POINT(0.322952937968 0.9459567165)");
     test_combinations("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
-                      "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +no_defs");
+                      "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +no_defs",
+                      "POINT(18.5 54.2)",
+                      "POINT(2059410.57968 7208125.2609)",
+                      "POINT(2059410.57968 7208125.2609)");
 
     return 0;
 }
