@@ -200,6 +200,10 @@ void test_areal()
     TEST_DIFFERENCE(case_135_multi, 2, 2.0, 2, 13.0, 2);
     TEST_DIFFERENCE(case_136_multi, 2, 2.0, 3, 13.5, 3);
     TEST_DIFFERENCE(case_137_multi, 2, 2.5, 2, 13.0, 2);
+    TEST_DIFFERENCE(case_138_multi, 5, 16.6, 3, 8.225, 8);
+    TEST_DIFFERENCE(case_139_multi, 4, 16.328125, 3, 8.078125, 7);
+    TEST_DIFFERENCE(case_140_multi, 4, 16.328125, 3, 8.078125, 7);
+    TEST_DIFFERENCE(case_141_multi, 5, 15.5, 5, 10.0, 10);
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
@@ -383,6 +387,26 @@ void test_areal()
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_70, 5, 2.0, 6, 4.5, 9);
 #endif
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_71, 7, 8.25, 7, 5.75, 8);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_71, 6, 8.25, 7, 5.75, 7);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_72, 6, 6.5, 7, 4.0, 10);
+    TEST_DIFFERENCE(case_recursive_boxes_73, 4, 1.75, 5, 4.0, 8);
+
+    TEST_DIFFERENCE(case_recursive_boxes_74, 3, 3.00, 3, 1.5, 5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_75, 7, 4.5, 4, 2.0, 11);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_75, 5, 4.5, 4, 2.0, 9);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_76, 7, 3.75, 4, 2.5, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_77, 4, 3.75, 7, 6.25, 8);
+    TEST_DIFFERENCE(case_recursive_boxes_78, 11, 5.5, 8, 4.5, 14);
 
     {
         ut_settings sym_settings;
