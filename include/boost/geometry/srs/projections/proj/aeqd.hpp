@@ -61,7 +61,7 @@ namespace boost { namespace geometry
 namespace srs { namespace proj
 {
     struct aeqd {};
-    struct aeqd_guam {};
+    //struct aeqd_guam {};
 
 }} //namespace srs::proj
 
@@ -92,6 +92,268 @@ namespace projections
                 int        mode;
             };
 
+            template <typename T, typename Par, typename ProjParm>
+            void e_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            {
+                T  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
+
+                coslam = cos(lp_lon);
+                cosphi = cos(lp_lat);
+                sinphi = sin(lp_lat);
+                switch (proj_parm.mode) {
+                case N_POLE:
+                    coslam = - coslam;
+                case S_POLE:
+                    xy_x = (rho = fabs(proj_parm.Mp - pj_mlfn(lp_lat, sinphi, cosphi, proj_parm.en))) *
+                        sin(lp_lon);
+                    xy_y = rho * coslam;
+                    break;
+                case EQUIT:
+                case OBLIQ:
+                    if (fabs(lp_lon) < EPS10 && fabs(lp_lat - par.phi0) < EPS10) {
+                        xy_x = xy_y = 0.;
+                        break;
+                    }
+                    t = atan2(par.one_es * sinphi + par.es * proj_parm.N1 * proj_parm.sinph0 *
+                        sqrt(1. - par.es * sinphi * sinphi), cosphi);
+                    ct = cos(t); st = sin(t);
+                    Az = atan2(sin(lp_lon) * ct, proj_parm.cosph0 * st - proj_parm.sinph0 * coslam * ct);
+                    cA = cos(Az); sA = sin(Az);
+                    s = aasin(fabs(sA) < TOL ?
+                        (proj_parm.cosph0 * st - proj_parm.sinph0 * coslam * ct) / cA :
+                        sin(lp_lon) * ct / sA );
+                    H = proj_parm.He * cA;
+                    H2 = H * H;
+                    c = proj_parm.N1 * s * (1. + s * s * (- H2 * (1. - H2)/6. +
+                        s * ( proj_parm.G * H * (1. - 2. * H2 * H2) / 8. +
+                        s * ((H2 * (4. - 7. * H2) - 3. * proj_parm.G * proj_parm.G * (1. - 7. * H2)) /
+                        120. - s * proj_parm.G * H / 48.))));
+                    xy_x = c * sA;
+                    xy_y = c * cA;
+                    break;
+                }
+            }
+
+            template <typename T, typename Par, typename ProjParm>
+            void e_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            {
+                static const T HALFPI = detail::HALFPI<T>();
+
+                T c, Az, cosAz, A, B, D, E, F, psi, t;
+
+                if ((c = boost::math::hypot(xy_x, xy_y)) < EPS10) {
+                    lp_lat = par.phi0;
+                    lp_lon = 0.;
+                        return;
+                }
+                if (proj_parm.mode == OBLIQ || proj_parm.mode == EQUIT) {
+                    cosAz = cos(Az = atan2(xy_x, xy_y));
+                    t = proj_parm.cosph0 * cosAz;
+                    B = par.es * t / par.one_es;
+                    A = - B * t;
+                    B *= 3. * (1. - A) * proj_parm.sinph0;
+                    D = c / proj_parm.N1;
+                    E = D * (1. - D * D * (A * (1. + A) / 6. + B * (1. + 3.*A) * D / 24.));
+                    F = 1. - E * E * (A / 2. + B * E / 6.);
+                    psi = aasin(proj_parm.sinph0 * cos(E) + t * sin(E));
+                    lp_lon = aasin(sin(Az) * sin(E) / cos(psi));
+                    if ((t = fabs(psi)) < EPS10)
+                        lp_lat = 0.;
+                    else if (fabs(t - HALFPI) < 0.)
+                        lp_lat = HALFPI;
+                    else
+                        lp_lat = atan((1. - par.es * F * proj_parm.sinph0 / sin(psi)) * tan(psi) /
+                            par.one_es);
+                } else { /* Polar */
+                    lp_lat = pj_inv_mlfn(proj_parm.mode == N_POLE ? proj_parm.Mp - c : proj_parm.Mp + c,
+                        par.es, proj_parm.en);
+                    lp_lon = atan2(xy_x, proj_parm.mode == N_POLE ? -xy_y : xy_y);
+                }
+            }
+
+            template <typename T, typename Par, typename ProjParm>
+            void e_guam_fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            {
+                T cosphi, sinphi, t;
+
+                cosphi = cos(lp_lat);
+                sinphi = sin(lp_lat);
+                t = 1. / sqrt(1. - par.es * sinphi * sinphi);
+                xy_x = lp_lon * cosphi * t;
+                xy_y = pj_mlfn(lp_lat, sinphi, cosphi, proj_parm.en) - proj_parm.M1 +
+                    .5 * lp_lon * lp_lon * cosphi * sinphi * t;
+            }
+
+            template <typename T, typename Par, typename ProjParm>
+            void e_guam_inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            {
+                T x2, t;
+                int i;
+
+                x2 = 0.5 * xy_x * xy_x;
+                lp_lat = par.phi0;
+                for (i = 0; i < 3; ++i) {
+                    t = par.e * sin(lp_lat);
+                    lp_lat = pj_inv_mlfn(proj_parm.M1 + xy_y -
+                        x2 * tan(lp_lat) * (t = sqrt(1. - t * t)), par.es, proj_parm.en);
+                }
+                lp_lon = xy_x * t / cos(lp_lat);
+            }
+
+            template <typename T, typename Par, typename ProjParm>
+            void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            {
+                static const T HALFPI = detail::HALFPI<T>();
+                    
+                T coslam, cosphi, sinphi;
+
+                sinphi = sin(lp_lat);
+                cosphi = cos(lp_lat);
+                coslam = cos(lp_lon);
+                switch (proj_parm.mode) {
+                case EQUIT:
+                    xy_y = cosphi * coslam;
+                    goto oblcon;
+                case OBLIQ:
+                    xy_y = proj_parm.sinph0 * sinphi + proj_parm.cosph0 * cosphi * coslam;
+            oblcon:
+                    if (fabs(fabs(xy_y) - 1.) < TOL)
+                        if (xy_y < 0.)
+                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        else
+                            xy_x = xy_y = 0.;
+                    else {
+                        xy_y = acos(xy_y);
+                        xy_y /= sin(xy_y);
+                        xy_x = xy_y * cosphi * sin(lp_lon);
+                        xy_y *= (proj_parm.mode == EQUIT) ? sinphi :
+                                proj_parm.cosph0 * sinphi - proj_parm.sinph0 * cosphi * coslam;
+                    }
+                    break;
+                case N_POLE:
+                    lp_lat = -lp_lat;
+                    coslam = -coslam;
+                case S_POLE:
+                    if (fabs(lp_lat - HALFPI) < EPS10)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
+                    xy_y *= coslam;
+                    break;
+                }
+            }
+
+            template <typename T, typename Par, typename ProjParm>
+            void s_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            {
+                static const T ONEPI = detail::ONEPI<T>();
+                static const T HALFPI = detail::HALFPI<T>();
+                    
+                T cosc, c_rh, sinc;
+
+                if ((c_rh = boost::math::hypot(xy_x, xy_y)) > ONEPI) {
+                    if (c_rh - EPS10 > ONEPI)
+                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    c_rh = ONEPI;
+                } else if (c_rh < EPS10) {
+                    lp_lat = par.phi0;
+                    lp_lon = 0.;
+                        return;
+                }
+                if (proj_parm.mode == OBLIQ || proj_parm.mode == EQUIT) {
+                    sinc = sin(c_rh);
+                    cosc = cos(c_rh);
+                    if (proj_parm.mode == EQUIT) {
+                                    lp_lat = aasin(xy_y * sinc / c_rh);
+                        xy_x *= sinc;
+                        xy_y = cosc * c_rh;
+                    } else {
+                        lp_lat = aasin(cosc * proj_parm.sinph0 + xy_y * sinc * proj_parm.cosph0 /
+                            c_rh);
+                        xy_y = (cosc - proj_parm.sinph0 * sin(lp_lat)) * c_rh;
+                        xy_x *= sinc * proj_parm.cosph0;
+                    }
+                    lp_lon = atan2(xy_x, xy_y);
+                } else if (proj_parm.mode == N_POLE) {
+                    lp_lat = HALFPI - c_rh;
+                    lp_lon = atan2(xy_x, -xy_y);
+                } else {
+                    lp_lat = c_rh - HALFPI;
+                    lp_lon = atan2(xy_x, xy_y);
+                }
+            }
+
+            // template class, using CRTP to implement forward/inverse
+            template <typename CalculationType, typename Parameters>
+            struct base_aeqd_e : public base_t_fi<base_aeqd_e<CalculationType, Parameters>,
+                     CalculationType, Parameters>
+            {
+
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
+
+                par_aeqd<CalculationType> m_proj_parm;
+
+                inline base_aeqd_e(const Parameters& par)
+                    : base_t_fi<base_aeqd_e<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
+
+                // FORWARD(e_forward)  elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
+                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                {
+                    e_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
+                }
+
+                // INVERSE(e_inverse)  elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
+                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                {
+                    e_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
+                }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_e";
+                }
+
+            };
+
+            // template class, using CRTP to implement forward/inverse
+            template <typename CalculationType, typename Parameters>
+            struct base_aeqd_e_guam : public base_t_fi<base_aeqd_e_guam<CalculationType, Parameters>,
+                     CalculationType, Parameters>
+            {
+
+                typedef CalculationType geographic_type;
+                typedef CalculationType cartesian_type;
+
+                par_aeqd<CalculationType> m_proj_parm;
+
+                inline base_aeqd_e_guam(const Parameters& par)
+                    : base_t_fi<base_aeqd_e_guam<CalculationType, Parameters>,
+                     CalculationType, Parameters>(*this, par) {}
+
+                // FORWARD(e_guam_fwd)  Guam elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
+                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                {
+                    e_guam_fwd(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
+                }
+
+                // INVERSE(e_guam_inv)  Guam elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
+                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                {
+                    e_guam_inv(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
+                }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_e_guam";
+                }
+
+            };
+
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
             struct base_aeqd_ellipsoid : public base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
@@ -102,148 +364,37 @@ namespace projections
                 typedef CalculationType cartesian_type;
 
                 par_aeqd<CalculationType> m_proj_parm;
+                bool m_is_guam;
 
                 inline base_aeqd_ellipsoid(const Parameters& par)
                     : base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                     CalculationType, Parameters>(*this, par)
+                    , m_is_guam(false)
+                {}
 
-                // FORWARD(e_forward)  elliptical
+                // FORWARD(e_forward or e_guam_fwd)  elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    CalculationType  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
-
-                    coslam = cos(lp_lon);
-                    cosphi = cos(lp_lat);
-                    sinphi = sin(lp_lat);
-                    switch (this->m_proj_parm.mode) {
-                    case N_POLE:
-                        coslam = - coslam;
-                    case S_POLE:
-                        xy_x = (rho = fabs(this->m_proj_parm.Mp - pj_mlfn(lp_lat, sinphi, cosphi, this->m_proj_parm.en))) *
-                            sin(lp_lon);
-                        xy_y = rho * coslam;
-                        break;
-                    case EQUIT:
-                    case OBLIQ:
-                        if (fabs(lp_lon) < EPS10 && fabs(lp_lat - this->m_par.phi0) < EPS10) {
-                            xy_x = xy_y = 0.;
-                            break;
-                        }
-                        t = atan2(this->m_par.one_es * sinphi + this->m_par.es * this->m_proj_parm.N1 * this->m_proj_parm.sinph0 *
-                            sqrt(1. - this->m_par.es * sinphi * sinphi), cosphi);
-                        ct = cos(t); st = sin(t);
-                        Az = atan2(sin(lp_lon) * ct, this->m_proj_parm.cosph0 * st - this->m_proj_parm.sinph0 * coslam * ct);
-                        cA = cos(Az); sA = sin(Az);
-                        s = aasin(fabs(sA) < TOL ?
-                            (this->m_proj_parm.cosph0 * st - this->m_proj_parm.sinph0 * coslam * ct) / cA :
-                            sin(lp_lon) * ct / sA );
-                        H = this->m_proj_parm.He * cA;
-                        H2 = H * H;
-                        c = this->m_proj_parm.N1 * s * (1. + s * s * (- H2 * (1. - H2)/6. +
-                            s * ( this->m_proj_parm.G * H * (1. - 2. * H2 * H2) / 8. +
-                            s * ((H2 * (4. - 7. * H2) - 3. * this->m_proj_parm.G * this->m_proj_parm.G * (1. - 7. * H2)) /
-                            120. - s * this->m_proj_parm.G * H / 48.))));
-                        xy_x = c * sA;
-                        xy_y = c * cA;
-                        break;
-                    }
+                    if (m_is_guam)
+                        e_guam_fwd(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
+                    else
+                        e_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                 }
 
-                // INVERSE(e_inverse)  elliptical
+                // INVERSE(e_inverse or e_guam_inv)  elliptical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-
-                    CalculationType c, Az, cosAz, A, B, D, E, F, psi, t;
-
-                    if ((c = boost::math::hypot(xy_x, xy_y)) < EPS10) {
-                        lp_lat = this->m_par.phi0;
-                        lp_lon = 0.;
-                            return;
-                    }
-                    if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
-                        cosAz = cos(Az = atan2(xy_x, xy_y));
-                        t = this->m_proj_parm.cosph0 * cosAz;
-                        B = this->m_par.es * t / this->m_par.one_es;
-                        A = - B * t;
-                        B *= 3. * (1. - A) * this->m_proj_parm.sinph0;
-                        D = c / this->m_proj_parm.N1;
-                        E = D * (1. - D * D * (A * (1. + A) / 6. + B * (1. + 3.*A) * D / 24.));
-                        F = 1. - E * E * (A / 2. + B * E / 6.);
-                        psi = aasin(this->m_proj_parm.sinph0 * cos(E) + t * sin(E));
-                        lp_lon = aasin(sin(Az) * sin(E) / cos(psi));
-                        if ((t = fabs(psi)) < EPS10)
-                            lp_lat = 0.;
-                        else if (fabs(t - HALFPI) < 0.)
-                            lp_lat = HALFPI;
-                        else
-                            lp_lat = atan((1. - this->m_par.es * F * this->m_proj_parm.sinph0 / sin(psi)) * tan(psi) /
-                                this->m_par.one_es);
-                    } else { /* Polar */
-                        lp_lat = pj_inv_mlfn(this->m_proj_parm.mode == N_POLE ? this->m_proj_parm.Mp - c : this->m_proj_parm.Mp + c,
-                            this->m_par.es, this->m_proj_parm.en);
-                        lp_lon = atan2(xy_x, this->m_proj_parm.mode == N_POLE ? -xy_y : xy_y);
-                    }
+                    if (m_is_guam)
+                        e_guam_inv(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
+                    else
+                        e_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                 }
 
                 static inline std::string get_name()
                 {
                     return "aeqd_ellipsoid";
-                }
-
-            };
-
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aeqd_guam : public base_t_fi<base_aeqd_guam<CalculationType, Parameters>,
-                     CalculationType, Parameters>
-            {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aeqd<CalculationType> m_proj_parm;
-
-                inline base_aeqd_guam(const Parameters& par)
-                    : base_t_fi<base_aeqd_guam<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
-                // FORWARD(e_guam_fwd)  Guam elliptical
-                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
-                {
-                    CalculationType  cosphi, sinphi, t;
-
-                    cosphi = cos(lp_lat);
-                    sinphi = sin(lp_lat);
-                    t = 1. / sqrt(1. - this->m_par.es * sinphi * sinphi);
-                    xy_x = lp_lon * cosphi * t;
-                    xy_y = pj_mlfn(lp_lat, sinphi, cosphi, this->m_proj_parm.en) - this->m_proj_parm.M1 +
-                        .5 * lp_lon * lp_lon * cosphi * sinphi * t;
-                }
-
-                // INVERSE(e_guam_inv)  Guam elliptical
-                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
-                {
-                    CalculationType x2, t;
-                    int i;
-
-                    x2 = 0.5 * xy_x * xy_x;
-                    lp_lat = this->m_par.phi0;
-                    for (i = 0; i < 3; ++i) {
-                        t = this->m_par.e * sin(lp_lat);
-                        lp_lat = pj_inv_mlfn(this->m_proj_parm.M1 + xy_y -
-                            x2 * tan(lp_lat) * (t = sqrt(1. - t * t)), this->m_par.es, this->m_proj_parm.en);
-                    }
-                    lp_lon = xy_x * t / cos(lp_lat);
-                }
-
-                static inline std::string get_name()
-                {
-                    return "aeqd_guam";
                 }
 
             };
@@ -267,84 +418,14 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    
-                    CalculationType  coslam, cosphi, sinphi;
-
-                    sinphi = sin(lp_lat);
-                    cosphi = cos(lp_lat);
-                    coslam = cos(lp_lon);
-                    switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                        xy_y = cosphi * coslam;
-                        goto oblcon;
-                    case OBLIQ:
-                        xy_y = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosphi * coslam;
-                oblcon:
-                        if (fabs(fabs(xy_y) - 1.) < TOL)
-                            if (xy_y < 0.)
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                            else
-                                xy_x = xy_y = 0.;
-                        else {
-                            xy_y = acos(xy_y);
-                            xy_y /= sin(xy_y);
-                            xy_x = xy_y * cosphi * sin(lp_lon);
-                            xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
-                                   this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
-                        }
-                        break;
-                    case N_POLE:
-                        lp_lat = -lp_lat;
-                        coslam = -coslam;
-                    case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < EPS10)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                        xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
-                        xy_y *= coslam;
-                        break;
-                    }
+                    s_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                 }
 
                 // INVERSE(s_inverse)  spherical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    
-                    CalculationType cosc, c_rh, sinc;
-
-                    if ((c_rh = boost::math::hypot(xy_x, xy_y)) > ONEPI) {
-                        if (c_rh - EPS10 > ONEPI)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                        c_rh = ONEPI;
-                    } else if (c_rh < EPS10) {
-                        lp_lat = this->m_par.phi0;
-                        lp_lon = 0.;
-                            return;
-                    }
-                    if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
-                        sinc = sin(c_rh);
-                        cosc = cos(c_rh);
-                        if (this->m_proj_parm.mode == EQUIT) {
-                                        lp_lat = aasin(xy_y * sinc / c_rh);
-                            xy_x *= sinc;
-                            xy_y = cosc * c_rh;
-                        } else {
-                            lp_lat = aasin(cosc * this->m_proj_parm.sinph0 + xy_y * sinc * this->m_proj_parm.cosph0 /
-                                c_rh);
-                            xy_y = (cosc - this->m_proj_parm.sinph0 * sin(lp_lat)) * c_rh;
-                            xy_x *= sinc * this->m_proj_parm.cosph0;
-                        }
-                        lp_lon = atan2(xy_x, xy_y);
-                    } else if (this->m_proj_parm.mode == N_POLE) {
-                        lp_lat = HALFPI - c_rh;
-                        lp_lon = atan2(xy_x, -xy_y);
-                    } else {
-                        lp_lat = c_rh - HALFPI;
-                        lp_lon = atan2(xy_x, xy_y);
-                    }
+                    s_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                 }
 
                 static inline std::string get_name()
@@ -374,7 +455,7 @@ namespace projections
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
-                if (! par.es) {
+                if (par.es == T(0)) {
                 } else {
                     if (!pj_enfn(par.es, proj_parm.en))
                         BOOST_THROW_EXCEPTION( projection_exception(0) );
@@ -383,10 +464,10 @@ namespace projections
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
-                            proj_parm.Mp = pj_mlfn(HALFPI, 1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn<T>(HALFPI, 1., 0., proj_parm.en);
                             break;
                         case S_POLE:
-                            proj_parm.Mp = pj_mlfn(-HALFPI, -1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn<T>(-HALFPI, -1., 0., proj_parm.en);
                             break;
                         case EQUIT:
                         case OBLIQ:
@@ -419,9 +500,9 @@ namespace projections
         \image html ex_aeqd.gif
     */
     template <typename CalculationType, typename Parameters>
-    struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
+    struct aeqd_e : public detail::aeqd::base_aeqd_e<CalculationType, Parameters>
     {
-        inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
+        inline aeqd_e(const Parameters& par) : detail::aeqd::base_aeqd_e<CalculationType, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
         }
@@ -444,11 +525,37 @@ namespace projections
         \image html ex_aeqd.gif
     */
     template <typename CalculationType, typename Parameters>
-    struct aeqd_guam : public detail::aeqd::base_aeqd_guam<CalculationType, Parameters>
+    struct aeqd_e_guam : public detail::aeqd::base_aeqd_e_guam<CalculationType, Parameters>
     {
-        inline aeqd_guam(const Parameters& par) : detail::aeqd::base_aeqd_guam<CalculationType, Parameters>(par)
+        inline aeqd_e_guam(const Parameters& par) : detail::aeqd::base_aeqd_e_guam<CalculationType, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Azimuthal Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
+        \par Example
+        \image html ex_aeqd.gif
+    */
+    template <typename CalculationType, typename Parameters>
+    struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
+    {
+        inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
+        {
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            this->m_is_guam = pj_param(par.params, "bguam").i != 0;
         }
     };
 
@@ -483,7 +590,7 @@ namespace projections
 
         // Static projection
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd, aeqd_spheroid, aeqd_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd_guam, aeqd_guam, aeqd_guam)
+        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>
@@ -495,9 +602,9 @@ namespace projections
                     bool const guam = pj_param(par.params, "bguam").i != 0;
 
                     if (par.es && ! guam)
-                        return new base_v_fi<aeqd_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_e<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else if (par.es && guam)
-                        return new base_v_fi<aeqd_guam<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_e_guam<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else
                         return new base_v_fi<aeqd_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
