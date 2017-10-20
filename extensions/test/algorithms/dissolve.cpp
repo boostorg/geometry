@@ -82,6 +82,11 @@ namespace
     // Source: http://upload.wikimedia.org/wikipedia/commons/a/a7/Obtuse_heptagram.svg
     std::string const dissolve_13 = "POLYGON((409 5,813.456329 512.172194,229 793.631528,84.651208 161.198146,733.348792 161.198146,589 793.631528,4.543671 512.172194))";
 
+    std::string const dissolve_14 = "POLYGON((0 0,0 2,2 0,4 2,4 0,2 2,0 0))";
+    std::string const dissolve_15 = "POLYGON((0 0,2 2,4 0,4 2,2 0,0 2,0 0))";
+
+    std::string const dissolve_16 = "POLYGON((1 3,4 5,7 3,4 1,1 3),(2 2,4 4,6 2,6 4,4 2,2 4,2 2))";
+
     // Non intersection, but with duplicate
     std::string const dissolve_d1 = "POLYGON((0 0,0 4,4 0,4 0,0 0))";
 
@@ -545,6 +550,12 @@ void test_all()
     // More pentagrams
     TEST_DISSOLVE(dissolve_12, 186556.84077318, 1, 0, 15);
     TEST_DISSOLVE(dissolve_13, 361733.91651, 1, 0, 15);
+
+    TEST_DISSOLVE(dissolve_14, 4.0, 3, 0, 13);
+    TEST_DISSOLVE(dissolve_15, 4.0, 3, 0, 13);
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    TEST_DISSOLVE(dissolve_16, 99999.0, 9, 99, 999);
+#endif
 
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
