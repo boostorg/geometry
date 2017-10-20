@@ -76,6 +76,12 @@ namespace
     // CCW, one keyhole
     std::string const dissolve_11 = "POLYGON((2 8,2 4,4 4,4 6,0 6,0 0,8 0,8 8,2 8))";
 
+    // More pentagrams
+    // Source: http://upload.wikimedia.org/wikipedia/commons/8/83/Acute_heptagram.svg
+    std::string const dissolve_12 = "POLYGON((409 5,229 793.631528,733.348792 161.198146,4.543671 512.172194,813.456329 512.172194,84.651208 161.198146,589 793.631528))";
+    // Source: http://upload.wikimedia.org/wikipedia/commons/a/a7/Obtuse_heptagram.svg
+    std::string const dissolve_13 = "POLYGON((409 5,813.456329 512.172194,229 793.631528,84.651208 161.198146,733.348792 161.198146,589 793.631528,4.543671 512.172194))";
+
     // Non intersection, but with duplicate
     std::string const dissolve_d1 = "POLYGON((0 0,0 4,4 0,4 0,0 0))";
 
@@ -529,6 +535,10 @@ void test_all()
     TEST_DISSOLVE(dissolve_10, 60.0, 1, 0, 7);
     TEST_DISSOLVE(dissolve_11, 60.0, 1, 0, 7);
 
+    // More pentagrams
+    TEST_DISSOLVE(dissolve_12, 186556.84077318, 1, 0, 15);
+    TEST_DISSOLVE(dissolve_13, 361733.91651, 1, 0, 15);
+
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
 
@@ -580,15 +590,7 @@ void test_all()
     test_one<polygon, polygon>("mail_denis_1",
         "POLYGON((55 10, 141 237, 249 23, 21 171, 252 169, 24 89, 266 73, 55 10))",
         0, 7, 50.48056402439);
-    // Source: http://upload.wikimedia.org/wikipedia/commons/8/83/Acute_heptagram.svg
-    test_one<polygon, polygon>("acute_heptagram",
-        "POLYGON((409 5,229 793.631528,733.348792 161.198146,4.543671 512.172194,813.456329 512.172194,84.651208 161.198146,589 793.631528))",
-        0, 11, 25.6158412);
 
-    // Source: http://upload.wikimedia.org/wikipedia/commons/a/a7/Obtuse_heptagram.svg
-    test_one<polygon, polygon>("obtuse_heptagram",
-        "POLYGON((409 5,813.456329 512.172194,229 793.631528,84.651208 161.198146,733.348792 161.198146,589 793.631528,4.543671 512.172194))",
-        0, 11, 25.6158412);
 */
 
 }
