@@ -160,7 +160,7 @@ struct dissolve_ring_or_polygon
         geometry::self_turns
             <
                 detail::overlay::assign_null_policy
-            >(geometry, strategy, rescale_policy, turns, policy);
+            >(geometry, strategy, rescale_policy, turns, policy, 0, false);
 
         visitor.visit_turns(1, turns);
 

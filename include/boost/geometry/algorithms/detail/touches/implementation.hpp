@@ -413,7 +413,8 @@ struct touches<Areal1, Areal2, ring_tag, ring_tag, areal_tag, areal_tag, false>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry>
 struct self_touches
@@ -443,10 +444,11 @@ struct self_touches
         detail::touches::areal_interrupt_policy policy;
         strategy_type strategy;
         rescale_policy_type robust_policy;
+        // TODO: skip_adjacent should be set to false
         detail::self_get_turn_points::get_turns
         <
             false, policy_type
-        >::apply(geometry, strategy, robust_policy, turns, policy, 0);
+        >::apply(geometry, strategy, robust_policy, turns, policy, 0, true);
 
         return policy.result();
     }

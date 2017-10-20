@@ -533,8 +533,7 @@ void test_all()
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 6);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
-    TEST_DISSOLVE_IGNORE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 5);
-
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 5);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
 
