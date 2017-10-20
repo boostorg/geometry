@@ -267,6 +267,14 @@ public:
     }
 };
 
+template <typename CT>
+inline detail::base_v<CT, projections::parameters<CT> >*
+    create_new(projections::parameters<CT> const& parameters)
+{
+    static factory<CT, projections::parameters<CT> > fac;
+    return fac.create_new(parameters);
+}
+
 } // namespace detail
 
 }}} // namespace boost::geometry::projections

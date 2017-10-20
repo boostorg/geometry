@@ -341,9 +341,7 @@ public:
 private:
     static vprj_t* create(parameters_type const& pj_params)
     {
-        static projections::detail::factory<calc_t, parameters_type> fac;
-
-        vprj_t* result = fac.create_new(pj_params);
+        vprj_t* result = projections::detail::create_new(pj_params);
 
         if (result == NULL)
         {
