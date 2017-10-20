@@ -524,6 +524,11 @@ void test_all()
     TEST_DISSOLVE(dissolve_7, 50.48056402439, 1, 0, 7);
     TEST_DISSOLVE(dissolve_8, 25.6158412, 1, 0, 11);
 
+    // CCW polygons should turn CW after dissolve
+    TEST_DISSOLVE(dissolve_9, 25.6158412, 1, 0, 11);
+    TEST_DISSOLVE(dissolve_10, 60.0, 1, 0, 7);
+    TEST_DISSOLVE(dissolve_11, 60.0, 1, 0, 7);
+
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
 
@@ -537,22 +542,11 @@ void test_all()
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 6);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 5);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_g, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
-
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(dissolve_9, 25.6158412, 1, 0, 11);
-#endif
-
-    // CCW polygons should turn CW after dissolve
-    TEST_DISSOLVE(dissolve_10, 60.0, 1, 0, 7);
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // TODO: should be the same, 7, 60. The polygon is dissolved (splitted) but the extra polygon is still on top of the other
-    TEST_DISSOLVE(dissolve_11, 60.0, 1, 0, 7);
-#endif
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
