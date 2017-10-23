@@ -374,6 +374,8 @@ void test_areal()
 
     );
 
+    TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
