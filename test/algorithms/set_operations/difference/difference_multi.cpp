@@ -155,10 +155,14 @@ void test_areal()
         ut_settings settings;
         settings.percentage = 0.001;
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        // This testcase is actually different for all combinations
+#if (!defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        settings.test_validity = false;
+#endif
+
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
 #else
-        settings.test_validity = false;
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 1, 2775258.93, 3);
 #endif
     }
@@ -442,7 +446,7 @@ void test_areal()
             sym_settings);
     }
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS) && ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 1, 4.30697514e-7, 3, 152.0642, 4);
 #else
     // Misses one turn which is actually weird because there are no self-turns involved
