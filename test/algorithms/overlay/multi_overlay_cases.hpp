@@ -1221,6 +1221,20 @@ static std::string case_recursive_boxes_79[2] =
     "MULTIPOLYGON(((2 0,1 0,1 1,0 1,0 3,1 4,4 4,4 0,2 0),(2 2,1 2,1 1,2 2),(4 3,3 3,3 2,4 3)))"
 };
 
+static std::string case_recursive_boxes_80[2] =
+{
+    // Creates very small interior ring (~0) for union. This is a robustness
+    // problem, it should not be generated. The intersection point is a tiny
+    // distance away from real IP, and therefore it generates a correct
+    // interior ring, and is considered as valid. But if you combine this
+    // resulting union later with other polygons, with another rescaling model,
+    // it most probably will be invalid.
+    // These cases are found with recursive_polygons and size=4.
+    // For size=5 the scaling is such that it does not occur (so often)
+    // It needs removing the rescaling.
+    "MULTIPOLYGON(((3.5 2.5,4 3,4 2,3 2,3 3,3.5 2.5)))",
+    "MULTIPOLYGON(((1 1,1 2,2 1,1 1)),((3 2,3 3,4 3,3 2)))"
+};
 
 static std::string pie_21_7_21_0_3[2] =
 {

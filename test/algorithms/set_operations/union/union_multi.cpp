@@ -406,6 +406,14 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
     TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
 
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // This is correct: no holes generated
+    TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
+#else
+    // See comment for this testcase
+    TEST_UNION(case_recursive_boxes_80, 2, 1, -1, 1.5);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
          1, 0, 12, 23.0); // Area from SQL Server
