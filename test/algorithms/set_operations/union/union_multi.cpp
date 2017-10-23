@@ -444,6 +444,8 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
+    TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
+
     // Should have 1 hole. Needs self turns.
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
