@@ -349,6 +349,8 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_76, 2, -1, 18.25);
     TEST_INTERSECTION(case_recursive_boxes_77, 5, -1, 3.5);
     TEST_INTERSECTION(case_recursive_boxes_78, 9, -1, 8.0);
+    TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
+    TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -372,6 +374,8 @@ void test_areal()
 #endif
 
     );
+
+    TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],

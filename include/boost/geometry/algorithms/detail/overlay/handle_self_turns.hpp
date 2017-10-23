@@ -272,9 +272,10 @@ inline void discard_self_turns_which_loop(Turns& turns)
             op_type& op = turn.operations[i];
 
             if (op.enriched.startable
+                && op.operation == operation_intersection
                 && op.enriched.get_next_turn_index() == turn_index)
             {
-                // Self-turn i/u traveling to itself. Discard it.
+                // Self-turn i/u, i part traveling to itself. Discard it.
                 // (alternatively it might be made unstartable - but the
                 // intersection-operation may not be traveled anyway, and the
                 // union-operation is not traveled at all in intersections

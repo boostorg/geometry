@@ -19,6 +19,21 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.66]
+[/=================]
+
+[*Improvements]
+
+[*Solved issues]
+
+* [@https://svn.boost.org/trac10/ticket/12503 12503] Validity of complex polygon
+
+[*Bugfixes]
+
+* Fixes in validity of union/intersection/differece which were sometimes invalid. In most cases, results are valid now.
+* Fixes in results of union/intersection/differece which could be incorrect in very complex cases
+
+[/=================]
 [heading Boost 1.65]
 [/=================]
 
