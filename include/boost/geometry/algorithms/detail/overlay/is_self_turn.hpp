@@ -41,7 +41,7 @@ struct is_self_turn_check<overlay_buffer>
 };
 
 template <>
-struct is_self_turn_check<overlay_dissolve>
+struct is_self_turn_check<overlay_dissolve_union>
 {
     template <typename Turn>
     static inline bool apply(Turn const& turn)
@@ -50,6 +50,15 @@ struct is_self_turn_check<overlay_dissolve>
     }
 };
 
+template <>
+struct is_self_turn_check<overlay_dissolve_intersection>
+{
+    template <typename Turn>
+    static inline bool apply(Turn const& turn)
+    {
+        return false;
+    }
+};
 
 template <overlay_type OverlayType, typename Turn>
 bool is_self_turn(Turn const& turn)

@@ -88,7 +88,7 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
                             "stroke:rgb(0,0,0);stroke-width:1", 3);
                     break;
-                case 2 :
+                case 3 :
                     label_turn(index, turn);
                     break;
             }
@@ -246,10 +246,15 @@ struct map_visitor
                     result = true;
                 }
             }
-        }
-        if (! turn.operations[index].enriched.startable)
-        {
-            os << "$";
+
+            os << " {" << turn.operations[index].enriched.region_id
+               << (turn.operations[index].enriched.isolated ? " ISO" : "")
+               << "}";
+
+            if (! turn.operations[index].enriched.startable)
+            {
+                os << "$";
+            }
         }
 
         return result;
@@ -271,17 +276,33 @@ struct map_visitor
         {
             out << "#";
         }
-
-        std::string font8 = "font-family:Arial;font-size:8px";
-        std::string font6 = "font-family:Arial;font-size:6px";
-        std::string style =  "fill:rgb(0,0,255);" + font8;
-        if (turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index)
+        if (turn.discarded)
         {
-            style =  "fill:rgb(255,0,255);" + font8;
+            out << "!";
         }
-        else if (turn.colocated)
+        if (turn.has_colocated_both)
         {
-            style =  "fill:rgb(255,0,0);" + font8;
+            out << "+";
+        }
+        bool const self_turn = bg::detail::overlay::is_self_turn<bg::overlay_union>(turn);
+        if (self_turn)
+        {
+            out << "@";
+        }
+
+        std::string font8 = "font-family:Arial;font-size:6px";
+        std::string font6 = "font-family:Arial;font-size:4px";
+        std::string style =  "fill:rgb(0,0,255);" + font8;
+        if (self_turn)
+        {
+            if (turn.discarded)
+            {
+                style =  "fill:rgb(128,28,128);" + font6;
+            }
+            else
+            {
+                style =  "fill:rgb(255,0,255);" + font8;
+            }
         }
         else if (turn.discarded)
         {
@@ -303,7 +324,7 @@ struct map_visitor
     void add_text(Turn const& turn, std::string const& text, std::string const& style)
     {
         int const margin = 5;
-        int const lineheight = 8;
+        int const lineheight = 6;
         double const half = 0.5;
         double const ten = 10;
 

@@ -26,6 +26,7 @@
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/sjoberg_intersection.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
+#include <boost/geometry/formulas/unit_spheroid.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
@@ -36,6 +37,7 @@
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
@@ -78,11 +80,12 @@ struct geographic_segments
     template <typename Geometry1, typename Geometry2>
     struct point_in_geometry_strategy
     {
-        typedef strategy::within::winding
+        typedef strategy::within::geographic_winding
             <
                 typename point_type<Geometry1>::type,
                 typename point_type<Geometry2>::type,
-                side_strategy_type,
+                FormulaPolicy,
+                Spheroid,
                 CalculationType
             > type;
     };
@@ -95,7 +98,7 @@ struct geographic_segments
             <
                 Geometry1, Geometry2
             >::type strategy_type;
-        return strategy_type(get_side_strategy());
+        return strategy_type(m_spheroid);
     }
 
     template <typename Geometry>
@@ -289,10 +292,12 @@ private:
         typedef typename select_calculation_type
             <Segment1, Segment2, CalculationType>::type calc_t;
 
+        typedef srs::spheroid<calc_t> spheroid_type;
+
         static const calc_t c0 = 0;
 
         // normalized spheroid
-        srs::spheroid<calc_t> spheroid = normalized_spheroid<calc_t>(m_spheroid);
+        spheroid_type spheroid = formula::unit_spheroid<spheroid_type>(m_spheroid);
 
         // TODO: check only 2 first coordinates here?
         using geometry::detail::equals::equals_point_point;
@@ -956,14 +961,6 @@ private:
         ip_flag = ip_flag == ipi_at_p1 ? ipi_at_p2 :
                   ip_flag == ipi_at_p2 ? ipi_at_p1 :
                   ip_flag;
-    }
-
-    template <typename CalcT, typename SpheroidT>
-    static inline srs::spheroid<CalcT> normalized_spheroid(SpheroidT const& spheroid)
-    {
-        return srs::spheroid<CalcT>(CalcT(1),
-                                    CalcT(get_radius<2>(spheroid)) // b/a
-                                    / CalcT(get_radius<0>(spheroid)));
     }
 
 private:

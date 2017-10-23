@@ -90,12 +90,10 @@ struct turn_info
     Point point;
     method_type method;
     bool touch_only; // True in case of method touch(interior) and lines do not cross
-    signed_size_type cluster_id; // For multiple turns on same location, >= 0. Else -1
+    signed_size_type cluster_id; // For multiple turns on same location, > 0. Else -1. 0 is unused.
     bool discarded;
 
-    // TODO: move this to enriched
-    bool colocated_ii; // Colocated with a ii turn (TODO: or a ix turn)
-    bool colocated_uu; // Colocated with a uu turn or a ux turn
+    bool has_colocated_both; // Colocated with a uu turn (for union) or ii (other)
     bool switch_source; // For u/u turns which can either switch or not
 
     Container operations;
@@ -105,8 +103,7 @@ struct turn_info
         , touch_only(false)
         , cluster_id(-1)
         , discarded(false)
-        , colocated_ii(false)
-        , colocated_uu(false)
+        , has_colocated_both(false)
         , switch_source(false)
     {}
 
@@ -137,6 +134,10 @@ struct turn_info
     inline bool any_blocked() const
     {
         return has(operation_blocked);
+    }
+    inline bool is_clustered() const
+    {
+        return cluster_id > 0;
     }
 
 private :

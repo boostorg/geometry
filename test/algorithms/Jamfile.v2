@@ -4,7 +4,7 @@
 # Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 #
-# This file was modified by Oracle on 2014, 2015, 2016,2017.
+# This file was modified by Oracle on 2014, 2015, 2016, 2017.
 # Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
@@ -28,6 +28,7 @@ test-suite boost-geometry-algorithms
     [ run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ]
     [ run correct.cpp                  : : : : algorithms_correct ]
     [ run correct_multi.cpp            : : : : algorithms_correct_multi ]
+    [ run correct_closure.cpp          : : : : algorithms_correct_closure ]
     [ run for_each.cpp                 : : : : algorithms_for_each ]
     [ run for_each_multi.cpp           : : : : algorithms_for_each_multi ]
     [ run is_convex.cpp                : : : : algorithms_is_convex ]
@@ -36,6 +37,7 @@ test-suite boost-geometry-algorithms
     [ run is_simple_geo.cpp            : : : : algorithms_is_simple_geo ]
     [ run is_valid.cpp                 : : : : algorithms_is_valid ]
     [ run is_valid_failure.cpp         : : : : algorithms_is_valid_failure ]
+    [ run is_valid_geo.cpp             : : : : algorithms_is_valid_geo ]
     [ run make.cpp                     : : : : algorithms_make ]
     [ run maximum_gap.cpp              : : : : algorithms_maximum_gap ]
     [ run num_geometries.cpp           : : : : algorithms_num_geometries ]

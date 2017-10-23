@@ -114,7 +114,9 @@ struct direction_code_impl<Point, spherical_equatorial_tag>
         typedef typename geometry::select_coordinate_type <Point1, Point2>::type calc_t;
         typedef math::detail::constants_on_spheroid<coord1_t, units_t> constants1;
         typedef math::detail::constants_on_spheroid<coord2_t, units_t> constants2;
-        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+        static coord1_t const pi_half1 = constants1::max_latitude();
+        static coord2_t const pi_half2 = constants2::max_latitude();
+        static calc_t const c0 = 0;
 
         coord1_t const a0 = geometry::get<0>(segment_a);
         coord1_t const a1 = geometry::get<1>(segment_a);
@@ -122,11 +124,6 @@ struct direction_code_impl<Point, spherical_equatorial_tag>
         coord1_t const b1 = geometry::get<1>(segment_b);
         coord2_t const p0 = geometry::get<0>(p);
         coord2_t const p1 = geometry::get<1>(p);
-        coord1_t const pi_half1 = constants1::max_latitude();
-        coord2_t const pi_half2 = constants2::max_latitude();
-        calc_t const pi = constants::half_period();
-        calc_t const pi_half = constants::max_latitude();
-        calc_t const c0 = 0;
         
         if ( (math::equals(b0, a0) && math::equals(b1, a1))
           || (math::equals(b0, p0) && math::equals(b1, p1)) )
@@ -147,12 +144,12 @@ struct direction_code_impl<Point, spherical_equatorial_tag>
         // NOTE: as opposed to the implementation for cartesian CS
         // here point b is the origin
 
-        calc_t const dlon1 = math::longitude_distance_signed<units_t>(b0, a0);
-        calc_t const dlon2 = math::longitude_distance_signed<units_t>(b0, p0);
+        calc_t const dlon1 = math::longitude_distance_signed<units_t, calc_t>(b0, a0);
+        calc_t const dlon2 = math::longitude_distance_signed<units_t, calc_t>(b0, p0);
 
         bool is_antilon1 = false, is_antilon2 = false;
-        calc_t const dlat1 = latitude_distance_signed(b1, a1, dlon1, pi, is_antilon1);
-        calc_t const dlat2 = latitude_distance_signed(b1, p1, dlon2, pi, is_antilon2);
+        calc_t const dlat1 = latitude_distance_signed<units_t, calc_t>(b1, a1, dlon1, is_antilon1);
+        calc_t const dlat2 = latitude_distance_signed<units_t, calc_t>(b1, p1, dlon2, is_antilon2);
 
         calc_t mx = is_a_pole || is_b_pole || is_p_pole ?
                     c0 :
@@ -176,10 +173,12 @@ struct direction_code_impl<Point, spherical_equatorial_tag>
         return s1 == s2 ? -1 : 1;
     }
 
-    template <typename T>
-    static inline T latitude_distance_signed(T const& lat1, T const& lat2, T const& lon_ds, T const& pi, bool & is_antilon)
+    template <typename Units, typename T>
+    static inline T latitude_distance_signed(T const& lat1, T const& lat2, T const& lon_ds, bool & is_antilon)
     {
-        T const c0 = 0;
+        typedef math::detail::constants_on_spheroid<T, Units> constants;
+        static T const pi = constants::half_period();
+        static T const c0 = 0;
 
         T res = lat2 - lat1;
 
