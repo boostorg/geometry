@@ -224,7 +224,8 @@ inline void assign_parents(Geometry1 const& geometry1,
             RingCollection const& collection,
             RingMap& ring_map,
             Strategy const& strategy,
-            bool check_for_orientation = false)
+            bool check_for_orientation = false,
+            bool discard_double_negative = false)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
@@ -334,28 +335,38 @@ inline void assign_parents(Geometry1 const& geometry1,
         for (map_iterator_type it = boost::begin(ring_map);
             it != boost::end(ring_map); ++it)
         {
-            if (geometry::math::equals(it->second.get_area(), 0))
+            ring_info_type& info = it->second;
+            if (geometry::math::equals(info.get_area(), 0))
             {
-                it->second.discarded = true;
+                info.discarded = true;
             }
-            else if (it->second.parent.source_index >= 0
-                    && math::larger(it->second.get_area(), 0))
+            else if (info.parent.source_index >= 0)
             {
-                const ring_info_type& parent = ring_map[it->second.parent];
+                const ring_info_type& parent = ring_map[info.parent];
+                bool const pos = math::larger(info.get_area(), 0);
+                bool const parent_pos = math::larger(parent.area, 0);
 
-                if (math::larger(parent.area, 0))
+                bool const double_neg = discard_double_negative && ! pos && ! parent_pos;
+
+                if ((pos && parent_pos) || double_neg)
                 {
                     // Discard positive inner ring with positive parent
-                    it->second.discarded = true;
+                    // Also, for some cases (dissolve), negative inner ring
+                    // with negative parent shouild be discarded
+                    info.discarded = true;
                 }
-                // Remove parent ID from any positive inner ring
-                it->second.parent.source_index = -1;
+
+                if (pos || info.discarded)
+                {
+                    // Remove parent ID from any positive or discarded inner rings
+                    info.parent.source_index = -1;
+                }
             }
-            else if (it->second.parent.source_index < 0
-                    && math::smaller(it->second.get_area(), 0))
+            else if (info.parent.source_index < 0
+                    && math::smaller(info.get_area(), 0))
             {
                 // Reverse negative ring without parent
-                it->second.reversed = true;
+                info.reversed = true;
             }
         }
     }
@@ -372,7 +383,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 }
 
 
-// Version for one geometry (called by buffer)
+// Version for one geometry (called by buffer/dissolve)
 template
 <
     typename Geometry,
@@ -384,13 +395,15 @@ inline void assign_parents(Geometry const& geometry,
             RingCollection const& collection,
             RingMap& ring_map,
             Strategy const& strategy,
-            bool check_for_orientation)
+            bool check_for_orientation,
+            bool discard_double_negative)
 {
     // Call it with an empty geometry as second geometry (source_id == 1)
     // (ring_map should be empty for source_id==1)
 
     Geometry empty;
-    assign_parents(geometry, empty, collection, ring_map, strategy, check_for_orientation);
+    assign_parents(geometry, empty, collection, ring_map, strategy,
+                   check_for_orientation, discard_double_negative);
 }
 
 

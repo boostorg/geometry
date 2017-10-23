@@ -805,6 +805,32 @@ BOOST_AUTO_TEST_CASE( envelope_segment_sphere )
                   1-heps, 1, 1, 2);
 }
 
+BOOST_AUTO_TEST_CASE( envelope_segment_spherical_polar )
+{
+    typedef bg::cs::spherical<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::segment<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("s01",
+                  from_wkt<G>("SEGMENT(10 10,40 40)"),
+                  10, 10, 40, 40);
+
+    tester::apply("s02",
+                  from_wkt<G>("SEGMENT(10 80,40 80)"),
+                  10, 90 - 10.345270046149988, 40, 80);
+
+    tester::apply("s03",
+                  from_wkt<G>("SEGMENT(160 80,-170 80)"),
+                  160, 90 - 10.34527004614999, 190, 80);
+
+    // segment ending at the north pole
+    tester::apply("s05",
+                  from_wkt<G>("SEGMENT(40 45,80 0)"),
+                  40, 0, 40, 45);
+}
+
 
 BOOST_AUTO_TEST_CASE( envelope_segment_spheroid )
 {
@@ -1667,8 +1693,7 @@ BOOST_AUTO_TEST_CASE( envelope_multipoint_with_height )
 template <typename CoordinateSystem>
 void test_envelope_box()
 {
-    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
-    typedef bg::model::point<double, 2, coordinate_system_type> P;
+    typedef bg::model::point<double, 2, CoordinateSystem> P;
     typedef bg::model::box<P> G;
     typedef bg::model::box<P> B;
     typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
@@ -1857,10 +1882,36 @@ void test_envelope_box()
     tester::apply("b100", G(P(1-heps, 1-heps), P(1, 1)), 1-heps, 1-heps, 1, 1);
 }
 
+template <typename CoordinateSystem>
+void test_envelope_box_polar()
+{
+    typedef bg::model::point<double, 2, CoordinateSystem> P;
+    typedef bg::model::box<P> G;
+    typedef bg::model::box<P> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("b01",
+                  from_wkt<G>("BOX(10 10,20 20)"),
+                  10, 10, 20, 20);
+
+    tester::apply("b02a",
+                  from_wkt<G>("BOX(170 10,-170 20)"),
+                  170, 10, 190, 20);
+
+    tester::apply("b10b",
+                  from_wkt<G>("BOX(0 0,10 180)"),
+                  0, 0, 10, 180);
+
+    tester::apply("b16a",
+                  from_wkt<G>("BOX(170 40,-170 180)"),
+                  170, 40, 190, 180);
+}
+
 BOOST_AUTO_TEST_CASE( envelope_box )
 {
     test_envelope_box<bg::cs::spherical_equatorial<bg::degree> >();
     test_envelope_box<bg::cs::geographic<bg::degree> >();
+    test_envelope_box_polar<bg::cs::spherical<bg::degree> >();
 }
 
 

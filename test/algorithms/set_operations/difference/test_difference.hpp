@@ -426,6 +426,7 @@ void test_one_lp(std::string const& caseid,
     bg::read_wkt(wkt2, g2);
 
     bg::correct(g1);
+    bg::correct(g2);
 
     typedef typename setop_output_type<OutputType>::type result_type;
     result_type pieces;

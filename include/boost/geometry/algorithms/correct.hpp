@@ -32,6 +32,7 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
+#include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -45,7 +46,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/multi_modify.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
 
@@ -140,23 +140,9 @@ struct correct_ring
     template <typename Strategy>
     static inline void apply(Ring& r, Strategy const& strategy)
     {
-        // Check close-ness
-        if (boost::size(r) > 2)
-        {
-            // check if closed, if not, close it
-            bool const disjoint = geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1));
-            closure_selector const s = geometry::closure<Ring>::value;
+        // Correct closure if necessary
+        detail::correct_closure::close_or_open_ring<Ring>::apply(r);
 
-            if (disjoint && (s == closed))
-            {
-                geometry::append(r, *boost::begin(r));
-            }
-            if (! disjoint && s != closed)
-            {
-                // Open it by removing last point
-                geometry::traits::resize<Ring>::apply(r, boost::size(r) - 1);
-            }
-        }
         // Check area
         typedef typename Strategy::return_type area_result_type;
         Predicate<area_result_type> predicate;

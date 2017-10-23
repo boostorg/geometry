@@ -43,6 +43,7 @@ struct p_q_settings
     bool also_difference;
     bool validity;
     bool wkt;
+    bool verify_area;
     double tolerance;
 
     p_q_settings()
@@ -50,6 +51,7 @@ struct p_q_settings
         , also_difference(false)
         , validity(false)
         , wkt(false)
+        , verify_area(false)
         , tolerance(1.0e-3) // since rescaling to integer the tolerance should be less. Was originally 1.0e-6
     {}
 };
@@ -66,6 +68,49 @@ inline typename bg::default_area_result<Geometry>::type p_q_area(Geometry const&
         return 0;
     }
 }
+
+struct verify_area
+{
+    template <typename Iterator>
+    static inline bool check_ring(Iterator begin, Iterator end)
+    {
+        for (Iterator it = begin; it != end; ++it)
+        {
+            double const area = bg::area(*it);
+            if (fabs(area) < 0.01)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename Interiors>
+    static inline bool check_rings(Interiors const& rings)
+    {
+        return check_ring(boost::begin(rings), boost::end(rings));
+    }
+
+    template <typename Iterator>
+    static inline bool check_polys(Iterator begin, Iterator end)
+    {
+        for (Iterator it = begin; it != end; ++it)
+        {
+            // If necessary, exterior_ring can be checked too
+            if (! check_rings(bg::interior_rings(*it)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename Geometry>
+    static inline bool apply(Geometry const& g)
+    {
+        return check_polys(boost::begin(g), boost::end(g));
+    }
+};
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 static bool test_overlay_p_q(std::string const& caseid,
@@ -135,6 +180,17 @@ static bool test_overlay_p_q(std::string const& caseid,
                 std::cout << "Difference (q-p) is not valid: " << message << std::endl;
                 wrong = true;
             }
+        }
+
+        if (settings.verify_area && ! verify_area::apply(out_u))
+        {
+            std::cout << "Union/interior area incorrect" << std::endl;
+            wrong = true;
+        }
+        if (settings.verify_area && ! verify_area::apply(out_i))
+        {
+            std::cout << "Intersection/interior area incorrect" << std::endl;
+            wrong = true;
         }
     }
 

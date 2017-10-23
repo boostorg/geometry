@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -98,6 +99,40 @@ struct other_system_info<bg::cs::spherical_equatorial<bg::degree> >
 {
     typedef bg::radian units;
     typedef bg::cs::spherical_equatorial<units> type;
+
+    static inline double convert(double value)
+    {
+        return value * bg::math::d2r<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::d2r<double>();
+    }
+};
+
+template <>
+struct other_system_info<bg::cs::spherical<bg::radian> >
+{
+    typedef bg::degree units;
+    typedef bg::cs::spherical<units> type;
+
+    static inline double convert(double value)
+    {
+        return value * bg::math::r2d<double>();
+    }
+
+    static inline rng convert(rng const& value)
+    {
+        return value * bg::math::r2d<double>();
+    }
+};
+
+template <>
+struct other_system_info<bg::cs::spherical<bg::degree> >
+{
+    typedef bg::radian units;
+    typedef bg::cs::spherical<units> type;
 
     static inline double convert(double value)
     {

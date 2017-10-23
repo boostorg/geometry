@@ -81,7 +81,11 @@ inline bool has_self_intersections(Geometry const& geometry,
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
-    detail::self_get_turn_points::self_turns<false, detail::overlay::assign_null_policy>(geometry, strategy, robust_policy, turns, policy);
+    detail::self_get_turn_points::self_turns
+        <
+            false,
+            detail::overlay::assign_null_policy
+        >(geometry, strategy, robust_policy, turns, policy, 0, false);
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;
