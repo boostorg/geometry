@@ -422,6 +422,14 @@ void test_areal()
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_79, 2, 1.25, 5, 4.5, 7);
 #endif
 
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 2);
+#else
+    // one polygon is divided into two, for same reason as union creates a small
+    // interior ring there
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 3);
+#endif
+
     {
         ut_settings sym_settings;
     #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
