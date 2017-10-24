@@ -27,6 +27,7 @@ int test_main(int, char*[])
     using namespace boost::geometry;
     using namespace boost::geometry::model;
     using namespace boost::geometry::srs;
+    using namespace boost::geometry::srs::par4;
     using namespace bg::strategy::transform;
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
@@ -70,26 +71,26 @@ int test_main(int, char*[])
     {
         srs_forward_transformer
             <
-                projection<static_proj4<proj::tmerc, ellps::WGS84> >
+                projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
             > strategy_pf;
         srs_forward_transformer
             <
-                projection<static_proj4<proj::tmerc, ellps::WGS84> >
+                projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
             > strategy_pi;
         srs_forward_transformer
             <
                 transformation
                     <
-                        static_proj4<proj::tmerc, ellps::WGS84>,
-                        static_proj4<proj::tmerc, ellps::clrk66>
+                        static_proj4<proj<tmerc>, ellps<WGS84> >,
+                        static_proj4<proj<tmerc>, ellps<clrk66> >
                     >
             > strategy_tf;
         srs_forward_transformer
             <
                 transformation
                     <
-                        static_proj4<proj::tmerc, ellps::WGS84>,
-                        static_proj4<proj::tmerc, ellps::clrk66>
+                        static_proj4<proj<tmerc>, ellps<WGS84> >,
+                        static_proj4<proj<tmerc>, ellps<clrk66> >
                     >
             > strategy_ti;
     }

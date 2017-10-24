@@ -14,6 +14,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/srs/epsg.hpp>
+#include <boost/geometry/srs/esri.hpp>
 #include <boost/geometry/srs/projection.hpp>
 
 #include "check_geometry.hpp"
@@ -23,6 +24,7 @@ int test_main(int, char*[])
     using namespace boost::geometry;
     using namespace boost::geometry::model;
     using namespace boost::geometry::srs;
+    using namespace boost::geometry::srs::par4;
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
     typedef point<double, 2, cs::cartesian> point_xy;
@@ -61,8 +63,9 @@ int test_main(int, char*[])
         point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
-        // default WGS84 spheroid and additional parameters
-        projection<static_proj4<proj::tmerc> > prj;
+        // default WGS84 spheroid
+        projection<static_proj4<proj<tmerc> > > prj;
+        //projection<static_proj4<proj<tmerc>, ellps<WGS84> > > prj;
 
         prj.forward(pt_ll, pt_xy);
         test::check_geometry(pt_xy, "POINT(111308.33561309829 110591.34223734379)", 0.001);
@@ -87,25 +90,28 @@ int test_main(int, char*[])
     }
 
     {
-        // default spheroid and additional parameters
-        projection<static_proj4<proj::tmerc, ellps::WGS84> >
+        // static_proj4 constructors
+        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
             prj2;
+        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
+            prj3 = static_proj4<proj<tmerc>, ellps<WGS84> >();
+        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
+            prj4 = static_proj4<proj<tmerc>, ellps<WGS84> >("");
 
-        // default spheroid and additional parameters
-        projection<static_proj4<proj::tmerc, ellps::WGS84> >
-            prj3 = static_proj4<proj::tmerc, ellps::WGS84>();
+        projection<static_proj4<proj<tmerc>, datum<WGS84> > >
+            prj5;
+        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
+            prj6;
+    }
 
-        // passed spheroid and default additional parameters
-        projection<static_proj4<proj::tmerc, ellps::WGS84> >
-            prj4 = static_proj4<proj::tmerc, ellps::WGS84>(ellps::WGS84());
-
-        // default spheroid and passed additional parameters
-        projection<static_proj4<proj::tmerc, ellps::WGS84> >
-            prj5 = static_proj4<proj::tmerc, ellps::WGS84>("");
-
-        // passed spheroid and additional parameters
-        projection<static_proj4<proj::tmerc, ellps::WGS84> >
-            prj6 = static_proj4<proj::tmerc, ellps::WGS84>(ellps::WGS84(), "");
+    {
+        typedef spheroid<double> sph;
+        typedef ellps<sph> ell;
+        typedef proj<tmerc> prj;
+        projection<static_proj4<ell, prj> >
+            prj1 = static_proj4<ell, prj>(ell(sph(1000, 999)));
+        projection<static_proj4<ell, prj> >
+            prj2 = static_proj4<ell, prj>(ell(sph(1000, 999)), "");
     }
 
     // compile-time errors
@@ -116,7 +122,8 @@ int test_main(int, char*[])
         //projection<static_proj4<int> > prj1;
         //projection<int> prj2;
 
-        projection<static_proj4<proj::bacon> > prj3;
+        projection<static_proj4<proj<bacon> > > prj3;
+        //projection<static_proj4<proj<bacon>, ellps<WGS84> > > prj3;
         //prj3.inverse(pt_xy, pt_ll);
     }
 

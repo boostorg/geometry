@@ -38,6 +38,7 @@
 
 
 namespace srs = bg::srs;
+namespace par = bg::srs::par4;
 
 template <typename Prj, typename Model, typename P1, typename P2>
 void test_one(double lon, double lat,
@@ -45,7 +46,8 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    srs::projection<srs::static_proj4<Prj, Model> > prj = srs::static_proj4<Prj, Model>(parameters);
+    srs::projection<srs::static_proj4<par::proj<Prj>, par::ellps<Model> > >
+        prj = srs::static_proj4<par::proj<Prj>, par::ellps<Model> >(parameters);
 
     P1 ll;
     bg::set<0>(ll, lon);
@@ -65,7 +67,7 @@ void test_all()
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > point_type;
 
     // aea
-    test_one<srs::proj::aea, srs::ellps::WGS84, point_type, P>
+    test_one<par::aea, par::WGS84, point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }
