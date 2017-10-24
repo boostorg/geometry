@@ -56,11 +56,11 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
     struct lcc {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -252,7 +252,7 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lcc, lcc_ellipsoid, lcc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lcc, lcc_ellipsoid, lcc_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

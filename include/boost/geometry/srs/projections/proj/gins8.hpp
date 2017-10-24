@@ -49,11 +49,11 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
     struct gins8 {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -140,7 +140,7 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gins8, gins8_spheroid, gins8_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gins8, gins8_spheroid, gins8_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

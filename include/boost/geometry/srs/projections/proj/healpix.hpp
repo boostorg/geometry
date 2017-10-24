@@ -61,12 +61,12 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
     struct healpix {};
     struct rhealpix {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -849,8 +849,8 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::healpix, healpix_spheroid, healpix_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::healpix, healpix_spheroid, healpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

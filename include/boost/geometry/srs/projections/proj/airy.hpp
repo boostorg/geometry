@@ -52,14 +52,17 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 
+#include <boost/geometry/srs/projections/par4.hpp> // airy tag
+
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
-    struct airy {};
+    // already defined in par4.hpp as ellps name
+    //struct airy {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -224,7 +227,7 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::airy, airy_spheroid, airy_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::airy, airy_spheroid, airy_spheroid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

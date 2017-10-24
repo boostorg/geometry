@@ -908,7 +908,7 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
     range_wrapper<Range> z_range(range);
 
 /* -------------------------------------------------------------------- */
-/*	If this datum requires grid shifts, then apply it to geodetic   */
+/*      If this datum requires grid shifts, then apply it to geodetic   */
 /*      coordinates.                                                    */
 /* -------------------------------------------------------------------- */
     /*if( srcdefn.datum_type == PJD_GRIDSHIFT )

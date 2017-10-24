@@ -53,13 +53,13 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
     //struct ob_tran_oblique {};
     //struct ob_tran_transverse {};
     struct ob_tran {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -455,9 +455,9 @@ namespace projections
     {
 
         // Static projection
-        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran_oblique, ob_tran_oblique, ob_tran_oblique)
-        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran_transverse, ob_tran_transverse, ob_tran_transverse)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::ob_tran, projections::ob_tran, projections::ob_tran)
+        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ob_tran_oblique, ob_tran_oblique, ob_tran_oblique)
+        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ob_tran_transverse, ob_tran_transverse, ob_tran_transverse)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ob_tran, projections::ob_tran, projections::ob_tran)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

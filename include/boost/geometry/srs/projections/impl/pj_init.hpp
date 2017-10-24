@@ -58,7 +58,7 @@
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/pj_units.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
-#include <boost/geometry/srs/projections/proj4_params.hpp>
+#include <boost/geometry/srs/projections/proj4.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -89,23 +89,30 @@ inline void pj_push_defaults(BGParams const& bg_params, parameters<T>& pin)
     }
 }
 
-template <typename Proj, typename Model, typename T>
-inline void pj_push_defaults(srs::static_proj4<Proj, Model> const& bg_params, parameters<T>& pin)
+template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
+inline void pj_push_defaults(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
+                             parameters<T>& pin)
 {
-    // always set in the model
+    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
+    typedef typename srs::par4::detail::pick_proj_tag
+        <
+            typename static_parameters_type::tuple_type
+        >::type proj_tag;
+
+    // statically defaulting to WGS84
     //pin.params.push_back(pj_mkparam("ellps=WGS84"));
 
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::aea>::value)))
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::aea>::value)))
     {
         pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
         pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
     }
-    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lcc>::value)))
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lcc>::value)))
     {
         pin.params.push_back(pj_mkparam<T>("lat_1=33"));
         pin.params.push_back(pj_mkparam<T>("lat_2=45"));
     }
-    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<Proj, srs::proj::lagrng>::value)))
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lagrng>::value)))
     {
         pin.params.push_back(pj_mkparam<T>("W=2"));
     }
@@ -203,9 +210,10 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     // find projection -> implemented in projection factory
     pin.name = pj_param(pin.params, "sproj").s;
     // exception thrown in projection<>
+    // TODO: consider throwing here both projection_unknown_id_exception and
+    // projection_not_named_exception in order to throw before other exceptions
     //if (pin.name.empty())
     //{ BOOST_THROW_EXCEPTION( projection_not_named_exception() ); }
-
 
     // set defaults, unless inhibited
     // GL-Addition, if use_defaults is false then defaults are ignored
@@ -226,7 +234,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     pin.is_long_wrap_set = false;
 
     /* set datum parameters */
-    pj_datum_set(pin.params, pin);
+    pj_datum_set(bg_params, pin.params, pin);
 
     /* set ellipsoid/sphere parameters */
     pj_ell_set(bg_params, pin.params, pin.a, pin.es);

@@ -54,7 +54,7 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace proj
+namespace srs { namespace par4
 {
     struct mil_os {};
     struct lee_os {};
@@ -62,7 +62,7 @@ namespace srs { namespace proj
     struct alsk {};
     struct gs50 {};
 
-}} //namespace srs::proj
+}} //namespace srs::par4
 
 namespace projections
 {
@@ -444,11 +444,11 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::mil_os, mil_os_ellipsoid, mil_os_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::lee_os, lee_os_ellipsoid, lee_os_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gs48, gs48_ellipsoid, gs48_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::alsk, alsk_ellipsoid, alsk_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::proj::gs50, gs50_ellipsoid, gs50_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::mil_os, mil_os_ellipsoid, mil_os_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lee_os, lee_os_ellipsoid, lee_os_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gs48, gs48_ellipsoid, gs48_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::alsk, alsk_ellipsoid, alsk_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gs50, gs50_ellipsoid, gs50_ellipsoid)
 
         // Factory entry(s)
         template <typename CalculationType, typename Parameters>

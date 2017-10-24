@@ -47,7 +47,7 @@
 
 #include <boost/geometry/srs/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
-#include <boost/geometry/srs/projections/proj4_params.hpp>
+#include <boost/geometry/srs/projections/proj4.hpp>
 
 
 namespace boost { namespace geometry { namespace projections {
@@ -168,50 +168,26 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
     }
 }
 
-// TODO: change result type to CalculationType
-// TODO: move common ellipsoid->sphere code into one function
-template <typename Proj, typename Model, typename T>
-inline void pj_ell_set(srs::static_proj4<Proj, Model> const& bg_params, std::vector<pvalue<T> >& parameters, T &a, T &es)
+template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
+inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
+                       std::vector<pvalue<T> >& parameters, T &a, T &es)
 {
-    a = geometry::get_radius<0>(bg_params.model);
-    T b = geometry::get_radius<2>(bg_params.model);
+    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
+    typedef typename srs::par4::detail::pick_ellps
+        <
+            typename static_parameters_type::tuple_type
+        > pick_ellps;
+
+    typename pick_ellps::model_type model = pick_ellps::model(bg_params.tup);
+
+    a = geometry::get_radius<0>(model);
+    T b = geometry::get_radius<2>(model);
     es = 0.;
     if (a != b)
     {
-        es = formula::eccentricity_sqr<T>(bg_params.model);
+        es = formula::eccentricity_sqr<T>(model);
 
-        /* following options turn ellipsoid into equivalent sphere */
-        if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
-            a *= 1. - es * (SIXTH<T>() + es * (RA4<T>() + es * RA6<T>()));
-            es = 0.;
-        } else if (pj_param(parameters, "bR_V").i) { /* sphere--vol. of ellipsoid */
-            a *= 1. - es * (SIXTH<T>() + es * (RV4<T>() + es * RV6<T>()));
-            es = 0.;
-        } else if (pj_param(parameters, "bR_a").i) { /* sphere--arithmetic mean */
-            a = .5 * (a + b);
-            es = 0.;
-        } else if (pj_param(parameters, "bR_g").i) { /* sphere--geometric mean */
-            a = sqrt(a * b);
-            es = 0.;
-        } else if (pj_param(parameters, "bR_h").i) { /* sphere--harmonic mean */
-            a = 2. * a * b / (a + b);
-            es = 0.;
-        } else {
-            int i = pj_param(parameters, "tR_lat_a").i;
-            if (i || /* sphere--arith. */
-                pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
-                T tmp;
-
-                tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-                if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-11) );
-                }
-                tmp = 1. - es * tmp * tmp;
-                a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
-                    sqrt(1. - es) / tmp;
-                es = 0.;
-            }
-        }
+        // Ignore all other parameters passed in string, at least for now
     }
 
     /* some remaining checks */

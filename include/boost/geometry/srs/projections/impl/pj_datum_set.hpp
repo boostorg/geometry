@@ -49,6 +49,8 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/pj_datums.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/par4.hpp>
+#include <boost/geometry/srs/projections/proj4.hpp>
 
 
 namespace boost { namespace geometry { namespace projections {
@@ -60,21 +62,11 @@ namespace detail {
 template <typename T>
 inline T SEC_TO_RAD() { return 4.84813681109535993589914102357e-6; }
 
-/************************************************************************/
-/*                            pj_datum_set()                            */
-/************************************************************************/
-
-template <typename T>
-inline void pj_datum_set(std::vector<pvalue<T> >& pvalues, parameters<T>& projdef)
+template <typename BGParams, typename T>
+inline void pj_datum_add_defn(BGParams const& , std::vector<pvalue<T> >& pvalues)
 {
-    static const T SEC_TO_RAD = detail::SEC_TO_RAD<T>();
-
-    std::string name, towgs84, nadgrids;
-
-    projdef.datum_type = PJD_UNKNOWN;
-
     /* -------------------------------------------------------------------- */
-    /*      Is there a datum definition in the parameter list?  If so,     */
+    /*      Is there a datum definition in the parameter list?  If so,      */
     /*      add the defining values to the parameter list.  Note that       */
     /*      this will append the ellipse definition as well as the          */
     /*      towgs84= and related parameters.  It should also be pointed     */
@@ -83,7 +75,7 @@ inline void pj_datum_set(std::vector<pvalue<T> >& pvalues, parameters<T>& projde
     /*      definition will last into the pj_ell_set() function called      */
     /*      after this one.                                                 */
     /* -------------------------------------------------------------------- */
-    name = pj_param(pvalues, "sdatum").s;
+    std::string name = pj_param(pvalues, "sdatum").s;
     if(! name.empty())
     {
         /* find the datum definition */
@@ -114,12 +106,52 @@ inline void pj_datum_set(std::vector<pvalue<T> >& pvalues, parameters<T>& projde
             pvalues.push_back(pj_mkparam<T>(pj_datums[index].defn));
         }
     }
+}
+
+template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
+inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
+                              std::vector<pvalue<T> >& pvalues)
+{
+    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> bg_parameters_type;
+    typedef typename srs::par4::detail::tuples_find_if
+        <
+            typename bg_parameters_type::tuple_type,
+            srs::par4::detail::is_param_t<srs::par4::datum>::is_same
+        >::type datum_type;
+    typedef typename srs::par4::detail::datum_traits
+        <
+            datum_type
+        > datum_traits;
+
+    // is unknown if datum parameter found but traits are not specialized
+    static const bool not_set_or_known = boost::is_same<datum_type, void>::value
+                                      || ! boost::is_same<typename datum_traits::ellps_type, void>::value;
+    BOOST_MPL_ASSERT_MSG((not_set_or_known), UNKNOWN_DATUM, (bg_parameters_type));
+
+    std::string defn = datum_traits::definition();
+
+    if (! defn.empty())
+        pvalues.push_back(pj_mkparam<T>(defn));
+}
+
+/************************************************************************/
+/*                            pj_datum_set()                            */
+/************************************************************************/
+
+template <typename BGParams, typename T>
+inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pvalues, parameters<T>& projdef)
+{
+    static const T SEC_TO_RAD = detail::SEC_TO_RAD<T>();
+
+    projdef.datum_type = PJD_UNKNOWN;
+
+    pj_datum_add_defn(bg_params, pvalues);
 
 /* -------------------------------------------------------------------- */
 /*      Check for nadgrids parameter.                                   */
 /* -------------------------------------------------------------------- */
-    nadgrids = pj_param(pvalues, "snadgrids").s;
-    towgs84 = pj_param(pvalues, "stowgs84").s;
+    std::string nadgrids = pj_param(pvalues, "snadgrids").s;
+    std::string towgs84 = pj_param(pvalues, "stowgs84").s;
     if(! nadgrids.empty())
     {
         /* We don't actually save the value separately.  It will continue
