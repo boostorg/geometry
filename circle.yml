@@ -115,7 +115,7 @@ test:
     #    parallel: true
 
     # so for now just run the tests from 2 lists
-    - cd $BOOST_ROOT/libs/geometry && status=0; case $CIRCLE_NODE_INDEX in 0) for t in ${TESTS1[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; 1) for t in ${TESTS2[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; esac ; exit $status :
+    - cd $BOOST_ROOT/libs/geometry && status=0; case $CIRCLE_NODE_INDEX in 0) for t in ${TESTS0[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; 1) for t in ${TESTS1[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; esac ; exit $status :
         parallel: true
 
   post:
