@@ -84,8 +84,8 @@ void test_all()
     geo_point_type utrecht   = bg::make<geo_point_type>(5.1213, 52.0907);
 
     test_forward<bg::projections::aea_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
-    test_forward<bg::projections::aeqd_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
-    test_forward<bg::projections::aeqd_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
+    test_forward<bg::projections::aeqd_e>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
+    test_forward<bg::projections::aeqd_s>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
 
     test_forward<bg::projections::airy_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 4);
     test_forward<bg::projections::aitoff_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);

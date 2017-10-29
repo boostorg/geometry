@@ -15,6 +15,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/srs/epsg.hpp>
 #include <boost/geometry/srs/esri.hpp>
+#include <boost/geometry/srs/iau2000.hpp>
 #include <boost/geometry/srs/projection.hpp>
 
 #include "check_geometry.hpp"
@@ -28,7 +29,7 @@ int test_main(int, char*[])
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
     typedef point<double, 2, cs::cartesian> point_xy;
-    
+
     {
         point_ll pt_ll(1, 1);
         point_ll pt_ll2(0, 0);
@@ -49,13 +50,16 @@ int test_main(int, char*[])
         point_xy pt_xy(0, 0);
 
         projection<> prj = epsg(2000);
-
+        
         prj.forward(pt_ll, pt_xy);
         test::check_geometry(pt_xy, "POINT(9413505.3284665551 237337.74515944949)", 0.001);
 
         prj.inverse(pt_xy, pt_ll2);
         // TODO: investigate this wierd result
         test::check_geometry(pt_ll2, "POINT(-2.4463131191981073 1.5066638962045082)", 0.001);
+
+        projection<> prj2 = esri(37001);
+        projection<> prj3 = iau2000(19900);
     }
 
     {
@@ -87,6 +91,9 @@ int test_main(int, char*[])
         prj.inverse(pt_xy, pt_ll2);
         // TODO: investigate this wierd result
         test::check_geometry(pt_ll2, "POINT(-2.4463131191981073 1.5066638962045082)", 0.001);
+
+        projection<static_esri<37001> > prj2;
+        projection<static_iau2000<19900> > prj3;
     }
 
     {
