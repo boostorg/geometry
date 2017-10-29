@@ -55,6 +55,10 @@
 #include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
 
+#include <boost/geometry/srs/projections/par4.hpp>
+
+#include <boost/type_traits/is_same.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -282,6 +286,51 @@ namespace projections
                 }
             }
 
+            // Azimuthal Equidistant
+            template <typename Parameters, typename T>
+            void setup_aeqd(Parameters& par, par_aeqd<T>& proj_parm, bool is_sphere, bool is_guam)
+            {
+                static const T HALFPI = detail::HALFPI<T>();
+
+                par.phi0 = pj_param(par.params, "rlat_0").f;
+                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
+                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
+                    proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
+                    proj_parm.cosph0 = 0.;
+                } else if (fabs(par.phi0) < EPS10) {
+                    proj_parm.mode = EQUIT;
+                    proj_parm.sinph0 = 0.;
+                    proj_parm.cosph0 = 1.;
+                } else {
+                    proj_parm.mode = OBLIQ;
+                    proj_parm.sinph0 = sin(par.phi0);
+                    proj_parm.cosph0 = cos(par.phi0);
+                }
+                if (is_sphere) {
+                } else {
+                    if (!pj_enfn(par.es, proj_parm.en))
+                        BOOST_THROW_EXCEPTION( projection_exception(0) );
+                    if (is_guam) {
+                        proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
+                    } else {
+                        switch (proj_parm.mode) {
+                        case N_POLE:
+                            proj_parm.Mp = pj_mlfn<T>(HALFPI, 1., 0., proj_parm.en);
+                            break;
+                        case S_POLE:
+                            proj_parm.Mp = pj_mlfn<T>(-HALFPI, -1., 0., proj_parm.en);
+                            break;
+                        case EQUIT:
+                        case OBLIQ:
+                            proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
+                            proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
+                            proj_parm.He *= proj_parm.cosph0;
+                            break;
+                        }
+                    }
+                }
+            }
+
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
             struct base_aeqd_e : public base_t_fi<base_aeqd_e<CalculationType, Parameters>,
@@ -355,8 +404,8 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aeqd_ellipsoid : public base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
+            template <typename BGParameters, typename CalculationType, typename Parameters>
+            struct base_aeqd_e_static : public base_t_fi<base_aeqd_e_static<BGParameters, CalculationType, Parameters>,
                      CalculationType, Parameters>
             {
 
@@ -364,19 +413,27 @@ namespace projections
                 typedef CalculationType cartesian_type;
 
                 par_aeqd<CalculationType> m_proj_parm;
-                bool m_is_guam;
 
-                inline base_aeqd_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_aeqd_ellipsoid<CalculationType, Parameters>,
+                static const bool is_guam = ! boost::is_same
+                    <
+                        typename srs::par4::detail::tuples_find_if
+                            <
+                                BGParameters,
+                                srs::par4::detail::is_param<srs::par4::guam>::is_same
+                            >::type,
+                        void
+                    >::value;
+
+                inline base_aeqd_e_static(const Parameters& par)
+                    : base_t_fi<base_aeqd_e_static<BGParameters, CalculationType, Parameters>,
                      CalculationType, Parameters>(*this, par)
-                    , m_is_guam(false)
                 {}
 
                 // FORWARD(e_forward or e_guam_fwd)  elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (m_is_guam)
+                    if (is_guam)
                         e_guam_fwd(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                     else
                         e_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
@@ -386,7 +443,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    if (m_is_guam)
+                    if (is_guam)
                         e_guam_inv(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                     else
                         e_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
@@ -394,14 +451,14 @@ namespace projections
 
                 static inline std::string get_name()
                 {
-                    return "aeqd_ellipsoid";
+                    return "aeqd_e_static";
                 }
 
             };
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
-            struct base_aeqd_spheroid : public base_t_fi<base_aeqd_spheroid<CalculationType, Parameters>,
+            struct base_aeqd_s : public base_t_fi<base_aeqd_s<CalculationType, Parameters>,
                      CalculationType, Parameters>
             {
 
@@ -410,8 +467,8 @@ namespace projections
 
                 par_aeqd<CalculationType> m_proj_parm;
 
-                inline base_aeqd_spheroid(const Parameters& par)
-                    : base_t_fi<base_aeqd_spheroid<CalculationType, Parameters>,
+                inline base_aeqd_s(const Parameters& par)
+                    : base_t_fi<base_aeqd_s<CalculationType, Parameters>,
                      CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spherical
@@ -430,55 +487,10 @@ namespace projections
 
                 static inline std::string get_name()
                 {
-                    return "aeqd_spheroid";
+                    return "aeqd_s";
                 }
 
             };
-
-            // Azimuthal Equidistant
-            template <typename Parameters, typename T>
-            void setup_aeqd(Parameters& par, par_aeqd<T>& proj_parm)
-            {
-                static const T HALFPI = detail::HALFPI<T>();
-
-                par.phi0 = pj_param(par.params, "rlat_0").f;
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                    proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
-                    proj_parm.cosph0 = 0.;
-                } else if (fabs(par.phi0) < EPS10) {
-                    proj_parm.mode = EQUIT;
-                    proj_parm.sinph0 = 0.;
-                    proj_parm.cosph0 = 1.;
-                } else {
-                    proj_parm.mode = OBLIQ;
-                    proj_parm.sinph0 = sin(par.phi0);
-                    proj_parm.cosph0 = cos(par.phi0);
-                }
-                if (par.es == T(0)) {
-                } else {
-                    if (!pj_enfn(par.es, proj_parm.en))
-                        BOOST_THROW_EXCEPTION( projection_exception(0) );
-                    if (pj_param(par.params, "bguam").i) {
-                        proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
-                    } else {
-                        switch (proj_parm.mode) {
-                        case N_POLE:
-                            proj_parm.Mp = pj_mlfn<T>(HALFPI, 1., 0., proj_parm.en);
-                            break;
-                        case S_POLE:
-                            proj_parm.Mp = pj_mlfn<T>(-HALFPI, -1., 0., proj_parm.en);
-                            break;
-                        case EQUIT:
-                        case OBLIQ:
-                            proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
-                            proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
-                            proj_parm.He *= proj_parm.cosph0;
-                            break;
-                        }
-                    }
-                }
-            }
 
     }} // namespace detail::aeqd
     #endif // doxygen
@@ -504,7 +516,7 @@ namespace projections
     {
         inline aeqd_e(const Parameters& par) : detail::aeqd::base_aeqd_e<CalculationType, Parameters>(par)
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, false, false);
         }
     };
 
@@ -529,7 +541,34 @@ namespace projections
     {
         inline aeqd_e_guam(const Parameters& par) : detail::aeqd::base_aeqd_e_guam<CalculationType, Parameters>(par)
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, false, true);
+        }
+    };
+
+    /*!
+        \brief Azimuthal Equidistant projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
+        \par Example
+        \image html ex_aeqd.gif
+    */
+    template <typename BGParameters, typename CalculationType, typename Parameters>
+    struct aeqd_e_static : public detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>
+    {
+        inline aeqd_e_static(const Parameters& par) : detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>(par)
+        {
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm,
+                                     false,
+                                     detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>::is_guam);
         }
     };
 
@@ -550,37 +589,11 @@ namespace projections
         \image html ex_aeqd.gif
     */
     template <typename CalculationType, typename Parameters>
-    struct aeqd_ellipsoid : public detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>
+    struct aeqd_s : public detail::aeqd::base_aeqd_s<CalculationType, Parameters>
     {
-        inline aeqd_ellipsoid(const Parameters& par) : detail::aeqd::base_aeqd_ellipsoid<CalculationType, Parameters>(par)
+        inline aeqd_s(const Parameters& par) : detail::aeqd::base_aeqd_s<CalculationType, Parameters>(par)
         {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
-            this->m_is_guam = pj_param(par.params, "bguam").i != 0;
-        }
-    };
-
-    /*!
-        \brief Azimuthal Equidistant projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-        \par Projection parameters
-         - lat_0: Latitude of origin (degrees)
-         - guam (boolean)
-        \par Example
-        \image html ex_aeqd.gif
-    */
-    template <typename CalculationType, typename Parameters>
-    struct aeqd_spheroid : public detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>
-    {
-        inline aeqd_spheroid(const Parameters& par) : detail::aeqd::base_aeqd_spheroid<CalculationType, Parameters>(par)
-        {
-            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm);
+            detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, true, false);
         }
     };
 
@@ -589,7 +602,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aeqd, aeqd_spheroid, aeqd_ellipsoid)
+        template <typename BGP, typename CT, typename P>
+        struct static_projection_type<srs::par4::aeqd, srs_sphere_tag, BGP, CT, P>
+        {
+            typedef aeqd_s<CT, P> type;
+        };
+        template <typename BGP, typename CT, typename P>
+        struct static_projection_type<srs::par4::aeqd, srs_spheroid_tag, BGP, CT, P>
+        {
+            typedef aeqd_e_static<BGP, CT, P> type;
+        };
+        //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aeqd, aeqd_s, aeqd_e_static)
         //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
@@ -606,7 +629,7 @@ namespace projections
                     else if (par.es && guam)
                         return new base_v_fi<aeqd_e_guam<CalculationType, Parameters>, CalculationType, Parameters>(par);
                     else
-                        return new base_v_fi<aeqd_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_s<CalculationType, Parameters>, CalculationType, Parameters>(par);
                 }
         };
 

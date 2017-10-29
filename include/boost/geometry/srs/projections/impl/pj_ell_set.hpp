@@ -175,10 +175,10 @@ inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> c
     typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
     typedef typename srs::par4::detail::pick_ellps
         <
-            typename static_parameters_type::tuple_type
+            static_parameters_type
         > pick_ellps;
 
-    typename pick_ellps::model_type model = pick_ellps::model(bg_params.tup);
+    typename pick_ellps::model_type model = pick_ellps::model(bg_params);
 
     a = geometry::get_radius<0>(model);
     T b = geometry::get_radius<2>(model);

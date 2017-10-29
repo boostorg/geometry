@@ -145,10 +145,7 @@ struct o_proj
     typedef P type;
 };
 
-template <bool V>
-struct guam
-    : boost::integral_constant<bool, V>
-{};
+struct guam {};
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
@@ -314,6 +311,18 @@ template
 struct tuples_find_if<Tuple, IsSamePred, N, N>
 {
     typedef void type;
+};
+
+template <typename Param>
+struct is_param
+{
+    template <typename T, int D = 0>
+    struct is_same_impl : boost::false_type {};
+    template <int D>
+    struct is_same_impl<Param, D> : boost::true_type {};
+
+    template <typename T>
+    struct is_same : is_same_impl<T> {};
 };
 
 template <template <typename> class Param>

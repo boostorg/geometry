@@ -37,32 +37,20 @@ struct dynamic_parameters<srs::iau2000, CT>
 
 template <int Code, typename CT>
 class proj_wrapper<srs::static_iau2000<Code>, CT>
-{
-    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
-
-    typedef projections::detail::iau2000_traits<Code> iau2000_traits;
-
-    typedef projections::parameters<calc_t> parameters_type;
-    typedef typename projections::detail::static_projection_type
+    : public static_proj_wrapper_base
         <
-            typename iau2000_traits::type,
-            typename iau2000_traits::srs_tag,
-            calc_t,
-            parameters_type
-        >::type projection_type;
+            typename projections::detail::iau2000_traits<Code>::static_parameters_type,
+            CT
+        >
+{
+    typedef projections::detail::iau2000_traits<Code> iau2000_traits;
+    typedef typename iau2000_traits::static_parameters_type static_parameters_type;
+    typedef static_proj_wrapper_base<static_parameters_type, CT> base_t;
 
 public:
     proj_wrapper()
-        : m_proj(projections::detail::pj_init_plus<calc_t>(
-                        srs::static_iau2000<Code>(),
-                        iau2000_traits::par(), false))
+        : base_t(iau2000_traits::s_par())
     {}
-
-    projection_type const& proj() const { return m_proj; }
-    projection_type & mutable_proj() { return m_proj; }
-
-private:
-    projection_type m_proj;
 };
 
 

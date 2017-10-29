@@ -37,7 +37,7 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename Prj, typename CSTag, typename CT, typename P>
+template <typename Prj, typename CSTag, typename BGP, typename CT, typename P>
 struct static_projection_type
 {
     BOOST_MPL_ASSERT_MSG((false),
@@ -46,13 +46,13 @@ struct static_projection_type
 };
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(PROJ, P_SPHERE, P_SPHEROID) \
-template <typename CT, typename P> \
-struct static_projection_type<PROJ, srs_sphere_tag, CT, P> \
+template <typename BGP, typename CT, typename P> \
+struct static_projection_type<PROJ, srs_sphere_tag, BGP, CT, P> \
 { \
     typedef P_SPHERE<CT, P> type; \
 }; \
-template <typename CT, typename P> \
-struct static_projection_type<PROJ, srs_spheroid_tag, CT, P> \
+template <typename BGP, typename CT, typename P> \
+struct static_projection_type<PROJ, srs_spheroid_tag, BGP, CT, P> \
 { \
     typedef P_SPHEROID<CT, P> type; \
 }; \

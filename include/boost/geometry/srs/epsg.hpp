@@ -37,32 +37,20 @@ struct dynamic_parameters<srs::epsg, CT>
 
 template <int Code, typename CT>
 class proj_wrapper<srs::static_epsg<Code>, CT>
-{
-    typedef typename projections::detail::promote_to_double<CT>::type calc_t;
-
-    typedef projections::detail::epsg_traits<Code> epsg_traits;
-
-    typedef projections::parameters<calc_t> parameters_type;
-    typedef typename projections::detail::static_projection_type
+    : public static_proj_wrapper_base
         <
-            typename epsg_traits::type,
-            typename epsg_traits::srs_tag,
-            calc_t,
-            parameters_type
-        >::type projection_type;
+            typename projections::detail::epsg_traits<Code>::static_parameters_type,
+            CT
+        >
+{
+    typedef projections::detail::epsg_traits<Code> epsg_traits;
+    typedef typename epsg_traits::static_parameters_type static_parameters_type;
+    typedef static_proj_wrapper_base<static_parameters_type, CT> base_t;
 
 public:
     proj_wrapper()
-        : m_proj(projections::detail::pj_init_plus<calc_t>(
-                        srs::static_epsg<Code>(),
-                        epsg_traits::par(), false))
+        : base_t(epsg_traits::s_par())
     {}
-
-    projection_type const& proj() const { return m_proj; }
-    projection_type & mutable_proj() { return m_proj; }
-
-private:
-    projection_type m_proj;
 };
 
 

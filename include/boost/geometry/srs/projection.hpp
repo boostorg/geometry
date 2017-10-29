@@ -361,21 +361,20 @@ private:
     boost::shared_ptr<vprj_t> m_ptr;
 };
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
-class proj_wrapper<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+template <typename StaticParameters, typename CT>
+class static_proj_wrapper_base
 {
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
     typedef projections::parameters<calc_t> parameters_type;
 
-    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
     typedef typename srs::par4::detail::pick_proj_tag
         <
-            typename static_parameters_type::tuple_type
+            StaticParameters
         >::type proj_tag;
     typedef typename srs::par4::detail::pick_ellps
         <
-            typename static_parameters_type::tuple_type
+            StaticParameters
         >::type ellps_type;
 
     typedef typename projections::detail::static_projection_type
@@ -388,29 +387,49 @@ class proj_wrapper<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
                             ellps_type
                         >::model_type
                 >::type,
+            StaticParameters,
             calc_t,
             parameters_type
         >::type projection_type;
 
 public:
-    proj_wrapper()
-        : m_proj(get_parameters(static_parameters_type()))
-    {}
-
-    proj_wrapper(static_parameters_type const& params)
-        : m_proj(get_parameters(params))
-    {}
-
     projection_type const& proj() const { return m_proj; }
     projection_type & mutable_proj() { return m_proj; }
 
+protected:
+    explicit static_proj_wrapper_base(StaticParameters const& params, bool use_defaults = true)
+        : m_proj(get_parameters(params, use_defaults))
+    {}
+
 private:
-    static parameters_type get_parameters(static_parameters_type const& params)
+    static parameters_type get_parameters(StaticParameters const& params, bool use_defaults)
     {
-        return projections::detail::pj_init_plus<calc_t>(params, params.str);
+        return projections::detail::pj_init_plus<calc_t>(params, params.str, use_defaults);
     }
 
     projection_type m_proj;
+};
+
+template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
+class proj_wrapper<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+    : public static_proj_wrapper_base<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+{
+    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+        static_parameters_type;
+    typedef static_proj_wrapper_base
+        <
+            static_parameters_type,
+            CT
+        > base_t;
+
+public:
+    proj_wrapper()
+        : base_t(static_parameters_type())
+    {}
+
+    proj_wrapper(static_parameters_type const& params)
+        : base_t(params)
+    {}
 };
 
 

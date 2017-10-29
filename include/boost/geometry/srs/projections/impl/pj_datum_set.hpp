@@ -115,7 +115,7 @@ inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAI
     typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> bg_parameters_type;
     typedef typename srs::par4::detail::tuples_find_if
         <
-            typename bg_parameters_type::tuple_type,
+            bg_parameters_type,
             srs::par4::detail::is_param_t<srs::par4::datum>::is_same
         >::type datum_type;
     typedef typename srs::par4::detail::datum_traits
