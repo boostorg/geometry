@@ -16,6 +16,8 @@
 #pragma warning( disable : 4305 ) // truncation double -> float
 #endif // defined(_MSC_VER)
 
+#define BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/srs/projection.hpp>
@@ -42,7 +44,9 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
 
     try
     {
-        projection_type prj = StaticProj(parameters);
+        // hybrid interface disabled by default
+        // static_proj4 default ctor, dynamic parameters passed
+        projection_type prj = srs::proj4(parameters);
 
         cartesian_point_type xy1, xy2;
         prj.forward(geo_point1, xy1);

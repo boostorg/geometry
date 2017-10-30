@@ -22,7 +22,7 @@
 #endif // defined(_MSC_VER)
 
 
-
+#define BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
 
 #include <geometry_test_common.hpp>
 
@@ -46,8 +46,10 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
+    // hybrid interface disabled by default
+    // static_proj4 default ctor, dynamic parameters passed
     srs::projection<srs::static_proj4<par::proj<Prj>, par::ellps<Model> > >
-        prj = srs::static_proj4<par::proj<Prj>, par::ellps<Model> >(parameters);
+        prj = srs::proj4(parameters);
 
     P1 ll;
     bg::set<0>(ll, lon);

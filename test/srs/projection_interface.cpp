@@ -9,6 +9,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#define BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry.hpp>
@@ -99,16 +101,13 @@ int test_main(int, char*[])
     {
         // static_proj4 constructors
         projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
-            prj2;
-        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
-            prj3 = static_proj4<proj<tmerc>, ellps<WGS84> >();
-        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
-            prj4 = static_proj4<proj<tmerc>, ellps<WGS84> >("");
-
-        projection<static_proj4<proj<tmerc>, datum<WGS84> > >
-            prj5;
+            prj1;
         projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
-            prj6;
+            prj2;
+#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
+        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
+            prj3 = proj4("");
+#endif
     }
 
     {
@@ -117,8 +116,10 @@ int test_main(int, char*[])
         typedef proj<tmerc> prj;
         projection<static_proj4<ell, prj> >
             prj1 = static_proj4<ell, prj>(ell(sph(1000, 999)));
+#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
         projection<static_proj4<ell, prj> >
-            prj2 = static_proj4<ell, prj>(ell(sph(1000, 999)), "");
+            prj2(static_proj4<ell, prj>(ell(sph(1000, 999))), proj4(""));
+#endif
     }
 
     // compile-time errors
