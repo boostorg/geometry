@@ -171,9 +171,12 @@ namespace projections
 
                 z = -x - y;
 
-                ix = rx = floor(x + 0.5);
-                iy = ry = floor(y + 0.5);
-                iz = rz = floor(z + 0.5);
+                rx = floor(x + 0.5);
+                ix = (int)rx;
+                ry = floor(y + 0.5);
+                iy = (int)ry;
+                rz = floor(z + 0.5);
+                iz = (int)rz;
 
                 s = ix + iy + iz;
 
@@ -986,7 +989,7 @@ namespace projections
                     sn += 2;
                 } else {
                     sidelength = (int) (pow(T(g->aperture), T(g->resolution / 2.0)) + 0.5);
-                    sn = (quad - 1) * hexes + sidelength * di->x + di->y + 2;
+                    sn = (int) ((quad - 1) * hexes + sidelength * di->x + di->y + 2);
                 }
 
                 g->serial = sn;
@@ -1013,8 +1016,8 @@ namespace projections
 
                 return 1;
 
-                d = v.x;
-                i = v.y;
+                d = (int)v.x;
+                i = (int)v.y;
 
                 /* Aperture 3 odd resolutions */
                 if (g->aperture == 3 && g->resolution % 2 != 0) {
