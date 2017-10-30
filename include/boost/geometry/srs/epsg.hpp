@@ -49,7 +49,7 @@ class proj_wrapper<srs::static_epsg<Code>, CT>
 
 public:
     proj_wrapper()
-        : base_t(epsg_traits::s_par())
+        : base_t(epsg_traits::s_par(), epsg_traits::par())
     {}
 };
 

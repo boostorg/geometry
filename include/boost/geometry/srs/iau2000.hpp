@@ -49,7 +49,7 @@ class proj_wrapper<srs::static_iau2000<Code>, CT>
 
 public:
     proj_wrapper()
-        : base_t(iau2000_traits::s_par())
+        : base_t(iau2000_traits::s_par(), iau2000_traits::par())
     {}
 };
 

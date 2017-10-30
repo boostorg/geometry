@@ -49,7 +49,7 @@ class proj_wrapper<srs::static_esri<Code>, CT>
 
 public:
     proj_wrapper()
-        : base_t(esri_traits::s_par())
+        : base_t(esri_traits::s_par(), esri_traits::par())
     {}
 };
 

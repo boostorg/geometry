@@ -96,7 +96,7 @@ inline void pj_push_defaults(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL
     typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
     typedef typename srs::par4::detail::pick_proj_tag
         <
-            typename static_parameters_type::tuple_type
+            static_parameters_type
         >::type proj_tag;
 
     // statically defaulting to WGS84

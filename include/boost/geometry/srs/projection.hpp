@@ -397,14 +397,23 @@ public:
     projection_type & mutable_proj() { return m_proj; }
 
 protected:
-    explicit static_proj_wrapper_base(StaticParameters const& params, bool use_defaults = true)
-        : m_proj(get_parameters(params, use_defaults))
+    explicit static_proj_wrapper_base(StaticParameters const& s_params,
+                                      bool use_defaults = true)
+        : m_proj(get_parameters(s_params, "", use_defaults))
+    {}
+
+    static_proj_wrapper_base(StaticParameters const& s_params,
+                             srs::proj4 const& params,
+                             bool use_defaults = true)
+        : m_proj(get_parameters(s_params, params.str, use_defaults))
     {}
 
 private:
-    static parameters_type get_parameters(StaticParameters const& params, bool use_defaults)
+    static parameters_type get_parameters(StaticParameters const& s_params,
+                                          std::string const& params_str,
+                                          bool use_defaults)
     {
-        return projections::detail::pj_init_plus<calc_t>(params, params.str, use_defaults);
+        return projections::detail::pj_init_plus<calc_t>(s_params, params_str, use_defaults);
     }
 
     projection_type m_proj;
@@ -427,8 +436,17 @@ public:
         : base_t(static_parameters_type())
     {}
 
-    proj_wrapper(static_parameters_type const& params)
-        : base_t(params)
+    proj_wrapper(static_parameters_type const& s_params)
+        : base_t(s_params)
+    {}
+
+    proj_wrapper(srs::proj4 const& params)
+        : base_t(static_parameters_type(), params)
+    {}
+
+    proj_wrapper(static_parameters_type const& s_params,
+                 srs::proj4 const& params)
+        : base_t(s_params, params)
     {}
 };
 
@@ -445,8 +463,13 @@ public:
     {}
 
     template <typename Params>
-    projection(Params const& params)
+    explicit projection(Params const& params)
         : base_t(params)
+    {}
+
+    template <typename SParams, typename Params>
+    projection(SParams const& s_params, Params const& params)
+        : base_t(s_params, params)
     {}
 
     /// Forward projection, from Latitude-Longitude to Cartesian
@@ -546,6 +569,17 @@ public:
     projection(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& params)
         : base_t(params)
     {}
+
+#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
+    projection(srs::proj4 const& params)
+        : base_t(params)
+    {}
+
+    projection(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& s_params,
+               srs::proj4 const& params)
+        : base_t(s_params, params)
+    {}
+#endif
 };
 
 } // namespace srs

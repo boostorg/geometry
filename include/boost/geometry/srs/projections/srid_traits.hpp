@@ -29,7 +29,11 @@ struct AUTH##_traits<CODE> \
         > static_parameters_type; \
     static inline static_parameters_type s_par() \
     { \
-        return static_parameters_type(PROJ4_STR); \
+        return static_parameters_type(); \
+    } \
+    static inline srs::proj4 par() \
+    { \
+        return srs::proj4(PROJ4_STR); \
     } \
 }; \
 
@@ -44,7 +48,11 @@ struct AUTH##_traits<CODE> \
         > static_parameters_type; \
     static inline static_parameters_type s_par() \
     { \
-        return static_parameters_type(PROJ4_STR); \
+        return static_parameters_type(); \
+    } \
+    static inline srs::proj4 par() \
+    { \
+        return srs::proj4(PROJ4_STR); \
     } \
 }; \
 
@@ -60,8 +68,11 @@ struct AUTH##_traits<CODE> \
     static inline static_parameters_type s_par() \
     { \
         return static_parameters_type(srs::par4::proj<srs::par4::PROJ>(), \
-                                      srs::par4::ellps<srs::spheroid<double> >(srs::spheroid<double>(A, B)), \
-                                      PROJ4_STR); \
+                                      srs::par4::ellps<srs::spheroid<double> >(srs::spheroid<double>(A, B))); \
+    } \
+    static inline srs::proj4 par() \
+    { \
+        return srs::proj4(PROJ4_STR); \
     } \
 }; \
 
@@ -77,8 +88,11 @@ struct AUTH##_traits<CODE> \
     static inline static_parameters_type s_par() \
     { \
         return static_parameters_type(srs::par4::proj<srs::par4::PROJ>(), \
-                                      srs::par4::ellps<srs::sphere<double> >(srs::sphere<double>(R)), \
-                                      PROJ4_STR); \
+                                      srs::par4::ellps<srs::sphere<double> >(srs::sphere<double>(R))); \
+    } \
+    static inline srs::proj4 par() \
+    { \
+        return srs::proj4(PROJ4_STR); \
     } \
 }; \
 
