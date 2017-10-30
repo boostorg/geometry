@@ -32,18 +32,17 @@
 namespace srs = bg::srs;
 namespace par = bg::srs::par4;
 
-template <typename Proj, typename Model, typename GeoPoint>
+template <typename StaticProj, typename GeoPoint>
 void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
         std::string const& parameters, int deviation = 1)
 {
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef srs::static_proj4<par::proj<Proj>, par::ellps<Model> > static_proj4;
-    typedef srs::projection<static_proj4> projection_type;
+    typedef srs::projection<StaticProj> projection_type;
 
     try
     {
-        projection_type prj = static_proj4(parameters);
+        projection_type prj = StaticProj(parameters);
 
         cartesian_point_type xy1, xy2;
         prj.forward(geo_point1, xy1);
@@ -76,6 +75,24 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
     }
 }
 
+template <typename Proj, typename Model, typename GeoPoint>
+void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
+        std::string const& parameters, int deviation = 1)
+{
+    typedef srs::static_proj4<par::proj<Proj>, par::ellps<Model> > static_proj4;
+
+    test_forward<static_proj4>(id, geo_point1, geo_point2, parameters, deviation);
+}
+
+template <typename Proj, typename Model, typename OProj, typename GeoPoint>
+void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
+        std::string const& parameters, int deviation = 1)
+{
+    typedef srs::static_proj4<par::proj<Proj>, par::ellps<Model>, par::o_proj<OProj> > static_proj4;
+
+    test_forward<static_proj4>(id, geo_point1, geo_point2, parameters, deviation);
+}
+
 template <typename T>
 void test_all()
 {
@@ -102,18 +119,22 @@ void test_all()
     // Using moll
     //test_forward<par::ob_tran_oblique, par::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
     //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<par::ob_tran, par::WGS84>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    //test_forward<par::ob_tran, par::WGS84, par::moll>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
+    test_forward<par::ob_tran, par::WGS84, par::moll>("obt-au", amsterdam, utrecht, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
     //test_forward<par::ob_tran_oblique, par::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
     //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    test_forward<par::ob_tran, par::WGS84>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    //test_forward<par::ob_tran, par::WGS84, par::moll>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    test_forward<par::ob_tran, par::WGS84, par::moll>("obt-ad", aspen, denver, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
 
     // Using sinu
     //test_forward<par::ob_tran_oblique, par::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
     //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<par::ob_tran, par::WGS84>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    //test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
+    test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-au", amsterdam, utrecht, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
     //test_forward<par::ob_tran_oblique, par::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
     //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
-    test_forward<par::ob_tran, par::WGS84>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
+    //test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
+    test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-ad", aspen, denver, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
 
 }
 
