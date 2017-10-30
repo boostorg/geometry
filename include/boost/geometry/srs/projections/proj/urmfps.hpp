@@ -113,7 +113,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_urmfps<T>& proj_parm) 
+            inline void setup(Parameters& par, par_urmfps<T>& proj_parm) 
             {
                 proj_parm.C_y = Cy / proj_parm.n;
                 par.es = 0.;
@@ -122,7 +122,7 @@ namespace projections
 
             // Urmaev Flat-Polar Sinusoidal
             template <typename Parameters, typename T>
-            void setup_urmfps(Parameters& par, par_urmfps<T>& proj_parm)
+            inline void setup_urmfps(Parameters& par, par_urmfps<T>& proj_parm)
             {
                 if (pj_param(par.params, "tn").i) {
                     proj_parm.n = pj_param(par.params, "dn").f;
@@ -135,7 +135,7 @@ namespace projections
 
             // Wagner I (Kavraisky VI)
             template <typename Parameters, typename T>
-            void setup_wag1(Parameters& par, par_urmfps<T>& proj_parm)
+            inline void setup_wag1(Parameters& par, par_urmfps<T>& proj_parm)
             {
                 proj_parm.n = 0.8660254037844386467637231707;
                 setup(par, proj_parm);

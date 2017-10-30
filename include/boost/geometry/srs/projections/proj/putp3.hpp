@@ -112,7 +112,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_putp3<T>& proj_parm) 
+            inline void setup(Parameters& par, par_putp3<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -121,7 +121,7 @@ namespace projections
 
             // Putnins P3
             template <typename Parameters, typename T>
-            void setup_putp3(Parameters& par, par_putp3<T>& proj_parm)
+            inline void setup_putp3(Parameters& par, par_putp3<T>& proj_parm)
             {
                 proj_parm.A = 4. * RPISQ;
                 setup(par, proj_parm);
@@ -129,7 +129,7 @@ namespace projections
 
             // Putnins P3'
             template <typename Parameters, typename T>
-            void setup_putp3p(Parameters& par, par_putp3<T>& proj_parm)
+            inline void setup_putp3p(Parameters& par, par_putp3<T>& proj_parm)
             {
                 proj_parm.A = 2. * RPISQ;
                 setup(par, proj_parm);

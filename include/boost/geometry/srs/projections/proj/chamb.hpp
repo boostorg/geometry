@@ -187,7 +187,7 @@ namespace projections
 
             // Chamberlin Trimetric
             template <typename Parameters, typename T>
-            void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
+            inline void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
             {
                 static const T ONEPI = detail::ONEPI<T>();
 

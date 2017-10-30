@@ -135,7 +135,7 @@ namespace projections
 
             // Roussilhe Stereographic
             template <typename Parameters, typename T>
-            void setup_rouss(Parameters& par, par_rouss<T>& proj_parm)
+            inline void setup_rouss(Parameters& par, par_rouss<T>& proj_parm)
             {
                 T N0, es2, t, t2, R_R0_2, R_R0_4;
 

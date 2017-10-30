@@ -162,7 +162,7 @@ namespace projections
 
             // Equal Area Cylindrical
             template <typename Parameters, typename T>
-            void setup_cea(Parameters& par, par_cea<T>& proj_parm)
+            inline void setup_cea(Parameters& par, par_cea<T>& proj_parm)
             {
                 T t = 0;
 

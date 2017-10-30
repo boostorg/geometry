@@ -148,7 +148,7 @@ namespace projections
 
             // Swiss. Obl. Mercator
             template <typename Parameters, typename T>
-            void setup_somerc(Parameters& par, par_somerc<T>& proj_parm)
+            inline void setup_somerc(Parameters& par, par_somerc<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
 

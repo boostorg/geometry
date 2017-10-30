@@ -140,7 +140,7 @@ namespace projections
 
             // Oblique Stereographic Alternative
             template <typename Parameters, typename T>
-            void setup_sterea(Parameters& par, par_sterea<T>& proj_parm)
+            inline void setup_sterea(Parameters& par, par_sterea<T>& proj_parm)
             {
                 T R;
 

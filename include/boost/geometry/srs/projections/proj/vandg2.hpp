@@ -130,14 +130,14 @@ namespace projections
 
             // van der Grinten II
             template <typename Parameters>
-            void setup_vandg2(Parameters& par, par_vandg2& proj_parm)
+            inline void setup_vandg2(Parameters& par, par_vandg2& proj_parm)
             {
                 proj_parm.vdg3 = 0;
             }
 
             // van der Grinten III
             template <typename Parameters>
-            void setup_vandg3(Parameters& par, par_vandg2& proj_parm)
+            inline void setup_vandg3(Parameters& par, par_vandg2& proj_parm)
             {
                 proj_parm.vdg3 = 1;
                 par.es = 0.;

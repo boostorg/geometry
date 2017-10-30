@@ -160,7 +160,7 @@ namespace projections
 
             // Airy
             template <typename Parameters, typename T>
-            void setup_airy(Parameters& par, par_airy<T>& proj_parm)
+            inline void setup_airy(Parameters& par, par_airy<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

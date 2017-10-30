@@ -311,7 +311,7 @@ namespace projections
 
             // Lambert Azimuthal Equal Area
             template <typename Parameters, typename T>
-            void setup_laea(Parameters& par, par_laea<T>& proj_parm)
+            inline void setup_laea(Parameters& par, par_laea<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

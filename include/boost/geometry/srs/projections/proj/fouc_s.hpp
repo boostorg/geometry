@@ -131,7 +131,7 @@ namespace projections
 
             // Foucaut Sinusoidal
             template <typename Parameters, typename T>
-            void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
+            inline void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
             {
                 proj_parm.n = pj_param(par.params, "dn").f;
                 if (proj_parm.n < 0. || proj_parm.n > 1.)

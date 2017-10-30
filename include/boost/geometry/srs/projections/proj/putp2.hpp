@@ -129,7 +129,7 @@ namespace projections
 
             // Putnins P2
             template <typename Parameters>
-            void setup_putp2(Parameters& par)
+            inline void setup_putp2(Parameters& par)
             {
                 par.es = 0.;
             }

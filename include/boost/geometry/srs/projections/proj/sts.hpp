@@ -129,7 +129,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_sts<T>& proj_parm, T const& p, T const& q, int mode) 
+            inline void setup(Parameters& par, par_sts<T>& proj_parm, T const& p, T const& q, int mode) 
             {
                 par.es = 0.;
                 proj_parm.C_x = q / p;
@@ -141,28 +141,28 @@ namespace projections
 
             // Kavraisky V
             template <typename Parameters, typename T>
-            void setup_kav5(Parameters& par, par_sts<T>& proj_parm)
+            inline void setup_kav5(Parameters& par, par_sts<T>& proj_parm)
             {
                 setup(par, proj_parm, 1.50488, 1.35439, 0);
             }
 
             // Quartic Authalic
             template <typename Parameters, typename T>
-            void setup_qua_aut(Parameters& par, par_sts<T>& proj_parm)
+            inline void setup_qua_aut(Parameters& par, par_sts<T>& proj_parm)
             {
                 setup(par, proj_parm, 2., 2., 0);
             }
 
             // McBryde-Thomas Flat-Polar Sine (No. 1)
             template <typename Parameters, typename T>
-            void setup_mbt_s(Parameters& par, par_sts<T>& proj_parm)
+            inline void setup_mbt_s(Parameters& par, par_sts<T>& proj_parm)
             {
                 setup(par, proj_parm, 1.48875, 1.36509, 0);
             }
 
             // Foucaut
             template <typename Parameters, typename T>
-            void setup_fouc(Parameters& par, par_sts<T>& proj_parm)
+            inline void setup_fouc(Parameters& par, par_sts<T>& proj_parm)
             {
                 setup(par, proj_parm, 2., 2., 1);
             }

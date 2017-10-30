@@ -197,7 +197,7 @@ namespace projections
 
             // Cassini
             template <typename Parameters, typename T>
-            void setup_cass(Parameters& par, par_cass<T>& proj_parm)
+            inline void setup_cass(Parameters& par, par_cass<T>& proj_parm)
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en))

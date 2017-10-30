@@ -105,7 +105,7 @@ namespace projections
 
             // Ginsburg VIII (TsNIIGAiK)
             template <typename Parameters>
-            void setup_gins8(Parameters& par)
+            inline void setup_gins8(Parameters& par)
             {
                 par.es = 0.;
             }

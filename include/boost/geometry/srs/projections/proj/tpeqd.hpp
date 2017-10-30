@@ -135,7 +135,7 @@ namespace projections
 
             // Two Point Equidistant
             template <typename Parameters, typename T>
-            void setup_tpeqd(Parameters& par, par_tpeqd<T>& proj_parm)
+            inline void setup_tpeqd(Parameters& par, par_tpeqd<T>& proj_parm)
             {
                 T lam_1, lam_2, phi_1, phi_2, A12, pp;
 

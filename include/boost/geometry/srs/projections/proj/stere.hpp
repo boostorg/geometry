@@ -299,7 +299,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_stere<T>& proj_parm)  /* general initialization */
+            inline void setup(Parameters& par, par_stere<T>& proj_parm)  /* general initialization */
             {
                 static const T FORTPI = detail::FORTPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();
@@ -360,7 +360,7 @@ namespace projections
 
             // Stereographic
             template <typename Parameters, typename T>
-            void setup_stere(Parameters& par, par_stere<T>& proj_parm)
+            inline void setup_stere(Parameters& par, par_stere<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
@@ -371,7 +371,7 @@ namespace projections
 
             // Universal Polar Stereographic
             template <typename Parameters, typename T>
-            void setup_ups(Parameters& par, par_stere<T>& proj_parm)
+            inline void setup_ups(Parameters& par, par_stere<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

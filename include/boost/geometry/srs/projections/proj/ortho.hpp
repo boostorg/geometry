@@ -183,7 +183,7 @@ namespace projections
 
             // Orthographic
             template <typename Parameters, typename T>
-            void setup_ortho(Parameters& par, par_ortho<T>& proj_parm)
+            inline void setup_ortho(Parameters& par, par_ortho<T>& proj_parm)
             {
                 if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) <= EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;

@@ -181,7 +181,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_sconics<T>& proj_parm) 
+            inline void setup(Parameters& par, par_sconics<T>& proj_parm) 
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
@@ -238,7 +238,7 @@ namespace projections
 
             // Tissot
             template <typename Parameters, typename T>
-            void setup_tissot(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_tissot(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = TISSOT;
                 setup(par, proj_parm);
@@ -246,7 +246,7 @@ namespace projections
 
             // Murdoch I
             template <typename Parameters, typename T>
-            void setup_murd1(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_murd1(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD1;
                 setup(par, proj_parm);
@@ -254,7 +254,7 @@ namespace projections
 
             // Murdoch II
             template <typename Parameters, typename T>
-            void setup_murd2(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_murd2(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD2;
                 setup(par, proj_parm);
@@ -262,7 +262,7 @@ namespace projections
 
             // Murdoch III
             template <typename Parameters, typename T>
-            void setup_murd3(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_murd3(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = MURD3;
                 setup(par, proj_parm);
@@ -270,7 +270,7 @@ namespace projections
 
             // Euler
             template <typename Parameters, typename T>
-            void setup_euler(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_euler(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = EULER;
                 setup(par, proj_parm);
@@ -278,7 +278,7 @@ namespace projections
 
             // Perspective Conic
             template <typename Parameters, typename T>
-            void setup_pconic(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_pconic(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = PCONIC;
                 setup(par, proj_parm);
@@ -286,7 +286,7 @@ namespace projections
 
             // Vitkovsky I
             template <typename Parameters, typename T>
-            void setup_vitk1(Parameters& par, par_sconics<T>& proj_parm)
+            inline void setup_vitk1(Parameters& par, par_sconics<T>& proj_parm)
             {
                 proj_parm.type = VITK1;
                 setup(par, proj_parm);

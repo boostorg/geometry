@@ -171,7 +171,7 @@ namespace projections
 
             // Oblique Mercator
             template <typename Parameters, typename T>
-            void setup_omerc(Parameters& par, par_omerc<T>& proj_parm)
+            inline void setup_omerc(Parameters& par, par_omerc<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();

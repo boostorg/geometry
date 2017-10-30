@@ -121,7 +121,7 @@ namespace projections
 
             // Hammer & Eckert-Greifendorff
             template <typename Parameters, typename T>
-            void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
+            inline void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
             {
                 if (pj_param(par.params, "tW").i) {
                     if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.)

@@ -215,7 +215,7 @@ namespace projections
 
             // Polyconic (American)
             template <typename Parameters, typename T>
-            void setup_poly(Parameters& par, par_poly<T>& proj_parm)
+            inline void setup_poly(Parameters& par, par_poly<T>& proj_parm)
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en))

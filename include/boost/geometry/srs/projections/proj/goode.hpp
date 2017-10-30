@@ -123,7 +123,7 @@ namespace projections
 
             // Goode Homolosine
             template <typename CalculationType, typename Parameters>
-            void setup_goode(Parameters& par, par_goode<CalculationType, Parameters>& proj_parm)
+            inline void setup_goode(Parameters& par, par_goode<CalculationType, Parameters>& proj_parm)
             {
                 par.es = 0.;
             }

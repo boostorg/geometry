@@ -125,7 +125,7 @@ namespace projections
 
             // Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
             template <typename Parameters, typename T>
-            void setup_gstmerc(Parameters& par, par_gstmerc<T>& proj_parm)
+            inline void setup_gstmerc(Parameters& par, par_gstmerc<T>& proj_parm)
             {
                 proj_parm.lamc= par.lam0;
                 proj_parm.n1= sqrt(1.0+par.es*pow(cos(par.phi0),4.0)/(1.0-par.es));

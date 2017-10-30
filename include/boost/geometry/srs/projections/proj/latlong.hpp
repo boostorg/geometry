@@ -112,7 +112,7 @@ namespace projections
 
             // Lat/long (Geodetic)
             template <typename Parameters>
-            void setup_lonlat(Parameters& par)
+            inline void setup_lonlat(Parameters& par)
             {
                     par.is_latlong = 1;
                     par.x0 = 0.0;
@@ -121,7 +121,7 @@ namespace projections
 
             // Lat/long (Geodetic alias)
             template <typename Parameters>
-            void setup_latlon(Parameters& par)
+            inline void setup_latlon(Parameters& par)
             {
                     par.is_latlong = 1;
                     par.x0 = 0.0;
@@ -130,7 +130,7 @@ namespace projections
 
             // Lat/long (Geodetic alias)
             template <typename Parameters>
-            void setup_latlong(Parameters& par)
+            inline void setup_latlong(Parameters& par)
             {
                     par.is_latlong = 1;
                     par.x0 = 0.0;
@@ -139,7 +139,7 @@ namespace projections
 
             // Lat/long (Geodetic alias)
             template <typename Parameters>
-            void setup_longlat(Parameters& par)
+            inline void setup_longlat(Parameters& par)
             {
                     par.is_latlong = 1;
                     par.x0 = 0.0;

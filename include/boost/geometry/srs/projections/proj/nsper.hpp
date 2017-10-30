@@ -211,7 +211,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_nsper<T>& proj_parm) 
+            inline void setup(Parameters& par, par_nsper<T>& proj_parm) 
             {
                 if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-30) );
@@ -235,7 +235,7 @@ namespace projections
 
             // Near-sided perspective
             template <typename Parameters, typename T>
-            void setup_nsper(Parameters& par, par_nsper<T>& proj_parm)
+            inline void setup_nsper(Parameters& par, par_nsper<T>& proj_parm)
             {
                 proj_parm.tilt = 0;
                 setup(par, proj_parm);
@@ -243,7 +243,7 @@ namespace projections
 
             // Tilted perspective
             template <typename Parameters, typename T>
-            void setup_tpers(Parameters& par, par_nsper<T>& proj_parm)
+            inline void setup_tpers(Parameters& par, par_nsper<T>& proj_parm)
             {
                 T omega, gamma;
 

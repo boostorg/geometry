@@ -189,7 +189,7 @@ namespace projections
 
             // Gnomonic
             template <typename Parameters, typename T>
-            void setup_gnom(Parameters& par, par_gnom<T>& proj_parm)
+            inline void setup_gnom(Parameters& par, par_gnom<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

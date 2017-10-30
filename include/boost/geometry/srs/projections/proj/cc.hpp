@@ -115,7 +115,7 @@ namespace projections
 
             // Central Cylindrical
             template <typename Parameters, typename T>
-            void setup_cc(Parameters& par, par_cc<T>& proj_parm)
+            inline void setup_cc(Parameters& par, par_cc<T>& proj_parm)
             {
                 par.es = 0.;
             }

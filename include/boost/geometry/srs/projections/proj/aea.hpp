@@ -187,7 +187,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_aea<T>& proj_parm) 
+            inline void setup(Parameters& par, par_aea<T>& proj_parm) 
             {
                 T cosphi, sinphi;
                 int secant;
@@ -231,7 +231,7 @@ namespace projections
 
             // Albers Equal Area
             template <typename Parameters, typename T>
-            void setup_aea(Parameters& par, par_aea<T>& proj_parm)
+            inline void setup_aea(Parameters& par, par_aea<T>& proj_parm)
             {
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
@@ -240,7 +240,7 @@ namespace projections
 
             // Lambert Equal Area Conic
             template <typename Parameters, typename T>
-            void setup_leac(Parameters& par, par_aea<T>& proj_parm)
+            inline void setup_leac(Parameters& par, par_aea<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

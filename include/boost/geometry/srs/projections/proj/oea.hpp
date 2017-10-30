@@ -132,7 +132,7 @@ namespace projections
 
             // Oblated Equal Area
             template <typename Parameters, typename T>
-            void setup_oea(Parameters& par, par_oea<T>& proj_parm)
+            inline void setup_oea(Parameters& par, par_oea<T>& proj_parm)
             {
                 if (((proj_parm.n = pj_param(par.params, "dn").f) <= 0.) ||
                     ((proj_parm.m = pj_param(par.params, "dm").f) <= 0.))

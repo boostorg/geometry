@@ -99,7 +99,7 @@ namespace projections
 
             // Larrivee
             template <typename Parameters>
-            void setup_larr(Parameters& par)
+            inline void setup_larr(Parameters& par)
             {
                 par.es = 0.;
             }

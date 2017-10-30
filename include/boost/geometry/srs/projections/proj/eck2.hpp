@@ -120,7 +120,7 @@ namespace projections
 
             // Eckert II
             template <typename Parameters>
-            void setup_eck2(Parameters& par)
+            inline void setup_eck2(Parameters& par)
             {
                 par.es = 0.;
             }

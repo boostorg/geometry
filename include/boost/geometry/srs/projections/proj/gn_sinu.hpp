@@ -188,7 +188,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_gn_sinu<T>& proj_parm) 
+            inline void setup(Parameters& par, par_gn_sinu<T>& proj_parm) 
             {
                 par.es = 0;
                 proj_parm.C_x = (proj_parm.C_y = sqrt((proj_parm.m + 1.) / proj_parm.n))/(proj_parm.m + 1.);
@@ -197,7 +197,7 @@ namespace projections
 
             // General Sinusoidal Series
             template <typename Parameters, typename T>
-            void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 if (pj_param(par.params, "tn").i && pj_param(par.params, "tm").i) {
                     proj_parm.n = pj_param(par.params, "dn").f;
@@ -209,7 +209,7 @@ namespace projections
 
             // Sinusoidal (Sanson-Flamsteed)
             template <typename Parameters, typename T>
-            void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 if (!pj_enfn(par.es, proj_parm.en))
                     BOOST_THROW_EXCEPTION( projection_exception(0) );
@@ -223,7 +223,7 @@ namespace projections
 
             // Eckert VI
             template <typename Parameters, typename T>
-            void setup_eck6(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_eck6(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 proj_parm.m = 1.;
                 proj_parm.n = 2.570796326794896619231321691;
@@ -232,7 +232,7 @@ namespace projections
 
             // McBryde-Thomas Flat-Polar Sinusoidal
             template <typename Parameters, typename T>
-            void setup_mbtfps(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_mbtfps(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
                 proj_parm.m = 0.5;
                 proj_parm.n = 1.785398163397448309615660845;

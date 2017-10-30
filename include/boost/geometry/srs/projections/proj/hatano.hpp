@@ -147,7 +147,7 @@ namespace projections
 
             // Hatano Asymmetrical Equal Area
             template <typename Parameters>
-            void setup_hatano(Parameters& par)
+            inline void setup_hatano(Parameters& par)
             {
                 par.es = 0.;
             }

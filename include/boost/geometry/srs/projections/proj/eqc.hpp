@@ -106,7 +106,7 @@ namespace projections
 
             // Equidistant Cylindrical (Plate Caree)
             template <typename Parameters, typename T>
-            void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
+            inline void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
             {
                 if ((proj_parm.rc = cos(pj_param(par.params, "rlat_ts").f)) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-24) );

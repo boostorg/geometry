@@ -234,7 +234,7 @@ namespace projections
 
             // Robinson
             template <typename Parameters>
-            void setup_robin(Parameters& par)
+            inline void setup_robin(Parameters& par)
             {
                 par.es = 0.;
             }

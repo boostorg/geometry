@@ -112,7 +112,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_eck3<T>& proj_parm) 
+            inline void setup(Parameters& par, par_eck3<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -121,7 +121,7 @@ namespace projections
 
             // Eckert III
             template <typename Parameters, typename T>
-            void setup_eck3(Parameters& par, par_eck3<T>& proj_parm)
+            inline void setup_eck3(Parameters& par, par_eck3<T>& proj_parm)
             {
                 proj_parm.C_x = .42223820031577120149;
                 proj_parm.C_y = .84447640063154240298;
@@ -132,7 +132,7 @@ namespace projections
 
             // Putnins P1
             template <typename Parameters, typename T>
-            void setup_putp1(Parameters& par, par_eck3<T>& proj_parm)
+            inline void setup_putp1(Parameters& par, par_eck3<T>& proj_parm)
             {
                 proj_parm.C_x = 1.89490;
                 proj_parm.C_y = 0.94745;
@@ -143,7 +143,7 @@ namespace projections
 
             // Wagner VI
             template <typename Parameters, typename T>
-            void setup_wag6(Parameters& par, par_eck3<T>& proj_parm)
+            inline void setup_wag6(Parameters& par, par_eck3<T>& proj_parm)
             {
                 proj_parm.C_x = proj_parm.C_y = 0.94745;
                 proj_parm.A = 0.;
@@ -153,7 +153,7 @@ namespace projections
 
             // Kavraisky VII
             template <typename Parameters, typename T>
-            void setup_kav7(Parameters& par, par_eck3<T>& proj_parm)
+            inline void setup_kav7(Parameters& par, par_eck3<T>& proj_parm)
             {
                 proj_parm.C_x = 0.2632401569273184856851;
                 proj_parm.C_x = 0.8660254037844;

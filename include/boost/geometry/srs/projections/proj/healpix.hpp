@@ -718,7 +718,7 @@ namespace projections
 
             // HEALPix
             template <typename Parameters, typename T>
-            void setup_healpix(Parameters& par, par_healpix<T>& proj_parm)
+            inline void setup_healpix(Parameters& par, par_healpix<T>& proj_parm)
             {
                 if (par.es) {
                     pj_authset(par.es, proj_parm.apa); /* For auth_lat(). */
@@ -731,7 +731,7 @@ namespace projections
 
             // rHEALPix
             template <typename Parameters, typename T>
-            void setup_rhealpix(Parameters& par, par_healpix<T>& proj_parm)
+            inline void setup_rhealpix(Parameters& par, par_healpix<T>& proj_parm)
             {
                 proj_parm.north_square = pj_param(par.params,"inorth_square").i;
                 proj_parm.south_square = pj_param(par.params,"isouth_square").i;

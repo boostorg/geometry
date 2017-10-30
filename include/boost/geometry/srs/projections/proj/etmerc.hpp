@@ -256,7 +256,7 @@ namespace projections
 
             // Extended Transverse Mercator
             template <typename Parameters, typename T>
-            void setup_etmerc(Parameters& par, par_etmerc<T>& proj_parm)
+            inline void setup_etmerc(Parameters& par, par_etmerc<T>& proj_parm)
             {
                 T f, n, np, Z;
 

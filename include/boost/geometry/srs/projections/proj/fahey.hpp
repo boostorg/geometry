@@ -104,7 +104,7 @@ namespace projections
 
             // Fahey
             template <typename Parameters>
-            void setup_fahey(Parameters& par)
+            inline void setup_fahey(Parameters& par)
             {
                 par.es = 0.;
             }

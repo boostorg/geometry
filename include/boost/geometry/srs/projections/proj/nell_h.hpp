@@ -120,7 +120,7 @@ namespace projections
 
             // Nell-Hammer
             template <typename Parameters>
-            void setup_nell_h(Parameters& par)
+            inline void setup_nell_h(Parameters& par)
             {
                 par.es = 0.;
             }

@@ -111,7 +111,7 @@ namespace projections
 
             // Craster Parabolic (Putnins P4)
             template <typename Parameters>
-            void setup_crast(Parameters& par)
+            inline void setup_crast(Parameters& par)
             {
                 par.es = 0.;
             }

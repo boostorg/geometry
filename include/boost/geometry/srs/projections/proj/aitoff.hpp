@@ -200,7 +200,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_aitoff<T>& proj_parm) 
+            inline void setup(Parameters& par, par_aitoff<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -209,7 +209,7 @@ namespace projections
 
             // Aitoff
             template <typename Parameters, typename T>
-            void setup_aitoff(Parameters& par, par_aitoff<T>& proj_parm)
+            inline void setup_aitoff(Parameters& par, par_aitoff<T>& proj_parm)
             {
                 proj_parm.mode = 0;
                 setup(par, proj_parm);
@@ -217,7 +217,7 @@ namespace projections
 
             // Winkel Tripel
             template <typename Parameters, typename T>
-            void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
+            inline void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
             {
                 static const T TWO_D_PI = detail::TWO_D_PI<T>();
 

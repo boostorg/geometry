@@ -133,7 +133,7 @@ namespace projections
 
             // Loximuthal
             template <typename Parameters, typename T>
-            void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
+            inline void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
 

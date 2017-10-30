@@ -146,7 +146,7 @@ namespace projections
 
             // Lambert Conformal Conic Alternative
             template <typename Parameters, typename T>
-            void setup_lcca(Parameters& par, par_lcca<T>& proj_parm)
+            inline void setup_lcca(Parameters& par, par_lcca<T>& proj_parm)
             {
                 T s2p0, N0, R0, tan0, tan20;
 

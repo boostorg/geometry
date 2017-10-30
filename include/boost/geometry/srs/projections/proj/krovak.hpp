@@ -266,7 +266,7 @@ namespace projections
 
             // Krovak
             template <typename Parameters, typename T>
-            void setup_krovak(Parameters& par, par_krovak<T>& proj_parm)
+            inline void setup_krovak(Parameters& par, par_krovak<T>& proj_parm)
             {
                 T ts;
                 /* read some Parameters,

@@ -453,7 +453,7 @@ namespace projections
 
             // Quadrilateralized Spherical Cube
             template <typename Parameters, typename T>
-            void setup_qsc(Parameters& par, par_qsc<T>& proj_parm)
+            inline void setup_qsc(Parameters& par, par_qsc<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();

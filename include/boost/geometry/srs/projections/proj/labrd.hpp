@@ -180,7 +180,7 @@ namespace projections
 
             // Laborde
             template <typename Parameters, typename T>
-            void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
+            inline void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
 

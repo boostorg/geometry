@@ -96,7 +96,7 @@ namespace projections
 
             // Wagner VII
             template <typename Parameters>
-            void setup_wag7(Parameters& par)
+            inline void setup_wag7(Parameters& par)
             {
                 par.es = 0.;
             }

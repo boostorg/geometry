@@ -135,7 +135,7 @@ namespace projections
 
             // McBride-Thomas Flat-Polar Parabolic
             template <typename Parameters>
-            void setup_mbtfpp(Parameters& par)
+            inline void setup_mbtfpp(Parameters& par)
             {
                 par.es = 0.;
             }

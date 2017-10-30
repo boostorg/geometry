@@ -185,7 +185,7 @@ namespace projections
 
             // New Zealand Map Grid
             template <typename Parameters>
-            void setup_nzmg(Parameters& par)
+            inline void setup_nzmg(Parameters& par)
             {
                 typedef typename Parameters::type calc_t;
 

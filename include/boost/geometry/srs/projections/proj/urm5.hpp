@@ -103,7 +103,7 @@ namespace projections
 
             // Urmaev V
             template <typename Parameters, typename T>
-            void setup_urm5(Parameters& par, par_urm5<T>& proj_parm)
+            inline void setup_urm5(Parameters& par, par_urm5<T>& proj_parm)
             {
                 T alpha, t;
 

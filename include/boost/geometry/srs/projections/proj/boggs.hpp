@@ -120,7 +120,7 @@ namespace projections
 
             // Boggs Eumorphic
             template <typename Parameters>
-            void setup_boggs(Parameters& par)
+            inline void setup_boggs(Parameters& par)
             {
                 par.es = 0.;
             }

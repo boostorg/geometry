@@ -172,7 +172,7 @@ namespace projections
 
             // Lambert Conformal Conic
             template <typename Parameters, typename T>
-            void setup_lcc(Parameters& par, par_lcc<T>& proj_parm)
+            inline void setup_lcc(Parameters& par, par_lcc<T>& proj_parm)
             {
                 static const T FORTPI = detail::FORTPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();

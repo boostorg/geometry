@@ -253,7 +253,7 @@ namespace projections
 
             // Interrupted Goode Homolosine
             template <typename CalculationType, typename Parameters>
-            void setup_igh(Parameters& par, par_igh<CalculationType, Parameters>& proj_parm)
+            inline void setup_igh(Parameters& par, par_igh<CalculationType, Parameters>& proj_parm)
             {
                 static const CalculationType d0   =  0;
                 static const CalculationType d4044118 = igh::d4044118<CalculationType>();

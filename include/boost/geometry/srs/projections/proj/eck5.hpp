@@ -104,7 +104,7 @@ namespace projections
 
             // Eckert V
             template <typename Parameters>
-            void setup_eck5(Parameters& par)
+            inline void setup_eck5(Parameters& par)
             {
                 par.es = 0.;
             }

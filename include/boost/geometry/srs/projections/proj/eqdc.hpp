@@ -151,7 +151,7 @@ namespace projections
 
             // Equidistant Conic
             template <typename Parameters, typename T>
-            void setup_eqdc(Parameters& par, par_eqdc<T>& proj_parm)
+            inline void setup_eqdc(Parameters& par, par_eqdc<T>& proj_parm)
             {
                 T cosphi, sinphi;
                 int secant;

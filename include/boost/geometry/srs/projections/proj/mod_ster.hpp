@@ -182,7 +182,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_mod_ster<T>& proj_parm)  /* general initialization */
+            inline void setup(Parameters& par, par_mod_ster<T>& proj_parm)  /* general initialization */
             {
                 T esphi, chio;
 
@@ -199,7 +199,7 @@ namespace projections
 
             // Miller Oblated Stereographic
             template <typename Parameters, typename T>
-            void setup_mil_os(Parameters& par, par_mod_ster<T>& proj_parm)
+            inline void setup_mil_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
                 static COMPLEX<T> /* Miller Oblated Stereographic */
             AB[] = {
@@ -218,7 +218,7 @@ namespace projections
 
             // Lee Oblated Stereographic
             template <typename Parameters, typename T>
-            void setup_lee_os(Parameters& par, par_mod_ster<T>& proj_parm)
+            inline void setup_lee_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
                 static COMPLEX<T> /* Lee Oblated Stereographic */
             AB[] = {
@@ -237,7 +237,7 @@ namespace projections
 
             // Mod. Stererographics of 48 U.S.
             template <typename Parameters, typename T>
-            void setup_gs48(Parameters& par, par_mod_ster<T>& proj_parm)
+            inline void setup_gs48(Parameters& par, par_mod_ster<T>& proj_parm)
             {
                 static COMPLEX<T> /* 48 United States */
             AB[] = {
@@ -259,7 +259,7 @@ namespace projections
 
             // Mod. Stererographics of Alaska
             template <typename Parameters, typename T>
-            void setup_alsk(Parameters& par, par_mod_ster<T>& proj_parm)
+            inline void setup_alsk(Parameters& par, par_mod_ster<T>& proj_parm)
             {
                 static COMPLEX<T>
             ABe[] = { /* Alaska ellipsoid */
@@ -294,7 +294,7 @@ namespace projections
 
             // Mod. Stererographics of 50 U.S.
             template <typename Parameters, typename T>
-            void setup_gs50(Parameters& par, par_mod_ster<T>& proj_parm)
+            inline void setup_gs50(Parameters& par, par_mod_ster<T>& proj_parm)
             {
                 static COMPLEX<T>
             ABe[] = { /* GS50 ellipsoid */

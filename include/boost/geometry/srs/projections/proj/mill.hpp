@@ -103,7 +103,7 @@ namespace projections
 
             // Miller Cylindrical
             template <typename Parameters>
-            void setup_mill(Parameters& par)
+            inline void setup_mill(Parameters& par)
             {
                 par.es = 0.;
             }

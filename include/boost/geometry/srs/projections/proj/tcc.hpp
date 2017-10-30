@@ -106,7 +106,7 @@ namespace projections
 
             // Transverse Central Cylindrical
             template <typename Parameters, typename T>
-            void setup_tcc(Parameters& par, par_tcc<T>& proj_parm)
+            inline void setup_tcc(Parameters& par, par_tcc<T>& proj_parm)
             {
                 par.es = 0.;
             }

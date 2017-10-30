@@ -230,7 +230,7 @@ namespace projections
 
             // Bipolar conic of western hemisphere
             template <typename Parameters>
-            void setup_bipc(Parameters& par, par_bipc& proj_parm)
+            inline void setup_bipc(Parameters& par, par_bipc& proj_parm)
             {
                 proj_parm.noskew = pj_param(par.params, "bns").i;
                 par.es = 0.;

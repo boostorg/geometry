@@ -109,7 +109,7 @@ namespace projections
 
             // Denoyer Semi-Elliptical
             template <typename Parameters>
-            void setup_denoy(Parameters& par)
+            inline void setup_denoy(Parameters& par)
             {
                 par.es = 0.;
             }

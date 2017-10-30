@@ -164,7 +164,7 @@ namespace projections
 
             // Natural Earth
             template <typename Parameters>
-            void setup_natearth(Parameters& par)
+            inline void setup_natearth(Parameters& par)
             {
                 par.es = 0;
             }

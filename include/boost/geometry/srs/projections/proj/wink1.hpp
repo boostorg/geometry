@@ -107,7 +107,7 @@ namespace projections
 
             // Winkel I
             template <typename Parameters, typename T>
-            void setup_wink1(Parameters& par, par_wink1<T>& proj_parm)
+            inline void setup_wink1(Parameters& par, par_wink1<T>& proj_parm)
             {
                 proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_ts").f);
                 par.es = 0.;

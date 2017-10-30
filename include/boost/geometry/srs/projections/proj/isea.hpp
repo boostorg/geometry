@@ -1163,7 +1163,7 @@ namespace projections
 
             // Icosahedral Snyder Equal Area
             template <typename Parameters, typename T>
-            void setup_isea(Parameters& par, par_isea<T>& proj_parm)
+            inline void setup_isea(Parameters& par, par_isea<T>& proj_parm)
             {
                 std::string opt;
 

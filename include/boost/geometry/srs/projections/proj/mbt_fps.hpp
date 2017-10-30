@@ -130,7 +130,7 @@ namespace projections
 
             // McBryde-Thomas Flat-Pole Sine (No. 2)
             template <typename Parameters>
-            void setup_mbt_fps(Parameters& par)
+            inline void setup_mbt_fps(Parameters& par)
             {
                 par.es = 0;
             }

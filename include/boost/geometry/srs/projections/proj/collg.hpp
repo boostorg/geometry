@@ -119,7 +119,7 @@ namespace projections
 
             // Collignon
             template <typename Parameters>
-            void setup_collg(Parameters& par)
+            inline void setup_collg(Parameters& par)
             {
                 par.es = 0.;
             }

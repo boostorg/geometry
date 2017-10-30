@@ -144,7 +144,7 @@ namespace projections
 
             // McBryde-Thomas Flat-Polar Quartic
             template <typename Parameters>
-            void setup_mbtfpq(Parameters& par)
+            inline void setup_mbtfpq(Parameters& par)
             {
                 par.es = 0.;
             }

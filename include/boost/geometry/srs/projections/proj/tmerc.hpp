@@ -300,7 +300,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_tmerc<T>& proj_parm)  /* general initialization */
+            inline void setup(Parameters& par, par_tmerc<T>& proj_parm)  /* general initialization */
             {
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en))
@@ -316,14 +316,14 @@ namespace projections
 
             // Transverse Mercator
             template <typename Parameters, typename T>
-            void setup_tmerc(Parameters& par, par_tmerc<T>& proj_parm)
+            inline void setup_tmerc(Parameters& par, par_tmerc<T>& proj_parm)
             {
                 setup(par, proj_parm);
             }
 
             // Universal Transverse Mercator (UTM)
             template <typename Parameters, typename T>
-            void setup_utm(Parameters& par, par_tmerc<T>& proj_parm)
+            inline void setup_utm(Parameters& par, par_tmerc<T>& proj_parm)
             {
                 static const T ONEPI = detail::ONEPI<T>();
 

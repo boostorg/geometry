@@ -118,7 +118,7 @@ namespace projections
 
             // Lagrange
             template <typename Parameters, typename T>
-            void setup_lagrng(Parameters& par, par_lagrng<T>& proj_parm)
+            inline void setup_lagrng(Parameters& par, par_lagrng<T>& proj_parm)
             {
                 T phi1;
 

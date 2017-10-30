@@ -193,7 +193,7 @@ namespace projections
 
             // van der Grinten (I)
             template <typename Parameters>
-            void setup_vandg(Parameters& par)
+            inline void setup_vandg(Parameters& par)
             {
                 par.es = 0.;
             }

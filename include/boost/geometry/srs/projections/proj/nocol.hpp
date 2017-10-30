@@ -125,7 +125,7 @@ namespace projections
 
             // Nicolosi Globular
             template <typename Parameters>
-            void setup_nicol(Parameters& par)
+            inline void setup_nicol(Parameters& par)
             {
                 par.es = 0.;
             }

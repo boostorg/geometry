@@ -116,7 +116,7 @@ namespace projections
 
             // Nell
             template <typename Parameters>
-            void setup_nell(Parameters& par)
+            inline void setup_nell(Parameters& par)
             {
                 par.es = 0;
             }

@@ -105,7 +105,7 @@ namespace projections
 
             // Gall (Gall Stereographic)
             template <typename Parameters>
-            void setup_gall(Parameters& par)
+            inline void setup_gall(Parameters& par)
             {
                 par.es = 0.;
             }

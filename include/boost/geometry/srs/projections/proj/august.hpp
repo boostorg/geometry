@@ -103,7 +103,7 @@ namespace projections
 
             // August Epicycloidal
             template <typename Parameters>
-            void setup_august(Parameters& par)
+            inline void setup_august(Parameters& par)
             {
                 par.es = 0.;
             }

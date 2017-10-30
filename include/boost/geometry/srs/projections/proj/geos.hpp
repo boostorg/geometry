@@ -255,7 +255,7 @@ namespace projections
 
             // Geostationary Satellite View
             template <typename Parameters, typename T>
-            void setup_geos(Parameters& par, par_geos<T>& proj_parm)
+            inline void setup_geos(Parameters& par, par_geos<T>& proj_parm)
             {
                 if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-30) );

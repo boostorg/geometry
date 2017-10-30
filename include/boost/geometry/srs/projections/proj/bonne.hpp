@@ -187,7 +187,7 @@ namespace projections
 
             // Bonne (Werner lat_1=90)
             template <typename Parameters, typename T>
-            void setup_bonne(Parameters& par, par_bonne<T>& proj_parm)
+            inline void setup_bonne(Parameters& par, par_bonne<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

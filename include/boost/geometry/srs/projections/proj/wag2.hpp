@@ -108,7 +108,7 @@ namespace projections
 
             // Wagner II
             template <typename Parameters>
-            void setup_wag2(Parameters& par)
+            inline void setup_wag2(Parameters& par)
             {
                 par.es = 0.;
             }

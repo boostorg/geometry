@@ -132,7 +132,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_moll<T>& proj_parm, T const& p) 
+            inline void setup(Parameters& par, par_moll<T>& proj_parm, T const& p) 
             {
                 T r, sp, p2 = p + p;
 
@@ -147,21 +147,21 @@ namespace projections
 
             // Mollweide
             template <typename Parameters, typename T>
-            void setup_moll(Parameters& par, par_moll<T>& proj_parm)
+            inline void setup_moll(Parameters& par, par_moll<T>& proj_parm)
             {
                 setup(par, proj_parm, geometry::math::half_pi<T>());
             }
 
             // Wagner IV
             template <typename Parameters, typename T>
-            void setup_wag4(Parameters& par, par_moll<T>& proj_parm)
+            inline void setup_wag4(Parameters& par, par_moll<T>& proj_parm)
             {
                 setup(par, proj_parm, geometry::math::pi<T>()/3.);
             }
 
             // Wagner V
             template <typename Parameters, typename T>
-            void setup_wag5(Parameters& par, par_moll<T>& proj_parm)
+            inline void setup_wag5(Parameters& par, par_moll<T>& proj_parm)
             {
                 par.es = 0;
                 proj_parm.C_x = 0.90977;

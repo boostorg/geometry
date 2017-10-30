@@ -103,7 +103,7 @@ namespace projections
 
             // Eckert I
             template <typename Parameters>
-            void setup_eck1(Parameters& par)
+            inline void setup_eck1(Parameters& par)
             {
                 par.es = 0.;
             }

@@ -106,7 +106,7 @@ namespace projections
 
             // Geocentric
             template <typename Parameters>
-            void setup_geocent(Parameters& par)
+            inline void setup_geocent(Parameters& par)
             {
                 par.is_geocent = 1;
                 par.x0 = 0.0;

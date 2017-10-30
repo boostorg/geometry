@@ -108,7 +108,7 @@ namespace projections
 
             // Laskowski
             template <typename Parameters>
-            void setup_lask(Parameters& par)
+            inline void setup_lask(Parameters& par)
             {
                 par.es = 0.;
             }

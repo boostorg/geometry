@@ -156,7 +156,7 @@ namespace projections
 
             // Mercator
             template <typename Parameters>
-            void setup_merc(Parameters& par)
+            inline void setup_merc(Parameters& par)
             {
                 typedef typename Parameters::type calc_t;
                 static const calc_t HALFPI = detail::HALFPI<calc_t>();

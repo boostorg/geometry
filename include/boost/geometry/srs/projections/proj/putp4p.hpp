@@ -114,7 +114,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_putp4p<T>& proj_parm) 
+            inline void setup(Parameters& par, par_putp4p<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -123,7 +123,7 @@ namespace projections
 
             // Putnins P4'
             template <typename Parameters, typename T>
-            void setup_putp4p(Parameters& par, par_putp4p<T>& proj_parm)
+            inline void setup_putp4p(Parameters& par, par_putp4p<T>& proj_parm)
             {
                 proj_parm.C_x = 0.874038744;
                 proj_parm.C_y = 3.883251825;
@@ -132,7 +132,7 @@ namespace projections
 
             // Werenskiold I
             template <typename Parameters, typename T>
-            void setup_weren(Parameters& par, par_putp4p<T>& proj_parm)
+            inline void setup_weren(Parameters& par, par_putp4p<T>& proj_parm)
             {
                 proj_parm.C_x = 1.;
                 proj_parm.C_y = 4.442882938;

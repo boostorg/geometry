@@ -116,7 +116,7 @@ namespace projections
 
             // Rectangular Polyconic
             template <typename Parameters, typename T>
-            void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
+            inline void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
             {
                 if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_param(par.params, "rlat_ts").f)) > EPS)) {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);

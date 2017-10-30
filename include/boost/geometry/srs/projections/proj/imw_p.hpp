@@ -208,7 +208,7 @@ namespace projections
 
             // International Map of the World Polyconic
             template <typename Parameters, typename T>
-            void setup_imw_p(Parameters& par, par_imw_p<T>& proj_parm)
+            inline void setup_imw_p(Parameters& par, par_imw_p<T>& proj_parm)
             {
                 T del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int i;

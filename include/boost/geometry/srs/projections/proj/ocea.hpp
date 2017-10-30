@@ -131,7 +131,7 @@ namespace projections
 
             // Oblique Cylindrical Equal Area
             template <typename Parameters, typename T>
-            void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
+            inline void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 

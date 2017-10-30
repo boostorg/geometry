@@ -111,7 +111,7 @@ namespace projections
 
             // Transverse Cylindrical Equal Area
             template <typename Parameters, typename T>
-            void setup_tcea(Parameters& par, par_tcea<T>& proj_parm)
+            inline void setup_tcea(Parameters& par, par_tcea<T>& proj_parm)
             {
                 proj_parm.rk0 = 1 / par.k0;
                 par.es = 0.;

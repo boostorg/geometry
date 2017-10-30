@@ -120,7 +120,7 @@ namespace projections
 
             // Apian Globular I
             template <typename Parameters>
-            void setup_apian(Parameters& par, par_bacon& proj_parm)
+            inline void setup_apian(Parameters& par, par_bacon& proj_parm)
             {
                 proj_parm.bacn = proj_parm.ortl = 0;
                 par.es = 0.;
@@ -128,7 +128,7 @@ namespace projections
 
             // Ortelius Oval
             template <typename Parameters>
-            void setup_ortel(Parameters& par, par_bacon& proj_parm)
+            inline void setup_ortel(Parameters& par, par_bacon& proj_parm)
             {
                 proj_parm.bacn = 0;
                 proj_parm.ortl = 1;
@@ -137,7 +137,7 @@ namespace projections
 
             // Bacon Globular
             template <typename Parameters>
-            void setup_bacon(Parameters& par, par_bacon& proj_parm)
+            inline void setup_bacon(Parameters& par, par_bacon& proj_parm)
             {
                 proj_parm.bacn = 1;
                 proj_parm.ortl = 0;

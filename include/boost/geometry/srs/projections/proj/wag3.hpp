@@ -110,7 +110,7 @@ namespace projections
 
             // Wagner III
             template <typename Parameters, typename T>
-            void setup_wag3(Parameters& par, par_wag3<T>& proj_parm)
+            inline void setup_wag3(Parameters& par, par_wag3<T>& proj_parm)
             {
                 T ts;
 

@@ -229,7 +229,7 @@ namespace projections
 
             // Space oblique for LANDSAT
             template <typename Parameters, typename T>
-            void setup_lsat(Parameters& par, par_lsat<T>& proj_parm)
+            inline void setup_lsat(Parameters& par, par_lsat<T>& proj_parm)
             {
                 int land, path;
                 T lam, alf, esc, ess;

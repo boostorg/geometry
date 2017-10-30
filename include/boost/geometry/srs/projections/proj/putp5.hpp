@@ -112,7 +112,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            void setup(Parameters& par, par_putp5<T>& proj_parm) 
+            inline void setup(Parameters& par, par_putp5<T>& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
@@ -121,7 +121,7 @@ namespace projections
 
             // Putnins P5
             template <typename Parameters, typename T>
-            void setup_putp5(Parameters& par, par_putp5<T>& proj_parm)
+            inline void setup_putp5(Parameters& par, par_putp5<T>& proj_parm)
             {
                 proj_parm.A = 2.;
                 proj_parm.B = 1.;
@@ -130,7 +130,7 @@ namespace projections
 
             // Putnins P5'
             template <typename Parameters, typename T>
-            void setup_putp5p(Parameters& par, par_putp5<T>& proj_parm)
+            inline void setup_putp5p(Parameters& par, par_putp5<T>& proj_parm)
             {
                 proj_parm.A = 1.5;
                 proj_parm.B = 0.5;
