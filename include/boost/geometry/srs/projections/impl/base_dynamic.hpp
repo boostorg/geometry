@@ -92,7 +92,14 @@ template <typename Prj, typename CT, typename P>
 class base_v_f : public base_v<CT, P>
 {
 public:
-    base_v_f(P const& params) : m_proj(params) {}
+    base_v_f(P const& params)
+        : m_proj(params)
+    {}
+
+    template <typename ProjP>
+    base_v_f(P const& params, ProjP const& proj_params)
+        : m_proj(params, proj_params)
+    {}
 
     virtual void fwd(CT& lp_lon, CT& lp_lat, CT& xy_x, CT& xy_y) const
     {
@@ -121,7 +128,14 @@ class base_v_fi : public base_v_f<Prj, CT, P>
     typedef base_v_f<Prj, CT, P> base_t;
 
 public:
-    base_v_fi(P const& params) : base_t(params) {}
+    base_v_fi(P const& params)
+        : base_t(params)
+    {}
+
+    template <typename ProjP>
+    base_v_fi(P const& params, ProjP const& proj_params)
+        : base_t(params, proj_params)
+    {}
 
     virtual void inv(CT& xy_x, CT& xy_y, CT& lp_lon, CT& lp_lat) const
     {

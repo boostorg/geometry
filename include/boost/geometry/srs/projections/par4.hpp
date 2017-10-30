@@ -428,6 +428,22 @@ struct pick_ellps
 {};
 
 
+template <typename Tuple>
+struct pick_o_proj_tag
+{
+    typedef typename tuples_find_if
+        <
+            Tuple, is_param_t<o_proj>::is_same
+        >::type proj_type;
+
+    static const bool is_non_void = ! boost::is_same<proj_type, void>::value;
+
+    BOOST_MPL_ASSERT_MSG((is_non_void), PROJECTION_NOT_NAMED, (Tuple));
+
+    typedef typename proj_type::type type;
+};
+
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
