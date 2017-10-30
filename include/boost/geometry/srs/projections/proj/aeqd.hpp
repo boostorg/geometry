@@ -97,7 +97,7 @@ namespace projections
             };
 
             template <typename T, typename Par, typename ProjParm>
-            void e_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            inline void e_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
             {
                 T  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
 
@@ -139,7 +139,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            void e_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            inline void e_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
@@ -176,7 +176,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            void e_guam_fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            inline void e_guam_fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
             {
                 T cosphi, sinphi, t;
 
@@ -189,7 +189,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            void e_guam_inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            inline void e_guam_inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
                 T x2, t;
                 int i;
@@ -205,7 +205,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            inline void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
                     
@@ -247,7 +247,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            void s_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
+            inline void s_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
                 static const T ONEPI = detail::ONEPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();
@@ -288,7 +288,7 @@ namespace projections
 
             // Azimuthal Equidistant
             template <typename Parameters, typename T>
-            void setup_aeqd(Parameters& par, par_aeqd<T>& proj_parm, bool is_sphere, bool is_guam)
+            inline void setup_aeqd(Parameters& par, par_aeqd<T>& proj_parm, bool is_sphere, bool is_guam)
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
