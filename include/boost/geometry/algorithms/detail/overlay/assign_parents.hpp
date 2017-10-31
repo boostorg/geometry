@@ -107,21 +107,19 @@ static inline bool within_selected_input(Item const& item2,
 }
 
 
-template <typename Point>
+template <typename Point, typename AreaType>
 struct ring_info_helper
 {
-    typedef typename geometry::default_area_result<Point>::type area_type;
-
     ring_identifier id;
-    area_type real_area;
-    area_type abs_area;
+    AreaType real_area;
+    AreaType abs_area;
     model::box<Point> envelope;
 
     inline ring_info_helper()
         : real_area(0), abs_area(0)
     {}
 
-    inline ring_info_helper(ring_identifier i, area_type a)
+    inline ring_info_helper(ring_identifier i, AreaType const& a)
         : id(i), real_area(a), abs_area(geometry::math::abs(a))
     {}
 };
@@ -226,7 +224,8 @@ inline void assign_parents(Geometry1 const& geometry1,
             RingCollection const& collection,
             RingMap& ring_map,
             Strategy const& strategy,
-            bool check_for_orientation = false)
+            bool check_for_orientation = false,
+            bool discard_double_negative = false)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
@@ -234,11 +233,15 @@ inline void assign_parents(Geometry1 const& geometry1,
     typedef typename RingMap::mapped_type ring_info_type;
     typedef typename ring_info_type::point_type point_type;
     typedef model::box<point_type> box_type;
+    typedef typename Strategy::template area_strategy
+        <
+            point_type
+        >::type::return_type area_result_type;
 
     typedef typename RingMap::iterator map_iterator_type;
 
     {
-        typedef ring_info_helper<point_type> helper;
+        typedef ring_info_helper<point_type, area_result_type> helper;
         typedef std::vector<helper> vector_type;
         typedef typename boost::range_iterator<vector_type const>::type vector_iterator_type;
 
@@ -332,28 +335,38 @@ inline void assign_parents(Geometry1 const& geometry1,
         for (map_iterator_type it = boost::begin(ring_map);
             it != boost::end(ring_map); ++it)
         {
-            if (geometry::math::equals(it->second.get_area(), 0))
+            ring_info_type& info = it->second;
+            if (geometry::math::equals(info.get_area(), 0))
             {
-                it->second.discarded = true;
+                info.discarded = true;
             }
-            else if (it->second.parent.source_index >= 0
-                    && math::larger(it->second.get_area(), 0))
+            else if (info.parent.source_index >= 0)
             {
-                const ring_info_type& parent = ring_map[it->second.parent];
+                const ring_info_type& parent = ring_map[info.parent];
+                bool const pos = math::larger(info.get_area(), 0);
+                bool const parent_pos = math::larger(parent.area, 0);
 
-                if (math::larger(parent.area, 0))
+                bool const double_neg = discard_double_negative && ! pos && ! parent_pos;
+
+                if ((pos && parent_pos) || double_neg)
                 {
                     // Discard positive inner ring with positive parent
-                    it->second.discarded = true;
+                    // Also, for some cases (dissolve), negative inner ring
+                    // with negative parent shouild be discarded
+                    info.discarded = true;
                 }
-                // Remove parent ID from any positive inner ring
-                it->second.parent.source_index = -1;
+
+                if (pos || info.discarded)
+                {
+                    // Remove parent ID from any positive or discarded inner rings
+                    info.parent.source_index = -1;
+                }
             }
-            else if (it->second.parent.source_index < 0
-                    && math::smaller(it->second.get_area(), 0))
+            else if (info.parent.source_index < 0
+                    && math::smaller(info.get_area(), 0))
             {
                 // Reverse negative ring without parent
-                it->second.reversed = true;
+                info.reversed = true;
             }
         }
     }
@@ -370,7 +383,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 }
 
 
-// Version for one geometry (called by buffer)
+// Version for one geometry (called by buffer/dissolve)
 template
 <
     typename Geometry,
@@ -382,13 +395,15 @@ inline void assign_parents(Geometry const& geometry,
             RingCollection const& collection,
             RingMap& ring_map,
             Strategy const& strategy,
-            bool check_for_orientation)
+            bool check_for_orientation,
+            bool discard_double_negative)
 {
     // Call it with an empty geometry as second geometry (source_id == 1)
     // (ring_map should be empty for source_id==1)
 
     Geometry empty;
-    assign_parents(geometry, empty, collection, ring_map, strategy, check_for_orientation);
+    assign_parents(geometry, empty, collection, ring_map, strategy,
+                   check_for_orientation, discard_double_negative);
 }
 
 

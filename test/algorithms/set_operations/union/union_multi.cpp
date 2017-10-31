@@ -204,6 +204,10 @@ void test_areal()
     TEST_UNION(case_135_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_136_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_137_multi, 1, 2, -1, 22.0);
+    TEST_UNION(case_138_multi, 2, 1, -1, 65.225);
+    TEST_UNION(case_139_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
@@ -382,6 +386,33 @@ void test_areal()
 #endif
 
     TEST_UNION(case_recursive_boxes_60, 3, 0, -1, 20.5);
+    TEST_UNION(case_recursive_boxes_61, 1, 1, -1, 23.5);
+    TEST_UNION(case_recursive_boxes_62, 2, 3, -1, 21.25);
+    TEST_UNION(case_recursive_boxes_63, 2, 3, -1, 44.0);
+    TEST_UNION(case_recursive_boxes_64, 1, 2, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_65, 1, 1, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_66, 1, 1, -1, 24.75);
+    TEST_UNION(case_recursive_boxes_67, 4, 0, -1, 14.75);
+    TEST_UNION(case_recursive_boxes_68, 1, 4, -1, 22.5);
+    TEST_UNION(case_recursive_boxes_69, 4, 0, -1, 16.25);
+    TEST_UNION(case_recursive_boxes_70, 1, 0, -1, 25.0);
+    TEST_UNION(case_recursive_boxes_71, 4, 2, -1, 15.75);
+    TEST_UNION(case_recursive_boxes_72, 10, 0, -1, 15.0);
+    TEST_UNION(case_recursive_boxes_73, 1, 2, -1, 24.25);
+    TEST_UNION(case_recursive_boxes_74, 1, 1, -1, 24.75);
+    TEST_UNION(case_recursive_boxes_75, 1, 2, -1, 23.25);
+    TEST_UNION(case_recursive_boxes_76, 1, 0, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_77, 8, 1, -1, 13.5);
+    TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
+    TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
+
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // This is correct: no holes generated
+    TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
+#else
+    // See comment for this testcase
+    TEST_UNION(case_recursive_boxes_80, 2, 1, -1, 1.5);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -421,6 +452,8 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
+    TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
+
     // Should have 1 hole. Needs self turns.
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
@@ -438,6 +471,8 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
         mysql_23023665_9[0], mysql_23023665_9[1],
         1, 9, -1, 1250.0);
+
+    TEST_UNION(mysql_regression_1_65_2017_08_31, 3, 0, -1, 181.966397646608);
 }
 
 // Test cases (generic)

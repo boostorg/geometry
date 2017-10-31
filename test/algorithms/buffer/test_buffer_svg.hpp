@@ -25,6 +25,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
 
 
 inline char piece_type_char(bg::strategy::buffer::piece_type const& type)

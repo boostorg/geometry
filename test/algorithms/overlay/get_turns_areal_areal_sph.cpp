@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -62,6 +62,10 @@ void test_all()
                               expected("mcc")("cui"));
     test_geometry<poly, poly>(case_18_sph[0], case_18_sph[1],
                               expected("mcc")("ccc")("ccc")("cui"));
+
+    test_geometry<poly, poly>("POLYGON((16 15,-132 10,-56 89,67 5,16 15))",
+                              "POLYGON((101 49,12 40,-164 10,117 0,101 49))",
+                              expected("iiu")("iui"));
 }
 
 int test_main(int, char* [])

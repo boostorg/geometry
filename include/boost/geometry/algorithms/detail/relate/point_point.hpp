@@ -21,8 +21,9 @@
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-#include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
 
 namespace boost { namespace geometry
 {
@@ -213,7 +214,9 @@ struct multipoint_multipoint
         // sort points from the 1 MPt
         typedef typename geometry::point_type<SortedMultiPoint>::type point_type;
         std::vector<point_type> points(boost::begin(sorted_mpt), boost::end(sorted_mpt));
-        std::sort(points.begin(), points.end(), less());
+
+        geometry::less<> const less = geometry::less<>();
+        std::sort(points.begin(), points.end(), less);
 
         bool found_inside = false;
         bool found_outside = false;
@@ -224,7 +227,7 @@ struct multipoint_multipoint
               it != boost::end(iterated_mpt) ; ++it )
         {
             bool ii =
-                std::binary_search(points.begin(), points.end(), *it, less());
+                std::binary_search(points.begin(), points.end(), *it, less);
             if ( ii )
                 found_inside = true;
             else

@@ -19,6 +19,7 @@
 
 #include <geometry_test_common.hpp>
 #include "../setop_output_type.hpp"
+#include "../check_validity.hpp"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
@@ -71,42 +72,6 @@ inline void check_input_validity(std::string const& caseid, int case_index,
 }
 #endif
 
-template
-<
-    typename Geometry,
-    typename Tag = typename bg::tag<Geometry>::type
->
-struct check_validity
-{
-    static inline
-    bool apply(Geometry const& geometry, std::string& message)
-    {
-        if (! bg::is_valid(geometry, message))
-        {
-            std::cout << bg::wkt(geometry) << std::endl;
-        }
-        return bg::is_valid(geometry, message);
-    }
-};
-
-// Specialization for vector of <geometry> (e.g. rings)
-template <typename Geometry>
-struct check_validity<Geometry, void>
-{
-    static inline
-    bool apply(Geometry const& geometry, std::string& message)
-    {
-        typedef typename boost::range_value<Geometry>::type single_type;
-        BOOST_FOREACH(single_type const& element, geometry)
-        {
-            if (! bg::is_valid(element, message))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-};
 
 
 template <typename Range>

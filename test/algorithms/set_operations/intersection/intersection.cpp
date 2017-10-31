@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -48,8 +48,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
 #if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
     #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-        { ut_settings ignore_validity; \
-        ignore_validity.test_validity = false; \
+        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
         (test_one<Polygon, Polygon, Polygon>) \
         ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 #endif
@@ -603,6 +602,27 @@ void test_areal_linear()
     typedef typename bg::point_type<Polygon>::type Point;
     test_one<LineString, bg::model::ring<Point>, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
 
+    test_one_lp<LineString, Polygon, LineString>("case30",
+        "POLYGON((25 0,0 15,30 15,22 10,25 0))",
+        "LINESTRING(10 15,20 15)",
+        1, 2, 10.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case31",
+        "POLYGON((25 0,0 15,30 15,22 10,25 0))",
+        "LINESTRING(0 15,20 15)",
+        1, 2, 20.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case32",
+        "POLYGON((25 0,0 15,30 15,22 10,25 0))",
+        "LINESTRING(25 0, 0 15,20 15)",
+        1, 3, 49.15475947422650 /*sqrt(25^2+15^2)+20*/);
+
+    typedef typename bg::point_type<Polygon>::type P;
+
+    test_one_lp<P, Polygon, LineString>("case30p",
+        "POLYGON((25 0,0 15,30 15,22 10,25 0))",
+        "LINESTRING(10 15,20 15)",
+        2, 2, 0);
 }
 
 

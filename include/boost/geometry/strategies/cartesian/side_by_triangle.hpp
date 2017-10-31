@@ -4,10 +4,11 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017.
+// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -29,9 +30,9 @@
 
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
@@ -182,10 +183,11 @@ public :
             // arguments, we cyclically permute them so that the first
             // argument is always the lexicographically smallest point.
 
-            geometry::detail::relate::less less;
-            if (less(p, p1))
+            typedef compare::cartesian<compare::less> less;
+
+            if (less::apply(p, p1))
             {
-                if (less(p, p2))
+                if (less::apply(p, p2))
                 {
                     // p is the lexicographically smallest
                     return side_value<CoordinateType, PromotedType>(p, p1, p2, epsp);
@@ -197,7 +199,7 @@ public :
                 }
             }
 
-            if (less(p1, p2))
+            if (less::apply(p1, p2))
             {
                 // p1 is the lexicographically smallest
                 return side_value<CoordinateType, PromotedType>(p1, p2, p, epsp);

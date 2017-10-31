@@ -66,7 +66,7 @@ struct side_calculator
     Qj const& m_qj;
     Qk const& m_qk;
 
-    SideStrategy const& m_side_strategy;
+    SideStrategy m_side_strategy;
 };
 
 template <typename Point1, typename Point2, typename RobustPolicy>
