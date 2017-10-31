@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2016 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2016 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016,2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -482,6 +482,33 @@ void test_areal()
         1, 1, -1, 220.5);
 }
 
+void test_geographic()
+{
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > point;
+    typedef bg::model::polygon<point> polygon;
+    typedef bg::model::multi_polygon<polygon> multipolygon;
+
+    bg::srs::spheroid<double> sph(6378137.0000000000, 6356752.3142451793);
+
+    bg::strategy::intersection::geographic_segments<> is(sph);
+    bg::strategy::area::geographic<point> as(sph);
+    
+    polygon p1, p2;
+
+    boost::geometry::read_wkt("POLYGON((16 15,-132 10,-56 89,67 5,16 15))", p1);
+    boost::geometry::read_wkt("POLYGON((101 49,12 40,-164 10,117 0,101 49))", p2);
+
+    multipolygon result;
+    boost::geometry::union_(p1, p2, result, is);
+
+    double result_area = bg::area(result, as);
+
+    BOOST_CHECK(boost::size(result) == 1
+             && boost::size(bg::exterior_ring(bg::range::at(result, 0))) == 9
+             && boost::size(bg::interior_rings(bg::range::at(result, 0))) == 0);
+    BOOST_CHECK_CLOSE(result_area, 144265751613509.06, 0.001);
+}
+
 template <typename P>
 void test_all()
 {
@@ -556,6 +583,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 #endif
+
+    test_geographic();
 
     return 0;
 }

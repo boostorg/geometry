@@ -260,17 +260,19 @@ struct linear_areal
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
 
+        typedef typename IntersectionStrategy::template point_in_geometry_strategy<Geometry1, Geometry2>::type within_strategy_type;
+        within_strategy_type const within_strategy = intersection_strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>();
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         no_turns_la_linestring_pred
             <
                 Geometry2,
                 Result,
-                typename IntersectionStrategy::template point_in_geometry_strategy<Geometry1, Geometry2>::type,
+                within_strategy_type,
                 boundary_checker<Geometry1>,
                 TransposeResult
             > pred1(geometry2,
                     result,
-                    intersection_strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>(),
+                    within_strategy,
                     boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
