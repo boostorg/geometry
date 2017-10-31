@@ -72,10 +72,11 @@ struct self_intersects
         rescale_policy_type robust_policy;
 
         detail::disjoint::disjoint_interrupt_policy policy;
+    // TODO: skip_adjacent should be set to false
         detail::self_get_turn_points::get_turns
             <
                 false, turn_policy
-            >::apply(geometry, strategy, robust_policy, turns, policy, 0);
+            >::apply(geometry, strategy, robust_policy, turns, policy, 0, true);
         return policy.has_intersections;
     }
 };

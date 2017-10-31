@@ -416,6 +416,9 @@ inline void enrich_intersection_points(Turns& turns,
         detail::overlay::enrich_assign(mit->second, turns);
     }
 
+    // Check some specific type of self-turns (after getting enriched info)
+    detail::overlay::discard_self_turns_which_loop<OverlayType>(turns);
+
     if (has_colocations)
     {
         // First gather cluster properties (using even clusters with

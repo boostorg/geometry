@@ -232,6 +232,61 @@ struct discard_open_turns<overlay_intersection, operation_intersection>
 
 // For difference, it should be done in a different way (TODO)
 
+
+template <overlay_type OverlayType, typename Turns>
+inline void discard_self_turns_which_loop(Turns& turns)
+{
+    if (operation_from_overlay<OverlayType>::value == operation_union)
+    {
+        // For union, self-turn i/u traveling to itself are allowed to form
+        // holes. #case_recursive_boxes_37
+        // TODO: this can be finetuned by inspecting the cluster too,
+        // and if there are non-self-turns the polygons on their sides can
+        // be checked
+        return;
+    }
+
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type op_type;
+
+    signed_size_type turn_index = 0;
+    for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
+         ++it, ++turn_index)
+    {
+        turn_type& turn = *it;
+
+        if (! is_self_turn<OverlayType>(turn))
+        {
+            continue;
+        }
+        if (! turn.combination(operation_intersection, operation_union))
+        {
+            // ii may travel to itself
+            continue;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            op_type& op = turn.operations[i];
+
+            if (op.enriched.startable
+                && op.operation == operation_intersection
+                && op.enriched.get_next_turn_index() == turn_index)
+            {
+                // Self-turn i/u, i part traveling to itself. Discard it.
+                // (alternatively it might be made unstartable - but the
+                // intersection-operation may not be traveled anyway, and the
+                // union-operation is not traveled at all in intersections
+                // #case_recursive_boxes_77
+                turn.discarded = true;
+            }
+        }
+    }
+
+}
+
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
 

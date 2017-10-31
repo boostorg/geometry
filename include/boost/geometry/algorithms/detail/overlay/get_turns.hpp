@@ -144,7 +144,7 @@ class get_turns_in_sections
 
 
     template <typename Geometry, typename Section>
-    static inline bool neighbouring(Section const& section,
+    static inline bool adjacent(Section const& section,
             signed_size_type index1, signed_size_type index2)
     {
         // About n-2:
@@ -152,7 +152,7 @@ class get_turns_in_sections
         //    -> 0-3 are adjacent, don't check on intersections)
         // Also tested for open polygons, and/or duplicates
         // About first condition: will be optimized by compiler (static)
-        // It checks if it is areal (box,ring,(multi)polygon
+        // It checks if it is areal (box, ring, (multi)polygon)
         signed_size_type const n = static_cast<signed_size_type>(section.range_count);
 
         boost::ignore_unused_variable_warning(n);
@@ -180,7 +180,7 @@ public :
     static inline bool apply(
             int source_id1, Geometry1 const& geometry1, Section1 const& sec1,
             int source_id2, Geometry2 const& geometry2, Section2 const& sec2,
-            bool skip_larger,
+            bool skip_larger, bool skip_adjacent,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
             Turns& turns,
@@ -213,11 +213,6 @@ public :
         int const dir2 = sec2.directions[0];
         signed_size_type index1 = sec1.begin_index;
         signed_size_type ndi1 = sec1.non_duplicate_index;
-
-        bool const same_source =
-            source_id1 == source_id2
-                    && sec1.ring_id.multi_index == sec2.ring_id.multi_index
-                    && sec1.ring_id.ring_index == sec2.ring_id.ring_index;
 
         range1_iterator prev1, it1, end1;
 
@@ -254,22 +249,32 @@ public :
                 it2 != end2 && ! detail::section::exceeding<0>(dir2, *prev2, sec2.bounding_box, sec1.bounding_box, robust_policy);
                 ++prev2, ++it2, ++index2, ++next2, ++ndi2)
             {
-                bool skip = same_source;
-                if (skip)
+                bool skip = false;
+
+                if (source_id1 == source_id2
+                        && sec1.ring_id.multi_index == sec2.ring_id.multi_index
+                        && sec1.ring_id.ring_index == sec2.ring_id.ring_index)
                 {
-                    // If sources are the same (possibly self-intersecting):
-                    // skip if it is a neighbouring segment.
-                    // (including first-last segment
-                    //  and two segments with one or more degenerate/duplicate
-                    //  (zero-length) segments in between)
+                    // Sources and rings are the same
 
-                    // Also skip if index1 < index2 to avoid getting all
-                    // intersections twice (only do this on same source!)
+                    if (skip_larger && index1 >= index2)
+                    {
+                        // Skip to avoid getting all intersections twice
+                        skip = true;
+                    }
+                    else if (skip_adjacent)
+                    {
+                        // In some cases (dissolve, has_self_intersections)
+                        // neighbouring segments should be checked
+                        // (for example to detect spikes properly)
 
-                    skip = (skip_larger && index1 >= index2)
-                        || ndi2 == ndi1 + 1
-                        || neighbouring<Geometry1>(sec1, index1, index2)
-                        ;
+                        // skip if it is a neighbouring segment.
+                        // (including, for areas, first-last segment
+                        //  and two segments with one or more degenerate/duplicate
+                        //  (zero-length) segments in between)
+                        skip = ndi2 == ndi1 + 1
+                            || adjacent<Geometry1>(sec1, index1, index2);
+                    }
                 }
 
                 if (! skip)
@@ -431,7 +436,7 @@ struct section_visitor
                         TurnPolicy
                     >::apply(m_source_id1, m_geometry1, sec1,
                              m_source_id2, m_geometry2, sec2,
-                             false,
+                             false, false,
                              m_intersection_strategy,
                              m_rescale_policy,
                              m_turns, m_interrupt_policy);

@@ -402,6 +402,17 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_74, 1, 1, -1, 24.75);
     TEST_UNION(case_recursive_boxes_75, 1, 2, -1, 23.25);
     TEST_UNION(case_recursive_boxes_76, 1, 0, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_77, 8, 1, -1, 13.5);
+    TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
+    TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
+
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // This is correct: no holes generated
+    TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
+#else
+    // See comment for this testcase
+    TEST_UNION(case_recursive_boxes_80, 2, 1, -1, 1.5);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -440,6 +451,8 @@ void test_areal()
         ticket_12125[0], ticket_12125[1],
         1, 0, -1, 575.831180350007);
 #endif
+
+    TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
 
     // Should have 1 hole. Needs self turns.
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS

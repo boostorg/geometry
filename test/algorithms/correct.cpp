@@ -136,8 +136,9 @@ void test_ring_polygon()
 template <typename P>
 void test_box()
 {
-    // Boxes
-    std::string proper_box = "POLYGON((0 0,0 2,2 2,2 0,0 0))";
+    // Boxes. Reference is an open box (because in this test WKT is not
+    // explicitly closed)
+    std::string proper_box = "POLYGON((0 0,0 2,2 2,2 0))";
     test_geometry<bg::model::box<P> >(proper_box, proper_box);
     test_geometry<bg::model::box<P> >("BOX(0 0,2 2)", proper_box);
     test_geometry<bg::model::box<P> >("BOX(2 2,0 0)", proper_box);

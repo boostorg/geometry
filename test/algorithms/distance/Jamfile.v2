@@ -26,4 +26,5 @@ test-suite boost-geometry-algorithms-distance
     [ run distance_se_pl_l.cpp             : : : : algorithms_distance_se_pl_l ]
     [ run distance_se_pl_pl.cpp            : : : : algorithms_distance_se_pl_pl ]
     [ run distance_se_point_box.cpp        : : : : algorithms_distance_se_point_box ]
+    [ run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_pl_l ]
     ;
