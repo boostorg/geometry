@@ -23,6 +23,7 @@
 #include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/elliptic_arc_length.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
