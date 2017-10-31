@@ -78,17 +78,17 @@ private:
     }
 };
 
-struct projection_not_invertable_exception
+struct projection_not_invertible_exception
     : projection_exception
 {
-    projection_not_invertable_exception(std::string const& proj_name)
+    projection_not_invertible_exception(std::string const& proj_name)
         : projection_exception(-17, msg(proj_name))
     {}
 
 private:
     static std::string msg(std::string const& proj_name)
     {
-        return std::string("projection (") + proj_name + ") is not invertable";
+        return std::string("projection (") + proj_name + ") is not invertible";
     }
 };
 

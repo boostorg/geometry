@@ -292,7 +292,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         {
             pj_ctx_set_errno( pj_get_ctx(srcdefn), -17 );
             pj_log( pj_get_ctx(srcdefn), PJ_LOG_ERROR,
-                    "pj_transform(): source projection not invertable" );
+                    "pj_transform(): source projection not invertible" );
             return -17;
         }*/
 
