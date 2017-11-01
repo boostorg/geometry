@@ -45,7 +45,6 @@ class distance_point_segment{
 public:
 
     typedef typename FormulaPolicy::template inverse<CT, true, false, false, true, true> inverse_distance_quantities_type;
-    typedef typename FormulaPolicy::template inverse<CT, true, false, false, false, false> inverse_distance_type;
     typedef typename FormulaPolicy::template inverse<CT, false, true, false, false, false> inverse_azimuth_type;
     typedef typename FormulaPolicy::template inverse<CT, false, true, true, false, false> inverse_azimuth_reverse_type;
     typedef typename FormulaPolicy::template direct<CT, true, false, false, false> direct_distance_type;
@@ -83,7 +82,8 @@ public:
                                      CT lon2, CT lat2, //p2
                                      Spheroid const& spheroid)
     {
-        CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>::apply(lon1, lat1, lon2, lat2, spheroid);
+        CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+                              ::apply(lon1, lat1, lon2, lat2, spheroid);
 
         return non_iterative_case(lon1, lat1, distance);
     }
@@ -139,7 +139,6 @@ public:
         }
 
         //segment on equator
-        //TODO: use the meridian distance when it'll be available
         if (math::equals(lat1, c0) && math::equals(lat2, c0))
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
@@ -171,8 +170,8 @@ public:
             return non_iterative_case(lon1, lat2, d1);
         }
 
-        CT d2 = inverse_distance_type::apply(lon2, lat2,
-                                             lon3, lat3, spheroid).distance;
+        CT d2 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+                ::apply(lon2, lat2, lon3, lat3, spheroid);
 
         // Compute a12 (GEO)
         geometry::formula::result_inverse<CT> res12 =

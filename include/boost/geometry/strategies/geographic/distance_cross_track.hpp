@@ -211,7 +211,7 @@ struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, Calculatio
         >::type comparable_type;
 public :
     static inline comparable_type
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& )
     {
         return comparable_type();
     }
