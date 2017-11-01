@@ -56,13 +56,15 @@ public :
         CT half_pi = pi/CT(2);
         CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
-        if (math::equals(diff, c0))
+        if (lat1 > lat2)
+        {
+            std::swap(lat1, lat2);
+        }
+
+        if ( math::equals(diff, c0) ||
+            (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi)) )
         {
             // single meridian not crossing pole
-            if (lat1 > lat2)
-            {
-                std::swap(lat1, lat2);
-            }
             res.distance = apply(lat2, spheroid) - apply(lat1, spheroid);
             res.meridian = true;
         }

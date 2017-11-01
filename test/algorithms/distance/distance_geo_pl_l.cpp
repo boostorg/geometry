@@ -323,6 +323,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(0.5 -90,175.5 -90)",
                   pp_distance("POINT(0.5 -90)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
+    tester::apply("p-s-16",
+                  "POINT(90 90)",
+                  "SEGMENT(0.5 -90,175.5 -90)",
+                  pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
 
 }
 
