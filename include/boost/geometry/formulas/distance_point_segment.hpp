@@ -14,6 +14,8 @@
 #include <boost/geometry/formulas/result_direct.hpp>
 #include <boost/geometry/formulas/mean_radius.hpp>
 
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
+
 #ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
 #define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
 #endif
@@ -141,7 +143,7 @@ public:
         //segment on equator
         //Note: antipodal points on equator does not define segment on equator
         //but pass by the pole
-        CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
+        CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
         if (math::equals(lat1, c0) && math::equals(lat2, c0)
             && !math::equals(math::abs(diff), pi))
         {

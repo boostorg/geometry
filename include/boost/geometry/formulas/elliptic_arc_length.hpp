@@ -11,7 +11,6 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
 #define BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
 
-
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/radius.hpp>
@@ -19,6 +18,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 
@@ -54,7 +54,7 @@ public :
         CT c0 = 0;
         CT pi = math::pi<CT>();
         CT half_pi = pi/CT(2);
-        CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
+        CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
         if (lat1 > lat2)
         {
