@@ -38,8 +38,6 @@ template
         typename CT,
         typename Units,
         typename FormulaPolicy,
-        //template <typename, bool, bool, bool, bool ,bool> class Inverse,
-        //template <typename, bool, bool, bool, bool> class Direct,
         bool EnableClosestPoint = false
 >
 class distance_point_segment{
@@ -85,14 +83,6 @@ public:
                                      CT lon2, CT lat2, //p2
                                      Spheroid const& spheroid)
     {
-        //CT distance = inverse_distance_type::apply(lon1, lat1,
-                                                   //lon2, lat2,
-                                                   //spheroid).distance;
-
-        //geometry::model::point<CT, 2, geometry::cs::geographic<geometry::radian> > point;
-       // CT distance = geometry::distance(point(lon1, lat1), point(lon2, lat2), geometry::strategy::distance::andoyer<>());
-
-        //geometry::strategy::distance::geographic<> str(spheroid);
         CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>::apply(lon1, lat1, lon2, lat2, spheroid);
 
         return non_iterative_case(lon1, lat1, distance);
@@ -165,12 +155,6 @@ public:
             }
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
-/*
-        CT d1 = inverse_distance_type::apply(lon1, lat1,
-                                             lon3, lat3, spheroid).distance;
-        CT d3 = inverse_distance_type::apply(lon1, lat1,
-                                             lon2, lat2, spheroid).distance;
-*/
 
         CT d1 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
                 ::apply(lon1, lat1, lon3, lat3, spheroid);
@@ -182,7 +166,7 @@ public:
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
             std::cout << "Degenerate segment" << std::endl;
-            std::cout << "d1=" << d1 << std::endl;
+            std::cout << "distance between points=" << d1 << std::endl;
 #endif
             return non_iterative_case(lon1, lat2, d1);
         }
