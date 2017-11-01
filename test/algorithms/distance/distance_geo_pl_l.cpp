@@ -7,7 +7,8 @@
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
+#define BOOST_GEOMETRY_TEST_DEBUG
+#define BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -328,7 +329,39 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(0.5 -90,175.5 -90)",
                   pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
+    // equatorial segment
+    tester::apply("p-s-17",
+                  "POINT(90 90)",
+                  "SEGMENT(0 0,175.5 0)",
+                  pp_distance("POINT(90 90)", "POINT(0 0)", strategy_pp),
+                  strategy_ps);
+    // segment pass by pole
+    tester::apply("p-s-18",
+                  "POINT(90 90)",
+                  "SEGMENT(0 0,180 0)",
+                  0,
+                  strategy_ps);
+/* The following fails for thomas strategy
+    tester::apply("p-s-19",
+                  "POINT(1 80)",
+                  "SEGMENT(0 0,0 89)",
+                  pp_distance("POINT(1 80)", "POINT(0 80.00149297334342)", strategy_pp),
+                  strategy_ps);
+*/
+// Tests failing, convergence issues of the method when dealing with poles
+/*
+    tester::apply("p-s-20",
+                  "POINT(1 80)",
+                  "SEGMENT(0 0,0 90)",
+                  pp_distance("POINT(1 80)", "POINT(0 80.00149297334342)", strategy_pp),
+                  strategy_ps);
 
+    tester::apply("p-s-21",
+                  "POINT(90 89)",
+                  "SEGMENT(0 0,180 0)",
+                  pp_distance("POINT(90 89)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+*/
 }
 
 //===========================================================================

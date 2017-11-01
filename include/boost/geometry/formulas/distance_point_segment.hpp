@@ -139,7 +139,11 @@ public:
         }
 
         //segment on equator
-        if (math::equals(lat1, c0) && math::equals(lat2, c0))
+        //Note: antipodal points on equator does not define segment on equator
+        //but pass by the pole
+        CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
+        if (math::equals(lat1, c0) && math::equals(lat2, c0)
+            && !math::equals(math::abs(diff), pi))
         {
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
             std::cout << "Equatorial segment" << std::endl;
@@ -220,7 +224,7 @@ public:
 
 #ifdef BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
         std::cout << "a21=" << a21 * math::r2d<CT>() << std::endl;
-        std::cout << "a23=" << a13 * math::r2d<CT>() << std::endl;
+        std::cout << "a23=" << a23 * math::r2d<CT>() << std::endl;
         std::cout << "a321=" << a321 * math::r2d<CT>() << std::endl;
         std::cout << "cos(a321)=" << cos(a321) << std::endl;
 #endif
