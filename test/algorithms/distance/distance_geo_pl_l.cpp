@@ -8,9 +8,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-#define BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
-
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
