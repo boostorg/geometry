@@ -8,6 +8,9 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+#define BOOST_GEOMETRY_DISTANCE_POINT_SEGMENT_DEBUG
+
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -318,12 +321,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   pp_distance("POINT(90 -89)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
     // degenerate segment
-    tester::apply("p-s-14",
+    tester::apply("p-s-15",
                   "POINT(90 90)",
                   "SEGMENT(0.5 -90,175.5 -90)",
-                  pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
+                  pp_distance("POINT(0.5 -90)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
-
 
 }
 

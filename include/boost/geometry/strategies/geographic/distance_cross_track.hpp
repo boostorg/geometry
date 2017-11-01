@@ -106,8 +106,7 @@ public :
                 <
                     CT,
                     units_type,
-                    FormulaPolicy::template inverse,
-                    FormulaPolicy::template direct
+                    FormulaPolicy
                 >::apply(get<0>(sp1), get<1>(sp1),
                          get<0>(sp2), get<1>(sp2),
                          get<0>(p), get<1>(p),
