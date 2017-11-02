@@ -5,9 +5,10 @@
 // Copyright (c) 2008-2016 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2016 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015, 2016.
+// This file was modified by Oracle on 2014-2017.
 // Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -94,7 +95,24 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
 
     return_type d_strategy = andoyer.apply(p1, p2);
     return_type d_function = bg::distance(p1, p2, andoyer);
-    return_type d_formula = andoyer_inverse_type::apply(to_rad(lon1), to_rad(lat1), to_rad(lon2), to_rad(lat2), stype()).distance;
+
+    double diff = bg::math::longitude_distance_signed<bg::degree>(lon1, lon2);
+    return_type d_formula;
+
+    // if the points lay on a meridian, distance strategy calls the special formula
+    // for meridian distance that returns different result than andoyer formula
+    // for nearly antipodal points
+    if (bg::math::equals(diff, 0.0)
+       || bg::math::equals(bg::math::abs(diff), 180.0))
+    {
+        d_formula = d_strategy;
+    }
+    else
+    {
+        d_formula = andoyer_inverse_type::apply(to_rad(lon1), to_rad(lat1),
+                                                to_rad(lon2), to_rad(lat2),
+                                                stype()).distance;
+    }
 
     BOOST_CHECK_CLOSE(d_strategy / 1000.0, expected_km, 0.001);
     BOOST_CHECK_CLOSE(d_function / 1000.0, expected_km, 0.001);
@@ -214,10 +232,10 @@ void test_all()
     // antipodal
     // ok? in those cases shorter path would pass through a pole
     // but 90 or -90 would be consistent with distance?
-    test_distazi<P1, P2>(0, 0,  180, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(0, 0, -180, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(-90, 0, 90, 0, 20037.5, 0.0);
-    test_distazi<P1, P2>(90, 0, -90, 0, 20037.5, 0.0);
+    test_distazi<P1, P2>(0, 0,  180, 0, 20003.9, 0.0);
+    test_distazi<P1, P2>(0, 0, -180, 0, 20003.9, 0.0);
+    test_distazi<P1, P2>(-90, 0, 90, 0, 20003.9, 0.0);
+    test_distazi<P1, P2>(90, 0, -90, 0, 20003.9, 0.0);
 
     // 0, 45, 90 ...
     for (int i = 0 ; i < 360 ; i += 45)
@@ -264,7 +282,7 @@ void test_all()
         test_distazi_symm<P1, P2>(normlized_deg(l-44.99), -44.99, normlized_deg(l+135), 45, 20008.1, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.999), -44.999, normlized_deg(l+135), 45, 20009.4, 0.0);
         // antipodal
-        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20020.7, 0.0);
+        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20003.92, 0.0);
     }
 
     /* SQL Server gives:

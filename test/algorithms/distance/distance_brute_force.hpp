@@ -170,7 +170,7 @@ struct distance_brute_force<Geometry1, Geometry2, Strategy, Tag1, Tag2, true>
 };
 
 
-template 
+template
 <
     typename Point1,
     typename Point2,
@@ -184,7 +184,7 @@ struct distance_brute_force
 {};
 
 
-template 
+template
 <
     typename Point,
     typename Segment,
@@ -198,7 +198,7 @@ struct distance_brute_force
 {};
 
 
-template 
+template
 <
     typename Point,
     typename Box,
@@ -226,7 +226,7 @@ struct distance_brute_force
 {};
 
 
-template 
+template
 <
     typename Point,
     typename Linear,
@@ -258,7 +258,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Point,
     typename MultiPoint,
@@ -286,7 +286,7 @@ struct distance_brute_force
     }
 };
 
-template 
+template
 <
     typename MultiPoint1,
     typename MultiPoint2,
@@ -320,7 +320,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename MultiPoint,
     typename Linear,
@@ -354,7 +354,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Linear,
     typename MultiPoint,
@@ -384,7 +384,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename MultiPoint,
     typename Segment,
@@ -413,7 +413,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Linear,
     typename Segment,
@@ -445,7 +445,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Linear1,
     typename Linear2,
