@@ -17,7 +17,9 @@ static std::string poly_data_geo[] = {
     "POLYGON((0 90,1 80,1 70))",
     "POLYGON((0 90,1 80,1 80,1 80,1 70,1 70))",
     "POLYGON((0 90,1 80,1 79,1 78,1 77,1 76,1 75,1 74,\
-              1 73,1 72,1 71,1 70))"
+              1 73,1 72,1 71,1 70))",\
+    "POLYGON((0 0,180 0,0 0))",
+    "POLYGON((0 0,90 0,180 0,90 0,0 0))"
 };
 
 static std::string poly_data_sph[] = {

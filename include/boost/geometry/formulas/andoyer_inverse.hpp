@@ -214,7 +214,7 @@ private:
     static inline void normalize_azimuth(CT & azimuth, CT const& A, CT const& dA)
     {
         CT const c0 = 0;
-        
+
         if (A >= c0) // A indicates Eastern hemisphere
         {
             if (dA >= c0) // A altered towards 0
