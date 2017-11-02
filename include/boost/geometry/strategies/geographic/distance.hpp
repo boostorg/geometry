@@ -73,6 +73,29 @@ public :
         : m_spheroid(spheroid)
     {}
 
+    template <typename CT>
+    static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
+                           Spheroid const& spheroid)
+    {
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        typename elliptic_arc_length::result res =
+                 elliptic_arc_length::apply(lon1, lat1, lon2, lat2, spheroid);
+
+        if (res.meridian)
+        {
+            return res.distance;
+        }
+
+        return FormulaPolicy::template inverse
+                <
+                    CT, true, false, false, false, false
+                >::apply(lon1, lat1, lon2, lat2, spheroid).distance;
+    }
+
     template <typename Point1, typename Point2>
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
@@ -84,45 +107,7 @@ public :
         CT lon2 = get_as_radian<0>(point2);
         CT lat2 = get_as_radian<1>(point2);
 
-        CT c0 = 0;
-        CT pi = math::pi<CT>();
-        CT half_pi = pi/CT(2);
-        CT diff = math::longitude_distance_signed<geometry::radian>(lon1, lon2);
-
-        typedef typename formula::elliptic_arc_length
-        <
-            CT, strategy::default_order<FormulaPolicy>::value
-        > elliptic_arc_length;
-
-        if (math::equals(diff, c0))
-        {
-            // single meridian not crossing pole
-            if (lat1 > lat2)
-            {
-                std::swap(lat1, lat2);
-            }
-            return elliptic_arc_length::apply(lat2, m_spheroid)
-                  - elliptic_arc_length::apply(lat1, m_spheroid);
-        }
-
-        if (math::equals(math::abs(diff), pi))
-        {
-            // meridian crosses pole
-            CT lat_sign = 1;
-            if (lat1+lat2 < c0)
-            {
-                lat_sign = CT(-1);
-            }
-            return math::abs(lat_sign * CT(2) *
-                             elliptic_arc_length::apply(half_pi, m_spheroid)
-                             - elliptic_arc_length::apply(lat1, m_spheroid)
-                             - elliptic_arc_length::apply(lat2, m_spheroid));
-        }
-
-        return FormulaPolicy::template inverse
-               <
-                   CT, true, false, false, false, false
-               >::apply(lon1, lat1, lon2, lat2, m_spheroid).distance;
+        return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
 
     inline Spheroid const& model() const
