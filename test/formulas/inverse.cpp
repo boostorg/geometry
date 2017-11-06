@@ -3,6 +3,7 @@
 
 // Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +19,8 @@
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/andoyer_inverse_parametric.hpp>
+#include <boost/geometry/formulas/thomas_inverse_first_order.hpp>
 
 
 void check_inverse(std::string const& name,
@@ -74,6 +77,18 @@ void test_all(expected_results const& results)
     result_a.azimuth *= r2d;
     result_a.reverse_azimuth *= r2d;
     check_inverse("andoyer", results, result_a, results.andoyer, results.reference, 0.001);
+
+    typedef bg::formula::andoyer_inverse_parametric<double, true, false, false, false, false> anp_t;
+    result_a = anp_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_a.azimuth *= r2d;
+    result_a.reverse_azimuth *= r2d;
+    check_one("andoyer_p", result_a.distance, results.andoyer_parametric.distance, results.reference.distance, 0.001);
+
+    typedef bg::formula::thomas_inverse_first_order<double, true, true, true, true, true> th1st_t;
+    result_a = th1st_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_a.azimuth *= r2d;
+    result_a.reverse_azimuth *= r2d;
+    check_inverse("thomas_1st", results, result_a, results.thomas_first_order, results.reference, 0.001);
 }
 
 int test_main(int, char*[])
