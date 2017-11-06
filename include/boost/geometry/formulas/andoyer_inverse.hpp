@@ -2,6 +2,7 @@
 
 // Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,16 +58,17 @@ public:
 
     template <typename T1, typename T2, typename Spheroid>
     static inline result_type apply(T1 const& lon1,
-                                    T1 const& lat1,
+                                    T1 const& la1,
                                     T2 const& lon2,
-                                    T2 const& lat2,
-                                    Spheroid const& spheroid)
+                                    T2 const& la2,
+                                    Spheroid const& spheroid,
+                                    bool ParametricLatitude = false)
     {
         result_type result;
 
         // coordinates in radians
 
-        if ( math::equals(lon1, lon2) && math::equals(lat1, lat2) )
+        if ( math::equals(lon1, lon2) && math::equals(la1, la2) )
         {
             return result;
         }
@@ -75,6 +77,24 @@ public:
         CT const c1 = CT(1);
         CT const pi = math::pi<CT>();
         CT const f = formula::flattening<CT>(spheroid);
+
+        CT const one_minus_f = c1 - f;
+
+        CT lat1 = la1;
+        CT lat2 = la2;
+
+        if ( BOOST_GEOMETRY_CONDITION(ParametricLatitude && !CalcAzimuths) )
+        {
+            CT const c2 = CT(2);
+            CT const pi_half = math::pi<CT>() / c2;
+
+            lat1 = math::equals(lat1, pi_half) ? la1 :
+                                                 math::equals(lat1, -pi_half) ? la1 :
+                                                 atan(one_minus_f * tan(lat1));
+            lat2 = math::equals(lat2, pi_half) ? la2 :
+                                                 math::equals(lat2, -pi_half) ? la2 :
+                                                 atan(one_minus_f * tan(lat2));
+        }
 
         CT const dlon = lon2 - lon1;
         CT const sin_dlon = sin(dlon);
@@ -101,7 +121,11 @@ public:
         {
             CT const K = math::sqr(sin_lat1-sin_lat2);
             CT const L = math::sqr(sin_lat1+sin_lat2);
-            CT const three_sin_d = CT(3) * sin_d;
+            CT three_sin_d = sin_d;
+            if ( BOOST_GEOMETRY_CONDITION(!ParametricLatitude) )
+            {
+                three_sin_d *= CT(3);
+            }
 
             CT const one_minus_cos_d = c1 - cos_d;
             CT const one_plus_cos_d = c1 + cos_d;
@@ -120,6 +144,10 @@ public:
 
             result.distance = a * (d + dd);
         }
+
+        //return to non-parametric latitude
+        lat1 = la1;
+        lat2 = la2;
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
@@ -255,6 +283,5 @@ private:
 };
 
 }}} // namespace boost::geometry::formula
-
 
 #endif // BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP
