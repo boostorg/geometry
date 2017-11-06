@@ -103,6 +103,8 @@ static std::string const mysql_report_2015_09_08c = "LINESTRING(-5 -8, 2 8, 2.16
 
 static std::string const mysql_23023665 = "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)";
 
+static std::string const mysql_25662426 = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4700)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -289,6 +291,11 @@ void test_all()
 
     test_one<linestring, polygon>("mysql_23023665_1", mysql_23023665, join_round32, end_flat, 459.1051, 10);
     test_one<linestring, polygon>("mysql_23023665_2", mysql_23023665, join_round32, end_flat, 6877.7097, 50);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // TODO: correct area
+    test_one<linestring, polygon>("mysql_25662426", mysql_25662426, join_round32, end_round32, 1, 0, 111.0, 10);
+#endif
 }
 
 template <bool Clockwise, typename P>
