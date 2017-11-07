@@ -12,6 +12,7 @@ test-suite boost-geometry-formulas
     :
     [ run inverse.cpp                        : : : : formulas_inverse ]
     [ run direct.cpp                         : : : : formulas_direct ]
+    [ run direct_meridian.cpp                : : : : formulas_direct_meridian ]
     [ run intersection.cpp                   : : : : formulas_intersection ]
     [ run vertex_longitude.cpp               : : : : formulas_vertex_longitude ]
     ;

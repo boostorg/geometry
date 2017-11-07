@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2016 Oracle and/or its affiliates.
+// Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -60,7 +61,8 @@ public:
                                     T1 const& lat1,
                                     T2 const& lon2,
                                     T2 const& lat2,
-                                    Spheroid const& spheroid)
+                                    Spheroid const& spheroid,
+                                    bool const SecondOrder = true)
     {
         result_type result;
 
@@ -128,30 +130,43 @@ public:
         CT const X = U + V;
         CT const Y = U - V;
         CT const T = d / sin_d;
-        CT const D = c4 * math::sqr(T);
-        CT const E = c2 * cos_d;
-        CT const A = D * E;
-        CT const B = c2 * D;
-        CT const C = T - (A - E) / c2;
+        CT D=0, E=0, A=0, B=0, C=0, f_sqr=0, f_sqr_per_64=0;
+        if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
+        {
+            D = c4 * math::sqr(T);
+            E = c2 * cos_d;
+            A = D * E;
+            B = c2 * D;
+            C = T - (A - E) / c2;
 
-        CT const f_sqr = math::sqr(f);
-        CT const f_sqr_per_64 = f_sqr / CT(64);
-    
+            f_sqr = math::sqr(f);
+            f_sqr_per_64 = f_sqr / CT(64);
+        }
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
-            CT const n1 = X * (A + C*X);
-            CT const n2 = Y * (B + E*Y);
-            CT const n3 = D*X*Y;
+            CT n1=0, n2=0, n3=0, delta2d=0;
+            if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
+            {
+                n1 = X * (A + C*X);
+                n2 = Y * (B + E*Y);
+                n3 = D*X*Y;
+                delta2d = f_sqr_per_64 * (n1 - n2 + n3);
+            }
 
             CT const delta1d = f * (T*X-Y) / c4;
-            CT const delta2d = f_sqr_per_64 * (n1 - n2 + n3);
 
             CT const a = get_radius<0>(spheroid);
 
-            //result.distance = a * sin_d * (T - delta1d);
-            result.distance = a * sin_d * (T - delta1d + delta2d);
+            if (BOOST_GEOMETRY_CONDITION(SecondOrder))
+            {
+                result.distance = a * sin_d * (T - delta1d + delta2d);
+            }
+            else
+            {
+                result.distance = a * sin_d * (T - delta1d);
+            }
         }
-    
+
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
             // NOTE: if both cos_latX == 0 then below we'd have 0 * INF
@@ -159,10 +174,19 @@ public:
             // in this case the azimuth could either be 0 or +-pi
             // but above always 0 is returned
 
-            CT const F = c2*Y-E*(c4-X);
-            CT const M = CT(32)*T-(CT(20)*T-A)*X-(B+c4)*Y;
-            CT const G = f*T/c2 + f_sqr_per_64 * M;
-            
+            CT F=0, M=0, G=0;
+            if ( BOOST_GEOMETRY_CONDITION(SecondOrder) )
+            {
+                F = c2*Y-E*(c4-X);
+                M = CT(32)*T-(CT(20)*T-A)*X-(B+c4)*Y;
+                G = f*T/c2 + f_sqr_per_64 * M;
+            }
+            else
+            {
+                F = c2 * (Y - (c1-c2*L) * (c4-X));
+                G = f*T/c2;
+            }
+
             // TODO:
             // If d_lambda is close to 90 or -90 deg then tan(d_lambda) is big
             // and F is small. The result is not accurate.
