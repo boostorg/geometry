@@ -297,6 +297,10 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426", mysql_25662426, join_round32, end_round32, 1, 0, 1660.6673, 10);
 
     // Test behaviour with different buffer sizes, generating internally turns on different locations
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // The interior ring is not generated somehow. TODO
+    test_one<linestring, polygon>("mysql_25662426a_05", mysql_25662426a, join_round32, end_round32, 26.9999, 0.5);
+#endif
     test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0);
     test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0);
     test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_round32, 152.1163, 3.0);
