@@ -13,6 +13,7 @@
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
+#include <boost/geometry/formulas/thomas_direct_first_order.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
@@ -26,7 +27,6 @@ namespace boost { namespace geometry { namespace strategy
 
 struct andoyer
 {
-    //TODO: this should be replaced by an andoyer direct formula
     template
     <
         typename CT,
@@ -36,7 +36,7 @@ struct andoyer
         bool EnableGeodesicScale = false
     >
     struct direct
-            : formula::thomas_direct
+            : formula::thomas_direct_first_order
               <
                   CT, EnableCoordinates, EnableReverseAzimuth,
                   EnableReducedLength, EnableGeodesicScale
