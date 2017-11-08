@@ -422,6 +422,13 @@ class analyse_turn_wrt_piece
             {
                 points[i] = piece.robust_ring[piece.offsetted_count + i];
             }
+
+            //      3--offsetted outline--0
+            //      |                     |
+            // left |                     | right
+            //      |                     |
+            //      2===>==original===>===1
+
         }
         else if (helper_count == 3)
         {
@@ -445,12 +452,15 @@ class analyse_turn_wrt_piece
         {
             return analyse_on_offsetted;
         }
-        if (comparator(point, points[1]) || comparator(point, points[2]))
+        if (comparator(point, points[1]))
         {
-            // It lies on the corner of a helper segment. For linear buffer,
-            // on flat and, this point should not be deleted.
-            // But if it is NOT on a flat end it might be discarded
-            return analyse_on_original_boundary;
+            // On original, right corner
+            return piece.is_flat_end ? analyse_continue : analyse_on_original_boundary;
+        }
+        if (comparator(point, points[2]))
+        {
+            // On original, left corner
+            return piece.is_flat_start ? analyse_continue : analyse_on_original_boundary;
         }
 
         // Right side of the piece

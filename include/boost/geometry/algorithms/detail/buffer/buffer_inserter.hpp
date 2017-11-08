@@ -274,6 +274,9 @@ struct buffer_range
          * pup: penultimate_point
          */
 
+        bool const mark_flat
+            = end_strategy.get_piece_type() == geometry::strategy::buffer::buffered_flat_end;
+
         geometry::strategy::buffer::result_code result = geometry::strategy::buffer::result_no_output;
         bool first = true;
 
@@ -318,6 +321,11 @@ struct buffer_range
 
             collection.add_side_piece(*prev, *it, generated_side, first);
 
+            if (first && mark_flat)
+            {
+                collection.mark_flat_start();
+            }
+
             penultimate_point = *prev;
             ultimate_point = *it;
             last_p1 = generated_side.front();
@@ -331,6 +339,12 @@ struct buffer_range
                 first_p2 = generated_side.back();
             }
         }
+
+        if (mark_flat)
+        {
+            collection.mark_flat_end();
+        }
+
         return result;
     }
 };
@@ -956,11 +970,6 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
             areal_tag
         >::type::value;
-    bool const linear = boost::is_same
-        <
-            typename tag_cast<typename tag<GeometryInput>::type, linear_tag>::type,
-            linear_tag
-        >::type::value;
 
     dispatch::buffer_inserter
         <
@@ -977,8 +986,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy, intersection_strategy.get_side_strategy());
 
     collection.get_turns();
-    collection.classify_turns(linear
-                              && end_strategy.get_piece_type() == strategy::buffer::buffered_flat_end);
+    collection.classify_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
         collection.check_remaining_points(distance_strategy);

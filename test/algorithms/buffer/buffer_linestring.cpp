@@ -155,6 +155,7 @@ void test_all()
     test_one<linestring, polygon>("one_bend", one_bend, join_round, end_round, 35.5603, 1.5, 1.5);
     test_one<linestring, polygon>("one_bend", one_bend, join_miter, end_round, 35.7601, 1.5, 1.5);
 
+    test_one<linestring, polygon>("two_bends", two_bends, join_round, end_round, 46.2995, 1.5, 1.5);
     test_one<linestring, polygon>("two_bends", two_bends, join_round, end_flat, 39.235, 1.5, 1.5);
     test_one<linestring, polygon>("two_bends", two_bends, join_round_by_divide, end_flat, 39.235, 1.5, 1.5);
     test_one<linestring, polygon>("two_bends", two_bends, join_miter, end_flat, 39.513, 1.5, 1.5);
@@ -302,6 +303,14 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_round32, 206.4831, 4.0);
     test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_round32, 266.8505, 5.0);
     test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_round32, 660.7355, 10.0);
+
+    test_one<linestring, polygon>("mysql_25662426a_05", mysql_25662426a, join_round32, end_flat, 26.8352, 0.5);
+    test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_flat, 53.3411, 1.0);
+    test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_flat, 97.3644, 2.0);
+    test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_flat, 138.0697, 3.0);
+    test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_flat, 181.5115, 4.0);
+    test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_flat, 227.8325, 5.0);
+    test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_flat, 534.1084, 10.0);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     // Left
