@@ -243,6 +243,7 @@ struct buffer_range
                 EndStrategy const& end_strategy,
                 RobustPolicy const& robust_policy,
                 Strategy const& strategy, // side strategy
+                bool linear,
                 output_point_type& first_p1,
                 output_point_type& first_p2,
                 output_point_type& last_p1,
@@ -275,7 +276,8 @@ struct buffer_range
          */
 
         bool const mark_flat
-            = end_strategy.get_piece_type() == geometry::strategy::buffer::buffered_flat_end;
+            = linear
+                && end_strategy.get_piece_type() == geometry::strategy::buffer::buffered_flat_end;
 
         geometry::strategy::buffer::result_code result = geometry::strategy::buffer::result_no_output;
         bool first = true;
@@ -513,7 +515,7 @@ struct buffer_inserter_ring
                 side,
                 distance_strategy, side_strategy, join_strategy, end_strategy,
                 robust_policy, strategy,
-                first_p1, first_p2, last_p1, last_p2);
+                false, first_p1, first_p2, last_p1, last_p2);
 
         // Generate closing join
         if (result == geometry::strategy::buffer::result_normal)
@@ -703,7 +705,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                 begin, end, side,
                 distance_strategy, side_strategy, join_strategy, end_strategy,
                 robust_policy, strategy,
-                first_p1, first_p2, last_p1, last_p2);
+                true, first_p1, first_p2, last_p1, last_p2);
 
         if (result == geometry::strategy::buffer::result_normal)
         {
