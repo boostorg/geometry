@@ -22,12 +22,14 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/formulas/distance_point_segment.hpp>
-#include <boost/geometry/formulas/cross_track_point_box.hpp>
+//#include <boost/geometry/formulas/distance_point_segment.hpp>
+//#include <boost/geometry/formulas/cross_track_point_box.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/distance_cross_track_point_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
@@ -56,28 +58,28 @@ to cross track
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    //typename Strategy = cross_track_geo<>,
+    //typename Strategy = geographic_cross_track<>,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-class cross_track_point_box_geo
+class geographic_cross_track_point_box
 {
 public:
-    typedef cross_track_geo<FormulaPolicy, Spheroid, CalculationType> Strategy;
+    typedef geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> Strategy;
 
     template <typename Point, typename Box>
     struct return_type
         : services::return_type<Strategy, Point, typename point_type<Box>::type>
     {};
 
-    inline cross_track_point_box_geo()
+    inline geographic_cross_track_point_box()
     {}
 
     template <typename Point, typename Box>
     inline typename return_type<Point, Box>::type
     apply(Point const& point, Box const& box) const
     {
-
+/*
 #if !defined(BOOST_MSVC)
         BOOST_CONCEPT_ASSERT
             (
@@ -87,11 +89,12 @@ public:
                     >)
             );
 #endif
+*/
 
         typedef typename return_type<Point, Box>::type return_type;
 
-        return geometry::formula::cross_track_point_box
-                                       <return_type>::apply(point, box, Strategy());
+        return cross_track_point_box_generic
+                        <return_type>::apply(point, box, Strategy());
     }
 };
 
@@ -102,40 +105,40 @@ namespace services
 {
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
-struct tag<cross_track_point_box_geo<Strategy, Spheroid, CalculationType> >
+struct tag<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_point_box type;
 };
 
 
 template <typename Strategy, typename Spheroid, typename CalculationType, typename P, typename Box>
-struct return_type<cross_track_point_box_geo<Strategy, Spheroid, CalculationType>, P, Box>
-    : cross_track_point_box_geo
+struct return_type<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>, P, Box>
+    : geographic_cross_track_point_box
         <
             Strategy, Spheroid, CalculationType
         >::template return_type<P, Box>
 {};
 
 template <typename Strategy, typename Spheroid, typename P, typename Box>
-struct return_type<cross_track_point_box_geo<Strategy, Spheroid>, P, Box>
-    : cross_track_point_box_geo
+struct return_type<geographic_cross_track_point_box<Strategy, Spheroid>, P, Box>
+    : geographic_cross_track_point_box
         <
             Strategy, Spheroid
         >::template return_type<P, Box>
 {};
 
 template <typename Strategy, typename P, typename Box>
-struct return_type<cross_track_point_box_geo<Strategy>, P, Box>
-    : cross_track_point_box_geo
+struct return_type<geographic_cross_track_point_box<Strategy>, P, Box>
+    : geographic_cross_track_point_box
         <
             Strategy
         >::template return_type<P, Box>
 {};
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
-struct comparable_type<cross_track_point_box_geo<Strategy, Spheroid, CalculationType> >
+struct comparable_type<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
 {
-    typedef cross_track_point_box_geo
+    typedef geographic_cross_track_point_box
         <
             typename comparable_type<Strategy>::type, Spheroid, CalculationType
         > type;
@@ -143,9 +146,9 @@ struct comparable_type<cross_track_point_box_geo<Strategy, Spheroid, Calculation
 
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
-struct get_comparable<cross_track_point_box_geo<Strategy, Spheroid, CalculationType> >
+struct get_comparable<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
 {
-    typedef cross_track_point_box_geo<Strategy, Spheroid, CalculationType> this_strategy;
+    typedef geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> this_strategy;
     typedef typename comparable_type<this_strategy>::type comparable_type;
 
 public:
@@ -159,11 +162,11 @@ public:
 template <typename Strategy, typename Spheroid, typename CalculationType, typename P, typename Box>
 struct result_from_distance
     <
-        cross_track_point_box_geo<Strategy, Spheroid, CalculationType>, P, Box
+        geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>, P, Box
     >
 {
 private:
-    typedef cross_track_point_box_geo<Strategy, Spheroid, CalculationType> this_strategy;
+    typedef geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> this_strategy;
 
     typedef typename this_strategy::template return_type
         <
@@ -195,7 +198,7 @@ struct default_strategy
         Strategy
     >
 {
-    typedef cross_track_point_box_geo
+    typedef geographic_cross_track_point_box
         <
             typename boost::mpl::if_
                 <
@@ -219,7 +222,7 @@ struct default_strategy
         geographic_tag, geographic_tag
     >
 {
-    typedef cross_track_point_box_geo<> type;
+    typedef geographic_cross_track_point_box<> type;
 };
 
 template <typename Box, typename Point>

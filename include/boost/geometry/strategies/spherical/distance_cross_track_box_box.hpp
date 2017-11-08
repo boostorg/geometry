@@ -21,9 +21,8 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/formulas/cross_track_box_box.hpp>
-
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 
@@ -101,8 +100,8 @@ public:
             );
 #endif
         typedef typename return_type<Box1, Box2>::type return_type;
-        return geometry::formula::cross_track_box_box
-                                       <return_type>::apply(box1, box2, m_ps_strategy);
+        return cross_track_box_box_generic
+                                <return_type>::apply(box1, box2, m_ps_strategy);
     }
 
     inline typename Strategy::radius_type radius() const

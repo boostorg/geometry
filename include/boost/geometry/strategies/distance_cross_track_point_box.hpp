@@ -9,16 +9,19 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_POINT_BOX_HPP
-#define BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_POINT_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_DISTANCE_CROSS_TRACK_POINT_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DISTANCE_CROSS_TRACK_POINT_BOX_HPP
 
 #include <boost/geometry/formulas/result_direct.hpp>
 
-namespace boost { namespace geometry { namespace formula
+namespace boost { namespace geometry {
+
+namespace strategy { namespace distance
+
 {
 
 template <typename ReturnType>
-class cross_track_point_box
+class cross_track_point_box_generic
 {
 public :
 
@@ -162,6 +165,6 @@ public :
     }
 };
 
-}}} // namespace boost::geometry::formula
+}}}} // namespace boost::geometry::strategy::distance
 
-#endif // BOOST_GEOMETRY_FORMULAS_CROSS_TRACK_POINT_BOX_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DISTANCE_CROSS_TRACK_POINT_BOX_HPP

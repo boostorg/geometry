@@ -597,17 +597,17 @@ template
     typename P,
     typename PS
 >
-struct result_from_distance<cross_track_geo<FormulaPolicy, Spheroid, CalculationType>, P, PS>
+struct result_from_distance<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>, P, PS>
 {
 private :
-    typedef typename cross_track_geo
+    typedef typename geographic_cross_track
         <
             FormulaPolicy, Spheroid, CalculationType
         >::template return_type<P, PS>::type return_type;
 public :
     template <typename T>
     static inline return_type
-    apply(cross_track_geo<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
     {
         return distance;
     }
