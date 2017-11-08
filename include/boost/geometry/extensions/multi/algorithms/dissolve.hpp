@@ -38,9 +38,14 @@ namespace detail { namespace dissolve
 template <typename Multi, typename GeometryOut>
 struct dissolve_multi
 {
-    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
-    static inline OutputIterator apply(Multi const& multi, RescalePolicy const& rescale_policy,
-                                       OutputIterator out, Strategy const& strategy)
+    template
+    <
+        typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Multi const& multi,
+            RescalePolicy const& rescale_policy, OutputIterator out,
+            Strategy const& strategy, Visitor& visitor)
     {
         typedef typename boost::range_value<Multi>::type polygon_type;
         typedef typename boost::range_iterator<Multi const>::type iterator_type;
@@ -55,7 +60,8 @@ struct dissolve_multi
                 <
                     polygon_type,
                     GeometryOut
-                >::apply(*it, rescale_policy, std::back_inserter(step1), strategy);
+                >::apply(*it, rescale_policy, std::back_inserter(step1),
+                         strategy, visitor);
         }
 
         // Step 2: remove mutual overlap

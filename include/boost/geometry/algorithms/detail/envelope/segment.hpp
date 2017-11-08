@@ -80,6 +80,35 @@ struct envelope_segment_call_vertex_latitude<CalculationType, geographic_tag>
     }
 };
 
+template <typename Units, typename CS_Tag>
+struct envelope_segment_convert_polar
+{
+    template <typename T>
+    static inline void pre(T & , T & ) {}
+
+    template <typename T>
+    static inline void post(T & , T & ) {}
+};
+
+template <typename Units>
+struct envelope_segment_convert_polar<Units, spherical_polar_tag>
+{
+    template <typename T>
+    static inline void pre(T & lat1, T & lat2)
+    {
+        lat1 = math::latitude_convert_ep<Units>(lat1);
+        lat2 = math::latitude_convert_ep<Units>(lat2);
+    }
+
+    template <typename T>
+    static inline void post(T & lat1, T & lat2)
+    {
+        lat1 = math::latitude_convert_ep<Units>(lat1);
+        lat2 = math::latitude_convert_ep<Units>(lat2);
+        std::swap(lat1, lat2);
+    }
+};
+
 template <typename CS_Tag>
 class envelope_segment_impl
 {
@@ -266,29 +295,29 @@ private:
                 Box, box_coordinate_type, Units
             >::type helper_box_type;
 
-        helper_box_type radian_mbr;
+        helper_box_type helper_mbr;
 
         geometry::set
             <
                 min_corner, 0
-            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
 
         geometry::set
             <
                 min_corner, 1
-            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
 
         geometry::set
             <
                 max_corner, 0
-            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
 
         geometry::set
             <
                 max_corner, 1
-            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
+            >(helper_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
 
-        transform_units(radian_mbr, mbr);
+        transform_units(helper_mbr, mbr);
     }
 
 
@@ -347,7 +376,14 @@ public:
                              Box& mbr,
                              Strategy const& strategy)
     {
+        typedef envelope_segment_convert_polar<Units, typename cs_tag<Box>::type> convert_polar;
+
+        convert_polar::pre(lat1, lat2);
+
         apply<Units>(lon1, lat1, lon2, lat2, strategy);
+
+        convert_polar::post(lat1, lat2);
+
         create_box<Units>(lon1, lat1, lon2, lat2, mbr);
     }
 
@@ -366,7 +402,14 @@ public:
                              Strategy const& strategy,
                              CalculationType alp1)
     {
+        typedef envelope_segment_convert_polar<Units, typename cs_tag<Box>::type> convert_polar;
+
+        convert_polar::pre(lat1, lat2);
+
         apply<Units>(lon1, lat1, lon2, lat2, strategy, alp1);
+
+        convert_polar::post(lat1, lat2);
+
         create_box<Units>(lon1, lat1, lon2, lat2, mbr);
     }
 };
@@ -383,8 +426,6 @@ struct envelope_one_segment
         envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr, strategy);
         detail::expand::point_loop
             <
-                strategy::compare::default_strategy,
-                strategy::compare::default_strategy,
                 Dimension,
                 DimensionCount
             >::apply(mbr, p2, strategy);
@@ -409,13 +450,14 @@ struct envelope_segment
         envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr, strategy);
     }
 
-    template <typename Segment, typename Box>
-    static inline void apply(Segment const& segment, Box& mbr)
+    template <typename Segment, typename Box, typename Strategy>
+    static inline void apply(Segment const& segment, Box& mbr,
+                             Strategy const& strategy)
     {
         typename point_type<Segment>::type p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
-        apply(p[0], p[1], mbr);
+        apply(p[0], p[1], mbr, strategy);
     }
 };
 

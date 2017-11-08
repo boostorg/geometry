@@ -115,7 +115,10 @@ struct is_properly_oriented
                 geometry::closure<Ring>::value
             > ring_area_type;
 
-        typedef typename default_area_result<Ring>::type area_result_type;
+        typedef typename Strategy::template area_strategy
+            <
+                point_type
+            >::type::return_type area_result_type;
 
         typename ring_area_predicate
             <
@@ -195,7 +198,7 @@ struct is_valid_ring
         return
             is_topologically_closed<Ring, closure>::apply(ring, visitor)
             && ! has_duplicates<Ring, closure>::apply(ring, visitor)
-            && ! has_spikes<Ring, closure>::apply(ring, visitor)
+            && ! has_spikes<Ring, closure>::apply(ring, visitor, strategy.get_side_strategy())
             && (! CheckSelfIntersections
                 || has_valid_self_turns<Ring>::apply(ring, visitor, strategy))
             && is_properly_oriented<Ring, IsInteriorRing>::apply(ring, visitor, strategy);

@@ -25,7 +25,7 @@ struct ring_with_direction
     ring_identifier ring_id;
     direction_type direction;
 
-    std::size_t turn_index;
+    signed_size_type turn_index;
     int operation_index;
     operation_type operation;
     signed_size_type region_id;
@@ -50,8 +50,12 @@ struct ring_with_direction
 
 struct rank_with_rings
 {
+    // Define a set having a ring, with its direction (from/to). Each ring
+    // arrive at / leaves a cluster only once. TODO: this is not true for
+    // invalid ring. The rank needs to be considered too.
+    typedef std::set<ring_with_direction> container_type;
     std::size_t rank;
-    std::set<ring_with_direction> rings;
+    container_type rings;
 
     rank_with_rings()
         : rank(0)
@@ -60,7 +64,7 @@ struct rank_with_rings
 
     inline bool all_equal(direction_type dir_type) const
     {
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             if (it->direction != dir_type)
@@ -83,7 +87,7 @@ struct rank_with_rings
 
     inline bool has_only(operation_type op) const
     {
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
@@ -100,7 +104,7 @@ struct rank_with_rings
     {
         bool has1 = false;
         bool has2 = false;
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
@@ -114,7 +118,7 @@ struct rank_with_rings
 
     inline bool is_isolated() const
     {
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
@@ -128,8 +132,8 @@ struct rank_with_rings
 
     inline bool has_unique_region_id() const
     {
-        int region_id = -1;
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        signed_size_type region_id = -1;
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
@@ -145,10 +149,10 @@ struct rank_with_rings
         return true;
     }
 
-    inline int region_id() const
+    inline signed_size_type region_id() const
     {
-        int region_id = -1;
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        signed_size_type region_id = -1;
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;
@@ -170,7 +174,7 @@ struct rank_with_rings
         typedef typename boost::range_value<Turns>::type turn_type;
         typedef typename turn_type::turn_operation_type turn_operation_type;
 
-        for (std::set<ring_with_direction>::const_iterator it = rings.begin();
+        for (container_type::const_iterator it = rings.begin();
              it != rings.end(); ++it)
         {
             const ring_with_direction& rwd = *it;

@@ -29,7 +29,7 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter)
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename bg::default_perimeter_result<Geometry>::type).name()
+        //<< typeid(typename bg::default_perimeter_result<Geometry>::type).name()
         << std::endl
         << "perimeter : " << bg::perimeter(geometry)
         << std::endl;
@@ -50,7 +50,7 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter, St
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename bg::default_perimeter_result<Geometry>::type).name()
+        //<< typeid(typename bg::default_perimeter_result<Geometry>::type).name()
         << std::endl
         << "perimeter : " << bg::perimeter(geometry, strategy)
         << std::endl;

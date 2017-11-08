@@ -30,9 +30,10 @@
                 clips3, -1, area1 + area2)
 
 #define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
+    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
-                clips3, -1, area1 + area2, ignore_validity)
+                clips3, -1, area1 + area2, ignore_validity); }
 
 #define TEST_DIFFERENCE_WITH(index1, index2, caseid, clips1, area1, \
                 clips2, area2, clips3) \
@@ -46,14 +47,6 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
-    ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
-
-    ut_settings sym_settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    sym_settings.sym_difference = false;
-#endif
-
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
             case_multi_simplex[0], case_multi_simplex[1],
             5, 21, 5.58, 4, 17, 2.58);
@@ -94,7 +87,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
         case_72_multi[0], case_72_multi[1],
-            3, 13, 1.65, 3, 17, 6.15, ignore_validity);
+            3, 13, 1.65, 3, 17, 6.15);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
@@ -108,7 +101,7 @@ void test_areal()
 
     TEST_DIFFERENCE(case_123_multi, 1, 0.25, 2, 0.625, 3);
     TEST_DIFFERENCE(case_124_multi, 1, 0.25, 2, 0.4375, 3);
-    TEST_DIFFERENCE_IGNORE(case_125_multi, 1, 0.25, 2, 0.400, 3);
+    TEST_DIFFERENCE(case_125_multi, 1, 0.25, 2, 0.400, 3);
 
     // A should have 3 clips, B should have 5 clips
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
@@ -162,10 +155,14 @@ void test_areal()
         ut_settings settings;
         settings.percentage = 0.001;
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        // This testcase is actually different for all combinations
+#if (!defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        settings.test_validity = false;
+#endif
+
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
 #else
-        settings.test_validity = false;
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 1, 2775258.93, 3);
 #endif
     }
@@ -178,11 +175,15 @@ void test_areal()
             tolerance(0.001));
 
     // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
-    test_one<Polygon, MultiPolygon, MultiPolygon>("bug_21155501",
-        bug_21155501[0], bug_21155501[1],
-            1, 9, 3.758937,
-            0, 0, 0.0,
-            ignore_validity);
+    TEST_DIFFERENCE_IGNORE(bug_21155501, 1, 3.758937, 0, 0.0, 1);
+#endif
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    // The result is valid but wrong, version b includes nearly all area
+    // which was original between all the self-touching polygons
+//    TEST_DIFFERENCE(ticket_12503, 46, 920.625, 41, 497.125, 10);
+#else
+    TEST_DIFFERENCE_IGNORE(ticket_12503, 45, 920.625, 3, 7.625, 48);
 #endif
 
     // Areas and #clips correspond with POSTGIS (except sym case)
@@ -211,6 +212,10 @@ void test_areal()
     TEST_DIFFERENCE(case_135_multi, 2, 2.0, 2, 13.0, 2);
     TEST_DIFFERENCE(case_136_multi, 2, 2.0, 3, 13.5, 3);
     TEST_DIFFERENCE(case_137_multi, 2, 2.5, 2, 13.0, 2);
+    TEST_DIFFERENCE(case_138_multi, 5, 16.6, 3, 8.225, 8);
+    TEST_DIFFERENCE(case_139_multi, 4, 16.328125, 3, 8.078125, 7);
+    TEST_DIFFERENCE(case_140_multi, 4, 16.328125, 3, 8.078125, 7);
+    TEST_DIFFERENCE(case_141_multi, 5, 15.5, 5, 10.0, 10);
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
@@ -315,7 +320,7 @@ void test_areal()
 #endif
     TEST_DIFFERENCE(case_recursive_boxes_35, 5, 1.75, 5, 2.75, 10);
     TEST_DIFFERENCE(case_recursive_boxes_36, 2, 1.0, 2, 1.5, 3);
-    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_37, 3, 2.5, 2, 4.25, 2);
+    TEST_DIFFERENCE(case_recursive_boxes_37, 3, 2.5, 2, 4.25, 2);
     TEST_DIFFERENCE(case_recursive_boxes_38, 5, 7.75, 4, 3.5, 3);
     TEST_DIFFERENCE(case_recursive_boxes_39, 3, 6.0, 3, 3.0, 4);
     TEST_DIFFERENCE(case_recursive_boxes_40, 11, 14.0, 9, 13.0, 11);
@@ -347,7 +352,11 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_53, 6, 3.5, 4, 1.5, 9);
     TEST_DIFFERENCE(case_recursive_boxes_54, 6, 6.5, 8, 6.0, 7);
     TEST_DIFFERENCE(case_recursive_boxes_55, 4, 5.5, 6, 7.75, 4);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_56, 4, 4.5, 5, 2.75, 6);
+#else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_56, 4, 4.5, 5, 2.75, 6);
+#endif
     TEST_DIFFERENCE(case_recursive_boxes_57, 5, 3.75, 9, 6.5, 10);
     TEST_DIFFERENCE(case_recursive_boxes_58, 4, 2.25, 6, 3.75, 7);
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
@@ -361,13 +370,88 @@ void test_areal()
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_60, 5, 5.25, 5, 5.25, 8);
 #endif
+    TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
+#if defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // Misses one triangle
+    TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
+#endif
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
-        mysql_21965285_b[0],
-        mysql_21965285_b[1],
-        2, -1, 183.71376870369406,
-        2, -1, 131.21376870369406,
-        sym_settings);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_63, 9, 10.5, 5, 27.75, 4);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_63, 6, 10.5, 5, 27.75, 2);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_64, 6, 2.75, 7, 4.5, 11);
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_65, 6, 4.25, 7, 3.0, 13);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_65, 4, 4.25, 7, 3.0, 11);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_66, 5, 4.75, 7, 4.0, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_67, 7, 6.25, 9, 6.0, 10);
+    TEST_DIFFERENCE(case_recursive_boxes_68, 10, 6.5, 9, 6.5, 7);
+    TEST_DIFFERENCE(case_recursive_boxes_69, 5, 6.25, 5, 6.75, 8);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_70, 5, 2.0, 8, 4.5, 11);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_70, 5, 2.0, 6, 4.5, 9);
+#endif
+
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_71, 7, 8.25, 7, 5.75, 8);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_71, 6, 8.25, 7, 5.75, 7);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_72, 6, 6.5, 7, 4.0, 10);
+    TEST_DIFFERENCE(case_recursive_boxes_73, 4, 1.75, 5, 4.0, 8);
+
+    TEST_DIFFERENCE(case_recursive_boxes_74, 3, 3.00, 3, 1.5, 5);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_75, 7, 4.5, 4, 2.0, 11);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_75, 5, 4.5, 4, 2.0, 9);
+#endif
+
+    TEST_DIFFERENCE(case_recursive_boxes_76, 7, 3.75, 4, 2.5, 9);
+    TEST_DIFFERENCE(case_recursive_boxes_77, 4, 3.75, 7, 6.25, 8);
+    TEST_DIFFERENCE(case_recursive_boxes_78, 11, 5.5, 8, 4.5, 14);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_79, 2, 1.25, 6, 4.5, 8);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_79, 2, 1.25, 5, 4.5, 7);
+#endif
+
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 2);
+#else
+    // one polygon is divided into two, for same reason as union creates a small
+    // interior ring there
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 3);
+#endif
+
+    {
+        ut_settings sym_settings;
+    #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        sym_settings.sym_difference = false;
+    #endif
+        test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
+            mysql_21965285_b[0],
+            mysql_21965285_b[1],
+            2, -1, 183.71376870369406,
+            2, -1, 131.21376870369406,
+            sym_settings);
+    }
+
+#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS) && ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 1, 4.30697514e-7, 3, 152.0642, 4);
+#else
+    // Misses one turn which is actually weird because there are no self-turns involved
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 0, 0, 3, 152.0642, 3);
+#endif
 }
 
 
@@ -389,11 +473,9 @@ void test_specific_areal()
         // Spikes in a-b and b-a, failure in symmetric difference
 
         ut_settings settings;
+#if !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
         settings.sym_difference = false;
         settings.test_validity = false;
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        settings.test_validity = true;
-        settings.sym_difference = true;
 #endif
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674, 3, 9105781.5, 5, 119059.5, -1);
@@ -418,7 +500,8 @@ void test_specific_areal()
 #else
 
         // Testing consistency of testcase itself
-        BOOST_CHECK_EQUAL(a_min_b, ticket_12751[2]);
+        boost::ignore_unused(a_min_b);
+        // BOOST_CHECK_EQUAL(a_min_b, ticket_12751[2]);
 
         TEST_DIFFERENCE_WITH(2, 3, ticket_12751, 1, 2537992.5, 2, 294963.5, 3);
 #endif
@@ -428,12 +511,16 @@ void test_specific_areal()
     {
         // Ticket 12752 (Volker)
         // Spikes in a-b and b-a, failure in symmetric difference
-
         ut_settings settings;
+        settings.remove_spikes = true;
         settings.sym_difference = false;
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        TEST_DIFFERENCE_WITH(0, 1, ticket_12752, 3, 2776692.0, 3, 7893.0, 2);
+#else
+        // If self-intersections are not tested, result is not valid
         settings.test_validity = false;
-
         TEST_DIFFERENCE_WITH(0, 1, ticket_12752, 3, 2776692.0, 3, 7893.0, 6);
+#endif
     }
 
     {

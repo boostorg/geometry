@@ -4,11 +4,12 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016.
+// This file was modified by Oracle on 2015, 2016, 2017.
 // Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -102,9 +103,15 @@ namespace dispatch
 {
 
 
-template <typename Point, typename CS_Tag>
-struct envelope<Point, point_tag, CS_Tag>
+template <typename Point>
+struct envelope<Point, point_tag, cartesian_tag>
     : detail::envelope::envelope_one_point<0, dimension<Point>::value>
+{};
+
+
+template <typename Point>
+struct envelope<Point, point_tag, spherical_polar_tag>
+    : detail::envelope::envelope_point_on_spheroid
 {};
 
 

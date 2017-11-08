@@ -88,6 +88,20 @@ void test_geometry(std::string const& wkt1,
     check_geometry(v1, v2, wkt1, wkt2, expected, no_strategy());
 }
 
+template <typename Geometry1, typename Geometry2, typename Strategy>
+void test_geometry(std::string const& wkt1,
+                   std::string const& wkt2,
+                   bool expected,
+                   Strategy const& strategy)
+{
+    Geometry1 geometry1;
+    Geometry2 geometry2;
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
+
+    check_geometry(geometry1, geometry2, wkt1, wkt2, expected, strategy);
+}
+
 /*
 
 template <typename Point, bool Clockwise, bool Closed>
