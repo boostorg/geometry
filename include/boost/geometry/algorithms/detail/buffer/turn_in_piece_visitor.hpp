@@ -311,7 +311,7 @@ class analyse_turn_wrt_piece
     template <typename Point, typename Turn>
     static inline analyse_result check_helper_segment(Point const& s1,
                 Point const& s2, Turn const& turn,
-                bool is_original,
+                bool , // is on original, to be reused
                 Point const& offsetted)
     {
         boost::ignore_unused(offsetted);
@@ -340,11 +340,9 @@ class analyse_turn_wrt_piece
 
             if (geometry::covered_by(turn.robust_point, box))
             {
-                // Points on helper-segments are considered as within
-                // Points on original boundary are processed differently
-                return is_original
-                    ? analyse_on_original_boundary
-                    : analyse_within;
+                // Points on helper-segments (and not on its corners)
+                // are considered as within
+                return analyse_within;
             }
 
             // It is collinear but not on the segment. Because these
@@ -449,6 +447,9 @@ class analyse_turn_wrt_piece
         }
         if (comparator(point, points[1]) || comparator(point, points[2]))
         {
+            // It lies on the corner of a helper segment. For linear buffer,
+            // on flat and, this point should not be deleted.
+            // But if it is NOT on a flat end it might be discarded
             return analyse_on_original_boundary;
         }
 

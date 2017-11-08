@@ -977,7 +977,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy, intersection_strategy.get_side_strategy());
 
     collection.get_turns();
-    collection.classify_turns(linear);
+    collection.classify_turns(linear
+                              && end_strategy.get_piece_type() == strategy::buffer::buffered_flat_end);
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
         collection.check_remaining_points(distance_strategy);

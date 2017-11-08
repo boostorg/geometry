@@ -104,6 +104,7 @@ static std::string const mysql_report_2015_09_08c = "LINESTRING(-5 -8, 2 8, 2.16
 static std::string const mysql_23023665 = "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)";
 
 static std::string const mysql_25662426 = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4700)";
+static std::string const mysql_25662426a = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4750)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -292,9 +293,32 @@ void test_all()
     test_one<linestring, polygon>("mysql_23023665_1", mysql_23023665, join_round32, end_flat, 459.1051, 10);
     test_one<linestring, polygon>("mysql_23023665_2", mysql_23023665, join_round32, end_flat, 6877.7097, 50);
 
+    test_one<linestring, polygon>("mysql_25662426", mysql_25662426, join_round32, end_round32, 1, 0, 1660.6673, 10);
+
+    // Test behaviour with different buffer sizes, generating internally turns on different locations
+    test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0);
+    test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0);
+    test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_round32, 152.1163, 3.0);
+    test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_round32, 206.4831, 4.0);
+    test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_round32, 266.8505, 5.0);
+    test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_round32, 660.7355, 10.0);
+
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // TODO: correct area
-    test_one<linestring, polygon>("mysql_25662426", mysql_25662426, join_round32, end_round32, 1, 0, 111.0, 10);
+    // Left
+    test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_round32, 152.1163, 3.0, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_round32, 206.4831, 4.0, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_round32, 266.8505, 5.0, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_round32, 660.7355, 10.0, 0.0);
+
+    // Right
+    test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 0.0, 1.0);
+    test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 0.0, 2.0);
+    test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_round32, 152.1163, 0.0, 3.0);
+    test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_round32, 206.4831, 0.0, 4.0);
+    test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_round32, 266.8505, 0.0, 5.0);
+    test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_round32, 660.7355, 0.0, 10.0);
 #endif
 }
 

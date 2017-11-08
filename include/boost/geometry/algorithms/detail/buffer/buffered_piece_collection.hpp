@@ -499,7 +499,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_turns(bool linear)
+    inline void classify_turns(bool linear_flat_end)
     {
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
@@ -508,7 +508,7 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-            if (it->count_on_original_boundary > 0 && ! linear)
+            if (it->count_on_original_boundary > 0 && ! linear_flat_end)
             {
                 it->location = inside_buffer;
             }
