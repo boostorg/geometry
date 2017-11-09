@@ -156,10 +156,10 @@ public :
             bottom_max = lat_min1 <= lat_min2;
         }
 
-        //std::cout << "(diagonal)";
+        std::cout << "(diagonal)";
         if (bottom_max && !right_wrap)
         {
-            //std::cout << "(bottom left)";
+            std::cout << "(bottom left)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right2, top_left1, bottom_left1);
@@ -168,7 +168,7 @@ public :
         }
         if (bottom_max && right_wrap)
         {
-            //std::cout << "(bottom right)";
+            std::cout << "(bottom right)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left2, top_right1, bottom_right1);
@@ -177,7 +177,7 @@ public :
         }
         if (!bottom_max && !right_wrap)
         {
-            //std::cout << "(top left)";
+            std::cout << "(top left)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left1, top_right2, bottom_right2);
@@ -186,7 +186,7 @@ public :
         }
         if (!bottom_max && right_wrap)
         {
-            //std::cout << "(top right)";
+            std::cout << "(top right)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right1, top_left2, bottom_left2);

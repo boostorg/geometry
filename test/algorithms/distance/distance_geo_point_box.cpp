@@ -8,6 +8,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -42,32 +44,32 @@ typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
 
 // Strategies for point-segment distance
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::andoyer, stype, double>
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, stype, double>
         andoyer_ps;
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::thomas, stype, double>
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, stype, double>
         thomas_ps;
 
-typedef bg::strategy::distance::cross_track_geo<bg::strategy::vincenty, stype, double>
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
         vincenty_ps;
 
 // Strategies for point-box distance
 
-typedef bg::strategy::distance::cross_track_point_box_geo
+typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::andoyer,
             bg::srs::spheroid<double>,
             double
         > andoyer_pb;
 
-typedef bg::strategy::distance::cross_track_point_box_geo
+typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::thomas,
             bg::srs::spheroid<double>,
             double
         > thomas_pb;
 
-typedef bg::strategy::distance::cross_track_point_box_geo
+typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::vincenty,
             bg::srs::spheroid<double>,
