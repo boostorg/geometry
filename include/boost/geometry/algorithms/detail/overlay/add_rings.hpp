@@ -74,7 +74,8 @@ template
 inline OutputIterator add_rings(SelectionMap const& map,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            OutputIterator out)
+            OutputIterator out,
+            bool require_positive_area = true)
 {
     typedef typename SelectionMap::const_iterator iterator;
     typedef typename SelectionMap::mapped_type property_type;
@@ -123,7 +124,8 @@ inline OutputIterator add_rings(SelectionMap const& map,
             // This cannot be done earlier (during traversal), not
             // everything is figured out yet (sum of positive/negative rings)
             if (geometry::num_points(result) >= min_num_points
-                && math::larger(geometry::area(result), zero))
+                && (! require_positive_area
+                    || math::larger(geometry::area(result), zero)))
             {
                 *out++ = result;
             }
