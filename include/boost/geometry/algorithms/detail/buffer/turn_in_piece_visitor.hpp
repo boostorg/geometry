@@ -311,7 +311,11 @@ class analyse_turn_wrt_piece
     template <typename Point, typename Turn>
     static inline analyse_result check_helper_segment(Point const& s1,
                 Point const& s2, Turn const& turn,
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
                 bool , // is on original, to be reused
+#else
+                bool is_original,
+#endif
                 Point const& offsetted)
     {
         boost::ignore_unused(offsetted);
