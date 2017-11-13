@@ -214,7 +214,7 @@ private :
         result_distance_point_segment<CT> result;
 
         // Constants
-        CT const f = geometry::formula::flattening<CT>(spheroid);
+        //CT const f = geometry::formula::flattening<CT>(spheroid);
         CT const pi = math::pi<CT>();
         CT const half_pi = pi / CT(2);
         CT const c0 = CT(0);

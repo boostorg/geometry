@@ -113,19 +113,16 @@ public :
                 return geometry::strategy::distance::services::result_from_distance
                     <
                         Strategy, box_point_type1, box_point_type2
-                    //>::apply(ps_strategy, radius() * (lat_min1 - lat_max2));
-                    //>::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, lat_min1),
-                      >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min1, lat_max2));
+                    >::apply(ps_strategy, ps_strategy.get_distance_strategy()
+                               .meridian(lat_min1, lat_max2));
             }
             else if (lat_max1 < lat_min2)
             {
                 return geometry::strategy::distance::services::result_from_distance
                     <
                         Strategy, box_point_type1, box_point_type2
-                    //>::apply(ps_strategy, radius() * (lat_min2 - lat_max1));
-                    //>::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(box_point_type1(0, latmin2),
-                    //                                                                   box_point_type2(0, lat_max1)));
-                    >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min2, lat_max1));
+                    >::apply(ps_strategy, ps_strategy.get_distance_strategy().
+                             meridian(lat_min2, lat_max1));
             }
             else
             {
@@ -156,10 +153,10 @@ public :
             bottom_max = lat_min1 <= lat_min2;
         }
 
-        std::cout << "(diagonal)";
+        //std::cout << "(diagonal)";
         if (bottom_max && !right_wrap)
         {
-            std::cout << "(bottom left)";
+            //std::cout << "(bottom left)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right2, top_left1, bottom_left1);
@@ -168,7 +165,7 @@ public :
         }
         if (bottom_max && right_wrap)
         {
-            std::cout << "(bottom right)";
+            //std::cout << "(bottom right)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left2, top_right1, bottom_right1);
@@ -177,7 +174,7 @@ public :
         }
         if (!bottom_max && !right_wrap)
         {
-            std::cout << "(top left)";
+            //std::cout << "(top left)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left1, top_right2, bottom_right2);
@@ -186,7 +183,7 @@ public :
         }
         if (!bottom_max && right_wrap)
         {
-            std::cout << "(top right)";
+            //std::cout << "(top right)";
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right1, top_left2, bottom_left2);
@@ -195,7 +192,6 @@ public :
         }
         return ReturnType(0);
     }
-
 };
 
 }}}} // namespace boost::geometry::strategy::distance

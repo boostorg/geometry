@@ -34,6 +34,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
 
 namespace boost { namespace geometry
 {
@@ -109,23 +110,12 @@ public :
 
         return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
-/*
-    //TODO: special case for distance; do it more efficiently
-    //see https://en.wikipedia.org/wiki/Meridian_arc#Meridian_distance_on_the_ellipsoid
-    template <typename Point1, typename Point2>
-    inline typename calculation_type<Point1, Point2>::type
-    meridian(Point1 const& point1, Point2 const& point2) const
-    {
-        return apply(point1, point2);
-    }
-*/
 
     template <typename T>
-    inline double meridian(T lat1, T lat2) const
+    inline T meridian(T lat1, T lat2) const
     {
-        typedef geometry::model::point<T, 2,
-                           geometry::cs::geographic<geometry::radian> > point;
-        return apply(point(0,lat1), point(0,lat2));
+        T c0 = 0;
+        return apply(c0, lat1, c0, lat2, m_spheroid);
     }
 
     inline Spheroid const& model() const
