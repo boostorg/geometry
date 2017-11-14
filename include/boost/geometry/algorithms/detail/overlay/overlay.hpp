@@ -387,7 +387,13 @@ std::cout << "traverse" << std::endl;
 
         assign_parents(geometry1, geometry2, rings, selected_ring_properties, strategy);
 
-        return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
+        // NOTE: There is no need to check result area for union because
+        // as long as the polygons in the input are valid the resulting
+        // polygons should be valid as well.
+        // This also solves the issue with non-cartesian CSes, the result may
+        // be too big so the area is negative but it's returned anyway.
+        return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out,
+                                      OverlayType != overlay_union);
     }
 
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
