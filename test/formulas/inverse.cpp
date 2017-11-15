@@ -21,6 +21,7 @@
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/andoyer_inverse_parametric.hpp>
 #include <boost/geometry/formulas/thomas_inverse_first_order.hpp>
+#include <boost/geometry/formulas/elliptic_arc_length.hpp>
 
 
 void check_inverse(std::string const& name,
@@ -89,6 +90,10 @@ void test_all(expected_results const& results)
     result_a.azimuth *= r2d;
     result_a.reverse_azimuth *= r2d;
     check_inverse("thomas_1st", results, result_a, results.thomas_first_order, results.reference, 0.001);
+
+    typedef bg::formula::elliptic_arc_length<double> eli;
+    double dist = eli::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    check_one(dist, results.vincenty.distance, results.reference.distance, 0.001);
 }
 
 int test_main(int, char*[])
