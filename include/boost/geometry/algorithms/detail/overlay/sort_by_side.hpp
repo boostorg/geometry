@@ -91,13 +91,20 @@ struct less_by_index
     template <typename T>
     inline bool operator()(const T& first, const T& second) const
     {
+        // Length might be considered too
         // First order by from/to
         if (first.direction != second.direction)
         {
             return first.direction < second.direction;
         }
-        // All the same, order by turn index (we might consider length too)
-        return first.turn_index < second.turn_index;
+        // Then by turn index
+        if (first.turn_index != second.turn_index)
+        {
+            return first.turn_index < second.turn_index;
+        }
+        // This can also be the same (for example in buffer), but seg_id is
+        // never the same
+        return first.seg_id < second.seg_id;
     }
 };
 

@@ -160,7 +160,7 @@ struct dissolve_ring_or_polygon
         geometry::self_turns
             <
                 detail::overlay::assign_null_policy
-            >(geometry, strategy, rescale_policy, turns, policy);
+            >(geometry, strategy, rescale_policy, turns, policy, 0, false);
 
         visitor.visit_turns(1, turns);
 
@@ -260,7 +260,10 @@ struct dissolve_ring_or_polygon
             }
         }
 
-        detail::overlay::assign_parents(geometry, rings, selected, strategy, true);
+        // Assign parents, checking orientation and discarding negative
+        // children with negative parents
+        detail::overlay::assign_parents(geometry, rings, selected,
+                                        strategy, true, true);
         return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
     }
 };

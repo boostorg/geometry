@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -39,9 +39,19 @@ void test_default() //this should use andoyer strategy
                                               1116814.237 + 1116152.605);
     }
 
+    //since the geodesic distance is the shortest path it should go over the pole
+    //in this case; thus the correct perimeter is the meridian length (below)
+    //and not 40075160 which is the legth of the equator
+    test_geometry<bg::model::polygon<P> >(poly_data_geo[3],
+                                          40007834.7139);
+
+    //force to use equator path
+    test_geometry<bg::model::polygon<P> >(poly_data_geo[4],
+                                          40075016.6856);
+
     // Multipolygon
     test_geometry<bg::model::multi_polygon<bg::model::polygon<P> > >
-                                            (multipoly_data[0], 60078934.0425);
+                                            (multipoly_data[0], 60011752.0709);
 
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0);

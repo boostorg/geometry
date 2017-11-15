@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2016 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2016 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016,2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library

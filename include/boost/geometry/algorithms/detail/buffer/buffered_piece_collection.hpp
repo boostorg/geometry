@@ -217,6 +217,8 @@ struct buffered_piece_collection
         // 2: half, not part of offsetted rings - part of robust ring
         std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
+        bool is_flat_start;
+        bool is_flat_end;
 
         bool is_convex;
         bool is_monotonic_increasing[2]; // 0=x, 1=y
@@ -245,6 +247,8 @@ struct buffered_piece_collection
             , right_index(-1)
             , last_segment_index(-1)
             , offsetted_count(-1)
+            , is_flat_start(false)
+            , is_flat_end(false)
             , is_convex(false)
             , robust_min_comparable_radius(0)
             , robust_max_comparable_radius(0)
@@ -499,7 +503,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_turns(bool linear)
+    inline void classify_turns()
     {
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
@@ -508,7 +512,7 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-            if (it->count_on_original_boundary > 0 && ! linear)
+            if (it->count_on_original_boundary > 0)
             {
                 it->location = inside_buffer;
             }
@@ -1233,6 +1237,24 @@ struct buffered_piece_collection
         }
     }
 
+    inline void mark_flat_start()
+    {
+        if (! m_pieces.empty())
+        {
+            piece& back = m_pieces.back();
+            back.is_flat_start = true;
+        }
+    }
+
+    inline void mark_flat_end()
+    {
+        if (! m_pieces.empty())
+        {
+            piece& back = m_pieces.back();
+            back.is_flat_end = true;
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     inline void enrich()
@@ -1445,7 +1467,10 @@ struct buffered_piece_collection
             }
         }
 
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, m_intersection_strategy, true);
+        // Assign parents, checking orientation but NOT discarding double
+        // negative rings (negative child with negative parent)
+        detail::overlay::assign_parents(offsetted_rings, traversed_rings,
+                selected, m_intersection_strategy, true, false);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 
