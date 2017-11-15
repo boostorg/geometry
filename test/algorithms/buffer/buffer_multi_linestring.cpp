@@ -146,12 +146,29 @@ void test_all()
             1.32832149026508268e+19, 2061380362.0,
             same_distance, true, 1.0e12);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Generates first no interior, then one touching point (no interior),
+    // then one real interior ring, then one complete polygon
     test_one<multi_linestring_type, polygon>("mysql_23023665_1",
-            mysql_23023665_1, join_round32, end_round32,
-            1, 1, 186.55043107613727, 1.0,
-            same_distance, true, 1.0e12);
-#endif
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 186.5504, 1.0);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 167.8062, 0.9);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 205.1473, 1.1);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 368.8422, 2.0);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_59",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 1020.7214, 5.9821); // very small triangle
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_60",
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 1023.3061, 6.0); // no interior anymore
+
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 180.3075, 1.0);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 162.7494, 0.9);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 197.7607, 1.1);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
+            mysql_23023665_1, join_round32, end_flat, 1, 1, 350.1135, 2.0);
 }
 
 
