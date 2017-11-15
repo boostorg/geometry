@@ -58,21 +58,36 @@ void test_geographic_one(std::string const& wkt1, std::string const& wkt2,
     boost::geometry::read_wkt(wkt2, p2);
 
     multipolygon result;
-    boost::geometry::union_(p1, p2, result, is);
 
-    double result_area = bg::area(result, as);
+#ifdef BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION
+    if (expected_area >= 0)
+    {
+#else
+    {  
+#endif
+        boost::geometry::union_(p1, p2, result, is);
 
-    std::size_t result_count = boost::size(result);
-    std::size_t result_exterior_points = std::for_each(boost::begin(result),
-                                                       boost::end(result),
-                                                       exterior_points_counter()).count;
-    std::size_t result_interiors = std::for_each(boost::begin(result),
-                                                 boost::end(result),
-                                                 interiors_counter()).count;
-    BOOST_CHECK_EQUAL(result_count, count);
-    BOOST_CHECK_EQUAL(result_exterior_points, exterior_points_count);
-    BOOST_CHECK_EQUAL(result_interiors, interiors_count);
-    BOOST_CHECK_CLOSE(result_area, expected_area, 0.001);
+        double result_area = bg::area(result, as);
+
+        std::size_t result_count = boost::size(result);
+        std::size_t result_exterior_points = std::for_each(boost::begin(result),
+                                                           boost::end(result),
+                                                           exterior_points_counter()).count;
+        std::size_t result_interiors = std::for_each(boost::begin(result),
+                                                     boost::end(result),
+                                                     interiors_counter()).count;
+        BOOST_CHECK_EQUAL(result_count, count);
+        BOOST_CHECK_EQUAL(result_exterior_points, exterior_points_count);
+        BOOST_CHECK_EQUAL(result_interiors, interiors_count);
+        BOOST_CHECK_CLOSE(result_area, expected_area, 0.001);
+    }
+#ifdef BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION
+    else
+    {
+        BOOST_CHECK_THROW(boost::geometry::union_(p1, p2, result, is),
+                          bg::invalid_output_exception);
+    }
+#endif
 }
 
 
