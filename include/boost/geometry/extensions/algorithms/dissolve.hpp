@@ -246,9 +246,8 @@ struct dissolve_ring_or_polygon
         detail::overlay::select_rings<overlay_dissolve_union>(geometry, turn_info_per_ring, selected, strategy);
 
         // Add intersected rings
+        area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
         {
-            area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
-
             ring_identifier id(2, 0, -1);
             for (typename boost::range_iterator<std::vector<ring_type> const>::type
                     it = boost::begin(rings);
@@ -264,7 +263,7 @@ struct dissolve_ring_or_polygon
         // children with negative parents
         detail::overlay::assign_parents(geometry, rings, selected,
                                         strategy, true, true);
-        return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
+        return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
     }
 };
 
