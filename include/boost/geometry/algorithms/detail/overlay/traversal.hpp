@@ -345,6 +345,7 @@ struct traversal
 
             if (op.operation == target_operation
                 && ! op.visited.finished()
+                && ! op.visited.visited()
                 && (! result || select_source(turn_index, op.seg_id, previous_seg_id)))
             {
                 selected_op_index = i;
