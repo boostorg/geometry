@@ -16,6 +16,8 @@ machine:
   environment:
     # define tests list, if parallelism is enabled they are run in parallel
     TESTS: test index/test
+    TESTS0: test/core test/concepts test/geometries test/arithmetic test/algorithms test/formulas test/iterators
+    TESTS1: test/strategies test/policies test/io test/util test/views index/test
 
     # this is not fully bulletproof, ideally one should check
     # if the current branch originates in master or develop
@@ -109,7 +111,11 @@ test:
     #- cd $BOOST_ROOT/libs/geometry && index=0 ; run_tests() { for i in "$1"/* ; do if [ -f "$i"/Jamfile* ] ; then ((index++)) ; echo "$index - $i" ; ../../b2 cxxflags="--coverage" linkflags="--coverage" "$i" ; run_tests "$i" ; fi ; done } ; run_tests test
 
     # so for now just run the tests from the list
-    - cd $BOOST_ROOT/libs/geometry && status=0; index=0 ; for t in ${TESTS[@]} ; do if [ $(((index++)%CIRCLE_NODE_TOTAL)) == $CIRCLE_NODE_INDEX ] ; then ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t ; fi || status=$? ; done ; exit $status :
+    #- cd $BOOST_ROOT/libs/geometry && status=0; index=0 ; for t in ${TESTS[@]} ; do if [ $(((index++)%CIRCLE_NODE_TOTAL)) == $CIRCLE_NODE_INDEX ] ; then ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t ; fi || status=$? ; done ; exit $status :
+    #    parallel: true
+
+    # so for now just run the tests from 2 lists
+    - cd $BOOST_ROOT/libs/geometry && status=0; case $CIRCLE_NODE_INDEX in 0) for t in ${TESTS0[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; 1) for t in ${TESTS1[@]} ; do ../../b2 -j2 cxxflags="--coverage" linkflags="--coverage" $t || status=$? ; done ;; esac ; exit $status :
         parallel: true
 
   post:

@@ -400,7 +400,7 @@ public:
                              bool expected_result)
     {
         std::stringstream sstr;
-        sstr << case_id << "-original";
+        sstr << case_id << "-original"; // which is: CCW open
         base_test(sstr.str(), geometry, expected_result);
 
         if ( is_convertible_to_closed<Geometry>::apply(geometry) )

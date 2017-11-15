@@ -5,6 +5,7 @@
 // This file was modified by Oracle on 2014-2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,12 +23,14 @@
 #include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/elliptic_arc_length.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
@@ -70,17 +73,41 @@ public :
         : m_spheroid(spheroid)
     {}
 
+    template <typename CT>
+    static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
+                           Spheroid const& spheroid)
+    {
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        typename elliptic_arc_length::result res =
+                 elliptic_arc_length::apply(lon1, lat1, lon2, lat2, spheroid);
+
+        if (res.meridian)
+        {
+            return res.distance;
+        }
+
+        return FormulaPolicy::template inverse
+                <
+                    CT, true, false, false, false, false
+                >::apply(lon1, lat1, lon2, lat2, spheroid).distance;
+    }
+
     template <typename Point1, typename Point2>
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return FormulaPolicy::template inverse
-            <
-                typename calculation_type<Point1, Point2>::type,
-                true, false, false, false, false
-            >::apply(get_as_radian<0>(point1), get_as_radian<1>(point1),
-                     get_as_radian<0>(point2), get_as_radian<1>(point2),
-                     m_spheroid).distance;
+        typedef typename calculation_type<Point1, Point2>::type CT;
+
+        CT lon1 = get_as_radian<0>(point1);
+        CT lat1 = get_as_radian<1>(point1);
+        CT lon2 = get_as_radian<0>(point2);
+        CT lat2 = get_as_radian<1>(point2);
+
+        return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
 
     inline Spheroid const& model() const

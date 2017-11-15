@@ -132,11 +132,15 @@ void test_areal()
         3, 13, 3.0);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // One intersection is missing (by rescaling)
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
-        case_108_multi[0], case_108_multi[1],
-        5, 33, 7.5,
-        ignore_validity);
+    {
+        ut_settings ignore_validity; ignore_validity.test_validity = false;
+
+        // One intersection is missing (by rescaling)
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+            case_108_multi[0], case_108_multi[1],
+            5, 33, 7.5,
+            ignore_validity);
+    }
 #endif
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
@@ -349,6 +353,8 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_76, 2, -1, 18.25);
     TEST_INTERSECTION(case_recursive_boxes_77, 5, -1, 3.5);
     TEST_INTERSECTION(case_recursive_boxes_78, 9, -1, 8.0);
+    TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
+    TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -372,6 +378,8 @@ void test_areal()
 #endif
 
     );
+
+    TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],
