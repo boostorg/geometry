@@ -76,7 +76,7 @@ public :
 
     template <typename CT>
     static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
-                           Spheroid const& spheroid)
+                           Spheroid const& spheroid) const
     {
         typedef typename formula::elliptic_arc_length
                 <
@@ -111,11 +111,17 @@ public :
         return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
 
-    template <typename T>
-    inline T meridian(T lat1, T lat2) const
+    // points on a meridian not crossing poles
+    template <typename CT>
+    inline CT meridian(CT lat1, CT lat2) const
     {
-        T c0 = 0;
-        return apply(c0, lat1, c0, lat2, m_spheroid);
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        return elliptic_arc_length::apply(lat2, m_spheroid)
+             - elliptic_arc_length::apply(lat1, m_spheroid);
     }
 
     inline Spheroid const& model() const
