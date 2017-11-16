@@ -38,14 +38,14 @@ class elliptic_arc_length
 
 public :
 
+    typedef result_inverse<CT> result_type;
+
     // from [Tseng15]
     // Tseng - THE GEOMETRIC ALGORITHM OF INVERSE DIRECT PROBLEMS FOR GREAT ELLIPTIC ARCS
     template <typename T, typename Spheroid>
     static T dist_tseng(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
     {
-        CT c0 = 0;
         CT c1 = 1;
-        CT c2 = 2;
 
         CT const f = formula::flattening<CT>(spheroid);
         CT const e2 = f * (CT(2) - f);
@@ -116,25 +116,10 @@ public :
     // PAUL D. THOMAS, MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
     // http://www.dtic.mil/docs/citations/AD0627893
     template <typename T, typename Spheroid>
-    static inline T apply(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
+    static inline result_type apply(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
     {
-/*
-        // If the segment is meridian
-        // TODO: do not use manual Order
-        // maybe throw an exception here?
-        typedef typename formula::elliptic_meridian_arc_length
-                <
-                    CT, 4
-                > elliptic_meridian_arc_length;
+        result_type result;
 
-        typename elliptic_meridian_arc_length::result res =
-                 elliptic_meridian_arc_length::apply(lon1, lat1, lon2, lat2, spheroid);
-
-        if (res.meridian)
-        {
-            return res.distance;
-        }
-*/
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
@@ -165,7 +150,8 @@ public :
             CT const sin_th1 = sin(theta1);
             CT const sin_th2 = sin(theta2);
             CT const d1_d2 = acos(sin_th1 * sin_th2 + cos_th1 * cos_th2 * cosdl);
-            return a * d1_d2;
+            result.distance = a * d1_d2;
+            return result;
         }
 
         CT const sindl = sin(dlon);
@@ -176,7 +162,12 @@ public :
         CT const A = tan_th1 - tan_th2 * cosdl;
         CT const B = tan_th2 - tan_th1 * cosdl;
         CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
-        CT const sin_th0_sq = K/(K+c1);
+        CT sin_th0_sq = K/(K+c1);
+        //if the semgent is meridian then sindl=0 and K=nan
+        if (math::equals(sindl, c0))
+        {
+            sin_th0_sq = c1;
+        }
 
         CT const cos2d1 = c2 * (c1 - cos_th1 * cos_th1) / sin_th0_sq - c1;
         CT const cos2d2 = c2 * (c1 - cos_th2 * cos_th2) / sin_th0_sq - c1;
@@ -204,7 +195,28 @@ public :
 
         CT const s = a * (H + U1 + U2 + U3);
 
-        return math::abs(s);
+        result.distance = math::abs(s);
+
+        CT const T1 = math::sqrt(1 - e2 * cos_th1 * cos_th1);
+        CT const T2 = math::sqrt(1 - e2 * cos_th2 * cos_th2);
+
+        CT const sin_th1 = sin(theta1);
+        CT const sin_th2 = sin(theta2);
+        CT const C = e2 * (sin_th2 - sin_th1);
+
+        CT const D1 = cos_th1 / T1 * sindl;
+        CT const D2 = cos_th2 / T2 * sindl;
+
+        CT const R1 = C / cos_th2;
+        CT const R2 = -C / cos_th1;
+
+        CT const cotAB = D1 * (R1 - B);
+        CT const cotBA = D2 * (A - R2);
+
+        result.azimuth = atan(1/cotAB);
+        result.reverse_azimuth = atan(1/cotBA);
+
+        return result;
     }
 };
 
