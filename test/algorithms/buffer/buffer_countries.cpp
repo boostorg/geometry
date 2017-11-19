@@ -131,15 +131,17 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 
     // Test with a high tolerance, even a difference of 1000 is only ~1.0e-6%
 
+    ut_settings settings(10000.0, true, false);
+
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // in case robustness policies are changed, areas should be adapted
-    double const countries_tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
+    settings.tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
 #else
-    double const countries_tolerance = 10000.0;
+    settings.tolerance = 10000.0;
 #endif
 
     test_one<MP, P>(caseid, wkt, join_round, end_flat,
-        expected_area, distance * 1000.0, distance * 1000.0, false, countries_tolerance);
+        expected_area, distance * 1000.0, distance * 1000.0, settings);
 }
 
 

@@ -253,30 +253,36 @@ void test_all()
 
 
     {
-        double tolerance = 1.0e-10;
+        ut_settings settings(1.0e-10);
 
-        test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
-        test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
+        ut_settings settings_wo_self = settings;
+        settings_wo_self.check_self_intersections = false;
 
-        test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
-        test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, settings_wo_self);
+        test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, settings);
 
-        test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
-        test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, settings);
+        test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, settings);
 
-        test_one<linestring, polygon>("aimes171", aimes171, join_miter, end_flat, 1.1721873249825876e-08, 0.000018, 0.000018, true, tolerance);
-        test_one<linestring, polygon>("aimes171", aimes171, join_round, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
-        test_one<linestring, polygon>("aimes171", aimes171, join_round_by_divide, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, settings);
+        test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, settings);
 
-        test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, true, tolerance);
-        test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
-        test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes171", aimes171, join_miter, end_flat, 1.1721873249825876e-08, 0.000018, 0.000018, settings);
+        test_one<linestring, polygon>("aimes171", aimes171, join_round, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, settings);
+        test_one<linestring, polygon>("aimes171", aimes171, join_round_by_divide, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, settings);
+
+        test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, settings);
+        test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, settings);
+        test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, settings);
     }
 
-    // On one compiler 1702.56530051454502 2140.78725663358819
-    // so we increase tolerance
-    test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.1, 20.0, 20.0, true, 0.5);
-    test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.4, 20.0, 20.0, true, 0.5);
+    {
+        // Expectations can also be 1702.56530051454502 2140.78725663358819
+        // so we increase tolerance
+        ut_settings settings(0.5);
+        test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.1, 20.0, 20.0, settings);
+        test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.4, 20.0, 20.0, settings);
+    }
 
     test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
 

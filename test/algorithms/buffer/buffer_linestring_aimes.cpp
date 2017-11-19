@@ -468,7 +468,7 @@ void test_aimes()
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
-    double const tolerance = 1.0e-10;
+    ut_settings settings(1.0e-10, true, false);
 
     // Aimes tested originally with 0.000018 degrees (around 2 m)
     std::size_t self_ip_count = 0;
@@ -488,14 +488,14 @@ void test_aimes()
                     name.str(), testcases[i], join_miter, end_flat,
                     expectations[i][expectation_index],
                     aimes_width, aimes_width,
-                    self_ip_count, tolerance
+                    self_ip_count, settings
                 );
                 test_one<linestring, polygon>
                 (
                     name.str(), testcases[i], join_round, end_round,
                     expectations[i][expectation_index + 1],
                     aimes_width, aimes_width,
-                    self_ip_count, tolerance
+                    self_ip_count, settings
                 );
             }
             catch(std::exception const& e)
