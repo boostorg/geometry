@@ -58,34 +58,34 @@ void test_all()
     bg::strategy::buffer::join_round join_round32(32);
 
     // Round joins / round ends
-    test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_round, 49.0217, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_round, 74.73, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_round, 86.3313, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_round, 58.3395, 1.5, 0.75);
+    test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_round, 49.0217, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_round, 74.73, 1.5);
+    test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_round, 86.3313, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_round, 58.3395, 1.5, ut_settings(), 0.75);
 
     // Round joins / flat ends:
-    test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_flat, 38.2623, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_flat, 64.6217, 1.5, 1.5);
+    test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_flat, 38.2623, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_flat, 64.6217, 1.5);
 
-    test_one<multi_linestring_type, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 202.5910, 9.0, 9.0);
-    test_one<multi_linestring_type, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 231.4988, 9.0, 9.0);
+    test_one<multi_linestring_type, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 202.5910, 9.0);
+    test_one<multi_linestring_type, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 231.4988, 9.0);
 
-    // TODO this should be fixed test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_flat, 99, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_flat, 52.3793, 1.5, 0.75);
+    // TODO this should be fixed test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_flat, 99, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_flat, 52.3793, 1.5, ut_settings(), 0.75);
 
     // This one is far from done:
-    // test_one<multi_linestring_type, polygon>("turn_inside_asym_neg", turn_inside, join_round, end_flat, 99, +1.5, -1.0);
+    // test_one<multi_linestring_type, polygon>("turn_inside_asym_neg", turn_inside, join_round, end_flat, 99, +1.5, ut_settings(), -1.0);
 
     // Miter / divide joins, various ends
-    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round_by_divide, end_flat, 64.6217, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_flat, 65.1834, 1.5, 1.5);
-    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_round, 75.2917, 1.5, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round_by_divide, end_flat, 64.6217, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_flat, 65.1834, 1.5);
+    test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_miter, end_round, 75.2917, 1.5);
 
-    test_one<multi_linestring_type, polygon>("degenerate0", degenerate0, join_round, end_round, 0.0, 3.0, 3.0);
-    test_one<multi_linestring_type, polygon>("degenerate1", degenerate1, join_round, end_round, 28.2503, 3.0, 3.0);
-    test_one<multi_linestring_type, polygon>("degenerate2", degenerate2, join_round, end_round, 56.0457, 3.0, 3.0);
-    test_one<multi_linestring_type, polygon>("degenerate3", degenerate3, join_round, end_round, 80.4531, 3.0, 3.0);
-    test_one<multi_linestring_type, polygon>("degenerate4", degenerate4, join_round, end_round, 104.3142, 3.0, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate0", degenerate0, join_round, end_round, 0.0, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate1", degenerate1, join_round, end_round, 28.2503, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate2", degenerate2, join_round, end_round, 56.0457, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate3", degenerate3, join_round, end_round, 80.4531, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate4", degenerate4, join_round, end_round, 104.3142, 3.0);
 
     test_one<multi_linestring_type, polygon>("crossing", crossing, join_round32, end_flat, 2628.4272, 50.0);
     test_one<multi_linestring_type, polygon>("crossing", crossing, join_round32, end_round32,  9893.764, 50.0);
@@ -95,17 +95,21 @@ void test_all()
     // Note that for large distances the flat ends (not tested here) still give weird effects
     {
         // The results can differ between compilers and platforms
+
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        double mikado_tolerance = 40.0;
+        ut_settings settings(40.0);
 #else
-        double mikado_tolerance = 30.0;
+        ut_settings settings(30.0);
 #endif
 
-        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125.0, 41751.0, same_distance, true, mikado_tolerance);
+        ut_settings settings10 = settings;
+        settings10.tolerance *= 10.0;
+
+        test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052125.0, 41751.0, settings);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
         test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253.0, 79610.0, same_distance, true, 10 * mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812253.0, 79610.0, settings10);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
         test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
@@ -113,11 +117,11 @@ void test_all()
         // msvc        29151950611
         // clang/linux 29151950612
         // mingw       29151950711
-        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950650.0, 96375.0, same_distance, true, 10 * mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950650.0, 96375.0, settings10);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
         test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
-        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169.0, 59772.0, same_distance, true, mikado_tolerance);
+        test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832169.0, 59772.0, settings);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
@@ -135,23 +139,42 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
 #endif
 
-    // Two other cases with inf for length calculation (tolerance quite high
-    // because the output area is quite high and varies between gcc/clang)
-    test_one<multi_linestring_type, polygon>("mysql_2015_09_08a",
-            mysql_2015_09_08a, join_round32, end_round32,
-            5.12436196736438764e+19, 4051744443.0,
-            same_distance, true, 1.0e12);
-    test_one<multi_linestring_type, polygon>("mysql_2015_09_08b",
-            mysql_2015_09_08b, join_round32, end_round32,
-            1.32832149026508268e+19, 2061380362.0,
-            same_distance, true, 1.0e12);
+    {
+        // Two other cases with inf for length calculation (tolerance quite high
+        // because the output area is quite high and varies between gcc/clang)
+        ut_settings settings(1.0e12);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+        test_one<multi_linestring_type, polygon>("mysql_2015_09_08a",
+                mysql_2015_09_08a, join_round32, end_round32,
+                5.12436196736438764e+19, 4051744443.0, settings);
+        test_one<multi_linestring_type, polygon>("mysql_2015_09_08b",
+                mysql_2015_09_08b, join_round32, end_round32,
+                1.32832149026508268e+19, 2061380362.0, settings);
+    }
+
+    // Generates first no interior, then one touching point (no interior),
+    // then one real interior ring, then one complete polygon
     test_one<multi_linestring_type, polygon>("mysql_23023665_1",
-            mysql_23023665_1, join_round32, end_round32,
-            1, 1, 186.55043107613727, 1.0,
-            same_distance, true, 1.0e12);
-#endif
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 186.5504, 1.0, ut_settings::ignore_validity());
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 167.8062, 0.9);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 205.1473, 1.1);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 368.8422, 2.0);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_59",
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 1020.7214, 5.9821); // very small triangle
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_60",
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 1023.3061, 6.0); // no interior anymore
+
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 180.3075, 1.0);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 162.7494, 0.9);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
+            mysql_23023665_1, join_round32, end_flat, 1, 0, 197.7607, 1.1);
+    test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
+            mysql_23023665_1, join_round32, end_flat, 1, 1, 350.1135, 2.0);
 }
 
 
