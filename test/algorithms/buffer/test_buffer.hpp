@@ -101,7 +101,7 @@ struct ut_settings
     bool check_self_intersections;
     bool test_validity;
 
-    ut_settings(double tol = 0.01, bool val = true, bool self = true)
+    explicit ut_settings(double tol = 0.01, bool val = true, bool self = true)
         : tolerance(tol)
         , check_self_intersections(self)
         , test_validity(val)
@@ -444,8 +444,8 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         int expected_count, int expected_holes_count, double expected_area,
-        double distance_left, double distance_right = same_distance,
-        ut_settings const& settings = ut_settings())
+        double distance_left, ut_settings const& settings = ut_settings(),
+        double distance_right = same_distance)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -515,12 +515,12 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
-        double distance_left, double distance_right = same_distance,
-        ut_settings const& settings = ut_settings())
+        double distance_left, ut_settings const& settings = ut_settings(),
+        double distance_right = same_distance)
 {
     test_one<Geometry, GeometryOut>(caseid, wkt, join_strategy, end_strategy,
         -1 ,-1, expected_area,
-        distance_left, distance_right, settings);
+        distance_left, settings, distance_right);
 }
 
 // Version (currently for the Aimes test) counting self-ip's instead of checking
@@ -531,12 +531,12 @@ template
     typename JoinStrategy,
     typename EndStrategy
 >
-void test_one(std::string const& caseid, std::string const& wkt,
+void test_one_and_count_ips(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
-        double distance_left, double distance_right,
+        double distance_left,
         std::size_t& self_ip_count,
-        ut_settings const& settings = ut_settings())
+        ut_settings const& settings)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -546,9 +546,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
     bg::strategy::buffer::distance_asymmetric
     <
         typename bg::coordinate_type<Geometry>::type
-    > distance_strategy(distance_left,
-                        bg::math::equals(distance_right, same_distance)
-                        ? distance_left : distance_right);
+    > distance_strategy(distance_left, distance_left);
 
     bg::strategy::buffer::point_circle circle_strategy(88);
     bg::strategy::buffer::side_straight side_strategy;

@@ -483,19 +483,17 @@ void test_aimes()
             try
             {
                 name << "aimes_" << i << "_" << width;
-                test_one<linestring, polygon>
+                test_one_and_count_ips<linestring, polygon>
                 (
                     name.str(), testcases[i], join_miter, end_flat,
                     expectations[i][expectation_index],
-                    aimes_width, aimes_width,
-                    self_ip_count, settings
+                    aimes_width, self_ip_count, settings
                 );
-                test_one<linestring, polygon>
+                test_one_and_count_ips<linestring, polygon>
                 (
                     name.str(), testcases[i], join_round, end_round,
                     expectations[i][expectation_index + 1],
-                    aimes_width, aimes_width,
-                    self_ip_count, settings
+                    aimes_width, self_ip_count, settings
                 );
             }
             catch(std::exception const& e)

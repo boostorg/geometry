@@ -42,23 +42,23 @@ void test_all()
 
     double const pi = boost::geometry::math::pi<double>();
 
-    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * pi, 1.0, 1.0);
-    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8372, 2.0, 2.0);
-    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0, 3.0);
+    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * pi, 1.0);
+    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8372, 2.0);
+    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
 
-    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0, 1.0);
+    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
 #if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // For no-rescaling, fails in CCW mode
-    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0, 2.0);
+    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
 #endif
-    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6914, 1.9, 1.9);
-    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6394, 2.1, 2.1);
-    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.533, 3.0, 3.0);
+    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6914, 1.9);
+    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6394, 2.1);
+    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.533, 3.0);
 
-    test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join, end_flat, 2049.98, 14.0, 14.0);
-    test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join, end_flat, 7109.88, 15.0, 15.0);
-    test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join, end_flat, 6911.89, 14.7, 14.7);
-    test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join, end_flat, 7174.79, 15.1, 15.1);
+    test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join, end_flat, 2049.98, 14.0);
+    test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join, end_flat, 7109.88, 15.0);
+    test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join, end_flat, 6911.89, 14.7);
+    test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join, end_flat, 7174.79, 15.1);
 
     // Grid tests
     {

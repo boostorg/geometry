@@ -141,7 +141,7 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 #endif
 
     test_one<MP, P>(caseid, wkt, join_round, end_flat,
-        expected_area, distance * 1000.0, distance * 1000.0, settings);
+        expected_area, distance * 1000.0, settings);
 }
 
 

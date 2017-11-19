@@ -505,7 +505,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
         mysql_report_2015_07_05_1,
         join_round32, end_round32, 6.04454566324708726e+23, 5526.0,
-        same_distance, ut_settings(1e+020, true, false));
+        ut_settings(1e+020, true, false));
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
         mysql_report_2015_07_05_2,
         join_round32, end_round32, 0.0, 948189399.0);
