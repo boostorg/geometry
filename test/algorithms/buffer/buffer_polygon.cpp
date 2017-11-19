@@ -510,6 +510,7 @@ void test_all()
     {
         ut_settings settings;
         settings.check_self_intersections = false;
+        settings.test_validity = false;
 
         // Tickets
         test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, settings);
@@ -581,21 +582,19 @@ void test_all()
             join_round32, end_round32, 64.0, -1.0);
 
         {
-            ut_settings high_tol_settings(1.0e+20, true, false);
-
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_0", mysql_report_2015_07_05_0,
                 join_round32, end_round32, 700643542.242915988, 6.0);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
                 join_round32, end_round32, 2.07548405999982264e+19, 6.0);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
                 join_round32, end_round32, 9.48681585720922691e+23, 549755813889.0,
-                high_tol_settings);
+                ut_settings(1.0e+20, true, false));
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
                 join_round32, end_round32, 6.10005339242509925e+22, 49316.0,
-                high_tol_settings);
+                ut_settings(1.0e+20, false, false)); // Reported as Invalid
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4", mysql_report_2015_07_05_4,
                 join_round32, end_round32, 4.25405937213774089e+23, 1479986.0,
-                high_tol_settings);
+                ut_settings(1.0e+20, true, false));
 
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
                 join_round32, end_round32, 644489321051.62439, 38141.0,

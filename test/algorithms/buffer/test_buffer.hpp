@@ -107,6 +107,13 @@ struct ut_settings
         , test_validity(val)
     {}
 
+    static inline ut_settings ignore_validity()
+    {
+        ut_settings result;
+        result.test_validity = false;
+        return result;
+    }
+
 };
 
 template <typename Geometry, typename Strategy, typename RescalePolicy>
@@ -356,16 +363,10 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         }
     }
 
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_IS_VALID
-    if (! bg::is_valid(buffered))
+    if (settings.test_validity && ! bg::is_valid(buffered))
     {
-        std::cout
-            << "NOT VALID: " << complete.str() << std::endl
-            << std::fixed << std::setprecision(16) << bg::wkt(buffered) << std::endl;
+        BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
     }
-//    BOOST_CHECK_MESSAGE(bg::is_valid(buffered) == true, complete.str() <<  " is not valid");
-//    BOOST_CHECK_MESSAGE(bg::intersects(buffered) == false, complete.str() <<  " intersects");
-#endif
 
 #if defined(TEST_WITH_SVG_PER_TURN)
     {

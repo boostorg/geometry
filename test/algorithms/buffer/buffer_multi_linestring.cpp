@@ -155,7 +155,7 @@ void test_all()
     // Generates first no interior, then one touching point (no interior),
     // then one real interior ring, then one complete polygon
     test_one<multi_linestring_type, polygon>("mysql_23023665_1",
-            mysql_23023665_1, join_round32, end_round32, 1, 0, 186.5504, 1.0);
+            mysql_23023665_1, join_round32, end_round32, 1, 0, 186.5504, 1.0, ut_settings::ignore_validity());
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
             mysql_23023665_1, join_round32, end_round32, 1, 0, 167.8062, 0.9);
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
