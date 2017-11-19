@@ -124,20 +124,20 @@ uk:
 */
 
 template <typename MP, typename P>
-void test_one(std::string const& caseid, std::string const& wkt, double expected_area, double distance)
+void test_one(std::string const& caseid, std::string const& wkt, double expected_area, double distance,
+              ut_settings settings = ut_settings())
 {
     bg::strategy::buffer::join_round join_round(100);
     bg::strategy::buffer::end_flat end_flat;
 
     // Test with a high tolerance, even a difference of 1000 is only ~1.0e-6%
 
-    ut_settings settings(10000.0, true, false);
+    settings.tolerance = 10000.0;
+    settings.check_self_intersections = false;
 
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // in case robustness policies are changed, areas should be adapted
     settings.tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
-#else
-    settings.tolerance = 10000.0;
 #endif
 
     test_one<MP, P>(caseid, wkt, join_round, end_flat,
@@ -202,7 +202,7 @@ void test_all()
     test_one<mpt, pt>("nl100", nl,              0, -100);
 
     test_one<mpt, pt>("no1", no,    1819566570720, 1);
-    test_one<mpt, pt>("no2", no,    1865041238129, 2);
+    test_one<mpt, pt>("no2", no,    1865041238129, 2, ut_settings::ignore_validity());
     test_one<mpt, pt>("no5", no,    1973615533600, 5);
     test_one<mpt, pt>("no10", no,   2102034240506, 10);
     test_one<mpt, pt>("no20", no,   2292171257647, 20);
@@ -210,7 +210,7 @@ void test_all()
     test_one<mpt, pt>("no100", no,  3374987120112, 100);
 
     test_one<mpt, pt>("no1", no,    1725145487969, -1);
-    test_one<mpt, pt>("no2", no,    1678942603503, -2);
+    test_one<mpt, pt>("no2", no,    1678942603503, -2, ut_settings::ignore_validity());
     test_one<mpt, pt>("no5", no,    1547329249723, -5);
     test_one<mpt, pt>("no10", no,   1361198873951, -10);
     test_one<mpt, pt>("no20", no,   1089847815351, -20);
