@@ -123,13 +123,22 @@ public:
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
-            // sin_d = 0 <=> antipodal points
+            // sin_d = 0 <=> antipodal points (incl. poles)
             if (math::equals(sin_d, c0))
             {
                 // T = inf
                 // dA = inf
                 // azimuth = -inf
-                result.azimuth = lat1 <= lat2 ? c0 : pi;
+                if (lat1 <= lat2)
+                {
+                    result.azimuth = c0;
+                    result.reverse_azimuth = pi;
+                }
+                else
+                {
+                    result.azimuth = pi;
+                    result.reverse_azimuth = 0;
+                }
             }
             else
             {
@@ -188,11 +197,10 @@ public:
                 if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
                 {
                     CT const dB = -U*T + V;
-                    result.reverse_azimuth = pi - B - dB;
-                    if (result.reverse_azimuth > pi)
-                    {
-                        result.reverse_azimuth -= 2 * pi;
-                    }
+                    if (B >= 0)
+                        result.reverse_azimuth = pi - B - dB;
+                    else
+                        result.reverse_azimuth = -pi - B - dB;
                     normalize_azimuth(result.reverse_azimuth, B, dB);
                 }
             }
