@@ -140,27 +140,21 @@ public :
         CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
         CT const a = get_radius<0>(spheroid);
-/*
-        CT const theta1 = math::equals(lat1, pi_half) ? lat1 :
-                          math::equals(lat1, -pi_half) ? lat1 :
-                          atan(one_minus_f * tan(lat1));
-        CT const theta2 = math::equals(lat2, pi_half) ? lat2 :
-                          math::equals(lat2, -pi_half) ? lat2 :
-                          atan(one_minus_f * tan(lat2));
-*/
-        CT const theta1 = atan(one_minus_f * tan(lat1));
-        CT const theta2 = atan(one_minus_f * tan(lat2));
-
         CT const e2 = f * (c2 - f);
+
+        CT const tan_th1 = one_minus_f * tan(lat1);
+        CT const theta1 = atan(tan_th1);
+        CT const tan_th2 = one_minus_f * tan(lat2);
+        CT const theta2 = atan(tan_th2);
+
+        CT const cos_th1 = cos(theta1);
+        CT const cos2_th1 = math::sqr(cos_th1);
+        CT const cos_th2 = cos(theta2);
+        CT const cos2_th2 = math::sqr(cos_th2);
+
         CT const dlon = lon2 - lon1;
         CT const cosdl = cos(dlon);
         CT const sindl = sin(dlon);
-
-        CT const cos_th1 = cos(theta1);
-        CT const cos_th2 = cos(theta2);
-
-        CT const tan_th1 = tan(theta1);
-        CT const tan_th2 = tan(theta2);
 
         CT const A = tan_th1 - tan_th2 * cosdl;
         CT const B = tan_th2 - tan_th1 * cosdl;
@@ -186,24 +180,20 @@ public :
                     sin_th0_sq = c1;
                 }
 
-                CT const cos2d1 = c2 * (c1 - cos_th1 * cos_th1) / sin_th0_sq - c1;
-                CT const cos2d2 = c2 * (c1 - cos_th2 * cos_th2) / sin_th0_sq - c1;
+                CT const cos2d1 = c2 * (c1 - cos2_th1) / sin_th0_sq - c1;
+                CT const cos2d2 = c2 * (c1 - cos2_th2) / sin_th0_sq - c1;
 
                 CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
                                              : -acos(cos2d1) / c2;
-                //CT d1 = (A > c0) ? acos(cos2d1) / c2
-                //                 : -acos(cos2d1) / c2;
                 CT d2 = (lat1 * lat2 > c0) ? acos(cos2d2) / c2
                                            : pi - acos(cos2d2) / c2;
-                //CT d2 = (B > c0) ? acos(cos2d2) / c2
-                //                 : pi - acos(cos2d2) / c2;
 
                 CT const H = d1 + d2;
                 CT const P = d1 - d2;
 
                 CT const k2 = sin_th0_sq * e2;
                 CT const N1 = k2 / 4;
-                CT const N2 = N1 * N1 / 8;
+                CT const N2 = math::sqr(N1) / 8;
                 CT const N3 = N1 * N2 / 3;
 
                 CT const Q1 = sin(H) * cos(P);
@@ -228,7 +218,7 @@ public :
 
             if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
             {
-                CT const T1 = math::sqrt(c1 - e2 * cos_th1 * cos_th1);
+                CT const T1 = math::sqrt(c1 - e2 * cos2_th1);
                 CT const D1 = cos_th1 / (T1 * sindl);
                 CT const R1 = C / cos_th2;
                 CT const cotAB = D1 * (R1 - B);
@@ -239,7 +229,7 @@ public :
 
             if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
             {
-                CT const T2 = math::sqrt(c1 - e2 * cos_th2 * cos_th2);
+                CT const T2 = math::sqrt(c1 - e2 * cos2_th2);
                 CT const D2 = cos_th2 / (T2 * sindl);
                 CT const R2 = -C / cos_th1;
                 CT const cotBA = D2 * (A - R2);
