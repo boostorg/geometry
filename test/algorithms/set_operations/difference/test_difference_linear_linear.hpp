@@ -32,7 +32,7 @@ inline void check_result(Geometry1 const& geometry1,
                          MultiLineString const& mls_output,
                          MultiLineString const& mls_diff,
                          std::string const& case_id,
-                         double tolerance)
+                         double tolerance = std::numeric_limits<double>::epsilon())
 {
     BOOST_CHECK_MESSAGE( equals::apply(mls_diff, mls_output, tolerance),
                          "case id: " << case_id
