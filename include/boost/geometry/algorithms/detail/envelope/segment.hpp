@@ -200,7 +200,7 @@ private:
                     lat1 = lat_min;
                 }
             }
-            else if (mid_lat > 0)
+            else
             {
                 // update using max latitude
                 CalculationType const lat_max_rad = p_max;
