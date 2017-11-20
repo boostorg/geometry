@@ -10,7 +10,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
+#include <iostream>
 #include <sstream>
 
 #include "test_formula.hpp"
@@ -43,7 +43,7 @@ void check_inverse(std::string const& name,
     check_one(name + "_rl " + ss.str(),
               result.reduced_length, expected.reduced_length, reference.reduced_length, reference_error);
     check_one(name + "_gs " + ss.str(),
-              result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale, reference_error);
+              result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale, reference_error); 
 }
 
 void test_all(expected_results const& results)
@@ -91,9 +91,11 @@ void test_all(expected_results const& results)
     result_a.reverse_azimuth *= r2d;
     check_inverse("thomas_1st", results, result_a, results.thomas_first_order, results.reference, 0.001);
 
-    typedef bg::formula::elliptic_arc_length<double> eli;
-    double dist = eli::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
-    check_one(dist, results.vincenty.distance, results.reference.distance, 0.001);
+    typedef bg::formula::elliptic_arc_length<double, true, true, true, true, true> eli;
+    result_a = eli::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
+    result_a.azimuth *= r2d;
+    result_a.reverse_azimuth *= r2d;
+    check_inverse("elliptic", results, result_a, results.thomas, results.reference, 0.001);
 }
 
 int test_main(int, char*[])
