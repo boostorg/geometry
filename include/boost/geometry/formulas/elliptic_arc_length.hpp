@@ -31,17 +31,30 @@ namespace boost { namespace geometry { namespace formula
 with a hyperplane defined by the center of spheroid and two points on its
 surface.
 */
-
-template <typename CT>
+template <
+    typename CT,
+    bool EnableDistance,
+    bool EnableAzimuth,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
+>
 class elliptic_arc_length
 {
+
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcAzimuths = EnableAzimuth || EnableReverseAzimuth || CalcQuantities;
+    static const bool CalcFwdAzimuth = EnableAzimuth || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
 
 public :
 
     typedef result_inverse<CT> result_type;
 
-    // from [Tseng15]
-    // Tseng - THE GEOMETRIC ALGORITHM OF INVERSE DIRECT PROBLEMS FOR GREAT ELLIPTIC ARCS
+    // see [Tseng15]
+    // Tseng - THE GEOMETRIC ALGORITHM OF INVERSE DIRECT PROBLEMS
+    //         FOR GREAT ELLIPTIC ARCS
+    // Note: only distance implemented
     template <typename T, typename Spheroid>
     static T dist_tseng(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
     {
@@ -112,8 +125,8 @@ public :
         return L_psi2 - L_psi1;
     }
 
-    // from Technical Report:
-    // PAUL D. THOMAS, MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
+    // see Technical Report: PAUL D. THOMAS -
+    // MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
     // http://www.dtic.mil/docs/citations/AD0627893
     template <typename T, typename Spheroid>
     static inline result_type apply(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
@@ -138,85 +151,118 @@ public :
         CT const theta1 = atan(one_minus_f * tan(lat1));
         CT const theta2 = atan(one_minus_f * tan(lat2));
 
+        CT const e2 = f * (c2 - f);
         CT const dlon = lon2 - lon1;
         CT const cosdl = cos(dlon);
+        CT const sindl = sin(dlon);
 
         CT const cos_th1 = cos(theta1);
         CT const cos_th2 = cos(theta2);
-
-        // Equatorial segment
-        if (math::equals(lat1, c0) && math::equals(lat2, c0))
-        {
-            CT const sin_th1 = sin(theta1);
-            CT const sin_th2 = sin(theta2);
-            CT const d1_d2 = acos(sin_th1 * sin_th2 + cos_th1 * cos_th2 * cosdl);
-            result.distance = a * d1_d2;
-            return result;
-        }
-
-        CT const sindl = sin(dlon);
 
         CT const tan_th1 = tan(theta1);
         CT const tan_th2 = tan(theta2);
 
         CT const A = tan_th1 - tan_th2 * cosdl;
         CT const B = tan_th2 - tan_th1 * cosdl;
-        CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
-        CT sin_th0_sq = K/(K+c1);
-        //if the semgent is meridian then sindl=0 and K=nan
-        if (math::equals(sindl, c0))
+
+        if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
-            sin_th0_sq = c1;
+            // Equatorial segment
+            if (math::equals(lat1, c0) && math::equals(lat2, c0))
+            {
+                CT const sin_th1 = sin(theta1);
+                CT const sin_th2 = sin(theta2);
+                CT const d1_d2 = acos(sin_th1 * sin_th2 + cos_th1 * cos_th2 * cosdl);
+                result.distance = a * d1_d2;
+            }
+            else
+            {
+                CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
+                CT sin_th0_sq = K/(K+c1);
+
+                // Meridian segment: sindl=0 and K=nan
+                if (math::equals(sindl, c0))
+                {
+                    sin_th0_sq = c1;
+                }
+
+                CT const cos2d1 = c2 * (c1 - cos_th1 * cos_th1) / sin_th0_sq - c1;
+                CT const cos2d2 = c2 * (c1 - cos_th2 * cos_th2) / sin_th0_sq - c1;
+
+                CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
+                                             : -acos(cos2d1) / c2;
+                //CT d1 = (A > c0) ? acos(cos2d1) / c2
+                //                 : -acos(cos2d1) / c2;
+                CT d2 = (lat1 * lat2 > c0) ? acos(cos2d2) / c2
+                                           : pi - acos(cos2d2) / c2;
+                //CT d2 = (B > c0) ? acos(cos2d2) / c2
+                //                 : pi - acos(cos2d2) / c2;
+
+                CT const H = d1 + d2;
+                CT const P = d1 - d2;
+
+                CT const k2 = sin_th0_sq * e2;
+                CT const N1 = k2 / 4;
+                CT const N2 = N1 * N1 / 8;
+                CT const N3 = N1 * N2 / 3;
+
+                CT const Q1 = sin(H) * cos(P);
+                CT const Q2 = sin(2*H) * cos(2*P);
+                CT const Q3 = sin(3*H) * cos(3*P);
+
+                CT const U1 = -N1 * (H - Q1);
+                CT const U2 = -N2 * (6*H - 8*Q1 + Q2);
+                CT const U3 = -N3 * (30*H - 45*Q1 + 9*Q2 - Q3);
+
+                CT const s = a * (H + U1 + U2 + U3);
+
+                result.distance = math::abs(s);
+            }
         }
 
-        CT const cos2d1 = c2 * (c1 - cos_th1 * cos_th1) / sin_th0_sq - c1;
-        CT const cos2d2 = c2 * (c1 - cos_th2 * cos_th2) / sin_th0_sq - c1;
+        if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
+        {
+            CT const sin_th1 = tan_th1 * cos_th1;
+            CT const sin_th2 = tan_th2 * cos_th2;
+            CT const C = e2 * (sin_th2 - sin_th1);
 
-        CT const d1 = -acos(cos2d1) / c2;
-        CT d2 = (lat1 * lat2 > 0) ? acos(cos2d2) / c2
-                                  : pi - acos(cos2d2) / c2;
+            if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
+            {
+                CT const T1 = math::sqrt(c1 - e2 * cos_th1 * cos_th1);
+                CT const D1 = cos_th1 / (T1 * sindl);
+                CT const R1 = C / cos_th2;
+                CT const cotAB = D1 * (R1 - B);
+                CT az = -atan(c1/cotAB);
+                normalize_azimuth(az, A, sindl);
+                result.azimuth = az;
+            }
 
-        CT const H = d1 + d2;
-        CT const P = d1 - d2;
-
-        CT const e2 = f * (CT(2) - f);
-        CT const k2 = sin_th0_sq * e2;
-        CT const N1 = k2 / 4;
-        CT const N2 = N1 * N1 / 8;
-        CT const N3 = N1 * N2 / 3;
-
-        CT const Q1 = sin(H) * cos(P);
-        CT const Q2 = sin(2*H) * cos(2*P);
-        CT const Q3 = sin(3*H) * cos(3*P);
-
-        CT const U1 = -N1 * (H - Q1);
-        CT const U2 = -N2 * (6*H - 8*Q1 + Q2);
-        CT const U3 = -N3 * (30*H - 45*Q1 + 9*Q2 - Q3);
-
-        CT const s = a * (H + U1 + U2 + U3);
-
-        result.distance = math::abs(s);
-
-        CT const T1 = math::sqrt(1 - e2 * cos_th1 * cos_th1);
-        CT const T2 = math::sqrt(1 - e2 * cos_th2 * cos_th2);
-
-        CT const sin_th1 = sin(theta1);
-        CT const sin_th2 = sin(theta2);
-        CT const C = e2 * (sin_th2 - sin_th1);
-
-        CT const D1 = cos_th1 / T1 * sindl;
-        CT const D2 = cos_th2 / T2 * sindl;
-
-        CT const R1 = C / cos_th2;
-        CT const R2 = -C / cos_th1;
-
-        CT const cotAB = D1 * (R1 - B);
-        CT const cotBA = D2 * (A - R2);
-
-        result.azimuth = atan(1/cotAB);
-        result.reverse_azimuth = atan(1/cotBA);
+            if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+            {
+                CT const T2 = math::sqrt(c1 - e2 * cos_th2 * cos_th2);
+                CT const D2 = cos_th2 / (T2 * sindl);
+                CT const R2 = -C / cos_th1;
+                CT const cotBA = D2 * (A - R2);
+                CT az = -atan(c1/cotBA);
+                normalize_azimuth(az, A, sindl);
+                result.reverse_azimuth = az;
+            }
+        }
 
         return result;
+    }
+private:
+    static inline void normalize_azimuth(CT & azimuth,
+                                         CT const& A,
+                                         CT const& sindl)
+    {
+        CT const c0 = 0;
+        CT const pi =  math::pi<CT>();
+
+        if (A >= c0)
+        {
+            azimuth += sindl >= c0 ? pi : -pi;
+        }
     }
 };
 

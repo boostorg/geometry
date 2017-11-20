@@ -64,6 +64,8 @@ public:
                                     Spheroid const& spheroid,
                                     bool ParametricLatitude = false)
     {
+        bool const CalcParametric = ParametricLatitude && !CalcAzimuths;
+
         result_type result;
 
         // coordinates in radians
@@ -83,7 +85,7 @@ public:
         CT lat1 = la1;
         CT lat2 = la2;
 
-        if ( BOOST_GEOMETRY_CONDITION(ParametricLatitude && !CalcAzimuths) )
+        if ( BOOST_GEOMETRY_CONDITION(CalcParametric) )
         {
             CT const c2 = CT(2);
             CT const pi_half = math::pi<CT>() / c2;
@@ -122,7 +124,7 @@ public:
             CT const K = math::sqr(sin_lat1-sin_lat2);
             CT const L = math::sqr(sin_lat1+sin_lat2);
             CT three_sin_d = sin_d;
-            if ( BOOST_GEOMETRY_CONDITION(!ParametricLatitude) )
+            if ( BOOST_GEOMETRY_CONDITION(!CalcParametric) )
             {
                 three_sin_d *= CT(3);
             }
@@ -144,10 +146,6 @@ public:
 
             result.distance = a * (d + dd);
         }
-
-        //return to non-parametric latitude
-        lat1 = la1;
-        lat2 = la2;
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
