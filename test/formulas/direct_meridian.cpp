@@ -13,7 +13,7 @@
 #include "direct_meridian_cases.hpp"
 
 #include <boost/geometry/formulas/vincenty_direct.hpp>
-#include <boost/geometry/formulas/elliptic_arc_direct.hpp>
+#include <boost/geometry/formulas/elliptic_meridian_arc_direct.hpp>
 
 void test_all(expected_results const& results)
 {
@@ -31,27 +31,27 @@ void test_all(expected_results const& results)
     vincenty_result = vi_t::apply(0.0, 0.0, distance, 0.0, spheroid);
 
     {
-        typedef bg::formula::elliptic_arc_direct<double, 1> eli;
+        typedef bg::formula::elliptic_meridian_arc_direct<double, 1> eli;
         double lat = eli::apply(distance, spheroid);
         check_one(lat, lat_expectedr, vincenty_result.lat2, 0.001);
     }
     {
-        typedef bg::formula::elliptic_arc_direct<double, 2> eli;
+        typedef bg::formula::elliptic_meridian_arc_direct<double, 2> eli;
         double lat = eli::apply(distance, spheroid);
         check_one(lat, lat_expectedr, vincenty_result.lat2, 0.00001);
     }
     {
-        typedef bg::formula::elliptic_arc_direct<double, 3> eli;
+        typedef bg::formula::elliptic_meridian_arc_direct<double, 3> eli;
         double lat = eli::apply(distance, spheroid);
         check_one(lat, lat_expectedr, vincenty_result.lat2, 0.00000001);
     }
     {
-        typedef bg::formula::elliptic_arc_direct<double, 4> eli;
+        typedef bg::formula::elliptic_meridian_arc_direct<double, 4> eli;
         double lat = eli::apply(distance, spheroid);
         check_one(lat, lat_expectedr, vincenty_result.lat2, 0.00000001);
     }
     {
-        typedef bg::formula::elliptic_arc_direct<double, 5> eli;
+        typedef bg::formula::elliptic_meridian_arc_direct<double, 5> eli;
         double lat = eli::apply(distance, spheroid);
         check_one(lat, lat_expectedr, vincenty_result.lat2, 0.00000001);
     }
