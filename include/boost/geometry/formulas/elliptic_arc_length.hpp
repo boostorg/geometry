@@ -37,7 +37,8 @@ template <
     bool EnableAzimuth,
     bool EnableReverseAzimuth = false,
     bool EnableReducedLength = false,
-    bool EnableGeodesicScale = false
+    bool EnableGeodesicScale = false,
+    unsigned int const Order = 3
 >
 class elliptic_arc_length
 {
@@ -125,6 +126,43 @@ public :
         return L_psi2 - L_psi1;
     }
 
+    static inline CT distance_approximation(CT const a,
+                                            CT const H,
+                                            CT const P,
+                                            CT const k2)
+    {
+
+        CT const N1 = k2 / 4;
+
+        if (Order < 1)
+        {
+            return math::abs( a * (H - N1 * H));
+        }
+
+        CT const Q1 = sin(H) * cos(P);
+        CT const U1 = -N1 * (H - Q1);
+
+        if (Order == 1)
+        {
+            return math::abs( a * (H + U1) );
+        }
+
+        CT const N2 = math::sqr(N1) / 8;
+        CT const Q2 = sin(2*H) * cos(2*P);
+        CT const U2 = -N2 * (6*H - 8*Q1 + Q2);
+
+        if (Order == 2)
+        {
+            return math::abs( a * (H + U1 + U2) );
+        }
+
+        CT const Q3 = sin(3*H) * cos(3*P);
+        CT const N3 = N1 * N2 / 3;
+        CT const U3 = -N3 * (30*H - 45*Q1 + 9*Q2 - Q3);
+
+        return math::abs( a * (H + U1 + U2 + U3) );
+    }
+
     // see Technical Report: PAUL D. THOMAS -
     // MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
     // http://www.dtic.mil/docs/citations/AD0627893
@@ -137,15 +175,25 @@ public :
         CT const c1 = 1;
         CT const c2 = 2;
         CT const pi =  math::pi<CT>();
+        CT const pi_half =  math::pi<CT>()/2;
         CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
         CT const a = get_radius<0>(spheroid);
         CT const e2 = f * (c2 - f);
 
-        CT const tan_th1 = one_minus_f * tan(lat1);
+        CT tan_th1 = one_minus_f * tan(lat1);
         CT const theta1 = atan(tan_th1);
-        CT const tan_th2 = one_minus_f * tan(lat2);
+        CT tan_th2 = one_minus_f * tan(lat2);
         CT const theta2 = atan(tan_th2);
+
+        if (math::equals(lat1, pi_half) || math::equals(lat1, -pi_half))
+        {
+            tan_th1 = tan(theta1);
+        }
+        if (math::equals(lat2, pi_half) || math::equals(lat2, -pi_half))
+        {
+            tan_th2 = tan(theta2);
+        }
 
         CT const cos_th1 = cos(theta1);
         CT const cos2_th1 = math::sqr(cos_th1);
@@ -172,16 +220,16 @@ public :
             else
             {
                 CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
-                CT sin_th0_sq = K/(K+c1);
+                CT sin2_th0 = K/(K+c1);
 
                 // Meridian segment: sindl=0 and K=nan
                 if (math::equals(sindl, c0))
                 {
-                    sin_th0_sq = c1;
+                    sin2_th0 = c1;
                 }
 
-                CT const cos2d1 = c2 * (c1 - cos2_th1) / sin_th0_sq - c1;
-                CT const cos2d2 = c2 * (c1 - cos2_th2) / sin_th0_sq - c1;
+                CT const cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
+                CT const cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
 
                 CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
                                              : -acos(cos2d1) / c2;
@@ -191,22 +239,9 @@ public :
                 CT const H = d1 + d2;
                 CT const P = d1 - d2;
 
-                CT const k2 = sin_th0_sq * e2;
-                CT const N1 = k2 / 4;
-                CT const N2 = math::sqr(N1) / 8;
-                CT const N3 = N1 * N2 / 3;
+                CT const k2 = sin2_th0 * e2;
 
-                CT const Q1 = sin(H) * cos(P);
-                CT const Q2 = sin(2*H) * cos(2*P);
-                CT const Q3 = sin(3*H) * cos(3*P);
-
-                CT const U1 = -N1 * (H - Q1);
-                CT const U2 = -N2 * (6*H - 8*Q1 + Q2);
-                CT const U3 = -N3 * (30*H - 45*Q1 + 9*Q2 - Q3);
-
-                CT const s = a * (H + U1 + U2 + U3);
-
-                result.distance = math::abs(s);
+                result.distance = distance_approximation(a, H, P, k2);
             }
         }
 
