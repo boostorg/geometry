@@ -19,6 +19,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
@@ -758,8 +759,17 @@ public:
             sjoberg_intersection_spherical_02<CT>::apply_alt(lon_a1, lat_a1, lon_a2, lat_a2,
                                                              lon_b1, lat_b1, lon_b2, lat_b2,
                                                              lon_sph, tan_lat_sph);
+
+            // Return for sphere
+            if (math::equals(f, c0))
+            {
+                lon = lon_sph;
+                lat = atan(tan_lat_sph);
+                return true;
+            }
+
             t = one_minus_f * tan_lat_sph; // tan(beta)
-        }
+        }        
 
         // TODO: no need to calculate atan here if reduced latitudes were used
         //       instead of latitudes above, in sjoberg_intersection_spherical_02
@@ -767,7 +777,18 @@ public:
 
         if (enable_02 && newton_method(geod1, geod2, beta, t, lon1_minus_lon2, lon_sph, lon, lat))
         {
-            return true;
+            // TODO: Newton's method may return wrong result in some specific cases
+            // Detected for sphere and nearly sphere, e.g. A=6371228, B=6371227
+            // and segments s1=(-121 -19,37 8) and s2=(-19 -15,-104 -58)
+            // It's unclear if this is a bug or a characteristic of this method
+            // so until this is investigated check if the resulting longitude is
+            // between endpoints of the segments. It should be since before calling
+            // this formula sides of endpoints WRT other segments are checked.
+            if ( is_result_longitude_ok(geod1, lon_a1, lon_a2, lon)
+              && is_result_longitude_ok(geod2, lon_b1, lon_b2, lon) )
+            {
+                return true;
+            }
         }
 
         return converge_07(geod1, geod2, beta, t, lon1_minus_lon2, lon_sph, lon, lat);
@@ -884,6 +905,28 @@ private:
                 : geod2.lon(lon2_diff);
 
         return true;
+    }
+
+    static inline bool is_result_longitude_ok(geodesic_type const& geod,
+                                              CT const& lon1, CT const& lon2, CT const& lon)
+    {
+        CT const c0 = 0;
+
+        if (geod.is_Cj_zero)
+            return true; // don't check vertical segment
+
+        CT dist1p = math::longitude_distance_signed<radian>(lon1, lon);
+        CT dist12 = math::longitude_distance_signed<radian>(lon1, lon2);
+
+        if (dist12 < c0)
+        {
+            dist1p = -dist1p;
+            dist12 = -dist12;
+        }
+
+        return (c0 <= dist1p && dist1p <= dist12)
+            || math::equals(dist1p, c0)
+            || math::equals(dist1p, dist12);
     }
 
     struct geodesics_type
