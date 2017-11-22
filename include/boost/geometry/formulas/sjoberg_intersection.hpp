@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -97,10 +97,16 @@ private:
         CT const sin_dlon1 = sin(dlon1);
         CT const dlon2 = lon_b2 - lon2;
         CT const sin_dlon2 = sin(dlon2);
-        
+
+        CT const cos_dlon1 = cos(dlon1);
+        CT const cos_dlon2 = cos(dlon2);
+
+        CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
+        CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
+                
         CT const c0 = 0;
-        bool const is_vertical1 = math::equals(sin_dlon1, c0);
-        bool const is_vertical2 = math::equals(sin_dlon2, c0);
+        bool const is_vertical1 = math::equals(sin_dlon1, c0) || math::equals(tan_alpha1_x, c0);
+        bool const is_vertical2 = math::equals(sin_dlon2, c0) || math::equals(tan_alpha2_x, c0);
 
         CT tan_alpha1 = 0;
         CT tan_alpha2 = 0;
@@ -112,27 +118,18 @@ private:
         }
         else if (is_vertical1)
         {
-            CT const cos_dlon2 = cos(dlon2);
-            CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
             tan_alpha2 = sin_dlon2 / tan_alpha2_x;
 
             lon = lon1;
         }
         else if (is_vertical2)
         {
-            CT const cos_dlon1 = cos(dlon1);
-            CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
             tan_alpha1 = sin_dlon1 / tan_alpha1_x;
 
             lon = lon2;
         }
         else
         {
-            CT const cos_dlon1 = cos(dlon1);
-            CT const cos_dlon2 = cos(dlon2);
-
-            CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
-            CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
             tan_alpha1 = sin_dlon1 / tan_alpha1_x;
             tan_alpha2 = sin_dlon2 / tan_alpha2_x;
         
@@ -768,7 +765,7 @@ public:
         //       instead of latitudes above, in sjoberg_intersection_spherical_02
         CT const beta = atan(t);
 
-        if (enable_02 && newton_method(geod1, geod2, beta, t, lon1_minus_lon2, lon, lat))
+        if (enable_02 && newton_method(geod1, geod2, beta, t, lon1_minus_lon2, lon_sph, lon, lat))
         {
             return true;
         }
@@ -778,7 +775,7 @@ public:
 
 private:
     static inline bool newton_method(geodesic_type const& geod1, geodesic_type const& geod2, // in
-                                     CT beta, CT t, CT const& lon1_minus_lon2, // in
+                                     CT beta, CT t, CT const& lon1_minus_lon2, CT const& lon_sph, // in
                                      CT & lon, CT & lat) // out
     {
         CT const c0 = 0;
@@ -788,6 +785,13 @@ private:
         
         CT lon1_diff = 0;
         CT lon2_diff = 0;
+
+        // The segment is vertical and intersection point is behind the vertex
+        // this method is unable to calculate correct result
+        if (geod1.is_Cj_zero && math::abs(geod1.lonj - lon_sph) > math::half_pi<CT>())
+            return false;
+        if (geod2.is_Cj_zero && math::abs(geod2.lonj - lon_sph) > math::half_pi<CT>())
+            return false;
 
         CT abs_dbeta_last = 0;
 

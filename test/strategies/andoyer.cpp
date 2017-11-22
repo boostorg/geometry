@@ -153,7 +153,8 @@ void test_azimuth(double lon1, double lat1,
 }
 
 template <typename P1, typename P2>
-void test_distazi(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+void test_distazi(double lon1, double lat1, double lon2, double lat2,
+                  double expected_km, double expected_azimuth_deg)
 {
     test_distance<P1, P2>(lon1, lat1, lon2, lat2, expected_km);
     test_azimuth<P1, P2>(lon1, lat1, lon2, lat2, expected_azimuth_deg);
@@ -161,16 +162,20 @@ void test_distazi(double lon1, double lat1, double lon2, double lat2, double exp
 
 // requires SW->NE
 template <typename P1, typename P2>
-void test_distazi_symm(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+void test_distazi_symm(double lon1, double lat1, double lon2, double lat2,
+                       double expected_km, double expected_azimuth_deg,
+                       bool is_antipodal = false)
 {
+    double d180 = is_antipodal ? 0 : 180;
     test_distazi<P1, P2>(lon1, lat1, lon2, lat2, expected_km, expected_azimuth_deg);
     test_distazi<P1, P2>(-lon1, lat1, -lon2, lat2, expected_km, -expected_azimuth_deg);
-    test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, 180 - expected_azimuth_deg);
-    test_distazi<P1, P2>(-lon1, -lat1, -lon2, -lat2, expected_km, -180 + expected_azimuth_deg);
+    test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, d180 - expected_azimuth_deg);
+    test_distazi<P1, P2>(-lon1, -lat1, -lon2, -lat2, expected_km, -d180 + expected_azimuth_deg);
 }
 
 template <typename P1, typename P2>
-void test_distazi_symmNS(double lon1, double lat1, double lon2, double lat2, double expected_km, double expected_azimuth_deg)
+void test_distazi_symmNS(double lon1, double lat1, double lon2, double lat2,
+                         double expected_km, double expected_azimuth_deg)
 {
     test_distazi<P1, P2>(lon1, lat1, lon2, lat2, expected_km, expected_azimuth_deg);
     test_distazi<P1, P2>(lon1, -lat1, lon2, -lat2, expected_km, 180 - expected_azimuth_deg);
@@ -282,7 +287,7 @@ void test_all()
         test_distazi_symm<P1, P2>(normlized_deg(l-44.99), -44.99, normlized_deg(l+135), 45, 20008.1, 0.0);
         test_distazi_symm<P1, P2>(normlized_deg(l-44.999), -44.999, normlized_deg(l+135), 45, 20009.4, 0.0);
         // antipodal
-        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20003.92, 0.0);
+        test_distazi_symm<P1, P2>(normlized_deg(l-45), -45, normlized_deg(l+135), 45, 20003.92, 0.0, true);
     }
 
     /* SQL Server gives:
