@@ -390,16 +390,19 @@ std::cout << "traverse" << std::endl;
         // NOTE: There is no need to check result area for union because
         // as long as the polygons in the input are valid the resulting
         // polygons should be valid as well.
-        // This also solves the issue with non-cartesian CSes. The result may
-        // be too big, so the area is negative. In this case either it's returned
-        // anyway (default) or an exception is thrown (based on #define).
+        // By default the area is checked (this is old behavior) however this
+        // can be changed with #define. This may be important in non-cartesian CSes.
+        // The result may be too big, so the area is negative. In this case either
+        // it can be returned or an exception can be thrown.
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out,
                                       area_strategy,
                                       OverlayType == overlay_union ? 
-#ifdef BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION
+#if defined(BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION)
                                       add_rings_throw_if_reversed
-#else
+#elif defined(BOOST_GEOMETRY_UNION_RETURN_INVALID)
                                       add_rings_add_unordered
+#else
+                                      add_rings_ignore_unordered
 #endif
                                       : add_rings_ignore_unordered);
     }
