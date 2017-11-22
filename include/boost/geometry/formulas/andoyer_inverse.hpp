@@ -129,7 +129,18 @@ public:
                 // T = inf
                 // dA = inf
                 // azimuth = -inf
-                if (lat1 <= lat2)
+
+                // TODO: The following azimuths are inconsistent with distance
+                // i.e. according to azimuths below a segment with antipodal endpoints
+                // travels through the north pole, however the distance returned above
+                // is the length of a segment traveling along the equator.
+                // Furthermore, this special case handling is only done in andoyer
+                // formula.
+                // The most correct way of fixing it is to handle antipodal regions
+                // correctly and consistently across all formulas.
+
+                // Set azimuth to 0 unless the first endpoint is the north pole
+                if (! math::equals(sin_lat1, c1))
                 {
                     result.azimuth = c0;
                     result.reverse_azimuth = pi;
