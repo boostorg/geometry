@@ -210,7 +210,7 @@ void test_all()
     test_one<mpt, pt>("no100", no,  3374987120112, 100);
 
     test_one<mpt, pt>("no1", no,    1725145487969, -1);
-    test_one<mpt, pt>("no2", no,    1678942603503, -2, ut_settings::ignore_validity());
+    test_one<mpt, pt>("no2", no,    1678942603503, -2);
     test_one<mpt, pt>("no5", no,    1547329249723, -5);
     test_one<mpt, pt>("no10", no,   1361198873951, -10);
     test_one<mpt, pt>("no20", no,   1089847815351, -20);

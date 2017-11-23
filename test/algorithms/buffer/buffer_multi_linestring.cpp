@@ -41,6 +41,9 @@ static std::string const mysql_2015_09_08b = "MULTILINESTRING((-9 -10, 0 -1, 5 -
 
 static std::string const mysql_23023665_1 = "MULTILINESTRING((-5 15, 7 15, 19 -10, -11 -2),(2 13, 2 -9))";
 
+static std::string const touching1 = "MULTILINESTRING((-5 15, 9 15),(2 13, 2 0),(-4 14.75,-4 13),(8 15.25,8 13),(1.5 1,-1 1),(2.25 4,5 4))";
+static std::string const touching2 = "MULTILINESTRING((-5 15, 9 15),(2 13, 2 0),(-11 -2,9 14))";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -155,7 +158,11 @@ void test_all()
     // Generates first no interior, then one touching point (no interior),
     // then one real interior ring, then one complete polygon
     test_one<multi_linestring_type, polygon>("mysql_23023665_1",
-            mysql_23023665_1, join_round32, end_round32, 1, 0, 186.5504, 1.0, ut_settings::ignore_validity());
+            mysql_23023665_1, join_round32, end_round32, 1, 1, 186.5504, 1.0);
+    test_one<multi_linestring_type, polygon>("touching1_1",
+            touching1, join_round32, end_round32, 2, 0, 78.70773, 1.0);
+    test_one<multi_linestring_type, polygon>("touching2_1",
+            touching2, join_round32, end_round32, 1, 1, 107.8991, 1.0);
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_09",
             mysql_23023665_1, join_round32, end_round32, 1, 0, 167.8062, 0.9);
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_11",
