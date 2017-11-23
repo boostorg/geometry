@@ -109,6 +109,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_multilinestring )
     test_simple_s(from_wkt<G>("MULTILINESTRING((45 0, 120 36),(169 0, 92 30))"), s_wgs84, false);
     test_simple_s(from_wkt<G>("MULTILINESTRING((179 0, -179 1),(-179 0, 179 1))"), s_wgs84, false);
 
-    test_simple_s(from_wkt<G>("MULTILINESTRING((2 35,36 110),(51 72,28 67,53 16,3 159,30 82))"), s_wgs84, false);
-    test_simple_s(from_wkt<G>("MULTILINESTRING((2 35,36 110),(51 72,28 67,53 16,3 159,30 82))"), s_bessel, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((35 2,110 36),(72 51,67 28,16 53,159 3,82 30))"), s_wgs84, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((35 2,110 36),(72 51,67 28,16 53,159 3,82 30))"), s_bessel, false);
 }
