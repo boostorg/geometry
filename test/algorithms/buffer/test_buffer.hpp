@@ -315,7 +315,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         BOOST_CHECK_MESSAGE
         (
             int(nholes) == expected_holes_count,
-            "#holes not as expected."
+            complete.str() << " #holes not as expected."
             << " Expected: " << expected_holes_count
             << " Detected: " << nholes
         );
