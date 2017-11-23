@@ -1471,7 +1471,8 @@ struct buffered_piece_collection
         // negative rings (negative child with negative parent)
         detail::overlay::assign_parents(offsetted_rings, traversed_rings,
                 selected, m_intersection_strategy, true, false);
-        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
+        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out,
+                                                          m_area_strategy);
     }
 
 };

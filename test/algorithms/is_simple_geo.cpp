@@ -15,6 +15,12 @@
 #include "test_is_simple.hpp"
 
 
+inline bg::srs::spheroid<double> sph(double a, double rf)
+{
+    double b = a - a / rf;
+    return bg::srs::spheroid<double>(a, b);
+}
+
 typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> >  point_type;
 typedef bg::model::segment<point_type>                  segment_type;
 typedef bg::model::linestring<point_type>               linestring_type;
@@ -46,7 +52,13 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_linestring )
 {
     typedef linestring_type G;
 
-    bg::strategy::intersection::geographic_segments<> s;
+    bg::srs::spheroid<double> sph_wgs84;
+    bg::srs::spheroid<double> sph_4053(6371228, 6371228);
+    bg::srs::spheroid<double> sph_near_4053(6371228, 6371227);
+
+    bg::strategy::intersection::geographic_segments<> s(sph_wgs84);
+    bg::strategy::intersection::geographic_segments<> s_4053(sph_4053);
+    bg::strategy::intersection::geographic_segments<> s_near_4053(sph_near_4053);
 
     test_simple_s(from_wkt<G>("LINESTRING(0 0, -90 0, 90 0)"), s, true);
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 0, 90 0)"), s, false);
@@ -69,20 +81,34 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_linestring )
     test_simple_s(from_wkt<G>("LINESTRING(135 0, -150 36, -101 0, -178 30)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(45 0, 120 36, 169 0, 92 30)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(179 0, -179 1, -179 0, 179 1)"), s, false);
+
+    test_simple_s(from_wkt<G>("LINESTRING(-121 -19,37 8,-19 -15,-104 -58)"), s, false);
+    test_simple_s(from_wkt<G>("LINESTRING(-121 -19,37 8,-19 -15,-104 -58)"), s_4053, false);
+    test_simple_s(from_wkt<G>("LINESTRING(-121 -19,37 8,-19 -15,-104 -58)"), s_near_4053, false);
+    
+    // The segments are very close to each other, in WGS84 they cross,
+    // in spherical or nearly spherical they don't cross
+    test_simple_s(from_wkt<G>("LINESTRING(106 22,21 39,40 -12,-91 68)"), s, false);
+    test_simple_s(from_wkt<G>("LINESTRING(106 22,21 39,40 -12,-91 68)"), s_4053, true);
+    test_simple_s(from_wkt<G>("LINESTRING(106 22,21 39,40 -12,-91 68)"), s_near_4053, true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_geo_multilinestring )
 {
     typedef multi_linestring_type G;
 
-    bg::strategy::intersection::geographic_segments<> s;
-
+    bg::strategy::intersection::geographic_segments<> s_wgs84; // EPSG 4326
+    bg::strategy::intersection::geographic_segments<> s_bessel((sph(6377397.155,299.1528128))); // EPSG 4804, 4813, 4820
+    
     // FAILING
-    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 90, 0 80),(1 90, 1 80))"), s, false);
-    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 -90, 0 -80),(1 -90, 1 -80))"), s, false);
+    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 90, 0 80),(1 90, 1 80))"), s_wgs84, false);
+    //test_simple_s(from_wkt<G>("MULTILINESTRING((0 -90, 0 -80),(1 -90, 1 -80))"), s_wgs84, false);
 
-    test_simple_s(from_wkt<G>("MULTILINESTRING((35 0, 110 36),(159 0, 82 30))"), s, false);
-    test_simple_s(from_wkt<G>("MULTILINESTRING((135 0, -150 36),(-101 0, -178 30))"), s, false);
-    test_simple_s(from_wkt<G>("MULTILINESTRING((45 0, 120 36),(169 0, 92 30))"), s, false);
-    test_simple_s(from_wkt<G>("MULTILINESTRING((179 0, -179 1),(-179 0, 179 1))"), s, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((35 0, 110 36),(159 0, 82 30))"), s_wgs84, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((135 0, -150 36),(-101 0, -178 30))"), s_wgs84, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((45 0, 120 36),(169 0, 92 30))"), s_wgs84, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((179 0, -179 1),(-179 0, 179 1))"), s_wgs84, false);
+
+    test_simple_s(from_wkt<G>("MULTILINESTRING((2 35,36 110),(51 72,28 67,53 16,3 159,30 82))"), s_wgs84, false);
+    test_simple_s(from_wkt<G>("MULTILINESTRING((2 35,36 110),(51 72,28 67,53 16,3 159,30 82))"), s_bessel, false);
 }

@@ -58,21 +58,50 @@ void test_geographic_one(std::string const& wkt1, std::string const& wkt2,
     boost::geometry::read_wkt(wkt2, p2);
 
     multipolygon result;
-    boost::geometry::union_(p1, p2, result, is);
 
-    double result_area = bg::area(result, as);
+    enum test_mode { expect_valid, expect_empty, expect_exception };
 
-    std::size_t result_count = boost::size(result);
-    std::size_t result_exterior_points = std::for_each(boost::begin(result),
-                                                       boost::end(result),
-                                                       exterior_points_counter()).count;
-    std::size_t result_interiors = std::for_each(boost::begin(result),
-                                                 boost::end(result),
-                                                 interiors_counter()).count;
-    BOOST_CHECK_EQUAL(result_count, count);
-    BOOST_CHECK_EQUAL(result_exterior_points, exterior_points_count);
-    BOOST_CHECK_EQUAL(result_interiors, interiors_count);
-    BOOST_CHECK_CLOSE(result_area, expected_area, 0.001);
+#if defined(BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION)
+    test_mode mode = expected_area >= 0 ? expect_valid : expect_exception;
+#elif defined(BOOST_GEOMETRY_UNION_RETURN_INVALID)
+    test_mode mode = expect_valid;
+#else
+    // default
+    test_mode mode = expected_area >= 0 ? expect_valid : expect_empty;
+#endif
+
+    if (mode == expect_exception)
+    {
+        BOOST_CHECK_THROW(boost::geometry::union_(p1, p2, result, is),
+                          bg::invalid_output_exception);
+    }
+    else
+    {
+
+        boost::geometry::union_(p1, p2, result, is);
+
+        double result_area = bg::area(result, as);
+
+        std::size_t result_count = boost::size(result);
+        std::size_t result_exterior_points = std::for_each(boost::begin(result),
+                                                           boost::end(result),
+                                                           exterior_points_counter()).count;
+        std::size_t result_interiors = std::for_each(boost::begin(result),
+                                                     boost::end(result),
+                                                     interiors_counter()).count;
+        if (mode == expect_valid)
+        {
+            BOOST_CHECK_EQUAL(result_count, count);
+            BOOST_CHECK_EQUAL(result_exterior_points, exterior_points_count);
+            BOOST_CHECK_EQUAL(result_interiors, interiors_count);
+            BOOST_CHECK_CLOSE(result_area, expected_area, 0.001);
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL(result_count, 0);
+            BOOST_CHECK_EQUAL(result_area, 0);
+        }
+    }
 }
 
 
