@@ -242,8 +242,8 @@ struct traversal
         {
             // Buffer does not use source_index (always 0)
             return turn.switch_source
-                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
-                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
+                    ? candidate_seg_id.piece_index != previous_seg_id.piece_index
+                    : candidate_seg_id.piece_index == previous_seg_id.piece_index;
         }
 
         if (is_self_turn<OverlayType>(turn))
