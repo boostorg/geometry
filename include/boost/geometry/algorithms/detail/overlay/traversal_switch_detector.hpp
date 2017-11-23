@@ -627,14 +627,6 @@ struct traversal_switch_detector
                 continue;
             }
 
-            if (OverlayType == overlay_buffer)
-            {
-                // For deflate, the region approach does not work because many
-                // pieces are outside the real polygons
-                // TODO: implement this in another way for buffer
-                // (because now buffer might output invalid geometries)
-                continue;
-            }
 
             signed_size_type const region0 = get_region_id(turn.operations[0]);
             signed_size_type const region1 = get_region_id(turn.operations[1]);
