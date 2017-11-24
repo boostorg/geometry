@@ -121,15 +121,15 @@ namespace
 
     std::string const ggl_list_denis = "POLYGON((55 10, 141 237, 249 23, 21 171, 252 169, 24 89, 266 73, 55 10))";
 
-    // Testcases sent by Johan Doré at September 24, 2017:
+    // Testcases sent by Johan Doré at September 24 / October 26, 2017
     std::string const dissolve_mail_2017_09_24_a = "POLYGON((0 1, 1 0, 1 1, 0 0, 0 1))"; // two triangles
     std::string const dissolve_mail_2017_09_24_b = "POLYGON((1 0, 0 0, 0 4, 4 4, 4 0))"; // input is not closed
     std::string const dissolve_mail_2017_09_24_c = "POLYGON((0 0, 1 0, 0 -1, 0.0001 1))"; // spike and not closed
     std::string const dissolve_mail_2017_09_24_d = "POLYGON((0 0, 1 0, 0 -1, 0 1))"; // spike and not closed
 
-    std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))";
-    std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))";
-    std::string const dissolve_mail_2017_10_26_c = "POLYGON((0 2, 2 1, 3 1, 1 1, 2 1, 4 2, 4 0, 0 0))";
+    std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))"; // should form interior ring
+    std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))"; // should NOT form interior ring and (maybe) should remove two not necessary intersection points (to be decided)
+    std::string const dissolve_mail_2017_10_26_c = "POLYGON((0 2, 2 1, 3 1, 1 1, 2 1, 4 2, 4 0, 0 0))"; // contains cluster and should ignore count_left/count_right
 
     // Testcases sent by Artem Pavlenko via gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
