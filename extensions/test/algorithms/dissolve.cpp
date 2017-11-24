@@ -121,7 +121,7 @@ namespace
 
     std::string const ggl_list_denis = "POLYGON((55 10, 141 237, 249 23, 21 171, 252 169, 24 89, 266 73, 55 10))";
 
-    // Testcases sent by Johan Doré at September 24 / October 26, 2017
+    // Testcases sent by Johan Doré at September 24 / October 26 / October 30, 2017
     std::string const dissolve_mail_2017_09_24_a = "POLYGON((0 1, 1 0, 1 1, 0 0, 0 1))"; // two triangles
     std::string const dissolve_mail_2017_09_24_b = "POLYGON((1 0, 0 0, 0 4, 4 4, 4 0))"; // input is not closed
     std::string const dissolve_mail_2017_09_24_c = "POLYGON((0 0, 1 0, 0 -1, 0.0001 1))"; // spike and not closed
@@ -130,6 +130,8 @@ namespace
     std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))"; // should form interior ring
     std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))"; // should NOT form interior ring and (maybe) should remove two not necessary intersection points (to be decided)
     std::string const dissolve_mail_2017_10_26_c = "POLYGON((0 2, 2 1, 3 1, 1 1, 2 1, 4 2, 4 0, 0 0))"; // contains cluster and should ignore count_left/count_right
+
+    std::string const dissolve_mail_2017_10_30_a = "POLYGON((12.7069120407104490 -2.3525938987731934, 12.6983022689819340 -2.3552336692810059, 12.6984634399414060 -2.3553242683410645, 12.6980066299438480 -2.3553242683410645, 12.6983022689819340 -2.3552336692810059, 12.6911554336547850 -2.3512287139892578, 12.7025737762451170 -2.3398520946502686))";
 
     // Testcases sent by Artem Pavlenko via gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
@@ -583,6 +585,8 @@ void test_all()
     TEST_DISSOLVE(dissolve_mail_2017_10_26_a, 7.0, 1, 1, 12);
     TEST_DISSOLVE(dissolve_mail_2017_10_26_b, 16.0, 1, 0, 7);
     TEST_DISSOLVE(dissolve_mail_2017_10_26_c, 6.0, 1, 0, 6);
+
+    TEST_DISSOLVE(dissolve_mail_2017_10_30_a, 0.0001241171, 2, 0, 9);
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
