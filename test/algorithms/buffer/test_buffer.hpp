@@ -98,13 +98,13 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 struct ut_settings
 {
     double tolerance;
-    bool check_self_intersections;
     bool test_validity;
+    bool check_self_intersections;
 
     explicit ut_settings(double tol = 0.01, bool val = true, bool self = true)
         : tolerance(tol)
-        , check_self_intersections(self)
         , test_validity(val)
+        , check_self_intersections(self)
     {}
 
     static inline ut_settings ignore_validity()
@@ -158,8 +158,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             int expected_count,
             int expected_holes_count,
             double expected_area,
-            ut_settings const& settings = ut_settings(),
-            std::size_t* self_ip_count = NULL)
+            ut_settings const& settings,
+            std::size_t* self_ip_count)
 {
     namespace bg = boost::geometry;
 
@@ -589,7 +589,5 @@ void test_with_custom_strategies(std::string const& caseid,
             distance_strategy, side_strategy, point_strategy,
             expected_area, settings, NULL);
 }
-
-
 
 #endif
