@@ -373,7 +373,8 @@ template
     typename Geometry,
     typename OutputIterator
 >
-inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator out)
+inline OutputIterator dissolve_inserter(Geometry const& geometry,
+                                        OutputIterator out)
 {
     typedef typename strategy::intersection::services::default_strategy
         <
@@ -390,7 +391,8 @@ template
     typename Collection,
     typename Strategy
 >
-inline void dissolve(Geometry const& geometry, Collection& output_collection, Strategy const& strategy)
+inline void dissolve(Geometry const& geometry, Collection& output_collection,
+                     Strategy const& strategy)
 {
     concepts::check<Geometry const>();
 
