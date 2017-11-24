@@ -273,7 +273,7 @@ void test_all()
 
     test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180, gda_spheroid); // N
     test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0, gda_spheroid); // S
-    test_vincenty<P1, P2>(0, 0, 50, 0, 	5565.974540, 90, -90, gda_spheroid); // E
+    test_vincenty<P1, P2>(0, 0, 50, 0, 5565.974540, 90, -90, gda_spheroid); // E
     test_vincenty<P1, P2>(0, 0, -50, 0, 5565.974540, -90, 90, gda_spheroid); // W
     
     test_vincenty<P1, P2>(0, 0, 50, 50, 7284.879297, azimuth(32,51,55.87), azimuth(237,24,50.12), gda_spheroid); // NE
