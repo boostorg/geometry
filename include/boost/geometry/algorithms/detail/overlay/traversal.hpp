@@ -434,16 +434,17 @@ struct traversal
         turn_type const& turn = m_turns[ranked_point.turn_index];
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        // Check counts: in some cases interior rings might be generated with
-        // polygons on both sides
-
         // Check finalized: TODO: this should be finetuned, it is not necessary
-        bool const ok = op.enriched.count_left == 0
-            && op.enriched.count_right > 0
-            && ! op.visited.finalized();
-
-        if (! ok)
+        if (op.visited.finalized())
         {
+            return 0;
+        }
+
+        if (OverlayType != overlay_dissolve_union
+            && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
+        {
+            // Check counts: in some cases interior rings might be generated with
+            // polygons on both sides. For dissolve it can be anything.
             return 0;
         }
 
