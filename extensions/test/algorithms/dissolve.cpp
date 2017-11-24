@@ -127,6 +127,8 @@ namespace
     std::string const dissolve_mail_2017_09_24_c = "POLYGON((0 0, 1 0, 0 -1, 0.0001 1))"; // spike and not closed
     std::string const dissolve_mail_2017_09_24_d = "POLYGON((0 0, 1 0, 0 -1, 0 1))"; // spike and not closed
 
+    std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))";
+
     // Testcases sent by Artem Pavlenko via gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
     std::string const gitter_2013_04_a = "POLYGON((36.9121 2.03883,26.2052 54.353,60.0781 64.2202,96.2171 55.9826,71.1506 39.8365,5.72552 94.1523,4.06819 13.9054,59.7155 44.5877,60.9243 16.4597,48.8696 93.039,36.9121 2.03883))";
@@ -575,6 +577,8 @@ void test_all()
     TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_g, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
+
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_a, 7.0, 1, 1, 12);
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
