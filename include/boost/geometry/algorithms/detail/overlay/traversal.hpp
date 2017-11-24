@@ -231,28 +231,22 @@ struct traversal
         return op.visited.visited();
     }
 
+    template <signed_size_type segment_identifier::*Member>
+    inline bool select_source_generic(bool switch_source,
+            segment_identifier const& current,
+            segment_identifier const& previous) const
+    {
+        return switch_source
+                ? current.*Member != previous.*Member
+                : current.*Member == previous.*Member;
+    }
+
     inline bool select_source(signed_size_type turn_index,
                               segment_identifier const& candidate_seg_id,
                               segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
         turn_type const& turn = m_turns[turn_index];
-
-        if (OverlayType == overlay_buffer)
-        {
-            // Buffer does not use source_index (always 0)
-            return turn.switch_source
-                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
-                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
-        }
-
-        if (is_self_turn<OverlayType>(turn))
-        {
-            // Also, if it is a self-turn, stay on same ring (multi/ring)
-            return turn.switch_source
-                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
-                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
-        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         if (turn.switch_source)
@@ -264,9 +258,23 @@ struct traversal
             std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
         }
 #endif
-        return turn.switch_source
-                ? candidate_seg_id.source_index != previous_seg_id.source_index
-                : candidate_seg_id.source_index == previous_seg_id.source_index;
+        if (OverlayType == overlay_buffer)
+        {
+            // Buffer does not use source_index (always 0).
+            return select_source_generic<&segment_identifier::multi_index>(
+                        turn.switch_source, candidate_seg_id, previous_seg_id);
+        }
+
+        if (is_self_turn<OverlayType>(turn))
+        {
+            // Also, if it is a self-turn, stay on same ring (multi/ring)
+            return select_source_generic<&segment_identifier::multi_index>(
+                        turn.switch_source, candidate_seg_id, previous_seg_id);
+        }
+
+        // Use source_index
+        return select_source_generic<&segment_identifier::source_index>(
+                    turn.switch_source, candidate_seg_id, previous_seg_id);
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const

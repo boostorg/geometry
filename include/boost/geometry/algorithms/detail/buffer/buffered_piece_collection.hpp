@@ -983,7 +983,6 @@ struct buffered_piece_collection
 
         pc.first_seg_id = current_segment_id;
 
-
         // Assign left/right (for first/last piece per ring they will be re-assigned later)
         pc.left_index = pc.index - 1;
         pc.right_index = pc.index + 1;
@@ -1471,7 +1470,8 @@ struct buffered_piece_collection
         // negative rings (negative child with negative parent)
         detail::overlay::assign_parents(offsetted_rings, traversed_rings,
                 selected, m_intersection_strategy, true, false);
-        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
+        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out,
+                                                          m_area_strategy);
     }
 
 };
