@@ -258,7 +258,8 @@ struct traversal
             std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
         }
 #endif
-        if (OverlayType == overlay_buffer)
+        if (OverlayType == overlay_buffer
+                || OverlayType == overlay_dissolve_union)
         {
             // Buffer does not use source_index (always 0).
             return select_source_generic<&segment_identifier::multi_index>(
@@ -730,6 +731,8 @@ struct traversal
             return;
         }
 
+        const bool allow_uu = OverlayType != overlay_buffer;
+
         // It travels to itself, can happen. If this is a buffer, it can
         // sometimes travel to itself in the following configuration:
         //
@@ -752,7 +755,7 @@ struct traversal
                 = start_turn.operations[1 - start_op_index];
 
         bool const correct
-                = ! start_turn.both(operation_union)
+                = (allow_uu || ! start_turn.both(operation_union))
                   && start_op.seg_id.source_index == other_op.seg_id.source_index
                   && start_op.seg_id.multi_index == other_op.seg_id.multi_index
                   && start_op.seg_id.ring_index == other_op.seg_id.ring_index
