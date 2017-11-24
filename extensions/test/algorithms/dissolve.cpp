@@ -128,6 +128,7 @@ namespace
     std::string const dissolve_mail_2017_09_24_d = "POLYGON((0 0, 1 0, 0 -1, 0 1))"; // spike and not closed
 
     std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))";
+    std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))";
 
     // Testcases sent by Artem Pavlenko via gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
@@ -579,6 +580,7 @@ void test_all()
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
 
     TEST_DISSOLVE(dissolve_mail_2017_10_26_a, 7.0, 1, 1, 12);
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_b, 16.0, 1, 0, 7);
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
