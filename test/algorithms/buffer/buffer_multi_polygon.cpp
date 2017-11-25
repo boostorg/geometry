@@ -503,15 +503,16 @@ void test_all()
         neighbouring_with_holes,
         join_round32, end_round32, 0.0, -10.0);
 
-    // On MinGW the output is invalid
+    // Check cases with extreme coordinates on assertions
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
         mysql_report_2015_07_05_1,
-        join_round32, end_round32, 6.04454566324708726e+23, 5526.0,
-        ut_settings(1e+020, false, false));
+        join_round32, end_round32, ut_settings::ignore_area(), 5526.0,
+        ut_settings::assertions_only());
 
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
         mysql_report_2015_07_05_2,
-        join_round32, end_round32, 0.0, 948189399.0);
+        join_round32, end_round32, ut_settings::ignore_area(), 948189399.0,
+        ut_settings::assertions_only());
 }
 
 int test_main(int, char* [])

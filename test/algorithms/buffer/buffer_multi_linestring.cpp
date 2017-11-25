@@ -125,36 +125,31 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
 
+    {
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    // Coordinates in one linestring vary so much that
-    // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
-    // That geometry is skipped for the buffer
-    // SQL Server reports area 2117753600 (for b)
-    // PostGIS    reports      2087335072 (for b)
-    // BG (2)     reports       794569660 (for a/b) which apparently misses parts
-    // old value was            927681870 (for a/b) which also misses parts
-    // (2: since selecting other IP at end points or when segment b is smaller than a)
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10a", mysql_2015_04_10a, join_round32, end_round32, 1063005187.214, 0.98);
-    test_one<multi_linestring_type, polygon>("mysql_2015_04_10b", mysql_2015_04_10b, join_round32, end_round32, 1063005187.214, 0.98);
+        // Coordinates in one linestring vary so much that
+        // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
+        // That geometry is skipped for the buffer
+        // SQL Server reports area 2117753600 (for b)
+        // PostGIS    reports      2087335072 (for b)
+        // BG (2017)  reports      1063005187 (for a/b) which apparently misses parts
+        // BG (2015)  reported      794569660 (for a/b)
+        // BG (earlier) reported    927681870 (for a/b)
+        test_one<multi_linestring_type, polygon>("mysql_2015_04_10a",
+            mysql_2015_04_10a, join_round32, end_round32,
+            ut_settings::ignore_area(), 0.98, ut_settings::assertions_only());
+        test_one<multi_linestring_type, polygon>("mysql_2015_04_10b",
+            mysql_2015_04_10b, join_round32, end_round32,
+            ut_settings::ignore_area(), 0.98, ut_settings::assertions_only());
 #endif
 
-    {
-        // Two other cases with inf for length calculation (tolerance quite high
-        // because the output area is quite high and varies between gcc/clang)
-
-        // On MinGW this still causes invalid output, for case a:
-        //   multiline_mysql_2015_09_08a_d_round_round output is self-intersecting.
-        //   multiline_mysql_2015_09_08a_d_round_round is not valid
-        // On PowerPC also case b is reported as invalid
-
-        ut_settings settings(1.0e12, false, false);
-
+        // Two other cases with <inf> for length calculation
         test_one<multi_linestring_type, polygon>("mysql_2015_09_08a",
-                mysql_2015_09_08a, join_round32, end_round32,
-                5.12436196736438764e+19, 4051744443.0, settings);
+            mysql_2015_09_08a, join_round32, end_round32,
+            ut_settings::ignore_area(), 4051744443.0, ut_settings::assertions_only());
         test_one<multi_linestring_type, polygon>("mysql_2015_09_08b",
-                mysql_2015_09_08b, join_round32, end_round32,
-                1.32832149026508268e+19, 2061380362.0, settings);
+            mysql_2015_09_08b, join_round32, end_round32,
+            ut_settings::ignore_area(), 2061380362.0, ut_settings::assertions_only());
     }
 
     // Generates first no interior, then one touching point (no interior),

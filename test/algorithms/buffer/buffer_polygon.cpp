@@ -168,6 +168,20 @@ static std::string const mysql_report_2015_07_05_4
 static std::string const mysql_report_2015_07_05_5
     = "POLYGON((9 3,-8193 8.38861e+06,-2 -4,9 3),(-10 -2,32268 -2557,1.72036e+308 5.67867e+307,4.91634e+307 1.41031e+308,-2.68435e+08 -19,-10 -2),(-5 4,9.50167e+307 1.05883e+308,-422 -25737,-5 4))";
 
+// Versions without interiors
+static std::string const mysql_report_2015_07_05_0_wi
+    = "POLYGON((0 0,0 30000,30000 20000,25000 0,0 0))";
+static std::string const mysql_report_2015_07_05_1_wi
+    = "POLYGON((9192 27876,128 4.5036e+15,-1 5,3 9,9192 27876))";
+static std::string const mysql_report_2015_07_05_2_wi
+    = "POLYGON((-15 -15,1.31128e+308 2.47964e+307,-20 -9,-15 -15))";
+static std::string const mysql_report_2015_07_05_3_wi
+    = "POLYGON((-2.68435e+08 -12,27090 -14130,5.76461e+17 5.49756e+11,-2.68435e+08 -12))";
+static std::string const mysql_report_2015_07_05_4_wi
+    = "POLYGON((2.19902e+12 524287,1.13649e+308 1.36464e+308,-10 -19,2.19902e+12 524287))";
+static std::string const mysql_report_2015_07_05_5_wi
+    = "POLYGON((9 3,-8193 8.38861e+06,-2 -4,9 3))";
+
 class buffer_custom_side_strategy
 {
 public :
@@ -509,7 +523,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.check_self_intersections = false;
+        settings.test_self_intersections = false;
         settings.test_validity = false;
 
         // Tickets
@@ -582,27 +596,51 @@ void test_all()
             join_round32, end_round32, 64.0, -1.0);
 
         {
+            // These extreme testcases, containing huge coordinate differences
+            // and huge buffer distances, are to verify assertions.
+            // No assertions should be raised.
+
+            // The buffers themselves are most often wrong. Versions
+            // without interior rings might be smaller (or have no output)
+            // then their versions with interior rings.
+
+            // Therefore all checks on area, validity, self-intersections
+            // or having output at all are omitted.
+
+            // Details (for versions with interior rings)
             // Case 3 is reported as invalid
             // On MinGW, also case 2 and 4 are reported as invalid
             // On PowerPC, also case 1 is reported as invalid
 
-            ut_settings settings(1.0e+20, false, false);
+            ut_settings settings = ut_settings::assertions_only();
+            const double no_area = ut_settings::ignore_area();
 
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_0", mysql_report_2015_07_05_0,
-                join_round32, end_round32, 700643542.242915988, 6.0);
+                join_round32, end_round32, no_area, 6.0, settings);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1", mysql_report_2015_07_05_1,
-                join_round32, end_round32, 2.07548405999982264e+19, 6.0, settings);
-
+                join_round32, end_round32, no_area, 6.0, settings);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2", mysql_report_2015_07_05_2,
-                join_round32, end_round32, 9.48681585720922691e+23, 549755813889.0, settings);
+                join_round32, end_round32, no_area, 549755813889.0, settings);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3", mysql_report_2015_07_05_3,
-                join_round32, end_round32, 6.10005339242509925e+22, 49316.0, settings);
+                join_round32, end_round32, no_area, 49316.0, settings);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4", mysql_report_2015_07_05_4,
-                join_round32, end_round32, 4.25405937213774089e+23, 1479986.0, settings);
-
+                join_round32, end_round32, no_area, 1479986.0, settings);
             test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5", mysql_report_2015_07_05_5,
-                join_round32, end_round32, 644489321051.62439, 38141.0,
-                ut_settings(100000.0, true, false));
+                join_round32, end_round32, no_area, 38141.0, settings);
+
+            // Versions without interior rings (area should be smaller but still no checks)
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_0_wi", mysql_report_2015_07_05_0_wi,
+                join_round32, end_round32, no_area, 6.0, settings);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_1_wi", mysql_report_2015_07_05_1_wi,
+                join_round32, end_round32, no_area, 6.0, settings);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_2_wi", mysql_report_2015_07_05_2_wi,
+                join_round32, end_round32, no_area, 549755813889.0, settings);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_3_wi", mysql_report_2015_07_05_3_wi,
+                join_round32, end_round32, no_area, 49316.0, settings);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_4_wi", mysql_report_2015_07_05_4_wi,
+                join_round32, end_round32, no_area, 1479986.0, settings);
+            test_one<polygon_type, polygon_type>("mysql_report_2015_07_05_5_wi", mysql_report_2015_07_05_5_wi,
+                join_round32, end_round32, no_area, 38141.0, settings);
         }
     }
 
