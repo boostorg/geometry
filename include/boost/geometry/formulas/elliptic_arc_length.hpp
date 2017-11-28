@@ -209,8 +209,26 @@ public :
 
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
-            // Equatorial segment
-            if (math::equals(lat1, c0) && math::equals(lat2, c0))
+
+            CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
+            CT sin2_th0 = K/(K+c1);
+
+            // Meridian segment: sindl=0 and K=nan
+            if (math::equals(sindl, c0))
+            {
+                sin2_th0 = c1;
+            }
+
+            CT cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
+            CT cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
+
+            CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
+                                         : -acos(cos2d1) / c2;
+            CT d2 = (lat1 * lat2 > c0) ? acos(cos2d2) / c2
+                                       : pi - acos(cos2d2) / c2;
+
+            // For segments with lat1 ~= lat2
+            if (std::isnan(d1) || std::isnan(d2))
             {
                 CT const sin_th1 = sin(theta1);
                 CT const sin_th2 = sin(theta2);
@@ -219,22 +237,6 @@ public :
             }
             else
             {
-                CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
-                CT sin2_th0 = K/(K+c1);
-
-                // Meridian segment: sindl=0 and K=nan
-                if (math::equals(sindl, c0))
-                {
-                    sin2_th0 = c1;
-                }
-
-                CT const cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
-                CT const cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
-
-                CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
-                                             : -acos(cos2d1) / c2;
-                CT d2 = (lat1 * lat2 > c0) ? acos(cos2d2) / c2
-                                           : pi - acos(cos2d2) / c2;
 
                 CT const H = d1 + d2;
                 CT const P = d1 - d2;
@@ -243,6 +245,7 @@ public :
 
                 result.distance = distance_approximation(a, H, P, k2);
             }
+
         }
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
