@@ -523,7 +523,6 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.test_self_intersections = false;
         settings.test_validity = false;
 
         // Tickets

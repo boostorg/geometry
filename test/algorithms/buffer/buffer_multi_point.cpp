@@ -91,7 +91,7 @@ void test_all()
             distance_strategy(1),
             side_strategy,
             bg::strategy::buffer::point_circle(36),
-            1, 0, 3.12566719800474635, ut_settings(1.0), NULL);
+            1, 0, 3.12566719800474635, ut_settings(1.0));
     }
 }
 
