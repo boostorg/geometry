@@ -244,6 +244,23 @@ private :
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
+        if (math::equals(math::abs(diff), pi))
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "Meridian segment" << std::endl;
+#endif
+            result_distance_point_segment<CT> d1 = apply<geometry::radian>(lon1, lat1, lon1, half_pi, lon3, lat3, spheroid);
+            result_distance_point_segment<CT> d2 = apply<geometry::radian>(lon2, lat2, lon2, half_pi, lon3, lat3, spheroid);
+            if (d1.distance < d2.distance)
+            {
+                return d1;
+            }
+            else
+            {
+                return d2;
+            }
+        }
+
         CT d1 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
                 ::apply(lon1, lat1, lon3, lat3, spheroid);
 

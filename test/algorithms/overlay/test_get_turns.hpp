@@ -116,18 +116,14 @@ struct equal_turn
     const std::string * turn_ptr;
 };
 
-template <typename Geometry1, typename Geometry2, typename Expected>
+template <typename Geometry1, typename Geometry2, typename Expected, typename Strategy>
 void check_geometry_range(Geometry1 const& g1,
                           Geometry2 const& g2,
                           std::string const& wkt1,
                           std::string const& wkt2,
-                          Expected const& expected)
+                          Expected const& expected,
+                          Strategy const& strategy)
 {
-    typedef typename bg::strategy::intersection::services::default_strategy
-        <
-            typename bg::cs_tag<Geometry1>::type
-        >::type strategy_type;
-
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
 
@@ -152,7 +148,6 @@ void check_geometry_range(Geometry1 const& g1,
 
     std::vector<turn_info> turns;
     interrupt_policy_t interrupt_policy;
-    strategy_type strategy;
     robust_policy_type robust_policy;
     
     // Don't switch the geometries
@@ -228,6 +223,32 @@ void check_geometry_range(Geometry1 const& g1,
 }
 
 template <typename Geometry1, typename Geometry2, typename Expected>
+void check_geometry_range(Geometry1 const& g1,
+                          Geometry2 const& g2,
+                          std::string const& wkt1,
+                          std::string const& wkt2,
+                          Expected const& expected)
+{
+    typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry1>::type
+        >::type strategy;
+
+    check_geometry_range(g1, g2, wkt1, wkt2, expected, strategy);
+}
+
+template <typename Geometry1, typename Geometry2, typename Expected, typename Strategy>
+void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
+                         Expected const& expected, Strategy const& strategy)
+{
+    Geometry1 geometry1;
+    Geometry2 geometry2;
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
+    check_geometry_range(geometry1, geometry2, wkt1, wkt2, expected, strategy);
+}
+
+template <typename Geometry1, typename Geometry2, typename Expected>
 void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
                          Expected const& expected)
 {
@@ -264,6 +285,14 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
                    expected_pusher const& expected)
 {
     test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+}
+
+template <typename G1, typename G2, typename Strategy>
+void test_geometry(std::string const& wkt1, std::string const& wkt2,
+                   expected_pusher const& expected,
+                   Strategy const& strategy)
+{
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected, strategy);
 }
 
 #endif // BOOST_GEOMETRY_TEST_ALGORITHMS_OVERLAY_TEST_GET_TURNS_HPP

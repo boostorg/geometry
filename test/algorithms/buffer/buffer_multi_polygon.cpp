@@ -464,8 +464,8 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u2", rt_u2, join_round, end_flat, 138.8001, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u3", rt_u3, join_round, end_flat, 133.4526, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
-    test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0);
-    test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0, ut_settings::ignore_validity());
+    test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0, ut_settings::ignore_validity());
 
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round, end_flat, 35.6233, 1.0);
@@ -475,8 +475,9 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0); // PG: 144.085786772487
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51); // PG: 0.167380307629637
+
     // TODO: now one small triangle missing due to clusters/uu turns
-    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50); // PG: 0.214466094067263
+    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50, ut_settings::ignore_validity()); // PG: 0.214466094067263
     test_one<multi_polygon_type, polygon_type>("rt_u10_45", rt_u10, join_miter, end_flat, 1.3000, -0.45); // PG: 1.30004221251301
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25); // PG: 9.66820888343117
 
@@ -502,13 +503,16 @@ void test_all()
         neighbouring_with_holes,
         join_round32, end_round32, 0.0, -10.0);
 
+    // Check cases with extreme coordinates on assertions
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
         mysql_report_2015_07_05_1,
-        join_round32, end_round32, 6.04454566324708726e+23, 5526.0,
-        same_distance, false, 1e+020);
+        join_round32, end_round32, ut_settings::ignore_area(), 5526.0,
+        ut_settings::assertions_only());
+
     test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
         mysql_report_2015_07_05_2,
-        join_round32, end_round32, 0.0, 948189399.0);
+        join_round32, end_round32, ut_settings::ignore_area(), 948189399.0,
+        ut_settings::assertions_only());
 }
 
 int test_main(int, char* [])
