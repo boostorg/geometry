@@ -794,6 +794,10 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
+        bool const set_startable
+                = OverlayType != overlay_dissolve_union
+                && OverlayType != overlay_dissolve_intersection;
+
         // Unset the startable flag for all 'closed' zones. This does not
         // apply for self-turns, because those counts are not from both
         // polygons
@@ -803,7 +807,8 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             turn_type& turn = turns[ranked.turn_index];
             turn_operation_type& op = turn.operations[ranked.operation_index];
 
-            if (for_operation == operation_union && cinfo.open_count == 0)
+            if (set_startable
+                    && for_operation == operation_union && cinfo.open_count == 0)
             {
                 op.enriched.startable = false;
             }
@@ -817,6 +822,11 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             op.enriched.count_right = ranked.count_right;
             op.enriched.rank = ranked.rank;
             op.enriched.zone = ranked.zone;
+
+            if (! set_startable)
+            {
+                continue;
+            }
 
             if (OverlayType != overlay_difference
                     && is_self_turn<OverlayType>(turn))

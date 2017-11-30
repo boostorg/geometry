@@ -311,7 +311,11 @@ class analyse_turn_wrt_piece
     template <typename Point, typename Turn>
     static inline analyse_result check_helper_segment(Point const& s1,
                 Point const& s2, Turn const& turn,
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+                bool , // is on original, to be reused
+#else
                 bool is_original,
+#endif
                 Point const& offsetted)
     {
         boost::ignore_unused(offsetted);
@@ -340,11 +344,9 @@ class analyse_turn_wrt_piece
 
             if (geometry::covered_by(turn.robust_point, box))
             {
-                // Points on helper-segments are considered as within
-                // Points on original boundary are processed differently
-                return is_original
-                    ? analyse_on_original_boundary
-                    : analyse_within;
+                // Points on helper-segments (and not on its corners)
+                // are considered as within
+                return analyse_within;
             }
 
             // It is collinear but not on the segment. Because these
@@ -424,6 +426,13 @@ class analyse_turn_wrt_piece
             {
                 points[i] = piece.robust_ring[piece.offsetted_count + i];
             }
+
+            //      3--offsetted outline--0
+            //      |                     |
+            // left |                     | right
+            //      |                     |
+            //      2===>==original===>===1
+
         }
         else if (helper_count == 3)
         {
@@ -447,9 +456,15 @@ class analyse_turn_wrt_piece
         {
             return analyse_on_offsetted;
         }
-        if (comparator(point, points[1]) || comparator(point, points[2]))
+        if (comparator(point, points[1]))
         {
-            return analyse_on_original_boundary;
+            // On original, right corner
+            return piece.is_flat_end ? analyse_continue : analyse_on_original_boundary;
+        }
+        if (comparator(point, points[2]))
+        {
+            // On original, left corner
+            return piece.is_flat_start ? analyse_continue : analyse_on_original_boundary;
         }
 
         // Right side of the piece

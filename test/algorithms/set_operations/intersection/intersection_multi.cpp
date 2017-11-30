@@ -132,11 +132,15 @@ void test_areal()
         3, 13, 3.0);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // One intersection is missing (by rescaling)
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
-        case_108_multi[0], case_108_multi[1],
-        5, 33, 7.5,
-        ignore_validity);
+    {
+        ut_settings ignore_validity; ignore_validity.test_validity = false;
+
+        // One intersection is missing (by rescaling)
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+            case_108_multi[0], case_108_multi[1],
+            5, 33, 7.5,
+            ignore_validity);
+    }
 #endif
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);

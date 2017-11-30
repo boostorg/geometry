@@ -24,14 +24,18 @@
 
 [*Improvements]
 
+* Add distance for geographic PointLike/AnyGeometry.
+
 [*Solved issues]
 
 * [@https://svn.boost.org/trac10/ticket/12503 12503] Validity of complex polygon
 
 [*Bugfixes]
 
-* Fixes in validity of union/intersection/differece which were sometimes invalid. In most cases, results are valid now.
-* Fixes in results of union/intersection/differece which could be incorrect in very complex cases
+* Fixes in validity of union/intersection/difference which were sometimes invalid. In most cases, results are valid now.
+* Fixes in validity of buffer which were sometimes invalid. In most cases, results are valid now.
+* Fixes in results of union/intersection/difference which could be incorrect in very complex cases
+* Fixes in set and relational operations for non-cartesian coordinate systems.
 
 [/=================]
 [heading Boost 1.65]

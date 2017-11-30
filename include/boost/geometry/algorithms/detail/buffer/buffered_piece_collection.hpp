@@ -217,7 +217,10 @@ struct buffered_piece_collection
         // 2: half, not part of offsetted rings - part of robust ring
         std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
+        bool is_flat_start;
+        bool is_flat_end;
 
+        bool is_deflated;
         bool is_convex;
         bool is_monotonic_increasing[2]; // 0=x, 1=y
         bool is_monotonic_decreasing[2]; // 0=x, 1=y
@@ -245,6 +248,9 @@ struct buffered_piece_collection
             , right_index(-1)
             , last_segment_index(-1)
             , offsetted_count(-1)
+            , is_flat_start(false)
+            , is_flat_end(false)
+            , is_deflated(false)
             , is_convex(false)
             , robust_min_comparable_radius(0)
             , robust_max_comparable_radius(0)
@@ -296,6 +302,8 @@ struct buffered_piece_collection
     piece_vector_type m_pieces;
     turn_vector_type m_turns;
     signed_size_type m_first_piece_index;
+    bool m_deflate;
+    bool m_has_deflated;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
     std::vector<robust_original> robust_originals; // robust representation of the original(s)
@@ -334,6 +342,8 @@ struct buffered_piece_collection
     buffered_piece_collection(IntersectionStrategy const& intersection_strategy,
                               RobustPolicy const& robust_policy)
         : m_first_piece_index(-1)
+        , m_deflate(false)
+        , m_has_deflated(false)
         , m_intersection_strategy(intersection_strategy)
         , m_side_strategy(intersection_strategy.get_side_strategy())
         , m_area_strategy(intersection_strategy.template get_area_strategy<point_type>())
@@ -499,7 +509,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_turns(bool linear)
+    inline void classify_turns()
     {
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
@@ -508,7 +518,7 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-            if (it->count_on_original_boundary > 0 && ! linear)
+            if (it->count_on_original_boundary > 0)
             {
                 it->location = inside_buffer;
             }
@@ -522,6 +532,90 @@ struct buffered_piece_collection
                 it->operations[1].enriched.startable = false;
             }
 #endif
+        }
+    }
+
+    struct deflate_properties
+    {
+        bool has_inflated;
+        std::size_t count;
+
+        inline deflate_properties()
+            : has_inflated(false)
+            , count(0u)
+        {}
+    };
+
+    inline void discard_turns_for_deflate()
+    {
+        // Deflate cases should have at least 3 points PER deflated original
+        // to form a correct triangle
+
+        // But if there are intersections between a deflated ring and another
+        // ring, it is all accepted
+
+        // In deflate most turns are i/u by nature, but u/u is also possible
+
+        std::map<signed_size_type, deflate_properties> properties;
+
+        for (typename boost::range_iterator<turn_vector_type const>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it)
+        {
+            const buffer_turn_info_type& turn = *it;
+            if (turn.location == location_ok)
+            {
+                const buffer_turn_operation_type& op0 = turn.operations[0];
+                const buffer_turn_operation_type& op1 = turn.operations[1];
+
+                if (! m_pieces[op0.seg_id.piece_index].is_deflated
+                 || ! m_pieces[op1.seg_id.piece_index].is_deflated)
+                {
+                    properties[op0.seg_id.multi_index].has_inflated = true;
+                    properties[op1.seg_id.multi_index].has_inflated = true;
+                    continue;
+                }
+
+                // It is deflated, update counts
+                for (int i = 0; i < 2; i++)
+                {
+                    const buffer_turn_operation_type& op = turn.operations[i];
+                    if (op.operation == detail::overlay::operation_union
+                        || op.operation == detail::overlay::operation_continue)
+                    {
+                        properties[op.seg_id.multi_index].count++;
+                    }
+                }
+            }
+        }
+
+        for (typename boost::range_iterator<turn_vector_type>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it)
+        {
+            buffer_turn_info_type& turn = *it;
+
+            if (turn.location == location_ok)
+            {
+                const buffer_turn_operation_type& op0 = turn.operations[0];
+                const buffer_turn_operation_type& op1 = turn.operations[1];
+                signed_size_type const multi0 = op0.seg_id.multi_index;
+                signed_size_type const multi1 = op1.seg_id.multi_index;
+
+                if (multi0 == multi1)
+                {
+                    const deflate_properties& prop =  properties[multi0];
+                    if (! prop.has_inflated && prop.count < 3)
+                    {
+                        // Property is not inflated
+                        // Not enough points, this might be caused by <float> where
+                        // detection turn-in-original failed because of numeric errors
+                        turn.location = location_discard;
+                    }
+                }
+                else
+                {
+                    // Two different (possibly deflated) rings
+                }
+            }
         }
     }
 
@@ -550,7 +644,7 @@ struct buffered_piece_collection
             {
                 if (deflate && turn.count_in_original <= 0)
                 {
-                    // For deflate: it is not in original, discard
+                    // For deflate/negative buffers: it is not in original, discard
                     turn.location = location_discard;
                 }
                 else if (! deflate && turn.count_in_original > 0)
@@ -559,6 +653,12 @@ struct buffered_piece_collection
                     turn.location = location_discard;
                 }
             }
+        }
+
+        if (m_has_deflated)
+        {
+            // Either strategy was negative, or there were interior rings
+            discard_turns_for_deflate();
         }
     }
 
@@ -828,7 +928,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline void start_new_ring()
+    inline void start_new_ring(bool deflate)
     {
         signed_size_type const n = static_cast<signed_size_type>(offsetted_rings.size());
         current_segment_id.source_index = 0;
@@ -840,6 +940,13 @@ struct buffered_piece_collection
         current_robust_ring.clear();
 
         m_first_piece_index = static_cast<signed_size_type>(boost::size(m_pieces));
+        m_deflate = deflate;
+        if (deflate)
+        {
+            // Pieces contain either deflated exterior rings, or inflated
+            // interior rings which are effectively deflated too
+            m_has_deflated = true;
+        }
     }
 
     inline void abort_ring()
@@ -974,11 +1081,11 @@ struct buffered_piece_collection
         piece pc;
         pc.type = type;
         pc.index = static_cast<signed_size_type>(boost::size(m_pieces));
+        pc.is_deflated = m_deflate;
 
         current_segment_id.piece_index = pc.index;
 
         pc.first_seg_id = current_segment_id;
-
 
         // Assign left/right (for first/last piece per ring they will be re-assigned later)
         pc.left_index = pc.index - 1;
@@ -1233,6 +1340,24 @@ struct buffered_piece_collection
         }
     }
 
+    inline void mark_flat_start()
+    {
+        if (! m_pieces.empty())
+        {
+            piece& back = m_pieces.back();
+            back.is_flat_start = true;
+        }
+    }
+
+    inline void mark_flat_end()
+    {
+        if (! m_pieces.empty())
+        {
+            piece& back = m_pieces.back();
+            back.is_flat_end = true;
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     inline void enrich()
@@ -1449,7 +1574,8 @@ struct buffered_piece_collection
         // negative rings (negative child with negative parent)
         detail::overlay::assign_parents(offsetted_rings, traversed_rings,
                 selected, m_intersection_strategy, true, false);
-        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
+        return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out,
+                                                          m_area_strategy);
     }
 
 };
