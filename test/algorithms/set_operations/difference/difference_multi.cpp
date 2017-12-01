@@ -533,6 +533,18 @@ void test_specific_areal()
             1, 10, 27226370.5,
             1, -1, 825192.0 + 27226370.5);
     }
+
+    {
+        ut_settings settings;
+        settings.sym_difference = false;
+#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+        settings.test_validity = false;
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 3, 7427491.5, 4, 131506, 4);
+#else
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, 7427727.5, 4, 131506, 4);
+#endif
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2, 412676.5, 2, 76779.5, 4);
+    }
 }
 
 template <typename Point, bool ClockWise, bool Closed>

@@ -231,28 +231,22 @@ struct traversal
         return op.visited.visited();
     }
 
+    template <signed_size_type segment_identifier::*Member>
+    inline bool select_source_generic(bool switch_source,
+            segment_identifier const& current,
+            segment_identifier const& previous) const
+    {
+        return switch_source
+                ? current.*Member != previous.*Member
+                : current.*Member == previous.*Member;
+    }
+
     inline bool select_source(signed_size_type turn_index,
                               segment_identifier const& candidate_seg_id,
                               segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
         turn_type const& turn = m_turns[turn_index];
-
-        if (OverlayType == overlay_buffer)
-        {
-            // Buffer does not use source_index (always 0)
-            return turn.switch_source
-                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
-                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
-        }
-
-        if (is_self_turn<OverlayType>(turn))
-        {
-            // Also, if it is a self-turn, stay on same ring (multi/ring)
-            return turn.switch_source
-                    ? candidate_seg_id.multi_index != previous_seg_id.multi_index
-                    : candidate_seg_id.multi_index == previous_seg_id.multi_index;
-        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         if (turn.switch_source)
@@ -264,9 +258,24 @@ struct traversal
             std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
         }
 #endif
-        return turn.switch_source
-                ? candidate_seg_id.source_index != previous_seg_id.source_index
-                : candidate_seg_id.source_index == previous_seg_id.source_index;
+        if (OverlayType == overlay_buffer
+                || OverlayType == overlay_dissolve_union)
+        {
+            // Buffer does not use source_index (always 0).
+            return select_source_generic<&segment_identifier::multi_index>(
+                        turn.switch_source, candidate_seg_id, previous_seg_id);
+        }
+
+        if (is_self_turn<OverlayType>(turn))
+        {
+            // Also, if it is a self-turn, stay on same ring (multi/ring)
+            return select_source_generic<&segment_identifier::multi_index>(
+                        turn.switch_source, candidate_seg_id, previous_seg_id);
+        }
+
+        // Use source_index
+        return select_source_generic<&segment_identifier::source_index>(
+                    turn.switch_source, candidate_seg_id, previous_seg_id);
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -345,6 +354,7 @@ struct traversal
 
             if (op.operation == target_operation
                 && ! op.visited.finished()
+                && ! op.visited.visited()
                 && (! result || select_source(turn_index, op.seg_id, previous_seg_id)))
             {
                 selected_op_index = i;
@@ -424,16 +434,17 @@ struct traversal
         turn_type const& turn = m_turns[ranked_point.turn_index];
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        // Check counts: in some cases interior rings might be generated with
-        // polygons on both sides
-
         // Check finalized: TODO: this should be finetuned, it is not necessary
-        bool const ok = op.enriched.count_left == 0
-            && op.enriched.count_right > 0
-            && ! op.visited.finalized();
-
-        if (! ok)
+        if (op.visited.finalized())
         {
+            return 0;
+        }
+
+        if (OverlayType != overlay_dissolve_union
+            && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
+        {
+            // Check counts: in some cases interior rings might be generated with
+            // polygons on both sides. For dissolve it can be anything.
             return 0;
         }
 
@@ -721,6 +732,8 @@ struct traversal
             return;
         }
 
+        const bool allow_uu = OverlayType != overlay_buffer;
+
         // It travels to itself, can happen. If this is a buffer, it can
         // sometimes travel to itself in the following configuration:
         //
@@ -743,7 +756,7 @@ struct traversal
                 = start_turn.operations[1 - start_op_index];
 
         bool const correct
-                = ! start_turn.both(operation_union)
+                = (allow_uu || ! start_turn.both(operation_union))
                   && start_op.seg_id.source_index == other_op.seg_id.source_index
                   && start_op.seg_id.multi_index == other_op.seg_id.multi_index
                   && start_op.seg_id.ring_index == other_op.seg_id.ring_index
