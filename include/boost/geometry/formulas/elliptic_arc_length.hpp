@@ -65,7 +65,8 @@ public :
             (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi)) )
         {
             // single meridian not crossing pole
-            res.distance = apply(lat2, spheroid) - apply(lat1, spheroid);
+            res.distance = apply(lat2, spheroid)
+                                     - apply(lat1, spheroid);
             res.meridian = true;
         }
 

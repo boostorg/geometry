@@ -76,7 +76,7 @@ public :
 
     template <typename CT>
     static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
-                           Spheroid const& spheroid) const
+                           Spheroid const& spheroid)
     {
         typedef typename formula::elliptic_arc_length
                 <
@@ -120,8 +120,8 @@ public :
                 CT, strategy::default_order<FormulaPolicy>::value
                 > elliptic_arc_length;
 
-        return elliptic_arc_length::apply(lat2, m_spheroid)
-             - elliptic_arc_length::apply(lat1, m_spheroid);
+        return math::abs(elliptic_arc_length::apply(lat2, m_spheroid)
+             - elliptic_arc_length::apply(lat1, m_spheroid));
     }
 
     inline Spheroid const& model() const

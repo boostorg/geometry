@@ -23,7 +23,6 @@
 
 #include "test_distance_geo_common.hpp"
 
-
 typedef bg::cs::geographic<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
 typedef bg::model::segment<point_type> segment_type;
@@ -371,6 +370,55 @@ void test_distance_point_box(Strategy_pp const& strategy_pp,
                   strategy_pb);
 }
 
+template <typename Strategy_pp, typename Strategy_ps, typename Strategy_pb>
+void test_distance_point_deg_box(Strategy_pp const& strategy_pp,
+                                 Strategy_ps const& strategy_ps,
+                                 Strategy_pb const& strategy_pb)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/box distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, box_type> tester;
+
+    //box degenerates to a meridian segment
+    std::string const box1 = "BOX(0 10,0 20)";
+
+    tester::apply("pbd1", "POINT(1 10)", box1,
+                  ps_distance("POINT(1 10)", "SEGMENT(0 10, 0 20)", strategy_ps),
+                  strategy_pb);
+    tester::apply("pbd2", "POINT(1 5)", box1,
+                  ps_distance("POINT(1 5)", "SEGMENT(0 10, 0 20)", strategy_ps),
+                  strategy_pb);
+    tester::apply("pbd3", "POINT(1 15)", box1,
+                  ps_distance("POINT(1 15)", "SEGMENT(0 10, 0 20)", strategy_ps),
+                  strategy_pb);
+    tester::apply("pbd4", "POINT(1 25)", box1,
+                  ps_distance("POINT(1 25)", "SEGMENT(0 10, 0 20)", strategy_ps),
+                  strategy_pb);
+
+    //box degenerates to a horizontal line; that is not a geodesic segment
+    std::string const box2 = "BOX(10 10,20 10)";
+
+    tester::apply("pbd5", "POINT(15 15)", box2,
+                  pp_distance("POINT(15 15)", "POINT(15 10)", strategy_pp),
+                  strategy_pb);
+    tester::apply("pbd6", "POINT(5 15)", box2,
+                  pp_distance("POINT(5 15)", "POINT(10 10)", strategy_pp),
+                  strategy_pb);
+    tester::apply("pbd7", "POINT(25 15)", box2,
+                  pp_distance("POINT(25 15)", "POINT(20 10)", strategy_pp),
+                  strategy_pb);
+
+    //box degenerates to a point
+    std::string const box3 = "BOX(0 10,0 10)";
+
+    tester::apply("pbd8", "POINT(1 11)", box3,
+                  pp_distance("POINT(1 11)", "POINT(0 10)", strategy_pp),
+                  strategy_pb);
+}
+
 //===========================================================================
 //===========================================================================
 //===========================================================================
@@ -380,4 +428,8 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
     test_distance_point_box(thomas_pp(), thomas_ps(), thomas_pb());
     test_distance_point_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
+
+    test_distance_point_deg_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
+    test_distance_point_deg_box(thomas_pp(), thomas_ps(), thomas_pb());
+    test_distance_point_deg_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
 }

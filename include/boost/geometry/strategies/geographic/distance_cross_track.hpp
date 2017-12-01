@@ -242,6 +242,12 @@ private :
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Equatorial segment" << std::endl;
+            std::cout << "segment=(" << lon1 * math::r2d<CT>();
+            std::cout << "," << lat1 * math::r2d<CT>();
+            std::cout << "),(" << lon2 * math::r2d<CT>();
+            std::cout << "," << lat2 * math::r2d<CT>();
+            std::cout << ")\np=(" << lon3 * math::r2d<CT>();
+            std::cout << "," << lat3 * math::r2d<CT>() << ")\n";
 #endif
             if (lon3 <= lon1)
             {
@@ -252,6 +258,11 @@ private :
                 return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
             }
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
+        }
+
+        if ((lon1 == lon2 || math::equals(math::abs(diff), pi) )&& lat1 > lat2)
+        {
+            std::swap(lat1,lat2);
         }
 
         if (math::equals(math::abs(diff), pi))

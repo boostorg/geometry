@@ -21,7 +21,6 @@
 
 #include "test_distance_geo_common.hpp"
 
-
 typedef bg::cs::geographic<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
 typedef bg::model::segment<point_type> segment_type;
@@ -96,7 +95,7 @@ ps_distance(std::string const& wkt1,
     segment_type s;
     bg::read_wkt(wkt1, p);
     bg::read_wkt(wkt2, s);
-    return bg::distance(p, s);
+    return bg::distance(p, s, strategy);
 }
 
 //===========================================================================
@@ -456,11 +455,86 @@ void test_distance_box_box_negative(Strategy_pp const& strategy_pp,
                   strategy_bb);
 }
 
+template <typename Strategy_pp, typename Strategy_ps, typename Strategy_pb>
+void test_distance_box_box_deg(Strategy_pp const& strategy_pp,
+                               Strategy_ps const& strategy_ps,
+                               Strategy_pb const& strategy_bb)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "box/box distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<box_type, box_type> tester;
+
+    //---
+    //1st box degenerates to a meridian segment
+    std::string const box1 = "BOX(0 10,0 20)";
+
+    //2nd box generic
+    tester::apply("pbd1", box1, "BOX(1 15, 2 25)",
+                  ps_distance("POINT(0 20)", "SEGMENT(1 15, 1 25)", strategy_ps),
+                  strategy_bb);
+
+    //2nd box degenerates to a meridian segment
+    tester::apply("pbd2", box1, "BOX(1 15, 1 25)",
+                  ps_distance("POINT(0 20)", "SEGMENT(1 15, 1 25)", strategy_ps),
+                  strategy_bb);
+
+    //2nd box degenerates to a horizontal line
+    //test fails for thomas strategy; test only for andoyer
+    tester::apply("pbd3", box1, "BOX(1 15, 2 15)",
+                  pp_distance("POINT(1 15)", "POINT(0 15)", andoyer_pp()),
+                  andoyer_bb());
+
+    //2nd box degenerates to a point
+    tester::apply("pbd4", box1, "BOX(1 15, 1 15)",
+                  ps_distance("POINT(1 15)", "SEGMENT(0 10, 0 20)", strategy_ps),
+                  strategy_bb);
+
+    //---
+    //1st box degenerates to a horizontal line; that is not a geodesic segment
+    std::string const box2 = "BOX(10 10,20 10)";
+
+    //2nd box generic
+    tester::apply("pbd5", box2, "BOX(15 15, 25 20)",
+                  pp_distance("POINT(15 15)", "POINT(15 10)", strategy_pp),
+                  strategy_bb);
+
+    //2nd box degenerates to a horizontal line
+    tester::apply("pbd6", box2, "BOX(15 15, 25 15)",
+                  pp_distance("POINT(15 15)", "POINT(15 10)", strategy_pp),
+                  strategy_bb);
+
+    //2nd box degenerates to a point
+    tester::apply("pbd7", box2, "BOX(15 15, 15 15)",
+                  pp_distance("POINT(15 15)", "POINT(15 10)", strategy_pp),
+                  strategy_bb);
+
+    //---
+    //1st box degenerates to a point
+    std::string const box3 = "BOX(0 6,0 6)";
+
+    //2nd box generic
+    tester::apply("pbd8", box3, "BOX(15 15, 25 20)",
+                  ps_distance("POINT(0 6)", "SEGMENT(15 15, 15 20)", strategy_ps),
+                  strategy_bb);
+
+    //2nd box degenerates to a point
+    tester::apply("pbd9", box3, "BOX(15 15, 15 15)",
+                  pp_distance("POINT(0 6)", "POINT(15 15)", strategy_pp),
+                  strategy_bb);
+}
+
 //===========================================================================
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
     test_distance_box_box(vincenty_pp(), vincenty_ps(), vincenty_bb());
-    //test_distance_box_box(thomas_pp(), thomas_ps(), thomas_bb());
+    test_distance_box_box(thomas_pp(), thomas_ps(), thomas_bb());
     test_distance_box_box(andoyer_pp(), andoyer_ps(), andoyer_bb());
+
+    test_distance_box_box_deg(vincenty_pp(), vincenty_ps(), vincenty_bb());
+    test_distance_box_box_deg(thomas_pp(), thomas_ps(), thomas_bb());
+    test_distance_box_box_deg(andoyer_pp(), andoyer_ps(), andoyer_bb());
 }

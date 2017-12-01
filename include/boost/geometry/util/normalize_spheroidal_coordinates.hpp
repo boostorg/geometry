@@ -198,7 +198,7 @@ template <typename Units, bool IsEquatorial>
 struct latitude_convert_if_polar
 {
     template <typename T>
-    static inline void apply(T & lat) {}
+    static inline void apply(T &) {}
 };
 
 template <typename Units>
