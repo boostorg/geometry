@@ -47,6 +47,26 @@ public :
     };
 
     template <typename T, typename Spheroid>
+    static CT meridian_not_crossing_pole(T lat1, T lat2, Spheroid const& spheroid)
+    {
+        return math::abs(apply(lat2, spheroid) - apply(lat1, spheroid));
+    }
+
+    template <typename T, typename Spheroid>
+    static CT meridian_crossing_pole(T lat1, T lat2, Spheroid const& spheroid)
+    {
+        CT c0 = 0;
+        CT half_pi = math::pi<CT>()/CT(2);
+        CT lat_sign = 1;
+        if (lat1+lat2 < c0)
+        {
+            lat_sign = CT(-1);
+        }
+        return math::abs(lat_sign * CT(2) * apply(half_pi, spheroid)
+                         - apply(lat1, spheroid) - apply(lat2, spheroid));
+    }
+
+    template <typename T, typename Spheroid>
     static result apply(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
     {
         result res;
@@ -64,22 +84,13 @@ public :
         if ( math::equals(diff, c0) ||
             (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi)) )
         {
-            // single meridian not crossing pole
-            res.distance = apply(lat2, spheroid)
-                                     - apply(lat1, spheroid);
+            res.distance = meridian_not_crossing_pole(lat1, lat2, spheroid);
             res.meridian = true;
         }
 
         if (math::equals(math::abs(diff), pi))
         {
-            // meridian crosses pole
-            CT lat_sign = 1;
-            if (lat1+lat2 < c0)
-            {
-                lat_sign = CT(-1);
-            }
-            res.distance = math::abs(lat_sign * CT(2) * apply(half_pi, spheroid)
-                               - apply(lat1, spheroid) - apply(lat2, spheroid));
+            res.distance = meridian_crossing_pole(lat1, lat2, spheroid);
             res.meridian = true;
         }
         return res;

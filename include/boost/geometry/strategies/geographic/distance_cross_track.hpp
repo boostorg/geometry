@@ -237,8 +237,11 @@ private :
         //Note: antipodal points on equator does not define segment on equator
         //but pass by the pole
         CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
-        if (math::equals(lat1, c0) && math::equals(lat2, c0)
-            && !math::equals(math::abs(diff), pi))
+
+        bool meridian_crossing_pole = math::equals(math::abs(diff), pi);
+        bool meridian_not_crossing_pole = math::equals(math::abs(diff), c0);
+
+        if (math::equals(lat1, c0) && math::equals(lat2, c0) && !meridian_crossing_pole)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Equatorial segment" << std::endl;
@@ -260,12 +263,12 @@ private :
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
-        if ((lon1 == lon2 || math::equals(math::abs(diff), pi) )&& lat1 > lat2)
+        if ( (meridian_not_crossing_pole || meridian_crossing_pole ) && lat1 > lat2)
         {
             std::swap(lat1,lat2);
         }
 
-        if (math::equals(math::abs(diff), pi))
+        if (meridian_crossing_pole)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Meridian segment" << std::endl;
