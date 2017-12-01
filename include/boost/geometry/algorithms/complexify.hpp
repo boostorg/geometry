@@ -18,6 +18,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/range/size.hpp>
@@ -223,36 +224,119 @@ struct complexify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+namespace resolve_strategy
+{
+
+struct complexify
+{
+    template <typename Geometry, typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        dispatch::complexify<Geometry, Geometry>
+            ::apply(geometry, out, max_distance, strategy);
+    }
+
+    template <typename Geometry, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             default_strategy)
+    {
+        typedef strategy::complexify::services::default_strategy
+            <
+                typename cs_tag<Geometry>::type
+            > strategy_type;
+        
+        /*BOOST_CONCEPT_ASSERT(
+            (concepts::ComplexifyStrategy<strategy_type>)
+        );*/
+
+        apply(geometry, out, max_distance, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct complexify
+{
+    template <typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        resolve_strategy::complexify::apply(geometry, out, max_distance, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct complexify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Distance, typename Strategy>
+    struct visitor: boost::static_visitor<void>
+    {
+        Distance const& m_max_distance;
+        Strategy const& m_strategy;
+
+        visitor(Distance const& max_distance, Strategy const& strategy)
+            : m_max_distance(max_distance)
+            , m_strategy(strategy)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry, Geometry& out) const
+        {
+            simplify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
+        }
+    };
+
+    template <typename Distance, typename Strategy>
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& out,
+          Distance const& max_distance,
+          Strategy const& strategy)
+    {
+        boost::apply_visitor(
+            visitor<Distance, Strategy>(max_distance, strategy),
+            geometry,
+            out
+        );
+    }
+};
+
+} // namespace resolve_variant
+
+
+template <typename Geometry, typename Distance, typename Strategy>
 inline void complexify(Geometry const& geometry,
-                       GeometryOut & geometry_out,
-                       T const& length_threshhold,
+                       Geometry& out,
+                       Distance const& max_distance,
                        Strategy const& strategy)
 {
-    concepts::check<Geometry const>();
-    concepts::check<GeometryOut>();
+    concepts::check<Geometry>();
 
-    geometry::clear(geometry_out);
+    geometry::clear(out);
 
-    dispatch::complexify
+    resolve_variant::complexify
         <
-            Geometry,
-            GeometryOut
-        >::apply(geometry, geometry_out, length_threshhold, strategy);
+            Geometry
+        >::apply(geometry, out, max_distance, strategy);
 }
 
-template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+template <typename Geometry, typename Distance, typename Strategy>
 inline void complexify(Geometry const& geometry,
-                       GeometryOut & geometry_out,
-                       T const& length_threshhold)
+                       Geometry& out,
+                       Distance const& max_distance)
 {
-
-    typedef strategy::complexify::services::default_strategy
-        <
-            typename cs_tag<Geometry>::type
-        > strategy_type;
-
-    complexify(geometry, geometry_out, length_threshhold, strategy_type());
+    complexify(geometry, out, max_distance, strategy_type());
 }
 
 }} // namespace boost::geometry
