@@ -120,8 +120,8 @@ public :
                 CT, strategy::default_order<FormulaPolicy>::value
                 > elliptic_arc_length;
 
-        return elliptic_arc_length::meridian_not_crossing_pole(lat1, lat2,
-                                                               m_spheroid);
+        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                    m_spheroid);
     }
 
     inline Spheroid const& model() const

@@ -46,14 +46,28 @@ public :
         bool meridian;
     };
 
+    template <typename T>
+    static bool meridian_not_crossing_pole(T lat1, T lat2, CT diff)
+    {
+        CT half_pi = math::pi<CT>()/CT(2);
+        return math::equals(diff, CT(0)) ||
+                    (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi));
+    }
+
+    static bool meridian_crossing_pole(CT diff)
+    {
+        return math::equals(math::abs(diff), math::pi<CT>());
+    }
+
+
     template <typename T, typename Spheroid>
-    static CT meridian_not_crossing_pole(T lat1, T lat2, Spheroid const& spheroid)
+    static CT meridian_not_crossing_pole_dist(T lat1, T lat2, Spheroid const& spheroid)
     {
         return math::abs(apply(lat2, spheroid) - apply(lat1, spheroid));
     }
 
     template <typename T, typename Spheroid>
-    static CT meridian_crossing_pole(T lat1, T lat2, Spheroid const& spheroid)
+    static CT meridian_crossing_pole_dist(T lat1, T lat2, Spheroid const& spheroid)
     {
         CT c0 = 0;
         CT half_pi = math::pi<CT>()/CT(2);
@@ -71,9 +85,6 @@ public :
     {
         result res;
 
-        CT c0 = 0;
-        CT pi = math::pi<CT>();
-        CT half_pi = pi/CT(2);
         CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
         if (lat1 > lat2)
@@ -81,16 +92,14 @@ public :
             std::swap(lat1, lat2);
         }
 
-        if ( math::equals(diff, c0) ||
-            (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi)) )
+        if ( meridian_not_crossing_pole(lat1, lat2, diff) )
         {
-            res.distance = meridian_not_crossing_pole(lat1, lat2, spheroid);
+            res.distance = meridian_not_crossing_pole_dist(lat1, lat2, spheroid);
             res.meridian = true;
         }
-
-        if (math::equals(math::abs(diff), pi))
+        else if ( meridian_crossing_pole(diff) )
         {
-            res.distance = meridian_crossing_pole(lat1, lat2, spheroid);
+            res.distance = meridian_crossing_pole_dist(lat1, lat2, spheroid);
             res.meridian = true;
         }
         return res;

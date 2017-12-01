@@ -238,8 +238,16 @@ private :
         //but pass by the pole
         CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
-        bool meridian_crossing_pole = math::equals(math::abs(diff), pi);
-        bool meridian_not_crossing_pole = math::equals(math::abs(diff), c0);
+        typedef typename formula::elliptic_arc_length<CT> elliptic_arc_length;
+
+        bool meridian_not_crossing_pole =
+              elliptic_arc_length::meridian_not_crossing_pole(lat1, lat2, diff);
+
+        bool meridian_crossing_pole =
+              elliptic_arc_length::meridian_crossing_pole(diff);
+
+        //bool meridian_crossing_pole = math::equals(math::abs(diff), pi);
+        //bool meridian_not_crossing_pole = math::equals(math::abs(diff), c0);
 
         if (math::equals(lat1, c0) && math::equals(lat2, c0) && !meridian_crossing_pole)
         {
