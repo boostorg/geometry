@@ -683,7 +683,7 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_multilinestring(thomas_pp(), thomas_strategy());
     test_distance_point_multilinestring(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
+    //test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
     //    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
     //    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
 

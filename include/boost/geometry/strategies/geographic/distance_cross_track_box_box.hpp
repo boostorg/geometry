@@ -56,7 +56,6 @@ to cross track
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    //typename Strategy = geographic_cross_track<>,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -184,34 +183,6 @@ public:
             >::apply(strategy, distance);
     }
 };
-
-/*
-// define cross_track_box_box<default_point_segment_strategy> as
-// default box-box strategy for the geographic coordinate system
-template <typename Box1, typename Box2, typename Strategy>
-struct default_strategy
-    <
-        box_tag, box_tag, Box1, Box2,
-        geographic_tag, geographic_tag,
-        Strategy
-    >
-{
-    typedef geographic_cross_track_box_box
-        <
-            typename boost::mpl::if_
-                <
-                    boost::is_void<Strategy>,
-                    typename default_strategy
-                        <
-                            point_tag, segment_tag,
-                            typename point_type<Box1>::type, typename point_type<Box2>::type,
-                            geographic_tag, geographic_tag
-                        >::type,
-                    Strategy
-                >::type
-        > type;
-};
-*/
 
 template <typename Box1, typename Box2>
 struct default_strategy

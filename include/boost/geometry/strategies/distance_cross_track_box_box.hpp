@@ -39,10 +39,6 @@ public :
         typedef typename point_type<Box1>::type box_point_type1;
         typedef typename point_type<Box2>::type box_point_type2;
 
-        // TODO: This strategy as well as other cross-track strategies
-        // and therefore e.g. spherical within(Point, Box) may not work
-        // properly for a Box degenerated to a Segment or Point
-
         box_point_type1 bottom_left1, bottom_right1, top_left1, top_right1;
         geometry::detail::assign_box_corners(box1,
                                              bottom_left1, bottom_right1,
@@ -71,7 +67,9 @@ public :
 
         if (lon_min2 > 0 && lon_max2 < 0) // box2 crosses antimeridian
         {
-            //std::cout << "(box2 crosses antimeridian)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(box2 crosses antimeridian)";
+#endif
             right_wrap = lon_min2 - lon_max1 < lon_min1 - lon_max2;
             lon_max2 += two_pi;
             if (lon_min1 > 0 && lon_max1 < 0) // both boxes crosses antimeridian
@@ -81,8 +79,9 @@ public :
         }
         else if (lon_min1 > 0 && lon_max1 < 0) // only box1 crosses antimeridian
         {
-            //std::cout << "(box1 crosses antimeridian)";
-            //right_wrap = lon_min1 - lon_max2 > lon_min2 - lon_max1;
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(box1 crosses antimeridian)";
+#endif
             return apply(box2, box1, ps_strategy);
         }
         else
@@ -107,7 +106,9 @@ public :
                 || (!left && !lon_max12)
                 || (!lon_min12 && lon_max12))
         {
-            //std::cout << "(up-down)\n";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(up-down)\n";
+#endif
             if (lat_min1 > lat_max2)
             {
                 return geometry::strategy::distance::services::result_from_distance
@@ -132,7 +133,6 @@ public :
         }
 
         // Check2: if box2 is right/left of box1
-
         // the max lat of box2 should be less than the max lat of box1
         bool bottom_max;
 
@@ -153,10 +153,14 @@ public :
             bottom_max = lat_min1 <= lat_min2;
         }
 
-        //std::cout << "(diagonal)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+        std::cout << "(diagonal)";
+#endif
         if (bottom_max && !right_wrap)
         {
-            //std::cout << "(bottom left)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(bottom left)";
+#endif
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right2, top_left1, bottom_left1);
@@ -165,7 +169,9 @@ public :
         }
         if (bottom_max && right_wrap)
         {
-            //std::cout << "(bottom right)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(bottom right)";
+#endif
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left2, top_right1, bottom_right1);
@@ -174,7 +180,9 @@ public :
         }
         if (!bottom_max && !right_wrap)
         {
-            //std::cout << "(top left)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(top left)";
+#endif
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left1, top_right2, bottom_right2);
@@ -183,7 +191,9 @@ public :
         }
         if (!bottom_max && right_wrap)
         {
-            //std::cout << "(top right)";
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
+            std::cout << "(top right)";
+#endif
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right1, top_left2, bottom_left2);

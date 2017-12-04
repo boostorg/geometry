@@ -22,9 +22,6 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-//#include <boost/geometry/formulas/distance_point_segment.hpp>
-//#include <boost/geometry/formulas/cross_track_point_box.hpp>
-
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
@@ -58,7 +55,6 @@ to cross track
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    //typename Strategy = geographic_cross_track<>,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -187,34 +183,6 @@ public:
     }
 };
 
-/*
-// define cross_track_point_box<default_point_segment_strategy> as
-// default point-box strategy for geographic coordinate system
-template <typename Point, typename Box, typename Strategy>
-struct default_strategy
-    <
-        point_tag, box_tag, Point, Box,
-        geographic_tag, geographic_tag,
-        Strategy
-    >
-{
-    typedef geographic_cross_track_point_box
-        <
-            typename boost::mpl::if_
-                <
-                    boost::is_void<Strategy>,
-                    typename default_strategy
-                        <
-                            point_tag, segment_tag,
-                            Point, typename point_type<Box>::type,
-                            geographic_tag, geographic_tag
-                        >::type,
-                    Strategy
-                >::type
-        > type;
-};
-*/
-
 template <typename Point, typename Box>
 struct default_strategy
     <
@@ -238,23 +206,6 @@ struct default_strategy
             geographic_tag, geographic_tag
         >::type type;
 };
-/*
-template <typename Box, typename Point, typename Strategy>
-struct default_strategy
-    <
-        box_tag, point_tag, Box, Point,
-        geographic_tag, geographic_tag,
-        Strategy
-    >
-{
-    typedef typename default_strategy
-        <
-            point_tag, box_tag, Point, Box,
-            geographic_tag, geographic_tag,
-            Strategy
-        >::type type;
-};
-*/
 
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

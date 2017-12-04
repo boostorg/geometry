@@ -53,8 +53,7 @@ to cross track
 template
 <
     typename CalculationType = void,
-        typename Strategy = cross_track<CalculationType>
-//        typename Strategy = haversine<CalculationType>
+    typename Strategy = cross_track<CalculationType>
 >
 class cross_track_box_box
 {

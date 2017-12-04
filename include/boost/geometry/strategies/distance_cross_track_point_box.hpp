@@ -40,10 +40,6 @@ public :
 
         typedef typename point_type<Box>::type box_point_type;
 
-        // TODO: This strategy as well as other cross-track strategies
-        // and therefore e.g. spherical within(Point, Box) may not work
-        // properly for a Box degenerated to a Segment or Point
-
         box_point_type bottom_left, bottom_right, top_left, top_right;
         geometry::detail::assign_box_corners(box,
                                              bottom_left, bottom_right,
@@ -75,25 +71,16 @@ public :
         {
             if (plat > lat_max)
             {
-                //std::cout << "plat=" << plat << std::endl;
-                //std::cout << "lat_max=" << lat_max << std::endl;
-                //std::cout << "radius=" << ps_strategy.get_distance_strategy().radius() << std::endl;
-                //std::cout << "r1=" << ps_strategy.get_distance_strategy().radius() * (plat - lat_max) << std::endl;
-                //std::cout << "r2=" << ps_strategy.get_distance_strategy().meridian(plat, lat_max) << std::endl;
                 return geometry::strategy::distance::services::result_from_distance
                         <
-                        Strategy, Point, box_point_type
-                        //>::apply(ps_strategy, ps_strategy.get_distance_strategy().radius() * (plat - lat_max));
+                            Strategy, Point, box_point_type
                         >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(plat, lat_max));
-                //get_strategy(ps_strategy) --> haversine
-                //haversine special case for vertical distance
             }
             else if (plat < lat_min)
             {
                 return geometry::strategy::distance::services::result_from_distance
                         <
-                        Strategy, Point, box_point_type
-                        //>::apply(ps_strategy, ps_strategy.radius() * (lat_min - plat));
+                            Strategy, Point, box_point_type
                         >::apply(ps_strategy, ps_strategy.get_distance_strategy().meridian(lat_min, plat));
             }
             else
