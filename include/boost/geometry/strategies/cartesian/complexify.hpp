@@ -18,6 +18,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/complexify.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 

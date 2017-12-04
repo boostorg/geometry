@@ -18,7 +18,9 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/complexify.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/range/size.hpp>
@@ -137,7 +139,7 @@ struct complexify<Geometry, GeometryOut, linestring_tag, linestring_tag>
 template <typename Geometry, typename GeometryOut>
 struct complexify<Geometry, GeometryOut, multi_linestring_tag, multi_linestring_tag>
 {
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+    template <typename T, typename Strategy>
     static void apply(Geometry const& mls, GeometryOut & mls_out,
                       T const& len, Strategy const& strategy)
     {
@@ -165,12 +167,12 @@ struct complexify<Geometry, GeometryOut, ring_tag, ring_tag>
 template <typename Geometry, typename GeometryOut>
 struct complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>
 {
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+    template <typename T, typename Strategy>
     static void apply(Geometry const& poly, GeometryOut & poly_out,
                       T const& len, Strategy const& strategy)
     {
         apply_ring(exterior_ring(poly), exterior_ring(poly_out),
-                   length_threshold, sph);
+                   len, strategy);
 
         std::size_t count = boost::size(interior_rings(poly));
         range::resize(interior_rings(poly_out), count);
@@ -179,15 +181,15 @@ struct complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>
         {
             apply_ring(range::at(interior_rings(poly), i),
                        range::at(interior_rings(poly_out), i),
-                       length_threshold, sph);
+                       len, strategy);
         }
     }
 
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
-    static void apply_ring(Geometry const& ring, GeometryOut & ring_out,
+    template <typename Ring, typename RingOut, typename T, typename Strategy>
+    static void apply_ring(Ring const& ring, RingOut & ring_out,
                            T const& len, Strategy const& strategy)
     {
-        complexify<Geometry, GeometryOut, ring_tag, ring_tag>
+        complexify<Ring, RingOut, ring_tag, ring_tag>
             ::apply(ring, ring_out, len, strategy);
     }
 };
@@ -195,27 +197,27 @@ struct complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>
 template <typename Geometry, typename GeometryOut>
 struct complexify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
 {
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+    template <typename T, typename Strategy>
     static void apply(Geometry const& mpoly, GeometryOut & mpoly_out,
                       T const& len, Strategy const& strategy)
     {
         std::size_t count = boost::size(mpoly);
-        range::resize(mpoly_out, mpoly);
+        range::resize(mpoly_out, count);
 
         for (std::size_t i = 0 ; i < count ; ++i)
         {
             apply_poly(range::at(mpoly, i),
                        range::at(mpoly_out, i),
-                       length_threshold, sph);
+                       len, strategy);
         }
     }
 
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
-    static void apply_poly(Geometry const& poly, GeometryOut & poly_out,
+    template <typename Poly, typename PolyOut, typename T, typename Strategy>
+    static void apply_poly(Poly const& poly, PolyOut & poly_out,
                            T const& len, Strategy const& strategy)
     {
-        complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>::
-            apply(poly, poly_out, length_threshold, strategy);
+        complexify<Poly, PolyOut, polygon_tag, polygon_tag>::
+            apply(poly, poly_out, len, strategy);
     }
 };
 
@@ -293,7 +295,7 @@ struct complexify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry const& geometry, Geometry& out) const
         {
-            simplify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
+            complexify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
         }
     };
 
@@ -336,7 +338,7 @@ inline void complexify(Geometry const& geometry,
                        Geometry& out,
                        Distance const& max_distance)
 {
-    complexify(geometry, out, max_distance, strategy_type());
+    complexify(geometry, out, max_distance, default_strategy());
 }
 
 }} // namespace boost::geometry

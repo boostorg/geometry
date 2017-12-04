@@ -22,6 +22,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/strategies/complexify.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
