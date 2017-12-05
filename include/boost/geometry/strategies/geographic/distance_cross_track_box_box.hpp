@@ -22,8 +22,6 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-//#include <boost/geometry/formulas/cross_track_box_box.hpp>
-
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>

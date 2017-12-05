@@ -25,6 +25,7 @@
 
 typedef bg::cs::geographic<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
+typedef bg::model::multi_point<point_type> multi_point_type;
 typedef bg::model::segment<point_type> segment_type;
 typedef bg::model::box<point_type> box_type;
 
@@ -419,6 +420,29 @@ void test_distance_point_deg_box(Strategy_pp const& strategy_pp,
                   strategy_pb);
 }
 
+template <typename Strategy_pp, typename Strategy_ps, typename Strategy_pb>
+void test_distance_multipoint_box(Strategy_pp const& strategy_pp,
+                                  Strategy_ps const& strategy_ps,
+                                  Strategy_pb const& strategy_pb)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multipoint/box distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<multi_point_type, box_type> tester;
+
+    std::string const box1 = "BOX(10 10,20 20)";
+
+    tester::apply("mpb1-1a", "MULTIPOINT(5 25,25 26)", box1,
+                  pp_distance("POINT(5 25)", "POINT(10 20)", strategy_pp),
+                  strategy_pb);
+
+    tester::apply("mpb1-2e", "MULTIPOINT(110 10,110 9,110 0)", box1,
+                  ps_distance("POINT(110 10)", "SEGMENT(20 10,20 20)", strategy_ps),
+                  strategy_pb);
+}
+
 //===========================================================================
 //===========================================================================
 //===========================================================================
@@ -432,4 +456,8 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_deg_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
     test_distance_point_deg_box(thomas_pp(), thomas_ps(), thomas_pb());
     test_distance_point_deg_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
+
+    test_distance_multipoint_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
+    test_distance_multipoint_box(thomas_pp(), thomas_ps(), thomas_pb());
+    test_distance_multipoint_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
 }

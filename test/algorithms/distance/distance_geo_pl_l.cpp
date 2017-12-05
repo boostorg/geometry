@@ -642,15 +642,15 @@ void test_empty_input_pointlike_linear(Strategy const& strategy)
         from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
 
     // 1st geometry is empty
-    //test_empty_input(multipoint_empty, line, strategy);
+    test_empty_input(multipoint_empty, line, strategy);
 
     // 2nd geometry is empty
     test_empty_input(point, line_empty, strategy);
     test_empty_input(point, multiline_empty, strategy);
 
     // both geometries are empty
-    //test_empty_input(multipoint_empty, line_empty, strategy);
-    //test_empty_input(multipoint_empty, multiline_empty, strategy);
+    test_empty_input(multipoint_empty, line_empty, strategy);
+    test_empty_input(multipoint_empty, multiline_empty, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
@@ -663,9 +663,6 @@ void test_empty_input_pointlike_linear(Strategy const& strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
-    //TODO: Operations with multipoints need geographic pt-box strategy
-    //before activating
-
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
@@ -683,17 +680,19 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_multilinestring(thomas_pp(), thomas_strategy());
     test_distance_point_multilinestring(andoyer_pp(), andoyer_strategy());
 
-    //test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
-    //    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
-    //    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
+    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
+    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
+    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
-    //    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
-    //    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
+    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
+    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
+    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
-    //    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
-    //    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
+    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
+    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
+    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
 
     test_empty_input_pointlike_linear<point_type>(vincenty_strategy());
+    test_empty_input_pointlike_linear<point_type>(thomas_strategy());
+    test_empty_input_pointlike_linear<point_type>(andoyer_strategy());
 }

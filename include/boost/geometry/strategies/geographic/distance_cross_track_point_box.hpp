@@ -136,7 +136,7 @@ struct comparable_type<geographic_cross_track_point_box<Strategy, Spheroid, Calc
 {
     typedef geographic_cross_track_point_box
         <
-            typename comparable_type<Strategy>::type, Spheroid, CalculationType
+            Strategy, Spheroid, CalculationType
         > type;
 };
 
@@ -148,7 +148,7 @@ struct get_comparable<geographic_cross_track_point_box<Strategy, Spheroid, Calcu
     typedef typename comparable_type<this_strategy>::type comparable_type;
 
 public:
-    static inline comparable_type apply(this_strategy const& strategy)
+    static inline comparable_type apply(this_strategy const&)
     {
         return comparable_type();
     }
