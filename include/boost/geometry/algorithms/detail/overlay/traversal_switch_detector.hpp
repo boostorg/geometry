@@ -580,37 +580,6 @@ struct traversal_switch_detector
             assign_isolation();
         }
 
-        // Now that all regions are filled, assign switch_source property
-        // Iterate through all clusters
-        for (typename Clusters::iterator it = m_clusters.begin(); it != m_clusters.end(); ++it)
-        {
-            cluster_info& cinfo = it->second;
-            if (cinfo.open_count <= 1)
-            {
-                // Not a touching cluster
-                continue;
-            }
-
-            // A touching cluster, gather regions
-            set_type regions;
-            set_type const& ids = cinfo.turn_indices;
-
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-                std::cout << "SWITCH EXAMINE CLUSTER " << it->first << std::endl;
-#endif
-
-            for (set_iterator sit = ids.begin(); sit != ids.end(); ++sit)
-            {
-                signed_size_type turn_index = *sit;
-                turn_type const& turn = m_turns[turn_index];
-                for (int oi = 0; oi < 2; oi++)
-                {
-                    signed_size_type const region_id = get_region_id(turn.operations[oi]);
-                    regions.insert(region_id);
-                }
-            }
-        }
-
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "SWITCH END ITERATION" << std::endl;
 
