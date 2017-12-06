@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_COMPLEXIFY_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_COMPLEXIFY_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DENSIFY_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DENSIFY_HPP
 
 
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
@@ -17,7 +17,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/srs.hpp>
-#include <boost/geometry/strategies/complexify.hpp>
+#include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -28,7 +28,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace complexify
+namespace strategy { namespace densify
 {
 
 
@@ -106,7 +106,7 @@ namespace services
 template <>
 struct default_strategy<geographic_tag>
 {
-    typedef strategy::complexify::geographic<> type;
+    typedef strategy::densify::geographic<> type;
 };
 
 
@@ -114,9 +114,9 @@ struct default_strategy<geographic_tag>
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
-}} // namespace strategy::complexify
+}} // namespace strategy::densify
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_COMPLEXIFY_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DENSIFY_HPP

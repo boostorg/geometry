@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_COMPLEXIFY_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_COMPLEXIFY_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DENSIFY_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DENSIFY_HPP
 
 
 #include <boost/geometry/algorithms/clear.hpp>
@@ -18,8 +18,8 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/strategies/complexify.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
@@ -32,7 +32,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace complexify
+namespace detail { namespace densify
 {
 
 template <typename Range, typename Point>
@@ -44,7 +44,7 @@ inline void convert_and_push_back(Range & range, Point const& p)
 }
 
 template <bool AppendLastPoint = true>
-struct complexify_range
+struct densify_range
 {
     template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
     static inline void apply(Geometry const& rng, GeometryOut & rng_out,
@@ -75,13 +75,13 @@ struct complexify_range
 };
 
 template <bool IsClosed1, bool IsClosed2> // false, X
-struct complexify_ring
+struct densify_ring
 {
     template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
     static inline void apply(Geometry const& ring, GeometryOut & ring_out,
                              T const& len, Strategy const& strategy)
     {
-        geometry::detail::complexify::complexify_range<true>
+        geometry::detail::densify::densify_range<true>
             ::apply(ring, ring_out, len, strategy);
 
         if (boost::size(ring) <= 1)
@@ -101,17 +101,17 @@ struct complexify_ring
 };
 
 template <>
-struct complexify_ring<true, true>
-    : complexify_range<true>
+struct densify_ring<true, true>
+    : densify_range<true>
 {};
 
 template <>
-struct complexify_ring<true, false>
-    : complexify_range<false>
+struct densify_ring<true, false>
+    : densify_range<false>
 {};
 
 
-}} // namespace detail::complexify
+}} // namespace detail::densify
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -127,17 +127,17 @@ template
     typename Tag1 = typename tag<Geometry>::type,
     typename Tag2 = typename tag<GeometryOut>::type
 >
-struct complexify
+struct densify
     : not_implemented<Tag1, Tag2>
 {};
 
 template <typename Geometry, typename GeometryOut>
-struct complexify<Geometry, GeometryOut, linestring_tag, linestring_tag>
-    : geometry::detail::complexify::complexify_range<>
+struct densify<Geometry, GeometryOut, linestring_tag, linestring_tag>
+    : geometry::detail::densify::densify_range<>
 {};
 
 template <typename Geometry, typename GeometryOut>
-struct complexify<Geometry, GeometryOut, multi_linestring_tag, multi_linestring_tag>
+struct densify<Geometry, GeometryOut, multi_linestring_tag, multi_linestring_tag>
 {
     template <typename T, typename Strategy>
     static void apply(Geometry const& mls, GeometryOut & mls_out,
@@ -148,7 +148,7 @@ struct complexify<Geometry, GeometryOut, multi_linestring_tag, multi_linestring_
 
         for (std::size_t i = 0 ; i < count ; ++i)
         {
-            geometry::detail::complexify::complexify_range<>
+            geometry::detail::densify::densify_range<>
                 ::apply(range::at(mls, i), range::at(mls_out, i),
                         len, strategy);
         }
@@ -156,8 +156,8 @@ struct complexify<Geometry, GeometryOut, multi_linestring_tag, multi_linestring_
 };
 
 template <typename Geometry, typename GeometryOut>
-struct complexify<Geometry, GeometryOut, ring_tag, ring_tag>
-    : geometry::detail::complexify::complexify_ring
+struct densify<Geometry, GeometryOut, ring_tag, ring_tag>
+    : geometry::detail::densify::densify_ring
         <
             geometry::closure<Geometry>::value != geometry::open,
             geometry::closure<GeometryOut>::value != geometry::open
@@ -165,7 +165,7 @@ struct complexify<Geometry, GeometryOut, ring_tag, ring_tag>
 {};
 
 template <typename Geometry, typename GeometryOut>
-struct complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>
+struct densify<Geometry, GeometryOut, polygon_tag, polygon_tag>
 {
     template <typename T, typename Strategy>
     static void apply(Geometry const& poly, GeometryOut & poly_out,
@@ -189,13 +189,13 @@ struct complexify<Geometry, GeometryOut, polygon_tag, polygon_tag>
     static void apply_ring(Ring const& ring, RingOut & ring_out,
                            T const& len, Strategy const& strategy)
     {
-        complexify<Ring, RingOut, ring_tag, ring_tag>
+        densify<Ring, RingOut, ring_tag, ring_tag>
             ::apply(ring, ring_out, len, strategy);
     }
 };
 
 template <typename Geometry, typename GeometryOut>
-struct complexify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
+struct densify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
 {
     template <typename T, typename Strategy>
     static void apply(Geometry const& mpoly, GeometryOut & mpoly_out,
@@ -216,7 +216,7 @@ struct complexify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
     static void apply_poly(Poly const& poly, PolyOut & poly_out,
                            T const& len, Strategy const& strategy)
     {
-        complexify<Poly, PolyOut, polygon_tag, polygon_tag>::
+        densify<Poly, PolyOut, polygon_tag, polygon_tag>::
             apply(poly, poly_out, len, strategy);
     }
 };
@@ -229,7 +229,7 @@ struct complexify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
 namespace resolve_strategy
 {
 
-struct complexify
+struct densify
 {
     template <typename Geometry, typename Distance, typename Strategy>
     static inline void apply(Geometry const& geometry,
@@ -237,7 +237,7 @@ struct complexify
                              Distance const& max_distance,
                              Strategy const& strategy)
     {
-        dispatch::complexify<Geometry, Geometry>
+        dispatch::densify<Geometry, Geometry>
             ::apply(geometry, out, max_distance, strategy);
     }
 
@@ -247,7 +247,7 @@ struct complexify
                              Distance const& max_distance,
                              default_strategy)
     {
-        typedef strategy::complexify::services::default_strategy
+        typedef strategy::densify::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             > strategy_type;
@@ -266,7 +266,7 @@ struct complexify
 namespace resolve_variant {
 
 template <typename Geometry>
-struct complexify
+struct densify
 {
     template <typename Distance, typename Strategy>
     static inline void apply(Geometry const& geometry,
@@ -274,12 +274,12 @@ struct complexify
                              Distance const& max_distance,
                              Strategy const& strategy)
     {
-        resolve_strategy::complexify::apply(geometry, out, max_distance, strategy);
+        resolve_strategy::densify::apply(geometry, out, max_distance, strategy);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct complexify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename Distance, typename Strategy>
     struct visitor: boost::static_visitor<void>
@@ -295,7 +295,7 @@ struct complexify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry const& geometry, Geometry& out) const
         {
-            complexify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
+            densify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
         }
     };
 
@@ -318,7 +318,7 @@ struct complexify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 
 template <typename Geometry, typename Distance, typename Strategy>
-inline void complexify(Geometry const& geometry,
+inline void densify(Geometry const& geometry,
                        Geometry& out,
                        Distance const& max_distance,
                        Strategy const& strategy)
@@ -327,20 +327,20 @@ inline void complexify(Geometry const& geometry,
 
     geometry::clear(out);
 
-    resolve_variant::complexify
+    resolve_variant::densify
         <
             Geometry
         >::apply(geometry, out, max_distance, strategy);
 }
 
 template <typename Geometry, typename Distance, typename Strategy>
-inline void complexify(Geometry const& geometry,
+inline void densify(Geometry const& geometry,
                        Geometry& out,
                        Distance const& max_distance)
 {
-    complexify(geometry, out, max_distance, default_strategy());
+    densify(geometry, out, max_distance, default_strategy());
 }
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_COMPLEXIFY_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DENSIFY_HPP

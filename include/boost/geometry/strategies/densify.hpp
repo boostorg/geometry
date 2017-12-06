@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_COMPLEXIFY_HPP
-#define BOOST_GEOMETRY_STRATEGIES_COMPLEXIFY_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_DENSIFY_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DENSIFY_HPP
 
 
 #include <boost/mpl/assert.hpp>
@@ -17,7 +17,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace complexify
+namespace strategy { namespace densify
 {
 
 namespace services
@@ -35,8 +35,8 @@ struct default_strategy
 
 } // namespace services
 
-}} // namespace strategy::complexify
+}} // namespace strategy::densify
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_COMPLEXIFY_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DENSIFY_HPP
