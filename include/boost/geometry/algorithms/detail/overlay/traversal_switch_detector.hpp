@@ -609,8 +609,6 @@ struct traversal_switch_detector
                     regions.insert(region_id);
                 }
             }
-            // Switch source if this cluster connects the same region
-            cinfo.switch_source = regions.size() <= 1;
         }
 
         // Iterate through all uu/ii turns (non-clustered)
