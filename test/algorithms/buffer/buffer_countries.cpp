@@ -133,7 +133,6 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
     // Test with a high tolerance, even a difference of 1000 is only ~1.0e-6%
 
     settings.tolerance = 10000.0;
-    settings.check_self_intersections = false;
 
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // in case robustness policies are changed, areas should be adapted

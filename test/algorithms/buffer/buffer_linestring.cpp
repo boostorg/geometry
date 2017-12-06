@@ -251,14 +251,11 @@ void test_all()
 #endif
     }
 
-
     {
-        ut_settings settings(1.0e-10);
+        // Check on validity, with high precision because areas are all very small
+        ut_settings settings(1.0e-10, true);
 
-        ut_settings settings_wo_self = settings;
-        settings_wo_self.check_self_intersections = false;
-
-        test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, settings_wo_self);
+        test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, settings);
         test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, settings);
 
         test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, settings);

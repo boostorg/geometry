@@ -121,11 +121,18 @@ namespace
 
     std::string const ggl_list_denis = "POLYGON((55 10, 141 237, 249 23, 21 171, 252 169, 24 89, 266 73, 55 10))";
 
-    // Testcases sent by Johan Doré at September 24, 2017:
+    // Testcases sent by Johan Doré at September 24 / October 26 / October 30, 2017
     std::string const dissolve_mail_2017_09_24_a = "POLYGON((0 1, 1 0, 1 1, 0 0, 0 1))"; // two triangles
     std::string const dissolve_mail_2017_09_24_b = "POLYGON((1 0, 0 0, 0 4, 4 4, 4 0))"; // input is not closed
     std::string const dissolve_mail_2017_09_24_c = "POLYGON((0 0, 1 0, 0 -1, 0.0001 1))"; // spike and not closed
     std::string const dissolve_mail_2017_09_24_d = "POLYGON((0 0, 1 0, 0 -1, 0 1))"; // spike and not closed
+
+    std::string const dissolve_mail_2017_10_26_a = "POLYGON((0 3, 3 3, 3 1, 2 1, 2 2, 1 2, 1 1, 2 1, 2 0, 0 0, 0 3))"; // should form interior ring
+    std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))"; // should NOT form interior ring and (maybe) should remove two not necessary intersection points (to be decided)
+    std::string const dissolve_mail_2017_10_26_c = "POLYGON((0 2, 2 1, 3 1, 1 1, 2 1, 4 2, 4 0, 0 0))"; // contains cluster and should ignore count_left/count_right
+
+    // This case needs rescaling for <float>. For <double> it runs fine without.
+    std::string const dissolve_mail_2017_10_30_a = "POLYGON((12.7069120407104490 -2.3525938987731934, 12.6983022689819340 -2.3552336692810059, 12.6984634399414060 -2.3553242683410645, 12.6980066299438480 -2.3553242683410645, 12.6983022689819340 -2.3552336692810059, 12.6911554336547850 -2.3512287139892578, 12.7025737762451170 -2.3398520946502686))";
 
     // Testcases sent by Artem Pavlenko via gitter
     // https://gitter.im/boostorg/geometry?at=58ef46408e4b63533dc49b48
@@ -517,6 +524,9 @@ void test_one(std::string const& caseid, std::string const& wkt,
     ut_settings settings; \
     (test_one<polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
+#define TEST_DISSOLVE_WITH(caseid, area, clips, holes, points, settings) { \
+    (test_one<polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
+
 #define TEST_DISSOLVE_IGNORE(caseid, area, clips, holes, points) { \
     ut_settings settings; settings.test_validity = false; \
     (test_one<polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
@@ -526,7 +536,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
     (test_one<multi_polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
 template <typename P>
-void test_all()
+void test_all(ut_settings const& settings_for_sensitive_cases)
 {
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
@@ -572,9 +582,16 @@ void test_all()
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
+    TEST_DISSOLVE_WITH(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69,
+                       settings_for_sensitive_cases);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_g, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
+
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_a, 7.0, 1, 1, 12);
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_b, 16.0, 1, 0, 7);
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_c, 6.0, 1, 0, 6);
+
+    TEST_DISSOLVE(dissolve_mail_2017_10_30_a, 0.0001241171, 2, 0, 9);
 
     TEST_DISSOLVE(dissolve_ticket10713, 0.157052766, 2, 0, 8);
 
@@ -587,8 +604,10 @@ void test_all()
     TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 14);
 
     TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 19);
-    TEST_DISSOLVE(dissolve_ticket17, 0.00920834633689, 1, 1, 228);
-    TEST_DISSOLVE(dissolve_reallife, 91756.916526794434, 1, 0, 25);
+    TEST_DISSOLVE_WITH(dissolve_ticket17, 0.00920834633689, 1, 1, 228,
+                       settings_for_sensitive_cases);
+    TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
+                       settings_for_sensitive_cases);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     // To fix this, and ggl_list_denis, it is necessary to follow in both
@@ -606,6 +625,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<float> >(ut_settings(0.01));
+    test_all<bg::model::d2::point_xy<double> >(ut_settings());
     return 0;
 }

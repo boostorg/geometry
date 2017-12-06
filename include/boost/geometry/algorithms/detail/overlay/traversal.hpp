@@ -258,7 +258,8 @@ struct traversal
             std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
         }
 #endif
-        if (OverlayType == overlay_buffer)
+        if (OverlayType == overlay_buffer
+                || OverlayType == overlay_dissolve_union)
         {
             // Buffer does not use source_index (always 0).
             return select_source_generic<&segment_identifier::multi_index>(
@@ -433,16 +434,17 @@ struct traversal
         turn_type const& turn = m_turns[ranked_point.turn_index];
         turn_operation_type const& op = turn.operations[ranked_point.operation_index];
 
-        // Check counts: in some cases interior rings might be generated with
-        // polygons on both sides
-
         // Check finalized: TODO: this should be finetuned, it is not necessary
-        bool const ok = op.enriched.count_left == 0
-            && op.enriched.count_right > 0
-            && ! op.visited.finalized();
-
-        if (! ok)
+        if (op.visited.finalized())
         {
+            return 0;
+        }
+
+        if (OverlayType != overlay_dissolve_union
+            && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
+        {
+            // Check counts: in some cases interior rings might be generated with
+            // polygons on both sides. For dissolve it can be anything.
             return 0;
         }
 
@@ -730,6 +732,8 @@ struct traversal
             return;
         }
 
+        const bool allow_uu = OverlayType != overlay_buffer;
+
         // It travels to itself, can happen. If this is a buffer, it can
         // sometimes travel to itself in the following configuration:
         //
@@ -752,7 +756,7 @@ struct traversal
                 = start_turn.operations[1 - start_op_index];
 
         bool const correct
-                = ! start_turn.both(operation_union)
+                = (allow_uu || ! start_turn.both(operation_union))
                   && start_op.seg_id.source_index == other_op.seg_id.source_index
                   && start_op.seg_id.multi_index == other_op.seg_id.multi_index
                   && start_op.seg_id.ring_index == other_op.seg_id.ring_index

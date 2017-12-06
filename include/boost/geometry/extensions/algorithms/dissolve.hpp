@@ -373,7 +373,8 @@ template
     typename Geometry,
     typename OutputIterator
 >
-inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator out)
+inline OutputIterator dissolve_inserter(Geometry const& geometry,
+                                        OutputIterator out)
 {
     typedef typename strategy::intersection::services::default_strategy
         <
@@ -390,13 +391,22 @@ template
     typename Collection,
     typename Strategy
 >
-inline void dissolve(Geometry const& geometry, Collection& output_collection, Strategy const& strategy)
+inline void dissolve(Geometry const& geometry, Collection& output_collection,
+                     Strategy const& strategy)
 {
     concepts::check<Geometry const>();
 
     typedef typename boost::range_value<Collection>::type geometry_out;
 
     concepts::check<geometry_out>();
+
+    typedef typename geometry::rescale_policy_type
+    <
+        typename geometry::point_type<Geometry>::type
+    >::type rescale_policy_type;
+
+    rescale_policy_type robust_policy
+        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
     detail::overlay::overlay_null_visitor visitor;
 
@@ -406,7 +416,7 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection, St
         typename tag<geometry_out>::type,
         Geometry,
         geometry_out
-    >::apply(geometry, detail::no_rescale_policy(),
+    >::apply(geometry, robust_policy,
              std::back_inserter(output_collection),
              strategy, visitor);
 }

@@ -412,7 +412,7 @@ inline void buffer_point(Point const& point, Collection& collection,
         DistanceStrategy const& distance_strategy,
         PointStrategy const& point_strategy)
 {
-    collection.start_new_ring();
+    collection.start_new_ring(false);
     std::vector<OutputPointType> range_out;
     point_strategy.apply(point, distance_strategy, range_out);
     collection.add_piece(geometry::strategy::buffer::buffered_point, range_out, false);
@@ -627,7 +627,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             RobustPolicy const& robust_policy,
             Strategy const& strategy) // side strategy
     {
-        collection.start_new_ring();
+        collection.start_new_ring(distance.negative());
         geometry::strategy::buffer::result_code const code
             = buffer_inserter_ring<RingInput, RingOutput>::apply(ring,
                 collection, distance,
@@ -745,7 +745,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         std::size_t n = boost::size(simplified);
         if (n > 1)
         {
-            collection.start_new_ring();
+            collection.start_new_ring(false);
             output_point_type first_p1;
             code = iterate(collection,
                     boost::begin(simplified), boost::end(simplified),
@@ -819,7 +819,13 @@ private:
     {
         for (Iterator it = begin; it != end; ++it)
         {
-            collection.start_new_ring();
+            // For exterior rings, it deflates if distance is negative.
+            // For interior rings, it is vice versa
+            bool const deflate = is_interior
+                    ? ! distance.negative()
+                    : distance.negative();
+
+            collection.start_new_ring(deflate);
             geometry::strategy::buffer::result_code const code
                     = policy::apply(*it, collection, distance, side_strategy,
                     join_strategy, end_strategy, point_strategy,
@@ -881,7 +887,7 @@ public:
             Strategy const& strategy) // side strategy
     {
         {
-            collection.start_new_ring();
+            collection.start_new_ring(distance.negative());
 
             geometry::strategy::buffer::result_code const code
                 = policy::apply(exterior_ring(polygon), collection,

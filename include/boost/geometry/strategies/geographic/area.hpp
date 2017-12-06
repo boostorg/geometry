@@ -174,8 +174,10 @@ public :
             state.m_correction_sum += result.ellipsoidal_term;
 
             // Keep track whenever a segment crosses the prime meridian
-            geometry::formula::area_formulas<CT>
-                    ::crosses_prime_meridian(p1, p2, state);
+            if (area_formulas::crosses_prime_meridian(p1, p2))
+            {
+                state.m_crosses_prime_meridian++;
+            }
         }
     }
 
