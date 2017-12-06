@@ -48,6 +48,13 @@ template
 >
 struct traversal_switch_detector
 {
+    static const operation_type target_operation
+            = operation_from_overlay<OverlayType>::value;
+    static const operation_type opposite_operation
+            = target_operation == operation_union
+            ? operation_intersection
+            : operation_union;
+
     enum isolation_type
     {
         isolation_unknown = -1,
@@ -322,6 +329,12 @@ struct traversal_switch_detector
             {
                 turn_type& turn = m_turns[*sit];
 
+                if (! acceptable(turn))
+                {
+                    // No assignment necessary
+                    continue;
+                }
+
                 for (int i = 0; i < 2; i++)
                 {
                     turn_operation_type& op = turn.operations[i];
@@ -382,12 +395,19 @@ struct traversal_switch_detector
         }
     }
 
+    inline bool acceptable(turn_type const& turn) const
+    {
+        // Discarded turns don't connect rings to the same region
+        // Also xx are not relevant
+        // (otherwise discarded colocated uu turn could make a connection)
+        return ! turn.discarded
+            && ! turn.both(operation_blocked);
+    }
+
     inline bool connects_same_region(turn_type const& turn) const
     {
-        if (turn.discarded)
+        if (! acceptable(turn))
         {
-            // Discarded turns don't connect same region (otherwise discarded colocated uu turn
-            // could make a connection)
             return false;
         }
 
@@ -397,7 +417,7 @@ struct traversal_switch_detector
             return ! (turn.both(operation_union) || turn.both(operation_intersection));
         }
 
-        if (operation_from_overlay<OverlayType>::value == operation_union)
+        if (target_operation == operation_union)
         {
             // It is a cluster, check zones
             // (assigned by sort_by_side/handle colocations) of both operations
@@ -492,8 +512,7 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-            if (turn.discarded
-                    && operation_from_overlay<OverlayType>::value == operation_intersection)
+            if (turn.discarded && target_operation == operation_intersection)
             {
                 // Discarded turn (union currently still needs it to determine regions)
                 continue;
