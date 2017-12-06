@@ -272,10 +272,6 @@ struct map_visitor
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
-        if (turn.switch_source)
-        {
-            out << "#";
-        }
         if (turn.discarded)
         {
             out << "!";
