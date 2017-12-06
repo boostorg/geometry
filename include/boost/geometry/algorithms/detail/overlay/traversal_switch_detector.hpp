@@ -119,33 +119,6 @@ struct traversal_switch_detector
     {
     }
 
-    bool inspect_difference(set_type& turn_id_difference,
-            set_type const& turn_ids,
-            set_type const& other_turn_ids) const
-    {
-        // TODO: consider if std::set_difference can be used in the final version
-        int const turn_count = turn_ids.size();
-        int const other_turn_count = other_turn_ids.size();
-
-        // First quick check on size (TODO: implement multiple-multiple connections)
-        if (turn_count - other_turn_count > 1)
-        {
-            return false;
-        }
-
-        // Check if all turns are also present in the connection.
-        // The difference is returned
-        for (set_iterator it = turn_ids.begin(); it != turn_ids.end(); ++it)
-        {
-            signed_size_type const& id = *it;
-            if (other_turn_ids.count(id) == 0)
-            {
-                turn_id_difference.insert(id);
-            }
-        }
-        return true;
-    }
-
     bool one_connection_to_another_region(region_properties const& region) const
     {
         // For example:
@@ -227,9 +200,7 @@ struct traversal_switch_detector
     bool has_only_isolated_children(region_properties const& region) const
     {
         bool first_with_turn = true;
-        bool first_with_multiple = true;
         signed_size_type first_turn_id = 0;
-        signed_size_type first_multiple_region_id = 0;
 
         for (typename connection_map::const_iterator it = region.connected_region_counts.begin();
              it != region.connected_region_counts.end(); ++it)
@@ -246,43 +217,12 @@ struct traversal_switch_detector
 
             region_properties const& connected_region = mit->second;
 
-            bool const multiple = connected_region.isolated == isolation_multiple;
-
             if (cprop.count != 1)
             {
-                if (! multiple)
-                {
-                    return false;
-                }
-
-                // It connects multiple times to an isolated region.
-                // This is allowed as long as it happens only once
-                if (first_with_multiple)
-                {
-                    first_multiple_region_id = connected_region.region_id;
-                    first_with_multiple = false;
-                }
-                else if (first_multiple_region_id != connected_region.region_id)
-                {
-                    return false;
-                }
-
-                // Turns in region should be either present in the connection,
-                // of form part of the connection with the other region
-                set_type diff;
-                if (! inspect_difference(diff, region.unique_turn_ids,
-                                  connected_region.unique_turn_ids))
-                {
-                    return false;
-                }
-                if (diff.size() > 1)
-                {
-                    // For now:
-                    return false;
-                }
+                return false;
             }
 
-            if (connected_region.isolated != isolation_yes && ! multiple)
+            if (connected_region.isolated != isolation_yes)
             {
                 signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
                 if (first_with_turn)
@@ -296,6 +236,7 @@ struct traversal_switch_detector
                 }
             }
         }
+
         // If there is only one connection (with a 'parent'), and all other
         // connections are itself isolated, it is isolated
         return true;
