@@ -540,7 +540,7 @@ struct traversal_switch_detector
     void iterate()
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "SWITCH BEGIN ITERATION" << std::endl;
+        std::cout << "BEGIN ITERATION GETTING REGION_IDS" << std::endl;
 #endif
 
         // Collect turns per ring
@@ -581,7 +581,7 @@ struct traversal_switch_detector
         }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "SWITCH END ITERATION" << std::endl;
+        std::cout << "END ITERATION GETTIN REGION_IDS" << std::endl;
 
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
         {
@@ -590,25 +590,19 @@ struct traversal_switch_detector
             if ((turn.both(operation_union) || turn.both(operation_intersection))
                  && ! turn.is_clustered())
             {
-                std::cout << "UU/II SWITCH RESULT "
+                std::cout << "UU/II RESULT "
                              << turn_index << " -> "
-                          << turn.switch_source << std::endl;
+                          << turn.operations[0].enriched.region_id
+                          << " " << turn.operations[1].enriched.region_id
+                          << std::endl;
             }
         }
 
         for (typename Clusters::const_iterator it = m_clusters.begin(); it != m_clusters.end(); ++it)
         {
             cluster_info const& cinfo = it->second;
-            if (cinfo.open_count > 1)
-            {
-                std::cout << "CL SWITCH RESULT " << it->first
-                             << " -> " << cinfo.switch_source << std::endl;
-            }
-            else
-            {
-                std::cout << "CL SWITCH RESULT " << it->first
-                          << " is not registered as open" << std::endl;
-            }
+            std::cout << "CL RESULT " << it->first
+                         << " -> " << cinfo.open_count << std::endl;
         }
 #endif
 
