@@ -13,20 +13,19 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/algorithms/complexify.hpp>
-#include <boost/geometry/strategies/cartesian/complexify.hpp>
-#include <boost/geometry/strategies/geographic/complexify.hpp>
-#include <boost/geometry/strategies/spherical/complexify.hpp>
-
+#include <boost/geometry/algorithms/densify.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
+#include <boost/geometry/strategies/cartesian/densify.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+#include <boost/geometry/strategies/geographic/densify.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/spherical/densify.hpp>
+#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -88,7 +87,7 @@ struct cs_data
 template <typename G>
 struct cs_data<G, bg::cartesian_tag>
 {
-    bg::strategy::complexify::cartesian<> compl_s;
+    bg::strategy::densify::cartesian<> compl_s;
     bg::strategy::distance::pythagoras<> dist_s;
 };
 
@@ -102,7 +101,7 @@ struct cs_data<G, bg::spherical_equatorial_tag>
     {}
 
     bg::srs::sphere<double> model;
-    bg::strategy::complexify::spherical<> compl_s;
+    bg::strategy::densify::spherical<> compl_s;
     bg::strategy::distance::haversine<double> dist_s;
 };
 
@@ -116,7 +115,7 @@ struct cs_data<G, bg::geographic_tag>
     {}
 
     bg::srs::spheroid<double> model;
-    bg::strategy::complexify::geographic<> compl_s;
+    bg::strategy::densify::geographic<> compl_s;
     bg::strategy::distance::geographic<> dist_s;
 };
 
@@ -131,7 +130,7 @@ inline void test_geometry(std::string const& wkt, Check const& check)
     double max_distance = shortest_length(g, d.dist_s) / 3.0;
 
     G o;
-    bg::complexify(g, o, max_distance, d.compl_s);
+    bg::densify(g, o, max_distance, d.compl_s);
 
     // geometry was indeed complexified
     std::size_t g_count = bg::num_points(g);
