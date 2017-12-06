@@ -236,7 +236,23 @@ struct traversal
             segment_identifier const& current,
             segment_identifier const& previous) const
     {
-        return turn.switch_source
+        turn_operation_type const& op0 = turn.operations[0];
+        turn_operation_type const& op1 = turn.operations[1];
+
+        bool const switch_source = op0.enriched.region_id != -1
+                && op0.enriched.region_id == op1.enriched.region_id;
+
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+        if (switch_source)
+        {
+            std::cout << "Switch source at " << &turn << std::endl;
+        }
+        else
+        {
+            std::cout << "DON'T SWITCH SOURCES at " << &turn << std::endl;
+        }
+#endif
+        return switch_source
                 ? current.*Member != previous.*Member
                 : current.*Member == previous.*Member;
     }
@@ -247,16 +263,6 @@ struct traversal
     {
         // For uu/ii, only switch sources if indicated
 
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        if (turn.switch_source)
-        {
-            std::cout << "Switch source at " << turn_index << std::endl;
-        }
-        else
-        {
-            std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
-        }
-#endif
         if (OverlayType == overlay_buffer
                 || OverlayType == overlay_dissolve_union)
         {

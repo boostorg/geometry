@@ -611,29 +611,6 @@ struct traversal_switch_detector
             }
         }
 
-        // Iterate through all uu/ii turns (non-clustered)
-        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
-        {
-            turn_type& turn = m_turns[turn_index];
-
-            if (turn.discarded
-                    || turn.blocked()
-                    || turn.is_clustered()
-                    || ! (turn.both(operation_union) || turn.both(operation_intersection)))
-            {
-                // Skip discarded, blocked, non-uu/ii and clustered turns
-                continue;
-            }
-
-
-            signed_size_type const region0 = get_region_id(turn.operations[0]);
-            signed_size_type const region1 = get_region_id(turn.operations[1]);
-
-            // Switch sources for same region
-            turn.switch_source = region0 == region1;
-        }
-
-
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "SWITCH END ITERATION" << std::endl;
 
