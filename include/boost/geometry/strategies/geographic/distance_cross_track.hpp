@@ -318,15 +318,16 @@ private :
         CT a13 = inverse_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid).azimuth;
 
         CT a312 = a13 - a12;
-
-        if (geometry::math::equals(a312, c0))
+/*
+ * TODO: meridian case optimization
+        if (geometry::math::equals(a312, c0)) //and point inside segments band
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "point on segment" << std::endl;
 #endif
             return non_iterative_case(lon3, lat3, c0);
         }
-
+*/
         CT projection1 = cos( a312 ) * d1 / d3;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
