@@ -176,9 +176,9 @@ private:
         }
 
 
-        if (math::equals(a1, a2))
+        if (math::equals(a1, a2) || math::equals(lon1, lon2))
         {
-            // the segment must lie on the equator or is very short
+            // the segment must lie on the equator or is very short or is meridian
             return;
         }
 
