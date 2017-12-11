@@ -162,6 +162,12 @@ public :
                     )
             );
     }
+
+    template <typename CT>
+    inline CT meridian(CT const& lat1, CT const& lat2) const
+    {
+        return lat1 - lat2;
+    }
 };
 
 

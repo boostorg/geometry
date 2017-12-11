@@ -94,7 +94,10 @@ public :
           >
     {};
 
-public :
+    inline Strategy get_distance_strategy() const
+    {
+        return Strategy();
+    }
 
     template <typename Point, typename PointOfSegment>
     inline typename calculation_type<Point, PointOfSegment>::type

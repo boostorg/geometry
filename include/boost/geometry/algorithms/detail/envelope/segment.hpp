@@ -36,13 +36,12 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
+#include <boost/geometry/formulas/elliptic_arc_length.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
-
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -175,6 +174,7 @@ private:
             std::swap(lat1_rad, lat2_rad);
             std::swap(a1, a2);
         }
+
 
         if (math::equals(a1, a2))
         {

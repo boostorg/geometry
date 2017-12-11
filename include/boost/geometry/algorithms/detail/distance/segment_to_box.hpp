@@ -404,8 +404,12 @@ private:
             // (and inside its band)
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
-                ReturnType diff = cast::apply(geometry::get<1>(p0))
-                    - cast::apply(geometry::get<1>(top_left));
+                ReturnType diff =
+                ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
+                                                             geometry::get<1>(top_left));
+
+                //ReturnType diff = cast::apply(geometry::get<1>(p0))
+                //    - cast::apply(geometry::get<1>(top_left));
                 return strategy::distance::services::result_from_distance
                     <
                         PSStrategy, SegmentPoint, BoxPoint
