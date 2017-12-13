@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2017 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -365,8 +366,12 @@ private:
             {
                 // distance is realized between p0 and right-most
                 // segment of box
-                ReturnType diff = cast::apply(geometry::get<0>(p0))
-                    - cast::apply(geometry::get<0>(bottom_right));
+                //ReturnType diff =
+                //ps_strategy.get_distance_strategy().apply(p0, bottom_right);
+                ReturnType diff =
+                ps_strategy.get_distance_strategy().template coordinate<0>(p0, bottom_right);
+                //ReturnType diff = cast::apply(geometry::get<0>(p0))
+                //    - cast::apply(geometry::get<0>(bottom_right));
                 return strategy::distance::services::result_from_distance
                     <
                         PSStrategy, BoxPoint, SegmentPoint
@@ -405,8 +410,10 @@ private:
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
                 ReturnType diff =
-                ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
-                                                             geometry::get<1>(top_left));
+                ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
+
+                //ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
+                //                                             geometry::get<1>(top_left));
 
                 //ReturnType diff = cast::apply(geometry::get<1>(p0))
                 //    - cast::apply(geometry::get<1>(top_left));

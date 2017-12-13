@@ -111,6 +111,22 @@ public :
         return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
 
+    template <unsigned int Index, typename Point1, typename Point2>
+    inline typename calculation_type<Point1, Point2>::type
+    coordinate(Point1 const& p1, Point2 const& p2) const
+    {
+        assert_dimension_equal<Point1, Point2>();
+
+        if(Index == 1)
+        {
+            return meridian(geometry::get<Index>(p1), geometry::get<Index>(p2));
+        }
+        else
+        {
+            return apply(p1, p2);
+        }
+    }
+
     // points on a meridian not crossing poles
     template <typename CT>
     inline CT meridian(CT lat1, CT lat2) const

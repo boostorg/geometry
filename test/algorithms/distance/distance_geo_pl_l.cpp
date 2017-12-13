@@ -247,6 +247,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 5)", "POINT(2 4)", strategy_pp),
                   strategy_ps, true, true);
+    tester::apply("p-s-mer4",
+                  "POINT(0 20)",
+                  "SEGMENT(0 40,180 80)",
+                  pp_distance("POINT(0 20)", "POINT(0 40)", strategy_pp),
+                  strategy_ps, true, true);
 
     //degenerate segment
     tester::apply("p-s-deg",

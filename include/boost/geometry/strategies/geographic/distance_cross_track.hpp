@@ -13,6 +13,8 @@
 
 #include <algorithm>
 
+#include <boost/tuple/tuple.hpp>
+#include <boost/algorithm/minmax.hpp>
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
@@ -233,6 +235,16 @@ private :
             std::swap(lat1, lat2);
         }
 
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+        std::cout << "Segment=(" << lon1 * math::r2d<CT>();
+        std::cout << "," << lat1 * math::r2d<CT>();
+        std::cout << "),(" << lon2 * math::r2d<CT>();
+        std::cout << "," << lat2 * math::r2d<CT>();
+        std::cout << ")\np=(" << lon3 * math::r2d<CT>();
+        std::cout << "," << lat3 * math::r2d<CT>();
+        std::cout << ")" << std::endl;
+#endif
+
         //segment on equator
         //Note: antipodal points on equator does not define segment on equator
         //but pass by the pole
@@ -245,9 +257,6 @@ private :
 
         bool meridian_crossing_pole =
               elliptic_arc_length::meridian_crossing_pole(diff);
-
-        //bool meridian_crossing_pole = math::equals(math::abs(diff), pi);
-        //bool meridian_not_crossing_pole = math::equals(math::abs(diff), c0);
 
         if (math::equals(lat1, c0) && math::equals(lat2, c0) && !meridian_crossing_pole)
         {
@@ -279,7 +288,7 @@ private :
         if (meridian_crossing_pole)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "Meridian segment" << std::endl;
+            std::cout << "Meridian segment crossing pole" << std::endl;
 #endif
             result_distance_point_segment<CT> d1 = apply<geometry::radian>(lon1, lat1, lon1, half_pi, lon3, lat3, spheroid);
             result_distance_point_segment<CT> d2 = apply<geometry::radian>(lon2, lat2, lon2, half_pi, lon3, lat3, spheroid);
@@ -318,30 +327,29 @@ private :
         CT a13 = inverse_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid).azimuth;
 
         CT a312 = a13 - a12;
-/*
- * TODO: meridian case optimization
-        if (geometry::math::equals(a312, c0)) //and point inside segments band
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "point on segment" << std::endl;
-#endif
-            return non_iterative_case(lon3, lat3, c0);
-        }
-*/
-        CT projection1 = cos( a312 ) * d1 / d3;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-        std::cout << "segment=(" << lon1 * math::r2d<CT>();
-        std::cout << "," << lat1 * math::r2d<CT>();
-        std::cout << "),(" << lon2 * math::r2d<CT>();
-        std::cout << "," << lat2 * math::r2d<CT>();
-        std::cout << ")\np=(" << lon3 * math::r2d<CT>();
-        std::cout << "," << lat3 * math::r2d<CT>();
-        std::cout << ")\na1=" << a12 * math::r2d<CT>() << std::endl;
+        std::cout << "a1=" << a12 * math::r2d<CT>() << std::endl;
         std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
         std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
         std::cout << "cos(a312)=" << cos(a312) << std::endl;
 #endif
+
+        // TODO: meridian case optimization
+        if (geometry::math::equals(a312, c0) && meridian_not_crossing_pole)
+        {
+            boost::tuple<CT,CT> minmax = boost::minmax(lat1, lat2);
+            if (lat3 >= minmax.get<0>() && lat3 <= minmax.get<1>())
+            {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+                std::cout << "Point on meridian segment" << std::endl;
+#endif
+                return non_iterative_case(lon3, lat3, c0);
+            }
+        }
+
+        CT projection1 = cos( a312 ) * d1 / d3;
+
         if (projection1 < 0.0)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
