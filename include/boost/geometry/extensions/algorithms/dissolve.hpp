@@ -136,16 +136,16 @@ struct dissolve_ring_or_polygon
 
     template <typename Turns>
     static bool any_other_turn_travels_to_turn(Turns const& turns,
-        signed_size_type turn_index,
+        signed_size_type next_turn_index,
         detail::overlay::operation_type type)
     {
         // Loops might be removed by first gathering this info in a map.
         // But it only runs under quite specific conditions
-        signed_size_type i = 0;
+        signed_size_type turn_index = 0;
         for (typename Turns::const_iterator it = turns.begin();
-             it != turns.end(); ++it, ++i)
+             it != turns.end(); ++it, ++turn_index)
         {
-            if (turn_index == i)
+            if (next_turn_index == turn_index)
             {
                 continue;
             }
@@ -153,7 +153,7 @@ struct dissolve_ring_or_polygon
             for (int i = 0; i < 2; i++)
             {
                 if (it->operations[i].operation == type
-                    && it->operations[i].enriched.get_next_turn_index() == turn_index)
+                    && it->operations[i].enriched.get_next_turn_index() == next_turn_index)
                 {
                     return true;
                 }
