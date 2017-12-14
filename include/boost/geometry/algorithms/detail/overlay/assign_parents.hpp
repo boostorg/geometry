@@ -352,7 +352,7 @@ inline void assign_parents(Geometry1 const& geometry1,
                 {
                     // Discard positive inner ring with positive parent
                     // Also, for some cases (dissolve), negative inner ring
-                    // with negative parent shouild be discarded
+                    // with negative parent should be discarded
                     info.discarded = true;
                 }
 
