@@ -108,6 +108,13 @@ namespace
     // Hole: self-intersecting hole
     std::string const dissolve_h4 = "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 3,3 2.5,1 3.5,1.5 3.5,1 1))";
 
+    // Star having an extra thingy
+    std::string const dissolve_star_a = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,18.7846546173095700 0.9956377148628235,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
+    // Star with larger extra thingy
+    std::string const dissolve_star_b = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,18.7846546173095700 0.500000000000000,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
+    // Star without extra thingy
+    std::string const dissolve_star_c = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
+
     std::string const multi_three_triangles = "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))";
     std::string const multi_simplex_two = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)))";
     std::string const multi_simplex_three = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)))";
@@ -289,15 +296,19 @@ private :
 
 #endif
 
-//! Unittest settings: validity, tolerance
+//! Unittest settings
 struct ut_settings
 {
     double percentage;
     bool test_validity;
+    bool skip_orientation_normal;
+    bool skip_orientation_reverse;
 
     explicit ut_settings(double p = 0.001, bool tv = true)
         : percentage(p)
         , test_validity(tv)
+        , skip_orientation_normal(false)
+        , skip_orientation_reverse(true)
     {}
 
 };
@@ -467,7 +478,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
 
 template <typename Geometry, typename GeometryOut>
-void test_one(std::string const& caseid, std::string const& wkt,
+void test_one(std::string caseid, std::string const& wkt,
         double expected_area,
         std::size_t expected_clip_count,
         std::size_t expected_hole_count,
@@ -481,10 +492,25 @@ void test_one(std::string const& caseid, std::string const& wkt,
     // cannot close it without making a copy.
     bg::correct_closure(geometry);
 
-    test_dissolve<GeometryOut>(caseid, geometry,
-        expected_area,
-        expected_clip_count, expected_hole_count, expected_point_count,
-        settings);
+    if (! settings.skip_orientation_normal)
+    {
+        test_dissolve<GeometryOut>(caseid, geometry,
+            expected_area,
+            expected_clip_count, expected_hole_count, expected_point_count,
+            settings);
+    }
+
+    if (! settings.skip_orientation_reverse)
+    {
+        bg::reverse(geometry);
+
+        caseid += "_rev";
+        test_dissolve<GeometryOut>(caseid, geometry,
+            expected_area,
+            expected_clip_count, expected_hole_count, expected_point_count,
+            settings);
+    }
+
 
 #ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
     // Test different combinations of a multi-polygon
@@ -571,6 +597,17 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_h2, 16.25, 1, 0, 8);
     TEST_DISSOLVE(dissolve_h3, 16.0, 1, 0, 5); // no generated hole (yet)
     TEST_DISSOLVE(dissolve_h4, 14.484848, 1, 1, 9);
+
+    {
+        ut_settings st = ut_settings();
+        st.skip_orientation_normal = true;
+        st.skip_orientation_reverse = false;
+        TEST_DISSOLVE_WITH(dissolve_star_a, 7.38821, 2, 0, 15, st);
+        TEST_DISSOLVE_WITH(dissolve_star_b, 7.28259, 2, 0, 15, st);
+
+        st.skip_orientation_normal = false;
+        TEST_DISSOLVE_WITH(dissolve_star_c, 7.399696, 1, 0, 11, st);
+    }
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
