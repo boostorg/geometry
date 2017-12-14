@@ -38,6 +38,7 @@
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -165,9 +166,11 @@ struct dissolve_ring_or_polygon
 
         if (boost::size(turns) == 0)
         {
-            // No self-turns, then add original geometry
+            // No self-turns, then add original geometry,
+            // possibly reversing the order
             GeometryOut g;
             geometry::convert(geometry, g);
+            geometry::correct(g);
             *out++ = g;
             return out;
         }
