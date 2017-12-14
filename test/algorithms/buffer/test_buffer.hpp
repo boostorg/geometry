@@ -98,13 +98,13 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 struct ut_settings
 {
     double tolerance;
-    bool check_self_intersections;
     bool test_validity;
+    bool test_area;
 
-    explicit ut_settings(double tol = 0.01, bool val = true, bool self = true)
+    explicit ut_settings(double tol = 0.01, bool val = true)
         : tolerance(tol)
-        , check_self_intersections(self)
         , test_validity(val)
+        , test_area(true)
     {}
 
     static inline ut_settings ignore_validity()
@@ -114,30 +114,16 @@ struct ut_settings
         return result;
     }
 
+    static inline ut_settings assertions_only()
+    {
+        ut_settings result;
+        result.test_validity = false;
+        result.test_area = false;
+        return result;
+    }
+
+    static inline double ignore_area() { return 9999.9; }
 };
-
-template <typename Geometry, typename Strategy, typename RescalePolicy>
-inline std::size_t count_self_ips(Geometry const& geometry,
-                           Strategy const& strategy,
-                           RescalePolicy const& rescale_policy)
-{
-    typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::detail::overlay::turn_info
-    <
-        point_type,
-        typename bg::segment_ratio_type<point_type, RescalePolicy>::type
-    > turn_info;
-
-    std::vector<turn_info> turns;
-
-    bg::detail::self_get_turn_points::no_interrupt_policy policy;
-    bg::self_turns
-        <
-            bg::detail::overlay::assign_null_policy
-        >(geometry, strategy, rescale_policy, turns, policy);
-
-    return turns.size();
-}
 
 template
 <
@@ -158,8 +144,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             int expected_count,
             int expected_holes_count,
             double expected_area,
-            ut_settings const& settings = ut_settings(),
-            std::size_t* self_ip_count = NULL)
+            ut_settings const& settings)
 {
     namespace bg = boost::geometry;
 
@@ -266,9 +251,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
 #endif
 
-
-    typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
-
     //Uncomment to create simple CSV to compare/use in tests - adapt precision if necessary
     //std::cout << complete.str() << "," << std::fixed << std::setprecision(0) << area << std::endl;
     //return;
@@ -279,18 +261,18 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         return;
     }
 
-    BOOST_CHECK_MESSAGE
-        (
-            ! bg::is_empty(buffered),
-            complete.str() << " output is empty (unexpected)."
-        );
+    if (settings.test_area)
+    {
+        BOOST_CHECK_MESSAGE
+            (
+                ! bg::is_empty(buffered),
+                complete.str() << " output is empty (unexpected)."
+            );
+    }
 
     bg::model::box<point_type> envelope_output;
     bg::assign_values(envelope_output, 0, 0, 1,  1);
     bg::envelope(buffered, envelope_output);
-
-    rescale_policy_type rescale_policy_output
-            = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
 
     //    std::cout << caseid << std::endl;
     //    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
@@ -321,8 +303,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         );
     }
 
-    if (expected_area > -0.1)
+    if (settings.test_area)
     {
+        typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
         double const difference = area - expected_area;
         BOOST_CHECK_MESSAGE
             (
@@ -336,31 +319,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 << std::setprecision(3)
                 << " , " << 100.0 * (difference / expected_area) << "%"
             );
-
-        if (settings.check_self_intersections)
-        {
-
-            try
-            {
-                bool has_self_ips = bg::detail::overlay::has_self_intersections(
-                                        buffered, strategy, rescale_policy_output, false);
-                // Be sure resulting polygon does not contain
-                // self-intersections
-                BOOST_CHECK_MESSAGE
-                    (
-                        ! has_self_ips,
-                        complete.str() << " output is self-intersecting. "
-                    );
-            }
-            catch(...)
-            {
-                BOOST_CHECK_MESSAGE
-                    (
-                        false,
-                        "Exception in checking self-intersections"
-                    );
-            }
-        }
     }
 
     if (settings.test_validity && ! bg::is_valid(buffered))
@@ -385,25 +343,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         // self_ips NYI here
     }
 #elif defined(TEST_WITH_SVG)
+    rescale_policy_type rescale_policy_output
+            = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
     buffer_mapper.map_self_ips(mapper, buffered, strategy, rescale_policy_output);
 #endif
 
-    // Check for self-intersections
-    if (self_ip_count != NULL)
-    {
-        std::size_t count = 0;
-        if (bg::detail::overlay::has_self_intersections(buffered,
-                strategy, rescale_policy_output, false))
-        {
-            count = count_self_ips(buffered, strategy, rescale_policy_output);
-        }
-
-        *self_ip_count += count;
-        if (count > 0)
-        {
-            std::cout << complete.str() << " " << count << std::endl;
-        }
-    }
 }
 
 template
@@ -423,12 +367,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             SideStrategy const& side_strategy,
             PointStrategy const& point_strategy,
             double expected_area,
-            ut_settings const& settings = ut_settings(),
-            std::size_t* self_ip_count = NULL)
+            ut_settings const& settings = ut_settings())
 {
     test_buffer<GeometryOut>(caseid, geometry,
         join_strategy, end_strategy, distance_strategy, side_strategy, point_strategy,
-        -1, -1, expected_area, settings, self_ip_count);
+        -1, -1, expected_area, settings);
 }
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
@@ -482,7 +425,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
             expected_count, expected_holes_count, expected_area,
-            settings, NULL);
+            settings);
 
 #if !defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)
 
@@ -500,7 +443,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
                 join_strategy, end_strategy,
                 sym_distance_strategy, side_strategy, circle_strategy,
                 expected_count, expected_holes_count, expected_area,
-                settings, NULL);
+                settings);
 
     }
 #endif
@@ -522,40 +465,6 @@ void test_one(std::string const& caseid, std::string const& wkt,
     test_one<Geometry, GeometryOut>(caseid, wkt, join_strategy, end_strategy,
         -1 ,-1, expected_area,
         distance_left, settings, distance_right);
-}
-
-// Version (currently for the Aimes test) counting self-ip's instead of checking
-template
-<
-    typename Geometry,
-    typename GeometryOut,
-    typename JoinStrategy,
-    typename EndStrategy
->
-void test_one_and_count_ips(std::string const& caseid, std::string const& wkt,
-        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
-        double expected_area,
-        double distance_left,
-        std::size_t& self_ip_count,
-        ut_settings const& settings)
-{
-    namespace bg = boost::geometry;
-    Geometry g;
-    bg::read_wkt(wkt, g);
-    bg::correct(g);
-
-    bg::strategy::buffer::distance_asymmetric
-    <
-        typename bg::coordinate_type<Geometry>::type
-    > distance_strategy(distance_left, distance_left);
-
-    bg::strategy::buffer::point_circle circle_strategy(88);
-    bg::strategy::buffer::side_straight side_strategy;
-    test_buffer<GeometryOut>(caseid, g,
-            join_strategy, end_strategy,
-            distance_strategy, side_strategy, circle_strategy,
-            expected_area,
-            settings, &self_ip_count);
 }
 
 template
@@ -587,9 +496,7 @@ void test_with_custom_strategies(std::string const& caseid,
             (caseid, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, point_strategy,
-            expected_area, settings, NULL);
+            expected_area, settings);
 }
-
-
 
 #endif
