@@ -311,6 +311,7 @@ inline void enrich_intersection_points(Turns& turns,
             = target_operation == detail::overlay::operation_union
             ? detail::overlay::operation_intersection
             : detail::overlay::operation_union;
+    static const bool is_dissolve = OverlayType == overlay_dissolve_union || OverlayType == overlay_dissolve_intersection;
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
@@ -364,16 +365,19 @@ inline void enrich_intersection_points(Turns& turns,
         }
     }
 
-    detail::overlay::discard_closed_turns
-        <
-            OverlayType,
-            target_operation
-        >::apply(turns, clusters, geometry1, geometry2);
-    detail::overlay::discard_open_turns
-        <
-            OverlayType,
-            target_operation
-        >::apply(turns, clusters, geometry1, geometry2);
+    if (! is_dissolve)
+    {
+        detail::overlay::discard_closed_turns
+            <
+                OverlayType,
+                target_operation
+            >::apply(turns, clusters, geometry1, geometry2);
+        detail::overlay::discard_open_turns
+            <
+                OverlayType,
+                target_operation
+            >::apply(turns, clusters, geometry1, geometry2);
+    }
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
@@ -410,8 +414,11 @@ inline void enrich_intersection_points(Turns& turns,
         detail::overlay::enrich_assign(mit->second, turns);
     }
 
-    // Check some specific type of self-turns (after getting enriched info)
-    detail::overlay::discard_self_turns_which_loop<OverlayType>(turns);
+    if (! is_dissolve)
+    {
+        // Check some specific type of self-turns (after getting enriched info)
+        detail::overlay::discard_self_turns_which_loop<OverlayType>(turns);
+    }
 
     if (has_colocations)
     {
