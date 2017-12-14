@@ -168,7 +168,7 @@ void test_areal()
 
     // TODO: isolated region with multiple connection should be handled
     // differently
-    TEST_INTERSECTION_IGNORE(case_141_multi, 2, -1, 74.5);
+    TEST_INTERSECTION_IGNORE(case_141_multi, 3, -1, 74.5);
 
 #ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
@@ -355,6 +355,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_78, 9, -1, 8.0);
     TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
     TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
+    TEST_INTERSECTION(case_recursive_boxes_81, 5, -1, 3.75);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

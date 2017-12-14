@@ -127,7 +127,6 @@ struct dissolve_ring_or_polygon
             turn.discarded = false;
             turn.cluster_id = -1;
             turn.has_colocated_both = false;
-            turn.switch_source = false;
             turn.touch_only = false;
         }
 

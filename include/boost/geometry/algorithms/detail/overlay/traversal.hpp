@@ -232,50 +232,55 @@ struct traversal
     }
 
     template <signed_size_type segment_identifier::*Member>
-    inline bool select_source_generic(bool switch_source,
+    inline bool select_source_generic(turn_type const& turn,
             segment_identifier const& current,
             segment_identifier const& previous) const
     {
+        turn_operation_type const& op0 = turn.operations[0];
+        turn_operation_type const& op1 = turn.operations[1];
+
+        bool const switch_source = op0.enriched.region_id != -1
+                && op0.enriched.region_id == op1.enriched.region_id;
+
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+        if (switch_source)
+        {
+            std::cout << "Switch source at " << &turn << std::endl;
+        }
+        else
+        {
+            std::cout << "DON'T SWITCH SOURCES at " << &turn << std::endl;
+        }
+#endif
         return switch_source
                 ? current.*Member != previous.*Member
                 : current.*Member == previous.*Member;
     }
 
-    inline bool select_source(signed_size_type turn_index,
+    inline bool select_source(turn_type const& turn,
                               segment_identifier const& candidate_seg_id,
                               segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
-        turn_type const& turn = m_turns[turn_index];
 
-#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        if (turn.switch_source)
-        {
-            std::cout << "Switch source at " << turn_index << std::endl;
-        }
-        else
-        {
-            std::cout << "DON'T SWITCH SOURCES at " << turn_index << std::endl;
-        }
-#endif
         if (OverlayType == overlay_buffer
                 || OverlayType == overlay_dissolve_union)
         {
             // Buffer does not use source_index (always 0).
             return select_source_generic<&segment_identifier::multi_index>(
-                        turn.switch_source, candidate_seg_id, previous_seg_id);
+                        turn, candidate_seg_id, previous_seg_id);
         }
 
         if (is_self_turn<OverlayType>(turn))
         {
             // Also, if it is a self-turn, stay on same ring (multi/ring)
             return select_source_generic<&segment_identifier::multi_index>(
-                        turn.switch_source, candidate_seg_id, previous_seg_id);
+                        turn, candidate_seg_id, previous_seg_id);
         }
 
         // Use source_index
         return select_source_generic<&segment_identifier::source_index>(
-                    turn.switch_source, candidate_seg_id, previous_seg_id);
+                    turn, candidate_seg_id, previous_seg_id);
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -342,7 +347,6 @@ struct traversal
 
     inline
     bool select_noncc_operation(turn_type const& turn,
-                signed_size_type turn_index,
                 segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
     {
@@ -355,7 +359,7 @@ struct traversal
             if (op.operation == target_operation
                 && ! op.visited.finished()
                 && ! op.visited.visited()
-                && (! result || select_source(turn_index, op.seg_id, previous_seg_id)))
+                && (! result || select_source(turn, op.seg_id, previous_seg_id)))
             {
                 selected_op_index = i;
                 debug_traverse(turn, op, "Candidate");
@@ -368,7 +372,6 @@ struct traversal
 
     inline
     bool select_operation(const turn_type& turn,
-                signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
@@ -382,7 +385,7 @@ struct traversal
         }
         else
         {
-            result = select_noncc_operation(turn, turn_index,
+            result = select_noncc_operation(turn,
                                             previous_seg_id, selected_op_index);
         }
         if (result)
@@ -878,7 +881,7 @@ struct traversal
                     return false;
                 }
 
-                if (! select_operation(current_turn, turn_index,
+                if (! select_operation(current_turn,
                                 start_turn_index,
                                 previous_seg_id,
                                 op_index))
