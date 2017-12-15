@@ -418,6 +418,13 @@ struct traversal
         return true;
     }
 
+
+    template <typename RankedPoint>
+    inline turn_operation_type const& operation_from_rank(RankedPoint const& rp) const
+    {
+        return m_turns[rp.turn_index].operations[rp.operation_index];
+    }
+
     inline int select_turn_in_cluster_union(std::size_t selected_rank,
             typename sbs_type::rp const& ranked_point,
             signed_size_type start_turn_index, int start_op_index) const
@@ -432,8 +439,7 @@ struct traversal
             return 0;
         }
 
-        turn_type const& turn = m_turns[ranked_point.turn_index];
-        turn_operation_type const& op = turn.operations[ranked_point.operation_index];
+        turn_operation_type const& op = operation_from_rank(ranked_point);
 
         // Check finalized: TODO: this should be finetuned, it is not necessary
         if (op.visited.finalized())
@@ -454,12 +460,6 @@ struct traversal
             : ranked_point.turn_index == start_turn_index ? 2
             : 1
             ;
-    }
-
-    template <typename RankedPoint>
-    inline turn_operation_type const& operation_from_rank(RankedPoint const& rp) const
-    {
-        return m_turns[rp.turn_index].operations[rp.operation_index];
     }
 
     inline signed_size_type select_rank(sbs_type const& sbs,
@@ -547,10 +547,9 @@ struct traversal
 
                 if (ranked_point.rank == selected_rank)
                 {
-                    turn_type const& ranked_turn = m_turns[ranked_point.turn_index];
-                    turn_operation_type const& ranked_op = ranked_turn.operations[ranked_point.operation_index];
+                    turn_operation_type const& op = operation_from_rank(ranked_point);
 
-                    if (ranked_op.visited.finalized())
+                    if (op.visited.finalized())
                     {
                         // This direction is already traveled before, the same
                         // cannot be traveled again
@@ -559,10 +558,10 @@ struct traversal
 
                     // Take turn with the smallest remaining distance
                     if (selected_index == sbs.m_ranked_points.size()
-                            || ranked_op.remaining_distance < min_remaining_distance)
+                            || op.remaining_distance < min_remaining_distance)
                     {
                         selected_index = i;
-                        min_remaining_distance = ranked_op.remaining_distance;
+                        min_remaining_distance = op.remaining_distance;
                     }
                 }
             }
