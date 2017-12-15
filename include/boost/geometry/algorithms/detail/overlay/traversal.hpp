@@ -479,6 +479,12 @@ struct traversal
             }
             turn_operation_type const& op = operation_from_rank(rp);
 
+            if (op.operation != target_operation
+                && op.operation != operation_continue)
+            {
+                continue;
+            }
+
             if (op.enriched.region_id == incoming_op.enriched.region_id
                 || (skip_isolated && ! op.enriched.isolated))
             {
