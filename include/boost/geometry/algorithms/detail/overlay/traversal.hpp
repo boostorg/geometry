@@ -458,24 +458,34 @@ struct traversal
             ;
     }
 
+    template <typename RankedPoint>
+    inline signed_size_type region_from_rank(RankedPoint const& rp) const
+    {
+        turn_operation_type const& op = m_turns[rp.turn_index].operations[rp.operation_index];
+        return op.enriched.region_id;
+    }
+
     inline bool select_from_cluster_union(signed_size_type& turn_index,
         int& op_index, sbs_type& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
-        std::vector<sort_by_side::rank_with_rings> aggregation;
-        sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_union);
+        // Take the first outgoing rank corresponding to incoming region
+        signed_size_type const incoming_region
+                = region_from_rank(sbs.m_ranked_points.front());
 
-        sort_by_side::rank_with_rings const& incoming = aggregation.front();
-
-        // Take the first one outgoing for the incoming region
         std::size_t selected_rank = 0;
-        for (std::size_t i = 1; i < aggregation.size(); i++)
+        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
-            sort_by_side::rank_with_rings const& rwr = aggregation[i];
-            if (rwr.all_to()
-                    && rwr.region_id() == incoming.region_id())
+            typename sbs_type::rp const& rp = sbs.m_ranked_points[i];
+            if (rp.rank == 0 || rp.direction == sort_by_side::dir_from)
             {
-                selected_rank = rwr.rank;
+                continue;
+            }
+            signed_size_type const region = region_from_rank(rp);
+
+            if (region == incoming_region)
+            {
+                selected_rank = rp.rank;
                 break;
             }
         }
