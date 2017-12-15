@@ -356,6 +356,11 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
     TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
     TEST_INTERSECTION(case_recursive_boxes_81, 5, -1, 3.75);
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_82, 3, -1, 8.5);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

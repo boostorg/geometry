@@ -18,10 +18,8 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/aggregate_operations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal_intersection_patterns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -459,21 +457,19 @@ struct traversal
     }
 
     template <typename RankedPoint>
-    inline signed_size_type region_from_rank(RankedPoint const& rp) const
+    inline turn_operation_type const& operation_from_rank(RankedPoint const& rp) const
     {
-        turn_operation_type const& op = m_turns[rp.turn_index].operations[rp.operation_index];
-        return op.enriched.region_id;
+        return m_turns[rp.turn_index].operations[rp.operation_index];
     }
 
-    inline bool select_from_cluster_union(signed_size_type& turn_index,
-        int& op_index, sbs_type& sbs,
-        signed_size_type start_turn_index, int start_op_index) const
+    inline signed_size_type select_rank(sbs_type const& sbs,
+                                        bool skip_isolated) const
     {
-        // Take the first outgoing rank corresponding to incoming region
-        signed_size_type const incoming_region
-                = region_from_rank(sbs.m_ranked_points.front());
+        // Take the first outgoing rank corresponding to incoming region,
+        // or take another region if it is not isolated
+        turn_operation_type const& incoming_op
+                = operation_from_rank(sbs.m_ranked_points.front());
 
-        std::size_t selected_rank = 0;
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
             typename sbs_type::rp const& rp = sbs.m_ranked_points[i];
@@ -481,14 +477,24 @@ struct traversal
             {
                 continue;
             }
-            signed_size_type const region = region_from_rank(rp);
+            turn_operation_type const& op = operation_from_rank(rp);
 
-            if (region == incoming_region)
+            if (op.enriched.region_id == incoming_op.enriched.region_id
+                || (skip_isolated && ! op.enriched.isolated))
             {
-                selected_rank = rp.rank;
-                break;
+                // Region corresponds to incoming region, or (for intersection)
+                // there is a non-isolated other region which should be taken
+                return rp.rank;
             }
         }
+        return -1;
+    }
+
+    inline bool select_from_cluster_union(signed_size_type& turn_index,
+        int& op_index, sbs_type const& sbs,
+        signed_size_type start_turn_index, int start_op_index) const
+    {
+        std::size_t const selected_rank = select_rank(sbs, false);
 
         int best_code = 0;
         bool result = false;
@@ -521,87 +527,7 @@ struct traversal
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
-        std::vector<sort_by_side::rank_with_rings> aggregation;
-        sort_by_side::aggregate_operations(sbs, aggregation, m_turns, operation_intersection);
-
-        std::size_t selected_rank = 0;
-
-
-        // Detect specific pattern(s)
-        bool const detected
-            = intersection_pattern_common_interior1(selected_rank, aggregation)
-            || intersection_pattern_common_interior2(selected_rank, aggregation)
-            || intersection_pattern_common_interior3(selected_rank, aggregation)
-            || intersection_pattern_common_interior4(selected_rank, aggregation)
-            || intersection_pattern_common_interior5(selected_rank, aggregation)
-            || intersection_pattern_common_interior6(selected_rank, aggregation)
-                ;
-
-        if (! detected)
-        {
-            signed_size_type incoming_region_id = 0;
-            std::set<signed_size_type> outgoing_region_ids;
-
-            for (std::size_t i = 0; i < aggregation.size(); i++)
-            {
-                sort_by_side::rank_with_rings const& rwr = aggregation[i];
-
-                if (rwr.all_to()
-                        && rwr.traversable(m_turns)
-                        && selected_rank == 0)
-                {
-                    // Take the first (= right) where segments leave,
-                    // having the polygon on the right side
-                    selected_rank = rwr.rank;
-                }
-
-                if (rwr.all_from()
-                        && selected_rank > 0
-                        && outgoing_region_ids.empty())
-                {
-                    // Incoming
-                    break;
-                }
-
-                if (incoming_region_id == 0)
-                {
-                    sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
-                    turn_type const& turn = m_turns[rwd.turn_index];
-                    incoming_region_id = turn.operations[rwd.operation_index].enriched.region_id;
-                }
-                else
-                {
-                    if (rwr.rings.size() == 1)
-                    {
-                        sort_by_side::ring_with_direction const& rwd = *rwr.rings.begin();
-                        turn_type const& turn = m_turns[rwd.turn_index];
-                        if (rwd.direction == sort_by_side::dir_to
-                                && turn.both(operation_intersection))
-                        {
-
-                            turn_operation_type const& op = turn.operations[rwd.operation_index];
-                            if (op.enriched.region_id != incoming_region_id
-                                    && op.enriched.isolated)
-                            {
-                                outgoing_region_ids.insert(op.enriched.region_id);
-                            }
-                        }
-                        else if (! outgoing_region_ids.empty())
-                        {
-                            for (int i = 0; i < 2; i++)
-                            {
-                                signed_size_type const region_id = turn.operations[i].enriched.region_id;
-                                if (outgoing_region_ids.count(region_id) == 1)
-                                {
-                                    selected_rank = 0;
-                                    outgoing_region_ids.erase(region_id);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        std::size_t const selected_rank = select_rank(sbs, true);
 
         if (selected_rank > 0)
         {
