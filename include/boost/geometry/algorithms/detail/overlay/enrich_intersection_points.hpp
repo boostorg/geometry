@@ -351,7 +351,7 @@ inline void enrich_intersection_points(Turns& turns,
 
             // Only keep self-uu-turns or self-ii-turns
 
-            // Blocked (or combination with blocked is still needed for difference
+            // Blocked (or combination with blocked is still needed for difference)
             turn.discarded = true;
             turn.cluster_id = -1;
             continue;

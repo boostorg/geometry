@@ -78,30 +78,6 @@ private :
 
     template <typename Turns, typename Clusters>
     static inline
-    bool any_blocked(signed_size_type cluster_id,
-            const Turns& turns, Clusters const& clusters)
-    {
-        typename Clusters::const_iterator cit = clusters.find(cluster_id);
-        if (cit == clusters.end())
-        {
-            return false;
-        }
-        cluster_info const& cinfo = cit->second;
-        for (std::set<signed_size_type>::const_iterator it
-             = cinfo.turn_indices.begin();
-             it != cinfo.turn_indices.end(); ++it)
-        {
-            typename boost::range_value<Turns>::type const& turn = turns[*it];
-            if (turn.any_blocked())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    template <typename Turns, typename Clusters>
-    static inline
     bool is_self_cluster(signed_size_type cluster_id,
             const Turns& turns, Clusters const& clusters)
     {
@@ -188,35 +164,14 @@ public :
                 continue;
             }
 
-            segment_identifier const& id0 = turn.operations[0].seg_id;
-            segment_identifier const& id1 = turn.operations[1].seg_id;
-            if (id0.multi_index != id1.multi_index
-                    || (id0.ring_index == -1 && id1.ring_index == -1)
-                    || (id0.ring_index >= 0 && id1.ring_index >= 0))
-            {
-                // Not an ii ring (int/ext) on same ring
-                continue;
-            }
-
-            if (turn.is_clustered() && turn.has_colocated_both)
-            {
-                // Don't delete a self-ii-turn colocated with another ii-turn
-                // (for example #case_recursive_boxes_70)
-                // But for some cases (#case_58_iet) they should be deleted,
-                // there are many self-turns there and also blocked turns there
-                if (! any_blocked(turn.cluster_id, turns, clusters))
-                {
-                    continue;
-                }
-            }
-
             // It is a ii self-turn
             // Check if it is within the other geometry
-            // If not, it can be ignored
             if (! within(turn, geometry0, geometry1))
             {
-                // It is not within another geometry, discard the turn
-                turn.discarded = true;
+                // It is not within another geometry, set it as non startable.
+                // It still might be traveled (#case_recursive_boxes_70)
+                turn.operations[0].enriched.startable = false;
+                turn.operations[1].enriched.startable = false;
             }
         }
     }
