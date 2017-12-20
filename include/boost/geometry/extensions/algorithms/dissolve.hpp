@@ -258,10 +258,8 @@ struct dissolve_ring_or_polygon
             }
         }
 
-        // Assign parents, checking orientation and discarding negative
-        // children with negative parents
-        detail::overlay::assign_parents(geometry, rings, selected,
-                                        strategy, true, true);
+        detail::overlay::assign_parents<overlay_dissolve_union>(geometry,
+            rings, selected, strategy);
         return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
     }
 };
