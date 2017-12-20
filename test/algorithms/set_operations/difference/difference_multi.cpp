@@ -435,6 +435,17 @@ void test_areal()
 
     TEST_DIFFERENCE(case_recursive_boxes_81, 3, 5.0, 6, 6.75, 6);
 
+#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
+#else
+    TEST_DIFFERENCE_IGNORE(case_recursive_boxes_82, 5, 7.25, 6, 4.5, 7);
+#endif
+    TEST_DIFFERENCE(case_recursive_boxes_83, 9, 5.25, 8, 5.25, 12);
+    TEST_DIFFERENCE(case_recursive_boxes_84, 4, 8.0, 7, 9.0, 4);
+#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
+    TEST_DIFFERENCE(case_recursive_boxes_85, 4, 4.0, 7, 3.75, 9);
+#endif
+
     TEST_DIFFERENCE(case_recursive_boxes_86, 1, 1.5, 2, 1.5, 3);
     TEST_DIFFERENCE(case_recursive_boxes_87, 4, 2.0, 4, 2.5, 8);
 

@@ -1273,12 +1273,16 @@ static std::string case_recursive_boxes_85[2] =
 
 static std::string case_recursive_boxes_86[2] =
 {
+    // Positive ring and negative ring have same area. For difference, this
+    // needs to be handled correctly in assign_parents,
+    // skipping the optimization for union
     "MULTIPOLYGON(((3 4,4 4,4 3,2 3,3 4)))",
     "MULTIPOLYGON(((4 1,3 1,3 2,4 1)),((4 1,5 1,5 0,4 0,4 1)))"
 };
 
 static std::string case_recursive_boxes_87[2] =
 {
+    // Needs to handle ii-turns for difference like done for intersection
     "MULTIPOLYGON(((5 2,5 3,6 3,5 2)),((3 4,3 3,2 3,3 4)),((3 4,2 4,3 5,3 4)),((2 4,2 3,1 3,2 4)))",
     "MULTIPOLYGON(((2 0,3 1,3 0,2 0)),((6 3,6 4,7 4,7 3,6 3)),((3 9,3 10,4 9,3 9)),((8 7,8 8,9 8,8 7)))"
 };
