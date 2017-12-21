@@ -36,7 +36,7 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
-#include <boost/geometry/formulas/elliptic_arc_length.hpp>
+#include <boost/geometry/formulas/meridian_segment.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -167,19 +167,25 @@ private:
 
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
+        CalculationType lon1_rad = math::as_radian<Units>(lon1);
+        CalculationType lon2_rad = math::as_radian<Units>(lon2);
+
+        typedef typename geometry::formula::meridian_segment mseg;
+        mseg::SegmentType result_seg =
+        mseg::is_meridian(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
+        if (math::equals(a1, a2))// ||
+            //result_seg == mseg::MeridianCrossingPole ||
+            //result_seg == mseg::MeridianNotCrossingPole)
+        {
+            // the segment must lie on the equator or is very short or is meridian
+            return;
+        }
 
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);
             std::swap(lat1_rad, lat2_rad);
             std::swap(a1, a2);
-        }
-
-
-        if (math::equals(a1, a2) || math::equals(lon1, lon2))
-        {
-            // the segment must lie on the equator or is very short or is meridian
-            return;
         }
 
         if (contains_pi_half(a1, a2))

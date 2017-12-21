@@ -8,6 +8,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -116,12 +118,42 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
 
     std::string const box1 = "BOX(10 10,20 20)";
 
-    // case 1
-    tester::apply(//"pb1-1a", "SEGMENT(15 25, 16 25)", box1,
-                  "pb1-1a", "SEGMENT(0 0, 0 20)", box1,
+    tester::apply("sb1-1", "SEGMENT(0 0, 0 20)", box1,
                   pp_distance("POINT(0 20)", "POINT(10 20)", strategy_pp),
-                  //0,
                   strategy_ps);
+    tester::apply("sb1-2", "SEGMENT(0 0, 0 10)", box1,
+                  ps_distance("POINT(0 10)", "SEGMENT(10 10,10 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb1-3", "SEGMENT(0 0, 0 15)", box1,
+                  ps_distance("POINT(0 15)", "SEGMENT(10 10,10 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb1-4", "SEGMENT(0 0, 0 25)", box1,
+                  ps_distance("POINT(10 20)", "SEGMENT(0 0,0 25)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb1-5", "SEGMENT(0 10, 0 25)", box1,
+                  ps_distance("POINT(10 20)", "SEGMENT(0 0,0 25)", strategy_ps),
+                  strategy_ps);
+
+    tester::apply("sb2-1", "SEGMENT(0 5, 10 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5,10 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb2-2", "SEGMENT(0 5, 15 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5,15 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb2-3a", "SEGMENT(0 5, 20 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5,20 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb2-3b", "SEGMENT(0 5, 25 5)", box1,
+                  ps_distance("POINT(12.5 10)", "SEGMENT(0 5,25 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("sb2-3c", "SEGMENT(0 5, 26 5)", box1,
+                  ps_distance("POINT(13 10)", "SEGMENT(0 5,26 5)", strategy_ps),
+                  strategy_ps);
+
+    //tester::apply("sb2-3", "SEGMENT(0 5, 25 6)", box1,
+    //              ps_distance("POINT(12.5 10)", "SEGMENT(0 5,25 6)", strategy_ps),
+    //              //pp_distance("POINT(10 10)", "POINT(10 5)", strategy_pp),
+    //              strategy_ps);
 
 }
 

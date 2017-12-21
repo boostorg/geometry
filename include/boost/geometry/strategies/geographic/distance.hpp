@@ -119,7 +119,8 @@ public :
 
         if(Index == 1)
         {
-            return meridian(geometry::get<Index>(p1), geometry::get<Index>(p2));
+            return meridian(geometry::get_as_radian<Index>(p1),
+                            geometry::get_as_radian<Index>(p2));
         }
         else
         {

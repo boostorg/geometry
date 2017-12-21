@@ -338,8 +338,9 @@ private :
         // TODO: meridian case optimization
         if (geometry::math::equals(a312, c0) && meridian_not_crossing_pole)
         {
-            boost::tuple<CT,CT> minmax = boost::minmax(lat1, lat2);
-            if (lat3 >= minmax.get<0>() && lat3 <= minmax.get<1>())
+            boost::tuple<CT,CT> minmax_elem = boost::minmax(lat1, lat2);
+            if (lat3 >= minmax_elem.template get<0>() &&
+                lat3 <= minmax_elem.template get<1>())
             {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
                 std::cout << "Point on meridian segment" << std::endl;
@@ -350,7 +351,7 @@ private :
 
         CT projection1 = cos( a312 ) * d1 / d3;
 
-        if (projection1 < 0.0)
+        if (projection1 < c0)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "projection closer to p1" << std::endl;
@@ -373,7 +374,7 @@ private :
 #endif
         CT projection2 = cos( a321 ) * d2 / d3;
 
-        if (projection2 < 0.0)
+        if (projection2 < c0)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "projection closer to p2" << std::endl;

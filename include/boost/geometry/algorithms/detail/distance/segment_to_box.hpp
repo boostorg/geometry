@@ -40,6 +40,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -47,7 +48,6 @@
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 
 
 namespace boost { namespace geometry
@@ -359,7 +359,8 @@ private:
             if (less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)))
             {
                 // closest box point is the top-right corner
-                return cast::apply(pp_strategy.apply(p0, top_right));
+                //return cast::apply(pp_strategy.apply(p0, top_right));
+                return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
             }
             else if (less_equal(geometry::get<1>(bottom_right),
                                 geometry::get<1>(p0)))
@@ -368,14 +369,15 @@ private:
                 // segment of box
                 //ReturnType diff =
                 //ps_strategy.get_distance_strategy().apply(p0, bottom_right);
-                ReturnType diff =
-                ps_strategy.get_distance_strategy().template coordinate<0>(p0, bottom_right);
+                return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                //ReturnType diff =
+                //ps_strategy.get_distance_strategy().template coordinate<0>(p0, bottom_right);
                 //ReturnType diff = cast::apply(geometry::get<0>(p0))
                 //    - cast::apply(geometry::get<0>(bottom_right));
-                return strategy::distance::services::result_from_distance
-                    <
-                        PSStrategy, BoxPoint, SegmentPoint
-                    >::apply(ps_strategy, math::abs(diff));
+                //return strategy::distance::services::result_from_distance
+                //    <
+                //        PSStrategy, BoxPoint, SegmentPoint
+                //    >::apply(ps_strategy, math::abs(diff));
             }
             else
             {
@@ -385,7 +387,6 @@ private:
             }
         }
     };
-
 
     // it is assumed here that p0 lies above the box (so the
     // entire segment lies above the box)
@@ -409,11 +410,12 @@ private:
             // (and inside its band)
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
+                std::cout << "pmax inside band\n";
                 ReturnType diff =
-                ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
+                //ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
 
-                //ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
-                //                                             geometry::get<1>(top_left));
+                ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
+                                                             geometry::get<1>(top_left));
 
                 //ReturnType diff = cast::apply(geometry::get<1>(p0))
                 //    - cast::apply(geometry::get<1>(top_left));
@@ -486,10 +488,91 @@ private:
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
-                result = above_of_box
-                    <
-                        typename other_compare<LessEqual>::type
-                    >::apply(p1, p0, bottom_right, ps_strategy);
+
+                /////////////////
+                /////////////////
+                /// new addition
+
+                geometry::model::box<SegmentPoint> mbr;
+                typedef geometry::model::segment<SegmentPoint> Segment;
+                Segment seg(p0, p1);
+                geometry::envelope(seg,mbr);
+
+                typedef typename coordinate_type<SegmentPoint>::type CT;
+
+                CT lon1 = geometry::get_as_radian<0>(p0);
+                CT lat1 = geometry::get_as_radian<1>(p0);
+                CT lon2 = geometry::get_as_radian<0>(p1);
+                CT lat2 = geometry::get_as_radian<1>(p1);
+
+                std::cout << "lat1=" << lat1 << " lat2=" << lat2<< std::endl;
+
+                CT vertex_lat;
+                CT lat_sum = lat1 + lat2;
+
+                CT b_lat_below; //latitude of box closest to equator
+
+                if (lat_sum > CT(0))
+                {
+                    vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(mbr);
+                    //b_lat_below = b_lat_min;
+                } else {
+                    vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(mbr);
+                    //b_lat_below = b_lat_max;
+                }
+                std::cout << "vertex lat=" << vertex_lat * geometry::math::r2d<CT>() << std::endl;
+
+                CT alp1;
+
+                geometry::strategy::azimuth::geographic<> azimuth_strategy;
+                azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
+
+                typedef typename cs_tag<Segment>::type segment_cs_type;
+
+                CT vertex_lon = geometry::formula::vertex_longitude<CT, segment_cs_type>
+                        ::apply(lon1, lat1,
+                                lon2, lat2,
+                                vertex_lat,
+                                alp1,
+                                azimuth_strategy);
+
+                std::cout << "vertex lon=" << vertex_lon * geometry::math::r2d<CT>() << std::endl;
+
+                SegmentPoint p_max(vertex_lon* geometry::math::r2d<CT>(),vertex_lat* geometry::math::r2d<CT>());
+
+                ////////////////
+                ///////////////
+                /// new addition ends
+
+                typename other_compare<LessEqual>::type less_equal;
+
+                CT vertex_lon_deg = vertex_lon*geometry::math::r2d<CT>();
+
+                //TODO: do it for general Units
+                typedef geometry::model::box<BoxPoint> box;
+                box input_box = geometry::make<box>(geometry::get<0>(bottom_left),
+                                                      geometry::get<1>(bottom_left),
+                                                      geometry::get<0>(top_right),
+                                                      geometry::get<1>(top_right));
+
+                if (! geometry::disjoint(seg,input_box))
+                {
+                    return true;
+                }
+
+                if (less_equal(geometry::get<0>(bottom_left),vertex_lon_deg))
+                {
+                    typedef cast_to_result<ReturnType> cast;
+                    result = cast::apply(ps_strategy.apply(bottom_left, p0, p1));
+                }
+                else
+                {
+                    result = above_of_box
+                            <
+                            typename other_compare<LessEqual>::type
+                            //>::apply(p1, p0, bottom_right, ps_strategy);
+                            >::apply(p_max, p0, bottom_right, ps_strategy);
+                }
                 return true;
             }
 
