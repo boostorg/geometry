@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
@@ -40,7 +41,7 @@
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
-#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/azimuth.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>

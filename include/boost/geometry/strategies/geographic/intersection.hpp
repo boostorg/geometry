@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -106,7 +108,6 @@ struct geographic_segments
     {
         typedef area::geographic
             <
-                typename point_type<Geometry>::type,
                 FormulaPolicy,
                 Order,
                 Spheroid,
