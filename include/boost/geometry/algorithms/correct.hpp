@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -144,7 +144,7 @@ struct correct_ring
         detail::correct_closure::close_or_open_ring<Ring>::apply(r);
 
         // Check area
-        typedef typename Strategy::return_type area_result_type;
+        typedef typename area_result<Ring, Strategy>::type area_result_type;
         Predicate<area_result_type> predicate;
         area_result_type const zero = 0;
         if (predicate(ring_area_type::apply(r, strategy), zero))
@@ -322,8 +322,7 @@ inline void correct(Geometry& geometry)
 
     typedef typename strategy::area::services::default_strategy
         <
-            typename cs_tag<point_type>::type,
-            point_type
+            typename cs_tag<point_type>::type
         >::type strategy_type;
 
     resolve_variant::correct<Geometry>::apply(geometry, strategy_type());

@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -87,7 +88,10 @@ inline OutputIterator add_rings(SelectionMap const& map,
             add_rings_error_handling error_handling = add_rings_ignore_unordered)
 {
     typedef typename SelectionMap::const_iterator iterator;
-    typedef typename AreaStrategy::return_type area_type;
+    typedef typename AreaStrategy::template result_type
+        <
+            GeometryOut
+        >::type area_type;
 
     area_type const zero = 0;
     std::size_t const min_num_points = core_detail::closure::minimum_ring_size
