@@ -520,7 +520,7 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategies.strategy_area_surveyor">strategy::area::surveyor</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_area_cartesian">strategy::area::cartesian</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_area_spherical">strategy::area::spherical</link></member>
      <!--member><link linkend="geometry.reference.strategies.strategy_area_geographic">strategy::area::geographic</link></member-->
     </simplelist>

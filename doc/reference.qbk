@@ -339,7 +339,7 @@
 [include generated/distance_projected_point.qbk]
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
-[include generated/area_surveyor.qbk]
+[include generated/area_cartesian.qbk]
 [include generated/area_spherical.qbk]
 [/include generated/area_geographic.qbk]
 [include generated/buffer_join_round.qbk]
