@@ -1,6 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -50,7 +52,7 @@ void test_geographic_one(std::string const& wkt1, std::string const& wkt2,
     bg::srs::spheroid<double> sph(6378137.0000000000, 6356752.3142451793);
 
     bg::strategy::intersection::geographic_segments<> is(sph);
-    bg::strategy::area::geographic<point> as(sph);
+    bg::strategy::area::geographic<> as(sph);
     
     polygon p1, p2;
 
@@ -98,8 +100,8 @@ void test_geographic_one(std::string const& wkt1, std::string const& wkt2,
         }
         else
         {
-            BOOST_CHECK_EQUAL(result_count, 0);
-            BOOST_CHECK_EQUAL(result_area, 0);
+            BOOST_CHECK_EQUAL(result_count, 0u);
+            BOOST_CHECK_EQUAL(result_area, 0.0);
         }
     }
 }
