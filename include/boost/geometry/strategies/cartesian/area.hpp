@@ -37,11 +37,9 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Area calculation for cartesian points
+\brief Cartesian area calculation
 \ingroup strategies
-\details Calculates area using the Surveyor's formula, a well-known
-    triangulation algorithm
-\tparam PointOfSegment \tparam_segment_point
+\details Calculates cartesian area using the trapezoidal rule
 \tparam CalculationType \tparam_calculation
 
 \qbk{
