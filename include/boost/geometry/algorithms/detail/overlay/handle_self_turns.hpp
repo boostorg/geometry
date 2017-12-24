@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -74,7 +75,7 @@ struct discard_closed_turns<overlay_union, operation_union>
 
     template <typename Turns, typename Clusters, typename Geometry0, typename Geometry1>
     static inline
-    void apply(Turns& turns, Clusters const& clusters,
+    void apply(Turns& turns, Clusters const& /*clusters*/,
             Geometry0 const& geometry0, Geometry1 const& geometry1)
     {
         typedef typename boost::range_value<Turns>::type turn_type;

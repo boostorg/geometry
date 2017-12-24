@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2015-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -198,7 +200,7 @@ template <typename Units, bool IsEquatorial>
 struct latitude_convert_if_polar
 {
     template <typename T>
-    static inline void apply(T & lat) {}
+    static inline void apply(T & /*lat*/) {}
 };
 
 template <typename Units>

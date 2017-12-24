@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014, 2016, 2017.
 // Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
@@ -169,7 +169,7 @@ public:
                 int side = 0;
                 if (ci.count == 1 || ci.count == -1)
                 {
-                    side = side_equal(point, eq1 ? s1 : s2, ci, s1, s2);
+                    side = side_equal(point, eq1 ? s1 : s2, ci);
                 }
                 else // count == 2 || count == -2
                 {
@@ -431,8 +431,7 @@ private:
     // but the point is not aligned with a vertical segment
     inline int side_equal(Point const& point,
                           PointOfSegment const& se,
-                          count_info const& ci,
-                          PointOfSegment const& s1, PointOfSegment const& s2) const
+                          count_info const& ci) const
     {
         typedef typename coordinate_type<PointOfSegment>::type scoord_t;
         typedef typename coordinate_system<PointOfSegment>::type::units units_t;
