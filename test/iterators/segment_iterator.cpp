@@ -1,6 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -169,6 +171,8 @@ struct test_segment_iterator_of_geometry
                                  std::string const& header,
                                  bool check_num_segments)
     {
+        boost::ignore_unused(header);
+
         typedef bg::segment_iterator<G const> segment_iterator;
 
         test_iterator_concepts<G const>();
