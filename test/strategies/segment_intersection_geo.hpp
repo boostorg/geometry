@@ -1,6 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -97,7 +99,7 @@ struct strategy_base
         : m(m_), expected_count(1), wkt1(wkt1_), opposite(-1)
     {}
     strategy_base(char m_, std::string const& wkt1_, std::string const& wkt2_, bool opposite_)
-        : m(m_), expected_count(1), wkt1(wkt1_), opposite(opposite_ ? 1 : 0)
+        : m(m_), expected_count(1), wkt1(wkt1_), wkt2(wkt2_), opposite(opposite_ ? 1 : 0)
     {}
 
     char m;
