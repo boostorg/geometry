@@ -240,7 +240,7 @@ public :
     {}
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    Point add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+    Point add(Operation const& op, signed_size_type turn_index, int op_index,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             bool is_origin)
@@ -261,7 +261,7 @@ public :
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+    void add(Operation const& op, signed_size_type turn_index, int op_index,
             segment_identifier const& departure_seg_id,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
