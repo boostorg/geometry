@@ -104,7 +104,7 @@ void test_areal()
     TEST_DIFFERENCE(case_125_multi, 1, 0.25, 2, 0.400, 3);
 
     // A should have 3 clips, B should have 5 clips
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_126_multi, 4, 16.0, 5, 27.0, 9);
 #else
     TEST_DIFFERENCE_IGNORE(case_126_multi, 3, 16.0, 4, 27.0, 7);
@@ -156,11 +156,11 @@ void test_areal()
         settings.percentage = 0.001;
 
         // This testcase is actually different for all combinations
-#if (!defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         settings.test_validity = false;
 #endif
 
-#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
 #else
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 1, 2775258.93, 3);
@@ -178,7 +178,7 @@ void test_areal()
     TEST_DIFFERENCE_IGNORE(bug_21155501, 1, 3.758937, 0, 0.0, 1);
 #endif
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     // The result is valid but wrong, version b includes nearly all area
     // which was original between all the self-touching polygons
 //    TEST_DIFFERENCE(ticket_12503, 46, 920.625, 41, 497.125, 10);
@@ -219,7 +219,7 @@ void test_areal()
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_1, 12, 26.0, 12, 24.0, 6);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_1, 11, 26.0, 12, 24.0, 5);
@@ -241,14 +241,13 @@ void test_areal()
 
     // 4, input is not valid
 
-    // Should have 16,12 clips in a,b
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_5, 16, 22.0, 12, 27.0, 10);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_5, 15, 22.0, 11, 27.0, 8);
 #endif
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_6, 7, 3.5, 3, 1.5, 9);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_6, 6, 3.5, 3, 1.5, 8);
@@ -288,7 +287,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_13, 4, 4.75, 3, 5.5, 3);
     TEST_DIFFERENCE(case_recursive_boxes_14, 3, 2.0, 4, 2.5, 5);
     TEST_DIFFERENCE(case_recursive_boxes_15, 3, 3.0, 2, 2.5, 3);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_16, 8, 6.5, 3, 5.5, 9);
     TEST_DIFFERENCE(case_recursive_boxes_17, 10, 7.75, 7, 5.5, 13);
 #else
@@ -313,7 +312,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_31, 2, 2.0, 1, 0.5, 2);
     TEST_DIFFERENCE(case_recursive_boxes_32, 2, 2.75, 2, 1.25, 2);
     TEST_DIFFERENCE(case_recursive_boxes_33, 4, 3.0, 3, 6.0, 4);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_34, 7, 7.25, 1, 0.5, 8);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_34, 5, 7.25, 1, 0.5, 6);
@@ -326,7 +325,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_40, 11, 14.0, 9, 13.0, 11);
 
     TEST_DIFFERENCE(case_recursive_boxes_41, 1, 0.5, 1, 0.5, 2);
-#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifdef BOOST_GEOMETRY_NO_SELF_TURNS
     // 42.a Fails with self-turns
     TEST_DIFFERENCE(case_recursive_boxes_42, 1, 1.0, 4, 4.0, 5);
 #endif
@@ -336,7 +335,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_46, 4, 14.0, 5, 12.0, 5);
     TEST_DIFFERENCE(case_recursive_boxes_47, 4, 10.0, 7, 11.0, 1);
     TEST_DIFFERENCE(case_recursive_boxes_48, 0, 0.0, 1, 9.0, 1);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_49, 10, 22.0, 10, 17.0, 11);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_49, 9, 22.0, 10, 17.0, 10);
@@ -344,7 +343,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_50, 14, 21.0, 16, 21.0, 14);
     TEST_DIFFERENCE(case_recursive_boxes_51, 14, 25.0, 12, 31.0, 7);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_52, 13, 30.0, 15, 25.0, 8);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_52, 13, 30.0, 15, 25.0, 8);
@@ -352,20 +351,20 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_53, 6, 3.5, 4, 1.5, 9);
     TEST_DIFFERENCE(case_recursive_boxes_54, 6, 6.5, 8, 6.0, 7);
     TEST_DIFFERENCE(case_recursive_boxes_55, 4, 5.5, 6, 7.75, 4);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_56, 4, 4.5, 5, 2.75, 6);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_56, 4, 4.5, 5, 2.75, 6);
 #endif
     TEST_DIFFERENCE(case_recursive_boxes_57, 5, 3.75, 9, 6.5, 10);
     TEST_DIFFERENCE(case_recursive_boxes_58, 4, 2.25, 6, 3.75, 7);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_59, 8, 6.5, 7, 7.0, 12);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_59, 8, 6.5, 6, 7.0, 11);
 #endif
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_60, 5, 5.25, 5, 5.25, 8);
@@ -376,7 +375,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
 #endif
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_63, 9, 10.5, 5, 27.75, 4);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_63, 6, 10.5, 5, 27.75, 2);
@@ -384,7 +383,7 @@ void test_areal()
 
     TEST_DIFFERENCE(case_recursive_boxes_64, 6, 2.75, 7, 4.5, 11);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_65, 6, 4.25, 7, 3.0, 13);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_65, 4, 4.25, 7, 3.0, 11);
@@ -394,13 +393,13 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_67, 7, 6.25, 9, 6.0, 10);
     TEST_DIFFERENCE(case_recursive_boxes_68, 10, 6.5, 9, 6.5, 7);
     TEST_DIFFERENCE(case_recursive_boxes_69, 5, 6.25, 5, 6.75, 8);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_70, 5, 2.0, 8, 4.5, 11);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_70, 5, 2.0, 6, 4.5, 9);
 #endif
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_71, 7, 8.25, 7, 5.75, 8);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_71, 6, 8.25, 7, 5.75, 7);
@@ -410,7 +409,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_73, 4, 1.75, 5, 4.0, 8);
 
     TEST_DIFFERENCE(case_recursive_boxes_74, 3, 3.00, 3, 1.5, 5);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_75, 7, 4.5, 4, 2.0, 11);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_75, 5, 4.5, 4, 2.0, 9);
@@ -419,7 +418,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_76, 7, 3.75, 4, 2.5, 9);
     TEST_DIFFERENCE(case_recursive_boxes_77, 4, 3.75, 7, 6.25, 8);
     TEST_DIFFERENCE(case_recursive_boxes_78, 11, 5.5, 8, 4.5, 14);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_79, 2, 1.25, 6, 4.5, 8);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_79, 2, 1.25, 5, 4.5, 7);
@@ -435,7 +434,7 @@ void test_areal()
 
     TEST_DIFFERENCE(case_recursive_boxes_81, 3, 5.0, 6, 6.75, 6);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
 #else
     TEST_DIFFERENCE_IGNORE(case_recursive_boxes_82, 5, 7.25, 6, 4.5, 7);
@@ -498,7 +497,7 @@ void test_specific_areal()
 
         ut_settings settings;
         settings.remove_spikes = true;
-#if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
         settings.sym_difference = false;
         settings.test_validity = false;
 #endif
@@ -506,7 +505,7 @@ void test_specific_areal()
         std::string a_min_b =
             TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1, 2781965.0, 1, 597.0, 2);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
         TEST_DIFFERENCE_WITH(2, 3, ticket_12751, 2, 2537992.5, 2, 294963.5, 3);
 #else
 
@@ -525,7 +524,7 @@ void test_specific_areal()
         ut_settings settings;
         settings.remove_spikes = true;
         settings.sym_difference = false;
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
         TEST_DIFFERENCE_WITH(0, 1, ticket_12752, 3, 2776692.0, 3, 7893.0, 2);
 #else
         // If self-intersections are not tested, result is not valid
@@ -548,7 +547,7 @@ void test_specific_areal()
     {
         ut_settings settings;
         settings.sym_difference = false;
-#ifndef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifdef BOOST_GEOMETRY_NO_SELF_TURNS
         settings.test_validity = false;
         TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 3, 7427491.5, 4, 131506, 4);
 #else
