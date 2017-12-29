@@ -179,9 +179,7 @@ void test_areal()
 #endif
 
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
-    // The result is valid but wrong, version b includes nearly all area
-    // which was original between all the self-touching polygons
-//    TEST_DIFFERENCE(ticket_12503, 46, 920.625, 41, 497.125, 10);
+    TEST_DIFFERENCE(ticket_12503, 46, 920.625, 4, 7.625, 50);
 #else
     TEST_DIFFERENCE_IGNORE(ticket_12503, 45, 920.625, 3, 7.625, 48);
 #endif
