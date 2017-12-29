@@ -362,8 +362,13 @@ void test_areal()
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_82, 3, -1, 8.5);
 #endif
 
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_83, 5, -1, 10.25);
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_84, 1, -1, 0.5);
+    TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
+    TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
+#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
+    TEST_INTERSECTION(case_recursive_boxes_85, 1, -1, 0.25);
+#endif
+    TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
+    TEST_INTERSECTION(case_recursive_boxes_87, 0, -1, 0.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

@@ -14,6 +14,7 @@
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 namespace boost { namespace geometry
@@ -22,6 +23,38 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
+
+template <overlay_type OverlayType>
+struct check_within
+{
+    template <typename Turn, typename Geometry0, typename Geometry1>
+    static inline
+    bool apply(Turn const& turn, Geometry0 const& geometry0,
+                Geometry1 const& geometry1)
+    {
+        // Operations 0 and 1 have the same source index in self-turns
+        return turn.operations[0].seg_id.source_index == 0
+            ? geometry::within(turn.point, geometry1)
+            : geometry::within(turn.point, geometry0);
+    }
+
+};
+
+template <>
+struct check_within<overlay_difference>
+{
+    template <typename Turn, typename Geometry0, typename Geometry1>
+    static inline
+    bool apply(Turn const& turn, Geometry0 const& geometry0,
+                Geometry1 const& geometry1)
+    {
+        // difference = intersection(a, reverse(b))
+        // therefore we should reverse the meaning of within for geometry1
+        return turn.operations[0].seg_id.source_index == 0
+            ? ! geometry::covered_by(turn.point, geometry1)
+            : geometry::within(turn.point, geometry0);
+    }
+};
 
 struct discard_turns
 {
@@ -53,25 +86,19 @@ struct discard_closed_turns<overlay_union, operation_union>
         {
             turn_type& turn = *it;
 
-            if (turn.discarded || ! is_self_turn<overlay_union>(turn))
+            if (! turn.discarded
+                && is_self_turn<overlay_union>(turn)
+                && check_within<overlay_union>::apply(turn,
+                        geometry0, geometry1))
             {
-                continue;
-            }
-
-            bool const within =
-                    turn.operations[0].seg_id.source_index == 0
-                    ? geometry::within(turn.point, geometry1)
-                    : geometry::within(turn.point, geometry0);
-
-            if (within)
-            {
-                // It is in the interior of the other geometry
+                // Turn is in the interior of other geometry
                 turn.discarded = true;
             }
         }
     }
 };
 
+template <overlay_type OverlayType>
 struct discard_self_intersection_turns
 {
 private :
@@ -92,23 +119,13 @@ private :
              = cinfo.turn_indices.begin();
              it != cinfo.turn_indices.end(); ++it)
         {
-            if (! is_self_turn<overlay_intersection>(turns[*it]))
+            if (! is_self_turn<OverlayType>(turns[*it]))
             {
                 return false;
             }
         }
 
         return true;
-    }
-
-    template <typename Turn, typename Geometry0, typename Geometry1>
-    static inline
-    bool within(Turn const& turn, Geometry0 const& geometry0,
-                Geometry1 const& geometry1)
-    {
-        return turn.operations[0].seg_id.source_index == 0
-            ? geometry::within(turn.point, geometry1)
-            : geometry::within(turn.point, geometry0);
     }
 
     template <typename Turns, typename Clusters,
@@ -127,10 +144,13 @@ private :
             if (is_self_cluster(cluster_id, turns, clusters))
             {
                 cluster_info const& cinfo = cit->second;
-                if (! within(turns[*cinfo.turn_indices.begin()], geometry0, geometry1))
+                signed_size_type const index = *cinfo.turn_indices.begin();
+                if (! check_within<OverlayType>::apply(turns[index],
+                                                       geometry0, geometry1))
                 {
                     // Discard all turns in cluster
-                    for (std::set<signed_size_type>::const_iterator sit = cinfo.turn_indices.begin();
+                    for (std::set<signed_size_type>::const_iterator sit
+                         = cinfo.turn_indices.begin();
                          sit != cinfo.turn_indices.end(); ++sit)
                     {
                         turns[*sit].discarded = true;
@@ -159,14 +179,11 @@ public :
         {
             turn_type& turn = *it;
 
-            if (turn.discarded || ! is_self_turn<overlay_intersection>(turn))
-            {
-                continue;
-            }
-
             // It is a ii self-turn
             // Check if it is within the other geometry
-            if (! within(turn, geometry0, geometry1))
+            if (! turn.discarded
+                && is_self_turn<overlay_intersection>(turn)
+                && ! check_within<OverlayType>::apply(turn, geometry0, geometry1))
             {
                 // It is not within another geometry, set it as non startable.
                 // It still might be traveled (#case_recursive_boxes_70)
@@ -177,15 +194,19 @@ public :
     }
 };
 
+
 template <overlay_type OverlayType, operation_type OperationType>
 struct discard_open_turns : discard_turns {};
 
-// Handler it for intersection
+// Handler for intersection
 template <>
 struct discard_open_turns<overlay_intersection, operation_intersection>
-        : discard_self_intersection_turns {};
+        : discard_self_intersection_turns<overlay_intersection> {};
 
-// For difference, it should be done in a different way (TODO)
+// Handler for difference, with different meaning of 'within'
+template <>
+struct discard_open_turns<overlay_difference, operation_intersection>
+        : discard_self_intersection_turns<overlay_difference> {};
 
 
 template <overlay_type OverlayType, typename Turns>
