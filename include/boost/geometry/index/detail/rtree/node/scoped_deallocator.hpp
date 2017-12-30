@@ -21,7 +21,8 @@ class scoped_deallocator
     scoped_deallocator(scoped_deallocator const&);
     scoped_deallocator & operator=(scoped_deallocator const&);
 public:
-    typedef typename Alloc::pointer pointer;
+    typedef typename ::boost::container::allocator_traits<Alloc>::pointer pointer;
+
     inline scoped_deallocator(pointer p, Alloc & a)
         : m_ptr(p), m_alloc(a)
     {}

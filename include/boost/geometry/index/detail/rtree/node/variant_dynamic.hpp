@@ -22,13 +22,16 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct variant_internal_node
 {
+    typedef ::boost::container::allocator_traits<
+        typename Allocators::node_allocator_type
+    > traits;
     typedef boost::container::vector
         <
             rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-            typename Allocators::node_allocator_type::template rebind
+            typename traits::template rebind_alloc
                 <
                     rtree::ptr_pair<Box, typename Allocators::node_pointer>
-                >::other
+                >
         > elements_type;
 
     template <typename Al>
@@ -42,16 +45,16 @@ struct variant_internal_node
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct variant_leaf
 {
+    typedef ::boost::container::allocator_traits<
+        typename Allocators::node_allocator_type
+    > traits;
     typedef boost::container::vector
         <
             Value,
-            typename Allocators::node_allocator_type::template rebind
-                <
-                    Value
-                >::other
+            typename traits::template rebind_alloc<Value>
         > elements_type;
 
-     template <typename Al>
+    template <typename Al>
     inline variant_leaf(Al const& al)
         : elements(al)
     {}
@@ -93,37 +96,40 @@ struct visitor<Value, Parameters, Box, Allocators, node_variant_dynamic_tag, IsV
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
+struct dynamic_node_allocator {
+    typedef typename node<
+                Value, Parameters, Box,
+                allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>,
+                node_variant_dynamic_tag
+            >::type node_type;
+
+    typedef typename ::boost::container::allocator_traits<Allocator>::template rebind_alloc<node_type> type;
+    typedef ::boost::container::allocator_traits<type> traits;
+};
+
+template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>
-    : public Allocator::template rebind<
-        typename node<
-            Value, Parameters, Box,
-            allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>,
-            node_variant_dynamic_tag
-        >::type
-    >::other
+    : public dynamic_node_allocator<Allocator, Value, Parameters, Box>::type
 {
-    typedef typename Allocator::template rebind<
+    typedef typename ::boost::container::allocator_traits<Allocator>::template rebind_alloc<
         Value
-    >::other value_allocator_type;
+    > value_allocator_type;
+    typedef ::boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
+    typedef dynamic_node_allocator<Allocator, Value, Parameters, Box> base;
 
 public:
     typedef Allocator allocator_type;
 
     typedef Value value_type;
-    typedef typename value_allocator_type::reference reference;
-    typedef typename value_allocator_type::const_reference const_reference;
-    typedef typename value_allocator_type::size_type size_type;
-    typedef typename value_allocator_type::difference_type difference_type;
-    typedef typename value_allocator_type::pointer pointer;
-    typedef typename value_allocator_type::const_pointer const_pointer;
+    typedef typename value_allocator_traits::reference reference;
+    typedef typename value_allocator_traits::const_reference const_reference;
+    typedef typename value_allocator_traits::size_type size_type;
+    typedef typename value_allocator_traits::difference_type difference_type;
+    typedef typename value_allocator_traits::pointer pointer;
+    typedef typename value_allocator_traits::const_pointer const_pointer;
 
-    typedef typename Allocator::template rebind<
-        typename node<Value, Parameters, Box, allocators, node_variant_dynamic_tag>::type
-    >::other::pointer node_pointer;
-
-    typedef typename Allocator::template rebind<
-        typename node<Value, Parameters, Box, allocators, node_variant_dynamic_tag>::type
-    >::other node_allocator_type;
+    typedef typename base::type node_allocator_type;
+    typedef typename base::traits::pointer node_pointer;
 
     inline allocators()
         : node_allocator_type()
