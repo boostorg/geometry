@@ -15,7 +15,6 @@
 #define BOOST_GEOMETRY_ITERATORS_CLOSING_ITERATOR_HPP
 
 #include <boost/range.hpp>
-#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
