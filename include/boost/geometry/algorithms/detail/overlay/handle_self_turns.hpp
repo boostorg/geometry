@@ -137,11 +137,12 @@ private :
         for (typename Clusters::const_iterator cit = clusters.begin();
              cit != clusters.end(); ++cit)
         {
-            signed_size_type cluster_id = cit->first;
+            signed_size_type const cluster_id = cit->first;
 
             // If there are only self-turns in the cluster, the cluster should
             // be located within the other geometry, for intersection
-            if (is_self_cluster(cluster_id, turns, clusters))
+            if (! cit->second.turn_indices.empty()
+                && is_self_cluster(cluster_id, turns, clusters))
             {
                 cluster_info const& cinfo = cit->second;
                 signed_size_type const index = *cinfo.turn_indices.begin();
