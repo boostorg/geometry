@@ -185,7 +185,7 @@ struct create_variant_node
 
         scoped_deallocator<AllocNode> deallocator(p, alloc_node);
 
-        Al::construct(alloc_node, boost::pointer_traits<P>::to_address(p), Node(alloc_node)); // implicit cast to Variant
+        Al::construct(alloc_node, boost::to_address(p), Node(alloc_node)); // implicit cast to Variant
 
         deallocator.release();
         return p;
