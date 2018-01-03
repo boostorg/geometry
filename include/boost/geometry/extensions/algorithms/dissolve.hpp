@@ -266,7 +266,7 @@ struct dissolve_ring_or_polygon
         typename Strategy::side_strategy_type const
             side_strategy = strategy.get_side_strategy();
 
-        enrich_intersection_points<false, false, overlay_dissolve_union>(turns,
+        enrich_intersection_points<false, false, overlay_dissolve>(turns,
                     clusters, geometry, geometry, rescale_policy,
                     side_strategy);
 
@@ -282,7 +282,7 @@ struct dissolve_ring_or_polygon
             <
                 false, false,
                 Geometry, Geometry,
-                overlay_dissolve_union,
+                overlay_dissolve,
                 backtrack_for_dissolve<Geometry>
             >::apply(geometry, geometry,
                      strategy, rescale_policy,
@@ -290,27 +290,7 @@ struct dissolve_ring_or_polygon
 
         visitor.visit_turns(3, turns);
 
-        // ... and then for intersection
-        clear(turns);
-        enrich_intersection_points<false, false, overlay_dissolve_intersection>(turns,
-                    clusters, geometry, geometry, rescale_policy,
-                    side_strategy);
-
-        visitor.visit_turns(4, turns);
-
-        detail::overlay::traverse
-            <
-                false, false,
-                Geometry, Geometry,
-                overlay_dissolve_intersection,
-                backtrack_for_dissolve<Geometry>
-            >::apply(geometry, geometry,
-                     strategy, rescale_policy,
-                     turns, rings, turn_info_per_ring, clusters, visitor);
-
-        visitor.visit_turns(5, turns);
-
-        detail::overlay::get_ring_turn_info<overlay_dissolve_union>(turn_info_per_ring, turns, clusters);
+        detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
         typedef typename geometry::point_type<Geometry>::type point_type;
         typedef typename Strategy::template area_strategy
@@ -322,7 +302,7 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, properties> selected;
 
-        detail::overlay::select_rings<overlay_dissolve_union>(geometry, turn_info_per_ring, selected, strategy);
+        detail::overlay::select_rings<overlay_dissolve>(geometry, turn_info_per_ring, selected, strategy);
 
         // Add intersected rings
         area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
@@ -338,7 +318,7 @@ struct dissolve_ring_or_polygon
             }
         }
 
-        detail::overlay::assign_parents<overlay_dissolve_union>(geometry,
+        detail::overlay::assign_parents<overlay_dissolve>(geometry,
             rings, selected, strategy);
         return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
     }

@@ -798,9 +798,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
-        bool const set_startable
-                = OverlayType != overlay_dissolve_union
-                && OverlayType != overlay_dissolve_intersection;
+        bool const set_startable = OverlayType != overlay_dissolve;
 
         // Unset the startable flag for all 'closed' zones. This does not
         // apply for self-turns, because those counts are not from both

@@ -75,20 +75,17 @@ public :
                 Clusters& clusters,
                 Visitor& visitor)
     {
-        if (OverlayType != overlay_dissolve_union && OverlayType != overlay_dissolve_intersection)
-        {
-            traversal_switch_detector
-                <
-                    Reverse1, Reverse2, OverlayType,
-                    Geometry1, Geometry2,
-                    Turns, Clusters,
-                    RobustPolicy, Visitor
-                > switch_detector(geometry1, geometry2, turns, clusters,
-                       robust_policy, visitor);
+        traversal_switch_detector
+            <
+                Reverse1, Reverse2, OverlayType,
+                Geometry1, Geometry2,
+                Turns, Clusters,
+                RobustPolicy, Visitor
+            > switch_detector(geometry1, geometry2, turns, clusters,
+                   robust_policy, visitor);
 
-            switch_detector.iterate();
-            reset_visits(turns);
-        }
+        switch_detector.iterate();
+        reset_visits(turns);
 
         traversal_ring_creator
             <

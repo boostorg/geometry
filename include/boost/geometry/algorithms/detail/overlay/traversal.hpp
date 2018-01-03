@@ -261,8 +261,7 @@ struct traversal
     {
         // For uu/ii, only switch sources if indicated
 
-        if (OverlayType == overlay_buffer
-                || OverlayType == overlay_dissolve_union)
+        if (OverlayType == overlay_buffer)
         {
             // Buffer does not use source_index (always 0).
             return select_source_generic<&segment_identifier::multi_index>(
@@ -447,7 +446,7 @@ struct traversal
             return 0;
         }
 
-        if (OverlayType != overlay_dissolve_union
+        if (OverlayType != overlay_dissolve
             && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
         {
             // Check counts: in some cases interior rings might be generated with
@@ -669,9 +668,7 @@ struct traversal
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        if (OverlayType != overlay_buffer
-                && OverlayType != overlay_dissolve_union
-                && OverlayType != overlay_dissolve_intersection)
+        if (OverlayType != overlay_buffer && OverlayType != overlay_dissolve)
         {
             return;
         }

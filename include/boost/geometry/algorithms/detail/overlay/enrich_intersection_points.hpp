@@ -310,7 +310,7 @@ inline void enrich_intersection_points(Turns& turns,
             = target_operation == detail::overlay::operation_union
             ? detail::overlay::operation_intersection
             : detail::overlay::operation_union;
-    static const bool is_dissolve = OverlayType == overlay_dissolve_union || OverlayType == overlay_dissolve_intersection;
+    static const bool is_dissolve = OverlayType == overlay_dissolve;
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
