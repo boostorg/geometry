@@ -51,6 +51,21 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+template <typename Turns>
+struct discarded_turn
+{
+    discarded_turn(Turns const& turns)
+        : m_turns(turns)
+    {}
+
+    template <typename IndexedTurn>
+    inline bool operator()(IndexedTurn const& indexed) const
+    {
+        return m_turns[indexed.turn_index].discarded;
+    }
+
+    Turns const& m_turns;
+};
 
 // Sorts IP-s of this ring on segment-identifier, and if on same segment,
 //  on distance.
@@ -175,6 +190,82 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
 }
 
+template <typename Operations, typename Turns>
+inline void enrich_adapt(Operations& operations, Turns& turns)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type op_type;
+    typedef typename boost::range_value<Operations>::type indexed_turn_type;
+
+    if (operations.size() < 3)
+    {
+        // If it is empty, or contains one or two turns, it makes no sense
+        return;
+    }
+
+    // Operations is a vector of indexed_turn_operation<>
+
+    // Last index:
+    std::size_t const x = operations.size() - 1;
+    bool next_phase = false;
+
+    for (std::size_t i = 0; i < operations.size(); i++)
+    {
+        indexed_turn_type const& indexed = operations[i];
+
+        turn_type& turn = turns[indexed.turn_index];
+        op_type& op = turn.operations[indexed.operation_index];
+
+        // Previous/next index
+        std::size_t const p = i > 0 ? i - 1 : x;
+        std::size_t const n = i < x ? i + 1 : 0;
+
+        turn_type const& next_turn = turns[operations[n].turn_index];
+        op_type const& next_op = next_turn.operations[operations[n].operation_index];
+
+        if (op.seg_id.segment_index == next_op.seg_id.segment_index)
+        {
+            turn_type const& prev_turn = turns[operations[p].turn_index];
+            op_type const& prev_op = prev_turn.operations[operations[p].operation_index];
+            if (op.seg_id.segment_index == prev_op.seg_id.segment_index)
+            {
+                op.enriched.startable = false;
+                next_phase = true;
+            }
+        }
+    }
+
+    if (! next_phase)
+    {
+        return;
+    }
+
+    // Discard turns which are both non-startable
+    next_phase = false;
+    for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
+         ++it)
+    {
+        turn_type& turn = *it;
+        if (! turn.operations[0].enriched.startable
+            && ! turn.operations[1].enriched.startable)
+        {
+            turn.discarded = true;
+            next_phase = true;
+        }
+    }
+
+    if (! next_phase)
+    {
+        return;
+    }
+
+    // Remove discarded turns from operations to avoid having them as next turn
+    discarded_turn<Turns> const predicate(turns);
+    operations.erase(std::remove_if(boost::begin(operations),
+        boost::end(operations), predicate), boost::end(operations));
+}
 
 template <typename Turns, typename MappedVector>
 inline void create_map(Turns const& turns, MappedVector& mapped_vector)
@@ -410,6 +501,11 @@ inline void enrich_intersection_points(Turns& turns,
     std::cout << "ENRICH-assign Ring "
         << mit->first << std::endl;
 #endif
+        if (is_dissolve)
+        {
+            detail::overlay::enrich_adapt(mit->second, turns);
+        }
+
         detail::overlay::enrich_assign(mit->second, turns);
     }
 
