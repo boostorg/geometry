@@ -87,6 +87,12 @@ namespace
 
     std::string const dissolve_16 = "POLYGON((1 3,4 5,7 3,4 1,1 3),(2 2,4 4,6 2,6 4,4 2,2 4,2 2))";
 
+    // Contains two types of turns
+    std::string const dissolve_17 = "POLYGON((0 1,0 5,3 5,3 2,2 3,4 3,4 0,5 1,0 1))";
+
+    // Same but with one more, creating a positive turn too
+    std::string const dissolve_18 = "POLYGON((0 1,0 5,3 5,3 2,2 3,4 3,4 0,6 2,6 1,0 1))";
+
     // Non intersection, but with duplicate
     std::string const dissolve_d1 = "POLYGON((0 0,0 4,4 0,4 0,0 0))";
 
@@ -586,8 +592,12 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_14, 4.0, 3, 0, 13);
     TEST_DISSOLVE(dissolve_15, 4.0, 3, 0, 13);
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // Needs handling interior rings separate from exterior rings
     TEST_DISSOLVE(dissolve_16, 99999.0, 9, 99, 999);
 #endif
+
+    TEST_DISSOLVE(dissolve_17, 14.5, 2, 0, 11);
+    TEST_DISSOLVE(dissolve_18, 15.0, 3, 0, 15);
 
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
@@ -600,12 +610,8 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     {
         ut_settings st = ut_settings();
-        st.skip_orientation_normal = true;
-        st.skip_orientation_reverse = false;
         TEST_DISSOLVE_WITH(dissolve_star_a, 7.38821, 2, 0, 15, st);
         TEST_DISSOLVE_WITH(dissolve_star_b, 7.28259, 2, 0, 15, st);
-
-        st.skip_orientation_normal = false;
         TEST_DISSOLVE_WITH(dissolve_star_c, 7.399696, 1, 0, 11, st);
     }
 
@@ -643,9 +649,8 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
                        settings_for_sensitive_cases);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // To fix this, and ggl_list_denis, it is necessary to follow in both
-    // positive AND negative direction, which is not supported yet.
-    TEST_DISSOLVE(gitter_2013_04_a, 99999.0, 9, 99, 999);
+    // It is nearly correct but still contains one overlap, to be fixed
+    TEST_DISSOLVE(gitter_2013_04_a, 2831.82, 4, 0, 29);
 #endif
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
