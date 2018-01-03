@@ -199,20 +199,24 @@ struct map_visitor
     void visit_turns(int phase, Turns const& turns)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
-        std:size_t index = 0;
+        std::size_t index = 0;
         BOOST_FOREACH(turn_type const& turn, turns)
         {
             switch (phase)
             {
-                case 1 : // after self_turns
-                    m_mapper.map(turn.point, "fill:rgb(255,128,0);"
-                            "stroke:rgb(0,0,0);stroke-width:1", 4);
+                case 2 : // after self_turns and enrich
+                    if (turn.discarded)
+                    {
+                        m_mapper.map(turn.point, "fill:rgb(255,128,0);", 2);
+                    }
+                    else
+                    {
+                        m_mapper.map(turn.point, "fill:rgb(255,128,0);"
+                                "stroke:rgb(0,0,0);stroke-width:1", 4);
+                    }
                     break;
                 case 3 : // after enrich/traverse for union
-                    label_turn(index, turn, -5, "fill:rgb(0,0,128);");
-                    break;
-                case 5 : // after enrich/traverse for intersection
-                    label_turn(index, turn, 5, "fill:rgb(0,0,0);");
+                    label_turn(index, turn, -2, "fill:rgb(0,0,128);");
                     break;
             }
             index++;
@@ -240,22 +244,16 @@ private :
         bool result = false;
         if (! turn.discarded)
         {
-            if (turn.operations[index].enriched.next_ip_index != -1)
-            {
-                os << "->" << turn.operations[index].enriched.next_ip_index;
-                if (turn.operations[index].enriched.next_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
-            else
-            {
-                os << "->"  << turn.operations[index].enriched.travels_to_ip_index;
-                if (turn.operations[index].enriched.travels_to_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
+            os << "->" << turn.operations[index].enriched.get_next_turn_index();
+            result = true;
+        }
+        if (turn.operations[index].enriched.prefer_start)
+        {
+            os << "$";
+        }
+        if (! turn.operations[index].enriched.startable)
+        {
+            os << "@";
         }
 
         return result;
@@ -265,7 +263,7 @@ private :
     void label_turn(std::size_t index, Turn const& turn, int y_offset, std::string const& color)
     {
         std::ostringstream out;
-        out << index << " ";
+        out << index;
         if (turn.cluster_id != -1)
         {
             out << " c=" << turn.cluster_id << " ";
@@ -381,7 +379,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
         mapper.add(geometry);
 
         mapper.map(geometry, "fill-opacity:0.5;fill:rgb(153,204,0);"
-            "stroke:rgb(153,204,0);stroke-width:3;fill-rule:nonzero");
+            "stroke:rgb(153,204,0);stroke-width:2;fill-rule:nonzero;");
 
         map_visitor<mapper_type> visitor(mapper);
 #endif
@@ -398,7 +396,9 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 #if defined(TEST_WITH_SVG)
         BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
         {
-           mapper.map(dissolved, "fill:none;stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:8;");
+           mapper.map(dissolved, "fill-opacity:0.1;fill:rgb(255,0,0);"
+                      "stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:3;"
+                                 "fill-rule:nonzero;");
         }
 #endif
 
