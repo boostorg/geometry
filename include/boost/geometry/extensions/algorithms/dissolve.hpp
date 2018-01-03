@@ -44,6 +44,7 @@
 
 #include <boost/geometry/strategies/intersection.hpp>
 
+#include <boost/geometry/extensions/algorithms/detail/overlay/dissolver.hpp>
 #include <boost/geometry/extensions/algorithms/detail/overlay/dissolve_traverse.hpp>
 
 namespace boost { namespace geometry
@@ -171,7 +172,7 @@ struct dissolve_ring_or_polygon
         typename RescalePolicy, typename OutputIterator,
         typename Strategy, typename Visitor
     >
-    static inline OutputIterator apply(Geometry const& geometry,
+    static inline OutputIterator apply_one(Geometry const& geometry,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& strategy,
@@ -271,6 +272,36 @@ struct dissolve_ring_or_polygon
         detail::overlay::assign_parents<overlay_dissolve>(geometry,
             rings, selected, strategy);
         return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
+    }
+
+    template
+    <
+        typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Geometry const& geometry,
+                RescalePolicy const& rescale_policy,
+                OutputIterator out,
+                Strategy const& strategy,
+                Visitor& visitor)
+    {
+        std::vector<GeometryOut> step1;
+        apply_one(geometry, rescale_policy, std::back_inserter(step1), strategy, visitor);
+
+        // Step 2: remove mutual overlap
+        {
+            std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
+            detail::dissolver::dissolver_generic
+                <
+                    detail::dissolver::plusmin_policy
+                >::apply(step1, rescale_policy, step2, strategy);
+            for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
+                it != step2.end(); ++it)
+            {
+                *out++ = *it;
+            }
+        }
+        return out;
     }
 };
 
