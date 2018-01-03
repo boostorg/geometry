@@ -151,6 +151,8 @@ struct dissolve_ring_or_polygon
                 if (op.operation != detail::overlay::operation_union
                     && op.operation != detail::overlay::operation_continue)
                 {
+                    // Only prefer union and continue turns
+                    op.enriched.prefer_start = false;
                 }
 
                 if (op.operation == detail::overlay::operation_intersection)
