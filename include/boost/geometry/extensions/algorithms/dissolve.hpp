@@ -135,76 +135,29 @@ struct dissolve_ring_or_polygon
     }
 
     template <typename Turns>
-    static bool any_other_turn_travels_to_turn(Turns const& turns,
-        signed_size_type next_turn_index,
-        detail::overlay::operation_type type)
+    static void adapt_turns(Turns& turns)
     {
-        // Loops might be removed by first gathering this info in a map.
-        // But it only runs under quite specific conditions
-        signed_size_type turn_index = 0;
-        for (typename Turns::const_iterator it = turns.begin();
-             it != turns.end(); ++it, ++turn_index)
-        {
-            if (next_turn_index == turn_index)
-            {
-                continue;
-            }
-
-            for (int i = 0; i < 2; i++)
-            {
-                if (it->operations[i].operation == type
-                    && it->operations[i].enriched.get_next_turn_index() == next_turn_index)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    template <typename Turns>
-    static void fix_dead_ends(Turns& turns)
-    {
-        // For dissolve the turns might be valid on themselves, but in
-        // combination of them there might be unusual things. This loop
-        // changes u to i and vice versa in some cases.
-        // It might be that this could be solved differently in the future,
-        // such as not denoting turns with u/i and looping twice over them,
-        // but instead denoting them as discard/discard and select per turn
-        // the left-most option.
         typedef typename boost::range_value<Turns>::type turn_type;
         typedef typename turn_type::turn_operation_type turn_operation_type;
 
-        signed_size_type turn_index = 0;
         for (typename Turns::iterator it = turns.begin();
-             it != turns.end(); ++it, ++turn_index)
+             it != turns.end(); ++it)
         {
             turn_type& turn = *it;
-            if (turn.combination(detail::overlay::operation_intersection,
-                                 detail::overlay::operation_union))
+            for (int i = 0; i < 2; i++)
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    turn_operation_type& op = turn.operations[i];
-                    turn_operation_type& other = turn.operations[1 - i];
+                turn_operation_type& op = turn.operations[i];
 
-                    if (op.enriched.get_next_turn_index() == turn_index
-                            && other.enriched.get_next_turn_index() != turn_index)
-                    {
-                        if (op.operation == detail::overlay::operation_union
-                             && any_other_turn_travels_to_turn(turns, turn_index, detail::overlay::operation_union))
-                        {
-                            // i/u turn where u-part travels to itself. Fix this by making it a u/u turn
-                            other.operation = detail::overlay::operation_union;
-                        }
-                        else if (op.operation == detail::overlay::operation_intersection
-                            && any_other_turn_travels_to_turn(turns, turn_index, detail::overlay::operation_intersection))
-                        {
-                            // i/u turn where i-part travels to itself. Fix this by making it a u/u turn
-                            op.operation = detail::overlay::operation_union;
-                        }
-                    }
+                if (op.operation != detail::overlay::operation_union
+                    && op.operation != detail::overlay::operation_continue)
+                {
+                }
+
+                if (op.operation == detail::overlay::operation_intersection)
+                {
+                    // Make all ii->uu, iu->uu, etc, basically handle most
+                    // as if it is union
+                    op.operation = detail::overlay::operation_union;
                 }
             }
         }
@@ -236,6 +189,8 @@ struct dissolve_ring_or_polygon
             <
                 detail::overlay::assign_null_policy
             >(geometry, strategy, rescale_policy, turns, policy, 0, false);
+
+        adapt_turns(turns);
 
         visitor.visit_turns(1, turns);
 
@@ -273,8 +228,6 @@ struct dissolve_ring_or_polygon
         visitor.visit_turns(2, turns);
 
         visitor.visit_clusters(clusters, turns);
-
-        fix_dead_ends(turns);
 
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
