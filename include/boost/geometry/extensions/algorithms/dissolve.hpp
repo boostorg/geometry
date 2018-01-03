@@ -44,6 +44,7 @@
 
 #include <boost/geometry/strategies/intersection.hpp>
 
+#include <boost/geometry/extensions/algorithms/detail/overlay/dissolve_traverse.hpp>
 
 namespace boost { namespace geometry
 {
@@ -219,7 +220,7 @@ struct dissolve_ring_or_polygon
 
         cluster_type clusters;
 
-        // Enrich/traverse the polygons twice: first for union...
+        // Enrich/traverse the polygons
         typename Strategy::side_strategy_type const
             side_strategy = strategy.get_side_strategy();
 
@@ -233,14 +234,8 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
-        detail::overlay::traverse
-            <
-                false, false,
-                Geometry, Geometry,
-                overlay_dissolve,
-                backtrack_for_dissolve<Geometry>
-            >::apply(geometry, geometry,
-                     strategy, rescale_policy,
+        detail::dissolve::traverse<backtrack_for_dissolve<Geometry> >
+                ::apply(geometry, strategy, rescale_policy,
                      turns, rings, turn_info_per_ring, clusters, visitor);
 
         visitor.visit_turns(3, turns);
