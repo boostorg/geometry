@@ -68,7 +68,6 @@ template
 >
 inline void enrich_sort(Operations& operations,
             Turns const& turns,
-            operation_type for_operation,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
@@ -84,7 +83,7 @@ inline void enrich_sort(Operations& operations,
                     RobustPolicy,
                     SideStrategy,
                     Reverse1, Reverse2
-                >(turns, for_operation, geometry1, geometry2, robust_policy, strategy));
+                >(turns, geometry1, geometry2, robust_policy, strategy));
 }
 
 
@@ -352,7 +351,7 @@ inline void enrich_intersection_points(Turns& turns,
 
             // Only keep self-uu-turns or self-ii-turns
 
-            // Blocked (or combination with blocked is still needed for difference
+            // Blocked (or combination with blocked is still needed for difference)
             turn.discarded = true;
             turn.cluster_id = -1;
             continue;
@@ -397,7 +396,7 @@ inline void enrich_intersection_points(Turns& turns,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
-                    mit->second, turns, target_operation,
+                    mit->second, turns,
                     geometry1, geometry2,
                     robust_policy, strategy);
     }
@@ -412,12 +411,6 @@ inline void enrich_intersection_points(Turns& turns,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_assign(mit->second, turns);
-    }
-
-    if (! is_dissolve)
-    {
-        // Check some specific type of self-turns (after getting enriched info)
-        detail::overlay::discard_self_turns_which_loop<OverlayType>(turns);
     }
 
     if (has_colocations)
