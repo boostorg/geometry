@@ -339,7 +339,8 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
     //std::cout << bg::area(geometry) << std::endl;
 
-    std::vector<GeometryOut> dissolved1;
+    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
+    multi_polygon dissolved1;
 
     // Check dispatch::dissolve
     {
@@ -404,19 +405,10 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
     }
 
-    // Check dissolve_inserter
-    std::vector<GeometryOut> dissolved2;
-    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
-
-    // Check dissolve and validity, assuming GeometryOut is a single polygon
-    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
-    multi_polygon dissolved3;
-    bg::dissolve(geometry, dissolved3);
-
     if (settings.test_validity)
     {
         std::string message;
-        bool const valid = bg::is_valid(dissolved3, message);
+        bool const valid = bg::is_valid(dissolved1, message);
         BOOST_CHECK_MESSAGE(valid,
                 "dissolve: " << caseid
                 << " geometry is not valid: " << message);
@@ -427,20 +419,12 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     {
         bg::unique(dissolved);
     }
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
-    {
-        bg::unique(dissolved);
-    }
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
-    {
-        bg::unique(dissolved);
-    }
 
     typename bg::default_area_result<Geometry>::type length_or_area = 0;
     std::size_t holes = 0;
     std::size_t count = 0;
 
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
     {
         length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
@@ -466,8 +450,26 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     BOOST_CHECK_EQUAL(holes, expected_hole_count);
     BOOST_CHECK_CLOSE(length_or_area, expected_area, settings.percentage);
 
+    // Check dissolve_inserter
+    std::vector<GeometryOut> dissolved2;
+    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
+
+    // Check dissolve and validity, assuming GeometryOut is a single polygon
+    multi_polygon dissolved3;
+    bg::dissolve(geometry, dissolved3);
+
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    {
+        bg::unique(dissolved);
+    }
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
+    {
+        bg::unique(dissolved);
+    }
+
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved2.size());
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved3.size());
+
     if (dissolved1.size() == dissolved2.size()
             && dissolved1.size() == dissolved3.size())
     {
