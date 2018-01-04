@@ -440,7 +440,6 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 template
 <
     bool Reverse0, bool Reverse1, // Reverse interpretation interior/exterior
-    overlay_type OverlayType,
     typename Turns,
     typename Clusters
 >
@@ -599,6 +598,8 @@ template
 inline bool handle_colocations(Turns& turns, Clusters& clusters,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
+    static const detail::overlay::operation_type target_operation
+            = detail::overlay::operation_from_overlay<OverlayType>::value;
     typedef std::map
         <
             segment_identifier,
@@ -678,12 +679,15 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // Get colocated information here and not later, to keep information
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
-    discard_interior_exterior_turns
-        <
-            do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
-            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
-            OverlayType
-        >(turns, clusters);
+
+    if (target_operation == operation_intersection)
+    {
+        discard_interior_exterior_turns
+            <
+                do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
+                do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2
+            >(turns, clusters);
+    }
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
