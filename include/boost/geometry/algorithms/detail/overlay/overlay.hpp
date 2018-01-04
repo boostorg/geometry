@@ -306,7 +306,7 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
         if (needs_self_turns<Geometry1>::apply(geometry1))
         {
             self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,

@@ -226,9 +226,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 {
     static bool const is_difference = OverlayType == overlay_difference;
     static bool const is_buffer = OverlayType == overlay_buffer;
-    static bool const is_dissolve =
-            OverlayType == overlay_dissolve_union
-            || OverlayType == overlay_dissolve_intersection;
+    static bool const is_dissolve = OverlayType == overlay_dissolve;
     static bool const check_for_orientation = is_buffer || is_dissolve;
 
     typedef typename geometry::tag<Geometry1>::type tag1;
@@ -358,7 +356,7 @@ inline void assign_parents(Geometry1 const& geometry1,
                 {
                     // Discard positive inner ring with positive parent
                     // Also, for some cases (dissolve), negative inner ring
-                    // with negative parent shouild be discarded
+                    // with negative parent should be discarded
                     info.discarded = true;
                 }
 

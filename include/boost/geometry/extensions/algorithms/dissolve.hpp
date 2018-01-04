@@ -38,11 +38,14 @@
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
 
+#include <boost/geometry/extensions/algorithms/detail/overlay/dissolver.hpp>
+#include <boost/geometry/extensions/algorithms/detail/overlay/dissolve_traverse.hpp>
 
 namespace boost { namespace geometry
 {
@@ -133,13 +136,43 @@ struct dissolve_ring_or_polygon
         clear_visit_info(turns);
     }
 
+    template <typename Turns>
+    static void adapt_turns(Turns& turns)
+    {
+        typedef typename boost::range_value<Turns>::type turn_type;
+        typedef typename turn_type::turn_operation_type turn_operation_type;
+
+        for (typename Turns::iterator it = turns.begin();
+             it != turns.end(); ++it)
+        {
+            turn_type& turn = *it;
+            for (int i = 0; i < 2; i++)
+            {
+                turn_operation_type& op = turn.operations[i];
+
+                if (op.operation != detail::overlay::operation_union
+                    && op.operation != detail::overlay::operation_continue)
+                {
+                    // Only prefer union and continue turns
+                    op.enriched.prefer_start = false;
+                }
+
+                if (op.operation == detail::overlay::operation_intersection)
+                {
+                    // Make all ii->uu, iu->uu, etc, basically handle most
+                    // as if it is union
+                    op.operation = detail::overlay::operation_union;
+                }
+            }
+        }
+    }
 
     template
     <
         typename RescalePolicy, typename OutputIterator,
         typename Strategy, typename Visitor
     >
-    static inline OutputIterator apply(Geometry const& geometry,
+    static inline OutputIterator apply_one(Geometry const& geometry,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& strategy,
@@ -161,13 +194,17 @@ struct dissolve_ring_or_polygon
                 detail::overlay::assign_null_policy
             >(geometry, strategy, rescale_policy, turns, policy, 0, false);
 
+        adapt_turns(turns);
+
         visitor.visit_turns(1, turns);
 
         if (boost::size(turns) == 0)
         {
-            // No self-turns, then add original geometry
+            // No self-turns, then add original geometry,
+            // possibly reversing the order
             GeometryOut g;
             geometry::convert(geometry, g);
+            geometry::correct(g);
             *out++ = g;
             return out;
         }
@@ -184,11 +221,11 @@ struct dissolve_ring_or_polygon
 
         cluster_type clusters;
 
-        // Enrich/traverse the polygons twice: first for union...
+        // Enrich/traverse the polygons
         typename Strategy::side_strategy_type const
             side_strategy = strategy.get_side_strategy();
 
-        enrich_intersection_points<false, false, overlay_dissolve_union>(turns,
+        enrich_intersection_points<false, false, overlay_dissolve>(turns,
                     clusters, geometry, geometry, rescale_policy,
                     side_strategy);
 
@@ -198,39 +235,13 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
-        detail::overlay::traverse
-            <
-                false, false,
-                Geometry, Geometry,
-                overlay_dissolve_union,
-                backtrack_for_dissolve<Geometry>
-            >::apply(geometry, geometry,
-                     strategy, rescale_policy,
+        detail::dissolve::traverse<backtrack_for_dissolve<Geometry> >
+                ::apply(geometry, strategy, rescale_policy,
                      turns, rings, turn_info_per_ring, clusters, visitor);
 
         visitor.visit_turns(3, turns);
 
-        // ... and then for intersection
-        clear(turns);
-        enrich_intersection_points<false, false, overlay_dissolve_intersection>(turns,
-                    clusters, geometry, geometry, rescale_policy,
-                    side_strategy);
-
-        visitor.visit_turns(4, turns);
-
-        detail::overlay::traverse
-            <
-                false, false,
-                Geometry, Geometry,
-                overlay_dissolve_intersection,
-                backtrack_for_dissolve<Geometry>
-            >::apply(geometry, geometry,
-                     strategy, rescale_policy,
-                     turns, rings, turn_info_per_ring, clusters, visitor);
-
-        visitor.visit_turns(5, turns);
-
-        detail::overlay::get_ring_turn_info<overlay_dissolve_union>(turn_info_per_ring, turns, clusters);
+        detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
         typedef typename geometry::point_type<Geometry>::type point_type;
         typedef typename Strategy::template area_strategy
@@ -242,7 +253,7 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, properties> selected;
 
-        detail::overlay::select_rings<overlay_dissolve_union>(geometry, turn_info_per_ring, selected, strategy);
+        detail::overlay::select_rings<overlay_dissolve>(geometry, turn_info_per_ring, selected, strategy);
 
         // Add intersected rings
         area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
@@ -258,9 +269,39 @@ struct dissolve_ring_or_polygon
             }
         }
 
-        detail::overlay::assign_parents<overlay_dissolve_union>(geometry,
+        detail::overlay::assign_parents<overlay_dissolve>(geometry,
             rings, selected, strategy);
         return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
+    }
+
+    template
+    <
+        typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Geometry const& geometry,
+                RescalePolicy const& rescale_policy,
+                OutputIterator out,
+                Strategy const& strategy,
+                Visitor& visitor)
+    {
+        std::vector<GeometryOut> step1;
+        apply_one(geometry, rescale_policy, std::back_inserter(step1), strategy, visitor);
+
+        // Step 2: remove mutual overlap
+        {
+            std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
+            detail::dissolver::dissolver_generic
+                <
+                    detail::dissolver::plusmin_policy
+                >::apply(step1, rescale_policy, step2, strategy);
+            for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
+                it != step2.end(); ++it)
+            {
+                *out++ = *it;
+            }
+        }
+        return out;
     }
 };
 

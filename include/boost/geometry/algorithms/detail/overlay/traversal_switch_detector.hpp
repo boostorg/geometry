@@ -204,6 +204,79 @@ struct traversal_switch_detector
         return true;
     }
 
+    bool ii_turn_connects_two_regions(region_properties const& region,
+            region_properties const& connected_region,
+            signed_size_type turn_index) const
+    {
+        turn_type const& turn = m_turns[turn_index];
+        if (! turn.both(operation_intersection))
+        {
+            return false;
+        }
+
+        signed_size_type const id0 = turn.operations[0].enriched.region_id;
+        signed_size_type const id1 = turn.operations[1].enriched.region_id;
+
+        return (id0 == region.region_id && id1 == connected_region.region_id)
+            || (id1 == region.region_id && id0 == connected_region.region_id);
+    }
+
+
+    bool isolated_multiple_connection(region_properties const& region,
+            region_properties const& connected_region) const
+    {
+        if (connected_region.isolated != isolation_multiple)
+        {
+            return false;
+        }
+
+        // First step: compare turns of regions with turns of connected region
+        set_type turn_ids = region.unique_turn_ids;
+        for (set_iterator sit = connected_region.unique_turn_ids.begin();
+             sit != connected_region.unique_turn_ids.end(); ++sit)
+        {
+            turn_ids.erase(*sit);
+        }
+
+        // There should be one connection (turn or cluster) left
+        if (turn_ids.size() != 1)
+        {
+            return false;
+        }
+
+        for (set_iterator sit = connected_region.unique_turn_ids.begin();
+             sit != connected_region.unique_turn_ids.end(); ++sit)
+        {
+            signed_size_type const id_or_index = *sit;
+            if (id_or_index >= 0)
+            {
+                if (! ii_turn_connects_two_regions(region, connected_region, id_or_index))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                signed_size_type const cluster_id = -id_or_index;
+                typename Clusters::const_iterator it = m_clusters.find(cluster_id);
+                if (it != m_clusters.end())
+                {
+                    cluster_info const& cinfo = it->second;
+                    for (set_iterator cit = cinfo.turn_indices.begin();
+                         cit != cinfo.turn_indices.end(); ++cit)
+                    {
+                        if (! ii_turn_connects_two_regions(region, connected_region, *cit))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     bool has_only_isolated_children(region_properties const& region) const
     {
         bool first_with_turn = true;
@@ -226,10 +299,15 @@ struct traversal_switch_detector
 
             if (cprop.count != 1)
             {
-                return false;
+                // If there are more connections, check their isolation
+                if (! isolated_multiple_connection(region, connected_region))
+                {
+                    return false;
+                }
             }
 
-            if (connected_region.isolated != isolation_yes)
+            if (connected_region.isolated != isolation_yes
+                && connected_region.isolated != isolation_multiple)
             {
                 signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
                 if (first_with_turn)
