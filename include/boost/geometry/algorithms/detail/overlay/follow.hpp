@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2017.
 // Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
@@ -59,7 +60,7 @@ template
     typename Polygon,
     typename PtInPolyStrategy
 >
-static inline bool last_covered_by(Turn const& turn, Operation const& op,
+static inline bool last_covered_by(Turn const& /*turn*/, Operation const& op,
                 LineString const& linestring, Polygon const& polygon,
                 PtInPolyStrategy const& strategy)
 {

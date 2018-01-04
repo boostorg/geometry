@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2016, 2017.
 // Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
@@ -253,7 +254,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
     if (expected_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(int(result.size()) == expected_count,
+        BOOST_CHECK_MESSAGE(int(boost::size(result)) == expected_count,
                 "difference: " << caseid
                 << " #outputs expected: " << expected_count
                 << " detected: " << result.size()
@@ -263,7 +264,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
     if (expected_rings_count >= 0)
     {
-        int nrings = expected_count + bg::num_interior_rings(result);
+        int nrings = int(boost::size(result) + bg::num_interior_rings(result));
         BOOST_CHECK_MESSAGE(nrings == expected_rings_count,
                 "difference: " << caseid
                 << " #rings expected: " << expected_rings_count

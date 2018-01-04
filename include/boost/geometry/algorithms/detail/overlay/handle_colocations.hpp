@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -551,7 +552,7 @@ template
     typename Clusters
 >
 inline void check_colocation(bool& has_blocked,
-        int cluster_id, Turns const& turns, Clusters const& clusters)
+        signed_size_type cluster_id, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
 
@@ -611,7 +612,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // that information can be used for the interior ring too
     map_type map;
 
-    int index = 0;
+    signed_size_type index = 0;
     for (typename boost::range_iterator<Turns>::type
             it = boost::begin(turns);
          it != boost::end(turns);
