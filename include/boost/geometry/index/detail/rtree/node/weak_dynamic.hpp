@@ -19,11 +19,11 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct weak_internal_node
     : public weak_node<Value, Parameters, Box, Allocators, Tag>
 {
-	typedef rtree::ptr_pair<Box, typename Allocators::node_pointer> element_type;
-	typedef typename boost::container::allocator_traits
-		<
-			typename Allocators::internal_node_allocator_type
-		>::template rebind_alloc<element_type> allocator_type;
+    typedef rtree::ptr_pair<Box, typename Allocators::node_pointer> element_type;
+    typedef typename boost::container::allocator_traits
+        <
+            typename Allocators::internal_node_allocator_type
+        >::template rebind_alloc<element_type> allocator_type;
 
     typedef boost::container::vector<element_type, allocator_type> elements_type;
 
@@ -39,10 +39,10 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct weak_leaf
     : public weak_node<Value, Parameters, Box, Allocators, Tag>
 {
-	typedef typename boost::container::allocator_traits
-		<
-			typename Allocators::leaf_allocator_type
-		>::template rebind_alloc<Value> allocator_type;
+    typedef typename boost::container::allocator_traits
+        <
+            typename Allocators::leaf_allocator_type
+        >::template rebind_alloc<Value> allocator_type;
 
     typedef boost::container::vector<Value, allocator_type> elements_type;
 
@@ -85,67 +85,67 @@ struct visitor<Value, Parameters, Box, Allocators, node_weak_dynamic_tag, IsVisi
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
-struct internal_node_allocator
+struct internal_node_alloc
 {
     typedef typename internal_nod
-		<
-			Value, Parameters, Box,
+        <
+            Value, Parameters, Box,
             allocators<Allocator, Value, Parameters, Box, Tag>,
             Tag
-		>::type node_type;
+        >::type node_type;
 
     typedef typename boost::container::allocator_traits
-		<
-			Allocator
-		>::template rebind_alloc<node_type> type;
+        <
+            Allocator
+        >::template rebind_alloc<node_type> type;
 };
 
 template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
-struct leaf_allocator
+struct leaf_alloc
 {
     typedef typename leaf
-		<
-			Value, Parameters, Box,
+        <
+            Value, Parameters, Box,
             allocators<Allocator, Value, Parameters, Box, Tag>,
             Tag
-		>::type node_type;
+        >::type node_type;
 
     typedef typename ::boost::container::allocator_traits
-		<
-			Allocator
-		>::template rebind_alloc<node_type> type;
+        <
+            Allocator
+        >::template rebind_alloc<node_type> type;
 };
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>
-    : public internal_node_allocator<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>::type
-    , public leaf_allocator<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>::type
+    : public internal_node_alloc<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>::type
+    , public leaf_alloc<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>::type
 {
-	typedef internal_node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_dynamic_tag
-		> internal_node_alloc;
+    typedef detail::rtree::internal_node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_dynamic_tag
+        > internal_node_alloc;
 
-	typedef leaf_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_dynamic_tag
-		> leaf_alloc;
+    typedef detail::rtree::leaf_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_dynamic_tag
+        > leaf_alloc;
 
-	typedef node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_dynamic_tag
-		> node_alloc;
+    typedef detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_dynamic_tag
+        > node_alloc;
 
 public:
-	typedef typename internal_node_alloc::type internal_node_allocator_type;
+    typedef typename internal_node_alloc::type internal_node_allocator_type;
     typedef typename leaf_alloc::type leaf_allocator_type;
-	typedef typename node_alloc::traits::pointer node_pointer;
+    typedef typename node_alloc::traits::pointer node_pointer;
 
 private:
-	typedef typename boost::container::allocator_traits
-		<
-			leaf_allocator_type // leaf_allocator_type for consistency with weak_leaf
-		>::template rebind_alloc<Value> value_allocator_type;
+    typedef typename boost::container::allocator_traits
+        <
+            leaf_allocator_type // leaf_allocator_type for consistency with weak_leaf
+        >::template rebind_alloc<Value> value_allocator_type;
     typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
     
 public:

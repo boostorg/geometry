@@ -80,25 +80,25 @@ struct visitor<Value, Parameters, Box, Allocators, node_variant_static_tag, IsVi
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_variant_static_tag>
-    : public node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_variant_static_tag
-		>::type
+    : public detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_variant_static_tag
+        >::type
 {
-	typedef node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_variant_static_tag
-		> node_alloc;
+    typedef detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_variant_static_tag
+        > node_alloc;
 
 public:
-	typedef typename node_alloc::type node_allocator_type;
+    typedef typename node_alloc::type node_allocator_type;
     typedef typename node_alloc::traits::pointer node_pointer;
 
 private:
     typedef typename boost::container::allocator_traits
-		<
-			node_allocator_type
-		>::template rebind_alloc<Value> value_allocator_type;
+        <
+            node_allocator_type
+        >::template rebind_alloc<Value> value_allocator_type;
     typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
 
 public:

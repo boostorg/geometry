@@ -18,7 +18,7 @@ namespace detail { namespace rtree {
 template <typename Alloc>
 class scoped_deallocator
 {
-	typedef boost::container::allocator_traits<Alloc> alloc_traits;
+    typedef boost::container::allocator_traits<Alloc> alloc_traits;
 
     scoped_deallocator(scoped_deallocator const&);
     scoped_deallocator & operator=(scoped_deallocator const&);

@@ -75,40 +75,40 @@ struct visitor<Value, Parameters, Box, Allocators, node_weak_static_tag, IsVisit
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_weak_static_tag>
-	: public internal_node_allocator<Allocator, Value, Parameters, Box, node_weak_static_tag>::type
-    , public leaf_allocator<Allocator, Value, Parameters, Box, node_weak_static_tag>::type
+    : public detail::rtree::internal_node_alloc<Allocator, Value, Parameters, Box, node_weak_static_tag>::type
+    , public detail::rtree::leaf_alloc<Allocator, Value, Parameters, Box, node_weak_static_tag>::type
 {
-	typedef internal_node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_static_tag
-		> internal_node_alloc;
+    typedef detail::rtree::internal_node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_static_tag
+        > internal_node_alloc;
 
-	typedef leaf_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_static_tag
-		> leaf_alloc;
+    typedef detail::rtree::leaf_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_static_tag
+        > leaf_alloc;
 
-	typedef node_allocator
-		<
-			Allocator, Value, Parameters, Box, node_weak_static_tag
-		> node_alloc;
+    typedef detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_weak_static_tag
+        > node_alloc;
 
 public:
-	typedef typename internal_node_alloc::type internal_node_allocator_type;
+    typedef typename internal_node_alloc::type internal_node_allocator_type;
     typedef typename leaf_alloc::type leaf_allocator_type;
-	typedef typename node_alloc::traits::pointer node_pointer;
+    typedef typename node_alloc::traits::pointer node_pointer;
 
 private:
     typedef typename boost::container::allocator_traits
-		<
-			leaf_allocator_type
-		>::template rebind_alloc<Value> value_allocator_type;
+        <
+            leaf_allocator_type
+        >::template rebind_alloc<Value> value_allocator_type;
     typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
 
 public:
     typedef Allocator allocator_type;
 
-	typedef Value value_type;
+    typedef Value value_type;
     typedef typename value_allocator_traits::reference reference;
     typedef typename value_allocator_traits::const_reference const_reference;
     typedef typename value_allocator_traits::size_type size_type;
