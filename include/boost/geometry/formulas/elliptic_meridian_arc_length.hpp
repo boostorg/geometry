@@ -86,8 +86,18 @@ public :
 
     // Distance computation on meridians using series approximations
     // to elliptic integrals. Formula to compute distance from lattitude 0 to lat
-    // https://en.wikipedia.org/wiki/Meridian_arc
+    // cf. https://en.wikipedia.org/wiki/Meridian_arc
     // latitudes are assumed to be in radians and in [-pi/2,pi/2]
+    /* Maxima code to generate the series
+        ataylor(expr,var,ord):=expand(ratdisrep(taylor(expr,var,0,ord)));
+        int:(1-e2*sin(phi)^2)^(-3/2);
+        maxpow:6;
+        intexp:ataylor(subst([e2=4*n/((1+n)^2)],int),n,maxpow);
+        m:trigreduce(integrate(intexp,phi));
+        m:a*(1-4*n/((1+n)^2))*m;
+        m:m-subst(phi=0,m);
+        m:ataylor(m*(1+n)/a,n,maxpow);
+    */
     template <typename T, typename Spheroid>
     static CT apply(T lat, Spheroid const& spheroid)
     {
@@ -102,7 +112,7 @@ public :
            return M * C0 * lat;
         }
 
-        CT C2 = -1.5 * n;
+        CT C2 = -CT(3)/CT(2) * n;
 
         if (Order == 1)
         {
@@ -110,8 +120,8 @@ public :
         }
 
         CT n2 = n * n;
-        C0 += .25 * n2;
-        CT C4 = 0.9375 * n2;
+        C0 += CT(1)/CT(4) * n2;
+        CT C4 = CT(15)/CT(16) * n2;
 
         if (Order == 2)
         {
@@ -119,8 +129,8 @@ public :
         }
 
         CT n3 = n2 * n;
-        C2 += 0.1875 * n3;
-        CT C6 = -0.729166667 * n3;
+        C2 += CT(3)/CT(16) * n3;
+        CT C6 = -CT(35)/CT(48) * n3;
 
         if (Order == 3)
         {
@@ -129,8 +139,9 @@ public :
         }
 
         CT n4 = n2 * n2;
-        C4 -= 0.234375 * n4;
-        CT C8 = 0.615234375 * n4;
+        C0 += CT(1)/CT(64) * n4;
+        C4 -= CT(15)/CT(64) * n4;
+        CT C8 = CT(315)/CT(512) * n4;
 
         if (Order == 4)
         {
@@ -139,12 +150,26 @@ public :
         }
 
         CT n5 = n4 * n;
-        C6 += 0.227864583 * n5;
-        CT C10 = -0.54140625 * n5;
+        C2 += CT(3)/CT(128) * n5;
+        C6 += CT(175)/CT(768) * n5;
+        CT C10 = -CT(693)/CT(1280) * n5;
 
-        // Order 5 or higher
+        if (Order == 5)
+        {
+            return M * (C0 * lat + C2 * sin(2*lat) + C4 * sin(4*lat)
+                      + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat));
+        }
+
+        CT n6 = n5 * n;
+        C0 += CT(1)/CT(256) * n6;
+        C4 -= CT(75)/CT(2048) * n6;
+        C8 -= CT(441)/CT(2048) * n6;
+        CT C12 = CT(1001)/CT(2048) * n6;
+
+        // Order 6 or higher
         return M * (C0 * lat + C2 * sin(2*lat) + C4 * sin(4*lat)
-                  + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat));
+                  + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat)
+                  + C12 * sin(12*lat));
 
     }
 
