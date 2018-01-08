@@ -81,58 +81,6 @@ public :
         // Order 4 or higher
         return mu + H2 * sin(2*mu) + H4 * sin(4*mu) + H6 * sin(6*mu) + H8 * sin(8*mu);
     }
-
-    template <typename T, typename Spheroid>
-    static CT beta(T m, Spheroid const& spheroid)
-    {
-        CT const f = formula::flattening<CT>(spheroid);
-        CT n = f / (CT(2) - f);
-        CT mp = 10001965.729;
-        CT mu = geometry::math::pi<CT>()/CT(2) * m / mp;
-
-        if (Order == 0)
-        {
-            return mu;
-        }
-
-        CT H2 = 0.5 * n;
-
-        if (Order == 1)
-        {
-            return mu + H2 * sin(2*mu);
-        }
-
-        CT n2 = n * n;
-        CT H4 = 0.3125 * n2;
-
-        if (Order == 2)
-        {
-            return mu + H2 * sin(2*mu) + H4 * sin(4*mu);
-        }
-
-        CT n3 = n2 * n;
-        H2 -= 0.28125 * n3;
-        CT H6 = 0.302083333 * n3;
-
-        if (Order == 3)
-        {
-            return mu + H2 * sin(2*mu) + H4 * sin(4*mu) + H6 * sin(6*mu);
-        }
-
-        CT n4 = n2 * n2;
-        H4 -= 0.385416667 * n4;
-        CT H8 = 0.350911458 * n4;
-
-        // Order 4 or higher
-        return mu + H2 * sin(2*mu) + H4 * sin(4*mu) + H6 * sin(6*mu) + H8 * sin(8*mu);
-    }
-
-    template <typename T, typename Spheroid>
-    static CT expand_intermsof_beta(T m, Spheroid const& spheroid)
-    {
-        CT const f = formula::flattening<CT>(spheroid);
-        return atan(tan(beta(m,spheroid))/(1-f));
-    }
 };
 
 }}} // namespace boost::geometry::formula
