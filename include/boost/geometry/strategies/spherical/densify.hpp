@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -23,10 +23,7 @@
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/range/value_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -58,14 +55,14 @@ struct spherical
         : m_radius(geometry::get_radius<0>(sphere))
     {}
 
-    template <typename Point, typename RangeOut, typename T>
-    inline void apply(Point const& p0, Point const& p1, RangeOut & rng, T const& length_threshold) const
+    template <typename Point, typename AssignPolicy, typename T>
+    inline void apply(Point const& p0, Point const& p1, AssignPolicy & policy, T const& length_threshold) const
     {
-        typedef typename boost::range_value<RangeOut>::type rng_point_t;
+        typedef typename AssignPolicy::point_type out_point_t;
         typedef typename select_most_precise
             <
                 typename coordinate_type<Point>::type,
-                typename coordinate_type<rng_point_t>::type,
+                typename coordinate_type<out_point_t>::type,
                 CalculationType
             >::type calc_t;
 
@@ -135,14 +132,14 @@ struct spherical
             geometry::add_point(v_rot, s2);
             geometry::add_point(v_rot, s3);
             
-            rng_point_t p = formula::cart3d_to_sph<rng_point_t>(v_rot);
+            out_point_t p = formula::cart3d_to_sph<out_point_t>(v_rot);
             geometry::detail::conversion::point_to_point
                 <
-                    Point, rng_point_t,
-                    2, dimension<rng_point_t>::value
+                    Point, out_point_t,
+                    2, dimension<out_point_t>::value
                 >::apply(p0, p);
 
-            range::push_back(rng, p);
+            policy.apply(p);
         }
     }
 

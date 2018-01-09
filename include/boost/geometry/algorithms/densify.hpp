@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -35,6 +35,24 @@ namespace boost { namespace geometry
 namespace detail { namespace densify
 {
 
+template <typename Range>
+struct push_back_policy
+{
+    typedef typename boost::range_value<Range>::type point_type;
+
+    inline explicit push_back_policy(Range & rng)
+        : m_rng(rng)
+    {}
+
+    inline void apply(point_type const& p)
+    {
+        range::push_back(m_rng, p);
+    }
+
+private:
+    Range & m_rng;
+};
+
 template <typename Range, typename Point>
 inline void convert_and_push_back(Range & range, Point const& p)
 {
@@ -57,6 +75,8 @@ struct densify_range
         if (count == 0)
             return;
         
+        push_back_policy<GeometryOut> policy(rng_out);
+
         for (std::size_t i = 1 ; i < count ; ++i)
         {
             point_t const& p0 = range::at(rng, i - 1);
@@ -64,7 +84,7 @@ struct densify_range
 
             convert_and_push_back(rng_out, p0);
 
-            strategy.apply(p0, p1, rng_out, len);
+            strategy.apply(p0, p1, policy, len);
         }
 
         if (BOOST_GEOMETRY_CONDITION(AppendLastPoint))
@@ -91,7 +111,9 @@ struct densify_ring
         point_t const& p0 = range::back(ring);
         point_t const& p1 = range::front(ring);
 
-        strategy.apply(p0, p1, ring_out, len);
+        push_back_policy<GeometryOut> policy(ring_out);
+
+        strategy.apply(p0, p1, policy, len);
 
         if (BOOST_GEOMETRY_CONDITION(IsClosed2))
         {
@@ -253,7 +275,7 @@ struct densify
             > strategy_type;
         
         /*BOOST_CONCEPT_ASSERT(
-            (concepts::ComplexifyStrategy<strategy_type>)
+            (concepts::DensifyStrategy<strategy_type>)
         );*/
 
         apply(geometry, out, max_distance, strategy_type());
@@ -319,9 +341,9 @@ struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 template <typename Geometry, typename Distance, typename Strategy>
 inline void densify(Geometry const& geometry,
-                       Geometry& out,
-                       Distance const& max_distance,
-                       Strategy const& strategy)
+                    Geometry& out,
+                    Distance const& max_distance,
+                    Strategy const& strategy)
 {
     concepts::check<Geometry>();
 
@@ -335,8 +357,8 @@ inline void densify(Geometry const& geometry,
 
 template <typename Geometry, typename Distance, typename Strategy>
 inline void densify(Geometry const& geometry,
-                       Geometry& out,
-                       Distance const& max_distance)
+                    Geometry& out,
+                    Distance const& max_distance)
 {
     densify(geometry, out, max_distance, default_strategy());
 }
