@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -132,7 +132,7 @@ inline void test_geometry(std::string const& wkt, Check const& check)
     G o;
     bg::densify(g, o, max_distance, d.compl_s);
 
-    // geometry was indeed complexified
+    // geometry was indeed densified
     std::size_t g_count = bg::num_points(g);
     std::size_t o_count = bg::num_points(o);
     BOOST_CHECK(g_count < o_count);
