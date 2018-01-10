@@ -46,34 +46,35 @@ struct cartesian
                 CalculationType
             >::type calc_t;
 
-        typedef model::point<calc_t, 2, cs::cartesian> point2d_t;
+        typedef model::point<calc_t, geometry::dimension<Point>::value, cs::cartesian> calc_point_t;
         
-        point2d_t const xy0(geometry::get<0>(p0), geometry::get<1>(p0));
-        point2d_t const xy1(geometry::get<0>(p1), geometry::get<1>(p1));
-        // dir01 = xy1 - xy0
-        point2d_t dir01 = xy1;
-        geometry::subtract_point(dir01, xy0);
-        calc_t const dot01 = geometry::dot_product(dir01, dir01);
-        calc_t const len2d = math::sqrt(dot01);
+        calc_point_t cp0, cp1;
+        geometry::detail::conversion::convert_point_to_point(p0, cp0);
+        geometry::detail::conversion::convert_point_to_point(p1, cp1);
 
-        // TODO: For consistency with spherical and geographic 2d length is
-        // taken into account. This probably should be changed. Also in the
-        // other strategies dimensions > 2 should be taken into account.
-        signed_size_type n = signed_size_type(len2d / length_threshold);
+        // dir01 = xy1 - xy0
+        calc_point_t dir01 = cp1;
+        geometry::subtract_point(dir01, cp0);
+        calc_t const dot01 = geometry::dot_product(dir01, dir01);
+        calc_t const len = math::sqrt(dot01);
+
+        signed_size_type n = signed_size_type(len / length_threshold);
         if (n <= 0)
+        {
             return;
+        }
 
         // NOTE: Normalization will not work for integral coordinates
         // normalize
-        //geometry::divide_value(dir01, len2d);
+        //geometry::divide_value(dir01, len);
 
-        calc_t step = len2d / (n + 1);
+        calc_t step = len / (n + 1);
 
         calc_t d = step;
         for (signed_size_type i = 0 ; i < n ; ++i, d += step)
         {
             // pd = xy0 + d * dir01
-            point2d_t pd = dir01;
+            calc_point_t pd = dir01;
 
             // without normalization
             geometry::multiply_value(pd, calc_t(i + 1));
@@ -81,17 +82,14 @@ struct cartesian
             // with normalization
             //geometry::multiply_value(pd, d);
             
-            geometry::add_point(pd, xy0);
+            geometry::add_point(pd, cp0);
 
+            // NOTE: Only needed if types calc_point_t and out_point_t are different
+            // otherwise pd could simply be passed into policy
             out_point_t p;
-            geometry::set<0>(p, geometry::get<0>(pd));
-            geometry::set<1>(p, geometry::get<1>(pd));
-            geometry::detail::conversion::point_to_point
-                <
-                    Point, out_point_t,
-                    2, dimension<out_point_t>::value
-                >::apply(p0, p);
-
+            assert_dimension_equal<calc_point_t, out_point_t>();
+            geometry::detail::conversion::convert_point_to_point(pd, p);
+            
             policy.apply(p);
         }
     }
