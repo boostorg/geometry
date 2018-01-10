@@ -23,6 +23,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) \
     || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT) \
@@ -842,7 +843,7 @@ struct traversal
     {
         turn_type const& current_turn = m_turns[turn_index];
 
-        if (target_operation == operation_intersection)
+        if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
         {
             bool const back_at_start_cluster
                     = current_turn.is_clustered()

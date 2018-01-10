@@ -49,6 +49,7 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>
@@ -135,9 +136,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
             if (! is_self_turn<OverlayType>(turn)
                 && (
-                    (target_operation == operation_union
+                    (BOOST_GEOMETRY_CONDITION(target_operation == operation_union)
                       && op.enriched.count_left > 0)
-                  || (target_operation == operation_intersection
+                  || (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection)
                       && op.enriched.count_right <= 2)))
             {
                 // Avoid including untraversed rings which have polygons on
