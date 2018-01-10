@@ -13,6 +13,7 @@
 
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
@@ -63,6 +64,8 @@ struct geographic
             inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
                                      get_as_radian<0>(p1), get_as_radian<1>(p1),
                                      m_spheroid);
+
+        BOOST_GEOMETRY_ASSERT(length_threshold > T(0));
 
         signed_size_type n = signed_size_type(inv_r.distance / length_threshold);
         if (n <= 0)

@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -25,6 +26,8 @@
 
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
+
+#include <boost/throw_exception.hpp>
 
 
 namespace boost { namespace geometry
@@ -351,6 +354,11 @@ inline void densify(Geometry const& geometry,
                     Strategy const& strategy)
 {
     concepts::check<Geometry>();
+
+    if (max_distance <= Distance(0))
+    {
+        BOOST_THROW_EXCEPTION(geometry::invalid_input_exception());
+    }
 
     geometry::clear(out);
 

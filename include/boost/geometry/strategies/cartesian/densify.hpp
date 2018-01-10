@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/densify.hpp>
@@ -57,6 +58,8 @@ struct cartesian
         geometry::subtract_point(dir01, cp0);
         calc_t const dot01 = geometry::dot_product(dir01, dir01);
         calc_t const len = math::sqrt(dot01);
+
+        BOOST_GEOMETRY_ASSERT(length_threshold > T(0));
 
         signed_size_type n = signed_size_type(len / length_threshold);
         if (n <= 0)

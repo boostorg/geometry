@@ -17,6 +17,7 @@
 #include <boost/geometry/arithmetic/cross_product.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/arithmetic/normalize.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
@@ -75,6 +76,8 @@ struct spherical
         point3d_t const xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
         calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
         calc_t const angle01 = acos(dot01);
+
+        BOOST_GEOMETRY_ASSERT(length_threshold > T(0));
 
         signed_size_type n = signed_size_type(angle01 * m_radius / length_threshold);
         if (n <= 0)
