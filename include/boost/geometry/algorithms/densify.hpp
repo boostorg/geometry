@@ -64,23 +64,28 @@ inline void convert_and_push_back(Range & range, Point const& p)
 template <bool AppendLastPoint = true>
 struct densify_range
 {
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
-    static inline void apply(Geometry const& rng, GeometryOut & rng_out,
+    template <typename FwdRng, typename MutRng, typename T, typename Strategy>
+    static inline void apply(FwdRng const& rng, MutRng & rng_out,
                              T const& len, Strategy const& strategy)
     {
-        typedef typename boost::range_value<Geometry>::type point_t;
+        typedef typename boost::range_iterator<FwdRng const>::type iterator_t;
+        typedef typename boost::range_value<FwdRng>::type point_t;
 
-        std::size_t count = boost::size(rng);
+        iterator_t it = boost::begin(rng);
+        iterator_t end = boost::end(rng);
 
-        if (count == 0)
-            return;
-        
-        push_back_policy<GeometryOut> policy(rng_out);
-
-        for (std::size_t i = 1 ; i < count ; ++i)
+        if (it == end) // empty(rng)
         {
-            point_t const& p0 = range::at(rng, i - 1);
-            point_t const& p1 = range::at(rng, i);
+            return;
+        }
+            
+        push_back_policy<MutRng> policy(rng_out);
+
+        iterator_t prev = it;
+        for ( ++it ; it != end ; prev = it++)
+        {
+            point_t const& p0 = *prev;
+            point_t const& p1 = *it;
 
             convert_and_push_back(rng_out, p0);
 
@@ -89,7 +94,7 @@ struct densify_range
 
         if (BOOST_GEOMETRY_CONDITION(AppendLastPoint))
         {
-            convert_and_push_back(rng_out, range::back(rng));
+            convert_and_push_back(rng_out, *prev); // back(rng)
         }
     }
 };
