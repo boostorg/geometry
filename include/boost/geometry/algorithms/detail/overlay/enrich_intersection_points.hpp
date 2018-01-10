@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -51,6 +52,21 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+template <typename Turns>
+struct discarded_turn
+{
+    discarded_turn(Turns const& turns)
+        : m_turns(turns)
+    {}
+
+    template <typename IndexedTurn>
+    inline bool operator()(IndexedTurn const& indexed) const
+    {
+        return m_turns[indexed.turn_index].discarded;
+    }
+
+    Turns const& m_turns;
+};
 
 // Sorts IP-s of this ring on segment-identifier, and if on same segment,
 //  on distance.
@@ -68,7 +84,6 @@ template
 >
 inline void enrich_sort(Operations& operations,
             Turns const& turns,
-            operation_type for_operation,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RobustPolicy const& robust_policy,
@@ -84,7 +99,7 @@ inline void enrich_sort(Operations& operations,
                     RobustPolicy,
                     SideStrategy,
                     Reverse1, Reverse2
-                >(turns, for_operation, geometry1, geometry2, robust_policy, strategy));
+                >(turns, geometry1, geometry2, robust_policy, strategy));
 }
 
 
@@ -176,6 +191,82 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 
 }
 
+template <typename Operations, typename Turns>
+inline void enrich_adapt(Operations& operations, Turns& turns)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+    typedef typename turn_type::turn_operation_type op_type;
+    typedef typename boost::range_value<Operations>::type indexed_turn_type;
+
+    if (operations.size() < 3)
+    {
+        // If it is empty, or contains one or two turns, it makes no sense
+        return;
+    }
+
+    // Operations is a vector of indexed_turn_operation<>
+
+    // Last index:
+    std::size_t const x = operations.size() - 1;
+    bool next_phase = false;
+
+    for (std::size_t i = 0; i < operations.size(); i++)
+    {
+        indexed_turn_type const& indexed = operations[i];
+
+        turn_type& turn = turns[indexed.turn_index];
+        op_type& op = turn.operations[indexed.operation_index];
+
+        // Previous/next index
+        std::size_t const p = i > 0 ? i - 1 : x;
+        std::size_t const n = i < x ? i + 1 : 0;
+
+        turn_type const& next_turn = turns[operations[n].turn_index];
+        op_type const& next_op = next_turn.operations[operations[n].operation_index];
+
+        if (op.seg_id.segment_index == next_op.seg_id.segment_index)
+        {
+            turn_type const& prev_turn = turns[operations[p].turn_index];
+            op_type const& prev_op = prev_turn.operations[operations[p].operation_index];
+            if (op.seg_id.segment_index == prev_op.seg_id.segment_index)
+            {
+                op.enriched.startable = false;
+                next_phase = true;
+            }
+        }
+    }
+
+    if (! next_phase)
+    {
+        return;
+    }
+
+    // Discard turns which are both non-startable
+    next_phase = false;
+    for (typename boost::range_iterator<Turns>::type
+            it = boost::begin(turns);
+         it != boost::end(turns);
+         ++it)
+    {
+        turn_type& turn = *it;
+        if (! turn.operations[0].enriched.startable
+            && ! turn.operations[1].enriched.startable)
+        {
+            turn.discarded = true;
+            next_phase = true;
+        }
+    }
+
+    if (! next_phase)
+    {
+        return;
+    }
+
+    // Remove discarded turns from operations to avoid having them as next turn
+    discarded_turn<Turns> const predicate(turns);
+    operations.erase(std::remove_if(boost::begin(operations),
+        boost::end(operations), predicate), boost::end(operations));
+}
 
 template <typename Turns, typename MappedVector>
 inline void create_map(Turns const& turns, MappedVector& mapped_vector)
@@ -255,8 +346,8 @@ inline void calculate_remaining_distance(Turns& turns)
             continue;
         }
 
-        int const to_index0 = op0.enriched.get_next_turn_index();
-        int const to_index1 = op1.enriched.get_next_turn_index();
+        signed_size_type const to_index0 = op0.enriched.get_next_turn_index();
+        signed_size_type const to_index1 = op1.enriched.get_next_turn_index();
         if (to_index0 >= 0
                 && to_index1 >= 0
                 && to_index0 != to_index1)
@@ -311,6 +402,7 @@ inline void enrich_intersection_points(Turns& turns,
             = target_operation == detail::overlay::operation_union
             ? detail::overlay::operation_intersection
             : detail::overlay::operation_union;
+    static const bool is_dissolve = OverlayType == overlay_dissolve;
 
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
@@ -338,29 +430,23 @@ inline void enrich_intersection_points(Turns& turns,
     {
         turn_type& turn = *it;
 
-        if (turn.both(detail::overlay::operation_none))
-        {
-            turn.discarded = true;
-            continue;
-        }
-
-        if (turn.both(opposite_operation))
+        if (turn.both(detail::overlay::operation_none)
+            || turn.both(opposite_operation)
+            || (detail::overlay::is_self_turn<OverlayType>(turn)
+                && ! turn.is_clustered()
+                && ! turn.both(target_operation)))
         {
             // For intersections, remove uu to avoid the need to travel
             // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
-            // Also, for union, discard ii
+
+            // Similarly, for union, discard ii
+
+            // Only keep self-uu-turns or self-ii-turns
+
+            // Blocked (or combination with blocked is still needed for difference)
             turn.discarded = true;
             turn.cluster_id = -1;
             continue;
-        }
-
-        if (detail::overlay::is_self_turn<OverlayType>(turn)
-            && ! turn.is_clustered()
-            && ! turn.both(target_operation))
-        {
-            // Only keep self-uu-turns or self-ii-turns
-           turn.discarded = true;
-           continue;
         }
 
         if (! turn.discarded
@@ -370,16 +456,19 @@ inline void enrich_intersection_points(Turns& turns,
         }
     }
 
-    detail::overlay::discard_closed_turns
-        <
-            OverlayType,
-            target_operation
-        >::apply(turns, clusters, geometry1, geometry2);
-    detail::overlay::discard_open_turns
-        <
-            OverlayType,
-            target_operation
-        >::apply(turns, clusters, geometry1, geometry2);
+    if (! is_dissolve)
+    {
+        detail::overlay::discard_closed_turns
+            <
+                OverlayType,
+                target_operation
+            >::apply(turns, clusters, geometry1, geometry2);
+        detail::overlay::discard_open_turns
+            <
+                OverlayType,
+                target_operation
+            >::apply(turns, clusters, geometry1, geometry2);
+    }
 
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
@@ -399,7 +488,7 @@ inline void enrich_intersection_points(Turns& turns,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
-                    mit->second, turns, target_operation,
+                    mit->second, turns,
                     geometry1, geometry2,
                     robust_policy, strategy);
     }
@@ -413,11 +502,13 @@ inline void enrich_intersection_points(Turns& turns,
     std::cout << "ENRICH-assign Ring "
         << mit->first << std::endl;
 #endif
+        if (is_dissolve)
+        {
+            detail::overlay::enrich_adapt(mit->second, turns);
+        }
+
         detail::overlay::enrich_assign(mit->second, turns);
     }
-
-    // Check some specific type of self-turns (after getting enriched info)
-    detail::overlay::discard_self_turns_which_loop<OverlayType>(turns);
 
     if (has_colocations)
     {

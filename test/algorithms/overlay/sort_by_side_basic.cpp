@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017, Oracle and/or its affiliates.
@@ -62,7 +63,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
             Strategy const& strategy,
             std::size_t expected_open_count,
             std::size_t expected_max_rank,
-            std::vector<int> const& expected_right_count)
+            std::vector<bg::signed_size_type> const& expected_right_count)
 {
     using namespace boost::geometry;
 
@@ -157,7 +158,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
 
     std::size_t const open_count = sbs.open_count(detail::overlay::operation_union);
     std::size_t const max_rank = sbs.m_ranked_points.back().rank;
-    std::vector<int> right_count(max_rank + 1, -1);
+    std::vector<bg::signed_size_type> right_count(max_rank + 1, -1);
 
     int previous_rank = -1;
     int previous_to_rank = -1;
@@ -226,7 +227,7 @@ void test_basic(std::string const& case_id,
                 std::string const& wkt_origin_point,
                 std::size_t expected_open_count,
                 std::size_t expected_max_rank,
-                std::vector<int> const& expected_right_count)
+                std::vector<bg::signed_size_type> const& expected_right_count)
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
     typedef bg::model::polygon<point_type> polygon;

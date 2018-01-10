@@ -765,7 +765,7 @@ public:
                              std::size_t min_elements)
     {
         return apply(forward_range1, forward_range2, visitor,
-                     expand_policy1, overlaps_policy1, expand_policy2, overlaps_policy1,
+                     expand_policy1, overlaps_policy1, expand_policy2, overlaps_policy2,
                      min_elements, detail::partition::visit_no_policy());
     }
 
