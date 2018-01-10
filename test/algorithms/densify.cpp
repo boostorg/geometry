@@ -174,6 +174,10 @@ void test_all()
     typedef bg::model::polygon<P> poly_t;
     typedef bg::model::multi_polygon<poly_t> mpoly_t;
 
+    typedef bg::model::ring<P, true, false> oring_t;
+    typedef bg::model::polygon<P, true, false> opoly_t;
+    typedef bg::model::multi_polygon<opoly_t> ompoly_t;
+
     test_linear<ls_t>("LINESTRING(4 -4, 4 -1)");
     test_linear<ls_t>("LINESTRING(4 4, 4 1)");
     test_linear<ls_t>("LINESTRING(0 0, 180 0)");
@@ -182,9 +186,16 @@ void test_all()
     test_linear<ls_t>("LINESTRING(1 1, 2 2, 4 2)");
     test_linear<mls_t>("MULTILINESTRING((1 1, 2 2),(2 2, 4 2))");
 
-    test_linear<ring_t>("POLYGON((1 1, 1 2, 2 2, 1 1))");
-    test_linear<poly_t>("POLYGON((1 1, 1 4, 4 4, 4 1, 1 1),(1 1, 2 2, 2 3, 1 1))");
-    test_linear<mpoly_t>("MULTIPOLYGON(((1 1, 1 4, 4 4, 4 1, 1 1),(1 1, 2 2, 2 3, 1 1)),((4 4, 5 5, 5 4, 4 4)))");
+    test_areal<ring_t>("POLYGON((1 1, 1 2, 2 2, 1 1))");
+    test_areal<poly_t>("POLYGON((1 1, 1 4, 4 4, 4 1, 1 1),(1 1, 2 2, 2 3, 1 1))");
+    test_areal<mpoly_t>("MULTIPOLYGON(((1 1, 1 4, 4 4, 4 1, 1 1),(1 1, 2 2, 2 3, 1 1)),((4 4, 5 5, 5 4, 4 4)))");
+    
+    test_areal<oring_t>("POLYGON((1 1, 1 2, 2 2))");
+    test_areal<opoly_t>("POLYGON((1 1, 1 4, 4 4, 4 1),(1 1, 2 2, 2 3))");
+    test_areal<ompoly_t>("MULTIPOLYGON(((1 1, 1 4, 4 4, 4 1),(1 1, 2 2, 2 3)),((4 4, 5 5, 5 4)))");
+
+    test_areal<ring_t>("POLYGON((0 0,0 40,40 40,40 0,0 0))");
+    test_areal<oring_t>("POLYGON((0 0,0 40,40 40,40 0))");
 }
 
 int test_main(int, char* [])
