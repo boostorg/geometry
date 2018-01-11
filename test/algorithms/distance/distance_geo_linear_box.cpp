@@ -58,21 +58,21 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, s
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::andoyer,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > andoyer_pb;
 
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::thomas,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > thomas_pb;
 
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::vincenty,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > vincenty_pb;
 
@@ -134,22 +134,57 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
                   ps_distance("POINT(10 20)", "SEGMENT(0 0,0 25)", strategy_ps),
                   strategy_ps);
 
-    tester::apply("sb2-1", "SEGMENT(0 5, 10 5)", box1,
-                  ps_distance("POINT(10 10)", "SEGMENT(0 5,10 5)", strategy_ps),
-                  strategy_ps);
     tester::apply("sb2-2", "SEGMENT(0 5, 15 5)", box1,
                   ps_distance("POINT(10 10)", "SEGMENT(0 5,15 5)", strategy_ps),
                   strategy_ps);
     tester::apply("sb2-3a", "SEGMENT(0 5, 20 5)", box1,
                   ps_distance("POINT(10 10)", "SEGMENT(0 5,20 5)", strategy_ps),
                   strategy_ps);
+
+    tester::apply("test1", "SEGMENT(0 5, 9 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5, 9 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test2", "SEGMENT(0 5, 10 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5, 10 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test3", "SEGMENT(0 5, 11 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5, 11 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test4", "SEGMENT(0 5, 20 5)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(0 5,20 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test5", "SEGMENT(0 5, 22 5)", box1,
+                  ps_distance("POINT(11 10)", "SEGMENT(0 5,22 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test6", "SEGMENT(10 5, 20 5)", box1,
+                  ps_distance("POINT(15 10)", "SEGMENT(10 5,20 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test7", "SEGMENT(10 5, 22 5)", box1,
+                  ps_distance("POINT(16 10)", "SEGMENT(10 5,22 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test8", "SEGMENT(12 5, 22 5)", box1,
+                  ps_distance("POINT(17 10)", "SEGMENT(12 5,22 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test9", "SEGMENT(18 5, 22 5)", box1,
+                  ps_distance("POINT(20 10)", "SEGMENT(18 5,22 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test10", "SEGMENT(18 5, 24 5)", box1,
+                  ps_distance("POINT(20 10)", "SEGMENT(18 5,24 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test11", "SEGMENT(20 5, 24 5)", box1,
+                  ps_distance("POINT(20 10)", "SEGMENT(20 5,24 5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test12", "SEGMENT(22 5, 24 5)", box1,
+                  ps_distance("POINT(20 10)", "SEGMENT(22 5,24 5)", strategy_ps),
+                  strategy_ps);
+    /*
     tester::apply("sb2-3b", "SEGMENT(0 5, 25 5)", box1,
-                  ps_distance("POINT(12.5 10)", "SEGMENT(0 5,25 5)", strategy_ps),
+                  ps_distance("POINT(15 10)", "SEGMENT(0 5,25 5)", strategy_ps),
                   strategy_ps);
     tester::apply("sb2-3c", "SEGMENT(0 5, 26 5)", box1,
                   ps_distance("POINT(13 10)", "SEGMENT(0 5,26 5)", strategy_ps),
                   strategy_ps);
-
+    */
     //tester::apply("sb2-3", "SEGMENT(0 5, 25 6)", box1,
     //              ps_distance("POINT(12.5 10)", "SEGMENT(0 5,25 6)", strategy_ps),
     //              //pp_distance("POINT(10 10)", "POINT(10 5)", strategy_pp),

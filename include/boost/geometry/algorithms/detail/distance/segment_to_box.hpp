@@ -356,20 +356,28 @@ private:
 
             LessEqual less_equal;
 
+            /*
             if (less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)))
             {
                 // closest box point is the top-right corner
                 //return cast::apply(pp_strategy.apply(p0, top_right));
-                return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                return cast::apply(ps_strategy.apply(top_right, p0, p1));
             }
-            else if (less_equal(geometry::get<1>(bottom_right),
+            else*/
+            if (less_equal(geometry::get<1>(bottom_right),
                                 geometry::get<1>(p0)))
             {
+                return std::min(
+                            cast::apply(ps_strategy.apply(top_right, p0, p1)),
+                            cast::apply(ps_strategy.apply(p0, bottom_right, top_right))
+                            );
+
+
                 // distance is realized between p0 and right-most
                 // segment of box
                 //ReturnType diff =
                 //ps_strategy.get_distance_strategy().apply(p0, bottom_right);
-                return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                ///return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
                 //ReturnType diff =
                 //ps_strategy.get_distance_strategy().template coordinate<0>(p0, bottom_right);
                 //ReturnType diff = cast::apply(geometry::get<0>(p0))
@@ -414,8 +422,8 @@ private:
                 ReturnType diff =
                 //ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
 
-                ps_strategy.get_distance_strategy().meridian(geometry::get<1>(p0),
-                                                             geometry::get<1>(top_left));
+                ps_strategy.get_distance_strategy().meridian(geometry::get_as_radian<1>(p0),
+                                                             geometry::get_as_radian<1>(top_left));
 
                 //ReturnType diff = cast::apply(geometry::get<1>(p0))
                 //    - cast::apply(geometry::get<1>(top_left));

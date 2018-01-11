@@ -53,21 +53,21 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, s
 typedef bg::strategy::distance::geographic_cross_track_box_box
         <
             bg::strategy::andoyer,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > andoyer_bb;
 
 typedef bg::strategy::distance::geographic_cross_track_box_box
         <
             bg::strategy::thomas,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > thomas_bb;
 
 typedef bg::strategy::distance::geographic_cross_track_box_box
         <
             bg::strategy::vincenty,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > vincenty_bb;
 
