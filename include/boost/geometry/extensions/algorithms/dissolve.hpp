@@ -290,6 +290,36 @@ struct dissolve_ring
 template <typename Polygon, typename GeometryOut, bool Reverse>
 struct dissolve_polygon
 {
+    typedef typename ring_type<Polygon>::type ring_type;
+
+    template
+    <
+        typename RescalePolicy, typename OutputCollection,
+        typename Strategy, typename Visitor
+    >
+    static inline void apply_ring(ring_type const& ring,
+                RescalePolicy const& rescale_policy,
+                OutputCollection& out,
+                Strategy const& strategy,
+                Visitor& visitor)
+    {
+        bool const orientation_ok = geometry::area(ring) >= 0;
+        if (orientation_ok)
+        {
+            dissolve_ring<ring_type, GeometryOut, Reverse>
+                    ::apply(ring, rescale_policy,
+                            std::back_inserter(out), strategy, visitor);
+        }
+        else
+        {
+            // Apply the whole dissolve implementation reversed
+            dissolve_ring<ring_type, GeometryOut, ! Reverse>
+                    ::apply(ring, rescale_policy,
+                            std::back_inserter(out), strategy, visitor);
+        }
+    }
+
+
     template
     <
         typename RescalePolicy, typename OutputIterator,
@@ -301,10 +331,21 @@ struct dissolve_polygon
                 Strategy const& strategy,
                 Visitor& visitor)
     {
-        // For now this code redirects to ring, but it will handle
-        // rings separately and combine polygon later
-        return dissolve_ring<Polygon, GeometryOut, Reverse>
-                ::apply(polygon, rescale_policy, out, strategy, visitor);
+        std::vector<GeometryOut> exterior_output;
+
+        apply_ring(exterior_ring(polygon), rescale_policy,
+                   exterior_output, strategy, visitor);
+
+        // Todo: apply dissolve to all interior rings individually, and then
+        // combine them together using union, and then to exterior ring
+        // using difference
+
+        for (typename std::vector<GeometryOut>::const_iterator it = exterior_output.begin();
+            it != exterior_output.end(); ++it)
+        {
+            *out++ = *it;
+        }
+        return out;
     }
 };
 
