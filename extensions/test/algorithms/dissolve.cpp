@@ -320,14 +320,10 @@ struct ut_settings
 {
     double percentage;
     bool test_validity;
-    bool skip_orientation_normal;
-    bool skip_orientation_reverse;
 
     explicit ut_settings(double p = 0.001, bool tv = true)
         : percentage(p)
         , test_validity(tv)
-        , skip_orientation_normal(false)
-        , skip_orientation_reverse(false)
     {}
 
 };
@@ -514,25 +510,20 @@ void test_one(std::string caseid, std::string const& wkt,
     // cannot close it without making a copy.
     bg::correct_closure(geometry);
 
-    if (! settings.skip_orientation_normal)
-    {
-        test_dissolve<GeometryOut>(caseid, geometry,
-            expected_area,
-            expected_clip_count, expected_hole_count, expected_point_count,
-            settings);
-    }
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
+        expected_clip_count, expected_hole_count, expected_point_count,
+        settings);
 
-    if (! settings.skip_orientation_reverse)
-    {
-        bg::reverse(geometry);
+    // Verify if reversed version is indeed identical (it should, because each
+    // ring is now corrected within dissolve itself
+    bg::reverse(geometry);
 
-        caseid += "_rev";
-        test_dissolve<GeometryOut>(caseid, geometry,
-            expected_area,
-            expected_clip_count, expected_hole_count, expected_point_count,
-            settings);
-    }
-
+    caseid += "_rev";
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
+        expected_clip_count, expected_hole_count, expected_point_count,
+        settings);
 
 #ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
     // Test different combinations of a multi-polygon
