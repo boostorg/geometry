@@ -387,10 +387,9 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         bg::dispatch::dissolve
             <
-                typename bg::tag<Geometry>::type,
-                typename bg::tag<GeometryOut>::type,
                 Geometry,
-                GeometryOut
+                GeometryOut,
+                false
             >::apply(geometry, robust_policy, std::back_inserter(dissolved1),
                      strategy, visitor);
 

@@ -113,7 +113,7 @@ public :
     }
 };
 
-template <typename Geometry, typename GeometryOut>
+template <typename Geometry, typename GeometryOut, bool Reverse>
 struct dissolve_ring_or_polygon
 {
     template <typename Turns>
@@ -169,8 +169,9 @@ struct dissolve_ring_or_polygon
 
         std::vector<turn_info> turns;
         detail::dissolve::no_interrupt_policy policy;
-        geometry::self_turns
+        detail::self_get_turn_points::self_turns
             <
+                Reverse,
                 detail::overlay::assign_null_policy
             >(geometry, strategy, rescale_policy, turns, policy, 0, false);
 
@@ -205,7 +206,7 @@ struct dissolve_ring_or_polygon
         typename Strategy::side_strategy_type const
             side_strategy = strategy.get_side_strategy();
 
-        enrich_intersection_points<false, false, overlay_dissolve>(turns,
+        enrich_intersection_points<Reverse, Reverse, overlay_dissolve>(turns,
                     clusters, geometry, geometry, rescale_policy,
                     side_strategy);
 
@@ -215,7 +216,7 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
-        detail::dissolve::traverse<backtrack_for_dissolve<Geometry> >
+        detail::dissolve::traverse<Reverse, backtrack_for_dissolve<Geometry> >
                 ::apply(geometry, strategy, rescale_policy,
                      turns, rings, turn_info_per_ring, clusters, visitor);
 
@@ -297,25 +298,26 @@ namespace dispatch
 
 template
 <
-    typename GeometryTag,
-    typename GeometryOutTag,
     typename Geometry,
-    typename GeometryOut
+    typename GeometryOut,
+    bool Reverse,
+    typename GeometryTag = typename tag<Geometry>::type,
+    typename GeometryOutTag = typename tag<GeometryOut>::type
 >
 struct dissolve
     : not_implemented<GeometryTag, GeometryOutTag>
 {};
 
 
-template<typename Polygon, typename PolygonOut>
-struct dissolve<polygon_tag, polygon_tag, Polygon, PolygonOut>
-    : detail::dissolve::dissolve_ring_or_polygon<Polygon, PolygonOut>
+template<typename Polygon, typename PolygonOut, bool Reverse>
+struct dissolve<Polygon, PolygonOut, Reverse, polygon_tag, polygon_tag>
+    : detail::dissolve::dissolve_ring_or_polygon<Polygon, PolygonOut, Reverse>
 {};
 
 
-template<typename Ring, typename RingOut>
-struct dissolve<ring_tag, ring_tag, Ring, RingOut>
-    : detail::dissolve::dissolve_ring_or_polygon<Ring, RingOut>
+template<typename Ring, typename RingOut, bool Reverse>
+struct dissolve<Ring, RingOut, Reverse, ring_tag, ring_tag>
+    : detail::dissolve::dissolve_ring_or_polygon<Ring, RingOut, Reverse>
 {};
 
 
@@ -365,10 +367,12 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry,
 
     return dispatch::dissolve
     <
-        typename tag<Geometry>::type,
-        typename tag<GeometryOut>::type,
         Geometry,
-        GeometryOut
+        GeometryOut,
+        detail::overlay::do_reverse
+        <
+            geometry::point_order<Geometry>::value
+        >::value
     >::apply(geometry, robust_policy, out, strategy, visitor);
 }
 
@@ -430,10 +434,12 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection,
 
     dispatch::dissolve
     <
-        typename tag<Geometry>::type,
-        typename tag<geometry_out>::type,
         Geometry,
-        geometry_out
+        geometry_out,
+        detail::overlay::do_reverse
+        <
+            geometry::point_order<Geometry>::value
+        >::value
     >::apply(geometry, robust_policy,
              std::back_inserter(output_collection),
              strategy, visitor);

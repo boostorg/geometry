@@ -28,7 +28,7 @@ namespace detail { namespace dissolve
         for dissolves calls traversal_ring_creator in two phases
     \ingroup dissolve
  */
-template <typename Backtrack>
+template <bool Reverse, typename Backtrack>
 class traverse
 {
 
@@ -54,7 +54,7 @@ public :
     {
         detail::overlay::traversal_ring_creator
             <
-                false, false, overlay_dissolve,
+                Reverse, Reverse, overlay_dissolve,
                 Geometry, Geometry,
                 Turns, TurnInfoMap, Clusters,
                 IntersectionStrategy,
