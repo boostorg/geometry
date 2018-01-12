@@ -193,10 +193,8 @@ struct dissolve_ring
             return out;
         }
 
-        // This is redundant later
-        typedef typename ring_type<Ring>::type ring_type;
-        typedef std::vector<ring_type> out_vector;
-        out_vector rings;
+        typedef std::vector<Ring> ring_container_type;
+        ring_container_type rings;
 
         typedef std::map
             <
@@ -242,9 +240,10 @@ struct dissolve_ring
 
         // Add intersected rings
         area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
+
         {
             ring_identifier id(2, 0, -1);
-            for (typename boost::range_iterator<std::vector<ring_type> const>::type
+            for (typename boost::range_iterator<ring_container_type const>::type
                     it = boost::begin(rings);
                     it != boost::end(rings);
                     ++it)

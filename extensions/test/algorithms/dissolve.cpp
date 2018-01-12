@@ -215,7 +215,7 @@ struct map_visitor
                                 "stroke:rgb(0,0,0);stroke-width:1", 4);
                     }
                     break;
-                case 3 : // after enrich/traverse for union
+                case 3 : // after enrich/traverse
                     label_turn(index, turn, -2, "fill:rgb(0,0,128);");
                     break;
             }
