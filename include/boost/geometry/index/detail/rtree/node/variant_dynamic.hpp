@@ -2,7 +2,7 @@
 //
 // R-tree nodes based on Boost.Variant, storing dynamic-size containers
 //
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,21 +22,17 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct variant_internal_node
 {
-    typedef ::boost::container::allocator_traits<
-        typename Allocators::node_allocator_type
-    > traits;
-    typedef boost::container::vector
+    typedef rtree::ptr_pair<Box, typename Allocators::node_pointer> element_type;
+    typedef typename boost::container::allocator_traits
         <
-            rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-            typename traits::template rebind_alloc
-                <
-                    rtree::ptr_pair<Box, typename Allocators::node_pointer>
-                >
-        > elements_type;
+            typename Allocators::node_allocator_type
+        >::template rebind_alloc<element_type> allocator_type;
+
+    typedef boost::container::vector<element_type, allocator_type> elements_type;
 
     template <typename Al>
     inline variant_internal_node(Al const& al)
-        : elements(al)
+        : elements(allocator_type(al))
     {}
 
     elements_type elements;
@@ -45,18 +41,16 @@ struct variant_internal_node
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct variant_leaf
 {
-    typedef ::boost::container::allocator_traits<
-        typename Allocators::node_allocator_type
-    > traits;
-    typedef boost::container::vector
+    typedef typename boost::container::allocator_traits
         <
-            Value,
-            typename traits::template rebind_alloc<Value>
-        > elements_type;
+            typename Allocators::node_allocator_type
+        >::template rebind_alloc<Value> allocator_type;
+
+    typedef boost::container::vector<Value, allocator_type> elements_type;
 
     template <typename Al>
     inline variant_leaf(Al const& al)
-        : elements(al)
+        : elements(allocator_type(al))
     {}
 
     elements_type elements;
@@ -95,27 +89,48 @@ struct visitor<Value, Parameters, Box, Allocators, node_variant_dynamic_tag, IsV
 
 // allocators
 
-template <typename Allocator, typename Value, typename Parameters, typename Box>
-struct dynamic_node_allocator {
-    typedef typename node<
-                Value, Parameters, Box,
-                allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>,
-                node_variant_dynamic_tag
-            >::type node_type;
+template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
+struct node_alloc
+{
+    typedef typename node
+        <
+            Value, Parameters, Box,
+            allocators<Allocator, Value, Parameters, Box, Tag>,
+            Tag
+        >::type node_type;
 
-    typedef typename ::boost::container::allocator_traits<Allocator>::template rebind_alloc<node_type> type;
-    typedef ::boost::container::allocator_traits<type> traits;
+    typedef typename boost::container::allocator_traits
+        <
+            Allocator
+        >::template rebind_alloc<node_type> type;
+
+    typedef boost::container::allocator_traits<type> traits;
 };
+
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>
-    : public dynamic_node_allocator<Allocator, Value, Parameters, Box>::type
+    : public detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_variant_dynamic_tag
+        >::type
 {
-    typedef typename ::boost::container::allocator_traits<Allocator>::template rebind_alloc<
-        Value
-    > value_allocator_type;
-    typedef ::boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
-    typedef dynamic_node_allocator<Allocator, Value, Parameters, Box> base;
+    typedef detail::rtree::node_alloc
+        <
+            Allocator, Value, Parameters, Box, node_variant_dynamic_tag
+        > node_alloc;
+
+public:
+    typedef typename node_alloc::type node_allocator_type;
+    typedef typename node_alloc::traits::pointer node_pointer;
+
+private:
+    typedef typename boost::container::allocator_traits
+        <
+            node_allocator_type // node_allocator_type for consistency with variant_leaf
+        >::template rebind_alloc<Value> value_allocator_type;
+    typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
+    
 
 public:
     typedef Allocator allocator_type;
@@ -127,9 +142,6 @@ public:
     typedef typename value_allocator_traits::difference_type difference_type;
     typedef typename value_allocator_traits::pointer pointer;
     typedef typename value_allocator_traits::const_pointer const_pointer;
-
-    typedef typename base::type node_allocator_type;
-    typedef typename base::traits::pointer node_pointer;
 
     inline allocators()
         : node_allocator_type()

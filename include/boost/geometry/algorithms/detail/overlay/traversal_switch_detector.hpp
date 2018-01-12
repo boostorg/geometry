@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
 {
@@ -495,7 +496,7 @@ struct traversal_switch_detector
             return ! (turn.both(operation_union) || turn.both(operation_intersection));
         }
 
-        if (target_operation == operation_union)
+        if (BOOST_GEOMETRY_CONDITION(target_operation == operation_union))
         {
             // It is a cluster, check zones
             // (assigned by sort_by_side/handle colocations) of both operations
@@ -590,7 +591,8 @@ struct traversal_switch_detector
         {
             turn_type const& turn = m_turns[turn_index];
 
-            if (turn.discarded && target_operation == operation_intersection)
+            if (turn.discarded
+                && BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
             {
                 // Discarded turn (union currently still needs it to determine regions)
                 continue;

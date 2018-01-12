@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
 #  include <iostream>
@@ -313,17 +314,17 @@ inline void assign_cluster_to_turns(Turns& turns,
         {
             turn_operation_type const& op = turn.operations[i];
             segment_fraction_type seg_frac(op.seg_id, op.fraction);
-            typename ClusterPerSegment::const_iterator it = cluster_per_segment.find(seg_frac);
-            if (it != cluster_per_segment.end())
+            typename ClusterPerSegment::const_iterator cit = cluster_per_segment.find(seg_frac);
+            if (cit != cluster_per_segment.end())
             {
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
                 if (turn.is_clustered()
-                        && turn.cluster_id != it->second)
+                        && turn.cluster_id != cit->second)
                 {
                     std::cout << " CONFLICT " << std::endl;
                 }
 #endif
-                turn.cluster_id = it->second;
+                turn.cluster_id = cit->second;
                 clusters[turn.cluster_id].turn_indices.insert(turn_index);
             }
         }
@@ -680,7 +681,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
 
-    if (target_operation == operation_intersection)
+    if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
     {
         discard_interior_exterior_turns
             <
