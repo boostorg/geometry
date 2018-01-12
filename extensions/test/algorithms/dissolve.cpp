@@ -570,11 +570,11 @@ void test_one(std::string caseid, std::string const& wkt,
     ut_settings settings; \
     (test_one<multi_polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
-template <typename P>
+template <typename P, bool Clockwise>
 void test_all(ut_settings const& settings_for_sensitive_cases)
 {
-    typedef bg::model::ring<P> ring;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::ring<P, Clockwise> ring;
+    typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 6);
@@ -659,7 +659,9 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<float> >(ut_settings(0.01));
-    test_all<bg::model::d2::point_xy<double> >(ut_settings());
+    test_all<bg::model::d2::point_xy<float>, true >(ut_settings(0.01));
+    test_all<bg::model::d2::point_xy<double>, true >(ut_settings());
+    // Counter clockwise input does not work correctly in all cases, it is
+    // partly a problem of the test itself
     return 0;
 }
