@@ -297,6 +297,51 @@ struct traversal
             || turn.has(operation_continue);
     }
 
+    inline std::size_t get_shortcut_level(turn_operation_type const& op,
+                             signed_size_type start_turn_index,
+                             signed_size_type origin_turn_index,
+                             std::size_t level = 1) const
+    {
+        signed_size_type next_turn_index = op.enriched.get_next_turn_index();
+        if (next_turn_index == -1)
+        {
+            return 0;
+        }
+        if (next_turn_index == start_turn_index)
+        {
+            // This operation finishes the ring
+            return 0;
+        }
+        if (next_turn_index == origin_turn_index)
+        {
+            // This operation travels to itself
+            return level;
+        }
+        if (level > 10)
+        {
+            // Avoid infinite recursion
+            return 0;
+        }
+
+        turn_type const& next_turn = m_turns[next_turn_index];
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& next_op = next_turn.operations[i];
+            if (next_op.operation == target_operation
+                && ! next_op.visited.finished()
+                && ! next_op.visited.visited())
+            {
+                // Recursively continue verifying
+                if (get_shortcut_level(next_op, start_turn_index,
+                                       origin_turn_index, level + 1))
+                {
+                    return level + 1;
+                }
+            }
+        }
+        return 0;
+    }
+
     inline
     bool select_cc_operation(turn_type const& turn,
                 signed_size_type start_turn_index,
@@ -377,7 +422,7 @@ struct traversal
         bool option[2] = {0};
         bool finishing[2] = {0};
         bool preferred[2] = {0};
-        bool short_cut[2] = {0};
+        std::size_t shortcut_level[2] = {0};
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
@@ -391,9 +436,10 @@ struct traversal
                 {
                     finishing[i] = true;
                 }
-                else if (op.enriched.get_next_turn_index() == turn_index)
+                else
                 {
-                    short_cut[i] = true;
+                    shortcut_level[i] = get_shortcut_level(op, start_turn_index,
+                                                           turn_index);
                 }
 
                 if (op.enriched.prefer_start)
@@ -420,11 +466,11 @@ struct traversal
                 return true;
             }
 
-            if (short_cut[0] != short_cut[1])
+            if (shortcut_level[0] != shortcut_level[1])
             {
-                // Take the one not traveling to itself (unless it
-                // closes the ring, as handled above)
-                selected_op_index = short_cut[0] ? 1 : 0;
+                // If a turn can travel to itself again (without closing the
+                // ring), take the shortest one
+                selected_op_index = shortcut_level[0] < shortcut_level[1] ? 0 : 1;
                 return true;
             }
 

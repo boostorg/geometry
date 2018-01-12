@@ -658,16 +658,11 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
                        settings_for_sensitive_cases);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // It is nearly correct but still contains one overlap, to be fixed
-    TEST_DISSOLVE(gitter_2013_04_a, 2831.82, 4, 0, 29);
-#endif
+    TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(ggl_list_denis, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(ggl_list_denis, 21123.3281, 2, 0, 22);
 }
 
 
