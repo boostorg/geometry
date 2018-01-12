@@ -113,8 +113,8 @@ public :
     }
 };
 
-template <typename Geometry, typename GeometryOut, bool Reverse>
-struct dissolve_ring_or_polygon
+template <typename Ring, typename GeometryOut, bool Reverse>
+struct dissolve_ring
 {
     template <typename Turns>
     static void adapt_turns(Turns& turns)
@@ -152,13 +152,13 @@ struct dissolve_ring_or_polygon
         typename RescalePolicy, typename OutputIterator,
         typename Strategy, typename Visitor
     >
-    static inline OutputIterator apply_one(Geometry const& geometry,
+    static inline OutputIterator apply_one(Ring const& input_ring,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& strategy,
                 Visitor& visitor)
     {
-        typedef typename point_type<Geometry>::type point_type;
+        typedef typename point_type<Ring>::type point_type;
 
         // Get the self-intersection points, including turns
         typedef detail::overlay::traversal_turn_info
@@ -173,7 +173,7 @@ struct dissolve_ring_or_polygon
             <
                 Reverse,
                 detail::overlay::assign_null_policy
-            >(geometry, strategy, rescale_policy, turns, policy, 0, false);
+            >(input_ring, strategy, rescale_policy, turns, policy, 0, false);
 
         adapt_turns(turns);
 
@@ -181,16 +181,17 @@ struct dissolve_ring_or_polygon
 
         if (boost::size(turns) == 0)
         {
-            // No self-turns, then add original geometry,
+            // No self-turns, then add original ring,
             // possibly reversing the order
             GeometryOut g;
-            geometry::convert(geometry, g);
+            geometry::convert(input_ring, g);
             geometry::correct(g);
             *out++ = g;
             return out;
         }
 
-        typedef typename ring_type<Geometry>::type ring_type;
+        // This is redundant later
+        typedef typename ring_type<Ring>::type ring_type;
         typedef std::vector<ring_type> out_vector;
         out_vector rings;
 
@@ -207,7 +208,7 @@ struct dissolve_ring_or_polygon
             side_strategy = strategy.get_side_strategy();
 
         enrich_intersection_points<Reverse, Reverse, overlay_dissolve>(turns,
-                    clusters, geometry, geometry, rescale_policy,
+                    clusters, input_ring, input_ring, rescale_policy,
                     side_strategy);
 
         visitor.visit_turns(2, turns);
@@ -216,15 +217,15 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 
-        detail::dissolve::traverse<Reverse, backtrack_for_dissolve<Geometry> >
-                ::apply(geometry, strategy, rescale_policy,
+        detail::dissolve::traverse<Reverse, backtrack_for_dissolve<Ring> >
+                ::apply(input_ring, strategy, rescale_policy,
                      turns, rings, turn_info_per_ring, clusters, visitor);
 
         visitor.visit_turns(3, turns);
 
         detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
-        typedef typename geometry::point_type<Geometry>::type point_type;
+        typedef typename geometry::point_type<Ring>::type point_type;
         typedef typename Strategy::template area_strategy
             <
                 point_type
@@ -234,7 +235,7 @@ struct dissolve_ring_or_polygon
 
         std::map<ring_identifier, properties> selected;
 
-        detail::overlay::select_rings<overlay_dissolve>(geometry, turn_info_per_ring, selected, strategy);
+        detail::overlay::select_rings<overlay_dissolve>(input_ring, turn_info_per_ring, selected, strategy);
 
         // Add intersected rings
         area_strategy_type const area_strategy = strategy.template get_area_strategy<point_type>();
@@ -250,9 +251,9 @@ struct dissolve_ring_or_polygon
             }
         }
 
-        detail::overlay::assign_parents<overlay_dissolve>(geometry,
+        detail::overlay::assign_parents<overlay_dissolve>(input_ring,
             rings, selected, strategy);
-        return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out, area_strategy);
+        return detail::overlay::add_rings<GeometryOut>(selected, input_ring, rings, out, area_strategy);
     }
 
     template
@@ -260,7 +261,7 @@ struct dissolve_ring_or_polygon
         typename RescalePolicy, typename OutputIterator,
         typename Strategy, typename Visitor
     >
-    static inline OutputIterator apply(Geometry const& geometry,
+    static inline OutputIterator apply(Ring const& geometry,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& strategy,
@@ -286,6 +287,26 @@ struct dissolve_ring_or_polygon
     }
 };
 
+template <typename Polygon, typename GeometryOut, bool Reverse>
+struct dissolve_polygon
+{
+    template
+    <
+        typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Polygon const& polygon,
+                RescalePolicy const& rescale_policy,
+                OutputIterator out,
+                Strategy const& strategy,
+                Visitor& visitor)
+    {
+        // For now this code redirects to ring, but it will handle
+        // rings separately and combine polygon later
+        return dissolve_ring<Polygon, GeometryOut, Reverse>
+                ::apply(polygon, rescale_policy, out, strategy, visitor);
+    }
+};
 
 
 }} // namespace detail::dissolve
@@ -309,15 +330,15 @@ struct dissolve
 {};
 
 
-template<typename Polygon, typename PolygonOut, bool Reverse>
-struct dissolve<Polygon, PolygonOut, Reverse, polygon_tag, polygon_tag>
-    : detail::dissolve::dissolve_ring_or_polygon<Polygon, PolygonOut, Reverse>
+template<typename Ring, typename RingOut, bool Reverse>
+struct dissolve<Ring, RingOut, Reverse, ring_tag, ring_tag>
+    : detail::dissolve::dissolve_ring<Ring, RingOut, Reverse>
 {};
 
 
-template<typename Ring, typename RingOut, bool Reverse>
-struct dissolve<Ring, RingOut, Reverse, ring_tag, ring_tag>
-    : detail::dissolve::dissolve_ring_or_polygon<Ring, RingOut, Reverse>
+template<typename Polygon, typename PolygonOut, bool Reverse>
+struct dissolve<Polygon, PolygonOut, Reverse, polygon_tag, polygon_tag>
+    : detail::dissolve::dissolve_polygon<Polygon, PolygonOut, Reverse>
 {};
 
 

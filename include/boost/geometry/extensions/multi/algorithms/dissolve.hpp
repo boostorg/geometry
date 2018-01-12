@@ -56,7 +56,7 @@ struct dissolve_multi
             it != boost::end(multi);
             ++it)
         {
-            dissolve_ring_or_polygon
+            dissolve_polygon
                 <
                     polygon_type,
                     GeometryOut,
