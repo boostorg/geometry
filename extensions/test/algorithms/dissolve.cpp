@@ -592,10 +592,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     TEST_DISSOLVE(dissolve_14, 4.0, 3, 0, 13);
     TEST_DISSOLVE(dissolve_15, 4.0, 3, 0, 13);
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // Needs handling interior rings separate from exterior rings
-    TEST_DISSOLVE(dissolve_16, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(dissolve_16, 8.2667, 8, 0, 38);
 
     TEST_DISSOLVE(dissolve_17, 14.5, 2, 0, 11);
     TEST_DISSOLVE(dissolve_18, 15.0, 3, 0, 15);
