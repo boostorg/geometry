@@ -347,6 +347,33 @@ struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 } // namespace resolve_variant
 
 
+/*!
+\brief Densify a geometry using a specified strategy
+\ingroup densify
+\tparam Geometry \tparam_geometry
+\tparam Distance A numerical distance measure
+\tparam Strategy A type fulfilling a DensifyStrategy concept
+\param geometry Input geometry, to be densified
+\param out Output geometry, densified version of the input geometry
+\param max_distance Distance threshold (in units depending on strategy)
+\param strategy Densify strategy to be used for densification
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/densify.qbk]}
+
+\qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_densify_cartesian Cartesian]
+\* [link geometry.reference.strategies.strategy_densify_spherical Spherical]
+\* [link geometry.reference.strategies.strategy_densify_geographic Geographic]
+}
+
+\qbk{
+[/heading Example]
+[/densify_strategy]
+[/densify_strategy_output]
+}
+*/
 template <typename Geometry, typename Distance, typename Strategy>
 inline void densify(Geometry const& geometry,
                     Geometry& out,
@@ -368,6 +395,24 @@ inline void densify(Geometry const& geometry,
         >::apply(geometry, out, max_distance, strategy);
 }
 
+
+/*!
+\brief Densify a geometry
+\ingroup densify
+\tparam Geometry \tparam_geometry
+\tparam Distance A numerical distance measure
+\param geometry Input geometry, to be densified
+\param out Output geometry, densified version of the input geometry
+\param max_distance Distance threshold (in units depending on coordinate system)
+
+\qbk{[include reference/algorithms/densify.qbk]}
+
+\qbk{
+[/heading Example]
+[/densify]
+[/densify_output]
+}
+*/
 template <typename Geometry, typename Distance, typename Strategy>
 inline void densify(Geometry const& geometry,
                     Geometry& out,
@@ -375,6 +420,7 @@ inline void densify(Geometry const& geometry,
 {
     densify(geometry, out, max_distance, default_strategy());
 }
+
 
 }} // namespace boost::geometry
 

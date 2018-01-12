@@ -30,12 +30,23 @@ namespace strategy { namespace densify
 {
 
 
+/*!
+\brief Densification of cartesian segment.
+\ingroup strategies
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.densify.densify_4_with_strategy densify (with strategy)]
+}
+ */
 template
 <
     typename CalculationType = void
 >
-struct cartesian
+class cartesian
 {
+public:
     template <typename Point, typename AssignPolicy, typename T>
     static inline void apply(Point const& p0, Point const& p1, AssignPolicy & policy, T const& length_threshold)
     {

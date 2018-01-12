@@ -30,14 +30,27 @@ namespace strategy { namespace densify
 {
 
 
+/*!
+\brief Densification of geographic segment.
+\ingroup strategies
+\tparam FormulaPolicy The geodesic formulas used internally.
+\tparam Spheroid The spheroid model.
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.densify.densify_4_with_strategy densify (with strategy)]
+}
+ */
 template
 <
     typename FormulaPolicy = strategy::andoyer,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-struct geographic
+class geographic
 {
+public:
     geographic()
         : m_spheroid()
     {}

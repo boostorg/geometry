@@ -34,13 +34,25 @@ namespace strategy { namespace densify
 {
 
 
+/*!
+\brief Densification of spherical segment.
+\ingroup strategies
+\tparam Sphere The sphere model.
+\tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.densify.densify_4_with_strategy densify (with strategy)]
+}
+ */
 template
 <
     typename Sphere = srs::sphere<double>,
     typename CalculationType = void
 >
-struct spherical
+class spherical
 {
+public:
     // For consistency with area strategy the radius is set to 1
     spherical()
         : m_radius(1.0)
