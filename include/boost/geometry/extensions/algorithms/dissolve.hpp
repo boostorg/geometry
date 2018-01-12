@@ -117,26 +117,6 @@ template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
 {
     template <typename Turns>
-    static inline void clear(Turns& turns)
-    {
-        typedef typename boost::range_value<Turns>::type turn_type;
-
-        for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(turns);
-            it != boost::end(turns);
-            ++it)
-        {
-            turn_type& turn = *it;
-            turn.discarded = false;
-            turn.cluster_id = -1;
-            turn.has_colocated_both = false;
-            turn.touch_only = false;
-        }
-
-        clear_visit_info(turns);
-    }
-
-    template <typename Turns>
     static void adapt_turns(Turns& turns)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
