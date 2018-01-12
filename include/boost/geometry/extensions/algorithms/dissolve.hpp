@@ -27,8 +27,6 @@
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 
-#include <boost/geometry/algorithms/detail/point_on_border.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 
@@ -42,8 +40,6 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-
-#include <boost/geometry/strategies/intersection.hpp>
 
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
@@ -155,7 +151,7 @@ struct dissolve_ring
         typename RescalePolicy, typename OutputIterator,
         typename Strategy, typename Visitor
     >
-    static inline OutputIterator apply_one(Ring const& input_ring,
+    static inline void apply_one(Ring const& input_ring,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& strategy,
@@ -190,7 +186,6 @@ struct dissolve_ring
             geometry::convert(input_ring, g);
             geometry::correct(g);
             *out++ = g;
-            return out;
         }
 
         typedef std::deque<Ring> ring_container_type;
@@ -256,7 +251,7 @@ struct dissolve_ring
 
         detail::overlay::assign_parents<overlay_dissolve>(input_ring,
             rings, selected, strategy);
-        return detail::overlay::add_rings<GeometryOut>(selected, input_ring, rings, out, area_strategy);
+        detail::overlay::add_rings<GeometryOut>(selected, input_ring, rings, out, area_strategy);
     }
 
     template
