@@ -15,7 +15,7 @@
 
 
 #include <map>
-#include <vector>
+#include <deque>
 
 #include <boost/range.hpp>
 
@@ -170,7 +170,7 @@ struct dissolve_ring
                 typename segment_ratio_type<point_type, RescalePolicy>::type
             > turn_info;
 
-        std::vector<turn_info> turns;
+        std::deque<turn_info> turns;
         detail::dissolve::no_interrupt_policy policy;
         detail::self_get_turn_points::self_turns
             <
@@ -193,7 +193,7 @@ struct dissolve_ring
             return out;
         }
 
-        typedef std::vector<Ring> ring_container_type;
+        typedef std::deque<Ring> ring_container_type;
         ring_container_type rings;
 
         typedef std::map
@@ -269,17 +269,18 @@ struct dissolve_ring
                 Strategy const& strategy,
                 Visitor& visitor)
     {
-        std::vector<GeometryOut> step1;
+        typedef model::multi_polygon<GeometryOut> multi_polygon;
+        multi_polygon step1;
         apply_one(geometry, rescale_policy, std::back_inserter(step1), strategy, visitor);
 
         // Step 2: remove mutual overlap
         {
-            std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
+            multi_polygon step2; // TODO avoid this, output to "out", if possible
             detail::dissolver::dissolver_generic
                 <
                     detail::dissolver::plusmin_policy
                 >::apply(step1, rescale_policy, step2, strategy);
-            for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
+            for (typename multi_polygon::const_iterator it = step2.begin();
                 it != step2.end(); ++it)
             {
                 *out++ = *it;
