@@ -241,8 +241,11 @@ struct map_visitor
         typedef typename boost::range_value<Rings>::type ring_type;
         BOOST_FOREACH(ring_type const& ring, rings)
         {
-            m_mapper.map(ring, "fill-opacity:0.1;fill:rgb(0,0,255);"
-                               "stroke:rgb(0,0,255);stroke-width:0.1");
+            double const area = bg::area(ring);
+            std::string const color = area < 0 ? "rgb(255,0,0)" : "rgb(0,0,255)";
+            std::string const style = "stroke:" + color
+                    + ";stroke-width:0.1;fill-opacity:0.1;fill:" + color;
+            m_mapper.map(ring, style);
         }
     }
 
