@@ -370,12 +370,14 @@ struct traversal
 
     inline
     bool select_preferred_operation(turn_type const& turn,
+                signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 int& selected_op_index) const
     {
         bool option[2] = {0};
         bool finishing[2] = {0};
         bool preferred[2] = {0};
+        bool short_cut[2] = {0};
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
@@ -389,6 +391,11 @@ struct traversal
                 {
                     finishing[i] = true;
                 }
+                else if (op.enriched.get_next_turn_index() == turn_index)
+                {
+                    short_cut[i] = true;
+                }
+
                 if (op.enriched.prefer_start)
                 {
                     preferred[i] = true;
@@ -406,11 +413,18 @@ struct traversal
         if (option[0] && option[1])
         {
             // Both operations are acceptable
-
             if (finishing[0] != finishing[1])
             {
-                // Only one operation can finish the ring
+                // Prefer operation finishing the ring
                 selected_op_index = finishing[0] ? 0 : 1;
+                return true;
+            }
+
+            if (short_cut[0] != short_cut[1])
+            {
+                // Take the one not traveling to itself (unless it
+                // closes the ring, as handled above)
+                selected_op_index = short_cut[0] ? 1 : 0;
                 return true;
             }
 
@@ -436,6 +450,7 @@ struct traversal
 
     inline
     bool select_operation(const turn_type& turn,
+                signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
@@ -449,8 +464,8 @@ struct traversal
         }
         else if (OverlayType == overlay_dissolve)
         {
-            result = select_preferred_operation(turn, start_turn_index,
-                selected_op_index);
+            result = select_preferred_operation(turn, turn_index,
+                start_turn_index, selected_op_index);
         }
         else
         {
@@ -891,7 +906,7 @@ struct traversal
                     return false;
                 }
 
-                if (! select_operation(current_turn,
+                if (! select_operation(current_turn, turn_index,
                                 start_turn_index,
                                 previous_seg_id,
                                 op_index))

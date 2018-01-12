@@ -612,6 +612,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     {
         ut_settings st = ut_settings();
+        st.skip_orientation_reverse = false;
         TEST_DISSOLVE_WITH(dissolve_star_a, 7.38821, 2, 0, 15, st);
         TEST_DISSOLVE_WITH(dissolve_star_b, 7.28259, 2, 0, 15, st);
         TEST_DISSOLVE_WITH(dissolve_star_c, 7.399696, 1, 0, 11, st);
