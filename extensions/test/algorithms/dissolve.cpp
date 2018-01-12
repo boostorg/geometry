@@ -235,6 +235,18 @@ struct map_visitor
                                bg::detail::overlay::traverse_error_type )
     {}
 
+    template <typename Rings>
+    void visit_generated_rings(Rings const& rings)
+    {
+        typedef typename boost::range_value<Rings>::type ring_type;
+        BOOST_FOREACH(ring_type const& ring, rings)
+        {
+            m_mapper.map(ring, "fill-opacity:0.1;fill:rgb(0,0,255);"
+                               "stroke:rgb(0,0,255);stroke-width:0.1");
+        }
+    }
+
+
 private :
 
     template <typename Turn>

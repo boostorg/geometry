@@ -89,6 +89,10 @@ struct overlay_null_visitor
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& , traverse_error_type )
     {}
+
+    template <typename Rings>
+    void visit_generated_rings(Rings const& )
+    {}
 };
 
 template

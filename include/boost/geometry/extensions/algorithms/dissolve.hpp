@@ -223,6 +223,7 @@ struct dissolve_ring
                      turns, rings, turn_info_per_ring, clusters, visitor);
 
         visitor.visit_turns(3, turns);
+        visitor.visit_generated_rings(rings);
 
         detail::overlay::get_ring_turn_info<overlay_dissolve>(turn_info_per_ring, turns, clusters);
 
