@@ -604,7 +604,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 10);
     TEST_DISSOLVE(dissolve_h2, 12.5, 2, 0, 13);
     TEST_DISSOLVE(dissolve_h3, 10.75, 1, 1, 14);
-    TEST_DISSOLVE(dissolve_h4, 14.4583333, 1, 2, 15); // to be fixed, should get 3 holes
+    TEST_DISSOLVE(dissolve_h4, 14.3447, 1, 3, 17);
 
     TEST_DISSOLVE(dissolve_star_a, 7.38821, 2, 0, 15);
     TEST_DISSOLVE(dissolve_star_b, 7.28259, 2, 0, 15);
