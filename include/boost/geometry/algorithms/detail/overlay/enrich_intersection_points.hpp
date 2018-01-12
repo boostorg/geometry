@@ -136,6 +136,7 @@ inline void enrich_assign(Operations& operations, Turns& turns,
 
             // Cluster behaviour: next should point after cluster, unless
             // their seg_ids are not the same
+            // (For dissolve, this is still to be examined - TODO)
             while (turn.is_clustered()
                    && it->turn_index != next->turn_index
                    && turn.cluster_id == turns[next->turn_index].cluster_id
