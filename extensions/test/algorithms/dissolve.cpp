@@ -603,13 +603,11 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
 
-#if 0 // temporarily disabled until inner rings are processed
-    TEST_DISSOLVE(dissolve_h1_a, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_h1_a, 14.0, 1, 1, 10);
     TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 10);
-    TEST_DISSOLVE(dissolve_h2, 16.25, 1, 0, 8);
-    TEST_DISSOLVE(dissolve_h3, 16.0, 1, 0, 5); // no generated hole (yet)
-    TEST_DISSOLVE(dissolve_h4, 14.484848, 1, 1, 9);
-#endif
+    TEST_DISSOLVE(dissolve_h2, 12.5, 2, 0, 13);
+    TEST_DISSOLVE(dissolve_h3, 10.75, 1, 1, 14);
+    TEST_DISSOLVE(dissolve_h4, 14.4583333, 1, 2, 15); // to be fixed, should get 3 holes
 
     TEST_DISSOLVE(dissolve_star_a, 7.38821, 2, 0, 15);
     TEST_DISSOLVE(dissolve_star_b, 7.28259, 2, 0, 15);
@@ -642,9 +640,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_MULTI(multi_new_interior, 19.5206, 1, 1, 18);
     TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 14);
 
-#if 0 // temporarily disabled until inner rings are processed
     TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 19);
-#endif
     TEST_DISSOLVE_WITH(dissolve_ticket17, 0.00920834633689, 1, 1, 228,
                        settings_for_sensitive_cases);
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,

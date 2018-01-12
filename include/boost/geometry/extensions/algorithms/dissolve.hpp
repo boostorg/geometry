@@ -39,10 +39,13 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
+
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/extensions/algorithms/detail/overlay/dissolver.hpp>
 #include <boost/geometry/extensions/algorithms/detail/overlay/dissolve_traverse.hpp>
@@ -319,6 +322,24 @@ struct dissolve_polygon
         }
     }
 
+    template
+    <
+        typename Rings,
+        typename RescalePolicy, typename OutputCollection,
+        typename Strategy, typename Visitor
+    >
+    static inline void apply_rings(Rings const& rings,
+                RescalePolicy const& rescale_policy,
+                OutputCollection& out,
+                Strategy const& strategy,
+                Visitor& visitor)
+    {
+        for (typename boost::range_iterator<Rings const>::type
+             it = boost::begin(rings); it != boost::end(rings); ++it)
+        {
+            apply_ring(*it, rescale_policy, out, strategy, visitor);
+        }
+    }
 
     template
     <
@@ -331,21 +352,33 @@ struct dissolve_polygon
                 Strategy const& strategy,
                 Visitor& visitor)
     {
-        std::vector<GeometryOut> exterior_output;
+        typedef model::multi_polygon<GeometryOut> multi_polygon;
 
+        // Handle exterior ring
+        multi_polygon exterior_out;
         apply_ring(exterior_ring(polygon), rescale_policy,
-                   exterior_output, strategy, visitor);
+                   exterior_out, strategy, visitor);
 
-        // Todo: apply dissolve to all interior rings individually, and then
-        // combine them together using union, and then to exterior ring
-        // using difference
+        // Dissolve all the (negative) interior rings into
+        // a (positive) mulpolygon. Do this per interior ring and combine them.
+        multi_polygon interior_out_per_ring;
+        apply_rings(interior_rings(polygon), rescale_policy,
+                   interior_out_per_ring, strategy, visitor);
 
-        for (typename std::vector<GeometryOut>::const_iterator it = exterior_output.begin();
-            it != exterior_output.end(); ++it)
-        {
-            *out++ = *it;
-        }
-        return out;
+        // Remove mutual overlap in the interior ring output
+        multi_polygon interior_out;
+        detail::dissolver::dissolver_generic
+            <
+                detail::dissolver::plusmin_policy
+            >::apply(interior_out_per_ring, rescale_policy, interior_out, strategy);
+
+        // Subtract the interior rings from the output. Where interior rings
+        // are partly or completely outside the polygon, sym_difference will
+        // turn them into exterior rings. This is probably what most users will
+        // expect - alternatively, difference could be used to have them pure
+        // as interior rings only
+        return detail::sym_difference::sym_difference_insert<GeometryOut>(
+                    exterior_out, interior_out, rescale_policy, out);
     }
 };
 
