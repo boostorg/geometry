@@ -215,7 +215,7 @@ struct map_visitor
                                 "stroke:rgb(0,0,0);stroke-width:1", 4);
                     }
                     break;
-                case 3 : // after enrich/traverse for union
+                case 3 : // after enrich/traverse
                     label_turn(index, turn, -2, "fill:rgb(0,0,128);");
                     break;
             }
@@ -234,6 +234,21 @@ struct map_visitor
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
                                bg::detail::overlay::traverse_error_type )
     {}
+
+    template <typename Rings>
+    void visit_generated_rings(Rings const& rings)
+    {
+        typedef typename boost::range_value<Rings>::type ring_type;
+        BOOST_FOREACH(ring_type const& ring, rings)
+        {
+            double const area = bg::area(ring);
+            std::string const color = area < 0 ? "rgb(255,0,0)" : "rgb(0,0,255)";
+            std::string const style = "stroke:" + color
+                    + ";stroke-width:0.1;fill-opacity:0.1;fill:" + color;
+            m_mapper.map(ring, style);
+        }
+    }
+
 
 private :
 
@@ -305,14 +320,10 @@ struct ut_settings
 {
     double percentage;
     bool test_validity;
-    bool skip_orientation_normal;
-    bool skip_orientation_reverse;
 
     explicit ut_settings(double p = 0.001, bool tv = true)
         : percentage(p)
         , test_validity(tv)
-        , skip_orientation_normal(false)
-        , skip_orientation_reverse(true)
     {}
 
 };
@@ -387,10 +398,9 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         bg::dispatch::dissolve
             <
-                typename bg::tag<Geometry>::type,
-                typename bg::tag<GeometryOut>::type,
                 Geometry,
-                GeometryOut
+                GeometryOut,
+                false
             >::apply(geometry, robust_policy, std::back_inserter(dissolved1),
                      strategy, visitor);
 
@@ -500,25 +510,20 @@ void test_one(std::string caseid, std::string const& wkt,
     // cannot close it without making a copy.
     bg::correct_closure(geometry);
 
-    if (! settings.skip_orientation_normal)
-    {
-        test_dissolve<GeometryOut>(caseid, geometry,
-            expected_area,
-            expected_clip_count, expected_hole_count, expected_point_count,
-            settings);
-    }
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
+        expected_clip_count, expected_hole_count, expected_point_count,
+        settings);
 
-    if (! settings.skip_orientation_reverse)
-    {
-        bg::reverse(geometry);
+    // Verify if reversed version is indeed identical (it should, because each
+    // ring is now corrected within dissolve itself
+    bg::reverse(geometry);
 
-        caseid += "_rev";
-        test_dissolve<GeometryOut>(caseid, geometry,
-            expected_area,
-            expected_clip_count, expected_hole_count, expected_point_count,
-            settings);
-    }
-
+    caseid += "_rev";
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
+        expected_clip_count, expected_hole_count, expected_point_count,
+        settings);
 
 #ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
     // Test different combinations of a multi-polygon
@@ -565,11 +570,11 @@ void test_one(std::string caseid, std::string const& wkt,
     ut_settings settings; \
     (test_one<multi_polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
-template <typename P>
+template <typename P, bool Clockwise>
 void test_all(ut_settings const& settings_for_sensitive_cases)
 {
-    typedef bg::model::ring<P> ring;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::ring<P, Clockwise> ring;
+    typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 6);
@@ -593,10 +598,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     TEST_DISSOLVE(dissolve_14, 4.0, 3, 0, 13);
     TEST_DISSOLVE(dissolve_15, 4.0, 3, 0, 13);
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // Needs handling interior rings separate from exterior rings
-    TEST_DISSOLVE(dissolve_16, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(dissolve_16, 8.2667, 8, 0, 38);
 
     TEST_DISSOLVE(dissolve_17, 14.5, 2, 0, 11);
     TEST_DISSOLVE(dissolve_18, 15.0, 3, 0, 15);
@@ -604,18 +606,15 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
 
-    TEST_DISSOLVE(dissolve_h1_a, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_h1_a, 14.0, 1, 1, 10);
     TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 10);
-    TEST_DISSOLVE(dissolve_h2, 16.25, 1, 0, 8);
-    TEST_DISSOLVE(dissolve_h3, 16.0, 1, 0, 5); // no generated hole (yet)
-    TEST_DISSOLVE(dissolve_h4, 14.484848, 1, 1, 9);
+    TEST_DISSOLVE(dissolve_h2, 12.5, 2, 0, 13);
+    TEST_DISSOLVE(dissolve_h3, 10.75, 1, 1, 14);
+    TEST_DISSOLVE(dissolve_h4, 14.3447, 1, 3, 17);
 
-    {
-        ut_settings st = ut_settings();
-        TEST_DISSOLVE_WITH(dissolve_star_a, 7.38821, 2, 0, 15, st);
-        TEST_DISSOLVE_WITH(dissolve_star_b, 7.28259, 2, 0, 15, st);
-        TEST_DISSOLVE_WITH(dissolve_star_c, 7.399696, 1, 0, 11, st);
-    }
+    TEST_DISSOLVE(dissolve_star_a, 7.38821, 2, 0, 15);
+    TEST_DISSOLVE(dissolve_star_b, 7.28259, 2, 0, 15);
+    TEST_DISSOLVE(dissolve_star_c, 7.399696, 1, 0, 11);
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
@@ -650,22 +649,19 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
                        settings_for_sensitive_cases);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // It is nearly correct but still contains one overlap, to be fixed
-    TEST_DISSOLVE(gitter_2013_04_a, 2831.82, 4, 0, 29);
-#endif
+    TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(ggl_list_denis, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(ggl_list_denis, 21123.3281, 2, 0, 22);
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<float> >(ut_settings(0.01));
-    test_all<bg::model::d2::point_xy<double> >(ut_settings());
+    test_all<bg::model::d2::point_xy<float>, true >(ut_settings(0.01));
+    test_all<bg::model::d2::point_xy<double>, true >(ut_settings());
+    // Counter clockwise input does not work correctly in all cases, it is
+    // partly a problem of the test itself
     return 0;
 }
