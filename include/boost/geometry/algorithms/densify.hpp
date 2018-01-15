@@ -366,12 +366,10 @@ struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \* [link geometry.reference.strategies.strategy_densify_cartesian Cartesian]
 \* [link geometry.reference.strategies.strategy_densify_spherical Spherical]
 \* [link geometry.reference.strategies.strategy_densify_geographic Geographic]
-}
 
-\qbk{
-[/heading Example]
-[/densify_strategy]
-[/densify_strategy_output]
+[heading Example]
+[densify_strategy]
+[densify_strategy_output]
 }
 */
 template <typename Geometry, typename Distance, typename Strategy>
@@ -408,9 +406,9 @@ inline void densify(Geometry const& geometry,
 \qbk{[include reference/algorithms/densify.qbk]}
 
 \qbk{
-[/heading Example]
-[/densify]
-[/densify_output]
+[heading Example]
+[densify]
+[densify_output]
 }
 */
 template <typename Geometry, typename Distance>

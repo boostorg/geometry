@@ -20,8 +20,6 @@
 The algorithm divides segments of a geometry if they are longer than passed
 distance into smaller segments.
 
-[note The units of the distance depends on strategy. By default in cartesian
-they are the units of the coordinate system, in spherical they are radians,
-in geographic they are meters on WGS84 spheroid. In order to change this a user
-has to create a strategy and pass it explicitly into the algorithm.
-]
+[note The units of the distance depends on strategy. In order to change the
+default behavior a user has to create a strategy and pass it explicitly into
+the algorithm.]
