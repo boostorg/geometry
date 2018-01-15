@@ -119,26 +119,17 @@ struct cs_data<G, bg::geographic_tag>
     bg::strategy::distance::geographic<> dist_s;
 };
 
-template <typename G, typename Check>
-inline void test_geometry(std::string const& wkt, Check const& check)
+template <typename G, typename DistS, typename Check>
+inline void check_result(G const& g, G const& o, double max_distance,
+                         DistS const& dist_s, Check const& check)
 {
-    cs_data<G> d;
-
-    G g;
-    bg::read_wkt(wkt, g);
-
-    double max_distance = shortest_length(g, d.dist_s) / 3.0;
-
-    G o;
-    bg::densify(g, o, max_distance, d.compl_s);
-
     // geometry was indeed densified
     std::size_t g_count = bg::num_points(g);
     std::size_t o_count = bg::num_points(o);
     BOOST_CHECK(g_count < o_count);
 
     // all segments have lengths smaller or equal to max_distance
-    double gr_len = greatest_length(o, d.dist_s);
+    double gr_len = greatest_length(o, dist_s);
     // NOTE: Currently geographic strategies can generate segments that have
     //       lengths slightly greater than max_distance. In order to change
     //       this the generation of new points should e.g. be recursive with
@@ -149,7 +140,35 @@ inline void test_geometry(std::string const& wkt, Check const& check)
     BOOST_CHECK(gr_len <= max_distance || is_close);
 
     // the overall length or perimeter didn't change
-    check(g, o, d.dist_s);
+    check(g, o, dist_s);
+}
+
+template <typename G, typename Check>
+inline void test_geometry(std::string const& wkt, Check const& check)
+{
+    cs_data<G> d;
+
+    G g;
+    bg::read_wkt(wkt, g);
+
+    {
+        bg::default_strategy def_s;
+        double max_distance = shortest_length(g, def_s) / 3.0;
+
+        G o;
+        bg::densify(g, o, max_distance);
+
+        check_result(g, o, max_distance, def_s, check);
+    }
+
+    {
+        double max_distance = shortest_length(g, d.dist_s) / 3.0;
+
+        G o;
+        bg::densify(g, o, max_distance, d.compl_s);
+
+        check_result(g, o, max_distance, d.dist_s, check);
+    }
 }
 
 template <typename G>
