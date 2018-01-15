@@ -277,10 +277,10 @@ struct densify
                              Distance const& max_distance,
                              default_strategy)
     {
-        typedef strategy::densify::services::default_strategy
+        typedef typename strategy::densify::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
-            > strategy_type;
+            >::type strategy_type;
         
         /*BOOST_CONCEPT_ASSERT(
             (concepts::DensifyStrategy<strategy_type>)
@@ -413,7 +413,7 @@ inline void densify(Geometry const& geometry,
 [/densify_output]
 }
 */
-template <typename Geometry, typename Distance, typename Strategy>
+template <typename Geometry, typename Distance>
 inline void densify(Geometry const& geometry,
                     Geometry& out,
                     Distance const& max_distance)
