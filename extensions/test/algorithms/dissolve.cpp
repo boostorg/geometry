@@ -87,6 +87,12 @@ namespace
 
     std::string const dissolve_16 = "POLYGON((1 3,4 5,7 3,4 1,1 3),(2 2,4 4,6 2,6 4,4 2,2 4,2 2))";
 
+    // Contains two types of turns
+    std::string const dissolve_17 = "POLYGON((0 1,0 5,3 5,3 2,2 3,4 3,4 0,5 1,0 1))";
+
+    // Same but with one more, creating a positive turn too
+    std::string const dissolve_18 = "POLYGON((0 1,0 5,3 5,3 2,2 3,4 3,4 0,6 2,6 1,0 1))";
+
     // Non intersection, but with duplicate
     std::string const dissolve_d1 = "POLYGON((0 0,0 4,4 0,4 0,0 0))";
 
@@ -107,6 +113,13 @@ namespace
 
     // Hole: self-intersecting hole
     std::string const dissolve_h4 = "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 3,3 2.5,1 3.5,1.5 3.5,1 1))";
+
+    // Star having an extra thingy
+    std::string const dissolve_star_a = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,18.7846546173095700 0.9956377148628235,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
+    // Star with larger extra thingy
+    std::string const dissolve_star_b = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,18.7846546173095700 0.500000000000000,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
+    // Star without extra thingy
+    std::string const dissolve_star_c = "POLYGON((20.1493053436279300 3.3291947841644287,13.9365568161010740 3.7241046428680420,18.7846546173095700 1.0315386056900024,17.9586830139160160 4.6934285163879395,15.1575593948364260 1.2828447818756104,20.1493053436279300 3.3291947841644287))";
 
     std::string const multi_three_triangles = "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))";
     std::string const multi_simplex_two = "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)))";
@@ -186,20 +199,24 @@ struct map_visitor
     void visit_turns(int phase, Turns const& turns)
     {
         typedef typename boost::range_value<Turns>::type turn_type;
-        std:size_t index = 0;
+        std::size_t index = 0;
         BOOST_FOREACH(turn_type const& turn, turns)
         {
             switch (phase)
             {
-                case 1 : // after self_turns
-                    m_mapper.map(turn.point, "fill:rgb(255,128,0);"
-                            "stroke:rgb(0,0,0);stroke-width:1", 4);
+                case 2 : // after self_turns and enrich
+                    if (turn.discarded)
+                    {
+                        m_mapper.map(turn.point, "fill:rgb(255,128,0);", 2);
+                    }
+                    else
+                    {
+                        m_mapper.map(turn.point, "fill:rgb(255,128,0);"
+                                "stroke:rgb(0,0,0);stroke-width:1", 4);
+                    }
                     break;
-                case 3 : // after enrich/traverse for union
-                    label_turn(index, turn, -5, "fill:rgb(0,0,128);");
-                    break;
-                case 5 : // after enrich/traverse for intersection
-                    label_turn(index, turn, 5, "fill:rgb(0,0,0);");
+                case 3 : // after enrich/traverse
+                    label_turn(index, turn, -2, "fill:rgb(0,0,128);");
                     break;
             }
             index++;
@@ -218,6 +235,21 @@ struct map_visitor
                                bg::detail::overlay::traverse_error_type )
     {}
 
+    template <typename Rings>
+    void visit_generated_rings(Rings const& rings)
+    {
+        typedef typename boost::range_value<Rings>::type ring_type;
+        BOOST_FOREACH(ring_type const& ring, rings)
+        {
+            double const area = bg::area(ring);
+            std::string const color = area < 0 ? "rgb(255,0,0)" : "rgb(0,0,255)";
+            std::string const style = "stroke:" + color
+                    + ";stroke-width:0.1;fill-opacity:0.1;fill:" + color;
+            m_mapper.map(ring, style);
+        }
+    }
+
+
 private :
 
     template <typename Turn>
@@ -227,22 +259,16 @@ private :
         bool result = false;
         if (! turn.discarded)
         {
-            if (turn.operations[index].enriched.next_ip_index != -1)
-            {
-                os << "->" << turn.operations[index].enriched.next_ip_index;
-                if (turn.operations[index].enriched.next_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
-            else
-            {
-                os << "->"  << turn.operations[index].enriched.travels_to_ip_index;
-                if (turn.operations[index].enriched.travels_to_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
+            os << "->" << turn.operations[index].enriched.get_next_turn_index();
+            result = true;
+        }
+        if (turn.operations[index].enriched.prefer_start)
+        {
+            os << "$";
+        }
+        if (! turn.operations[index].enriched.startable)
+        {
+            os << "@";
         }
 
         return result;
@@ -252,7 +278,7 @@ private :
     void label_turn(std::size_t index, Turn const& turn, int y_offset, std::string const& color)
     {
         std::ostringstream out;
-        out << index << " ";
+        out << index;
         if (turn.cluster_id != -1)
         {
             out << " c=" << turn.cluster_id << " ";
@@ -260,10 +286,6 @@ private :
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
-        if (turn.switch_source)
-        {
-            out << "#";
-        }
         if (turn.discarded)
         {
             out << "!";
@@ -293,7 +315,7 @@ private :
 
 #endif
 
-//! Unittest settings: validity, tolerance
+//! Unittest settings
 struct ut_settings
 {
     double percentage;
@@ -328,7 +350,8 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
     //std::cout << bg::area(geometry) << std::endl;
 
-    std::vector<GeometryOut> dissolved1;
+    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
+    multi_polygon dissolved1;
 
     // Check dispatch::dissolve
     {
@@ -368,42 +391,34 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
         mapper.add(geometry);
 
         mapper.map(geometry, "fill-opacity:0.5;fill:rgb(153,204,0);"
-            "stroke:rgb(153,204,0);stroke-width:3;fill-rule:nonzero");
+            "stroke:rgb(153,204,0);stroke-width:2;fill-rule:nonzero;");
 
         map_visitor<mapper_type> visitor(mapper);
 #endif
 
         bg::dispatch::dissolve
             <
-                typename bg::tag<Geometry>::type,
-                typename bg::tag<GeometryOut>::type,
                 Geometry,
-                GeometryOut
+                GeometryOut,
+                false
             >::apply(geometry, robust_policy, std::back_inserter(dissolved1),
                      strategy, visitor);
 
 #if defined(TEST_WITH_SVG)
         BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
         {
-           mapper.map(dissolved, "fill:none;stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:8;");
+           mapper.map(dissolved, "fill-opacity:0.1;fill:rgb(255,0,0);"
+                      "stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:3;"
+                                 "fill-rule:nonzero;");
         }
 #endif
 
     }
 
-    // Check dissolve_inserter
-    std::vector<GeometryOut> dissolved2;
-    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
-
-    // Check dissolve and validity, assuming GeometryOut is a single polygon
-    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
-    multi_polygon dissolved3;
-    bg::dissolve(geometry, dissolved3);
-
     if (settings.test_validity)
     {
         std::string message;
-        bool const valid = bg::is_valid(dissolved3, message);
+        bool const valid = bg::is_valid(dissolved1, message);
         BOOST_CHECK_MESSAGE(valid,
                 "dissolve: " << caseid
                 << " geometry is not valid: " << message);
@@ -414,20 +429,12 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     {
         bg::unique(dissolved);
     }
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
-    {
-        bg::unique(dissolved);
-    }
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
-    {
-        bg::unique(dissolved);
-    }
 
     typename bg::default_area_result<Geometry>::type length_or_area = 0;
     std::size_t holes = 0;
     std::size_t count = 0;
 
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
     {
         length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
@@ -453,8 +460,26 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     BOOST_CHECK_EQUAL(holes, expected_hole_count);
     BOOST_CHECK_CLOSE(length_or_area, expected_area, settings.percentage);
 
+    // Check dissolve_inserter
+    std::vector<GeometryOut> dissolved2;
+    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved2));
+
+    // Check dissolve and validity, assuming GeometryOut is a single polygon
+    multi_polygon dissolved3;
+    bg::dissolve(geometry, dissolved3);
+
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    {
+        bg::unique(dissolved);
+    }
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
+    {
+        bg::unique(dissolved);
+    }
+
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved2.size());
     BOOST_CHECK_EQUAL(dissolved1.size(), dissolved3.size());
+
     if (dissolved1.size() == dissolved2.size()
             && dissolved1.size() == dissolved3.size())
     {
@@ -471,7 +496,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
 
 template <typename Geometry, typename GeometryOut>
-void test_one(std::string const& caseid, std::string const& wkt,
+void test_one(std::string caseid, std::string const& wkt,
         double expected_area,
         std::size_t expected_clip_count,
         std::size_t expected_hole_count,
@@ -485,6 +510,16 @@ void test_one(std::string const& caseid, std::string const& wkt,
     // cannot close it without making a copy.
     bg::correct_closure(geometry);
 
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_area,
+        expected_clip_count, expected_hole_count, expected_point_count,
+        settings);
+
+    // Verify if reversed version is indeed identical (it should, because each
+    // ring is now corrected within dissolve itself
+    bg::reverse(geometry);
+
+    caseid += "_rev";
     test_dissolve<GeometryOut>(caseid, geometry,
         expected_area,
         expected_clip_count, expected_hole_count, expected_point_count,
@@ -535,11 +570,11 @@ void test_one(std::string const& caseid, std::string const& wkt,
     ut_settings settings; \
     (test_one<multi_polygon, polygon>) ( #caseid, caseid, area, clips, holes, points, settings); }
 
-template <typename P>
+template <typename P, bool Clockwise>
 void test_all(ut_settings const& settings_for_sensitive_cases)
 {
-    typedef bg::model::ring<P> ring;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::ring<P, Clockwise> ring;
+    typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 6);
@@ -563,18 +598,23 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     TEST_DISSOLVE(dissolve_14, 4.0, 3, 0, 13);
     TEST_DISSOLVE(dissolve_15, 4.0, 3, 0, 13);
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(dissolve_16, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(dissolve_16, 8.2667, 8, 0, 38);
+
+    TEST_DISSOLVE(dissolve_17, 14.5, 2, 0, 11);
+    TEST_DISSOLVE(dissolve_18, 15.0, 3, 0, 15);
 
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
 
-    TEST_DISSOLVE(dissolve_h1_a, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_h1_a, 14.0, 1, 1, 10);
     TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 10);
-    TEST_DISSOLVE(dissolve_h2, 16.25, 1, 0, 8);
-    TEST_DISSOLVE(dissolve_h3, 16.0, 1, 0, 5); // no generated hole (yet)
-    TEST_DISSOLVE(dissolve_h4, 14.484848, 1, 1, 9);
+    TEST_DISSOLVE(dissolve_h2, 12.5, 2, 0, 13);
+    TEST_DISSOLVE(dissolve_h3, 10.75, 1, 1, 14);
+    TEST_DISSOLVE(dissolve_h4, 14.3447, 1, 3, 17);
+
+    TEST_DISSOLVE(dissolve_star_a, 7.38821, 2, 0, 15);
+    TEST_DISSOLVE(dissolve_star_b, 7.28259, 2, 0, 15);
+    TEST_DISSOLVE(dissolve_star_c, 7.399696, 1, 0, 11);
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
@@ -609,23 +649,19 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
                        settings_for_sensitive_cases);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // To fix this, and ggl_list_denis, it is necessary to follow in both
-    // positive AND negative direction, which is not supported yet.
-    TEST_DISSOLVE(gitter_2013_04_a, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    TEST_DISSOLVE(ggl_list_denis, 99999.0, 9, 99, 999);
-#endif
+    TEST_DISSOLVE(ggl_list_denis, 21123.3281, 2, 0, 22);
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<float> >(ut_settings(0.01));
-    test_all<bg::model::d2::point_xy<double> >(ut_settings());
+    test_all<bg::model::d2::point_xy<float>, true >(ut_settings(0.01));
+    test_all<bg::model::d2::point_xy<double>, true >(ut_settings());
+    // Counter clockwise input does not work correctly in all cases, it is
+    // partly a problem of the test itself
     return 0;
 }

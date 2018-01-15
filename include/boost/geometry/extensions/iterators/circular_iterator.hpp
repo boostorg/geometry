@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ITERATORS_CIRCULAR_ITERATOR_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ITERATORS_CIRCULAR_ITERATOR_HPP
 
-#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
