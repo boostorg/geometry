@@ -1577,10 +1577,8 @@ struct buffered_piece_collection
             }
         }
 
-        // Assign parents, checking orientation but NOT discarding double
-        // negative rings (negative child with negative parent)
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings,
-                selected, m_intersection_strategy, true, false);
+        detail::overlay::assign_parents<overlay_buffer>(offsetted_rings, traversed_rings,
+                selected, m_intersection_strategy);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out,
                                                           m_area_strategy);
     }

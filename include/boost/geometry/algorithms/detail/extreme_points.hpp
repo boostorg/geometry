@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2013 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
-// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -536,6 +536,24 @@ inline bool extreme_points(Geometry const& geometry,
 }
 
 
+template
+<
+    std::size_t Edge,
+    typename Geometry,
+    typename Extremes,
+    typename Intruders
+>
+inline bool extreme_points(Geometry const& geometry,
+                           Extremes& extremes,
+                           Intruders& intruders)
+{
+    typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<Geometry>::type
+            >::type strategy_type;
+
+    return geometry::extreme_points<Edge>(geometry,extremes, intruders, strategy_type());
+}
 
 }} // namespace boost::geometry
 
