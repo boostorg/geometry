@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -335,14 +335,14 @@ area(Geometry const& geometry)
 \qbk{
 [include reference/algorithms/area.qbk]
 
-[heading Example]
-[area_with_strategy]
-[area_with_strategy_output]
-
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_area_cartesian Cartesian]
 \* [link geometry.reference.strategies.strategy_area_spherical Spherical]
-[/link geometry.reference.strategies.strategy_area_geographic Geographic]
+\* [link geometry.reference.strategies.strategy_area_geographic Geographic]
+
+[heading Example]
+[area_with_strategy]
+[area_with_strategy_output]
 }
  */
 template <typename Geometry, typename Strategy>

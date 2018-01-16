@@ -523,7 +523,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_area_cartesian">strategy::area::cartesian</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_area_spherical">strategy::area::spherical</link></member>
-     <!--member><link linkend="geometry.reference.strategies.strategy_area_geographic">strategy::area::geographic</link></member-->
+     <member><link linkend="geometry.reference.strategies.strategy_area_geographic">strategy::area::geographic</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
