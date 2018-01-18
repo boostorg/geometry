@@ -364,9 +364,18 @@ private:
                 return cast::apply(ps_strategy.apply(top_right, p0, p1));
             }
             else*/
-            if (less_equal(geometry::get<1>(bottom_right),
-                                geometry::get<1>(p0)))
+            if (less_equal(geometry::get<1>(bottom_right), geometry::get<1>(p0)))
             {
+                //meridian segment
+                if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
+                {
+                    if (math::abs(geometry::get<1>(p0)) > math::abs(geometry::get<1>(p1)))
+                    {
+                        return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                    }
+                    return cast::apply(ps_strategy.apply(p1, bottom_right, top_right));
+                }
+
                 return std::min(
                             cast::apply(ps_strategy.apply(top_right, p0, p1)),
                             cast::apply(ps_strategy.apply(p0, bottom_right, top_right))
@@ -587,10 +596,29 @@ private:
             // the segment lies above the box
             if (geometry::get<1>(p0) > geometry::get<1>(top_right))
             {
-                result = above_of_box
-                    <
-                        LessEqual
-                    >::apply(p0, p1, top_left, ps_strategy);
+                result = std::min(above_of_box
+                        <
+                            LessEqual
+                        >::apply(p0, p1, top_left, ps_strategy),
+                        above_of_box
+                        <
+                            LessEqual
+                        >::apply(p0, p1, top_right, ps_strategy));
+                if (geometry::get<0>(top_left) < geometry::get<0>(p0))
+                {
+                    result = std::min(result,
+                                      ps_strategy.get_distance_strategy()
+                                      .meridian(geometry::get_as_radian<1>(p0),
+                                                geometry::get_as_radian<1>(top_left)));
+                }
+                if (geometry::get<0>(top_right) > geometry::get<0>(p1))
+                {
+                    result = std::min(result,
+                                      ps_strategy.get_distance_strategy()
+                                      .meridian(geometry::get_as_radian<1>(p1),
+                                                geometry::get_as_radian<1>(top_right)));
+                }
+
                 return true;
             }
             return false;
