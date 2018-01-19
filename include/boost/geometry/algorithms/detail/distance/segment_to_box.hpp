@@ -638,6 +638,11 @@ private:
                                  PSStrategy const& ps_strategy,
                                  ReturnType& result)
         {
+            typedef typename geometry::strategy::side::services::default_strategy
+                <
+                    typename geometry::cs_tag<SegmentPoint>::type
+                >::type side;
+
             typedef cast_to_result<ReturnType> cast;
 
             ReturnType diff0 = cast::apply(geometry::get<0>(p1))
@@ -654,22 +659,26 @@ private:
             ReturnType t_max1 = cast::apply(geometry::get<1>(top_right1))
                 - cast::apply(geometry::get<1>(p0));
 
+            int sign = 1;
             if (diff1 < 0)
             {
+                sign = -1;
                 diff1 = -diff1;
                 t_min1 = -t_min1;
                 t_max1 = -t_max1;
             }
 
             //  t_min0 > t_max1
-            if (t_min0 * diff1 > t_max1 * diff0)
+            //if (t_min0 * diff1 > t_max1 * diff0)
+            if (side::apply(p0, p1, corner1) * sign < 0)
             {
                 result = cast::apply(ps_strategy.apply(corner1, p0, p1));
                 return true;
             }
 
             //  t_max0 < t_min1
-            if (t_max0 * diff1 < t_min1 * diff0)
+            //if (t_max0 * diff1 < t_min1 * diff0)
+            if (side::apply(p0, p1, corner2) * sign > 0)
             {
                 result = cast::apply(ps_strategy.apply(corner2, p0, p1));
                 return true;

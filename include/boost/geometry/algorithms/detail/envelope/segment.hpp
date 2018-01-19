@@ -171,8 +171,8 @@ private:
         CalculationType lon2_rad = math::as_radian<Units>(lon2);
 
         typedef typename geometry::formula::meridian_segment mseg;
-        mseg::SegmentType result_seg =
-        mseg::is_meridian(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
+        //mseg::SegmentType result_seg =
+        //mseg::is_meridian(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
         if (math::equals(a1, a2))// ||
             //result_seg == mseg::MeridianCrossingPole ||
             //result_seg == mseg::MeridianNotCrossingPole)

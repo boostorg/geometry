@@ -256,11 +256,40 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
                   strategy_ps);
 
     //segments on corners of box
+    //left-top corner
+    //generic
     tester::apply("test_c1", "SEGMENT(9 19.5, 11 21)", box1,
                   ps_distance("POINT(10 20)", "SEGMENT(9 19.5, 11 21)", strategy_ps),
                   strategy_ps);
+    //degenerate
     tester::apply("test_c2", "SEGMENT(9 19, 11 21)", box1,
                   ps_distance("POINT(10 20)", "SEGMENT(9 19, 11 21)", strategy_ps),
+                  strategy_ps);
+    //left-bottom corner
+    //generic
+    tester::apply("test_c3", "SEGMENT(8.5 11, 11 9)", box1,
+                  ps_distance("POINT(10 10)", "SEGMENT(8.5 11, 11 9)", strategy_ps),
+                  strategy_ps);
+    //degenerate
+    tester::apply("test_c4", "SEGMENT(9 11, 11 9)", box1,
+                  0,
+                  strategy_ps);
+    //right-top corner
+    //generic
+    tester::apply("test_c5", "SEGMENT(19 21, 21 19.5)", box1,
+                  ps_distance("POINT(20 20)", "SEGMENT(19 21, 21 19.5)", strategy_ps),
+                  strategy_ps);
+    //degenerate
+    tester::apply("test_c6", "SEGMENT(19 21, 21 19)", box1,
+                  ps_distance("POINT(20 20)", "SEGMENT(19 21, 21 19)", strategy_ps),
+                  strategy_ps);
+    //right-bottom corner
+    //generic
+    tester::apply("test_c7", "SEGMENT(19 9, 21 10.5)", box1,
+                  ps_distance("POINT(20 10)", "SEGMENT(19 9, 21 10.5)", strategy_ps),
+                  strategy_ps);
+    tester::apply("test_c7", "SEGMENT(19 9, 21 11)", box1,
+                  0,
                   strategy_ps);
 
 }
