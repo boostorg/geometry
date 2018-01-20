@@ -42,23 +42,23 @@ void test_all()
 
     double const pi = boost::geometry::math::pi<double>();
 
-    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * pi, 1.0, 1.0);
-    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8372, 2.0, 2.0);
-    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0, 3.0);
+    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * pi, 1.0);
+    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8372, 2.0);
+    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
 
-    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0, 1.0);
+    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
 #if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // For no-rescaling, fails in CCW mode
-    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0, 2.0);
+    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
 #endif
-    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6914, 1.9, 1.9);
-    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6394, 2.1, 2.1);
-    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.533, 3.0, 3.0);
+    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6914, 1.9);
+    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6394, 2.1);
+    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.533, 3.0);
 
-    test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join, end_flat, 2049.98, 14.0, 14.0);
-    test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join, end_flat, 7109.88, 15.0, 15.0);
-    test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join, end_flat, 6911.89, 14.7, 14.7);
-    test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join, end_flat, 7174.79, 15.1, 15.1);
+    test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join, end_flat, 2049.98, 14.0);
+    test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join, end_flat, 7109.88, 15.0);
+    test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join, end_flat, 6911.89, 14.7);
+    test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join, end_flat, 7174.79, 15.1);
 
     // Grid tests
     {
@@ -79,7 +79,8 @@ void test_all()
     test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy,
-            bg::strategy::buffer::point_circle(800), 115057490003226.125, 1.0);
+            bg::strategy::buffer::point_circle(800),
+            115057490003226.125, ut_settings(1.0));
 
     {
         multi_point_type g;
@@ -90,7 +91,7 @@ void test_all()
             distance_strategy(1),
             side_strategy,
             bg::strategy::buffer::point_circle(36),
-            true, 1, 0, 3.12566719800474635, 1.0, NULL);
+            1, 0, 3.12566719800474635, ut_settings(1.0));
     }
 }
 
@@ -131,7 +132,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_8000",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(8000),
-            115058661065242.812, 10.0 * tolerance);
+            115058661065242.812, ut_settings(10.0 * tolerance));
 
     // Expectations:
     // 115058672785641.031
@@ -141,7 +142,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(83585),
-            115058672785660.0, 25.0 * tolerance);
+            115058672785660.0, ut_settings(25.0 * tolerance));
 
     // Takes about 7 seconds in release mode
     // Expectations:
@@ -152,7 +153,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_250k",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(250000),
-            115058672879977.0, 75.0 * tolerance);
+            115058672879977.0, ut_settings(75.0 * tolerance));
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Takes about 110 seconds in release mode
@@ -160,7 +161,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_800k",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(800000),
-            115058672871849.219, tolerance);
+            115058672871849.219, ut_settings(tolerance));
 #endif
 
     // 5666962: area ~> 100890546298964
@@ -172,7 +173,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_2",
             mysql_report_2015_02_25_2, join, end_flat,
             distance_strategy(5666962), side_strategy, point_circle(46641),
-            100891031341795.0, 3.0 * tolerance);
+            100891031341795.0, ut_settings(3.0 * tolerance));
 
     // Multipoint b with large distances/many points
     // Area ~> pi * 10x
@@ -186,7 +187,7 @@ void test_many_points_per_circle()
             "multipoint_b_50k",
             multipoint_b, join, end_flat,
             distance_strategy(1000000), side_strategy, point_circle(50000),
-            3141871558227.0, 10.0 * tolerance);
+            3141871558227.0, ut_settings(10.0 * tolerance));
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Tests optimization min/max radius
@@ -195,7 +196,7 @@ void test_many_points_per_circle()
             "multipoint_b_500k",
             multipoint_b, join, end_flat,
             distance_strategy(10000000), side_strategy, point_circle(500000),
-            314162054419515.562, tolerance);
+            314162054419515.562, ut_settings((tolerance));
 #endif
 }
 

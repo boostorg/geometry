@@ -18,7 +18,6 @@
 
 #include <iterator>
 
-#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 

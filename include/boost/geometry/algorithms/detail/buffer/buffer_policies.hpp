@@ -127,6 +127,10 @@ public :
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
             detail::overlay::traverse_error_type )
     {}
+
+    template <typename Rings>
+    void visit_generated_rings(Rings const& )
+    {}
 };
 
 

@@ -8,8 +8,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#include <iostream>
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
@@ -244,21 +242,11 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 2)", "POINT(2 2)", strategy_pp),
                   strategy_ps);
-    tester::apply("p-s-mer2",
-                  "POINT(2.5 3)",
-                  "SEGMENT(2 2,2 4)",
-                  pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", andoyer_pp()),
-                  andoyer_strategy());
     tester::apply("p-s-mer3",
                   "POINT(2.5 5)",
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 5)", "POINT(2 4)", strategy_pp),
                   strategy_ps);
-    tester::apply("p-s-mer4",
-                  "POINT(1 80)",
-                  "SEGMENT(0 0,0 90)",
-                  pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", andoyer_pp()),
-                  andoyer_strategy());
 
     //degenerate segment
     tester::apply("p-s-deg",
@@ -318,13 +306,75 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   pp_distance("POINT(90 -89)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
     // degenerate segment
-    tester::apply("p-s-14",
+    tester::apply("p-s-15",
+                  "POINT(90 90)",
+                  "SEGMENT(0.5 -90,175.5 -90)",
+                  pp_distance("POINT(0.5 -90)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+    tester::apply("p-s-16",
                   "POINT(90 90)",
                   "SEGMENT(0.5 -90,175.5 -90)",
                   pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
                   strategy_ps);
+    // equatorial segment
+    tester::apply("p-s-17",
+                  "POINT(90 90)",
+                  "SEGMENT(0 0,175.5 0)",
+                  pp_distance("POINT(90 90)", "POINT(0 0)", strategy_pp),
+                  strategy_ps);
+    // segment pass by pole
+    tester::apply("p-s-18",
+                  "POINT(90 90)",
+                  "SEGMENT(0 0,180 0)",
+                  0,
+                  strategy_ps);
 
+}
 
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_point_segment_no_thomas(Strategy_pp const& strategy_pp,
+                                           Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/segment distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, segment_type> tester;
+
+    // thomas strategy is failing for those test cases
+
+    // meridian special case
+    tester::apply("p-s-mer2",
+                  "POINT(2.5 3)",
+                  "SEGMENT(2 2,2 4)",
+                  pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", strategy_pp),
+                  strategy_ps);
+
+    tester::apply("p-s-mer4",
+                  "POINT(1 80)",
+                  "SEGMENT(0 0,0 90)",
+                  pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", strategy_pp),
+                  strategy_ps);
+
+    // Half meridian segment passing through pole
+    tester::apply("p-s-19",
+                  "POINT(90 89)",
+                  "SEGMENT(0 0,180 0)",
+                  pp_distance("POINT(90 89)", "POINT(90 90)", strategy_pp),
+                  strategy_ps);
+
+    tester::apply("p-s-20",
+                  "POINT(80 89)",
+                  "SEGMENT(0 0,180 0)",
+                  pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
+                  strategy_ps);
+
+    tester::apply("p-s-20",
+                  "POINT(80 89)",
+                  "SEGMENT(0 -1,180 1)",
+                  pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
+                  strategy_ps);
 }
 
 //===========================================================================
@@ -619,6 +669,10 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
+
+    test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_strategy());
+    //test_distance_point_segment_no_thomas(thomas_pp(), thomas_strategy());
+    test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_strategy());
 
     test_distance_point_linestring(vincenty_pp(), vincenty_strategy());
     test_distance_point_linestring(thomas_pp(), thomas_strategy());

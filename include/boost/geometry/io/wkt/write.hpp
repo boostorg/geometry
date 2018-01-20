@@ -495,12 +495,14 @@ Small example showing how to use the wkt class
 template <typename Geometry>
 class wkt_manipulator
 {
+    static const bool is_ring = boost::is_same<typename tag<Geometry>::type, ring_tag>::value;
+
 public:
 
     // Boost.Geometry, by default, closes polygons explictly, but not rings
     // NOTE: this might change in the future!
     inline wkt_manipulator(Geometry const& g,
-            bool force_closure = ! boost::is_same<typename tag<Geometry>::type, ring_tag>::value)
+                           bool force_closure = ! is_ring)
         : m_geometry(g)
         , m_force_closure(force_closure)
     {}

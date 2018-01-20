@@ -35,7 +35,7 @@ namespace boost { namespace geometry
 namespace detail { namespace dissolve
 {
 
-template <typename Multi, typename GeometryOut>
+template <typename Multi, typename GeometryOut, bool Reverse>
 struct dissolve_multi
 {
     template
@@ -56,10 +56,11 @@ struct dissolve_multi
             it != boost::end(multi);
             ++it)
         {
-            dissolve_ring_or_polygon
+            dissolve_polygon
                 <
                     polygon_type,
-                    GeometryOut
+                    GeometryOut,
+                    Reverse
                 >::apply(*it, rescale_policy, std::back_inserter(step1),
                          strategy, visitor);
         }
@@ -96,9 +97,9 @@ namespace dispatch
 {
 
 
-template<typename Multi, typename GeometryOut>
-struct dissolve<multi_polygon_tag, polygon_tag, Multi, GeometryOut>
-    : detail::dissolve::dissolve_multi<Multi, GeometryOut>
+template<typename Multi, typename GeometryOut, bool Reverse>
+struct dissolve<Multi, GeometryOut, Reverse, multi_polygon_tag, polygon_tag>
+    : detail::dissolve::dissolve_multi<Multi, GeometryOut, Reverse>
 {};
 
 

@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -115,20 +117,40 @@ public:
 
             CT const dd = -(f/CT(4))*(H*K+G*L);
 
-            CT const a = get_radius<0>(spheroid);
+            CT const a = CT(get_radius<0>(spheroid));
 
             result.distance = a * (d + dd);
         }
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
         {
-            // sin_d = 0 <=> antipodal points
+            // sin_d = 0 <=> antipodal points (incl. poles)
             if (math::equals(sin_d, c0))
             {
                 // T = inf
                 // dA = inf
                 // azimuth = -inf
-                result.azimuth = lat1 <= lat2 ? c0 : pi;
+
+                // TODO: The following azimuths are inconsistent with distance
+                // i.e. according to azimuths below a segment with antipodal endpoints
+                // travels through the north pole, however the distance returned above
+                // is the length of a segment traveling along the equator.
+                // Furthermore, this special case handling is only done in andoyer
+                // formula.
+                // The most correct way of fixing it is to handle antipodal regions
+                // correctly and consistently across all formulas.
+
+                // Set azimuth to 0 unless the first endpoint is the north pole
+                if (! math::equals(sin_lat1, c1))
+                {
+                    result.azimuth = c0;
+                    result.reverse_azimuth = pi;
+                }
+                else
+                {
+                    result.azimuth = pi;
+                    result.reverse_azimuth = 0;
+                }
             }
             else
             {
@@ -187,11 +209,10 @@ public:
                 if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
                 {
                     CT const dB = -U*T + V;
-                    result.reverse_azimuth = pi - B - dB;
-                    if (result.reverse_azimuth > pi)
-                    {
-                        result.reverse_azimuth -= 2 * pi;
-                    }
+                    if (B >= 0)
+                        result.reverse_azimuth = pi - B - dB;
+                    else
+                        result.reverse_azimuth = -pi - B - dB;
                     normalize_azimuth(result.reverse_azimuth, B, dB);
                 }
             }
@@ -199,10 +220,12 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
+            CT const b = CT(get_radius<2>(spheroid));
+
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 1> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
-                              get_radius<2>(spheroid), f,
+                              b, f,
                               result.reduced_length, result.geodesic_scale);
         }
 

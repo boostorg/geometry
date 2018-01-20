@@ -243,6 +243,7 @@ struct buffer_range
                 EndStrategy const& end_strategy,
                 RobustPolicy const& robust_policy,
                 Strategy const& strategy, // side strategy
+                bool linear,
                 output_point_type& first_p1,
                 output_point_type& first_p2,
                 output_point_type& last_p1,
@@ -273,6 +274,10 @@ struct buffer_range
          *
          * pup: penultimate_point
          */
+
+        bool const mark_flat
+            = linear
+                && end_strategy.get_piece_type() == geometry::strategy::buffer::buffered_flat_end;
 
         geometry::strategy::buffer::result_code result = geometry::strategy::buffer::result_no_output;
         bool first = true;
@@ -318,6 +323,11 @@ struct buffer_range
 
             collection.add_side_piece(*prev, *it, generated_side, first);
 
+            if (first && mark_flat)
+            {
+                collection.mark_flat_start();
+            }
+
             penultimate_point = *prev;
             ultimate_point = *it;
             last_p1 = generated_side.front();
@@ -331,6 +341,12 @@ struct buffer_range
                 first_p2 = generated_side.back();
             }
         }
+
+        if (mark_flat)
+        {
+            collection.mark_flat_end();
+        }
+
         return result;
     }
 };
@@ -396,7 +412,7 @@ inline void buffer_point(Point const& point, Collection& collection,
         DistanceStrategy const& distance_strategy,
         PointStrategy const& point_strategy)
 {
-    collection.start_new_ring();
+    collection.start_new_ring(false);
     std::vector<OutputPointType> range_out;
     point_strategy.apply(point, distance_strategy, range_out);
     collection.add_piece(geometry::strategy::buffer::buffered_point, range_out, false);
@@ -499,7 +515,7 @@ struct buffer_inserter_ring
                 side,
                 distance_strategy, side_strategy, join_strategy, end_strategy,
                 robust_policy, strategy,
-                first_p1, first_p2, last_p1, last_p2);
+                false, first_p1, first_p2, last_p1, last_p2);
 
         // Generate closing join
         if (result == geometry::strategy::buffer::result_normal)
@@ -611,7 +627,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             RobustPolicy const& robust_policy,
             Strategy const& strategy) // side strategy
     {
-        collection.start_new_ring();
+        collection.start_new_ring(distance.negative());
         geometry::strategy::buffer::result_code const code
             = buffer_inserter_ring<RingInput, RingOutput>::apply(ring,
                 collection, distance,
@@ -689,7 +705,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                 begin, end, side,
                 distance_strategy, side_strategy, join_strategy, end_strategy,
                 robust_policy, strategy,
-                first_p1, first_p2, last_p1, last_p2);
+                true, first_p1, first_p2, last_p1, last_p2);
 
         if (result == geometry::strategy::buffer::result_normal)
         {
@@ -729,7 +745,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         std::size_t n = boost::size(simplified);
         if (n > 1)
         {
-            collection.start_new_ring();
+            collection.start_new_ring(false);
             output_point_type first_p1;
             code = iterate(collection,
                     boost::begin(simplified), boost::end(simplified),
@@ -803,7 +819,13 @@ private:
     {
         for (Iterator it = begin; it != end; ++it)
         {
-            collection.start_new_ring();
+            // For exterior rings, it deflates if distance is negative.
+            // For interior rings, it is vice versa
+            bool const deflate = is_interior
+                    ? ! distance.negative()
+                    : distance.negative();
+
+            collection.start_new_ring(deflate);
             geometry::strategy::buffer::result_code const code
                     = policy::apply(*it, collection, distance, side_strategy,
                     join_strategy, end_strategy, point_strategy,
@@ -865,7 +887,7 @@ public:
             Strategy const& strategy) // side strategy
     {
         {
-            collection.start_new_ring();
+            collection.start_new_ring(distance.negative());
 
             geometry::strategy::buffer::result_code const code
                 = policy::apply(exterior_ring(polygon), collection,
@@ -956,11 +978,6 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
             areal_tag
         >::type::value;
-    bool const linear = boost::is_same
-        <
-            typename tag_cast<typename tag<GeometryInput>::type, linear_tag>::type,
-            linear_tag
-        >::type::value;
 
     dispatch::buffer_inserter
         <
@@ -977,7 +994,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy, intersection_strategy.get_side_strategy());
 
     collection.get_turns();
-    collection.classify_turns(linear);
+    collection.classify_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
         collection.check_remaining_points(distance_strategy);

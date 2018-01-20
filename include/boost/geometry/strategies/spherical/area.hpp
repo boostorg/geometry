@@ -127,14 +127,15 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
+            typedef geometry::formula::area_formulas<CT> area_formulas;
 
-            state.m_sum += geometry::formula::area_formulas
-                             <CT>::template spherical<LongSegment>(p1, p2);
+            state.m_sum += area_formulas::template spherical<LongSegment>(p1, p2);
 
             // Keep track whenever a segment crosses the prime meridian
-            geometry::formula::area_formulas
-                         <CT>::crosses_prime_meridian(p1, p2, state);
-
+            if (area_formulas::crosses_prime_meridian(p1, p2))
+            {
+                state.m_crosses_prime_meridian++;
+            }
         }
     }
 

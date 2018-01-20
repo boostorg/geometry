@@ -168,7 +168,8 @@ public:
             {
                 CT const sigma2 = S_sigma - sigma1;
                 //theta2 = asin(cos(sigma2)) <=> sin_theta0 = 1
-                CT const tan_theta2 = cos(sigma2) / sin(sigma2);
+                // NOTE: cos(sigma2) defines the sign of tan_theta2
+                CT const tan_theta2 = cos(sigma2) / math::abs(sin(sigma2));
                 result.lat2 = atan(tan_theta2 / one_minus_f);
             }
 
@@ -176,7 +177,7 @@ public:
             {
                 result.lat2 = -result.lat2;
             }
-        }        
+        }
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {

@@ -132,17 +132,21 @@ void test_areal()
         3, 13, 3.0);
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // One intersection is missing (by rescaling)
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
-        case_108_multi[0], case_108_multi[1],
-        5, 33, 7.5,
-        ignore_validity);
+    {
+        ut_settings ignore_validity; ignore_validity.test_validity = false;
+
+        // One intersection is missing (by rescaling)
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
+            case_108_multi[0], case_108_multi[1],
+            5, 33, 7.5,
+            ignore_validity);
+    }
 #endif
 
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
     TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
     TEST_INTERSECTION(case_125_multi, 3, 17, 2.1);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_126_multi, 5, 27, 9.0);
 #else
     TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
@@ -161,12 +165,9 @@ void test_areal()
     TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
     TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
     TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
+    TEST_INTERSECTION(case_141_multi, 3, -1, 74.5);
 
-    // TODO: isolated region with multiple connection should be handled
-    // differently
-    TEST_INTERSECTION_IGNORE(case_141_multi, 2, -1, 74.5);
-
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_1, 8, 97, 47.0);
@@ -179,7 +180,7 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 87, 12.5); // Area from SQL Server
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 169, 67.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
@@ -313,14 +314,14 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_62, 9, -1, 10.5);
 
     TEST_INTERSECTION(case_recursive_boxes_63, 11, -1, 5.75);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_64, 5, -1, 17.25);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 4, -1, 17.25);
 #endif
     TEST_INTERSECTION(case_recursive_boxes_65, 3, -1, 17.25);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_66, 4, -1, 16.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_66, 2, -1, 16.0);
@@ -329,7 +330,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_67, 5, -1, 2.5);
     TEST_INTERSECTION(case_recursive_boxes_68, 8, -1, 9.5);
     TEST_INTERSECTION(case_recursive_boxes_69, 6, -1, 3.25);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_70, 6, -1, 18.5);
 #else
     // Misses a necessary self-turn and therefore a ring
@@ -339,7 +340,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_71, 3, -1, 1.75);
     TEST_INTERSECTION(case_recursive_boxes_72, 8, -1, 4.5);
     TEST_INTERSECTION(case_recursive_boxes_73, 3, -1, 18.5);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_74, 3, -1, 20.25);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_74, 2, -1, 20.25);
@@ -351,6 +352,21 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_78, 9, -1, 8.0);
     TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
     TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
+    TEST_INTERSECTION(case_recursive_boxes_81, 5, -1, 3.75);
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+    TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
+#else
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_82, 3, -1, 8.5);
+#endif
+
+    TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
+    TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
+#ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
+    TEST_INTERSECTION(case_recursive_boxes_85, 1, -1, 0.25);
+#endif
+    TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
+    TEST_INTERSECTION(case_recursive_boxes_87, 0, -1, 0.0);
+    TEST_INTERSECTION(case_recursive_boxes_88, 4, -1, 3.5);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -381,7 +397,7 @@ void test_areal()
         mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_12, 2, 0, 11.812440191387557);
 #else
     TEST_INTERSECTION_IGNORE(mysql_23023665_12, 1, -1, 11.812440191387557);
