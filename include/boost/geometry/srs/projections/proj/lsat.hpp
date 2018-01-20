@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -75,9 +75,9 @@ namespace projections
             };
 
             /* based upon Snyder and Linck, USGS-NMD */
-            template <typename Parameters, typename T>
+            template <typename T>
             inline void
-            seraz0(T lam, T const& mult, Parameters& par, par_lsat<T>& proj_parm)
+            seraz0(T lam, T const& mult, par_lsat<T>& proj_parm)
             {
                 T sdsq, h, s, fc, sd, sq, d__1;
 
@@ -265,12 +265,12 @@ namespace projections
                 proj_parm.rlm = geometry::math::pi<T>() * (1. / 248. + .5161290322580645);
                 proj_parm.rlm2 = proj_parm.rlm + geometry::math::two_pi<T>();
                 proj_parm.a2 = proj_parm.a4 = proj_parm.b = proj_parm.c1 = proj_parm.c3 = 0.;
-                seraz0(0., 1., par, proj_parm);
+                seraz0(0., 1., proj_parm);
                 for (lam = 9.; lam <= 81.0001; lam += 18.)
-                    seraz0(lam, 4., par, proj_parm);
+                    seraz0(lam, 4., proj_parm);
                 for (lam = 18; lam <= 72.0001; lam += 18.)
-                    seraz0(lam, 2., par, proj_parm);
-                seraz0(90., 1., par, proj_parm);
+                    seraz0(lam, 2., proj_parm);
+                seraz0(90., 1., proj_parm);
                 proj_parm.a2 /= 30.;
                 proj_parm.a4 /= 60.;
                 proj_parm.b /= 30.;

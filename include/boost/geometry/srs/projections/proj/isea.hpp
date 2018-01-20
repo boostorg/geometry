@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -155,8 +155,8 @@ namespace projections
 
             template <typename T>
             inline
-            int hexbin2(int horizontal, T const& width, T x, T y,
-                            int *i, int *j) {
+            int hexbin2(T const& width, T x, T y,
+                        int *i, int *j) {
                 T z, rx, ry, rz;
                 T abs_dx, abs_dy, abs_dz;
                 int ix, iy, iz, s;
@@ -821,7 +821,7 @@ namespace projections
                 maxcoord = (int) (sidelength * 2.0 + 0.5);
 
                 v = *pt;
-                hexbin2(0, hexwidth, v.x, v.y, &h.x, &h.y);
+                hexbin2(hexwidth, v.x, v.y, &h.x, &h.y);
                 h.iso = 0;
                 hex_iso(&h);
 
@@ -899,7 +899,7 @@ namespace projections
 
                 v = *pt;
                 isea_rotate(&v, -30.0);
-                hexbin2(0, hexwidth, v.x, v.y, &h.x, &h.y);
+                hexbin2(hexwidth, v.x, v.y, &h.x, &h.y);
                 h.iso = 0;
                 hex_iso(&h);
 

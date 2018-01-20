@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -64,13 +64,7 @@ namespace projections
     {
 
             static const double EPS10 = 1.e-10;
-
-            template <typename T>
-            struct par_cc
-            {
-                T ap;
-            };
-
+            
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
             struct base_cc_spheroid : public base_t_fi<base_cc_spheroid<CalculationType, Parameters>,
@@ -79,8 +73,6 @@ namespace projections
 
                 typedef CalculationType geographic_type;
                 typedef CalculationType cartesian_type;
-
-                par_cc<CalculationType> m_proj_parm;
 
                 inline base_cc_spheroid(const Parameters& par)
                     : base_t_fi<base_cc_spheroid<CalculationType, Parameters>,
@@ -114,8 +106,8 @@ namespace projections
             };
 
             // Central Cylindrical
-            template <typename Parameters, typename T>
-            inline void setup_cc(Parameters& par, par_cc<T>& proj_parm)
+            template <typename Parameters>
+            inline void setup_cc(Parameters& par)
             {
                 par.es = 0.;
             }
@@ -140,7 +132,7 @@ namespace projections
     {
         inline cc_spheroid(const Parameters& par) : detail::cc::base_cc_spheroid<CalculationType, Parameters>(par)
         {
-            detail::cc::setup_cc(this->m_par, this->m_proj_parm);
+            detail::cc::setup_cc(this->m_par);
         }
     };
 
