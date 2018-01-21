@@ -31,7 +31,6 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -96,6 +95,8 @@
 
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/srs/srs.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
