@@ -352,6 +352,11 @@ public :
         : m_strategy(s)
     {}
 
+    //TODO: apply a more general strategy getter
+    inline Strategy get_distance_strategy() const
+    {
+        return m_strategy;
+    }
 
     // It might be useful in the future
     // to overload constructor with strategy info.
@@ -526,6 +531,11 @@ public :
         : m_strategy(s)
     {}
 
+    //TODO: apply a more general strategy getter
+    inline Strategy get_distance_strategy() const
+    {
+        return m_strategy;
+    }
 
     // It might be useful in the future
     // to overload constructor with strategy info.
