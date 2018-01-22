@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -107,8 +109,6 @@ struct is_properly_oriented
     {
         boost::ignore_unused(visitor);
 
-        typedef typename point_type<Ring>::type point_type;
-
         typedef detail::area::ring_area
             <
                 order_as_direction<geometry::point_order<Ring>::value>::value,
@@ -117,8 +117,8 @@ struct is_properly_oriented
 
         typedef typename Strategy::template area_strategy
             <
-                point_type
-            >::type::return_type area_result_type;
+                Ring
+            >::type::template result_type<Ring>::type area_result_type;
 
         typename ring_area_predicate
             <
@@ -129,7 +129,7 @@ struct is_properly_oriented
         area_result_type const zero = 0;
         area_result_type const area
             = ring_area_type::apply(ring,
-                                    strategy.template get_area_strategy<point_type>());
+                                    strategy.template get_area_strategy<Ring>());
         if (predicate(area, zero))
         {
             return visitor.template apply<no_failure>();
