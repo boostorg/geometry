@@ -49,6 +49,7 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>
@@ -87,6 +88,10 @@ struct overlay_null_visitor
 
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& , traverse_error_type )
+    {}
+
+    template <typename Rings>
+    void visit_generated_rings(Rings const& )
     {}
 };
 
@@ -135,9 +140,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
             if (! is_self_turn<OverlayType>(turn)
                 && (
-                    (target_operation == operation_union
+                    (BOOST_GEOMETRY_CONDITION(target_operation == operation_union)
                       && op.enriched.count_left > 0)
-                  || (target_operation == operation_intersection
+                  || (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection)
                       && op.enriched.count_right <= 2)))
             {
                 // Avoid including untraversed rings which have polygons on

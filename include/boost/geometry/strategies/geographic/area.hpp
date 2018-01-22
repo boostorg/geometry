@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AREA_HPP
 
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/formulas/authalic_radius_sqr.hpp>

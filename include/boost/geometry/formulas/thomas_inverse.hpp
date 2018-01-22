@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2016 Oracle and/or its affiliates.
+// Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,7 +15,6 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
