@@ -26,7 +26,7 @@
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
-#include <boost/geometry/strategies/distance_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
@@ -89,7 +89,7 @@ public:
 
         typedef typename return_type<Point, Box>::type return_type;
 
-        return cross_track_point_box_generic
+        return details::cross_track_point_box_generic
                         <return_type>::apply(point, box, Strategy());
     }
 };
