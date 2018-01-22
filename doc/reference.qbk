@@ -45,6 +45,7 @@
 
 [section:adapted Adapted models]
 [include reference/geometries/adapted/c_array.qbk]
+[include reference/geometries/adapted/std_array.qbk]
 [include reference/geometries/adapted/boost_array.qbk]
 [include reference/geometries/adapted/boost_fusion.qbk]
 [include reference/geometries/adapted/boost_tuple.qbk]
