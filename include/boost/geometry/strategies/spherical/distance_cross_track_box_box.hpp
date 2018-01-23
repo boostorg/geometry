@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -157,11 +158,11 @@ public :
         // the max lat of box2 should be less than the max lat of box1
         bool bottom_max;
 
-        ReturnType top_common = std::min(lat_max1, lat_max2);
-        ReturnType bottom_common = std::max(lat_min1, lat_min2);
+        ReturnType top_common = (std::min)(lat_max1, lat_max2);
+        ReturnType bottom_common = (std::max)(lat_min1, lat_min2);
 
         // true if the closest points are on northern hemisphere
-        bool north_shortest = std::abs(top_common) > std::abs(bottom_common)
+        bool north_shortest = math::abs(top_common) > math::abs(bottom_common)
                 || lat_max1 <= lat_min2
                 || lat_min1 >= lat_max2;
 
