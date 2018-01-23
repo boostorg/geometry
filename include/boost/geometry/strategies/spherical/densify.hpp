@@ -24,6 +24,7 @@
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/strategies/densify.hpp>
+#include <boost/geometry/strategies/spherical/get_radius.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -38,7 +39,7 @@ namespace strategy { namespace densify
 /*!
 \brief Densification of spherical segment.
 \ingroup strategies
-\tparam Sphere The sphere model.
+\tparam RadiusTypeOrSphere \tparam_radius_or_sphere
 \tparam CalculationType \tparam_calculation
 
 \qbk{
@@ -48,25 +49,23 @@ namespace strategy { namespace densify
  */
 template
 <
-    typename Sphere = srs::sphere<double>,
+    typename RadiusTypeOrSphere = double,
     typename CalculationType = void
 >
 class spherical
 {
 public:
     // For consistency with area strategy the radius is set to 1
-    spherical()
+    inline spherical()
         : m_radius(1.0)
     {}
 
-    explicit spherical(Sphere const& sphere)
-        : m_radius(geometry::get_radius<0>(sphere))
-    {}
-
-    // TODO: use enable_if/disable_if to distinguish between Sphere and Radius?
-    template <typename OtherSphere>
-    explicit spherical(OtherSphere const& sphere)
-        : m_radius(geometry::get_radius<0>(sphere))
+    template <typename RadiusOrSphere>
+    explicit inline spherical(RadiusOrSphere const& radius_or_sphere)
+        : m_radius(strategy_detail::get_radius
+                    <
+                        RadiusOrSphere
+                    >::apply(radius_or_sphere))
     {}
 
     template <typename Point, typename AssignPolicy, typename T>
@@ -160,7 +159,10 @@ public:
     }
 
 private:
-    typename geometry::radius_type<Sphere>::type m_radius;
+    typename strategy_detail::get_radius
+        <
+            RadiusTypeOrSphere
+        >::type m_radius;
 };
 
 

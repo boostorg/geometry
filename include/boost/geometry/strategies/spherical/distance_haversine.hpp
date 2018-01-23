@@ -2,10 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -15,16 +16,18 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_HAVERSINE_HPP
 
 
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/srs/sphere.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/spherical/get_radius.hpp>
 
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -45,7 +48,7 @@ namespace comparable
 // - applying asin (which is strictly (monotone) increasing)
 template
 <
-    typename RadiusType,
+    typename RadiusTypeOrSphere = double,
     typename CalculationType = void
 >
 class haversine
@@ -64,10 +67,21 @@ public :
           >
     {};
 
-    typedef RadiusType radius_type;
+    typedef typename strategy_detail::get_radius
+        <
+            RadiusTypeOrSphere
+        >::type radius_type;
 
-    explicit inline haversine(RadiusType const& r = 1.0)
-        : m_radius(r)
+    inline haversine()
+        : m_radius(1.0)
+    {}
+
+    template <typename RadiusOrSphere>
+    explicit inline haversine(RadiusOrSphere const& radius_or_sphere)
+        : m_radius(strategy_detail::get_radius
+                    <
+                        RadiusOrSphere
+                    >::apply(radius_or_sphere))
     {}
 
     template <typename Point1, typename Point2>
@@ -81,12 +95,12 @@ public :
     }
 
     template <typename T1, typename T2>
-    inline RadiusType meridian(T1 lat1, T2 lat2) const
+    inline radius_type meridian(T1 lat1, T2 lat2) const
     {
         return m_radius * (lat1 - lat2);
     }
 
-    inline RadiusType radius() const
+    inline radius_type radius() const
     {
         return m_radius;
     }
@@ -101,7 +115,7 @@ private :
                 + cos(lat1) * cos(lat2) * math::hav(lon2 - lon1);
     }
 
-    RadiusType m_radius;
+    radius_type m_radius;
 };
 
 
@@ -112,7 +126,7 @@ private :
 \brief Distance calculation for spherical coordinates
 on a perfect sphere using haversine
 \ingroup strategies
-\tparam RadiusType \tparam_radius
+\tparam RadiusTypeOrSphere \tparam_radius_or_sphere
 \tparam CalculationType \tparam_calculation
 \author Adapted from: http://williams.best.vwh.net/avform.htm
 \see http://en.wikipedia.org/wiki/Great-circle_distance
@@ -130,12 +144,12 @@ A mathematically equivalent formula, which is less subject
 */
 template
 <
-    typename RadiusType,
+    typename RadiusTypeOrSphere = double,
     typename CalculationType = void
 >
 class haversine
 {
-    typedef comparable::haversine<RadiusType, CalculationType> comparable_type;
+    typedef comparable::haversine<RadiusTypeOrSphere, CalculationType> comparable_type;
 
 public :
     template <typename Point1, typename Point2>
@@ -143,14 +157,28 @@ public :
         : services::return_type<comparable_type, Point1, Point2>
     {};
 
-    typedef RadiusType radius_type;
+    typedef typename strategy_detail::get_radius
+        <
+            RadiusTypeOrSphere
+        >::type radius_type;
+
+    /*!
+    \brief Default constructor, radius set to 1.0 for the unit sphere
+    */
+    inline haversine()
+        : m_radius(1.0)
+    {}
 
     /*!
     \brief Constructor
-    \param radius radius of the sphere, defaults to 1.0 for the unit sphere
+    \param radius_or_sphere radius of the sphere or sphere model
     */
-    inline haversine(RadiusType const& radius = 1.0)
-        : m_radius(radius)
+    template <typename RadiusOrSphere>
+    explicit inline haversine(RadiusOrSphere const& radius_or_sphere)
+        : m_radius(strategy_detail::get_radius
+                    <
+                        RadiusOrSphere
+                    >::apply(radius_or_sphere))
     {}
 
     /*!
@@ -177,7 +205,7 @@ public :
     */
 
     template <typename T1, typename T2>
-    inline RadiusType meridian(T1 lat1, T2 lat2) const
+    inline radius_type meridian(T1 lat1, T2 lat2) const
     {
         return m_radius * (lat1 - lat2);
     }
@@ -186,13 +214,13 @@ public :
     \brief access to radius value
     \return the radius
     */
-    inline RadiusType radius() const
+    inline radius_type radius() const
     {
         return m_radius;
     }
 
 private :
-    RadiusType m_radius;
+    radius_type m_radius;
 };
 
 
