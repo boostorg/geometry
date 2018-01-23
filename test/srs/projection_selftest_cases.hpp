@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -192,7 +192,7 @@ static const projection_case projection_cases[] = {
             {-189109.88690862127,   94583.752387504152},
             {-189109.88690862127,  -94583.752387504152}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "aitoff",
         "",
@@ -265,7 +265,7 @@ static const projection_case projection_cases[] = {
             {-223404.97818097242,  111722.34028976287},
             {-223404.97818097242,  -111722.34028976287}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "bacon",
         "",
@@ -282,7 +282,7 @@ static const projection_case projection_cases[] = {
             {-223334.13255596498,  175450.72592266591},
             {-223334.13255596498,  -175450.72592266591}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "apian",
         "",
@@ -299,7 +299,7 @@ static const projection_case projection_cases[] = {
             {-223374.57735525275,   111701.07212763709},
             {-223374.57735525275,  -111701.07212763709}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "ortel",
         "",
@@ -316,7 +316,7 @@ static const projection_case projection_cases[] = {
             {-223374.57735525275,   111701.07212763709},
             {-223374.57735525275,  -111701.07212763709}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "bipc_e",
         "bipc_s",
@@ -369,7 +369,7 @@ static const projection_case projection_cases[] = {
             {-211949.70080818201,   117720.99830541089},
             {-211949.70080818201,  -117720.99830541089},
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "bonne_e",
         "bonne_s",
@@ -563,7 +563,7 @@ static const projection_case projection_cases[] = {
             {-27864.7856491046077,  223364.327328827145},
             {-251312.289116443484,  223402.142197287147}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "collg",
         "",
@@ -666,7 +666,7 @@ static const projection_case projection_cases[] = {
             {-223377.422876954137,  111701.07212763709},
             {-223377.422876954137, -111701.07212763709}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "eck1",
         "",
@@ -1007,7 +1007,7 @@ static const projection_case projection_cases[] = {
             {-194350.25093959007,  111703.90763533533},
             {-194350.25093959007, -111703.90763533533}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "sinu_e",
         "sinu_s",
@@ -1420,7 +1420,7 @@ static const projection_case projection_cases[] = {
             {-1575486.3536415542, 3442168.3420281881},
             {-1575486.353880283,  3234352.6955947056}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "krovak",
         "",
@@ -1529,7 +1529,7 @@ static const projection_case projection_cases[] = {
             {-111703.37591722561,   27929.8319080333386},
             {-111699.122088816002, -83784.1780133577704}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "larr",
         "",
@@ -1546,7 +1546,7 @@ static const projection_case projection_cases[] = {
             {-223393.637624200899,  111707.215961255497},
             {-223393.637624200899,  -111707.215961255497}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "lask",
         "",
@@ -1563,7 +1563,7 @@ static const projection_case projection_cases[] = {
             {-217928.275907355128,  112144.32922014239},
             {-217928.275907355128, -112144.32922014239}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "lcc",
         "",
@@ -2232,7 +2232,7 @@ static const projection_case projection_cases[] = {
             {-223374.561814139714,  111732.553988545071},
             {-223374.561814139714, -111732.553988545071}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "nsper",
         "",
@@ -2861,7 +2861,7 @@ static const projection_case projection_cases[] = {
             {-223368.09830201423,  111769.110486991223},
             {-223368.09830201423, -111769.110486991223}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },
     // sch projection not implemented in Boost.Geometry
     // and the tests are not implemented in Proj4 anyway   
@@ -3413,7 +3413,7 @@ static const projection_case projection_cases[] = {
             {-223458.84419245756,  111769.14504058579},
             {-223458.84419245756,  -111769.14504058579}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "tcea",
         "",
@@ -3532,7 +3532,7 @@ static const projection_case projection_cases[] = {
             {-223393.6384339639,  111696.81878511712},
             {-223393.6384339639, -111696.81878511712}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "urmfps",
         "",
@@ -3633,7 +3633,7 @@ static const projection_case projection_cases[] = {
             {-223395.24785043663,  111718.49103722633},
             {-223395.24785043663, -111718.49103722633}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "vandg3",
         "",
@@ -3650,7 +3650,7 @@ static const projection_case projection_cases[] = {
             {-223395.24955283134,  111704.51990442065},
             {-223395.24955283134, -111704.51990442065}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "vandg4",
         "",
@@ -3667,7 +3667,7 @@ static const projection_case projection_cases[] = {
             {-223374.57729435508,  111701.19548415358 },
             {-223374.57729435508, -111701.19548415358 }
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },
     // vgridshift projection is not implemented in Boost.Geometry
     // and the Proj4 test is in a different format
@@ -3743,7 +3743,7 @@ static const projection_case projection_cases[] = {
             {-198601.87695731167,  125637.0457141714},
             {-198601.87695731167, -125637.0457141714}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     },{
         "wink1",
         "",
@@ -3788,7 +3788,7 @@ static const projection_case projection_cases[] = {
             {-223387.39643378611,  124752.03279744535},
             {-223387.39643378611, -124752.03279744535}
         },
-        {},{},{HUGE_VAL}
+        {},{},{{HUGE_VAL}}
     }
 };
 
