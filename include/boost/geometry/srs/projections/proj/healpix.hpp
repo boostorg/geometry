@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -119,7 +119,7 @@ namespace projections
              * Return the index of the matrix in {{{1, 0},{0, 1}}, {{ 0,-1},{ 1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0, 1},{-1, 0}}, {{ 0, 1},{-1, 0}}, {{-1, 0},{ 0,-1}}, {{ 0,-1},{ 1, 0}}}.
              * @param index ranges from -3 to 3.
              */
-            static int get_rotate_index(int index)
+            inline int get_rotate_index(int index)
             {
                 switch(index) {
                 case 0:
