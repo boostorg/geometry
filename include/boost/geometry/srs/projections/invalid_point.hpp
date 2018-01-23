@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -23,14 +23,14 @@ namespace boost { namespace geometry { namespace projections
 template <typename Point>
 inline void set_invalid_point(Point & point)
 {
-    set<0>(point, HUGE_VAL);
-    set<1>(point, HUGE_VAL);
+    geometry::set<0>(point, HUGE_VAL);
+    geometry::set<1>(point, HUGE_VAL);
 }
 
 template <typename Point>
 inline bool is_invalid_point(Point const& point)
 {
-    return get<0>(point) == HUGE_VAL;
+    return geometry::get<0>(point) == HUGE_VAL;
 }
 
 }}} // namespace boost::geometry::projections
