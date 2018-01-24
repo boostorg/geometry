@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,10 +14,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HPP
 
 
-#include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/formulas/area_formulas.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/strategies/area.hpp>
+#include <boost/geometry/strategies/spherical/get_radius.hpp>
 
 
 namespace boost { namespace geometry
@@ -27,63 +27,11 @@ namespace strategy { namespace area
 {
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
-template
-<
-    typename RadiusTypeOrSphere,
-    typename Tag = typename tag<RadiusTypeOrSphere>::type
->
-struct get_radius
-{
-    typedef typename geometry::radius_type<RadiusTypeOrSphere>::type type;
-    static type apply(RadiusTypeOrSphere const& sphere)
-    {
-        return geometry::get_radius<0>(sphere);
-    }
-};
-
-template <typename RadiusTypeOrSphere>
-struct get_radius<RadiusTypeOrSphere, void>
-{
-    typedef RadiusTypeOrSphere type;
-    static type apply(RadiusTypeOrSphere const& radius)
-    {
-        return radius;
-    }
-};
-
-// For backward compatibility
-template <typename Point>
-struct get_radius<Point, point_tag>
-{
-    typedef typename select_most_precise
-        <
-            typename coordinate_type<Point>::type,
-            double
-        >::type type;
-
-    template <typename RadiusOrSphere>
-    static typename get_radius<RadiusOrSphere>::type
-        apply(RadiusOrSphere const& radius_or_sphere)
-    {
-        return get_radius<RadiusOrSphere>::apply(radius_or_sphere);
-    }
-};
-
-
-} // namespace detail
-#endif // DOXYGEN_NO_DETAIL
-
-
 /*!
 \brief Spherical area calculation
 \ingroup strategies
 \details Calculates area on the surface of a sphere using the trapezoidal rule
-\tparam RadiusTypeOrSphere Radius type definition, may be Radius type, Sphere
-                           or Point (only for backward compatibility)
+\tparam RadiusTypeOrSphere \tparam_radius_or_sphere
 \tparam CalculationType \tparam_calculation
 
 \qbk{
@@ -171,7 +119,7 @@ public :
 
     template <typename RadiusOrSphere>
     explicit inline spherical(RadiusOrSphere const& radius_or_sphere)
-        : m_radius(strategy::area::detail::get_radius
+        : m_radius(strategy_detail::get_radius
                     <
                         RadiusOrSphere
                     >::apply(radius_or_sphere))
@@ -207,7 +155,7 @@ public :
     }
 
 private :
-    typename strategy::area::detail::get_radius
+    typename strategy_detail::get_radius
         <
             RadiusTypeOrSphere
         >::type m_radius;
