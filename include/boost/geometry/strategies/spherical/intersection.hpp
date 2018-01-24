@@ -163,38 +163,12 @@ struct ecef_segments
     template <typename CoordinateType, typename SegmentRatio, typename Vector3d>
     struct segment_intersection_info
     {
-        typedef typename select_most_precise
-            <
-                CoordinateType, double
-            >::type promoted_type;
-
         segment_intersection_info(CalcPolicy const& calc)
             : calc_policy(calc)
         {}
 
-        promoted_type comparable_length_a() const
-        {
-            return robust_ra.denominator();
-        }
-
-        promoted_type comparable_length_b() const
-        {
-            return robust_rb.denominator();
-        }
-
         template <typename Point, typename Segment1, typename Segment2>
-        void assign_a(Point& point, Segment1 const& a, Segment2 const& b) const
-        {
-            assign(point, a, b);
-        }
-        template <typename Point, typename Segment1, typename Segment2>
-        void assign_b(Point& point, Segment1 const& a, Segment2 const& b) const
-        {
-            assign(point, a, b);
-        }
-
-        template <typename Point, typename Segment1, typename Segment2>
-        void assign(Point& point, Segment1 const& a, Segment2 const& b) const
+        void calculate(Point& point, Segment1 const& a, Segment2 const& b) const
         {
             if (ip_flag == ipi_inters)
             {
