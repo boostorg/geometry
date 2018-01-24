@@ -334,6 +334,23 @@ public :
     }
 };
 
+template <typename CT>
+class vertex_longitude<CT, cartesian_tag>
+{
+public :
+    template <typename Strategy>
+    static inline CT apply(CT& lon1,
+                           CT& lat1,
+                           CT& lon2,
+                           CT& lat2,
+                           CT const& vertex_lat,
+                           CT& alp1,
+                           Strategy const& azimuth_strategy)
+    {
+        return lon2;
+    }
+};
+
 }}} // namespace boost::geometry::formula
 #endif // BOOST_GEOMETRY_FORMULAS_MAXIMUM_LONGITUDE_HPP
 

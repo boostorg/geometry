@@ -167,10 +167,10 @@ private:
 
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
-        CalculationType lon1_rad = math::as_radian<Units>(lon1);
-        CalculationType lon2_rad = math::as_radian<Units>(lon2);
+        //CalculationType lon1_rad = math::as_radian<Units>(lon1);
+        //CalculationType lon2_rad = math::as_radian<Units>(lon2);
 
-        typedef typename geometry::formula::meridian_segment mseg;
+        //typedef typename geometry::formula::meridian_segment mseg;
         //mseg::SegmentType result_seg =
         //mseg::is_meridian(lon1_rad, lat1_rad, lon2_rad, lat2_rad);
         if (math::equals(a1, a2))// ||
