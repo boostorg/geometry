@@ -40,7 +40,7 @@
 #include <boost/geometry/formulas/mean_radius.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-#  include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 #endif
 
 #ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
@@ -165,19 +165,29 @@ private :
     }
 
     template <typename CT>
-    CT static inline normalize(CT g4)
+    CT static inline normalize(CT g4, CT& der)
     {
         CT const pi = math::pi<CT>();
-        if (g4 < 0 && g4 < -pi)//close to -270
+        if (g4 < -1.25*pi)//close to -270
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "g4=" << g4 <<  ", close to -270" << std::endl;
+#endif
             return g4 + 1.5 * pi;
         }
-        else if (g4 > 0 && g4 > pi)//close to 270
+        else if (g4 > 1.25*pi)//close to 270
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "g4=" << g4 <<  ", close to 270" << std::endl;
+#endif
             return - g4 + 1.5 * pi;
         }
-        else if (g4 < 0 && g4 > -pi)//close to -90
+        else if (g4 < 0 && g4 > -0.75*pi)//close to -90
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "g4=" << g4 <<  ", close to -90" << std::endl;
+#endif
+            der = -der;
             return -g4 - pi/2;
         }
         return g4 - pi/2;
@@ -204,7 +214,7 @@ private :
         result_distance_point_segment<CT> result;
 
         // Constants
-        CT const f = geometry::formula::flattening<CT>(spheroid);
+        //CT const f = geometry::formula::flattening<CT>(spheroid);
         CT const pi = math::pi<CT>();
         CT const half_pi = pi / CT(2);
         CT const c0 = CT(0);
@@ -227,11 +237,28 @@ private :
         //Note: antipodal points on equator does not define segment on equator
         //but pass by the pole
         CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
-        if (math::equals(lat1, c0) && math::equals(lat2, c0)
-            && !math::equals(math::abs(diff), pi))
+
+        typedef typename formula::elliptic_arc_length<CT> elliptic_arc_length;
+
+        bool meridian_not_crossing_pole =
+              elliptic_arc_length::meridian_not_crossing_pole(lat1, lat2, diff);
+
+        bool meridian_crossing_pole =
+              elliptic_arc_length::meridian_crossing_pole(diff);
+
+        //bool meridian_crossing_pole = math::equals(math::abs(diff), pi);
+        //bool meridian_not_crossing_pole = math::equals(math::abs(diff), c0);
+
+        if (math::equals(lat1, c0) && math::equals(lat2, c0) && !meridian_crossing_pole)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Equatorial segment" << std::endl;
+            std::cout << "segment=(" << lon1 * math::r2d<CT>();
+            std::cout << "," << lat1 * math::r2d<CT>();
+            std::cout << "),(" << lon2 * math::r2d<CT>();
+            std::cout << "," << lat2 * math::r2d<CT>();
+            std::cout << ")\np=(" << lon3 * math::r2d<CT>();
+            std::cout << "," << lat3 * math::r2d<CT>() << ")\n";
 #endif
             if (lon3 <= lon1)
             {
@@ -244,7 +271,12 @@ private :
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
-        if (math::equals(math::abs(diff), pi))
+        if ( (meridian_not_crossing_pole || meridian_crossing_pole ) && lat1 > lat2)
+        {
+            std::swap(lat1,lat2);
+        }
+
+        if (meridian_crossing_pole)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Meridian segment" << std::endl;
@@ -349,12 +381,9 @@ private :
                     geometry::cs::spherical_equatorial<geometry::radian>
                 > point;
 
-        CT bet1 = atan((1 - f) * tan(lon1));
-        CT bet2 = atan((1 - f) * tan(lon2));
-        CT bet3 = atan((1 - f) * tan(lon3));
-        point p1 = point(bet1, lat1);
-        point p2 = point(bet2, lat2);
-        point p3 = point(bet3, lat3);
+        point p1 = point(lon1, lat1);
+        point p2 = point(lon2, lat2);
+        point p3 = point(lon3, lat3);
 
         geometry::strategy::distance::cross_track<CT> cross_track(earth_radius);
         CT s34 = cross_track.apply(p3, p1, p2);
@@ -394,18 +423,24 @@ private :
                                                             lon3, lat3, spheroid);
             g4 = res34.azimuth - a4;
 
-            delta_g4 = normalize(g4);
+
 
             CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
             CT m34 = res34.reduced_length;
             CT der = (M43 / m34) * sin(g4);
+
+            // normalize (g4 - pi/2)
+            delta_g4 = normalize(g4, der);
+
             s14 = s14 - delta_g4 / der;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
                          "," << res14.lat2 * math::r2d<CT>() << std::endl;
-            std::cout << "delta_g4=" << delta_g4  << std::endl;
+            std::cout << "a34=" << res34.azimuth * math::r2d<CT>() << std::endl;
+            std::cout << "a4=" << a4 * math::r2d<CT>() << std::endl;
             std::cout << "g4=" << g4 * math::r2d<CT>() << std::endl;
+            std::cout << "delta_g4=" << delta_g4 * math::r2d<CT>()  << std::endl;
             std::cout << "der=" << der  << std::endl;
             std::cout << "M43=" << M43 << std::endl;
             std::cout << "spherical limit=" << cos(s14/earth_radius) << std::endl;
@@ -601,6 +636,30 @@ public :
     template <typename T>
     static inline return_type
     apply(geographic_cross_track<FormulaPolicy> const& , T const& distance)
+    {
+        return distance;
+    }
+};
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType,
+    typename P,
+    typename PS
+>
+struct result_from_distance<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>, P, PS>
+{
+private :
+    typedef typename geographic_cross_track
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        >::template return_type<P, PS>::type return_type;
+public :
+    template <typename T>
+    static inline return_type
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
     {
         return distance;
     }

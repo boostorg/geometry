@@ -14,7 +14,7 @@
 
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
-#include <boost/geometry/core/srs.hpp>
+
 #include <boost/mpl/assert.hpp>
 
 #include <boost/math/special_functions/hypot.hpp>

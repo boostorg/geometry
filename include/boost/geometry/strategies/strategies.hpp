@@ -3,9 +3,10 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -30,6 +31,7 @@
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
+#include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
@@ -40,7 +42,7 @@
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
-#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/azimuth.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
@@ -54,6 +56,7 @@
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
+#include <boost/geometry/strategies/cartesian/densify.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
@@ -70,9 +73,11 @@
 
 #include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
+#include <boost/geometry/strategies/spherical/densify.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/compare.hpp>
 #include <boost/geometry/strategies/spherical/envelope_segment.hpp>
@@ -82,10 +87,13 @@
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/densify.hpp>
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/strategies/geographic/envelope_segment.hpp>

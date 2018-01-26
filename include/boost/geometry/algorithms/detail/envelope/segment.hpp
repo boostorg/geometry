@@ -27,7 +27,6 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>

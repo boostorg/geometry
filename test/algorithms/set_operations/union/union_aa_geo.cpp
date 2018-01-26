@@ -52,7 +52,7 @@ void test_geographic_one(std::string const& wkt1, std::string const& wkt2,
     bg::srs::spheroid<double> sph(6378137.0000000000, 6356752.3142451793);
 
     bg::strategy::intersection::geographic_segments<> is(sph);
-    bg::strategy::area::geographic<point> as(sph);
+    bg::strategy::area::geographic<> as(sph);
     
     polygon p1, p2;
 

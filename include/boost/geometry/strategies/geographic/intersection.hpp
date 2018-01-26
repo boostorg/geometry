@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,7 +17,6 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
@@ -32,6 +33,8 @@
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
@@ -106,7 +109,6 @@ struct geographic_segments
     {
         typedef area::geographic
             <
-                typename point_type<Geometry>::type,
                 FormulaPolicy,
                 Order,
                 Spheroid,

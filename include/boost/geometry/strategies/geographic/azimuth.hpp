@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_AZIMUTH_HPP
 
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>

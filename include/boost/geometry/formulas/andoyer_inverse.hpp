@@ -17,7 +17,6 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>

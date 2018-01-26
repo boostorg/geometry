@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2016, 2017.
 // Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
@@ -33,7 +33,7 @@
 #include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
+#include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
@@ -103,9 +103,8 @@ struct cartesian_segments
     template <typename Geometry>
     struct area_strategy
     {
-        typedef area::surveyor
+        typedef area::cartesian
             <
-                typename point_type<Geometry>::type,
                 CalculationType
             > type;
     };
