@@ -37,8 +37,8 @@ namespace detail
 
 template <typename Point1, typename Point2, typename Point3>
 inline bool collinear_point_is_spike_or_equal(Point1 const& last_point,
-                                                Point2 const& segment_a,
-                                                Point3 const& segment_b)
+                                              Point2 const& segment_a,
+                                              Point3 const& segment_b)
 {
     // Check if segment is equal
     int const sgn_x1 = sign_of_difference<0>(last_point, segment_b);
@@ -70,10 +70,10 @@ template
     typename Point1, typename Point2, typename Point3,
     typename SideStrategy
 >
-static inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
-                                           Point2 const& segment_a,  // next | back - 2
-                                           Point3 const& segment_b,  // curr | back - 1 | spike's vertex
-                                           SideStrategy const& strategy)
+inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
+                                    Point2 const& segment_a,  // next | back - 2
+                                    Point3 const& segment_b,  // curr | back - 1 | spike's vertex
+                                    SideStrategy const& strategy)
 {
     int const side = strategy.apply(segment_a, segment_b, last_point);
     if (side == 0)
@@ -100,7 +100,7 @@ template
     typename SideStrategy,
     typename RobustPolicy
 >
-static inline bool point_is_spike_or_equal(Point1 const& last_point,
+inline bool point_is_spike_or_equal(Point1 const& last_point,
             Point2 const& segment_a,
             Point3 const& segment_b,
             SideStrategy const& strategy,
