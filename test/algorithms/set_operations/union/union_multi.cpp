@@ -110,7 +110,7 @@ void test_areal()
         1, 0, 13, 6);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
-        1, 3, 35, 22.25);
+        1, 3, 32, 22.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_103_multi",
         case_103_multi[0], case_103_multi[1],
         1, 0, 7, 25);
@@ -122,7 +122,7 @@ void test_areal()
         1, 0, 5, 25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_106_multi",
         case_106_multi[0], case_106_multi[1],
-        1, 0, 12, 25);
+        1, 0, 5, 25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         1, 0, 15, 6.75);
@@ -170,13 +170,13 @@ void test_areal()
        2, 0, 26, 44);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_120_multi",
        case_120_multi[0], case_120_multi[1],
-       1, 1, 20, 35);
+       1, 1, 17, 35);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_121_multi",
        case_121_multi[0], case_121_multi[1],
-       1, 1, 21, 25.5);
+       1, 1, 14, 25.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_122_multi",
        case_122_multi[0], case_122_multi[1],
-       1, 1, 28, 29.5);
+       1, 1, 14, 29.5);
 
     TEST_UNION(case_123_multi, 1, 0, 11, 2.75);
     TEST_UNION(case_124_multi, 1, 0, 9, 2.75);
@@ -209,27 +209,27 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-        1, 1, 36, 97.0);
+        1, 1, 16, 97.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-        1, 0, 14, 100.0); // Area from SQL Server
+        1, 0, 5, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        17, 6, 166, 56.5); // Area from SQL Server
+        17, 6, 154, 56.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        1, 2, 42, 96.75);
+        1, 2, 26, 96.75);
 
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
-    TEST_UNION(case_recursive_boxes_5, 3, 10, 118, 70.0);
+    TEST_UNION(case_recursive_boxes_5, 3, 10, 98, 70.0);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_5, 3, 9, 115, 70.0);
 #endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        1, 3, 25, 24.0);
+        1, 3, 17, 24.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -241,7 +241,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_9",
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
-        1, 1, 16, 8.25);
+        1, 1, 11, 8.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],
