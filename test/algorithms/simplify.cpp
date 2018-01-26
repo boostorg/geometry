@@ -110,9 +110,15 @@ void test_all()
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
     */
 
-    test_geometry<bg::model::ring<P> >(
-        "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
-        "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
+    /*
+
+    Above can be checked in PostGIS by:
+
+    select astext(ST_Simplify(geomfromtext('LINESTRING(0 0, 5 5, 10 10)'),1.0)) as simplified
+    union all select astext(ST_Simplify(geomfromtext('LINESTRING(0 0, 5 5, 6 5, 10 10)'),1.0))
+    etc
+    */
+
 
     test_geometry<bg::model::polygon<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
@@ -122,14 +128,40 @@ void test_all()
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0),(7 3,7 6,1 6,1 3,4 3,7 3))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0),(7 3,7 6,1 6,1 3,7 3))", 1.0);
 
-/*
+    // Closing point should be simplified away
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((1 0,0 0,0 4,4 4,4 0,1 0))",
+        "POLYGON((0 0,0 4,4 4,4 0,0 0))", 0.1);
 
-Above can be checked in PostGIS by:
+    // Section around closing point should be simplified away
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((5 0,4 0,3 0,2 0,1 0,0 0,0 5,5 5,5 0))",
+        "POLYGON((5 0,0 0,0 5,5 5,5 0))", 0.1);
 
-select astext(ST_Simplify(geomfromtext('LINESTRING(0 0, 5 5, 10 10)'),1.0)) as simplified
-union all select astext(ST_Simplify(geomfromtext('LINESTRING(0 0, 5 5, 6 5, 10 10)'),1.0))
-etc
-*/
+    // Manually rotate this WKT over all the 5 redundant points at closing area
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((4 0,3 0,2 0,1 0,0 0,0 5,5 5,5 0,4 0))",
+        "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((3 0,2 0,1 0,0 0,0 5,5 5,5 0,4 0,3 0))",
+        "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((2 0,1 0,0 0,0 5,5 5,5 0,4 0,3 0,2 0))",
+        "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((1 0,0 0,0 5,5 5,5 0,4 0,3 0,2 0,1 0))",
+        "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((0 0,0 5,5 5,5 0,4 0,3 0,2 0,1 0,0 0))",
+        "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
+
+
+
+//    // Non-closed version
+//    test_geometry<bg::model::polygon<P, true, false> >(
+//        "POLYGON((1 0,0 0,0 4,4 4,4 0))",
+//        "POLYGON((0 0,0 4,4 4,4 0))", 0.1);
+
 
     {
         // Test with explicit strategy

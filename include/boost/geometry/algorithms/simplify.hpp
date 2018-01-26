@@ -18,6 +18,7 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -71,13 +72,14 @@ struct simplify_range_insert
 
 struct simplify_copy
 {
-    template <typename Range, typename Strategy, typename Distance>
-    static inline void apply(Range const& range, Range& out,
+    template <typename RangeIn, typename RangeOut, typename Strategy, typename Distance>
+    static inline void apply(RangeIn const& range, RangeOut& out,
                              Distance const& , Strategy const& )
     {
         std::copy
             (
-                boost::begin(range), boost::end(range), geometry::range::back_inserter(out)
+                boost::begin(range), boost::end(range),
+                    geometry::range::back_inserter(out)
             );
     }
 };
@@ -86,23 +88,20 @@ struct simplify_copy
 template<std::size_t Minimum>
 struct simplify_range
 {
-    template <typename Range, typename Strategy, typename Distance>
-    static inline void apply(Range const& range, Range& out,
+    template <typename RangeIn, typename RangeOut, typename Strategy, typename Distance>
+    static inline void apply(RangeIn const& range, RangeOut& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
         // Call do_container for a linestring / ring
 
         /* For a RING:
-            The first/last point (the closing point of the ring) should maybe
-            be excluded because it lies on a line with second/one but last.
-            Here it is never excluded.
-
             Note also that, especially if max_distance is too large,
             the output ring might be self intersecting while the input ring is
             not, although chances are low in normal polygons
 
-            Finally the inputring might have 3 (open) or 4 (closed) points (=correct),
-                the output < 3 or 4(=wrong)
+            Note, the inputring might have 3 (open)
+            or 4 (closed) points (=correct),
+            the output < 3 or 4(=wrong)
         */
 
         if (boost::size(range) <= int(Minimum) || max_distance < 0.0)
@@ -119,13 +118,130 @@ struct simplify_range
     }
 };
 
+struct simplify_ring
+{
+private:
+    template
+    <
+        typename Ring,
+        typename Strategy,
+        typename Distance
+    >
+    static inline std::size_t simplified_size(Ring const& ring,
+            Distance const& distance, Strategy const& strategy)
+    {
+        Ring simplified;
+        simplify_range<0>::apply(ring, simplified, distance, strategy);
+        return boost::size(simplified);
+    }
+
+    template
+    <
+        typename Ring,
+        typename Strategy,
+        typename Distance
+    >
+    static inline void get_start_end(std::size_t& start, std::size_t& end,
+        Ring const& ring, Distance const& distance, Strategy const& strategy)
+    {
+        std::size_t const size = boost::size(ring);
+        std::size_t const half = size / 2;
+
+        // Assuming a CLOSED polygon:
+        // Create 3-point range and verify if middle point would be
+        // simplified away. If so, set start accordingly
+        Ring closing;
+        range::push_back(closing, range::at(ring, end - 1));
+        range::push_back(closing, range::at(ring, 0));
+        range::push_back(closing, range::at(ring, 1));
+
+        Ring hold = closing;
+
+        std::size_t simp_size = simplified_size(closing, distance, strategy);
+        if (simp_size != 2)
+        {
+            return;
+        }
+
+        while (simp_size == 2 && start < half)
+        {
+            start++;
+
+            // Try to add more points at start:
+            range::push_back(closing, range::at(ring, start + 1));
+            simp_size = simplified_size(closing, distance, strategy);
+        }
+
+        // Verify if more points from end can be added at the start
+        geometry::clear(closing);
+        range::push_back(closing, range::at(ring, end - 2));
+        std::copy(boost::begin(hold), boost::end(hold),
+                  std::back_inserter(closing));
+
+        simp_size = simplified_size(closing, distance, strategy);
+        while (simp_size == 2 && end > half)
+        {
+            end--;
+
+            // Try to add (at start) more points from end
+            geometry::clear(closing);
+            std::copy(boost::begin(ring) + end - 2,
+                      boost::begin(ring) + size - 2,
+                      std::back_inserter(closing));
+
+            std::copy(boost::begin(hold), boost::end(hold),
+                      std::back_inserter(closing));
+
+            simp_size = simplified_size(closing, distance, strategy);
+        }
+    }
+
+public:
+    template <typename Ring, typename Strategy, typename Distance>
+    static inline void apply(Ring const& ring, Ring& out,
+                    Distance const& max_distance, Strategy const& strategy)
+    {
+        static closure_selector const closure = geometry::closure<Ring>::value;
+        static std::size_t const minimum
+            = core_detail::closure::minimum_ring_size
+            <
+                closure
+            >::value;
+
+        std::size_t const size = boost::size(ring);
+        std::size_t start = 0;
+        std::size_t end = size - 1; // index of last point
+
+        if (closure == geometry::closed && size > minimum)
+        {
+            // Verify area around closing point, if that can be simplified,
+            // start/end are modified and a corresponding slice will be used
+            // for simplification
+            // TODO: for open polygons, implementation should be modified
+            get_start_end(start, end, ring, max_distance, strategy);
+        }
+
+        if (start > 0) // checking end is not necessary
+        {
+            using namespace boost::adaptors;
+            simplify_range<minimum>::apply(ring | sliced(start, end),
+                         out, max_distance, strategy);
+        }
+        else
+        {
+            simplify_range<minimum>::apply(ring, out, max_distance, strategy);
+        }
+    }
+
+};
+
+
 struct simplify_polygon
 {
 private:
 
     template
     <
-        std::size_t Minimum,
         typename IteratorIn,
         typename IteratorOut,
         typename Distance,
@@ -137,13 +253,12 @@ private:
     {
         for (IteratorIn it_in = begin; it_in != end;  ++it_in, ++it_out)
         {
-            simplify_range<Minimum>::apply(*it_in, *it_out, max_distance, strategy);
+            simplify_ring::apply(*it_in, *it_out, max_distance, strategy);
         }
     }
 
     template
     <
-        std::size_t Minimum,
         typename InteriorRingsIn,
         typename InteriorRingsOut,
         typename Distance,
@@ -157,7 +272,7 @@ private:
         traits::resize<InteriorRingsOut>::apply(interior_rings_out,
             boost::size(interior_rings_in));
 
-        iterate<Minimum>(
+        iterate(
             boost::begin(interior_rings_in), boost::end(interior_rings_in),
             boost::begin(interior_rings_out),
             max_distance, strategy);
@@ -168,21 +283,14 @@ public:
     static inline void apply(Polygon const& poly_in, Polygon& poly_out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        std::size_t const minimum = core_detail::closure::minimum_ring_size
-            <
-                geometry::closure<Polygon>::value
-            >::value;
-
         // Note that if there are inner rings, and distance is too large,
         // they might intersect with the outer ring in the output,
         // while it didn't in the input.
-        simplify_range<minimum>::apply(exterior_ring(poly_in),
-                                       exterior_ring(poly_out),
-                                       max_distance, strategy);
+        simplify_ring::apply(exterior_ring(poly_in), exterior_ring(poly_out),
+            max_distance, strategy);
 
-        apply_interior_rings<minimum>(interior_rings(poly_in),
-                                      interior_rings(poly_out),
-                                      max_distance, strategy);
+        apply_interior_rings(interior_rings(poly_in),
+            interior_rings(poly_out), max_distance, strategy);
     }
 };
 
@@ -244,13 +352,7 @@ struct simplify<Linestring, linestring_tag>
 
 template <typename Ring>
 struct simplify<Ring, ring_tag>
-    : detail::simplify::simplify_range
-            <
-                core_detail::closure::minimum_ring_size
-                    <
-                        geometry::closure<Ring>::value
-                    >::value
-            >
+    : detail::simplify::simplify_ring
 {};
 
 template <typename Polygon>
