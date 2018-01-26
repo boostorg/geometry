@@ -577,12 +577,12 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_1, 8.0, 1, 0, 4);
     TEST_DISSOLVE(dissolve_2, 7.9296875, 1, 1, 12);
     TEST_DISSOLVE(dissolve_3, 4.0, 2, 0, 8);
     TEST_DISSOLVE(dissolve_4, 8.0, 2, 0, 8);
     TEST_DISSOLVE(dissolve_5, 12.0, 2, 0, 8);
-    TEST_DISSOLVE(dissolve_6, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_6, 16.0, 1, 0, 5);
 
     TEST_DISSOLVE(dissolve_7, 50.48056402439, 1, 0, 7);
     TEST_DISSOLVE(dissolve_8, 25.6158412, 1, 0, 11);
@@ -604,10 +604,10 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_18, 15.0, 3, 0, 15);
 
     TEST_DISSOLVE(dissolve_d1, 8.0, 1, 0, 4);
-    TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 10);
+    TEST_DISSOLVE(dissolve_d2, 16.0, 1, 0, 5);
 
-    TEST_DISSOLVE(dissolve_h1_a, 14.0, 1, 1, 10);
-    TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 10);
+    TEST_DISSOLVE(dissolve_h1_a, 14.0, 1, 1, 9);
+    TEST_DISSOLVE(dissolve_h1_b, 14.0, 1, 1, 9);
     TEST_DISSOLVE(dissolve_h2, 12.5, 2, 0, 13);
     TEST_DISSOLVE(dissolve_h3, 10.75, 1, 1, 14);
     TEST_DISSOLVE(dissolve_h4, 14.3447, 1, 3, 17);
@@ -618,7 +618,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
 
     TEST_DISSOLVE(dissolve_mail_2017_09_24_a, 0.5, 2, 0, 8);
 
-    TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 6);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_b, 16.0, 1, 0, 5);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
@@ -628,7 +628,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
 
     TEST_DISSOLVE(dissolve_mail_2017_10_26_a, 7.0, 1, 1, 12);
-    TEST_DISSOLVE(dissolve_mail_2017_10_26_b, 16.0, 1, 0, 7);
+    TEST_DISSOLVE(dissolve_mail_2017_10_26_b, 16.0, 1, 0, 5);
     TEST_DISSOLVE(dissolve_mail_2017_10_26_c, 6.0, 1, 0, 6);
 
     TEST_DISSOLVE(dissolve_mail_2017_10_30_a, 0.0001241171, 2, 0, 9);
@@ -641,9 +641,9 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_MULTI(multi_simplex_four, 20.7581, 1, 0, 18);
     TEST_MULTI(multi_disjoint, 24.0, 4, 0, 16);
     TEST_MULTI(multi_new_interior, 19.5206, 1, 1, 18);
-    TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 14);
+    TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 11);
 
-    TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 19);
+    TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 16);
     TEST_DISSOLVE_WITH(dissolve_ticket17, 0.00920834633689, 1, 1, 228,
                        settings_for_sensitive_cases);
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,

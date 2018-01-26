@@ -83,8 +83,8 @@ void test_spikes_in_ticket_8365()
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8365_step2",
         "MULTIPOLYGON(((971 2704,971 1402,4640 1402,3912 1722,3180 2376,3912 1884,4643 1402,5395 1402,5395 3353,971 3353,971 2865,1704 3348)))",
         "MULTIPOLYGON(((5388 1560,4650 1722,3912 1884,4650 1398)),((2442 3186,1704 3348,966 2700,1704 3024)))",
-        if_typed<ct, int>(2, 2),
-        if_typed<ct, int>(21, 21),
+        2,
+        18,
         if_typed<ct, int>(7975092.5, 7975207.6047877), // SQL Server:
         2,
         -1,

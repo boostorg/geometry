@@ -162,7 +162,7 @@ struct traversal_ring_creator
         // Update registration and append point
         turn_type& current_turn = m_turns[turn_index];
         turn_operation_type& op = current_turn.operations[op_index];
-        detail::overlay::append_no_dups_or_spikes(current_ring, current_turn.point,
+        detail::overlay::append_no_collinear(current_ring, current_turn.point,
             m_intersection_strategy.get_side_strategy(),
             m_robust_policy);
 
@@ -180,7 +180,7 @@ struct traversal_ring_creator
         turn_type const& start_turn = m_turns[start_turn_index];
         turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
 
-        detail::overlay::append_no_dups_or_spikes(ring, start_turn.point,
+        detail::overlay::append_no_collinear(ring, start_turn.point,
             m_intersection_strategy.get_side_strategy(),
             m_robust_policy);
 
