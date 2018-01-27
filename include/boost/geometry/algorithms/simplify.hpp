@@ -155,14 +155,7 @@ private:
         range::push_back(closing, range::at(ring, 0));
         range::push_back(closing, range::at(ring, 1));
 
-        Ring hold = closing;
-
         std::size_t simp_size = simplified_size(closing, distance, strategy);
-        if (simp_size != 2)
-        {
-            return;
-        }
-
         while (simp_size == 2 && start < half)
         {
             start++;
@@ -172,26 +165,20 @@ private:
             simp_size = simplified_size(closing, distance, strategy);
         }
 
-        // Verify if more points from end can be added at the start
+        // Verify if more points from end can be added
+        // Note that simplify works same in two directions.
         geometry::clear(closing);
+        range::push_back(closing, range::at(ring, 0));
+        range::push_back(closing, range::at(ring, end - 1));
         range::push_back(closing, range::at(ring, end - 2));
-        std::copy(boost::begin(hold), boost::end(hold),
-                  std::back_inserter(closing));
 
         simp_size = simplified_size(closing, distance, strategy);
         while (simp_size == 2 && end > half)
         {
             end--;
 
-            // Try to add (at start) more points from end
-            geometry::clear(closing);
-            std::copy(boost::begin(ring) + end - 2,
-                      boost::begin(ring) + size - 2,
-                      std::back_inserter(closing));
-
-            std::copy(boost::begin(hold), boost::end(hold),
-                      std::back_inserter(closing));
-
+            // Try to add more points from end:
+            range::push_back(closing, range::at(ring, end - 2));
             simp_size = simplified_size(closing, distance, strategy);
         }
     }
