@@ -208,9 +208,13 @@ struct simplify_ring
             // Verify area around closing point, if that can be simplified,
             // start/end are modified and a corresponding slice will be used
             // for simplification
+
+            // Take only 10% of the simplify distance, to avoid to aggressive
+            // behaviour at closing points (it is known as a "open problem")
+
             // TODO: for open polygons, implementation should be modified
             simplify_closure_inspector::get_start_end(start, end, ring,
-                    max_distance, strategy);
+                    max_distance / 10.0, strategy);
         }
 
         if (start > 0) // checking end is not necessary
