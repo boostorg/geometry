@@ -118,7 +118,7 @@ struct simplify_range
     }
 };
 
-struct simplify_ring
+struct simplify_closure_inspector
 {
 private:
     template
@@ -135,6 +135,7 @@ private:
         return boost::size(simplified);
     }
 
+public:
     template
     <
         typename Ring,
@@ -182,8 +183,11 @@ private:
             simp_size = simplified_size(closing, distance, strategy);
         }
     }
+};
 
-public:
+
+struct simplify_ring
+{
     template <typename Ring, typename Strategy, typename Distance>
     static inline void apply(Ring const& ring, Ring& out,
                     Distance const& max_distance, Strategy const& strategy)
@@ -205,7 +209,8 @@ public:
             // start/end are modified and a corresponding slice will be used
             // for simplification
             // TODO: for open polygons, implementation should be modified
-            get_start_end(start, end, ring, max_distance, strategy);
+            simplify_closure_inspector::get_start_end(start, end, ring,
+                    max_distance, strategy);
         }
 
         if (start > 0) // checking end is not necessary
