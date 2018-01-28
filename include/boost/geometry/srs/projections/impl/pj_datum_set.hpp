@@ -109,7 +109,7 @@ inline void pj_datum_add_defn(BGParams const& , std::vector<pvalue<T> >& pvalues
 }
 
 template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
-inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
+inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& /*bg_params*/,
                               std::vector<pvalue<T> >& pvalues)
 {
     typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> bg_parameters_type;
@@ -131,7 +131,9 @@ inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAI
     std::string defn = datum_traits::definition();
 
     if (! defn.empty())
+    {
         pvalues.push_back(pj_mkparam<T>(defn));
+    }
 }
 
 /************************************************************************/

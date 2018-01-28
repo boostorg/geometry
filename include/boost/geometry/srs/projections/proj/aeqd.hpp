@@ -205,7 +205,7 @@ namespace projections
             }
 
             template <typename T, typename Par, typename ProjParm>
-            inline void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
+            inline void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& /*par*/, ProjParm const& proj_parm)
             {
                 static const T HALFPI = detail::HALFPI<T>();
                     

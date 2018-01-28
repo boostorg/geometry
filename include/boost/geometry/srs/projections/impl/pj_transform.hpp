@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -85,7 +85,7 @@ template <typename Point>
 struct z_access<Point, false>
 {
     typedef typename coordinate_type<Point>::type type;
-    static inline type get(Point const& point)
+    static inline type get(Point const& )
     {
         return type(0);
     }
