@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -313,7 +313,7 @@ struct tuples_find_if<Tuple, IsSamePred, N, N>
     typedef void type;
 };
 
-template <typename Param>
+/*template <typename Param>
 struct is_param
 {
     template <typename T, int D = 0>
@@ -332,17 +332,37 @@ struct is_param_t
     struct is_same : boost::false_type {};
     template <typename T>
     struct is_same<Param<T> > : boost::true_type {};
-};
+};*/
 
-template <template <bool> class Param>
-struct is_param_b
-{
-    template <typename T>
-    struct is_same : boost::false_type {};
-    template <bool V>
-    struct is_same<Param<V> > : boost::true_type {};
-};
+// NOTE: The following metafunctions are implemented one for each parameter
+// because mingw-gcc-4.1.2 is unable to compile a solution based on template
+// template parameter and member struct template partial specialization
+// (see above).
 
+template <typename T>
+struct is_proj : boost::false_type {};
+template <typename T>
+struct is_proj<proj<T> > : boost::true_type {};
+
+template <typename T>
+struct is_ellps : boost::false_type {};
+template <typename T>
+struct is_ellps<ellps<T> > : boost::true_type {};
+
+template <typename T>
+struct is_datum : boost::false_type {};
+template <typename T>
+struct is_datum<datum<T> > : boost::true_type {};
+
+template <typename T>
+struct is_o_proj : boost::false_type {};
+template <typename T>
+struct is_o_proj<o_proj<T> > : boost::true_type {};
+
+template <typename T>
+struct is_guam : boost::false_type {};
+template <>
+struct is_guam<guam> : boost::true_type {};
 
 // pick proj static name
 
@@ -351,7 +371,7 @@ struct pick_proj_tag
 {
     typedef typename tuples_find_if
         <
-            Tuple, is_param_t<proj>::is_same
+            Tuple, is_proj
         >::type proj_type;
 
     static const bool is_non_void = ! boost::is_same<proj_type, void>::value;
@@ -421,9 +441,9 @@ template <typename Tuple>
 struct pick_ellps
     : pick_ellps_impl
         <
-            typename tuples_find_if<Tuple, is_param_t<ellps>::is_same>::type,
-            typename tuples_find_if<Tuple, is_param_t<datum>::is_same>::type,
-            tuples_find_index_if<Tuple, is_param_t<ellps>::is_same>::value
+            typename tuples_find_if<Tuple, is_ellps>::type,
+            typename tuples_find_if<Tuple, is_datum>::type,
+            tuples_find_index_if<Tuple, is_ellps>::value
         >
 {};
 
@@ -433,7 +453,7 @@ struct pick_o_proj_tag
 {
     typedef typename tuples_find_if
         <
-            Tuple, is_param_t<o_proj>::is_same
+            Tuple, is_o_proj
         >::type proj_type;
 
     static const bool is_non_void = ! boost::is_same<proj_type, void>::value;

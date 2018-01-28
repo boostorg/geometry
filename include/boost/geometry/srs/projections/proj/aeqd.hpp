@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -419,7 +419,7 @@ namespace projections
                         typename srs::par4::detail::tuples_find_if
                             <
                                 BGParameters,
-                                srs::par4::detail::is_param<srs::par4::guam>::is_same
+                                srs::par4::detail::is_guam
                             >::type,
                         void
                     >::value;
