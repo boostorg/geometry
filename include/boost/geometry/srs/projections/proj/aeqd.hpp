@@ -45,6 +45,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
@@ -107,6 +108,7 @@ namespace projections
                 switch (proj_parm.mode) {
                 case N_POLE:
                     coslam = - coslam;
+                    BOOST_FALLTHROUGH;
                 case S_POLE:
                     xy_x = (rho = fabs(proj_parm.Mp - pj_mlfn(lp_lat, sinphi, cosphi, proj_parm.en))) *
                         sin(lp_lon);
@@ -237,6 +239,7 @@ namespace projections
                 case N_POLE:
                     lp_lat = -lp_lat;
                     coslam = -coslam;
+                    BOOST_FALLTHROUGH;
                 case S_POLE:
                     if (fabs(lp_lat - HALFPI) < EPS10)
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );

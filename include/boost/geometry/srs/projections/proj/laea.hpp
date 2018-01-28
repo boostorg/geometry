@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,6 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
@@ -185,6 +186,7 @@ namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
+                        BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (!(q = (xy_x * xy_x + xy_y * xy_y)) ) {
                             lp_lon = 0.;
@@ -251,6 +253,7 @@ namespace projections
                         break;
                     case N_POLE:
                         coslam = -coslam;
+                        BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(lp_lat + this->m_par.phi0) < EPS10)
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
