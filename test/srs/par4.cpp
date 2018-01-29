@@ -26,7 +26,7 @@ int test_main(int, char* [])
     typedef par::o_proj<par::tmerc> o_proj;
     typedef par::guam guam;
 
-    BOOST_MPL_ASSERT_MSG((par::detail::is_proj<proj>::value),
+    /*BOOST_MPL_ASSERT_MSG((par::detail::is_proj<proj>::value),
                          PROJ, (proj));
     BOOST_MPL_ASSERT_MSG((!par::detail::is_proj<int>::value),
                          NOT_PROJ, (int));
@@ -49,6 +49,31 @@ int test_main(int, char* [])
     BOOST_MPL_ASSERT_MSG((par::detail::is_guam<guam>::value),
                          GUAM, (guam));
     BOOST_MPL_ASSERT_MSG((!par::detail::is_guam<int>::value),
+                         NOT_GUAM, (int));*/
+
+    BOOST_MPL_ASSERT_MSG((par::detail::is_param_t<par::proj>::pred<proj>::value),
+                         PROJ, (proj));
+    BOOST_MPL_ASSERT_MSG((!par::detail::is_param_t<par::proj>::pred<int>::value),
+                         NOT_PROJ, (int));
+
+    BOOST_MPL_ASSERT_MSG((par::detail::is_param_t<par::ellps>::pred<ellps>::value),
+                         ELLPS, (ellps));
+    BOOST_MPL_ASSERT_MSG((!par::detail::is_param_t<par::ellps>::pred<int>::value),
+                         NOT_ELLPS, (int));
+
+    BOOST_MPL_ASSERT_MSG((par::detail::is_param_t<par::datum>::pred<datum>::value),
+                         DATUM, (datum));
+    BOOST_MPL_ASSERT_MSG((!par::detail::is_param_t<par::datum>::pred<int>::value),
+                         NOT_DATUM, (int));
+
+    BOOST_MPL_ASSERT_MSG((par::detail::is_param_t<par::o_proj>::pred<o_proj>::value),
+                         O_PROJ, (o_proj));
+    BOOST_MPL_ASSERT_MSG((!par::detail::is_param_t<par::o_proj>::pred<int>::value),
+                         NOT_O_PROJ, (int));
+
+    BOOST_MPL_ASSERT_MSG((par::detail::is_param<par::guam>::pred<guam>::value),
+                         GUAM, (guam));
+    BOOST_MPL_ASSERT_MSG((!par::detail::is_param<par::guam>::pred<int>::value),
                          NOT_GUAM, (int));
 
     typedef srs::static_proj4<proj, ellps, datum, o_proj, guam> params;
