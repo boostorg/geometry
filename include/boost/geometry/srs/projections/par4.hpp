@@ -416,7 +416,7 @@ struct pick_ellps_impl<void, Datum, EllpsIndex>
 
     typedef typename ellps_traits<type>::model_type model_type;
     template <typename Tuple>
-    static model_type model(Tuple const& tup)
+    static model_type model(Tuple const& )
     {
         return ellps_traits<type>::model(type());
     }
@@ -429,7 +429,7 @@ struct pick_ellps_impl<void, void, EllpsIndex>
     typedef ellps<WGS84> type;
     typedef typename ellps_traits<type>::model_type model_type;
     template <typename Tuple>
-    static model_type model(Tuple const& tup)
+    static model_type model(Tuple const& )
     {
         return ellps_traits<type>::model(type());
     }
