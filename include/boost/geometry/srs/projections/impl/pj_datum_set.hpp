@@ -116,7 +116,8 @@ inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAI
     typedef typename srs::par4::detail::tuples_find_if
         <
             bg_parameters_type,
-            srs::par4::detail::is_datum
+            //srs::par4::detail::is_datum
+            srs::par4::detail::is_param_t<srs::par4::datum>::pred
         >::type datum_type;
     typedef typename srs::par4::detail::datum_traits
         <

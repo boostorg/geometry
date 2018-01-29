@@ -422,7 +422,8 @@ namespace projections
                         typename srs::par4::detail::tuples_find_if
                             <
                                 BGParameters,
-                                srs::par4::detail::is_guam
+                                //srs::par4::detail::is_guam
+                                srs::par4::detail::is_param<srs::par4::guam>::pred
                             >::type,
                         void
                     >::value;

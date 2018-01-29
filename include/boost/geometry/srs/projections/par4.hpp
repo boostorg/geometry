@@ -22,7 +22,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_same.hpp>
-
+#include <boost/type_traits/is_void.hpp>
 
 
 namespace boost { namespace geometry { namespace srs { namespace par4
@@ -339,7 +339,7 @@ struct is_param_t
 // template parameter and member struct template partial specialization
 // (see above).
 
-template <typename T>
+/*template <typename T>
 struct is_proj : boost::false_type {};
 template <typename T>
 struct is_proj<proj<T> > : boost::true_type {};
@@ -362,7 +362,30 @@ struct is_o_proj<o_proj<T> > : boost::true_type {};
 template <typename T>
 struct is_guam : boost::false_type {};
 template <>
-struct is_guam<guam> : boost::true_type {};
+struct is_guam<guam> : boost::true_type {};*/
+
+// NOTE: The following implementation seems to work as well.
+
+// TEST
+
+template <typename T, template <typename> class Param>
+struct is_same_t : boost::false_type {};
+template <typename T, template <typename> class Param>
+struct is_same_t<Param<T>, Param> : boost::true_type {};
+
+template <typename Param>
+struct is_param
+{
+    template <typename T>
+    struct pred : boost::is_same<T, Param> {};
+};
+
+template <template <typename> class Param>
+struct is_param_t
+{
+    template <typename T>
+    struct pred : is_same_t<T, Param> {};
+};
 
 // pick proj static name
 
@@ -371,10 +394,12 @@ struct pick_proj_tag
 {
     typedef typename tuples_find_if
         <
-            Tuple, is_proj
+            Tuple,
+            // is_proj
+            is_param_t<proj>::pred
         >::type proj_type;
 
-    static const bool is_non_void = ! boost::is_same<proj_type, void>::value;
+    static const bool is_non_void = ! boost::is_void<proj_type>::value;
 
     BOOST_MPL_ASSERT_MSG((is_non_void), PROJECTION_NOT_NAMED, (Tuple));
 
@@ -411,7 +436,7 @@ struct pick_ellps_impl<void, Datum, EllpsIndex>
 {
     typedef typename datum_traits<Datum>::ellps_type type;
 
-    static const bool is_datum_known = ! boost::is_same<type, void>::value;
+    static const bool is_datum_known = ! boost::is_void<type>::value;
     BOOST_MPL_ASSERT_MSG((is_datum_known), UNKNOWN_DATUM, (types<Datum>));
 
     typedef typename ellps_traits<type>::model_type model_type;
@@ -441,9 +466,9 @@ template <typename Tuple>
 struct pick_ellps
     : pick_ellps_impl
         <
-            typename tuples_find_if<Tuple, is_ellps>::type,
-            typename tuples_find_if<Tuple, is_datum>::type,
-            tuples_find_index_if<Tuple, is_ellps>::value
+            typename tuples_find_if<Tuple, /*is_ellps*/is_param_t<ellps>::pred>::type,
+            typename tuples_find_if<Tuple, /*is_datum*/is_param_t<datum>::pred>::type,
+            tuples_find_index_if<Tuple, /*is_ellps*/is_param_t<ellps>::pred>::value
         >
 {};
 
@@ -453,10 +478,12 @@ struct pick_o_proj_tag
 {
     typedef typename tuples_find_if
         <
-            Tuple, is_o_proj
+            Tuple,
+            //is_o_proj
+            is_param_t<o_proj>::pred
         >::type proj_type;
 
-    static const bool is_non_void = ! boost::is_same<proj_type, void>::value;
+    static const bool is_non_void = ! boost::is_void<proj_type>::value;
 
     BOOST_MPL_ASSERT_MSG((is_non_void), PROJECTION_NOT_NAMED, (Tuple));
 
