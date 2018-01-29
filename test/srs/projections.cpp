@@ -40,7 +40,7 @@
 
 namespace srs = bg::srs;
 
-inline void check(double v, double ve, std::string const& /*name*/, std::string const& axis)
+inline void check(double v, double ve, std::string const& /*name*/, std::string const& /*axis*/)
 {
     // (non-existing) BOOST_CHECK_CLOSE_MESSAGE(v, ve, 0.001, "\n" << name << " " << axis << " -> " << v << " != " << ve);
     BOOST_CHECK_CLOSE(v, ve, 0.001);

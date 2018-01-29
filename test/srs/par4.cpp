@@ -66,6 +66,9 @@ int test_main(int, char* [])
                          PICK_ELLPS_E, (params_e));
     BOOST_MPL_ASSERT_MSG((boost::is_same<par::detail::pick_ellps<params_d>::type::type, par::mod_airy>::value),
                          PICK_ELLPS_D, (params_d));
+    //default ellps WGS84
+    BOOST_MPL_ASSERT_MSG((boost::is_same<par::detail::pick_ellps<params_0>::type::type, par::WGS84>::value),
+                         PICK_NO_ELLPS, (params_0));
 
     return 0;
 }
