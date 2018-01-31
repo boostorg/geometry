@@ -114,6 +114,7 @@
      <member><link linkend="geometry.reference.adapted.boost_polygon.point_data">Boost.Polygon's point_data</link></member>
      <member><link linkend="geometry.reference.adapted.boost_tuple">Boost.Tuple</link></member>
      <member><link linkend="geometry.reference.adapted.c_array">C arrays</link></member>
+     <member><link linkend="geometry.reference.adapted.std_array">C++11 array containers</link></member>
     </simplelist>
    </entry>
    <entry valign="top">

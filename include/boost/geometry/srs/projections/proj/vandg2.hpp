@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -130,7 +130,7 @@ namespace projections
 
             // van der Grinten II
             template <typename Parameters>
-            inline void setup_vandg2(Parameters& par, par_vandg2& proj_parm)
+            inline void setup_vandg2(Parameters& /*par*/, par_vandg2& proj_parm)
             {
                 proj_parm.vdg3 = 0;
             }

@@ -1006,8 +1006,11 @@ namespace projections
                                 isea_pt<T> *hex)
             {
                 isea_pt<T> v;
+#ifdef BOOST_GEOMETRY_PROJECTIONS_FIXME
                 int sidelength;
-                int d, i, x, y, quad;
+                int d, i, x, y;
+#endif // BOOST_GEOMETRY_PROJECTIONS_FIXME
+                int quad;
 
                 quad = isea_ptdi(g, tri, pt, &v);
 
@@ -1015,7 +1018,7 @@ namespace projections
                 hex->y = v.y;
 
                 return 1;
-
+#ifdef BOOST_GEOMETRY_PROJECTIONS_FIXME
                 d = (int)v.x;
                 i = (int)v.y;
 
@@ -1059,6 +1062,7 @@ namespace projections
                 }
 
                 return 1;
+#endif // BOOST_GEOMETRY_PROJECTIONS_FIXME
             }
 
             template <typename T>

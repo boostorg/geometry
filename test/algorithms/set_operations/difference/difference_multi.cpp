@@ -92,8 +92,8 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
             6, 31, 7.0,
-            5, 36, 13.0,
-            5, 43, 7.0 + 13.0);
+            5, 33, 13.0,
+            5, 38, 7.0 + 13.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
@@ -120,7 +120,7 @@ void test_areal()
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
             case_108_multi[0], case_108_multi[1],
                 7, 32, 5.5,
-                4, 28, 9.75,
+                4, 24, 9.75,
                 7, 45, 15.25,
                 settings);
     }

@@ -227,7 +227,7 @@ struct dissolve_ring
             <
                 point_type
             >::type area_strategy_type;
-        typedef typename area_strategy_type::return_type area_result_type;
+        typedef typename area_strategy_type::template result_type<point_type>::type area_result_type;
         typedef detail::overlay::ring_properties<point_type, area_result_type> properties;
 
         std::map<ring_identifier, properties> selected;
