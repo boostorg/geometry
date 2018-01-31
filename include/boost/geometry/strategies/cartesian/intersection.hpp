@@ -143,6 +143,7 @@ struct cartesian_segments
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
     {
+    private :
         typedef typename select_most_precise
             <
                 CoordinateType, double
@@ -195,6 +196,45 @@ struct cartesian_segments
                 <
                     CoordinateType
                 >(numerator * dy_promoted / denominator));
+        }
+
+    public :
+        template <typename Point, typename Segment1, typename Segment2>
+        void calculate(Point& point, Segment1 const& a, Segment2 const& b) const
+        {
+            bool use_a = true;
+
+            // Prefer one segment if one is on or near an endpoint
+            bool const a_near_end = robust_ra.near_end();
+            bool const b_near_end = robust_rb.near_end();
+            if (a_near_end && ! b_near_end)
+            {
+                use_a = true;
+            }
+            else if (b_near_end && ! a_near_end)
+            {
+                use_a = false;
+            }
+            else
+            {
+                // Prefer shorter segment
+                promoted_type const len_a = comparable_length_a();
+                promoted_type const len_b = comparable_length_b();
+                if (len_b < len_a)
+                {
+                    use_a = false;
+                }
+                // else use_a is true but was already assigned like that
+            }
+
+            if (use_a)
+            {
+                assign_a(point, a, b);
+            }
+            else
+            {
+                assign_b(point, a, b);
+            }
         }
 
         CoordinateType dx_a, dy_a;
