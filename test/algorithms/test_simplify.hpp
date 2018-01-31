@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <sstream>
 #include <geometry_test_common.hpp>
+#include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -170,6 +171,7 @@ void test_geometry(std::string const& wkt,
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
+    bg::correct_closure(geometry);
     boost::variant<Geometry> v(geometry);
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<Strategy,

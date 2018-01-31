@@ -249,8 +249,11 @@ int test_main(int, char* [])
     // Integer compiles, but simplify-process fails (due to distances)
     //test_all<bg::model::d2::point_xy<int> >();
 
-    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+
+    test_all<bg::model::d2::point_xy<float> >();
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
@@ -262,7 +265,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
     test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 #endif
-
+#endif
 
 
     return 0;
