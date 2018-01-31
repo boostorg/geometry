@@ -37,6 +37,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 
+#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -123,15 +124,15 @@ struct simplify_closure_inspector
 private:
     template
     <
-        typename Ring,
+        typename Range,
         typename Strategy,
         typename Distance
     >
-    static inline std::size_t simplified_size(Ring const& ring,
+    static inline std::size_t simplified_size(Range const& range,
             Distance const& distance, Strategy const& strategy)
     {
-        Ring simplified;
-        simplify_range<0>::apply(ring, simplified, distance, strategy);
+        Range simplified;
+        simplify_range<0>::apply(range, simplified, distance, strategy);
         return boost::size(simplified);
     }
 
@@ -146,7 +147,6 @@ public:
         Ring const& ring, Distance const& distance, Strategy const& strategy)
     {
         std::size_t const size = boost::size(ring);
-        std::size_t const half = size / 2;
 
         // Assuming a CLOSED polygon:
         // Create 3-point range and verify if middle point would be
@@ -157,7 +157,7 @@ public:
         range::push_back(closing, range::at(ring, 1));
 
         std::size_t simp_size = simplified_size(closing, distance, strategy);
-        while (simp_size == 2 && start < half)
+        while (simp_size == 2 && start < size - 2)
         {
             start++;
 
@@ -168,13 +168,15 @@ public:
 
         // Verify if more points from end can be added
         // Note that simplify works same in two directions.
+        // Avoid simplifying the whole geometry away,
+        // so avoid using the same point at end as at start,
         geometry::clear(closing);
         range::push_back(closing, range::at(ring, 0));
         range::push_back(closing, range::at(ring, end - 1));
         range::push_back(closing, range::at(ring, end - 2));
 
         simp_size = simplified_size(closing, distance, strategy);
-        while (simp_size == 2 && end > half)
+        while (simp_size == 2 && end - 3 > start)
         {
             end--;
 
@@ -192,6 +194,11 @@ struct simplify_ring
     static inline void apply(Ring const& ring, Ring& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
+        if (boost::empty(ring))
+        {
+            return;
+        }
+
         static closure_selector const closure = geometry::closure<Ring>::value;
         static std::size_t const minimum
             = core_detail::closure::minimum_ring_size
@@ -203,27 +210,42 @@ struct simplify_ring
         std::size_t start = 0;
         std::size_t end = size - 1; // index of last point
 
+        bool const input_positive = geometry::area(ring) >= 0;
+
         if (closure == geometry::closed && size > minimum)
         {
             // Verify area around closing point, if that can be simplified,
             // start/end are modified and a corresponding slice will be used
             // for simplification
 
-            // Take only 10% of the simplify distance, to avoid to aggressive
+            // Take only a fraction of simplify distance, to avoid aggressive
             // behaviour at closing points (it is known as a "open problem")
 
             // TODO: for open polygons, implementation should be modified
             simplify_closure_inspector::get_start_end(start, end, ring,
-                    max_distance / 10.0, strategy);
+                    max_distance / 1000.0, strategy);
         }
+
+        bool apply_unsliced = true;
 
         if (start > 0) // checking end is not necessary
         {
             using namespace boost::adaptors;
+
+            apply_unsliced = false;
             simplify_range<minimum>::apply(ring | sliced(start, end),
                          out, max_distance, strategy);
+
+            // Verify if result did not botch original behaviour
+            bool const sliced_positive = geometry::area(out) >= 0;
+            if (input_positive != sliced_positive)
+            {
+                // Redo
+                geometry::clear(out);
+                apply_unsliced = true;
+            }
         }
-        else
+        if (apply_unsliced)
         {
             simplify_range<minimum>::apply(ring, out, max_distance, strategy);
         }
