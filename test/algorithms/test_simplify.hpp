@@ -78,17 +78,17 @@ struct test_inserter<bg::linestring_tag, Geometry>
     }
 };
 
-
 template <typename Geometry, typename DistanceMeasure>
 void check_geometry(Geometry const& geometry,
                     std::string const& expected,
-                    DistanceMeasure const&  distance)
+                    DistanceMeasure const& distance,
+                    int precision = 12)
 {
     Geometry simplified;
     bg::simplify(geometry, simplified, distance);
 
     std::ostringstream out;
-    out << std::setprecision(12) << bg::wkt(simplified);
+    out << std::setprecision(precision) << bg::wkt(simplified);
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
@@ -96,13 +96,14 @@ template <typename Geometry, typename Strategy, typename DistanceMeasure>
 void check_geometry(Geometry const& geometry,
                     std::string const& expected,
                     DistanceMeasure const& distance,
-                    Strategy const& strategy)
+                    Strategy const& strategy,
+                    int precision = 12)
 {
     Geometry simplified;
     bg::simplify(geometry, simplified, distance, strategy);
 
     std::ostringstream out;
-    out << std::setprecision(12) << bg::wkt(simplified);
+    out << std::setprecision(precision) << bg::wkt(simplified);
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
@@ -121,7 +122,8 @@ void check_geometry(Geometry const& geometry,
 template <typename Geometry, typename DistanceMeasure>
 void test_geometry(std::string const& wkt,
         std::string const& expected,
-        DistanceMeasure distance)
+        DistanceMeasure distance,
+        int precision = 12)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
 
@@ -136,14 +138,14 @@ void test_geometry(std::string const& wkt,
             bg::strategy::distance::projected_point<double>
         > dp;
 
-    check_geometry(geometry, expected, distance);
-    check_geometry(v, expected, distance);
+    check_geometry(geometry, expected, distance, precision);
+    check_geometry(v, expected, distance, precision);
 
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<dp, point_type>) );
 
-    check_geometry(geometry, expected, distance, dp());
-    check_geometry(v, expected, distance, dp());
+    check_geometry(geometry, expected, distance, dp(), precision);
+    check_geometry(v, expected, distance, dp(), precision);
 
     // Check inserter (if applicable)
     test_inserter
