@@ -233,12 +233,12 @@ struct simplify_ring
             // start/end are modified and a corresponding slice will be used
             // for simplification
 
-            // Take only a fraction of simplify distance, to avoid aggressive
+            // Take only a part of simplify distance, to avoid aggressive
             // behaviour at closing points (it is known as a "open problem")
 
             // TODO: for open polygons, implementation should be modified
             simplify_closure_inspector::get_start_end(start, end, ring,
-                    max_distance / 1000.0, strategy);
+                    max_distance / 2.0, strategy);
         }
 
         bool apply_unsliced = true;
