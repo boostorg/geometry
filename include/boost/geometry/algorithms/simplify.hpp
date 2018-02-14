@@ -302,10 +302,10 @@ private:
                     Distance const& max_distance, Strategy const& strategy)
     {
         typedef typename boost::range_value<InteriorRingsOut>::type single_type;
-        for (IteratorIn it_in = begin; it_in != end; ++it_in)
+        for (IteratorIn it = begin; it != end; ++it)
         {
             single_type out;
-            simplify_ring::apply(*it_in, out, max_distance, strategy);
+            simplify_ring::apply(*it, out, max_distance, strategy);
             if (! geometry::is_empty(out))
             {
                 traits::push_back<InteriorRingsOut>::apply(interior_rings_out, out);
@@ -362,12 +362,10 @@ struct simplify_multi
         typedef typename boost::range_value<MultiGeometry>::type single_type;
 
         for (typename boost::range_iterator<MultiGeometry const>::type
-                it_in = boost::begin(multi);
-             it_in != boost::end(multi);
-             ++it_in)
+                it = boost::begin(multi); it != boost::end(multi); ++it)
         {
             single_type single_out;
-            Policy::apply(*it_in, single_out, max_distance, strategy);
+            Policy::apply(*it, single_out, max_distance, strategy);
             if (! geometry::is_empty(single_out))
             {
                 traits::push_back<MultiGeometry>::apply(out, single_out);
