@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -68,7 +68,7 @@ inline T RV6() { return .04243827160493827160; } /* 55/1296 */
 
 /* initialize geographic shape parameters */
 template <typename BGParams, typename T>
-inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& parameters, T &a, T &es)
+inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& parameters, T &a, T &es)
 {
     T b = 0.0;
     T e = 0.0;
@@ -170,7 +170,7 @@ inline void pj_ell_set(BGParams const& bg_params, std::vector<pvalue<T> >& param
 
 template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
 inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
-                       std::vector<pvalue<T> >& parameters, T &a, T &es)
+                       std::vector<pvalue<T> >& /*parameters*/, T &a, T &es)
 {
     typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
     typedef typename srs::par4::detail::pick_ellps

@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,6 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
@@ -138,6 +139,7 @@ namespace projections
                         lp_lat = -lp_lat;
                         coslam = - coslam;
                         sinphi = -sinphi;
+                        BOOST_FALLTHROUGH;
                     case N_POLE:
                         xy_x = this->m_proj_parm.akm1 * pj_tsfn(lp_lat, sinphi, this->m_par.e);
                         xy_y = - xy_x * coslam;
@@ -174,6 +176,7 @@ namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
+                        BOOST_FALLTHROUGH;
                     case S_POLE:
                         phi_l = HALFPI - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
                         halfpi = -HALFPI;
@@ -244,6 +247,7 @@ namespace projections
                     case N_POLE:
                         coslam = - coslam;
                         lp_lat = - lp_lat;
+                        BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(lp_lat - HALFPI) < TOL)
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
@@ -281,6 +285,7 @@ namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
+                        BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(rh) <= EPS10)
                             lp_lat = this->m_par.phi0;
@@ -344,6 +349,7 @@ namespace projections
                     case OBLIQ:
                         proj_parm.sinX1 = sin(par.phi0);
                         proj_parm.cosX1 = cos(par.phi0);
+                        BOOST_FALLTHROUGH;
                     case EQUIT:
                         proj_parm.akm1 = 2. * par.k0;
                         break;

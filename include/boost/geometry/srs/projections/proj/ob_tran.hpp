@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -118,13 +118,13 @@ namespace projections
                 inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     link->fwd(lp_lon, lp_lat, xy_x, xy_y);
-                };
+                }
 
                 template <typename T>
                 inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     link->inv(xy_x, xy_y, lp_lon, lp_lat);
-                };
+                }
 
                 boost::shared_ptr<base_v<CalculationType, Parameters> > link;
                 CalculationType lamp;
@@ -156,13 +156,13 @@ namespace projections
                 inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     link.fwd(lp_lon, lp_lat, xy_x, xy_y);
-                };
+                }
 
                 template <typename T>
                 inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     link.inv(xy_x, xy_y, lp_lon, lp_lat);
-                };
+                }
 
                 projection_type link;
                 CalculationType lamp;
