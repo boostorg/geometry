@@ -78,12 +78,6 @@ inline void simplify_input(Range const& range,
         simplified, distance.simplify_distance(),
         strategy_type());
 
-    if (boost::size(simplified) == 2
-        && geometry::equals(geometry::range::front(simplified),
-                geometry::range::back(simplified)))
-    {
-        traits::resize<Range>::apply(simplified, 1);
-    }
 }
 
 
