@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/correct_closure.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 
@@ -88,26 +89,19 @@ struct simplify_copy
 };
 
 
-template<std::size_t Minimum>
+template <std::size_t MinimumToUseStrategy>
 struct simplify_range
 {
     template <typename RangeIn, typename RangeOut, typename Strategy, typename Distance>
     static inline void apply(RangeIn const& range, RangeOut& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        // Call do_container for a linestring / ring
+        // For a RING:
+        // Note that, especially if max_distance is too large,
+        // the output ring might be self intersecting while the input ring is
+        // not, although chances are low in normal polygons
 
-        /* For a RING:
-            Note also that, especially if max_distance is too large,
-            the output ring might be self intersecting while the input ring is
-            not, although chances are low in normal polygons
-
-            Note, the inputring might have 3 (open)
-            or 4 (closed) points (=correct),
-            the output < 3 or 4(=wrong)
-        */
-
-        if (boost::size(range) <= int(Minimum) || max_distance < 0.0)
+        if (boost::size(range) <= static_cast<int>(MinimumToUseStrategy) || max_distance < 0)
         {
             simplify_copy::apply(range, out, max_distance, strategy);
         }
@@ -117,6 +111,15 @@ struct simplify_range
                 (
                     range, geometry::range::back_inserter(out), max_distance, strategy
                 );
+        }
+
+        // Verify the two remaining points are equal. If so, remove one of them.
+        // This can cause the output being under the minimum size
+        if (boost::size(out) == 2
+            && geometry::equals(geometry::range::front(out),
+                    geometry::range::back(out)))
+        {
+            traits::resize<RangeOut>::apply(out, 1);
         }
     }
 };
@@ -395,7 +398,7 @@ struct simplify<Point, point_tag>
     }
 };
 
-
+// Linestring, keep 2 points (unless those points are the same)
 template <typename Linestring>
 struct simplify<Linestring, linestring_tag>
     : detail::simplify::simplify_range<2>
