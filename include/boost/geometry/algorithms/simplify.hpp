@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
@@ -283,17 +284,23 @@ private:
     template
     <
         typename IteratorIn,
-        typename IteratorOut,
+        typename InteriorRingsOut,
         typename Distance,
         typename Strategy
     >
     static inline void iterate(IteratorIn begin, IteratorIn end,
-                    IteratorOut it_out,
+                    InteriorRingsOut& interior_rings_out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        for (IteratorIn it_in = begin; it_in != end;  ++it_in, ++it_out)
+        typedef typename boost::range_value<InteriorRingsOut>::type single_type;
+        for (IteratorIn it_in = begin; it_in != end; ++it_in)
         {
-            simplify_ring::apply(*it_in, *it_out, max_distance, strategy);
+            single_type out;
+            simplify_ring::apply(*it_in, out, max_distance, strategy);
+            if (! geometry::is_empty(out))
+            {
+                traits::push_back<InteriorRingsOut>::apply(interior_rings_out, out);
+            }
         }
     }
 
@@ -309,12 +316,11 @@ private:
                     InteriorRingsOut& interior_rings_out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        traits::resize<InteriorRingsOut>::apply(interior_rings_out,
-            boost::size(interior_rings_in));
+        traits::clear<InteriorRingsOut>::apply(interior_rings_out);
 
         iterate(
             boost::begin(interior_rings_in), boost::end(interior_rings_in),
-            boost::begin(interior_rings_out),
+            interior_rings_out,
             max_distance, strategy);
     }
 
@@ -342,16 +348,21 @@ struct simplify_multi
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        traits::resize<MultiGeometry>::apply(out, boost::size(multi));
+        traits::clear<MultiGeometry>::apply(out);
 
-        typename boost::range_iterator<MultiGeometry>::type it_out
-                = boost::begin(out);
+        typedef typename boost::range_value<MultiGeometry>::type single_type;
+
         for (typename boost::range_iterator<MultiGeometry const>::type
                 it_in = boost::begin(multi);
              it_in != boost::end(multi);
-             ++it_in, ++it_out)
+             ++it_in)
         {
-            Policy::apply(*it_in, *it_out, max_distance, strategy);
+            single_type single_out;
+            Policy::apply(*it_in, single_out, max_distance, strategy);
+            if (! geometry::is_empty(single_out))
+            {
+                traits::push_back<MultiGeometry>::apply(out, single_out);
+            }
         }
     }
 };
