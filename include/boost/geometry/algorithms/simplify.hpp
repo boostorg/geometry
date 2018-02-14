@@ -62,7 +62,13 @@ struct simplify_range_insert
     {
         boost::ignore_unused(strategy);
 
-        if (boost::size(range) <= 2 || max_distance < 0)
+        if (boost::size(range) == 2
+            && geometry::equals(geometry::range::front(range),
+                                geometry::range::back(range)))
+        {
+            std::copy(boost::begin(range), boost::begin(range) + 1, out);
+        }
+        else if (boost::size(range) <= 2 || max_distance < 0)
         {
             std::copy(boost::begin(range), boost::end(range), out);
         }
