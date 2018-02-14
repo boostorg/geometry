@@ -106,6 +106,17 @@ void check_geometry(Geometry const& geometry,
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
+template <typename Geometry, typename DistanceMeasure>
+void check_geometry(Geometry const& geometry,
+                    double expected_area,
+                    DistanceMeasure const& distance)
+{
+    Geometry simplified;
+    bg::simplify(geometry, simplified, distance);
+
+    BOOST_CHECK_CLOSE(bg::area(simplified), expected_area, 0.01);
+}
+
 
 template <typename Geometry, typename DistanceMeasure>
 void test_geometry(std::string const& wkt,
@@ -179,6 +190,18 @@ void test_geometry(std::string const& wkt,
 
     check_geometry(geometry, expected, distance, strategy);
     check_geometry(v, expected, distance, strategy);
+}
+
+template <typename Geometry, typename DistanceMeasure>
+void test_geometry(std::string const& wkt,
+        double expected_area,
+        DistanceMeasure const& distance)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    bg::correct_closure(geometry);
+
+    check_geometry(geometry, expected_area, distance);
 }
 
 #endif
