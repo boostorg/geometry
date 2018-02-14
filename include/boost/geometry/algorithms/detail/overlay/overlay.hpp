@@ -233,7 +233,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
 
     select_rings<OverlayType>(geometry1, geometry2, empty, all_of_one_of_them, strategy);
     ring_container_type rings;
-    assign_parents(geometry1, geometry2, rings, all_of_one_of_them, strategy);
+    assign_parents<OverlayType>(geometry1, geometry2, rings, all_of_one_of_them, strategy);
     return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out,
                                   strategy.template get_area_strategy<point_type1>());
 }
@@ -306,7 +306,7 @@ std::cout << "get turns" << std::endl;
 
         visitor.visit_turns(1, turns);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
         if (needs_self_turns<Geometry1>::apply(geometry1))
         {
             self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
@@ -385,7 +385,8 @@ std::cout << "traverse" << std::endl;
             }
         }
 
-        assign_parents(geometry1, geometry2, rings, selected_ring_properties, strategy);
+        assign_parents<OverlayType>(geometry1, geometry2,
+            rings, selected_ring_properties, strategy);
 
         // NOTE: There is no need to check result area for union because
         // as long as the polygons in the input are valid the resulting

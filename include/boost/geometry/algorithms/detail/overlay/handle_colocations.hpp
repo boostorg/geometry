@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -439,7 +440,6 @@ inline bool is_ie_turn(segment_identifier const& ext_seg_0,
 template
 <
     bool Reverse0, bool Reverse1, // Reverse interpretation interior/exterior
-    overlay_type OverlayType,
     typename Turns,
     typename Clusters
 >
@@ -552,7 +552,7 @@ template
     typename Clusters
 >
 inline void check_colocation(bool& has_blocked,
-        int cluster_id, Turns const& turns, Clusters const& clusters)
+        signed_size_type cluster_id, Turns const& turns, Clusters const& clusters)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
 
@@ -598,6 +598,8 @@ template
 inline bool handle_colocations(Turns& turns, Clusters& clusters,
         Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
+    static const detail::overlay::operation_type target_operation
+            = detail::overlay::operation_from_overlay<OverlayType>::value;
     typedef std::map
         <
             segment_identifier,
@@ -610,7 +612,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // that information can be used for the interior ring too
     map_type map;
 
-    int index = 0;
+    signed_size_type index = 0;
     for (typename boost::range_iterator<Turns>::type
             it = boost::begin(turns);
          it != boost::end(turns);
@@ -677,12 +679,15 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // Get colocated information here and not later, to keep information
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
-    discard_interior_exterior_turns
-        <
-            do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
-            do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2,
-            OverlayType
-        >(turns, clusters);
+
+    if (target_operation == operation_intersection)
+    {
+        discard_interior_exterior_turns
+            <
+                do_reverse<geometry::point_order<Geometry1>::value>::value != Reverse1,
+                do_reverse<geometry::point_order<Geometry2>::value>::value != Reverse2
+            >(turns, clusters);
+    }
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
@@ -794,9 +799,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
-        bool const set_startable
-                = OverlayType != overlay_dissolve_union
-                && OverlayType != overlay_dissolve_intersection;
+        bool const set_startable = OverlayType != overlay_dissolve;
 
         // Unset the startable flag for all 'closed' zones. This does not
         // apply for self-turns, because those counts are not from both

@@ -86,9 +86,9 @@ struct equal_turn
     }
 
     template <typename P, typename R>
-    static bool equal_operations_ex(bg::detail::overlay::turn_operation<P, R> const& op0,
-                                    bg::detail::overlay::turn_operation<P, R> const& op1,
-                                    std::string const& s)
+    static bool equal_operations_ex(bg::detail::overlay::turn_operation<P, R> const& /*op0*/,
+                                    bg::detail::overlay::turn_operation<P, R> const& /*op1*/,
+                                    std::string const& /*s*/)
     {
         return true;
     }
