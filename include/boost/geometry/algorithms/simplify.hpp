@@ -148,6 +148,13 @@ public:
         Ring const& ring, Distance const& distance, Strategy const& strategy)
     {
         std::size_t const size = boost::size(ring);
+        if (size < 5)
+        {
+            // Smallest useful closed polygon, where the closing point could
+            // be simplified away, would have 4 points (to result into a
+            // triangle)
+            return;
+        }
 
         // Assuming a CLOSED polygon:
         // Create 3-point range and verify if middle point would be
@@ -207,11 +214,6 @@ struct simplify_ring
         }
 
         static closure_selector const closure = geometry::closure<Ring>::value;
-        static std::size_t const minimum
-            = core_detail::closure::minimum_ring_size
-            <
-                closure
-            >::value;
 
         std::size_t const size = boost::size(ring);
         std::size_t start = 0;
@@ -221,7 +223,7 @@ struct simplify_ring
         // and what was negative stays negative (or goes to 0)
         int const input_sign = area_sign(geometry::area(ring));
 
-        if (closure == geometry::closed && size > minimum)
+        if (closure == geometry::closed)
         {
             // Verify area around closing point, if that can be simplified,
             // start/end are modified and a corresponding slice will be used
@@ -242,7 +244,7 @@ struct simplify_ring
             using namespace boost::adaptors;
 
             apply_unsliced = false;
-            simplify_range<minimum>::apply(ring | sliced(start, end),
+            simplify_range<0>::apply(ring | sliced(start, end),
                          out, max_distance, strategy);
 
             // Close it
@@ -260,13 +262,13 @@ struct simplify_ring
 
         if (apply_unsliced)
         {
-            simplify_range<minimum>::apply(ring, out, max_distance, strategy);
+            simplify_range<0>::apply(ring, out, max_distance, strategy);
         }
 
         int const output_sign = area_sign(geometry::area(out));
         if (output_sign != input_sign)
         {
-            // Original is simplified away or spoiled by simplification
+            // Original is simplified away, or inversed by simplification
             geometry::clear(out);
         }
     }
