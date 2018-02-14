@@ -84,10 +84,16 @@ void test_all()
     test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0,120 6,80 10,200 0)",
         "LINESTRING(0 0,120 6,80 10,200 0)", 7);
+
     // Same which reordered coordinates
     test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0,80 10,120 6,200 0)",
         "LINESTRING(0 0,80 10,200 0)", 7);
+
+    // Duplicate point is removed
+    test_geometry<bg::model::linestring<P> >(
+        "LINESTRING(0 0,0 0)",
+        "LINESTRING(0 0)", 1.0);
 
     // Mail 2013-10-07, real-life test, piece of River Leine
     // PostGIS returns exactly the same result
@@ -178,6 +184,10 @@ void test_all()
     test_geometry<bg::model::polygon<P> >(salamina, 135209933.31675398, 5000);
 
 
+    // Interior ring (sized ~ 1) should be simplified away (distance 5)
+    test_geometry<bg::model::polygon<P> >(
+        "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,6 6,5 6,5 5))",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))", 5.0);
 
 //    // Non-closed version
 //    test_geometry<bg::model::polygon<P, true, false> >(
