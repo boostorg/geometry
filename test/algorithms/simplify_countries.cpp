@@ -120,16 +120,17 @@ void test_all()
     std::string no = read_from_file<mp>(base_folder + "no.wkt");
     std::string uk = read_from_file<mp>(base_folder + "uk.wkt");
 
-    // Gradually simplify more aggresively. Perimeter ratio should decrease.
-    // Area can increase or decrease
+    // Gradually simplify more aggresively.
+    // Area ratio (first) can increase or decrease
+    // Perimeter ratio (second) should decrease.
     test_one<mp>("gr", gr, 100, 0.999893, 0.999761);
     test_one<mp>("gr", gr, 200, 0.999727, 0.99889);
     test_one<mp>("gr", gr, 500, 0.999106, 0.995726);
-    test_one<mp>("gr", gr, 1000, 0.997977, 0.991533);
-    test_one<mp>("gr", gr, 2000, 0.994583, 0.977574);
-    test_one<mp>("gr", gr, 5000, 0.979823, 0.912549);
-    test_one<mp>("gr", gr, 10000, 0.97171, 0.783048);
-    test_one<mp>("gr", gr, 20000, 0.947049, 0.600652);
+    test_one<mp>("gr", gr, 1000, 0.998011, 0.991557);
+    test_one<mp>("gr", gr, 2000, 0.994586, 0.977572);
+    test_one<mp>("gr", gr, 5000, 0.980025, 0.91269);
+    test_one<mp>("gr", gr, 10000, 0.971832, 0.786512);
+    test_one<mp>("gr", gr, 20000, 0.947049, 0.600652); // many islands disappeared
 
     test_one<mp>("it", it, 100, 1.00001, 0.999815);
     test_one<mp>("it", it, 200, 1.00009, 0.9991);
@@ -137,7 +138,7 @@ void test_all()
     test_one<mp>("it", it, 1000, 1.00059, 0.993098);
     test_one<mp>("it", it, 2000, 1.001, 0.985255);
     test_one<mp>("it", it, 5000, 1.00212, 0.929793);
-    test_one<mp>("it", it, 10000, 1.01076, 0.878063);
+    test_one<mp>("it", it, 10000, 1.01076, 0.875699);
     test_one<mp>("it", it, 20000, 1.01042, 0.829402);
 
     test_one<mp>("nl", nl, 100, 0.999894, 0.999817);
@@ -165,7 +166,7 @@ void test_all()
     test_one<mp>("uk", uk, 2000, 0.998076, 0.984032);
     test_one<mp>("uk", uk, 5000, 0.991446, 0.943896);
     test_one<mp>("uk", uk, 10000, 0.989576, 0.870631);
-    test_one<mp>("uk", uk, 20000, 0.980135, 0.737608);
+    test_one<mp>("uk", uk, 20000, 0.977384, 0.738103);
 }
 
 int test_main(int, char* [])

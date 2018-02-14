@@ -40,6 +40,7 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
@@ -190,6 +191,12 @@ public:
 
 struct simplify_ring
 {
+    template <typename Area>
+    static inline int area_sign(Area const& area)
+    {
+        return area > 0 ? 1 : area < 0 ? -1 : 0;
+    }
+
     template <typename Ring, typename Strategy, typename Distance>
     static inline void apply(Ring const& ring, Ring& out,
                     Distance const& max_distance, Strategy const& strategy)
@@ -210,7 +217,9 @@ struct simplify_ring
         std::size_t start = 0;
         std::size_t end = size - 1; // index of last point
 
-        bool const input_positive = geometry::area(ring) >= 0;
+        // Verify that what was positive, stays positive (or goes to 0)
+        // and what was negative stays negative (or goes to 0)
+        int const input_sign = area_sign(geometry::area(ring));
 
         if (closure == geometry::closed && size > minimum)
         {
@@ -236,18 +245,29 @@ struct simplify_ring
             simplify_range<minimum>::apply(ring | sliced(start, end),
                          out, max_distance, strategy);
 
+            // Close it
+            geometry::correct_closure(out);
+
             // Verify if result did not botch original behaviour
-            bool const sliced_positive = geometry::area(out) >= 0;
-            if (input_positive != sliced_positive)
+            int const sliced_sign = area_sign(geometry::area(out));
+            if (input_sign != sliced_sign)
             {
                 // Redo
                 geometry::clear(out);
                 apply_unsliced = true;
             }
         }
+
         if (apply_unsliced)
         {
             simplify_range<minimum>::apply(ring, out, max_distance, strategy);
+        }
+
+        int const output_sign = area_sign(geometry::area(out));
+        if (output_sign != input_sign)
+        {
+            // Original is simplified away or spoiled by simplification
+            geometry::clear(out);
         }
     }
 
