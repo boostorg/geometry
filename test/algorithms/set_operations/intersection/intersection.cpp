@@ -46,7 +46,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
-#if ! defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
     #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
         { ut_settings ignore_validity; ignore_validity.test_validity = false; \
         (test_one<Polygon, Polygon, Polygon>) \
@@ -355,7 +355,7 @@ void test_areal()
 
     TEST_INTERSECTION(case_105, 1, 34, 76.0);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
 #else
@@ -378,7 +378,7 @@ void test_areal()
         2, -1, 183.71376870369406);
 
     // Needs self-intersections to solve validity
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
 #else
     TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);

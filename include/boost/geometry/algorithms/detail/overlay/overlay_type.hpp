@@ -21,8 +21,7 @@ enum overlay_type
     overlay_intersection,
     overlay_difference,
     overlay_buffer,
-    overlay_dissolve_union,
-    overlay_dissolve_intersection
+    overlay_dissolve
 };
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -70,15 +69,9 @@ struct operation_from_overlay<overlay_difference>
 };
 
 template <>
-struct operation_from_overlay<overlay_dissolve_union>
+struct operation_from_overlay<overlay_dissolve>
 {
     static const operation_type value = operation_union;
-};
-
-template <>
-struct operation_from_overlay<overlay_dissolve_intersection>
-{
-    static const operation_type value = operation_intersection;
 };
 
 
