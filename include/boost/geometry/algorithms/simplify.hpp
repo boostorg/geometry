@@ -18,7 +18,6 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
-#include <boost/range/adaptor/sliced.hpp>
 
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -40,7 +39,6 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/correct_closure.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -154,8 +152,8 @@ public:
         typename Strategy,
         typename Distance
     >
-    static inline void get_start_end(std::size_t& start, std::size_t& end,
-        Ring const& ring, Distance const& distance, Strategy const& strategy)
+    static inline std::size_t get_start(Ring const& ring,
+                Distance const& distance, Strategy const& strategy)
     {
         std::size_t const size = boost::size(ring);
         if (size < 5)
@@ -163,17 +161,18 @@ public:
             // Smallest useful closed polygon, where the closing point could
             // be simplified away, would have 4 points (to result into a
             // triangle)
-            return;
+            return 0;
         }
 
         // Assuming a CLOSED polygon:
         // Create 3-point range and verify if middle point would be
         // simplified away. If so, set start accordingly
         Ring closing;
-        range::push_back(closing, range::at(ring, end - 1));
+        range::push_back(closing, range::at(ring, size - 2));
         range::push_back(closing, range::at(ring, 0));
         range::push_back(closing, range::at(ring, 1));
 
+        std::size_t start = 0;
         std::size_t simp_size = simplified_size(closing, distance, strategy);
         while (simp_size == 2 && start < size - 2)
         {
@@ -183,37 +182,44 @@ public:
             range::push_back(closing, range::at(ring, start + 1));
             simp_size = simplified_size(closing, distance, strategy);
         }
-
-        // Verify if more points from end can be added
-        // Note that simplify works same in two directions.
-        // Avoid simplifying the whole geometry away,
-        // so avoid using the same point at end as at start,
-        geometry::clear(closing);
-        range::push_back(closing, range::at(ring, 0));
-        range::push_back(closing, range::at(ring, end - 1));
-        range::push_back(closing, range::at(ring, end - 2));
-
-        simp_size = simplified_size(closing, distance, strategy);
-        while (simp_size == 2 && end - 3 > start)
-        {
-            end--;
-
-            // Try to add more points from end:
-            range::push_back(closing, range::at(ring, end - 2));
-            simp_size = simplified_size(closing, distance, strategy);
-        }
+        return start;
     }
 };
 
 
 struct simplify_ring
 {
+private :
     template <typename Area>
     static inline int area_sign(Area const& area)
     {
         return area > 0 ? 1 : area < 0 ? -1 : 0;
     }
 
+    template <typename Strategy, typename Ring, typename Distance>
+    static bool will_be_empty(Ring const& ring, Distance const& simplify_distance)
+    {
+        typename Strategy::distance_strategy_type distance_strategy;
+
+        // Verify if it is NOT the case that all points are less than the
+        // simplifying distance. If so, output is empty.
+        Distance max_distance(-1);
+        typename geometry::point_type<Ring>::type point = range::front(ring);
+        for (typename boost::range_iterator<Ring const>::type
+                it = boost::begin(ring) + 1; it != boost::end(ring); ++it)
+        {
+            // This actually is point-segment distance but will result
+            // in point-point distance
+            Distance dist = distance_strategy.apply(*it, point, point);
+            if (dist > max_distance)
+            {
+                max_distance = dist;
+            }
+        }
+        return max_distance < simplify_distance;
+    }
+
+public :
     template <typename Ring, typename Strategy, typename Distance>
     static inline void apply(Ring const& ring, Ring& out,
                     Distance const& max_distance, Strategy const& strategy)
@@ -223,11 +229,18 @@ struct simplify_ring
             return;
         }
 
+        if (will_be_empty<Strategy>(ring, max_distance))
+        {
+            return;
+        }
+
+        // TODO: for open polygons, implementation should be modified
+        // because opening/closing point might be located within simplifcation
+        // distance, it is better to always consider it as closed.
+        // => use closeable view
         static closure_selector const closure = geometry::closure<Ring>::value;
 
-        std::size_t const size = boost::size(ring);
         std::size_t start = 0;
-        std::size_t end = size - 1; // index of last point
 
         // Verify that what was positive, stays positive (or goes to 0)
         // and what was negative stays negative (or goes to 0)
@@ -236,41 +249,29 @@ struct simplify_ring
         if (closure == geometry::closed)
         {
             // Verify area around closing point, if that can be simplified,
-            // start/end are modified and a corresponding slice will be used
+            // starting point is modified and a rotated view will be used
             // for simplification
 
-            // Take only a part of simplify distance, to avoid aggressive
-            // behaviour at closing points (it is known as a "open problem")
-
-            // TODO: for open polygons, implementation should be modified
-            simplify_closure_inspector::get_start_end(start, end, ring,
-                    max_distance / 2.0, strategy);
+            start = simplify_closure_inspector::get_start(ring,
+                    max_distance, strategy);
         }
 
-        bool apply_unsliced = true;
-
-        if (start > 0) // checking end is not necessary
+        if (start > 0)
         {
-            using namespace boost::adaptors;
+            // Rotate it into a copied vector
+            // (vector, because source type might not support rotation)
+            // (duplicate end point will be simplified away)
+            typedef typename geometry::point_type<Ring>::type point_type;
+            std::vector<point_type> copy(boost::size(ring));
+            std::rotate_copy(boost::begin(ring),
+                boost::begin(ring) + start, boost::end(ring), copy.begin());
 
-            apply_unsliced = false;
-            simplify_range<0>::apply(ring | sliced(start, end),
-                         out, max_distance, strategy);
+            // Reclose it
+            copy.push_back(range::at(ring, start));
 
-            // Close it
-            geometry::correct_closure(out);
-
-            // Verify if result did not botch original behaviour
-            int const sliced_sign = area_sign(geometry::area(out));
-            if (input_sign != sliced_sign)
-            {
-                // Redo
-                geometry::clear(out);
-                apply_unsliced = true;
-            }
+            simplify_range<0>::apply(copy, out, max_distance, strategy);
         }
-
-        if (apply_unsliced)
+        else
         {
             simplify_range<0>::apply(ring, out, max_distance, strategy);
         }

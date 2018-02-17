@@ -165,23 +165,20 @@ void test_all()
     // and finally the whole polygon
     std::string const near_triangle = "POLYGON((0.55 0.55,1 0,0.5 0,0 0,0 1,0.55 0.55))";
     test_geometry<bg::model::polygon<P> >(near_triangle,
-        "POLYGON((0.55 0.55,1 0,0 0,0 1,0.55 0.55))", 0.1, 6);
+        "POLYGON((0.55 0.55,1 0,0 0,0 1,0.55 0.55))", 0.01, 6);
     test_geometry<bg::model::polygon<P> >(near_triangle,
-        "POLYGON((1 0,0 0,0 1,1 0))", 0.6, 6);
+        "POLYGON((1 0,0 0,0 1,1 0))", 0.1, 6);
     test_geometry<bg::model::polygon<P> >(near_triangle,
         "POLYGON(())", 0.9, 6);
 
     // Test simplifying away the closing point, and closing it explicitly
     std::string const salamina = "POLYGON((2616131.59828 4579307.29099,2616687.86177 4579151.05325,2618172.52982 4578718.79836,2618728.79332 4578522.73574,2620336.91468 4577424.54293,2620522.48427 4576992.50129,2621264.76264 4569815.3917,2621140.75272 4569502.07546,2620491.53745 4568208.96982,2620151.34509 4567855.90928,2612606.55528 4562800.36094,2611833.3301 4562291.50023,2611369.5731 4562174.16117,2610225.54269 4562408.69959,2605896.21638 4564367.29512,2605494.13038 4564641.6634,2605277.94792 4566288.44857,2606019.89233 4569423.46562,2609050.12019 4577424.54293,2614337.90732 4579347.12775,2615296.7021 4579543.34723,2616131.59828 4579307.29099))";
-    test_geometry<bg::model::polygon<P> >(salamina, 195797054.80106735, 100);
-    if (boost::is_same<typename bg::coordinate_type<P>::type, double>())
-    {
-        test_geometry<bg::model::polygon<P> >(salamina, 195272651.93332195, 200);
-        test_geometry<bg::model::polygon<P> >(salamina, 193654279.12103939, 500);
-    }
-    test_geometry<bg::model::polygon<P> >(salamina, 170502331.14225006, 1000);
-    test_geometry<bg::model::polygon<P> >(salamina, 168885811.86559534, 2000);
-    test_geometry<bg::model::polygon<P> >(salamina, 128917660.46588373, 5000);
+    test_geometry<bg::model::polygon<P> >(salamina, 195881912.27578354, 100);
+    test_geometry<bg::model::polygon<P> >(salamina, 194529995.06034374, 200);
+    test_geometry<bg::model::polygon<P> >(salamina, 191735337.3337431, 500);
+    test_geometry<bg::model::polygon<P> >(salamina, 186207074.21197414, 1000);
+    test_geometry<bg::model::polygon<P> >(salamina, 181484273.61569881, 2000);
+    test_geometry<bg::model::polygon<P> >(salamina,  93557537.39758300, 5000);
 
     // Interior ring (sized ~ 1) should be simplified away (distance 5)
     test_geometry<bg::model::polygon<P> >(
