@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
+#include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
@@ -128,65 +129,6 @@ struct simplify_range
     }
 };
 
-struct simplify_closure_inspector
-{
-private:
-    template
-    <
-        typename Range,
-        typename Strategy,
-        typename Distance
-    >
-    static inline std::size_t simplified_size(Range const& range,
-            Distance const& distance, Strategy const& strategy)
-    {
-        Range simplified;
-        simplify_range<0>::apply(range, simplified, distance, strategy);
-        return boost::size(simplified);
-    }
-
-public:
-    template
-    <
-        typename Ring,
-        typename Strategy,
-        typename Distance
-    >
-    static inline std::size_t get_start(Ring const& ring,
-                Distance const& distance, Strategy const& strategy)
-    {
-        std::size_t const size = boost::size(ring);
-        if (size < 5)
-        {
-            // Smallest useful closed polygon, where the closing point could
-            // be simplified away, would have 4 points (to result into a
-            // triangle)
-            return 0;
-        }
-
-        // Assuming a CLOSED polygon:
-        // Create 3-point range and verify if middle point would be
-        // simplified away. If so, set start accordingly
-        Ring closing;
-        range::push_back(closing, range::at(ring, size - 2));
-        range::push_back(closing, range::at(ring, 0));
-        range::push_back(closing, range::at(ring, 1));
-
-        std::size_t start = 0;
-        std::size_t simp_size = simplified_size(closing, distance, strategy);
-        while (simp_size == 2 && start < size - 2)
-        {
-            start++;
-
-            // Try to add more points at start:
-            range::push_back(closing, range::at(ring, start + 1));
-            simp_size = simplified_size(closing, distance, strategy);
-        }
-        return start;
-    }
-};
-
-
 struct simplify_ring
 {
 private :
@@ -196,27 +138,30 @@ private :
         return area > 0 ? 1 : area < 0 ? -1 : 0;
     }
 
-    template <typename Strategy, typename Ring, typename Distance>
-    static bool will_be_empty(Ring const& ring, Distance const& simplify_distance)
+    template <typename Strategy, typename Ring>
+    static std::size_t get_opposite(std::size_t index, Ring const& ring)
     {
         typename Strategy::distance_strategy_type distance_strategy;
 
         // Verify if it is NOT the case that all points are less than the
         // simplifying distance. If so, output is empty.
-        Distance max_distance(-1);
-        typename geometry::point_type<Ring>::type point = range::front(ring);
+        typename Strategy::distance_type max_distance(-1);
+
+        typename geometry::point_type<Ring>::type point = range::at(ring, index);
+        std::size_t i = 0;
         for (typename boost::range_iterator<Ring const>::type
-                it = boost::begin(ring) + 1; it != boost::end(ring); ++it)
+                it = boost::begin(ring); it != boost::end(ring); ++it, ++i)
         {
             // This actually is point-segment distance but will result
             // in point-point distance
-            Distance dist = distance_strategy.apply(*it, point, point);
+            typename Strategy::distance_type dist = distance_strategy.apply(*it, point, point);
             if (dist > max_distance)
             {
                 max_distance = dist;
+                index = i;
             }
         }
-        return max_distance < simplify_distance;
+        return index;
     }
 
 public :
@@ -224,66 +169,90 @@ public :
     static inline void apply(Ring const& ring, Ring& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        if (boost::empty(ring))
+        std::size_t const size = boost::size(ring);
+        if (size == 0)
         {
             return;
         }
 
-        if (will_be_empty<Strategy>(ring, max_distance))
-        {
-            return;
-        }
-
-        // TODO: for open polygons, implementation should be modified
-        // because opening/closing point might be located within simplifcation
-        // distance, it is better to always consider it as closed.
-        // => use closeable view
-        static closure_selector const closure = geometry::closure<Ring>::value;
-
-        std::size_t start = 0;
-
-        // Verify that what was positive, stays positive (or goes to 0)
-        // and what was negative stays negative (or goes to 0)
         int const input_sign = area_sign(geometry::area(ring));
 
-        if (closure == geometry::closed)
+        std::set<std::size_t> visited_indexes;
+
+        // Rotate it into a copied vector
+        // (vector, because source type might not support rotation)
+        // (duplicate end point will be simplified away)
+        typedef typename geometry::point_type<Ring>::type point_type;
+
+        std::vector<point_type> rotated(size);
+
+        // Closing point (but it will not start here)
+        std::size_t index = 0;
+
+        // Iterate (usually one iteration is enough)
+        for (std::size_t iteration = 0; iteration < 4u; iteration++)
         {
-            // Verify area around closing point, if that can be simplified,
-            // starting point is modified and a rotated view will be used
-            // for simplification
+            // Always take the opposite. Opposite guarantees that no point
+            // "halfway" is chosen, creating an artefact (very narrow triangle)
+            // Iteration 0: opposite to closing point (1/2, = on convex hull)
+            //              (this will start simplification with that point
+            //               and its opposite ~0)
+            // Iteration 1: move a quarter on that ring, then opposite to 1/4
+            //              (with its opposite 3/4)
+            // Iteration 2: move an eight on that ring, then opposite (1/8)
+            // Iteration 3: again move a quarter, then opposite (7/8)
+            // So finally 8 "sides" of the ring have been examined (if it were
+            // a semi-circle). Most probably, there are only 0 or 1 iterations.
+            switch (iteration)
+            {
+                case 1 : index = (index + size / 4) % size; break;
+                case 2 : index = (index + size / 8) % size; break;
+                case 3 : index = (index + size / 4) % size; break;
+            }
+            index = get_opposite<Strategy>(index, ring);
 
-            start = simplify_closure_inspector::get_start(ring,
-                    max_distance, strategy);
-        }
+            if (visited_indexes.count(index) > 0)
+            {
+                // Avoid trying the same starting point more than once
+                continue;
+            }
 
-        if (start > 0)
-        {
-            // Rotate it into a copied vector
-            // (vector, because source type might not support rotation)
-            // (duplicate end point will be simplified away)
-            typedef typename geometry::point_type<Ring>::type point_type;
-            std::vector<point_type> copy(boost::size(ring));
-            std::rotate_copy(boost::begin(ring),
-                boost::begin(ring) + start, boost::end(ring), copy.begin());
+            std::rotate_copy(boost::begin(ring), boost::begin(ring) + index,
+                             boost::end(ring), rotated.begin());
 
-            // Reclose it
-            copy.push_back(range::at(ring, start));
+            // Close the rotated copy
+            rotated.push_back(range::at(ring, index));
 
-            simplify_range<0>::apply(copy, out, max_distance, strategy);
-        }
-        else
-        {
-            simplify_range<0>::apply(ring, out, max_distance, strategy);
-        }
+            simplify_range<0>::apply(rotated, out, max_distance, strategy);
 
-        int const output_sign = area_sign(geometry::area(out));
-        if (output_sign != input_sign)
-        {
-            // Original is simplified away, or inversed by simplification
+            // Verify that what was positive, stays positive (or goes to 0)
+            // and what was negative stays negative (or goes to 0)
+            int const output_sign = area_sign(geometry::area(out));
+            if (output_sign == input_sign)
+            {
+                // Result is considered as satisfactory (usually this is the
+                // first iteration - only for small rings, having a scale
+                // similar to simplify_distance, next iterations are tried
+                return;
+            }
+
+            // Original is simplified away. Possibly there is a solution
+            // when another starting point is used
             geometry::clear(out);
+
+            if (iteration == 0
+                && geometry::perimeter(ring) < 3 * max_distance)
+            {
+                // Check if it is useful to iterate. A minimal triangle has a
+                // perimeter of a bit more than 3 times the simplify distance
+                return;
+            }
+
+            // Prepare next try
+            visited_indexes.insert(index);
+            rotated.resize(size);
         }
     }
-
 };
 
 
