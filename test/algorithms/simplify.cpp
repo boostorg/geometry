@@ -161,15 +161,26 @@ void test_all()
         "POLYGON((0 0,0 5,5 5,5 0,4 0,3 0,2 0,1 0,0 0))",
         "POLYGON((0 0,0 5,5 5,5 0,0 0))", 0.1);
 
+    // Test wither all collinear points in between are simplified away
+    // First approach did select one of them because it was the end of the
+    // "closing area". Now the opposite is taken, which is farthest and never
+    // collinear
+    test_geometry<bg::model::polygon<P> >(
+            "POLYGON((2 0,1 0,0 0,0 1,0 2,0 3,0 4,1 4,2 4,3 4,4 4,4 3,4 2,4 1,4 0,3 0,2 0))",
+            "POLYGON((0 0,0 4,4 4,4 0,0 0))", 1.0);
+
     // Test simplifying away one of the sides (collinear), then closing point
     // and finally the whole polygon
     std::string const near_triangle = "POLYGON((0.55 0.55,1 0,0.5 0,0 0,0 1,0.55 0.55))";
     test_geometry<bg::model::polygon<P> >(near_triangle,
-        "POLYGON((0.55 0.55,1 0,0 0,0 1,0.55 0.55))", 0.01, 6);
+        "POLYGON((0.55 0.55,1 0,0 0,0 1,0.55 0.55))", 0.01);
     test_geometry<bg::model::polygon<P> >(near_triangle,
-        "POLYGON((1 0,0 0,0 1,1 0))", 0.1, 6);
+        "POLYGON((1 0,0 0,0 1,1 0))", 0.1);
+    // 0.9 should still result in a simplified polygon
     test_geometry<bg::model::polygon<P> >(near_triangle,
-        "POLYGON(())", 0.9, 6);
+        "POLYGON((1 0,0 0,0 1,1 0))", 0.9);
+    test_geometry<bg::model::polygon<P> >(near_triangle,
+        "POLYGON(())", 1.1);
 
     // Test simplifying away the closing point, and closing it explicitly
     std::string const salamina = "POLYGON((2616131.59828 4579307.29099,2616687.86177 4579151.05325,2618172.52982 4578718.79836,2618728.79332 4578522.73574,2620336.91468 4577424.54293,2620522.48427 4576992.50129,2621264.76264 4569815.3917,2621140.75272 4569502.07546,2620491.53745 4568208.96982,2620151.34509 4567855.90928,2612606.55528 4562800.36094,2611833.3301 4562291.50023,2611369.5731 4562174.16117,2610225.54269 4562408.69959,2605896.21638 4564367.29512,2605494.13038 4564641.6634,2605277.94792 4566288.44857,2606019.89233 4569423.46562,2609050.12019 4577424.54293,2614337.90732 4579347.12775,2615296.7021 4579543.34723,2616131.59828 4579307.29099))";
