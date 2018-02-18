@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015, 2017.
-  Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015, 2017, 2018.
+  Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,6 +17,29 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.67]
+[/=================]
+
+[*Improvements]
+
+* New densify() algorithm.
+* No longer using std::iterator (thanks to Daniela Engert).
+* No longer using allocator directly in the rtree. Replaced with boost::container::allocator_traits (thanks to Daniela Engert).
+* Default rtree allocator changed to boost::container::new_allocator to still support move semantics emulation in C++03 with boost::container::allocator_traits.
+* Area strategies interface changed. This is potentially breaking change.
+* Radius or Sphere can be passed into spherical strategies.
+* Added Point-Box and Box-Box spherical and geographic distance() strategies.
+
+[*Solved issues]
+
+* [@https://svn.boost.org/trac10/ticket/13381 13381] Compile error with matrix_transformer in Visual C++ 2015
+* [@https://svn.boost.org/trac10/ticket/13436 13436] Incorrectness in boost::geometry::model::polygon documentation
+
+[*Bugfixes]
+
+* Add missing strategy resolving in length() algorithm, affecting Variant support.
 
 [/=================]
 [heading Boost 1.66]
