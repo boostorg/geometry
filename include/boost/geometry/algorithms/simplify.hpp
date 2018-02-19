@@ -39,7 +39,7 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
@@ -57,8 +57,8 @@ template <typename Range>
 inline bool is_degenerate(Range const& range)
 {
     return boost::size(range) == 2
-        && geometry::equals(geometry::range::front(range),
-                            geometry::range::back(range));
+        && detail::equals::equals_point_point(geometry::range::front(range),
+                                              geometry::range::back(range));
 }
 
 struct simplify_range_insert
