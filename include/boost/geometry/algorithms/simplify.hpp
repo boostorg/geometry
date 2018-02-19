@@ -53,6 +53,14 @@ namespace boost { namespace geometry
 namespace detail { namespace simplify
 {
 
+template <typename Range>
+inline bool is_degenerate(Range const& range)
+{
+    return boost::size(range) == 2
+        && geometry::equals(geometry::range::front(range),
+                            geometry::range::back(range));
+}
+
 struct simplify_range_insert
 {
     template<typename Range, typename Strategy, typename OutputIterator, typename Distance>
@@ -61,9 +69,7 @@ struct simplify_range_insert
     {
         boost::ignore_unused(strategy);
 
-        if (boost::size(range) == 2
-            && geometry::equals(geometry::range::front(range),
-                                geometry::range::back(range)))
+        if (is_degenerate(range))
         {
             std::copy(boost::begin(range), boost::begin(range) + 1, out);
         }
@@ -106,7 +112,7 @@ struct simplify_range
         // the output ring might be self intersecting while the input ring is
         // not, although chances are low in normal polygons
 
-        if (boost::size(range) <= static_cast<int>(MinimumToUseStrategy) || max_distance < 0)
+        if (boost::size(range) <= MinimumToUseStrategy || max_distance < 0)
         {
             simplify_copy::apply(range, out, max_distance, strategy);
         }
@@ -120,11 +126,9 @@ struct simplify_range
 
         // Verify the two remaining points are equal. If so, remove one of them.
         // This can cause the output being under the minimum size
-        if (boost::size(out) == 2
-            && geometry::equals(geometry::range::front(out),
-                    geometry::range::back(out)))
+        if (is_degenerate(out))
         {
-            traits::resize<RangeOut>::apply(out, 1);
+            range::resize(out, 1);
         }
     }
 };
@@ -217,7 +221,7 @@ public :
                 continue;
             }
 
-            std::rotate_copy(boost::begin(ring), boost::begin(ring) + index,
+            std::rotate_copy(boost::begin(ring), range::pos(ring, index),
                              boost::end(ring), rotated.begin());
 
             // Close the rotated copy
@@ -278,7 +282,7 @@ private:
             simplify_ring::apply(*it, out, max_distance, strategy);
             if (! geometry::is_empty(out))
             {
-                traits::push_back<InteriorRingsOut>::apply(interior_rings_out, out);
+                range::push_back(interior_rings_out, out);
             }
         }
     }
@@ -295,7 +299,7 @@ private:
                     InteriorRingsOut& interior_rings_out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        traits::clear<InteriorRingsOut>::apply(interior_rings_out);
+        range::clear(interior_rings_out);
 
         iterate(
             boost::begin(interior_rings_in), boost::end(interior_rings_in),
@@ -327,7 +331,7 @@ struct simplify_multi
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        traits::clear<MultiGeometry>::apply(out);
+        range::clear(out);
 
         typedef typename boost::range_value<MultiGeometry>::type single_type;
 
@@ -338,7 +342,7 @@ struct simplify_multi
             Policy::apply(*it, single_out, max_distance, strategy);
             if (! geometry::is_empty(single_out))
             {
-                traits::push_back<MultiGeometry>::apply(out, single_out);
+                range::push_back(out, single_out);
             }
         }
     }
