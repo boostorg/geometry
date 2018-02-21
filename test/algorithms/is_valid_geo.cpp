@@ -36,3 +36,21 @@ BOOST_AUTO_TEST_CASE( test_is_valid_geo_polygon )
 
     test::apply("p01", "POLYGON((-1  -1, 1  -1, 1  1, -1  1, -1  -1),(-0.5 -0.5, -0.5 0.5, 0.0 0.0, -0.5 -0.5),(0.0 0.0, 0.5 0.5, 0.5 -0.5, 0.0 0.0))", true);
 }
+
+BOOST_AUTO_TEST_CASE( test_is_valid_epsg4053_polygon )
+{
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > pt;
+    typedef bg::model::polygon<pt, false> po;
+
+    std::string wkt = "POLYGON((-152 -54,-56 43,142 -52,-152 -54))";
+
+    bg::srs::spheroid<double> sph(6371228, 6371228);
+    bg::strategy::intersection::geographic_segments<> is(sph);
+    bg::strategy::area::geographic<pt> as(sph);
+
+    po p;
+    bg::read_wkt(wkt, p);
+    bg::correct(p, as);
+
+    BOOST_CHECK(bg::is_valid(p, is));
+}
