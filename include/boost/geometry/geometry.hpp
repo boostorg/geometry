@@ -96,8 +96,6 @@
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/srs/srs.hpp>
-
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>

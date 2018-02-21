@@ -79,7 +79,6 @@ public:
             return result;
         }
 
-        CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
         CT const c3 = 3;

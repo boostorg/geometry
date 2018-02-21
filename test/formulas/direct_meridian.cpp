@@ -12,6 +12,7 @@
 #include "test_formula.hpp"
 #include "direct_meridian_cases.hpp"
 
+#include <boost/geometry/srs/srs.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/elliptic_meridian_arc_direct.hpp>
 

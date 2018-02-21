@@ -19,7 +19,7 @@
 #include <boost/geometry/formulas/series_expansion_direct.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
 
-#include <boost/geometry/srs/spheroid.hpp>
+#include <boost/geometry/srs/srs.hpp>
 
 template <typename Result>
 void check_direct(Result const& result, expected_result const& expected, expected_result const& reference, double reference_error)

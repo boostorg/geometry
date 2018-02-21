@@ -224,8 +224,17 @@ public :
                 sin2_th0 = c1;
             }
 
+            //sin2_th0 = 0.01;
+
             CT cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
             CT cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
+
+            // Equatorial segment: sin2_th0=0
+            if (math::equals(sin2_th0, c0))
+            {
+                //cos2d1 = -c1;
+                //cos2d2 = -c1;
+            }
 
             CT d1 = acos(cos2d1) / c2;
             CT d2 = acos(cos2d2) / c2;
