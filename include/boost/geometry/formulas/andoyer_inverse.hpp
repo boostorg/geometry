@@ -90,11 +90,11 @@ public:
             CT const c2 = CT(2);
             CT const pi_half = math::pi<CT>() / c2;
 
-            lat1 = math::equals(lat1, pi_half) ? la1 :
-                                                 math::equals(lat1, -pi_half) ? la1 :
+            lat1 = math::equals(lat1, pi_half) ? lat1 :
+                                                 math::equals(lat1, -pi_half) ? lat1 :
                                                  atan(one_minus_f * tan(lat1));
-            lat2 = math::equals(lat2, pi_half) ? la2 :
-                                                 math::equals(lat2, -pi_half) ? la2 :
+            lat2 = math::equals(lat2, pi_half) ? lat2 :
+                                                 math::equals(lat2, -pi_half) ? lat2 :
                                                  atan(one_minus_f * tan(lat2));
         }
 

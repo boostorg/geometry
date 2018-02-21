@@ -63,7 +63,6 @@ public :
         CT const c1 = 1;
         CT const c2 = 2;
         CT const pi = math::pi<CT>();
-        CT const a = get_radius<0>(spheroid);
         CT const f = formula::flattening<CT>(spheroid);
         CT const e2 = f * (c2 - f);
 
@@ -75,11 +74,22 @@ public :
         CT const sin_lat_e2 = c1 - e2 * sin2_lat1;
         CT const sin_lat_e2_sqrt = math::sqrt(sin_lat_e2);
 
-        CT const R1 = a * (c1 - e2) / sin_lat_e2_sqrt * sin_lat_e2;
-        CT const R2 = a / sin_lat_e2_sqrt;
+        CT const cos_lat1 = cos(lat1);
+        CT const r = get_radius<0>(spheroid);
+
+        // radius r for given latitude
+        //CT const b = get_radius<2>(spheroid);
+        //CT const a_cos_lat1 = a * cos_lat1;
+        //CT const b_sin_lat1 = b * sin_lat1;
+        //CT const r =
+        // math::sqrt((math::sqr(a * a_cos_lat1) + math::sqr(b * b_sin_lat1))
+        //          / (math::sqr(a * cos_lat1) + math::sqr(b * sin_lat1)));
+
+        CT const R1 = r * (c1 - e2) / sin_lat_e2_sqrt * sin_lat_e2;
+        CT const R2 = r / sin_lat_e2_sqrt;
 
         CT const dis_North = R1 * dlat;
-        CT const dis_East = R2 * cos(lat1) * dlon;
+        CT const dis_East = R2 * cos_lat1 * dlon;
 
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
@@ -96,8 +106,8 @@ public :
             CT const sin_lat_e2 = c1 - e2 * sin2_lat2;
             CT const sin_lat_e2_sqrt = math::sqrt(sin_lat_e2);
 
-            CT const R1 = a * (c1 - e2) / sin_lat_e2_sqrt * sin_lat_e2;
-            CT const R2 = a / sin_lat_e2_sqrt;
+            CT const R1 = r * (c1 - e2) / sin_lat_e2_sqrt * sin_lat_e2;
+            CT const R2 = r / sin_lat_e2_sqrt;
 
             CT const dis_North = R1 * -dlat;
             CT const dis_East = R2 * cos(lat2) * -dlon;

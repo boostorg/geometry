@@ -57,8 +57,10 @@ public :
     //         FOR GREAT ELLIPTIC ARCS
     // Note: only distance implemented
     template <typename T, typename Spheroid>
-    static T dist_tseng(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
+    static result_type dist_tseng(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
     {
+        result_type result;
+
         CT c1 = 1;
 
         CT const f = formula::flattening<CT>(spheroid);
@@ -123,7 +125,9 @@ public :
                                   + M2 * sin(2*psi2)
                                   + M4 * sin(4*psi2));
 
-        return L_psi2 - L_psi1;
+        result.distance = L_psi2 - L_psi1;
+
+        return result;
     }
 
     static inline CT distance_approximation(CT const a,
@@ -167,7 +171,8 @@ public :
     // MATHEMATICAL MODELS FOR NAVIGATION SYSTEMS, 1965
     // http://www.dtic.mil/docs/citations/AD0627893
     template <typename T, typename Spheroid>
-    static inline result_type apply(T lon1, T lat1, T lon2, T lat2, Spheroid const& spheroid)
+    static inline result_type apply(T lon1, T lat1, T lon2, T lat2,
+                                    Spheroid const& spheroid)
     {
         result_type result;
 
@@ -200,8 +205,10 @@ public :
         CT const cos_th2 = cos(theta2);
         CT const cos2_th2 = math::sqr(cos_th2);
 
-        CT const dlon = lon2 - lon1;
-        CT const cosdl = cos(dlon);
+        //improve accuracy for short distances
+        long double const dlon = lon2 - lon1;
+        long double const cosdl = cos(dlon);
+
         CT const sindl = sin(dlon);
 
         CT const A = tan_th1 - tan_th2 * cosdl;
@@ -209,7 +216,6 @@ public :
 
         if ( BOOST_GEOMETRY_CONDITION(EnableDistance) )
         {
-
             CT const K = (A * tan_th1 + B * tan_th2) / (sindl * sindl);
             CT sin2_th0 = K/(K+c1);
 
@@ -222,29 +228,32 @@ public :
             CT cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
             CT cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
 
-            CT d1 = (math::equals(A, B)) ? acos(cos2d1) / c2
-                                         : -acos(cos2d1) / c2;
-            CT d2 = (lat1 * lat2 > c0) ? acos(cos2d2) / c2
-                                       : pi - acos(cos2d2) / c2;
+            CT d1 = acos(cos2d1) / c2;
+            CT d2 = acos(cos2d2) / c2;
 
-            // For segments with lat1 ~= lat2
-            if (std::isnan(d1) || std::isnan(d2))
+            bool A_neg = A < c0;
+            bool B_neg = B < c0;
+            bool AB_neg = A_neg && B_neg;
+
+            if (lat1 * lat2 < c0 && !AB_neg)
             {
-                CT const sin_th1 = sin(theta1);
-                CT const sin_th2 = sin(theta2);
-                CT const d1_d2 = acos(sin_th1 * sin_th2 + cos_th1 * cos_th2 * cosdl);
-                result.distance = a * d1_d2;
+                d2 = pi - d2;
             }
-            else
+            if (A_neg ^ B_neg) //XOR
             {
-
-                CT const H = d1 + d2;
-                CT const P = d1 - d2;
-
-                CT const k2 = sin2_th0 * e2;
-
-                result.distance = distance_approximation(a, H, P, k2);
+                d1 = -d1;
             }
+            if (AB_neg)
+            {
+                d1 = pi - d1;
+            }
+
+            CT const H = d1 + d2;
+            CT const P = d1 - d2;
+
+            CT const k2 = sin2_th0 * e2;
+
+            result.distance = distance_approximation(a, H, P, k2);
 
         }
 
@@ -293,6 +302,7 @@ public :
 
         return result;
     }
+
 private:
     static inline void normalize_azimuth(CT & azimuth,
                                          CT const& A,

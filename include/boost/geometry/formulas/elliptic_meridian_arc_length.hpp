@@ -103,6 +103,7 @@ public :
     {
         CT const a = get_radius<0>(spheroid);
         CT const f = formula::flattening<CT>(spheroid);
+
         CT n = f / (CT(2) - f);
         CT M = a/(1+n);
         CT C0 = 1;
