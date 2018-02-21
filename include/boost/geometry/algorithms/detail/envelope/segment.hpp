@@ -27,7 +27,6 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -200,7 +199,7 @@ private:
                     lat1 = lat_min;
                 }
             }
-            else if (mid_lat > 0)
+            else
             {
                 // update using max latitude
                 CalculationType const lat_max_rad = p_max;

@@ -1,6 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // This file was modified by Oracle on 2015, 2016, 2017.
 // Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -26,46 +28,46 @@ void test_geo_strategies()
 
     typedef bg::model::point<CT, 2, bg::cs::geographic<bg::degree> > pt_geo;
 
-    bg::strategy::area::geographic<pt_geo> geographic_default;
+    bg::strategy::area::geographic<> geographic_default;
 
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 1>
+    bg::strategy::area::geographic<bg::strategy::andoyer, 1>
         geographic_andoyer1;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 2>
+    bg::strategy::area::geographic<bg::strategy::andoyer, 2>
         geographic_andoyer2;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 3>
+    bg::strategy::area::geographic<bg::strategy::andoyer, 3>
         geographic_andoyer3;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 4>
+    bg::strategy::area::geographic<bg::strategy::andoyer, 4>
         geographic_andoyer4;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer, 5>
+    bg::strategy::area::geographic<bg::strategy::andoyer, 5>
         geographic_andoyer5;
 
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 1>
+    bg::strategy::area::geographic<bg::strategy::thomas, 1>
         geographic_thomas1;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 2>
+    bg::strategy::area::geographic<bg::strategy::thomas, 2>
         geographic_thomas2;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 3>
+    bg::strategy::area::geographic<bg::strategy::thomas, 3>
         geographic_thomas3;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 4>
+    bg::strategy::area::geographic<bg::strategy::thomas, 4>
         geographic_thomas4;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas, 5>
+    bg::strategy::area::geographic<bg::strategy::thomas, 5>
         geographic_thomas5;
 
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 1>
+    bg::strategy::area::geographic<bg::strategy::vincenty, 1>
         geographic_vincenty1;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 2>
+    bg::strategy::area::geographic<bg::strategy::vincenty, 2>
         geographic_vincenty2;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 3>
+    bg::strategy::area::geographic<bg::strategy::vincenty, 3>
         geographic_vincenty3;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 4>
+    bg::strategy::area::geographic<bg::strategy::vincenty, 4>
         geographic_vincenty4;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty, 5>
+    bg::strategy::area::geographic<bg::strategy::vincenty, 5>
         geographic_vincenty5;
 
-    bg::strategy::area::geographic<pt_geo, bg::strategy::andoyer>
+    bg::strategy::area::geographic<bg::strategy::andoyer>
         geographic_andoyer_default;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::thomas>
+    bg::strategy::area::geographic<bg::strategy::thomas>
         geographic_thomas_default;
-    bg::strategy::area::geographic<pt_geo, bg::strategy::vincenty>
+    bg::strategy::area::geographic<bg::strategy::vincenty>
         geographic_vincenty_default;
 
     bg::model::polygon<pt_geo> geometry_geo;

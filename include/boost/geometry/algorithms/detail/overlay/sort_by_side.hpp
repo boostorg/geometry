@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -239,7 +240,7 @@ public :
     {}
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    Point add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+    Point add(Operation const& op, signed_size_type turn_index, int op_index,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             bool is_origin)
@@ -260,7 +261,7 @@ public :
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    void add(Operation const& op, signed_size_type turn_index, signed_size_type op_index,
+    void add(Operation const& op, signed_size_type turn_index, int op_index,
             segment_identifier const& departure_seg_id,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
@@ -277,7 +278,7 @@ public :
 
             if (is_origin)
             {
-                int const segment_distance = calculate_segment_distance(op, departure_seg_id, geometry1, geometry2);
+                signed_size_type const segment_distance = calculate_segment_distance(op, departure_seg_id, geometry1, geometry2);
                 if (m_origin_count == 0 ||
                         segment_distance < m_origin_segment_distance)
                 {
@@ -290,7 +291,7 @@ public :
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    static int calculate_segment_distance(Operation const& op,
+    static signed_size_type calculate_segment_distance(Operation const& op,
             segment_identifier const& departure_seg_id,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2)
@@ -303,7 +304,7 @@ public :
         // Suppose ring_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2, then distance=10-9+2
         // Generic function (is this used somewhere else too?)
         ring_identifier const rid(op.seg_id.source_index, op.seg_id.multi_index, op.seg_id.ring_index);
-        int const segment_count
+        signed_size_type const segment_count
                     (op.seg_id.source_index == 0
                     ? geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry1>::type>::apply(rid, geometry1))
                     : geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry2>::type>::apply(rid, geometry2)));
@@ -434,7 +435,7 @@ public :
     container_type m_ranked_points;
     Point m_origin;
     std::size_t m_origin_count;
-    int m_origin_segment_distance;
+    signed_size_type m_origin_segment_distance;
     SideStrategy m_strategy;
 
 private :

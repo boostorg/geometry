@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -210,10 +211,9 @@ struct assign_visitor
 };
 
 
-
-
 template
 <
+    overlay_type OverlayType,
     typename Geometry1, typename Geometry2,
     typename RingCollection,
     typename RingMap,
@@ -223,10 +223,13 @@ inline void assign_parents(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RingCollection const& collection,
             RingMap& ring_map,
-            Strategy const& strategy,
-            bool check_for_orientation = false,
-            bool discard_double_negative = false)
+            Strategy const& strategy)
 {
+    static bool const is_difference = OverlayType == overlay_difference;
+    static bool const is_buffer = OverlayType == overlay_buffer;
+    static bool const is_dissolve = OverlayType == overlay_dissolve;
+    static bool const check_for_orientation = is_buffer || is_dissolve;
+
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
 
@@ -236,7 +239,7 @@ inline void assign_parents(Geometry1 const& geometry1,
     typedef typename Strategy::template area_strategy
         <
             point_type
-        >::type::return_type area_result_type;
+        >::type::template result_type<point_type>::type area_result_type;
 
     typedef typename RingMap::iterator map_iterator_type;
 
@@ -293,12 +296,14 @@ inline void assign_parents(Geometry1 const& geometry1,
                 return;
             }
 
-            if (count_positive == 1)
+            if (count_positive == 1 && ! is_difference && ! is_dissolve)
             {
                 // Optimization for one outer ring
                 // -> assign this as parent to all others (all interior rings)
                 // In unions, this is probably the most occuring case and gives
                 //    a dramatic improvement (factor 5 for star_comb testcase)
+                // In difference or other cases where interior rings might be
+                // located outside the outer ring, this cannot be done
                 ring_identifier id_of_positive = vector[index_positive].id;
                 ring_info_type& outer = ring_map[id_of_positive];
                 index = 0;
@@ -346,13 +351,13 @@ inline void assign_parents(Geometry1 const& geometry1,
                 bool const pos = math::larger(info.get_area(), 0);
                 bool const parent_pos = math::larger(parent.area, 0);
 
-                bool const double_neg = discard_double_negative && ! pos && ! parent_pos;
+                bool const double_neg = is_dissolve && ! pos && ! parent_pos;
 
                 if ((pos && parent_pos) || double_neg)
                 {
                     // Discard positive inner ring with positive parent
                     // Also, for some cases (dissolve), negative inner ring
-                    // with negative parent shouild be discarded
+                    // with negative parent should be discarded
                     info.discarded = true;
                 }
 
@@ -386,6 +391,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 // Version for one geometry (called by buffer/dissolve)
 template
 <
+    overlay_type OverlayType,
     typename Geometry,
     typename RingCollection,
     typename RingMap,
@@ -394,16 +400,13 @@ template
 inline void assign_parents(Geometry const& geometry,
             RingCollection const& collection,
             RingMap& ring_map,
-            Strategy const& strategy,
-            bool check_for_orientation,
-            bool discard_double_negative)
+            Strategy const& strategy)
 {
     // Call it with an empty geometry as second geometry (source_id == 1)
     // (ring_map should be empty for source_id==1)
-
     Geometry empty;
-    assign_parents(geometry, empty, collection, ring_map, strategy,
-                   check_for_orientation, discard_double_negative);
+    assign_parents<OverlayType>(geometry, empty,
+            collection, ring_map, strategy);
 }
 
 

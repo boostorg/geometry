@@ -248,8 +248,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_INCLUDE_SELF_TURNS)
-            << "_self"
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
+           << "_no_self"
 #endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
             << "_no_rob"

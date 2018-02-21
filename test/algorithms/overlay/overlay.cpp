@@ -272,10 +272,6 @@ struct map_visitor
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
-        if (turn.switch_source)
-        {
-            out << "#";
-        }
         if (turn.discarded)
         {
             out << "!";
@@ -377,8 +373,8 @@ void test_overlay(std::string const& caseid,
         << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
         << (ccw ? "_ccw" : "")
         << (open ? "_open" : "")
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-        << "_self"
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
+        << "_no_self"
 #endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         << "_no_rob"

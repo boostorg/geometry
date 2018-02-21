@@ -14,7 +14,9 @@
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
-#include <boost/geometry/core/srs.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
+
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>

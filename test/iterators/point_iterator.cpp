@@ -1,6 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -344,6 +346,8 @@ struct test_point_iterator_of_geometry
         static inline void apply(Iterator first, Iterator last,
                                  G const& geometry)
         {
+            boost::ignore_unused(geometry);
+
             std::reverse(first, last);
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             print_point_range(std::cout, first, last, "reversed:\n")

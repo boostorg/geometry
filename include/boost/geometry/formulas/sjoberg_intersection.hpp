@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,10 +15,10 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
@@ -97,10 +97,16 @@ private:
         CT const sin_dlon1 = sin(dlon1);
         CT const dlon2 = lon_b2 - lon2;
         CT const sin_dlon2 = sin(dlon2);
-        
+
+        CT const cos_dlon1 = cos(dlon1);
+        CT const cos_dlon2 = cos(dlon2);
+
+        CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
+        CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
+                
         CT const c0 = 0;
-        bool const is_vertical1 = math::equals(sin_dlon1, c0);
-        bool const is_vertical2 = math::equals(sin_dlon2, c0);
+        bool const is_vertical1 = math::equals(sin_dlon1, c0) || math::equals(tan_alpha1_x, c0);
+        bool const is_vertical2 = math::equals(sin_dlon2, c0) || math::equals(tan_alpha2_x, c0);
 
         CT tan_alpha1 = 0;
         CT tan_alpha2 = 0;
@@ -112,27 +118,18 @@ private:
         }
         else if (is_vertical1)
         {
-            CT const cos_dlon2 = cos(dlon2);
-            CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
             tan_alpha2 = sin_dlon2 / tan_alpha2_x;
 
             lon = lon1;
         }
         else if (is_vertical2)
         {
-            CT const cos_dlon1 = cos(dlon1);
-            CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
             tan_alpha1 = sin_dlon1 / tan_alpha1_x;
 
             lon = lon2;
         }
         else
         {
-            CT const cos_dlon1 = cos(dlon1);
-            CT const cos_dlon2 = cos(dlon2);
-
-            CT const tan_alpha1_x = cos_lat1 * tan_lat_a2 - sin_lat1 * cos_dlon1;
-            CT const tan_alpha2_x = cos_lat2 * tan_lat_b2 - sin_lat2 * cos_dlon2;
             tan_alpha1 = sin_dlon1 / tan_alpha1_x;
             tan_alpha2 = sin_dlon2 / tan_alpha2_x;
         
@@ -761,16 +758,36 @@ public:
             sjoberg_intersection_spherical_02<CT>::apply_alt(lon_a1, lat_a1, lon_a2, lat_a2,
                                                              lon_b1, lat_b1, lon_b2, lat_b2,
                                                              lon_sph, tan_lat_sph);
+
+            // Return for sphere
+            if (math::equals(f, c0))
+            {
+                lon = lon_sph;
+                lat = atan(tan_lat_sph);
+                return true;
+            }
+
             t = one_minus_f * tan_lat_sph; // tan(beta)
-        }
+        }        
 
         // TODO: no need to calculate atan here if reduced latitudes were used
         //       instead of latitudes above, in sjoberg_intersection_spherical_02
         CT const beta = atan(t);
 
-        if (enable_02 && newton_method(geod1, geod2, beta, t, lon1_minus_lon2, lon, lat))
+        if (enable_02 && newton_method(geod1, geod2, beta, t, lon1_minus_lon2, lon_sph, lon, lat))
         {
-            return true;
+            // TODO: Newton's method may return wrong result in some specific cases
+            // Detected for sphere and nearly sphere, e.g. A=6371228, B=6371227
+            // and segments s1=(-121 -19,37 8) and s2=(-19 -15,-104 -58)
+            // It's unclear if this is a bug or a characteristic of this method
+            // so until this is investigated check if the resulting longitude is
+            // between endpoints of the segments. It should be since before calling
+            // this formula sides of endpoints WRT other segments are checked.
+            if ( is_result_longitude_ok(geod1, lon_a1, lon_a2, lon)
+              && is_result_longitude_ok(geod2, lon_b1, lon_b2, lon) )
+            {
+                return true;
+            }
         }
 
         return converge_07(geod1, geod2, beta, t, lon1_minus_lon2, lon_sph, lon, lat);
@@ -778,7 +795,7 @@ public:
 
 private:
     static inline bool newton_method(geodesic_type const& geod1, geodesic_type const& geod2, // in
-                                     CT beta, CT t, CT const& lon1_minus_lon2, // in
+                                     CT beta, CT t, CT const& lon1_minus_lon2, CT const& lon_sph, // in
                                      CT & lon, CT & lat) // out
     {
         CT const c0 = 0;
@@ -788,6 +805,13 @@ private:
         
         CT lon1_diff = 0;
         CT lon2_diff = 0;
+
+        // The segment is vertical and intersection point is behind the vertex
+        // this method is unable to calculate correct result
+        if (geod1.is_Cj_zero && math::abs(geod1.lonj - lon_sph) > math::half_pi<CT>())
+            return false;
+        if (geod2.is_Cj_zero && math::abs(geod2.lonj - lon_sph) > math::half_pi<CT>())
+            return false;
 
         CT abs_dbeta_last = 0;
 
@@ -880,6 +904,28 @@ private:
                 : geod2.lon(lon2_diff);
 
         return true;
+    }
+
+    static inline bool is_result_longitude_ok(geodesic_type const& geod,
+                                              CT const& lon1, CT const& lon2, CT const& lon)
+    {
+        CT const c0 = 0;
+
+        if (geod.is_Cj_zero)
+            return true; // don't check vertical segment
+
+        CT dist1p = math::longitude_distance_signed<radian>(lon1, lon);
+        CT dist12 = math::longitude_distance_signed<radian>(lon1, lon2);
+
+        if (dist12 < c0)
+        {
+            dist1p = -dist1p;
+            dist12 = -dist12;
+        }
+
+        return (c0 <= dist1p && dist1p <= dist12)
+            || math::equals(dist1p, c0)
+            || math::equals(dist1p, dist12);
     }
 
     struct geodesics_type

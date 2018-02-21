@@ -1318,6 +1318,22 @@ BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_andoyer )
                   from_wkt<G>("SEGMENT(100 80, 20 10)"),
                   20, 10, 100, 80);
 
+    // segments intersecting pole
+    tester::apply("s19",
+                  from_wkt<G>("SEGMENT(0 0, 180 0)"),
+                  0, 0, 180, 90);
+    tester::apply("s20",
+                  from_wkt<G>("SEGMENT(0 0, -180 0)"),
+                  0, 0, 180, 90);
+    tester::apply("s21",
+                  from_wkt<G>("SEGMENT(0 1, 180 1)"),
+                  0, 1, 180, 90,
+                  std::numeric_limits<double>::epsilon() * 10);
+    tester::apply("s22",
+                  from_wkt<G>("SEGMENT(0 -1, 180 -1)"),
+                  0, -90, 180, -1,
+                  std::numeric_limits<double>::epsilon() * 10);
+
 }
 
 BOOST_AUTO_TEST_CASE( envelope_segment_spheroid_with_strategy_vincenty )
