@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_geo_common.hpp"
@@ -91,243 +91,243 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "POINT(0 0)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-02",
                   "POINT(2.5 3)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(2.5 3)", "POINT(2.49777 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-03",
                   "POINT(2 0)",
                   "SEGMENT(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-04",
                   "POINT(3 0)",
                   "SEGMENT(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-05",
                   "POINT(2.5 0)",
                   "SEGMENT(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-06",
                   "POINT(3.5 3)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(3 0)", "POINT(3.5 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-07",
                   "POINT(15 80)",
                   "SEGMENT(10 15,30 15)",
                   7204174.8264546748,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-08",
                   "POINT(15 10)",
                   "SEGMENT(10 15,30 15)",
                   571412.71247283253,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-09",
                   "POINT(5 10)",
                   "SEGMENT(10 15,30 15)",
                   pp_distance("POINT(5 10)", "POINT(10 15)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-10",
                   "POINT(35 10)",
                   "SEGMENT(10 15,30 15)",
                   pp_distance("POINT(35 10)", "POINT(30 15)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-11",
                   "POINT(5 10)",
                   "SEGMENT(30 15,10 15)",
                   pp_distance("POINT(5 10)", "POINT(10 15)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-12",
                   "POINT(35 10)",
                   "SEGMENT(30 15,10 15)",
                   pp_distance("POINT(35 10)", "POINT(30 15)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-right-up",
                   "POINT(3.5 3)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(3 2)", "POINT(3.5 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-left-up",
                   "POINT(1.5 3)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2 2)", "POINT(1.5 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-up-1",
                   "POINT(2 3)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2.0003 2)", "POINT(2 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-up-2",
                   "POINT(3 3)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2.9997 2)", "POINT(3 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-right-down",
                   "POINT(3.5 1)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(3 2)", "POINT(3.5 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-left-down",
                   "POINT(1.5 1)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2 2)", "POINT(1.5 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-down-1",
                   "POINT(2 1)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2.0003 2)", "POINT(2 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-down-2",
                   "POINT(3 1)",
                   "SEGMENT(2 2,3 2)",
                   pp_distance("POINT(2.9997 2)", "POINT(3 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-south",
                   "POINT(3 -1)",
                   "SEGMENT(2 -2,3 -2)",
                   pp_distance("POINT(2.9997 -2)", "POINT(3 -1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-antimeridian-1",
                   "POINT(3 1)",
                   "SEGMENT(220 2,3 2)",
                   pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-antimeridian-2",
                   "POINT(220 1)",
                   "SEGMENT(220 2,3 2)",
                   pp_distance("POINT(220 2)", "POINT(220 1)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     // equator special case
     tester::apply("p-s-eq1",
                   "POINT(2.5 0)",
                   "SEGMENT(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-eq2",
                   "POINT(2.5 2)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(2.5 0)", "POINT(2.5 2)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-eq3",
                   "POINT(2 2)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(2 0)", "POINT(2 2)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-eq4",
                   "POINT(3 2)",
                   "SEGMENT(2 0,3 0)",
                   pp_distance("POINT(3 0)", "POINT(3 2)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     // meridian special case
     tester::apply("p-s-mer1",
                   "POINT(2.5 2)",
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 2)", "POINT(2 2)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-mer3",
                   "POINT(2.5 5)",
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 5)", "POINT(2 4)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     //degenerate segment
     tester::apply("p-s-deg",
                   "POINT(1 80)",
                   "SEGMENT(0 0,0 0)",
                   pp_distance("POINT(0 0)", "POINT(1 80)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     //point on segment
     tester::apply("p-s-deg",
                   "POINT(0 80)",
                   "SEGMENT(0 0,0 90)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     // very small distances to segment
     tester::apply("p-s-07",
                   "POINT(90 1e-3)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-08",
                   "POINT(90 1e-4)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-4)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-09",
                   "POINT(90 1e-5)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-5)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-10",
                   "POINT(90 1e-6)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-6)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-11",
                   "POINT(90 1e-7)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-7)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-12",
                   "POINT(90 1e-8)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 1e-8)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     // very large distance to segment
     tester::apply("p-s-13",
                   "POINT(90 90)",
                   "SEGMENT(0.5 0,175.5 0)",
                   pp_distance("POINT(90 0)", "POINT(90 90)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-14",
                   "POINT(90 90)",
                   "SEGMENT(0.5 -89,175.5 -89)",
                   pp_distance("POINT(90 -89)", "POINT(90 90)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     // degenerate segment
     tester::apply("p-s-15",
                   "POINT(90 90)",
                   "SEGMENT(0.5 -90,175.5 -90)",
                   pp_distance("POINT(0.5 -90)", "POINT(90 90)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     tester::apply("p-s-16",
                   "POINT(90 90)",
                   "SEGMENT(0.5 -90,175.5 -90)",
                   pp_distance("POINT(90 -90)", "POINT(90 90)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     // equatorial segment
     tester::apply("p-s-17",
                   "POINT(90 90)",
                   "SEGMENT(0 0,175.5 0)",
                   pp_distance("POINT(90 90)", "POINT(0 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
     // segment pass by pole
     tester::apply("p-s-18",
                   "POINT(90 90)",
                   "SEGMENT(0 0,180 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, true);
 
 }
 
@@ -349,32 +349,32 @@ void test_distance_point_segment_no_thomas(Strategy_pp const& strategy_pp,
                   "POINT(2.5 3)",
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-mer4",
                   "POINT(1 80)",
                   "SEGMENT(0 0,0 90)",
                   pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     // Half meridian segment passing through pole
     tester::apply("p-s-19",
                   "POINT(90 89)",
                   "SEGMENT(0 0,180 0)",
                   pp_distance("POINT(90 89)", "POINT(90 90)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-20",
                   "POINT(80 89)",
                   "SEGMENT(0 0,180 0)",
                   pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 
     tester::apply("p-s-20",
                   "POINT(80 89)",
                   "SEGMENT(0 -1,180 1)",
                   pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, true);
 }
 
 //===========================================================================
@@ -642,15 +642,15 @@ void test_empty_input_pointlike_linear(Strategy const& strategy)
         from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
 
     // 1st geometry is empty
-    //test_empty_input(multipoint_empty, line, strategy);
+    test_empty_input(multipoint_empty, line, strategy);
 
     // 2nd geometry is empty
     test_empty_input(point, line_empty, strategy);
     test_empty_input(point, multiline_empty, strategy);
 
     // both geometries are empty
-    //test_empty_input(multipoint_empty, line_empty, strategy);
-    //test_empty_input(multipoint_empty, multiline_empty, strategy);
+    test_empty_input(multipoint_empty, line_empty, strategy);
+    test_empty_input(multipoint_empty, multiline_empty, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
@@ -663,15 +663,12 @@ void test_empty_input_pointlike_linear(Strategy const& strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
-    //TODO: Operations with multipoints need geographic pt-box strategy
-    //before activating
-
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
 
     test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_strategy());
-    //test_distance_point_segment_no_thomas(thomas_pp(), thomas_strategy());
+    ///test_distance_point_segment_no_thomas(thomas_pp(), thomas_strategy());
     test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_strategy());
 
     test_distance_point_linestring(vincenty_pp(), vincenty_strategy());
@@ -683,17 +680,19 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_multilinestring(thomas_pp(), thomas_strategy());
     test_distance_point_multilinestring(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
-    //    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
-    //    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
+    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
+    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
+    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
-    //    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
-    //    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
+    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
+    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
+    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
 
-    //    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
-    //    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
-    //    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
+    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
+    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
+    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
 
     test_empty_input_pointlike_linear<point_type>(vincenty_strategy());
+    test_empty_input_pointlike_linear<point_type>(thomas_strategy());
+    test_empty_input_pointlike_linear<point_type>(andoyer_strategy());
 }

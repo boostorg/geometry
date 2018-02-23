@@ -44,6 +44,35 @@
 
 namespace bg = ::boost::geometry;
 
+//===================================================================
+//tag dispatching for swaping arguments in segments
+
+template <typename Tag> struct dispatch
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+};
+
+// Specialization for segments
+template <> struct dispatch<boost::geometry::segment_tag>
+{
+    template <typename Segment>
+    static inline Segment swap(Segment const& s)
+    {
+        Segment s_swaped;
+
+        bg::set<0, 0>(s_swaped, bg::get<1, 0>(s));
+        bg::set<0, 1>(s_swaped, bg::get<1, 1>(s));
+        bg::set<1, 0>(s_swaped, bg::get<0, 0>(s));
+        bg::set<1, 1>(s_swaped, bg::get<0, 1>(s));
+
+        return s_swaped;
+    }
+};
+
 //========================================================================
 
 
@@ -103,14 +132,15 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                std::string const& wkt2,
                DistanceType const& expected_distance,
                Strategy const& strategy,
-               bool test_reversed = true)
+               bool test_reversed = true,
+               bool swap_geometry_args = false)
     {
         Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
         apply(case_id, geometry1, geometry2,
               expected_distance,
-              strategy, test_reversed);
+              strategy, test_reversed, swap_geometry_args);
     }
 
 
@@ -125,7 +155,8 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                Geometry2 const& geometry2,
                DistanceType const& expected_distance,
                Strategy const& strategy,
-               bool test_reversed = true)
+               bool test_reversed = true,
+               bool swap_geometry_args = false)
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "case ID: " << case_id << "; "
@@ -209,13 +240,42 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "distance[reversed args] = "
-                      << dist << " ; "
-                      << "comp. distance[reversed args] = "
-                      //<< cdist
+                      << dist
+                      << std::endl;
+#endif
+        }
+
+        if (swap_geometry_args)
+        {
+            Geometry1 g1 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry1>::type
+                >::swap(geometry1);
+
+            Geometry2 g2 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry2>::type
+                >::swap(geometry2);
+
+            // check distance with given strategy
+            dist = bg::distance(g1, g2, strategy);
+
+            check_equal
+                <
+                    default_distance_result
+                >::apply(case_id, "swap", g1, g2,
+                         dist, expected_distance);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "distance[swap geometry args] = "
+                      << dist
                       << std::endl;
             std::cout << std::endl;
 #endif
-        }
+         }
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << std::endl;
+#endif
 
     }
 };

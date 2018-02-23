@@ -23,6 +23,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) \
     || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT) \
@@ -296,6 +297,51 @@ struct traversal
             || turn.has(operation_continue);
     }
 
+    inline std::size_t get_shortcut_level(turn_operation_type const& op,
+                             signed_size_type start_turn_index,
+                             signed_size_type origin_turn_index,
+                             std::size_t level = 1) const
+    {
+        signed_size_type next_turn_index = op.enriched.get_next_turn_index();
+        if (next_turn_index == -1)
+        {
+            return 0;
+        }
+        if (next_turn_index == start_turn_index)
+        {
+            // This operation finishes the ring
+            return 0;
+        }
+        if (next_turn_index == origin_turn_index)
+        {
+            // This operation travels to itself
+            return level;
+        }
+        if (level > 10)
+        {
+            // Avoid infinite recursion
+            return 0;
+        }
+
+        turn_type const& next_turn = m_turns[next_turn_index];
+        for (int i = 0; i < 2; i++)
+        {
+            turn_operation_type const& next_op = next_turn.operations[i];
+            if (next_op.operation == target_operation
+                && ! next_op.visited.finished()
+                && ! next_op.visited.visited())
+            {
+                // Recursively continue verifying
+                if (get_shortcut_level(next_op, start_turn_index,
+                                       origin_turn_index, level + 1))
+                {
+                    return level + 1;
+                }
+            }
+        }
+        return 0;
+    }
+
     inline
     bool select_cc_operation(turn_type const& turn,
                 signed_size_type start_turn_index,
@@ -369,12 +415,14 @@ struct traversal
 
     inline
     bool select_preferred_operation(turn_type const& turn,
+                signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 int& selected_op_index) const
     {
         bool option[2] = {0};
         bool finishing[2] = {0};
         bool preferred[2] = {0};
+        std::size_t shortcut_level[2] = {0};
         for (int i = 0; i < 2; i++)
         {
             turn_operation_type const& op = turn.operations[i];
@@ -388,6 +436,12 @@ struct traversal
                 {
                     finishing[i] = true;
                 }
+                else
+                {
+                    shortcut_level[i] = get_shortcut_level(op, start_turn_index,
+                                                           turn_index);
+                }
+
                 if (op.enriched.prefer_start)
                 {
                     preferred[i] = true;
@@ -405,11 +459,18 @@ struct traversal
         if (option[0] && option[1])
         {
             // Both operations are acceptable
-
             if (finishing[0] != finishing[1])
             {
-                // Only one operation can finish the ring
+                // Prefer operation finishing the ring
                 selected_op_index = finishing[0] ? 0 : 1;
+                return true;
+            }
+
+            if (shortcut_level[0] != shortcut_level[1])
+            {
+                // If a turn can travel to itself again (without closing the
+                // ring), take the shortest one
+                selected_op_index = shortcut_level[0] < shortcut_level[1] ? 0 : 1;
                 return true;
             }
 
@@ -435,6 +496,7 @@ struct traversal
 
     inline
     bool select_operation(const turn_type& turn,
+                signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& previous_seg_id,
                 int& selected_op_index) const
@@ -448,8 +510,8 @@ struct traversal
         }
         else if (OverlayType == overlay_dissolve)
         {
-            result = select_preferred_operation(turn, start_turn_index,
-                selected_op_index);
+            result = select_preferred_operation(turn, turn_index,
+                start_turn_index, selected_op_index);
         }
         else
         {
@@ -842,7 +904,7 @@ struct traversal
     {
         turn_type const& current_turn = m_turns[turn_index];
 
-        if (target_operation == operation_intersection)
+        if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
         {
             bool const back_at_start_cluster
                     = current_turn.is_clustered()
@@ -890,7 +952,7 @@ struct traversal
                     return false;
                 }
 
-                if (! select_operation(current_turn,
+                if (! select_operation(current_turn, turn_index,
                                 start_turn_index,
                                 previous_seg_id,
                                 op_index))

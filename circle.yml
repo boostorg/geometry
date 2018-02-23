@@ -17,7 +17,7 @@ machine:
     # define tests list, if parallelism is enabled they are run in parallel
     TESTS: test index/test
     TESTS0: test/core test/concepts test/geometries test/arithmetic test/algorithms test/formulas test/iterators
-    TESTS1: test/strategies test/policies test/io test/util test/views index/test
+    TESTS1: test/srs test/strategies test/policies test/io test/util test/views index/test
 
     # this is not fully bulletproof, ideally one should check
     # if the current branch originates in master or develop

@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -40,16 +41,12 @@ void test_area(Geometry const& geometry,
     BOOST_CHECK_CLOSE(area, expected_area, 0.0001);
 
     // Test with explicitly defined strategies
-    bg::strategy::area::surveyor
-        <
-            typename bg::point_type<Geometry>::type
-        > strategy1;
+    bg::strategy::area::cartesian<> strategy1;
 
     area = bg::area(geometry, strategy1);
 
-    bg::strategy::area::surveyor
+    bg::strategy::area::cartesian
         <
-            typename bg::point_type<Geometry>::type,
             typename bg::coordinate_type<Geometry>::type
         > strategy2;
 

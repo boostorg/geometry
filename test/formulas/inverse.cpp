@@ -19,6 +19,7 @@
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 
+#include <boost/geometry/srs/spheroid.hpp>
 
 void check_inverse(std::string const& name,
                    expected_results const& results,

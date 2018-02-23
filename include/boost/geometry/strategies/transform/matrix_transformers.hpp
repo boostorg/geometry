@@ -169,11 +169,11 @@ public :
         typedef typename geometry::coordinate_type<P2>::type ct2;
 
         set<0>(p2, boost::numeric_cast<ct2>(
-            c1 * m_matrix(0,0) + c2 * m_matrix(0,1) + c3 * m_matrix(0,2) + m_matrix(0,3)));
+            c1 * qvm::A<0,0>(m_matrix) + c2 * qvm::A<0,1>(m_matrix) + c3 * qvm::A<0,2>(m_matrix) + qvm::A<0,3>(m_matrix)));
         set<1>(p2, boost::numeric_cast<ct2>(
-            c1 * m_matrix(1,0) + c2 * m_matrix(1,1) + c3 * m_matrix(1,2) + m_matrix(1,3)));
+            c1 * qvm::A<1,0>(m_matrix) + c2 * qvm::A<1,1>(m_matrix) + c3 * qvm::A<1,2>(m_matrix) + qvm::A<1,3>(m_matrix)));
         set<2>(p2, boost::numeric_cast<ct2>(
-            c1 * m_matrix(2,0) + c2 * m_matrix(2,1) + c3 * m_matrix(2,2) + m_matrix(2,3)));
+            c1 * qvm::A<2,0>(m_matrix) + c2 * qvm::A<2,1>(m_matrix) + c3 * qvm::A<2,2>(m_matrix) + qvm::A<2,3>(m_matrix)));
 
         return true;
     }

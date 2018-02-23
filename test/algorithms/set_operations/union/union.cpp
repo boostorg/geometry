@@ -145,7 +145,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        1, 0, if_typed<ct, float>(9, 11), 9.0098387);
+        1, 0, 8, 9.0098387);
 
     test_one<Polygon, Polygon, Polygon>("wrapped_a",
         wrapped[0], wrapped[1],
@@ -398,15 +398,15 @@ void test_areal()
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, 23, 4.60853);
+                1, 0, 15, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, 23, 4.60853);
+                1, 0, 15, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
-                1, 0, if_typed<ct, float>(18, 17), 16.571);
+                1, 0, if_typed<ct, float>(16, 11), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
-                1, 0, if_typed<ct, float>(18, 17), 16.571);
+                1, 0, if_typed<ct, float>(16, 11), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
-                1, 0, if_typed<ct, float>(14, 13), 13.6569);
+                1, 0, if_typed<ct, float>(11, 13), 13.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, 13, 13.6569);
 #endif
@@ -424,31 +424,28 @@ void test_areal()
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
-                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+                1, 0, 9, 19.4852);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1_rev", buffer_rt_m1[1], buffer_rt_m1[0],
-                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+                1, 0, 9, 19.4852);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2", buffer_rt_m2[0], buffer_rt_m2[1],
-                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+                1, 0, 12, 21.4853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
-                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+                1, 0, 15, 21.4853);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
-                1, 0, 18, 18.5710);
+                1, 0, if_typed<ct, float>(16, 12), 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
-                1, 0, 18, 18.5710);
+                1, 0, if_typed<ct, float>(16, 12), 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
-                1, 0, 19, 21.07612);
+                1, 0, if_typed<ct, float>(18, 14), 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
-                1, 0, if_typed_tt<ct>(20, 19), 21.07612);
-#endif
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+                1, 0, if_typed<ct, float>(18, 14), 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
-                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+                1, 0, 9, 15.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_rev", buffer_rt_t[1], buffer_rt_t[0],
-                1, 0, if_typed_tt<ct>(16, if_typed<ct, float>(15, 14)), 15.6569);
+                1, 0, 10, 15.6569);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],

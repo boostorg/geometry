@@ -15,6 +15,8 @@
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
 
+#include <boost/geometry/srs/spheroid.hpp>
+
 template <typename Result>
 void check_direct(Result const& result, expected_result const& expected, expected_result const& reference, double reference_error)
 {
