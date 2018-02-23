@@ -87,6 +87,8 @@ public :
     // to elliptic integrals. Formula to compute distance from lattitude 0 to lat
     // cf. https://en.wikipedia.org/wiki/Meridian_arc
     // latitudes are assumed to be in radians and in [-pi/2,pi/2]
+
+    //https://en.wikipedia.org/wiki/Meridian_arc#Expansions_in_the_third_flattening_(n)
     /* Maxima code to generate the series
         ataylor(expr,var,ord):=expand(ratdisrep(taylor(expr,var,0,ord)));
         int:(1-e2*sin(phi)^2)^(-3/2);
@@ -170,6 +172,60 @@ public :
         return M * (C0 * lat + C2 * sin(2*lat) + C4 * sin(4*lat)
                   + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat)
                   + C12 * sin(12*lat));
+    }
+
+    //https://en.wikipedia.org/wiki/Meridian_arc#Series_in_terms_of_the_parametric_latitude
+    template <typename T, typename Spheroid>
+    static CT apply_par(T lat, Spheroid const& spheroid)
+    {
+        CT const a = get_radius<0>(spheroid);
+        CT const f = formula::flattening<CT>(spheroid);
+
+        CT const bet = lat;
+
+        CT n = f / (CT(2) - f);
+        CT M = a/(1+n);
+        CT C0 = 1;
+
+        if (Order == 0)
+        {
+           return M * C0 * bet;
+        }
+
+        CT C2 = -CT(1)/CT(2) * n;
+
+        if (Order == 1)
+        {
+            return M * (C0 * bet + C2 * sin(2*bet));
+        }
+
+        CT n2 = n * n;
+        C0 += CT(1)/CT(4) * n2;
+        CT C4 = -CT(1)/CT(16) * n2;
+
+        if (Order == 2)
+        {
+            return M * (C0 * bet + C2 * sin(2*bet) + C4 * sin(4*bet));
+        }
+
+        CT n3 = n2 * n;
+        C2 += CT(1)/CT(16) * n3;
+        CT C6 = -CT(1)/CT(48) * n3;
+
+        if (Order == 3)
+        {
+            return M * (C0 * bet + C2 * sin(2*bet) + C4 * sin(4*bet)
+                      + C6 * sin(6*bet));
+        }
+
+        CT n4 = n2 * n2;
+        C0 += CT(1)/CT(64) * n4;
+        C4 += CT(1)/CT(64) * n4;
+        CT C8 = -CT(5)/CT(512) * n4;
+
+        //order 4 or higher
+        return M * (C0 * bet + C2 * sin(2*bet) + C4 * sin(4*bet)
+                  + C6 * sin(6*bet) + C8 * sin(8*bet));
     }
 };
 

@@ -224,8 +224,6 @@ public :
                 sin2_th0 = c1;
             }
 
-            //sin2_th0 = 0.01;
-
             CT cos2d1 = c2 * (c1 - cos2_th1) / sin2_th0 - c1;
             CT cos2d2 = c2 * (c1 - cos2_th2) / sin2_th0 - c1;
 
@@ -262,7 +260,6 @@ public :
             CT const k2 = sin2_th0 * e2;
 
             result.distance = distance_approximation(a, H, P, k2);
-
         }
 
         if ( BOOST_GEOMETRY_CONDITION(CalcAzimuths) )
@@ -307,6 +304,51 @@ public :
                               get_radius<2>(spheroid), f,
                               result.reduced_length, result.geodesic_scale);
         }
+
+        return result;
+    }
+
+    template <typename T, typename Spheroid>
+    static inline result_type apply_meridian_formula(T lon1, T lat1,
+                                                     T lon2, T lat2,
+                                                     Spheroid const& spheroid)
+    {
+        result_type result;
+
+        CT const c1 = 1;
+        CT const c2 = 2;
+        CT const f = formula::flattening<CT>(spheroid);
+        CT const one_minus_f = c1 - f;
+        CT const a = get_radius<0>(spheroid);
+
+        CT tan_bet1 = one_minus_f * tan(lat1);
+        CT const bet1 = atan(tan_bet1);
+        CT tan_bet2 = one_minus_f * tan(lat2);
+        CT const bet2 = atan(tan_bet2);
+
+        CT const alp1 = geometry::formula::spherical_azimuth<CT,false>(lon1, bet1, lon2, bet2).azimuth;
+        CT const sin_alp1 = sin(alp1);
+        CT const sin_bet1 = sin(bet1);
+        CT const cos_alp1 = cos(alp1);
+        CT const cos_bet1 = cos(bet1);
+
+        CT const norm = math::sqrt(math::sqr(cos_alp1) + math::sqr(sin_alp1) *
+                                                         math::sqr(sin_bet1));
+        CT const alp0 = atan2(sin_alp1 * cos_bet1, norm);
+
+        CT const sig1 = atan2(sin_bet1, cos_alp1 * cos_bet1);
+
+        CT const sig12_comp = geometry::math::hav(bet2 - bet1) + cos_bet1 * cos(bet2) * geometry::math::hav(lon2 - lon1);
+        CT const sig12 = c2 * asin(geometry::math::sqrt(sig12_comp));
+        CT const sig2 = sig1 + sig12;
+
+        CT cos_alp0 = cos(alp0);
+        CT const e2 = formula::eccentricity_sqr<CT>(spheroid);
+        CT const b2 = a * math::sqrt(1.0 - e2 * math::sqr(cos_alp0));
+        Spheroid spheroid2(a,b2);
+
+        geometry::formula::elliptic_meridian_arc_length<double, Order> str;
+        result.distance =  str.apply_par(sig2, spheroid2) - str.apply_par(sig1, spheroid2);
 
         return result;
     }
