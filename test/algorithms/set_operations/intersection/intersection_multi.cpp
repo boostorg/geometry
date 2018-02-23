@@ -111,7 +111,7 @@ void test_areal()
         3, 16, 6.15);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
         case_77_multi[0], case_77_multi[1],
-        5, 33, 9.0);
+        5, 27, 9.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
         1, 16, 22.0);
@@ -158,9 +158,9 @@ void test_areal()
 
     TEST_INTERSECTION(case_133_multi, 2, 23, 40.625);
     TEST_INTERSECTION(case_134_multi, 1, 23, 42.0);
-    TEST_INTERSECTION(case_135_multi, 1, 17, 7.0);
-    TEST_INTERSECTION(case_136_multi, 1, 17, 6.5);
-    TEST_INTERSECTION(case_137_multi, 1, 17, 6.5);
+    TEST_INTERSECTION(case_135_multi, 1, 12, 7.0);
+    TEST_INTERSECTION(case_136_multi, 1, 12, 6.5);
+    TEST_INTERSECTION(case_137_multi, 1, 12, 6.5);
 
     TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
     TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
@@ -168,7 +168,7 @@ void test_areal()
     TEST_INTERSECTION(case_141_multi, 3, -1, 74.5);
 
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
-    TEST_INTERSECTION(case_recursive_boxes_1, 10, 97, 47.0);
+    TEST_INTERSECTION(case_recursive_boxes_1, 10, 89, 47.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_1, 8, 97, 47.0);
 #endif
@@ -178,10 +178,10 @@ void test_areal()
         1, 50, 90.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        19, 87, 12.5); // Area from SQL Server
+        19, 84, 12.5); // Area from SQL Server
 
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 169, 67.0);
+    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 158, 67.0);
 #else
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
 #endif
@@ -190,7 +190,7 @@ void test_areal()
     // Should contain 6 output polygons
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        6, 47, 19.0);
+        6, 42, 19.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -299,8 +299,8 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_47, 1, 5, 1.0);
     TEST_INTERSECTION(case_recursive_boxes_48, 1, 5, 1.0);
     TEST_INTERSECTION(case_recursive_boxes_49, 7, 57, 20.0);
-    TEST_INTERSECTION(case_recursive_boxes_50, 9, 71, 26.0);
-    TEST_INTERSECTION(case_recursive_boxes_51, 14, 79, 19.0);
+    TEST_INTERSECTION(case_recursive_boxes_50, 9, 62, 26.0);
+    TEST_INTERSECTION(case_recursive_boxes_51, 14, 74, 19.0);
     TEST_INTERSECTION(case_recursive_boxes_52, 8, -1, 22.0);
     TEST_INTERSECTION(case_recursive_boxes_53, 1, -1, 19.75);
     TEST_INTERSECTION(case_recursive_boxes_54, 3, -1, 10.0);

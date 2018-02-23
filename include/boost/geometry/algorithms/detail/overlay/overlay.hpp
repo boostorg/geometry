@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
+// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland
 
 // This file was modified by Oracle on 2015, 2017.
 // Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
@@ -49,6 +49,7 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>
@@ -87,6 +88,10 @@ struct overlay_null_visitor
 
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse_reject(Turns const& , Turn const& , Operation const& , traverse_error_type )
+    {}
+
+    template <typename Rings>
+    void visit_generated_rings(Rings const& )
     {}
 };
 
@@ -135,9 +140,9 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
             if (! is_self_turn<OverlayType>(turn)
                 && (
-                    (target_operation == operation_union
+                    (BOOST_GEOMETRY_CONDITION(target_operation == operation_union)
                       && op.enriched.count_left > 0)
-                  || (target_operation == operation_intersection
+                  || (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection)
                       && op.enriched.count_right <= 2)))
             {
                 // Avoid including untraversed rings which have polygons on
@@ -205,7 +210,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             typename Strategy::template area_strategy
                 <
                     point_type1
-                >::type::return_type
+                >::type::template result_type<point_type1>::type
         > properties;
 
 // Silence warning C4127: conditional expression is constant
@@ -362,7 +367,7 @@ std::cout << "traverse" << std::endl;
         typedef ring_properties
             <
                 point_type,
-                typename area_strategy_type::return_type
+                typename area_strategy_type::template result_type<point_type>::type
             > properties;
 
         // Select all rings which are NOT touched by any intersection point

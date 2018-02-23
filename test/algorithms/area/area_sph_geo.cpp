@@ -4,6 +4,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2015, 2016, 2017.
 // Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
@@ -36,11 +37,8 @@ void test_spherical_geo()
             ct, 2, bg::cs::geographic<bg::degree>
         > pt_geo;
 
-    typedef typename bg::point_type<pt_geo>::type pt_geo_type;
-
     bg::strategy::area::geographic
         <
-            pt_geo_type,
             bg::strategy::vincenty,
             5
         > area_geographic;
@@ -61,7 +59,7 @@ void test_spherical_geo()
 
     bg::strategy::area::spherical
         <
-            typename bg::point_type<pt>::type
+            ct
         > strategy_unary(1.0);
 
     ct const four = 4.0;
@@ -74,7 +72,7 @@ void test_spherical_geo()
     // With strategy, radius 2 -> 4 pi r^2
     bg::strategy::area::spherical
         <
-            typename bg::point_type<pt>::type
+            ct
         > strategy(2.0);
 
     area = bg::area(geometry, strategy);
@@ -96,7 +94,7 @@ void test_spherical_geo()
 
     bg::strategy::area::spherical
         <
-            typename bg::point_type<pt>::type
+            ct
         > spherical_earth(6373);
     bg::read_wkt(poly, geometry);
     area = bg::area(geometry, spherical_earth);
@@ -376,7 +374,7 @@ void test_spherical_geo()
         }*/
         bg::strategy::area::spherical
             <
-                typename bg::point_type<pt>::type
+                ct
             > area_spherical(6372.795);
         area = bg::area(aurha, area_spherical);
         BOOST_CHECK_CLOSE(area, 1476.645675, 0.0001);
@@ -395,13 +393,13 @@ void test_spherical_geo()
         std::string wkt = "POLYGON((0 0, 5 0, 5 5, 0 5, 0 0))";
         bg::read_wkt(wkt, geometry_sph);
 
-        area = bg::area(geometry_sph, bg::strategy::area::spherical<pt>(6371228.0));
+        area = bg::area(geometry_sph, bg::strategy::area::spherical<>(6371228.0));
         BOOST_CHECK_CLOSE(area, 308932296103.83051, 0.0001);
         
         bg::model::polygon<pt_geo, false> geometry_geo;
         bg::read_wkt(wkt, geometry_geo);
 
-        area = bg::area(geometry_geo, bg::strategy::area::geographic<pt_geo>(bg::srs::spheroid<double>(6371228.0, 6371228.0)));
+        area = bg::area(geometry_geo, bg::strategy::area::geographic<>(bg::srs::spheroid<double>(6371228.0, 6371228.0)));
         BOOST_CHECK_CLOSE(area, 308932296103.82574, 0.001);
     }
 }

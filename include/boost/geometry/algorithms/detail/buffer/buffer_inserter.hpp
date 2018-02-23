@@ -41,10 +41,6 @@
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
-#if defined(BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX)
-#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {
@@ -67,45 +63,21 @@ inline void simplify_input(Range const& range,
     // sensitive to small scale input features, however the result will
     // look better.
     // It also gets rid of duplicate points
-#if ! defined(BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX)
-    geometry::simplify(range, simplified, distance.simplify_distance());
-#else
 
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef strategy::distance::detail::projected_point_ax<> ax_type;
-    typedef typename strategy::distance::services::return_type
+    typedef typename geometry::point_type<Range>::type point_type;
+    typedef typename strategy::distance::services::default_strategy
     <
-        strategy::distance::detail::projected_point_ax<>,
-        point_type,
-        point_type
-    >::type return_type;
-
-    typedef strategy::distance::detail::projected_point_ax_less
+        point_tag, segment_tag, point_type
+    >::type ds_strategy_type;
+    typedef strategy::simplify::douglas_peucker
     <
-        return_type
-    > comparator_type;
+        point_type, ds_strategy_type
+    > strategy_type;
 
-    typedef strategy::simplify::detail::douglas_peucker
-    <
-        point_type,
-        strategy::distance::detail::projected_point_ax<>,
-        comparator_type
-    > dp_ax;
+    geometry::detail::simplify::simplify_range<2>::apply(range,
+        simplified, distance.simplify_distance(),
+        strategy_type());
 
-    return_type max_distance(distance.simplify_distance() * 2.0,
-                             distance.simplify_distance());
-    comparator_type comparator(max_distance);
-    dp_ax strategy(comparator);
-
-    geometry::simplify(range, simplified, max_distance, strategy);
-#endif
-
-    if (boost::size(simplified) == 2
-        && geometry::equals(geometry::range::front(simplified),
-                geometry::range::back(simplified)))
-    {
-        traits::resize<Range>::apply(simplified, 1);
-    }
 }
 
 

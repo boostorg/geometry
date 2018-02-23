@@ -26,6 +26,7 @@
 
 typedef bg::cs::spherical_equatorial<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
+typedef bg::model::multi_point<point_type> multi_point_type;
 typedef bg::model::segment<point_type> segment_type;
 typedef bg::model::box<point_type> box_type;
 
@@ -450,6 +451,28 @@ void test_distance_point_box(Strategy const& strategy)
     tester::apply("pb4-2c2", "POINT(-180 20)", box4,
                   "POINT(-180 20)", "SEGMENT(75 -45,75 65)", ps,
                   strategy);
+
+}
+
+template <typename Strategy>
+void test_distance_multipoint_box(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multipoint/box distance tests" << std::endl;
+#endif
+    typedef test_distances<multi_point_type, box_type> tester;
+
+    std::string const box1 = "BOX(10 10,20 20)";
+
+    tester::apply("mpb1-1a", "MULTIPOINT(5 25,25 26)", box1,
+                  "POINT(5 25)", "POINT(10 20)", pp,
+                  strategy);
+
+    tester::apply("mpb1-2e", "MULTIPOINT(110 10,110 9,110 0)", box1,
+                  "POINT(110 10)", "SEGMENT(20 10,20 20)", ps,
+                  strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_point_box )
@@ -461,4 +484,8 @@ BOOST_AUTO_TEST_CASE( test_point_box )
     test_distance_point_box(comparable_point_box_strategy());
     test_distance_point_box(comparable_point_box_strategy(earth_radius_km));
     test_distance_point_box(comparable_point_box_strategy(earth_radius_miles));
+
+    test_distance_multipoint_box(point_box_strategy());
+    test_distance_multipoint_box(point_box_strategy(earth_radius_km));
+    test_distance_multipoint_box(point_box_strategy(earth_radius_miles));
 }

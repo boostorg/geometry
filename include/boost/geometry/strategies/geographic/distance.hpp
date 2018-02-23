@@ -20,11 +20,12 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/elliptic_arc_length.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
@@ -34,6 +35,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
 
 namespace boost { namespace geometry
 {
@@ -108,6 +110,19 @@ public :
         CT lat2 = get_as_radian<1>(point2);
 
         return apply(lon1, lat1, lon2, lat2, m_spheroid);
+    }
+
+    // points on a meridian not crossing poles
+    template <typename CT>
+    inline CT meridian(CT lat1, CT lat2) const
+    {
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                    m_spheroid);
     }
 
     inline Spheroid const& model() const

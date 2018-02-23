@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2017, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,7 +17,6 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
@@ -32,6 +33,8 @@
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
+
+#include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
@@ -106,7 +109,6 @@ struct geographic_segments
     {
         typedef area::geographic
             <
-                typename point_type<Geometry>::type,
                 FormulaPolicy,
                 Order,
                 Spheroid,
@@ -152,34 +154,8 @@ struct geographic_segments
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
     {
-        typedef typename select_most_precise
-            <
-                CoordinateType, double
-            >::type promoted_type;
-
-        promoted_type comparable_length_a() const
-        {
-            return robust_ra.denominator();
-        }
-
-        promoted_type comparable_length_b() const
-        {
-            return robust_rb.denominator();
-        }
-
         template <typename Point, typename Segment1, typename Segment2>
-        void assign_a(Point& point, Segment1 const& a, Segment2 const& b) const
-        {
-            assign(point, a, b);
-        }
-        template <typename Point, typename Segment1, typename Segment2>
-        void assign_b(Point& point, Segment1 const& a, Segment2 const& b) const
-        {
-            assign(point, a, b);
-        }
-
-        template <typename Point, typename Segment1, typename Segment2>
-        void assign(Point& point, Segment1 const& a, Segment2 const& b) const
+        void calculate(Point& point, Segment1 const& a, Segment2 const& b) const
         {
             if (ip_flag == ipi_inters)
             {

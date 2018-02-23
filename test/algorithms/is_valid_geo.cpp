@@ -1,7 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -43,10 +45,8 @@ void test_valid_s(std::string const& wkt,
                   Spheroid const& sph,
                   bool expected_result)
 {
-    typedef typename bg::point_type<Poly>::type pt;
-
     bg::strategy::intersection::geographic_segments<> is(sph);
-    bg::strategy::area::geographic<pt> as(sph);
+    bg::strategy::area::geographic<> as(sph);
 
     Poly p;
     bg::read_wkt(wkt, p);

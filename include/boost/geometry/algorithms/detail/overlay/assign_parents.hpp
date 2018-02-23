@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017.
 // Modifications copyright (c) 2017 Oracle and/or its affiliates.
@@ -238,7 +239,7 @@ inline void assign_parents(Geometry1 const& geometry1,
     typedef typename Strategy::template area_strategy
         <
             point_type
-        >::type::return_type area_result_type;
+        >::type::template result_type<point_type>::type area_result_type;
 
     typedef typename RingMap::iterator map_iterator_type;
 

@@ -104,7 +104,8 @@ inline void enrich_sort(Operations& operations,
 
 
 template <typename Operations, typename Turns>
-inline void enrich_assign(Operations& operations, Turns& turns)
+inline void enrich_assign(Operations& operations, Turns& turns,
+                          bool check_turns)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::turn_operation_type op_type;
@@ -125,14 +126,17 @@ inline void enrich_assign(Operations& operations, Turns& turns)
             turn_type& turn = turns[it->turn_index];
             op_type& op = turn.operations[it->operation_index];
 
-            // Normal behaviour: next should point at next turn:
-            if (it->turn_index == next->turn_index)
+            if (check_turns && it->turn_index == next->turn_index)
             {
+                // Normal behaviour: next points at next turn, increase next.
+                // For dissolve this should not be done, turn_index is often
+                // the same for two consecutive operations
                 ++next;
             }
 
             // Cluster behaviour: next should point after cluster, unless
             // their seg_ids are not the same
+            // (For dissolve, this is still to be examined - TODO)
             while (turn.is_clustered()
                    && it->turn_index != next->turn_index
                    && turn.cluster_id == turns[next->turn_index].cluster_id
@@ -156,6 +160,11 @@ inline void enrich_assign(Operations& operations, Turns& turns)
                 // assign next_ip_index
                 // (this is one not circular therefore fraction is considered)
                 op.enriched.next_ip_index = static_cast<signed_size_type>(next->turn_index);
+            }
+
+            if (! check_turns)
+            {
+                ++next;
             }
         }
     }
@@ -507,7 +516,7 @@ inline void enrich_intersection_points(Turns& turns,
             detail::overlay::enrich_adapt(mit->second, turns);
         }
 
-        detail::overlay::enrich_assign(mit->second, turns);
+        detail::overlay::enrich_assign(mit->second, turns, ! is_dissolve);
     }
 
     if (has_colocations)

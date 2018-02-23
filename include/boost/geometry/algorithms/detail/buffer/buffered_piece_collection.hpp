@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2016-2017.
 // Modifications copyright (c) 2016-2017 Oracle and/or its affiliates.
@@ -155,8 +156,14 @@ struct buffered_piece_collection
             robust_point_type
         >::type robust_area_strategy_type;
 
-    typedef typename area_strategy_type::return_type area_result_type;
-    typedef typename robust_area_strategy_type::return_type robust_area_result_type;
+    typedef typename area_strategy_type::template result_type
+        <
+            point_type
+        >::type area_result_type;
+    typedef typename robust_area_strategy_type::template result_type
+        <
+            robust_point_type
+        >::type robust_area_result_type;
 
     typedef typename geometry::rescale_policy_type
         <

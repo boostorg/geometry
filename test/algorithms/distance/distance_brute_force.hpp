@@ -211,6 +211,19 @@ struct distance_brute_force
 > : detail::distance_brute_force::distance_from_bg
 {};
 
+template
+<
+    typename Box1,
+    typename Box2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Box1, Box2, Strategy,
+    box_tag, box_tag, false
+> : detail::distance_brute_force::distance_from_bg
+{};
+
 
 template
 <
@@ -409,6 +422,39 @@ struct distance_brute_force
             <
                 detail::distance_brute_force::distance_from_bg
             >::apply(segment, boost::begin(mp), boost::end(mp), strategy);
+    }
+};
+
+template
+<
+    typename MultiPoint,
+    typename Box,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPoint, Box, Strategy,
+    multi_point_tag, box_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPoint, Box, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(MultiPoint const& mp,
+                                      Box const& box,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    Box,
+                    typename boost::range_value<MultiPoint>::type,
+                    Strategy
+                >
+            >::apply(box, boost::begin(mp), boost::end(mp), strategy);
     }
 };
 
