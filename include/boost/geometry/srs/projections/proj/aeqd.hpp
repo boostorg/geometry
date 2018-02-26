@@ -295,7 +295,7 @@ namespace projections
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
-                par.phi0 = pj_param(par.params, "rlat_0").f;
+                par.phi0 = pj_param_r(par.params, "lat_0");
                 if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                     proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
@@ -626,7 +626,7 @@ namespace projections
             public :
                 virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
                 {
-                    bool const guam = pj_param(par.params, "bguam").i != 0;
+                    bool const guam = pj_param_b(par.params, "guam");
 
                     if (par.es && ! guam)
                         return new base_v_fi<aeqd_e<CalculationType, Parameters>, CalculationType, Parameters>(par);

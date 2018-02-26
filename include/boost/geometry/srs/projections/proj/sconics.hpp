@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -98,12 +98,10 @@ namespace projections
                 T p1, p2;
                 int err = 0;
 
-                if (!pj_param(par.params, "tlat_1").i ||
-                    !pj_param(par.params, "tlat_2").i) {
+                if (!pj_param_r(par.params, "lat_1", p1) ||
+                    !pj_param_r(par.params, "lat_2", p2)) {
                     err = -41;
                 } else {
-                    p1 = pj_param(par.params, "rlat_1").f;
-                    p2 = pj_param(par.params, "rlat_2").f;
                     *del = 0.5 * (p2 - p1);
                     proj_parm.sig = 0.5 * (p2 + p1);
                     err = (fabs(*del) < EPS || fabs(proj_parm.sig) < EPS) ? -42 : 0;

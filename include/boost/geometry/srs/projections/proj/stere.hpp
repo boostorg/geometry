@@ -370,8 +370,8 @@ namespace projections
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
-                proj_parm.phits = pj_param(par.params, "tlat_ts").i ?
-                        pj_param(par.params, "rlat_ts").f : HALFPI;
+                if (! pj_param_r(par.params, "lat_ts", proj_parm.phits))
+                    proj_parm.phits = HALFPI;
                 setup(par, proj_parm);
             }
 
@@ -382,7 +382,7 @@ namespace projections
                 static const T HALFPI = detail::HALFPI<T>();
 
                 /* International Ellipsoid */
-                par.phi0 = pj_param(par.params, "bsouth").i ? -HALFPI: HALFPI;
+                par.phi0 = pj_param_b(par.params, "south") ? -HALFPI: HALFPI;
                 if (!par.es)
                     BOOST_THROW_EXCEPTION( projection_exception(-34) );
                 par.k0 = .994;

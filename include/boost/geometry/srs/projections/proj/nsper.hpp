@@ -215,7 +215,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup(Parameters& par, par_nsper<T>& proj_parm) 
             {
-                if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.)
+                if ((proj_parm.height = pj_param_f(par.params, "h")) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-30) );
                 if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
@@ -249,8 +249,9 @@ namespace projections
             {
                 T omega, gamma;
 
-                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<T>();
-                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<T>();
+                // TODO: shouldn't here pj_param_r without d2r be called instead?
+                omega = pj_param_f(par.params, "tilt") * geometry::math::d2r<T>();
+                gamma = pj_param_f(par.params, "azi") * geometry::math::d2r<T>();
                 proj_parm.tilt = 1;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);

@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -186,8 +186,8 @@ namespace projections
 
                 T Az, sinp, R, N, t;
 
-                proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
-                Az = pj_param(par.params, "razi").f;
+                proj_parm.rot = ! pj_param_b(par.params, "no_rot");
+                Az = pj_param_r(par.params, "azi");
                 sinp = sin(par.phi0);
                 t = 1. - par.es * sinp * sinp;
                 N = 1. / sqrt(t);

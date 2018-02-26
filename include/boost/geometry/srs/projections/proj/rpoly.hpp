@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -118,7 +118,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
             {
-                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_param(par.params, "rlat_ts").f)) > EPS)) {
+                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_param_r(par.params, "lat_ts"))) > EPS)) {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }

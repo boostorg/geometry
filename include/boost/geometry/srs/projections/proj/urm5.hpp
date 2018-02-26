@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -107,14 +107,13 @@ namespace projections
             {
                 T alpha, t;
 
-                if (pj_param(par.params, "tn").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
+                if (pj_param_f(par.params, "n", proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
                         BOOST_THROW_EXCEPTION( projection_exception(-40) );
                 } else
                     BOOST_THROW_EXCEPTION( projection_exception(-40) );
-                proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
-                alpha = pj_param(par.params, "ralpha").f;
+                proj_parm.q3 = pj_param_f(par.params, "q") / 3.;
+                alpha = pj_param_r(par.params, "alpha");
                 t = proj_parm.n * sin(alpha);
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);

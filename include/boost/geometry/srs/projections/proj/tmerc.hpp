@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -329,10 +329,10 @@ namespace projections
 
                 int zone;
 
-                par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
+                par.y0 = pj_param_b(par.params, "south") ? 10000000. : 0.;
                 par.x0 = 500000.;
-                if (pj_param(par.params, "tzone").i) /* zone input ? */
-                    if ((zone = pj_param(par.params, "izone").i) > 0 && zone <= 60)
+                if (pj_param_i(par.params, "zone", zone)) /* zone input ? */
+                    if (zone > 0 && zone <= 60)
                         --zone;
                     else
                         BOOST_THROW_EXCEPTION( projection_exception(-35) );

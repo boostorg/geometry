@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -112,9 +112,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_wag3(Parameters& par, par_wag3<T>& proj_parm)
             {
-                T ts;
-
-                ts = pj_param(par.params, "rlat_ts").f;
+                T ts = pj_param_r(par.params, "lat_ts");
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
             }

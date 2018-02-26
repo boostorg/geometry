@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -96,15 +96,17 @@ static const int PJD_ERR_AXIS = -47;
 static const int PJD_ERR_GRID_AREA = -48;
 static const int PJD_ERR_CATALOG = -49;
 
+// NOTE: T was left because it is used in pj_param_f and pj_param_r
 template <typename T>
 struct pvalue
 {
     std::string param;
-    int used;
-
-    int i;
-    T f;
     std::string s;
+
+    // NOTE: This parameter is only used in pj_get_def(), a function returning
+    // the PROJ.4 command string compatible with the projection definition.
+    // Currently it's not used in Boost.Geometry.
+    //int used;
 };
 
 template <typename T>

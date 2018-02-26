@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -167,11 +167,11 @@ namespace projections
                     xy_y = ro * cos(eps) / a;
                     xy_x = ro * sin(eps) / a;
 
-                        if( !pj_param(this->m_par.params, "tczech").i )
-                      {
+                    if( !pj_param_e(this->m_par.params, "czech") )
+                    {
                         xy_y *= -1.0;
                         xy_x *= -1.0;
-                      }
+                    }
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
@@ -221,11 +221,11 @@ namespace projections
                     xy_x=xy_y;
                     xy_y=xy0;
 
-                        if( !pj_param(this->m_par.params, "tczech").i )
-                      {
+                    if( !pj_param_e(this->m_par.params, "czech") )
+                    {
                         xy_x *= -1.0;
                         xy_y *= -1.0;
-                      }
+                    }
 
                     ro = sqrt(xy_x * xy_x + xy_y * xy_y);
                     eps = atan2(xy_y, xy_x);
@@ -272,26 +272,26 @@ namespace projections
                 /* read some Parameters,
                  * here Latitude Truescale */
 
-                ts = pj_param(par.params, "rlat_ts").f;
+                ts = pj_param_r(par.params, "lat_ts");
                 proj_parm.C_x = ts;
 
                 /* we want Bessel as fixed ellipsoid */
                 par.a = 6377397.155;
                 par.e = sqrt(par.es = 0.006674372230614);
 
-                    /* if latitude of projection center is not set, use 49d30'N */
-                if (!pj_param(par.params, "tlat_0").i)
-                        par.phi0 = 0.863937979737193;
+                /* if latitude of projection center is not set, use 49d30'N */
+                if (!pj_param_e(par.params, "lat_0"))
+                    par.phi0 = 0.863937979737193;
 
-                    /* if center long is not set use 42d30'E of Ferro - 17d40' for Ferro */
-                    /* that will correspond to using longitudes relative to greenwich    */
-                    /* as input and output, instead of lat/long relative to Ferro */
-                if (!pj_param(par.params, "tlon_0").i)
-                        par.lam0 = 0.7417649320975901 - 0.308341501185665;
+                /* if center long is not set use 42d30'E of Ferro - 17d40' for Ferro */
+                /* that will correspond to using longitudes relative to greenwich    */
+                /* as input and output, instead of lat/long relative to Ferro */
+                if (!pj_param_e(par.params, "lon_0"))
+                    par.lam0 = 0.7417649320975901 - 0.308341501185665;
 
-                    /* if scale not set default to 0.9999 */
-                if (!pj_param(par.params, "tk").i)
-                        par.k0 = 0.9999;
+                /* if scale not set default to 0.9999 */
+                if (!pj_param_e(par.params, "k"))
+                    par.k0 = 0.9999;
 
                 /* always the same */
             }

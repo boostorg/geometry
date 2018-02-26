@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -139,16 +139,15 @@ namespace projections
 
                 proj_parm.rok = 1. / par.k0;
                 proj_parm.rtk = par.k0;
-                if ( pj_param(par.params, "talpha").i) {
-                    alpha    = pj_param(par.params, "ralpha").f;
-                    lonz = pj_param(par.params, "rlonc").f;
+                if ( pj_param_r(par.params, "alpha", alpha) ) {
+                    lonz = pj_param_r(par.params, "lonc");
                     proj_parm.singam = atan(-cos(alpha)/(-sin(phi_0) * sin(alpha))) + lonz;
                     proj_parm.sinphi = asin(cos(phi_0) * sin(alpha));
                 } else {
-                    phi_1 = pj_param(par.params, "rlat_1").f;
-                    phi_2 = pj_param(par.params, "rlat_2").f;
-                    lam_1 = pj_param(par.params, "rlon_1").f;
-                    lam_2 = pj_param(par.params, "rlon_2").f;
+                    phi_1 = pj_param_r(par.params, "lat_1");
+                    phi_2 = pj_param_r(par.params, "lat_2");
+                    lam_1 = pj_param_r(par.params, "lon_1");
+                    lam_2 = pj_param_r(par.params, "lon_2");
                     proj_parm.singam = atan2(cos(phi_1) * sin(phi_2) * cos(lam_1) -
                         sin(phi_1) * cos(phi_2) * cos(lam_2),
                         sin(phi_1) * cos(phi_2) * sin(lam_2) -

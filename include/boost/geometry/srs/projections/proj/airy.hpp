@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -166,8 +166,8 @@ namespace projections
 
                 T beta;
 
-                proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
-                beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
+                proj_parm.no_cut = pj_param_b(par.params, "no_cut");
+                beta = 0.5 * (HALFPI - pj_param_r(par.params, "lat_b"));
                 if (fabs(beta) < EPS)
                     proj_parm.Cb = -0.5;
                 else {
