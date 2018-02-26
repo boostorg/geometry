@@ -43,6 +43,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/srs/projections/exception.hpp>
+
 #include <boost/geometry/srs/projections/impl/dms_parser.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
@@ -231,7 +233,9 @@ inline bool pj_param_b(std::vector<pvalue<T> > const& pl, std::string const& nam
             case '\0': case 'T': case 't':
                 return true;
             case 'F': case 'f':
+                return false;
             default:
+                BOOST_THROW_EXCEPTION( projection_exception(-8) );
                 return false;
             }
         }
