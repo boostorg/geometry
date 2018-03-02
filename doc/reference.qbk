@@ -335,6 +335,9 @@
 
 [endsect]
 
+[section:srs SRS]
+[include generated/srs_spheroid.qbk]
+[endsect]
 
 [section:strategies Strategies]
 [include generated/area_cartesian.qbk]
@@ -365,6 +368,7 @@
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
 [include generated/side_spherical_side_formula.qbk]
+[include generated/side_geographic.qbk]
 [include generated/simplify_douglas_peucker.qbk]
 [include generated/transform_inverse_transformer.qbk]
 [include generated/transform_map_transformer.qbk]

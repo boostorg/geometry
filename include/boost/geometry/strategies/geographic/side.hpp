@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -49,6 +49,11 @@ namespace strategy { namespace side
 \tparam FormulaPolicy Geodesic solution formula policy.
 \tparam Spheroid Reference model of coordinate system.
 \tparam CalculationType \tparam_calculation
+
+\qbk{
+[heading See also]
+[link geometry.reference.srs.srs_spheroid srs::spheroid]
+}
  */
 template
 <
