@@ -24,6 +24,7 @@
 
 [*Improvements]
 
+* New map projection and SRS transformation representations (undocumented for now due to potential interface changes).
 * New densify() algorithm.
 * No longer using std::iterator (thanks to Daniela Engert).
 * No longer using allocator directly in the rtree. Replaced with boost::container::allocator_traits (thanks to Daniela Engert).
@@ -45,6 +46,7 @@
 * Simplify (multi)polygons now simplifies closing point
 
 [*Changes in behavior]
+
 * Simplify (multi)polygons now usually rotates input rings before simplifying to select a non collinear point on its convex hull. This improves output.
 
 [/=================]
