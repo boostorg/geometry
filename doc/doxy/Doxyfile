@@ -207,6 +207,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/io/svg \
                          ../../../../boost/geometry/policies \
                          ../../../../boost/geometry/policies/relate \
+                         ../../../../boost/geometry/srs \
                          ../../../../boost/geometry/strategies \
                          ../../../../boost/geometry/strategies/concepts \
                          ../../../../boost/geometry/strategies/agnostic \

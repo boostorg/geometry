@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -37,8 +37,10 @@ namespace srs
 
 /*!
     \brief Defines spheroid radius values for use in geographical CS calculations
+    \ingroup srs
     \note See http://en.wikipedia.org/wiki/Figure_of_the_Earth
           and http://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS84
+    \tparam RadiusType tparam_radius
 */
 template <typename RadiusType>
 class spheroid

@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -23,6 +23,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_STRERRNO_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_STRERRNO_HPP
 
+#include <cerrno>
 #include <cstring>
 #include <sstream>
 #include <string>
@@ -87,28 +88,51 @@ pj_err_list[] = {
     "malformed pipeline",                                              /* -50 */
 };
 
+inline std::string pj_generic_strerrno(std::string const& msg, int err)
+{
+    std::stringstream ss;
+    ss << msg << " (" << err << ")";
+    return ss.str();
+}
+
 inline std::string pj_strerrno(int err) {
     if (0==err)
+    {
         return "";
-
-    if (err > 0) {
-//#ifdef HAVE_STRERROR
-        return ::strerror(err);
-//#else
-//        std::stringstream ss;
-//        ss << "no system list, errno: " << err;
-//        return ss.str();
-//#endif
     }
+    else if (err > 0)
+    {
+        // std::strerror function may be not thread-safe
+        //return std::strerror(err);
 
-    else /*if (err < 0)*/ {
+        switch(err)
+        {
+#ifdef EINVAL
+            case EINVAL:
+                return "Invalid argument";
+#endif
+#ifdef EDOM
+            case EDOM:
+                return "Math argument out of domain of func";
+#endif
+#ifdef ERANGE
+            case ERANGE:
+                return "Math result not representable";
+#endif
+            default:
+                return pj_generic_strerrno("system error", err);
+        }
+    }
+    else /*if (err < 0)*/
+    {
         size_t adjusted_err = - err - 1;
         if (adjusted_err < (sizeof(pj_err_list) / sizeof(char *)))
+        {
             return(pj_err_list[adjusted_err]);
-        else {
-            std::stringstream ss;
-            ss << "invalid projection system error (" << err << ")";
-            return ss.str();
+        }
+        else
+        {
+            return pj_generic_strerrno("invalid projection system error", err);
         }
     }
 }
