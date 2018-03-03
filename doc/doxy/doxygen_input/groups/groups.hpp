@@ -67,6 +67,7 @@
 \defgroup selected selection: check if a geometry is "selected" by a point
 \defgroup set set: set geometries
 \defgroup simplify simplify: remove points from a geometry, keeping shape (simplification or generalization)
+\defgroup srs srs: Spatial Reference System definition
 \defgroup strategies strategies: strategies
 \defgroup svg svg: Stream SVG (Scalable Vector Graphics)
 \defgroup sym_difference sym_difference: sym_difference of two geometries

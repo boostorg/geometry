@@ -39,7 +39,8 @@ namespace strategy { namespace densify
 
 \qbk{
 [heading See also]
-[link geometry.reference.algorithms.densify.densify_4_with_strategy densify (with strategy)]
+\* [link geometry.reference.algorithms.densify.densify_4_with_strategy densify (with strategy)]
+\* [link geometry.reference.srs.srs_spheroid srs::spheroid]
 }
  */
 template
