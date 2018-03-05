@@ -88,7 +88,7 @@ dependencies:
 
     # download and install the latest lcov
     # do not use the old one from sources
-    - wget http://sourceforge.net/projects/ltp/files/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz/download || wget http://downloads.sourceforge.net/project/ltp/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz || wget http://sourceforge.mirrorservice.org/l/project/lt/ltp/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz || wget -O lcov-1.12.tar.gz http://launchpad.net/ubuntu/+archive/primary/+files/lcov_1.12.orig.tar.gz
+    - curl -fLO https://sourceforge.net/projects/ltp/files/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz || curl -fLO https://downloads.sourceforge.net/project/ltp/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz || wget http://sourceforge.mirrorservice.org/l/project/lt/ltp/Coverage%20Analysis/LCOV-1.12/lcov-1.12.tar.gz || wget -O lcov-1.12.tar.gz http://launchpad.net/ubuntu/+archive/primary/+files/lcov_1.12.orig.tar.gz
     - tar xvzf lcov-1.12.tar.gz
     - cd lcov-1.12 && sudo make install
 
