@@ -101,7 +101,7 @@ template <typename P>
 void test_all()
 {
     test_forward<P>("aea", 4.897000, 52.371000, 334609.583974, 5218502.503686, "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
-    test_forward<P>("aeqd", 4.897000, 52.371000, 384923.723428, 5809986.497118, "+proj=aeqd +ellps=WGS84 +units=m");
+    test_forward<P>("aeqd", 4.897000, 52.371000, 384537.462363, 5809944.807548, "+proj=aeqd +ellps=WGS84 +units=m");
     test_forward<P>("airy", 4.897000, 52.371000, 328249.003313, 4987937.101447, "+proj=airy +ellps=WGS84 +units=m");
     test_forward<P>("aitoff", 4.897000, 52.371000, 384096.182830, 5831239.274680, "+proj=aitoff +ellps=WGS84 +units=m");
     test_forward<P>("alsk", -84.390000, 33.755000, 7002185.416415, -3700467.546545, "+proj=alsk +ellps=WGS84 +units=m +lon_0=-150W");
@@ -236,7 +236,7 @@ void test_all()
     test_forward<P>("wintri", 4.897000, 52.371000, 365568.851909, 5830576.163507, "+proj=wintri +ellps=WGS84 +units=m");
 
     test_inverse<P>("aea", 334609.583974, 5218502.503686, 4.897000, 52.371000, "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
-    test_inverse<P>("aeqd", 384923.723428, 5809986.497118, 4.898398, 52.378890, "+proj=aeqd +ellps=WGS84 +units=m"); // F/I: 883.080918
+    test_inverse<P>("aeqd", 384537.462363, 5809944.807548, 4.897000, 52.371000, "+proj=aeqd +ellps=WGS84 +units=m"); // F/I: 883.080918
     test_inverse<P>("aitoff", 384096.182830, 5831239.274680, 4.897000, 52.371000, "+proj=aitoff +ellps=WGS84 +units=m");
     test_inverse<P>("alsk", 7002185.416415, -3700467.546545, -84.389819, 33.754911, "+proj=alsk +ellps=WGS84 +units=m +lon_0=-150W"); // F/I: 19.398478
     test_inverse<P>("bipc", 3693973.674143, -8459972.647559, 4.897000, 52.371000, "+proj=bipc +ellps=WGS84 +units=m");
