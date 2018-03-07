@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -111,19 +111,9 @@ void test_projections(const projection_case * cases, std::size_t n)
     {
         projection_case const& pcas = cases[i];
 
-        if (! pcas.e_args.empty())
-        {
-            test_projection(pcas.e_id, pcas.e_args,
-                            pcas.fwd_in, pcas.e_fwd_expect,
-                            pcas.inv_in, pcas.e_inv_expect);
-        }
-
-        if (! pcas.s_args.empty())
-        {
-            test_projection(pcas.s_id, pcas.s_args,
-                            pcas.fwd_in, pcas.s_fwd_expect,
-                            pcas.inv_in, pcas.s_inv_expect);
-        }
+        test_projection(pcas.id, pcas.args,
+                        pcas.fwd_in, pcas.fwd_expect,
+                        pcas.inv_in, pcas.inv_expect);
     }
 }
 
