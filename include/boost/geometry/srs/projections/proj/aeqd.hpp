@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.9.3
+// Last updated version of proj: 5.0.0
 
 // Original copyright notice:
 
@@ -79,10 +79,12 @@ namespace projections
 
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
-            static const int N_POLE = 0;
-            static const int S_POLE = 1;
-            static const int EQUIT = 2;
-            static const int OBLIQ = 3;
+            enum Mode {
+                N_POLE = 0,
+                S_POLE = 1,
+                EQUIT  = 2,
+                OBLIQ  = 3
+            };
 
             template <typename T>
             struct par_aeqd
@@ -95,7 +97,7 @@ namespace projections
                 T    Mp;
                 T    He;
                 T    G;
-                int        mode;
+                Mode mode;
                 srs::spheroid<T> spheroid;
             };
 
@@ -103,6 +105,8 @@ namespace projections
             inline void e_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& par, ProjParm const& proj_parm)
             {
                 T coslam, cosphi, sinphi, rho;
+                //T azi1, s12;
+                //T lam1, phi1, lam2, phi2;
 
                 coslam = cos(lp_lon);
                 cosphi = cos(lp_lat);
@@ -122,11 +126,16 @@ namespace projections
                         xy_x = xy_y = 0.;
                         break;
                     }
+
+                    //phi1 = par.phi0; lam1 = par.lam0;
+                    //phi2 = lp_lat;  lam2 = lp_lon + par.lam0;
+
                     formula::result_inverse<T> const inv =
                         formula::vincenty_inverse
                             <
                                 T, true, true
                             >::apply(par.lam0, par.phi0, lp_lon + par.lam0, lp_lat, proj_parm.spheroid);
+                    //azi1 = inv.azimuth; s12 = inv.distance;
                     xy_x = inv.distance * sin(inv.azimuth) / par.a;
                     xy_y = inv.distance * cos(inv.azimuth) / par.a;
                     break;
@@ -148,6 +157,8 @@ namespace projections
                 if (proj_parm.mode == OBLIQ || proj_parm.mode == EQUIT) {
                     T const x2 = xy_x * par.a;
                     T const y2 = xy_y * par.a;
+                    //T const lat1 = par.phi0;
+                    //T const lon1 = par.lam0;
                     T const azi1 = atan2(x2, y2);
                     T const s12 = sqrt(x2 * x2 + y2 * y2);
                     formula::result_direct<T> const dir =
@@ -181,7 +192,7 @@ namespace projections
             template <typename T, typename Par, typename ProjParm>
             inline void e_guam_inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
-                T x2, t;
+                T x2, t = 0.0;
                 int i;
 
                 x2 = 0.5 * xy_x * xy_x;
