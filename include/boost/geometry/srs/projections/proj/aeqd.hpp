@@ -278,7 +278,7 @@ namespace projections
                         xy_y = (cosc - proj_parm.sinph0 * sin(lp_lat)) * c_rh;
                         xy_x *= sinc * proj_parm.cosph0;
                     }
-                    lp_lon = atan2(xy_x, xy_y);
+                    lp_lon = xy_y == 0. ? 0. : atan2(xy_x, xy_y);
                 } else if (proj_parm.mode == N_POLE) {
                     lp_lat = HALFPI - c_rh;
                     lp_lon = atan2(xy_x, -xy_y);

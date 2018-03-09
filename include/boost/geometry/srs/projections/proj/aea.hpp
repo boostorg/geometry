@@ -140,9 +140,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    CalculationType rho = 0.0;
-                    if ((rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat),
-                        this->m_par.e, this->m_par.one_es) : this->m_proj_parm.n2 * sin(lp_lat))) < 0.)
+                    CalculationType rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
+                                                                    ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es)
+                                                                    : this->m_proj_parm.n2 * sin(lp_lat));
+                    if (rho < 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     rho = this->m_proj_parm.dd * sqrt(rho);
                     xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
