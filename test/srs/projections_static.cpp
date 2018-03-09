@@ -222,7 +222,6 @@ void test_all()
     test_forward<bg::projections::urm5_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +n=.3 +q=.3 +alpha=10", 4);
     test_forward<bg::projections::urmfps_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +n=0.50", 4);
 
-    test_forward<bg::projections::utm_spheroid>(amsterdam, utrecht, "+ellps=sphere +units=m +lon_0=11d32'00E");
     test_forward<bg::projections::utm_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +lon_0=11d32'00E");
 
     test_forward<bg::projections::vandg_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 13);
