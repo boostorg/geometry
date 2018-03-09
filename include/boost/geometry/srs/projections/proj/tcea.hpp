@@ -101,7 +101,7 @@ namespace projections
             };
 
             // Transverse Cylindrical Equal Area
-            template <typename Parameters, typename T>
+            template <typename Parameters>
             inline void setup_tcea(Parameters& par)
             {
                 par.es = 0.;
@@ -127,7 +127,7 @@ namespace projections
     {
         inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<CalculationType, Parameters>(par)
         {
-            detail::tcea::setup_tcea(this->m_par, this->m_proj_parm);
+            detail::tcea::setup_tcea(this->m_par);
         }
     };
 
