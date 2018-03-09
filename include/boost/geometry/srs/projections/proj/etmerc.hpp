@@ -120,6 +120,7 @@ namespace projections
                 return (B + h*sin(2*B));
             }
 
+            /* Complex Clenshaw summation */
             template <typename T>
             inline T clenS(const T *a, int size, T const& arg_r, T const& arg_i, T *R, T *I) {
                 T      r, i, hr, hr1, hr2, hi, hi1, hi2;
@@ -149,6 +150,7 @@ namespace projections
                 return(*R);
             }
 
+            /* Real Clenshaw summation */
             template <typename T>
             inline T clens(const T *a, int size, T const& arg_r) {
                 T      r, hr, hr1, hr2, cos_arg_r;
@@ -220,6 +222,7 @@ namespace projections
                     /* normalize N, E */
                     Cn = (Cn - this->m_proj_parm.Zb)/this->m_proj_parm.Qn;
                     Ce = Ce/this->m_proj_parm.Qn;
+
                     if (fabs(Ce) <= 2.623395162778) { /* 150 degrees */
                         /* norm. N, E -> compl. sph. LAT, LNG */
                         Cn += clenS(this->m_proj_parm.utg, PROJ_ETMERC_ORDER, 2*Cn, 2*Ce, &dCn, &dCe);
@@ -252,8 +255,9 @@ namespace projections
             {
                 T f, n, np, Z;
 
-                if (par.es <= 0)
+                if (par.es <= 0) {
                     BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                }
 
                 f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */
 
@@ -345,8 +349,9 @@ namespace projections
 
                 int zone;
 
-                if (par.es == 0.0)
+                if (par.es == 0.0) {
                     BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                }
 
                 par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
                 par.x0 = 500000.;
@@ -355,8 +360,9 @@ namespace projections
                     zone = pj_param(par.params, "izone").i;
                     if (zone > 0 && zone <= 60)
                         --zone;
-                    else
+                    else {
                         BOOST_THROW_EXCEPTION( projection_exception(-35) );
+                    }
                 }
                 else /* nearest central meridian input */
                 {
