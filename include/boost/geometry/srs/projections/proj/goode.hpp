@@ -1,6 +1,3 @@
-#ifndef BOOST_GEOMETRY_PROJECTIONS_GOODE_HPP
-#define BOOST_GEOMETRY_PROJECTIONS_GOODE_HPP
-
 // Boost.Geometry - gis-projections (based on PROJ4)
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
@@ -18,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.9.3
+// Last updated version of proj: 5.0.0
 
 // Original copyright notice:
 
@@ -40,6 +37,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#ifndef BOOST_GEOMETRY_PROJECTIONS_GOODE_HPP
+#define BOOST_GEOMETRY_PROJECTIONS_GOODE_HPP
+
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
@@ -52,7 +52,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct goode {};
+    struct goode {}; // Goode Homolosine
 
 }} //namespace srs::par4
 
