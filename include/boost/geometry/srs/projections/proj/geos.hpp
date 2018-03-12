@@ -201,6 +201,7 @@ namespace projections
                     Vz = sin (lp_lat);
 
                     /* Check visibility.*/
+                    // TODO: in proj4 5.0.0 this check is not present
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
 
