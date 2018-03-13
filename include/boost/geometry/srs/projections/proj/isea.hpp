@@ -206,7 +206,7 @@ namespace projections
                 hex_xy(&h);
                 *i = h.x;
                 *j = h.y;
-                    return ix * 100 + iy;
+                return ix * 100 + iy;
             }
 
             enum isea_poly { ISEA_NONE, ISEA_ICOSAHEDRON = 20 };
@@ -402,6 +402,9 @@ namespace projections
             template <typename T>
             inline int isea_snyder_forward(isea_geo<T> * ll, isea_pt<T> * out)
             {
+                static T const TWOPI = detail::TWOPI<T>();
+                static T const DEG2RAD = geometry::math::d2r<T>();
+
                 int             i;
 
                 /*
@@ -441,9 +444,9 @@ namespace projections
 
                 /* TODO put these constants in as radians to begin with */
                 c = constants<T>()[SNYDER_POLY_ICOSAHEDRON];
-                theta = c.theta * geometry::math::d2r<T>();
-                g = c.g * geometry::math::d2r<T>();
-                G = c.G * geometry::math::d2r<T>();
+                theta = c.theta * DEG2RAD;
+                g = c.g * DEG2RAD;
+                G = c.G * DEG2RAD;
 
                 for (i = 1; i <= 20; i++) {
                     T          z;
@@ -459,6 +462,7 @@ namespace projections
                     if (z > g + 0.000005) { /* TODO DBL_EPSILON */
                         continue;
                     }
+
                     Az = sph_azimuth(center.lon, center.lat, ll->lon, ll->lat);
 
                     /* step 2 */
@@ -471,7 +475,7 @@ namespace projections
                     /* TODO I don't know why we do this.  It's not in snyder */
                     /* maybe because we should have picked a better vertex */
                     if (Az < 0.0) {
-                        Az += geometry::math::two_pi<T>();
+                        Az += TWOPI;
                     }
                     /*
                      * adjust Az for the point to fall within the range of 0 to
@@ -593,6 +597,9 @@ namespace projections
             template <typename T>
             inline isea_geo<T> snyder_ctran(isea_geo<T> * np, isea_geo<T> * pt)
             {
+                static T const ONEPI = detail::ONEPI<T>();
+                static T const TWOPI = detail::TWOPI<T>();
+
                 isea_geo<T> npt;
                 T           alpha, phi, lambda, lambda0, beta, lambdap, phip;
                 T           sin_phip;
@@ -621,11 +628,11 @@ namespace projections
 
                 /* normalize longitude */
                 /* TODO can we just do a modulus ? */
-                lambdap = fmod(lambdap, geometry::math::two_pi<T>());
-                while (lambdap > geometry::math::pi<T>())
-                    lambdap -= geometry::math::two_pi<T>();
-                while (lambdap < -geometry::math::pi<T>())
-                    lambdap += geometry::math::two_pi<T>();
+                lambdap = fmod(lambdap, TWOPI);
+                while (lambdap > ONEPI)
+                    lambdap -= TWOPI;
+                while (lambdap < -ONEPI)
+                    lambdap += TWOPI;
 
                 phip = asin(sin_phip);
 
@@ -638,25 +645,28 @@ namespace projections
             template <typename T>
             inline isea_geo<T> isea_ctran(isea_geo<T> * np, isea_geo<T> * pt, T const& lon0)
             {
+                static T const ONEPI = detail::ONEPI<T>();
+                static T const TWOPI = detail::TWOPI<T>();
+
                 isea_geo<T> npt;
 
-                np->lon += geometry::math::pi<T>();
+                np->lon += ONEPI;
                 npt = snyder_ctran(np, pt);
-                np->lon -= geometry::math::pi<T>();
+                np->lon -= ONEPI;
 
-                npt.lon -= (geometry::math::pi<T>() - lon0 + np->lon);
+                npt.lon -= (ONEPI - lon0 + np->lon);
 
                 /*
                  * snyder is down tri 3, isea is along side of tri1 from vertex 0 to
                  * vertex 1 these are 180 degrees apart
                  */
-                npt.lon += geometry::math::pi<T>();
+                npt.lon += ONEPI;
                 /* normalize longitude */
-                npt.lon = fmod(npt.lon, geometry::math::two_pi<T>());
-                while (npt.lon > geometry::math::pi<T>())
-                    npt.lon -= geometry::math::two_pi<T>();
-                while (npt.lon < -geometry::math::pi<T>())
-                    npt.lon += geometry::math::two_pi<T>();
+                npt.lon = fmod(npt.lon, TWOPI);
+                while (npt.lon > ONEPI)
+                    npt.lon -= TWOPI;
+                while (npt.lon < -ONEPI)
+                    npt.lon += TWOPI;
 
                 return npt;
             }
@@ -697,9 +707,11 @@ namespace projections
             template <typename T>
             inline int isea_orient_pole(isea_dgg<T> * g)
             {
+                static T const HALFPI = detail::HALFPI<T>();
+
                 if (!g)
                     return 0;
-                g->o_lat = geometry::math::half_pi<T>();
+                g->o_lat = HALFPI;
                 g->o_lon = 0.0;
                 g->o_az = 0;
                 return 1;
@@ -729,13 +741,16 @@ namespace projections
             template <typename T>
             inline void isea_rotate(isea_pt<T> * pt, T const& degrees)
             {
+                static T const DEG2RAD = geometry::math::d2r<T>();
+                static T const TWOPI = detail::TWOPI<T>();
+
                 T          rad;
 
                 T          x, y;
 
-                rad = -degrees * geometry::math::d2r<T>();
-                while (rad >= geometry::math::two_pi<T>()) rad -= geometry::math::two_pi<T>();
-                while (rad <= -geometry::math::two_pi<T>()) rad += geometry::math::two_pi<T>();
+                rad = -degrees * DEG2RAD;
+                while (rad >= TWOPI) rad -= TWOPI;
+                while (rad <= -TWOPI) rad += TWOPI;
 
                 x = pt->x * cos(rad) + pt->y * sin(rad);
                 y = -pt->x * sin(rad) + pt->y * cos(rad);
@@ -768,7 +783,6 @@ namespace projections
                 int             downtri, quad;
 
                 downtri = (((tri - 1) / 5) % 2 == 1);
-                boost::ignore_unused(downtri);
                 quad = ((tri - 1) % 5) + ((tri - 1) / 10) * 5 + 1;
 
                 isea_rotate(pt, downtri ? 240.0 : 60.0);
@@ -783,6 +797,8 @@ namespace projections
             template <typename T>
             inline int isea_dddi_ap3odd(isea_dgg<T> *g, int quad, isea_pt<T> *pt, isea_pt<T> *di)
             {
+                static T const ONEPI = detail::ONEPI<T>();
+
                 isea_pt<T> v;
                 T          hexwidth;
                 T          sidelength;    /* in hexes */
@@ -794,7 +810,7 @@ namespace projections
                 sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
 
                 /* apex to base is cos(30deg) */
-                hexwidth = cos(geometry::math::pi<T>() / 6.0) / sidelength;
+                hexwidth = cos(ONEPI / 6.0) / sidelength;
 
                 /* TODO I think sidelength is always x.5, so
                  * (int)sidelength * 2 + 1 might be just as good
@@ -1149,9 +1165,9 @@ namespace projections
             {
                 std::string opt;
 
-                    isea_grid_init(&proj_parm.dgg);
+                isea_grid_init(&proj_parm.dgg);
 
-                    proj_parm.dgg.output = ISEA_PLANE;
+                proj_parm.dgg.output = ISEA_PLANE;
             /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
                 /* calling library will scale, I think */
 
@@ -1178,10 +1194,12 @@ namespace projections
                     proj_parm.dgg.o_lat = pj_param(par.params, "rlat_0").f;
                 }
 
+                // TODO: this parameter is set below second time
                 if (pj_param(par.params, "taperture").i) {
                     proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
                 }
 
+                // TODO: this parameter is set below second time
                 if (pj_param(par.params, "tresolution").i) {
                     proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
                 }

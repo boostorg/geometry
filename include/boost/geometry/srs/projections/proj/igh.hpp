@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.9.3
+// Last updated version of proj: 5.0.0
 
 // Original copyright notice:
 
@@ -55,7 +55,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct igh {};
+    struct igh {}; // Interrupted Goode Homolosine
 
 }} //namespace srs::par4
 
@@ -73,8 +73,9 @@ namespace projections
                 CalculationType dy0;
             };
 
+            /* 40d 44' 11.8" [degrees] */
             template <typename T>
-            inline T d4044118() { return (T(40) + T(44)/T(60.) + T(11.8)/T(3600.)) * geometry::math::d2r<T>(); } // 40d 44' 11.8" [degrees]
+            inline T d4044118() { return (T(40) + T(44)/T(60.) + T(11.8)/T(3600.)) * geometry::math::d2r<T>(); }
 
             template <typename T>
             inline T d10() { return T(10) * geometry::math::d2r<T>(); }
