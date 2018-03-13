@@ -66,6 +66,7 @@ namespace projections
     namespace detail { namespace laea
     {
             static const double EPS10 = 1.e-10;
+
             enum Mode {
                 N_POLE = 0,
                 S_POLE = 1,
@@ -115,10 +116,12 @@ namespace projections
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
                     q = pj_qsfn(sinphi, this->m_par.e, this->m_par.one_es);
+
                     if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
                         sinb = q / this->m_proj_parm.qp;
                         cosb = sqrt(1. - sinb * sinb);
                     }
+
                     switch (this->m_proj_parm.mode) {
                     case OBLIQ:
                         b = 1. + this->m_proj_parm.sinb1 * sinb + this->m_proj_parm.cosb1 * cosb * coslam;
@@ -135,23 +138,27 @@ namespace projections
                         q = this->m_proj_parm.qp + q;
                         break;
                     }
-                    if (fabs(b) < EPS10)
+                    if (fabs(b) < EPS10) {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    }
+
                     switch (this->m_proj_parm.mode) {
                     case OBLIQ:
-                        xy_y = this->m_proj_parm.ymf * ( b = sqrt(2. / b) )
-                           * (this->m_proj_parm.cosb1 * sinb - this->m_proj_parm.sinb1 * cosb * coslam);
+                        b = sqrt(2. / b);
+                        xy_y = this->m_proj_parm.ymf * b * (this->m_proj_parm.cosb1 * sinb - this->m_proj_parm.sinb1 * cosb * coslam);
                         goto eqcon;
                         break;
                     case EQUIT:
-                        xy_y = (b = sqrt(2. / (1. + cosb * coslam))) * sinb * this->m_proj_parm.ymf;
+                        b = sqrt(2. / (1. + cosb * coslam));
+                        xy_y = b * sinb * this->m_proj_parm.ymf;
                 eqcon:
                         xy_x = this->m_proj_parm.xmf * b * cosb * sinlam;
                         break;
                     case N_POLE:
                     case S_POLE:
                         if (q >= 0.) {
-                            xy_x = (b = sqrt(q)) * sinlam;
+                            b = sqrt(q);
+                            xy_x = b * sinlam;
                             xy_y = coslam * (this->m_proj_parm.mode == S_POLE ? b : -b);
                         } else
                             xy_x = xy_y = 0.;
@@ -193,7 +200,7 @@ namespace projections
                         BOOST_FALLTHROUGH;
                     case S_POLE:
                         q = (xy_x * xy_x + xy_y * xy_y);
-                        if (!q) {
+                        if (q == 0.0) {
                             lp_lon = 0.;
                             lp_lat = this->m_par.phi0;
                             return;
@@ -247,8 +254,9 @@ namespace projections
                     case OBLIQ:
                         xy_y = 1. + this->m_proj_parm.sinb1 * sinphi + this->m_proj_parm.cosb1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10)
+                        if (xy_y <= EPS10) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         xy_y = sqrt(2. / xy_y);
                         xy_x = xy_y * cosphi * sin(lp_lon);
                         xy_y *= this->m_proj_parm.mode == EQUIT ? sinphi :
@@ -258,8 +266,9 @@ namespace projections
                         coslam = -coslam;
                         BOOST_FALLTHROUGH;
                     case S_POLE:
-                        if (fabs(lp_lat + this->m_par.phi0) < EPS10)
+                        if (fabs(lp_lat + this->m_par.phi0) < EPS10) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         xy_y = FORTPI - lp_lat * .5;
                         xy_y = 2. * (this->m_proj_parm.mode == S_POLE ? cos(xy_y) : sin(xy_y));
                         xy_x = xy_y * sin(lp_lon);
@@ -277,8 +286,9 @@ namespace projections
                     CalculationType  cosz=0.0, rh, sinz=0.0;
 
                     rh = boost::math::hypot(xy_x, xy_y);
-                    if ((lp_lat = rh * .5 ) > 1.)
+                    if ((lp_lat = rh * .5 ) > 1.) {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    }
                     lp_lat = 2. * asin(lp_lat);
                     if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
                         sinz = sin(lp_lat);
