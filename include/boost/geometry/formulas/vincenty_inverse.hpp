@@ -79,6 +79,7 @@ public:
             return result;
         }
 
+        CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
         CT const c3 = 3;
@@ -145,7 +146,7 @@ public:
             CT cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
             sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
             cos2_alpha = c1 - math::sqr(sin_alpha);
-            cos_2sigma_m = math::equals(cos2_alpha, 0) ? CT(0) : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
+            cos_2sigma_m = math::equals(cos2_alpha, c0) ? c0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
             cos2_2sigma_m = math::sqr(cos_2sigma_m);
 
             CT C = f/c16 * cos2_alpha * (c4 + f * (c4 - c3 * cos2_alpha)); // (10)

@@ -326,7 +326,8 @@ public :
         CT tan_bet2 = one_minus_f * tan(lat2);
         CT const bet2 = atan(tan_bet2);
 
-        CT const alp1 = geometry::formula::spherical_azimuth<CT,false>(lon1, bet1, lon2, bet2).azimuth;
+        CT const alp1 = geometry::formula::spherical_azimuth<CT,false>
+                                           (lon1, bet1, lon2, bet2).azimuth;
         CT const sin_alp1 = sin(alp1);
         CT const sin_bet1 = sin(bet1);
         CT const cos_alp1 = cos(alp1);
@@ -338,16 +339,17 @@ public :
 
         CT const sig1 = atan2(sin_bet1, cos_alp1 * cos_bet1);
 
-        CT const sig12_comp = geometry::math::hav(bet2 - bet1) + cos_bet1 * cos(bet2) * geometry::math::hav(lon2 - lon1);
+        CT const sig12_comp = geometry::math::hav(bet2 - bet1) + cos_bet1 * cos(bet2)
+                              * geometry::math::hav(lon2 - lon1);
         CT const sig12 = c2 * asin(geometry::math::sqrt(sig12_comp));
         CT const sig2 = sig1 + sig12;
 
         CT cos_alp0 = cos(alp0);
         CT const e2 = formula::eccentricity_sqr<CT>(spheroid);
-        CT const b2 = a * math::sqrt(1.0 - e2 * math::sqr(cos_alp0));
+        CT const b2 = a * math::sqrt(c1 - e2 * math::sqr(cos_alp0));
         Spheroid spheroid2(a,b2);
 
-        geometry::formula::elliptic_meridian_arc_length<double, Order> str;
+        geometry::formula::elliptic_meridian_arc_length<CT, Order> str;
         result.distance =  str.apply_par(sig2, spheroid2) - str.apply_par(sig1, spheroid2);
 
         return result;
