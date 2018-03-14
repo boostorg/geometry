@@ -56,7 +56,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct sterea {};
+    struct sterea {}; // Oblique Stereographic Alternative
 
 }} //namespace srs::par4
 
@@ -65,9 +65,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace sterea
     {
-
-            static const double DEL_TOL = 1.e-14;
-            static const int MAX_ITER = 10;
 
             template <typename T>
             struct par_sterea
@@ -116,13 +113,13 @@ namespace projections
 
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
-                    if((rho = boost::math::hypot(xy_x, xy_y))) {
+                    if((rho = boost::math::hypot(xy_x, xy_y)) != 0.0) {
                         c = 2. * atan2(rho, this->m_proj_parm.R2);
                         sinc = sin(c);
                         cosc = cos(c);
                         lp_lat = asin(cosc * this->m_proj_parm.sinc0 + xy_y * sinc * this->m_proj_parm.cosc0 / rho);
                         lp_lon = atan2(xy_x * sinc, rho * this->m_proj_parm.cosc0 * cosc -
-                            xy_y * this->m_proj_parm.sinc0 * sinc);
+                                        xy_y * this->m_proj_parm.sinc0 * sinc);
                     } else {
                         lp_lat = this->m_proj_parm.phic0;
                         lp_lon = 0.;

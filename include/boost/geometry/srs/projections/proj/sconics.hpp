@@ -90,7 +90,7 @@ namespace projections
                 T   rho_0;
                 T   sig;
                 T   c1, c2;
-                Type type;
+                enum Type type;
             };
 
             /* get common factors for simple conics */
@@ -161,7 +161,9 @@ namespace projections
                         xy_x = - xy_x;
                         xy_y = - xy_y;
                     }
+
                     lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
+
                     switch (this->m_proj_parm.type) {
                     case PCONIC:
                         lp_lat = atan(this->m_proj_parm.c1 - rho / this->m_proj_parm.c2) + this->m_proj_parm.sig;

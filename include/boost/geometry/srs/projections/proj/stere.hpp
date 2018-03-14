@@ -55,8 +55,8 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct stere {};
-    struct ups {};
+    struct stere {}; // Stereographic
+    struct ups {}; // Universal Polar Stereographic
 
 }} //namespace srs::par4
 
@@ -84,7 +84,7 @@ namespace projections
                 T   sinX1;
                 T   cosX1;
                 T   akm1;
-                Mode mode;
+                enum Mode mode;
             };
 
             template <typename T>
@@ -118,7 +118,7 @@ namespace projections
                 {
                     static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    CalculationType coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
+                    CalculationType coslam, sinlam, sinX=0.0, cosX=0.0, X, A = 0.0, sinphi;
 
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
@@ -135,6 +135,7 @@ namespace projections
                         goto xmul; /* but why not just  xy.x = A * cosX; break;  ? */
 
                     case EQUIT:
+                        // TODO: calculate denominator once
                         /* avoid zero division */
                         if (1. + cosX * coslam == 0.0) {
                             xy_y = HUGE_VAL;
@@ -250,8 +251,9 @@ namespace projections
                     case OBLIQ:
                         xy_y = 1. + this->m_proj_parm.sinX1 * sinphi + this->m_proj_parm.cosX1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10)
+                        if (xy_y <= EPS10) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         xy_x = (xy_y = this->m_proj_parm.akm1 / xy_y) * cosphi * sinlam;
                         xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
                            this->m_proj_parm.cosX1 * sinphi - this->m_proj_parm.sinX1 * cosphi * coslam;
@@ -261,8 +263,9 @@ namespace projections
                         lp_lat = - lp_lat;
                         BOOST_FALLTHROUGH;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < TOL)
+                        if (fabs(lp_lat - HALFPI) < TOL) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(FORTPI + .5 * lp_lat) );
                         xy_y *= coslam;
                         break;
@@ -329,6 +332,7 @@ namespace projections
                 else
                     proj_parm.mode = t > EPS10 ? OBLIQ : EQUIT;
                 proj_parm.phits = fabs(proj_parm.phits);
+
                 if (par.es != 0.0) {
                     T X;
 
@@ -382,7 +386,7 @@ namespace projections
                 static const T HALFPI = detail::HALFPI<T>();
 
                 proj_parm.phits = pj_param(par.params, "tlat_ts").i ?
-                        pj_param(par.params, "rlat_ts").f : HALFPI;
+                                  pj_param(par.params, "rlat_ts").f : HALFPI;
 
                 setup(par, proj_parm);
             }

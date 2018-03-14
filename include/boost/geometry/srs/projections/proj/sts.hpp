@@ -51,10 +51,10 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct kav5 {};
-    struct qua_aut {};
-    struct mbt_s {};
-    struct fouc {};
+    struct kav5 {};    // Kavraisky V
+    struct qua_aut {}; // Quartic Authalic
+    struct fouc {};    // Foucaut
+    struct mbt_s {};   // McBryde-Thomas Flat-Polar Sine (No. 1)
 
 }} //namespace srs::par4
 

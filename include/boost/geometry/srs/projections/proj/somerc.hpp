@@ -53,7 +53,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct somerc {};
+    struct somerc {}; // Swiss. Obl. Mercator
 
 }} //namespace srs::par4
 
@@ -134,8 +134,9 @@ namespace projections
                     if (i) {
                         lp_lat = phip;
                         lp_lon = lamp / this->m_proj_parm.c;
-                    } else
+                    } else {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    }
                 }
 
                 static inline std::string get_name()
