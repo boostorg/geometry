@@ -21,35 +21,6 @@
 
 // This implements the Quadrilateralized Spherical Cube (QSC) projection.
 // Copyright (c) 2011, 2012  Martin Lambers <marlam@marlam.de>
-// The QSC projection was introduced in:
-// [OL76]
-// E.M. O'Neill and R.E. Laubscher, "Extended Studies of a Quadrilateralized
-// Spherical Cube Earth Data Base", Naval Environmental Prediction Research
-// Facility Tech. Report NEPRF 3-76 (CSC), May 1976.
-// The preceding shift from an ellipsoid to a sphere, which allows to apply
-// this projection to ellipsoids as used in the Ellipsoidal Cube Map model,
-// is described in
-// [LK12]
-// M. Lambers and A. Kolb, "Ellipsoidal Cube Maps for Accurate Rendering of
-// Planetary-Scale Terrain Data", Proc. Pacfic Graphics (Short Papers), Sep.
-// 2012
-// You have to choose one of the following projection centers,
-// corresponding to the centers of the six cube faces:
-// phi0 = 0.0, lam0 = 0.0       ("front" face)
-// phi0 = 0.0, lam0 = 90.0      ("right" face)
-// phi0 = 0.0, lam0 = 180.0     ("back" face)
-// phi0 = 0.0, lam0 = -90.0     ("left" face)
-// phi0 = 90.0                  ("top" face)
-// phi0 = -90.0                 ("bottom" face)
-// Other projection centers will not work!
-// In the projection code below, each cube face is handled differently.
-// See the computation of the face parameter in the ENTRY0(qsc) function
-// and the handling of different face values (FACE_*) in the forward and
-// inverse projections.
-// Furthermore, the projection is originally only defined for theta angles
-// between (-1/4 * PI) and (+1/4 * PI) on the current cube face. This area
-// of definition is named AREA_0 in the projection code below. The other
-// three areas of a cube face are handled by rotation of AREA_0.
 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -69,6 +40,40 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// The QSC projection was introduced in:
+// [OL76]
+// E.M. O'Neill and R.E. Laubscher, "Extended Studies of a Quadrilateralized
+// Spherical Cube Earth Data Base", Naval Environmental Prediction Research
+// Facility Tech. Report NEPRF 3-76 (CSC), May 1976.
+
+// The preceding shift from an ellipsoid to a sphere, which allows to apply
+// this projection to ellipsoids as used in the Ellipsoidal Cube Map model,
+// is described in
+// [LK12]
+// M. Lambers and A. Kolb, "Ellipsoidal Cube Maps for Accurate Rendering of
+// Planetary-Scale Terrain Data", Proc. Pacfic Graphics (Short Papers), Sep.
+// 2012
+
+// You have to choose one of the following projection centers,
+// corresponding to the centers of the six cube faces:
+// phi0 = 0.0, lam0 = 0.0       ("front" face)
+// phi0 = 0.0, lam0 = 90.0      ("right" face)
+// phi0 = 0.0, lam0 = 180.0     ("back" face)
+// phi0 = 0.0, lam0 = -90.0     ("left" face)
+// phi0 = 90.0                  ("top" face)
+// phi0 = -90.0                 ("bottom" face)
+// Other projection centers will not work!
+
+// In the projection code below, each cube face is handled differently.
+// See the computation of the face parameter in the ENTRY0(qsc) function
+// and the handling of different face values (FACE_*) in the forward and
+// inverse projections.
+
+// Furthermore, the projection is originally only defined for theta angles
+// between (-1/4 * PI) and (+1/4 * PI) on the current cube face. This area
+// of definition is named AREA_0 in the projection code below. The other
+// three areas of a cube face are handled by rotation of AREA_0.
+
 #ifndef BOOST_GEOMETRY_PROJECTIONS_QSC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_QSC_HPP
 
@@ -85,7 +90,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct qsc {};
+    struct qsc {}; // Quadrilateralized Spherical Cube
 
 }} //namespace srs::par4
 
@@ -94,7 +99,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace qsc
     {
-            static const double EPS10 = 1.e-10;
+
             /* The six cube faces. */
             enum Face {
                 FACE_FRONT  = 0,
@@ -103,14 +108,6 @@ namespace projections
                 FACE_LEFT   = 3,
                 FACE_TOP    = 4,
                 FACE_BOTTOM = 5
-            };
-            /* The four areas on a cube face. AREA_0 is the area of definition,
-             * the other three areas are counted counterclockwise. */
-            enum Area {
-                AREA_0 = 0,
-                AREA_1 = 1,
-                AREA_2 = 2,
-                AREA_3 = 3
             };
 
             template <typename T>
@@ -123,10 +120,16 @@ namespace projections
                 T one_minus_f_squared;
             };
 
-            /* The six cube faces. */
+            static const double EPS10 = 1.e-10;
 
             /* The four areas on a cube face. AREA_0 is the area of definition,
              * the other three areas are counted counterclockwise. */
+            enum Area {
+                AREA_0 = 0,
+                AREA_1 = 1,
+                AREA_2 = 2,
+                AREA_3 = 3
+            };
 
             /* Helper function for forward projection: compute the theta angle
              * and determine the area number. */
@@ -137,26 +140,26 @@ namespace projections
                 static const T HALFPI = detail::HALFPI<T>();
                 static const T ONEPI = detail::ONEPI<T>();
 
-                    T theta;
-                    if (phi < EPS10) {
+                T theta;
+                if (phi < EPS10) {
+                    *area = AREA_0;
+                    theta = 0.0;
+                } else {
+                    theta = atan2(y, x);
+                    if (fabs(theta) <= FORTPI) {
                         *area = AREA_0;
-                        theta = 0.0;
+                    } else if (theta > FORTPI && theta <= HALFPI + FORTPI) {
+                        *area = AREA_1;
+                        theta -= HALFPI;
+                    } else if (theta > HALFPI + FORTPI || theta <= -(HALFPI + FORTPI)) {
+                        *area = AREA_2;
+                        theta = (theta >= 0.0 ? theta - ONEPI : theta + ONEPI);
                     } else {
-                        theta = atan2(y, x);
-                        if (fabs(theta) <= FORTPI) {
-                            *area = AREA_0;
-                        } else if (theta > FORTPI && theta <= HALFPI + FORTPI) {
-                            *area = AREA_1;
-                            theta -= HALFPI;
-                        } else if (theta > HALFPI + FORTPI || theta <= -(HALFPI + FORTPI)) {
-                            *area = AREA_2;
-                            theta = (theta >= 0.0 ? theta - ONEPI : theta + ONEPI);
-                        } else {
-                            *area = AREA_3;
-                            theta += HALFPI;
-                        }
+                        *area = AREA_3;
+                        theta += HALFPI;
                     }
-                    return (theta);
+                }
+                return theta;
             }
 
             /* Helper function: shift the longitude. */
@@ -389,7 +392,7 @@ namespace projections
                             }
                         } else {
                             /* Compute phi and lam via cartesian unit sphere coordinates. */
-                            CalculationType q, r, s, t;
+                            CalculationType q, r, s;
                             q = cosphi;
                             t = q * q;
                             if (t >= 1.0) {
@@ -470,26 +473,26 @@ namespace projections
                 static const T FORTPI = detail::FORTPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();
 
-                    /* Determine the cube face from the center of projection. */
-                    if (par.phi0 >= HALFPI - FORTPI / 2.0) {
-                        proj_parm.face = FACE_TOP;
-                    } else if (par.phi0 <= -(HALFPI - FORTPI / 2.0)) {
-                        proj_parm.face = FACE_BOTTOM;
-                    } else if (fabs(par.lam0) <= FORTPI) {
-                        proj_parm.face = FACE_FRONT;
-                    } else if (fabs(par.lam0) <= HALFPI + FORTPI) {
-                        proj_parm.face = (par.lam0 > 0.0 ? FACE_RIGHT : FACE_LEFT);
-                    } else {
-                        proj_parm.face = FACE_BACK;
-                    }
-                    /* Fill in useful values for the ellipsoid <-> sphere shift
-                     * described in [LK12]. */
-                    if (par.es != 0.0) {
-                        proj_parm.a_squared = par.a * par.a;
-                        proj_parm.b = par.a * sqrt(1.0 - par.es);
-                        proj_parm.one_minus_f = 1.0 - (par.a - proj_parm.b) / par.a;
-                        proj_parm.one_minus_f_squared = proj_parm.one_minus_f * proj_parm.one_minus_f;
-                    }
+                /* Determine the cube face from the center of projection. */
+                if (par.phi0 >= HALFPI - FORTPI / 2.0) {
+                    proj_parm.face = FACE_TOP;
+                } else if (par.phi0 <= -(HALFPI - FORTPI / 2.0)) {
+                    proj_parm.face = FACE_BOTTOM;
+                } else if (fabs(par.lam0) <= FORTPI) {
+                    proj_parm.face = FACE_FRONT;
+                } else if (fabs(par.lam0) <= HALFPI + FORTPI) {
+                    proj_parm.face = (par.lam0 > 0.0 ? FACE_RIGHT : FACE_LEFT);
+                } else {
+                    proj_parm.face = FACE_BACK;
+                }
+                /* Fill in useful values for the ellipsoid <-> sphere shift
+                 * described in [LK12]. */
+                if (par.es != 0.0) {
+                    proj_parm.a_squared = par.a * par.a;
+                    proj_parm.b = par.a * sqrt(1.0 - par.es);
+                    proj_parm.one_minus_f = 1.0 - (par.a - proj_parm.b) / par.a;
+                    proj_parm.one_minus_f_squared = proj_parm.one_minus_f * proj_parm.one_minus_f;
+                }
             }
 
     }} // namespace detail::qsc
