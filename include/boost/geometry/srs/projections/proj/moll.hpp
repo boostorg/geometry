@@ -53,9 +53,9 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct moll {};
-    struct wag4 {};
-    struct wag5 {};
+    struct moll {}; // Mollweide
+    struct wag4 {}; // Wagner IV
+    struct wag5 {}; // Wagner V
 
 }} //namespace srs::par4
 
