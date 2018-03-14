@@ -56,7 +56,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct omerc {};
+    struct omerc {}; // Oblique Mercator
 
 }} //namespace srs::par4
 
@@ -65,9 +65,6 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace omerc
     {
-            static const double TOL = 1.e-7;
-            static const double EPS = 1.e-10;
-
             template <typename T>
             struct par_omerc
             {
@@ -75,6 +72,9 @@ namespace projections
                 T   v_pole_n, v_pole_s, u_0;
                 int no_rot;
             };
+
+            static const double TOL = 1.e-7;
+            static const double EPS = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -97,24 +97,25 @@ namespace projections
                 {
                     static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                    CalculationType  Q, S, T, U, V, temp, u, v;
+                    CalculationType  S, T, U, V, W, temp, u, v;
 
                     if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
-                        Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
-                        temp = 1. / Q;
-                        S = .5 * (Q - temp);
-                        T = .5 * (Q + temp);
+                        W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
+                        temp = 1. / W;
+                        S = .5 * (W - temp);
+                        T = .5 * (W + temp);
                         V = sin(this->m_proj_parm.B * lp_lon);
                         U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
-                        if (fabs(fabs(U) - 1.0) < EPS)
+                        if (fabs(fabs(U) - 1.0) < EPS) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
-                                if(fabs(temp) < TOL) {
-                                    u = this->m_proj_parm.A * lp_lon;
-                                } else {
-                                    u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
-                                }
+                        if(fabs(temp) < TOL) {
+                            u = this->m_proj_parm.A * lp_lon;
+                        } else {
+                            u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
+                        }
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;
                         u = this->m_proj_parm.ArB * lp_lat;
@@ -154,8 +155,9 @@ namespace projections
                         lp_lat = Up < 0. ? -HALFPI : HALFPI;
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
-                        if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL)
+                        if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        }
                         lp_lon = - this->m_proj_parm.rB * atan2((Sp * this->m_proj_parm.cosgam -
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
                     }
@@ -182,9 +184,9 @@ namespace projections
                 int alp, gam, no_off = 0;
 
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
-                    if ((alp = pj_param(par.params, "talpha").i) != 0)
+                if ((alp = pj_param(par.params, "talpha").i) != 0)
                     alpha_c = pj_param(par.params, "ralpha").f;
-                    if ((gam = pj_param(par.params, "tgamma").i) != 0)
+                if ((gam = pj_param(par.params, "tgamma").i) != 0)
                     gamma = pj_param(par.params, "rgamma").f;
                 if (alp || gam) {
                     lamc    = pj_param(par.params, "rlonc").f;

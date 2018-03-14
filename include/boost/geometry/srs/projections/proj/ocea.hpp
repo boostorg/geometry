@@ -52,7 +52,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct ocea {};
+    struct ocea {}; // Oblique Cylindrical Equal Area
 
 }} //namespace srs::par4
 
