@@ -84,7 +84,7 @@ namespace projections
             struct par_cass
             {
                 T m0;
-                T en[EN_SIZE];
+                detail::en<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -200,8 +200,7 @@ namespace projections
             inline void setup_cass(Parameters& par, par_cass<T>& proj_parm)
             {
                 if (par.es) {
-                    if (!pj_enfn(par.es, proj_parm.en))
-                        BOOST_THROW_EXCEPTION( projection_exception(0) );
+                    proj_parm.en = pj_enfn<T>(par.es);
                     proj_parm.m0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                 } else {
                 }

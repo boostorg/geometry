@@ -93,7 +93,7 @@ namespace projections
                 T    rho0;
                 T    phi1;
                 T    phi2;
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 int  ellips;
             };
 
@@ -203,8 +203,7 @@ namespace projections
                 if( (proj_parm.ellips = (par.es > 0.))) {
                     T ml1, m1;
 
-                    if (!pj_enfn(par.es, proj_parm.en))
-                        BOOST_THROW_EXCEPTION( projection_exception(0) );
+                    proj_parm.en = pj_enfn<T>(par.es);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_qsfn(sinphi, par.e, par.one_es);
                     if (secant) { /* secant cone */

@@ -73,7 +73,7 @@ namespace projections
                 T cphi1;
                 T am1;
                 T m1;
-                T en[EN_SIZE];
+                detail::en<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -198,7 +198,7 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(-23) );
 
                 if (par.es) {
-                    pj_enfn(par.es, proj_parm.en);
+                    proj_parm.en = pj_enfn<T>(par.es);
                     proj_parm.m1 = pj_mlfn(proj_parm.phi1, proj_parm.am1 = sin(proj_parm.phi1),
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);

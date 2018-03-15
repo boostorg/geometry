@@ -75,7 +75,7 @@ namespace projections
                 T    n;
                 T    rho0;
                 T    c;
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 bool ellips;
             };
 
@@ -150,8 +150,7 @@ namespace projections
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
                     BOOST_THROW_EXCEPTION( projection_exception(-21) );
 
-                if (!pj_enfn(par.es, proj_parm.en))
-                    BOOST_THROW_EXCEPTION( projection_exception(0) );
+                proj_parm.en = pj_enfn<T>(par.es);
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);

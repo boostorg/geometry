@@ -74,7 +74,7 @@ namespace projections
             template <typename T>
             struct par_gn_sinu
             {
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 T    m, n, C_x, C_y;
             };
 
@@ -215,8 +215,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
-                if (!pj_enfn(par.es, proj_parm.en))
-                    BOOST_THROW_EXCEPTION( projection_exception(0) );
+                proj_parm.en = pj_enfn<T>(par.es);
 
                 if (par.es != 0.0) {
                     /* empty */

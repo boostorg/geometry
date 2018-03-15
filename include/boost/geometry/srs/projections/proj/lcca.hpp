@@ -114,7 +114,7 @@ namespace projections
             template <typename T>
             struct par_lcca
             {
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 T    r0, l, M0;
                 T    C;
             };
@@ -195,8 +195,7 @@ namespace projections
             {
                 T s2p0, N0, R0, tan0;
 
-                if (!pj_enfn(par.es, proj_parm.en))
-                    BOOST_THROW_EXCEPTION( projection_exception(0) );
+                proj_parm.en = pj_enfn<T>(par.es);
                 
                 if (par.phi0 == 0.) {
                     BOOST_THROW_EXCEPTION( projection_exception(-55) );

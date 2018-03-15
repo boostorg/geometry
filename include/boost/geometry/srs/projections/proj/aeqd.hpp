@@ -91,7 +91,7 @@ namespace projections
             {
                 T    sinph0;
                 T    cosph0;
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 T    M1;
                 T    N1;
                 T    Mp;
@@ -311,8 +311,7 @@ namespace projections
                 if (is_sphere) {
                     /* empty */
                 } else {
-                    if (!pj_enfn(par.es, proj_parm.en))
-                        BOOST_THROW_EXCEPTION( projection_exception(0) );
+                    proj_parm.en = pj_enfn<T>(par.es);
                     if (is_guam) {
                         proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
                     } else {

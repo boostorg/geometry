@@ -80,7 +80,7 @@ namespace projections
             {
                 T    P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2;
                 T    phi_1, phi_2, lam_1;
-                T    en[EN_SIZE];
+                detail::en<T> en;
                 enum Mode mode;
             };
 
@@ -227,8 +227,7 @@ namespace projections
                 T del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int err;
 
-                if (!pj_enfn(par.es, proj_parm.en))
-                    BOOST_THROW_EXCEPTION( projection_exception(0) );
+                proj_parm.en = pj_enfn<T>(par.es);
                 if( (err = phi12(par, proj_parm, &del, &sig)) != 0)
                     BOOST_THROW_EXCEPTION( projection_exception(err) );
                 if (proj_parm.phi_2 < proj_parm.phi_1) { /* make sure proj_parm.phi_1 most southerly */
