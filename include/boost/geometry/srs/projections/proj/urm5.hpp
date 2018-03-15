@@ -51,7 +51,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct urm5 {};
+    struct urm5 {}; // Urmaev V
 
 }} //namespace srs::par4
 

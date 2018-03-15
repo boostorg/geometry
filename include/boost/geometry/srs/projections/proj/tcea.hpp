@@ -50,7 +50,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct tcea {};
+    struct tcea {}; // Transverse Cylindrical Equal Area
 
 }} //namespace srs::par4
 

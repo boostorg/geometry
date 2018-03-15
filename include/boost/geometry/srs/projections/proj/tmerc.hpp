@@ -55,7 +55,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct tmerc {};
+    struct tmerc {}; // Transverse Mercator
 
 }} //namespace srs::par4
 

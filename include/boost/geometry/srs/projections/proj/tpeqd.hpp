@@ -54,7 +54,7 @@ namespace boost { namespace geometry
 
 namespace srs { namespace par4
 {
-    struct tpeqd {};
+    struct tpeqd {}; // Two Point Equidistant
 
 }} //namespace srs::par4
 
