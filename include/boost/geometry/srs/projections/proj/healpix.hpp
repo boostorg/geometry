@@ -83,7 +83,7 @@ namespace projections
                 int north_square;
                 int south_square;
                 T qp;
-                T apa[APA_SIZE];
+                detail::apa<T> apa;
             };
 
             template <typename T>
@@ -733,7 +733,7 @@ namespace projections
             inline void setup_healpix(Parameters& par, par_healpix<T>& proj_parm)
             {
                 if (par.es != 0.0) {
-                    pj_authset(par.es, proj_parm.apa); /* For auth_lat(). */
+                    proj_parm.apa = pj_authset<T>(par.es); /* For auth_lat(). */
                     proj_parm.qp = pj_qsfn(1.0, par.e, par.one_es); /* For auth_lat(). */
                     par.a = par.a*sqrt(0.5*proj_parm.qp); /* Set par.a to authalic radius. */
                     pj_calc_ellipsoid_params(par, par.a, par.es); /* Ensure we have a consistent parameter set */
@@ -755,7 +755,7 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(-47) );
                 }
                 if (par.es != 0.0) {
-                    pj_authset(par.es, proj_parm.apa); /* For auth_lat(). */
+                    proj_parm.apa = pj_authset<T>(par.es); /* For auth_lat(). */
                     proj_parm.qp = pj_qsfn(1.0, par.e, par.one_es); /* For auth_lat(). */
                     par.a = par.a*sqrt(0.5*proj_parm.qp); /* Set par.a to authalic radius. */
                     // TODO: why not the same as in healpix?

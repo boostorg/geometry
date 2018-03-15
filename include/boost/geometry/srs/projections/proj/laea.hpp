@@ -85,7 +85,7 @@ namespace projections
                 T   qp;
                 T   dd;
                 T   rq;
-                T   apa[APA_SIZE];
+                detail::apa<T> apa;
                 Mode mode;
             };
 
@@ -346,7 +346,7 @@ namespace projections
                     par.e = sqrt(par.es);
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
                     proj_parm.mmf = .5 / (1. - par.es);
-                    pj_authset(par.es, proj_parm.apa);
+                    proj_parm.apa = pj_authset<T>(par.es);
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:
