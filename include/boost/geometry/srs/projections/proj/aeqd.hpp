@@ -145,8 +145,6 @@ namespace projections
             template <typename T, typename Par, typename ProjParm>
             inline void e_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
-
                 T c;
 
                 if ((c = boost::math::hypot(xy_x, xy_y)) < EPS10) {

@@ -488,7 +488,6 @@ namespace projections
             inline void combine_caps(T& xy_x, T& xy_y, int north_square, int south_square,
                                      int inverse)
             {
-                static const T ONEPI = detail::ONEPI<T>();
                 static const T HALFPI = detail::HALFPI<T>();
                 static const T FORTPI = detail::FORTPI<T>();
 
