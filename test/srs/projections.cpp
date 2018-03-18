@@ -40,10 +40,12 @@
 
 namespace srs = bg::srs;
 
-inline void check(double v, double ve, std::string const& /*name*/, std::string const& /*axis*/)
+inline void check(double v, double ve, std::string const& name, std::string const& axis)
 {
-    // (non-existing) BOOST_CHECK_CLOSE_MESSAGE(v, ve, 0.001, "\n" << name << " " << axis << " -> " << v << " != " << ve);
-    BOOST_CHECK_CLOSE(v, ve, 0.001);
+    //BOOST_CHECK_CLOSE(v, ve, 0.001);
+
+    bool ok = ::boost::test_tools::check_is_close_t()(v, ve, ::boost::math::fpc::percent_tolerance(0.001));
+    BOOST_CHECK_MESSAGE((ok), name << " " << axis << " -> " << v << " != " << ve);
 }
 
 template <typename P>

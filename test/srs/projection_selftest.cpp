@@ -54,12 +54,16 @@ void test_projection(std::string const& id, std::string const& parameters,
             {
                 projUV pj_ll = {bg::get_as_radian<0>(fwd_in[i]), bg::get_as_radian<1>(fwd_in[i])};
                 projUV pj_xy = pj_fwd(pj_ll, pj_par);
-                bool same_as_pj = bg::get<0>(fwd_out) == pj_xy.u
-                               && bg::get<1>(fwd_out) == pj_xy.v;
+                //bool same_as_pj = bg::get<0>(fwd_out) == pj_xy.u
+                //               && bg::get<1>(fwd_out) == pj_xy.v;
+                double d1 = bg::math::abs(bg::get<0>(fwd_out) - pj_xy.u);
+                double d2 = bg::math::abs(bg::get<1>(fwd_out) - pj_xy.v);
+                double d = (std::max)(d1, d2);
+                bool same_as_pj = d < 1e-15;
                 BOOST_CHECK_MESSAGE((same_as_pj),
                                     std::setprecision(16) << "Result of " << id << " forward projection {"
                                     << bg::wkt(fwd_out) << "} different than Proj4 {POINT("
-                                    << pj_xy.u << " " << pj_xy.v << ")}");
+                                    << pj_xy.u << " " << pj_xy.v << ")} by " << d);
             }
 #endif
         }
@@ -86,12 +90,16 @@ void test_projection(std::string const& id, std::string const& parameters,
                 projUV pj_ll = pj_inv(pj_xy, pj_par);
                 pj_ll.u *= RAD_TO_DEG;
                 pj_ll.v *= RAD_TO_DEG;
-                bool same_as_pj = bg::get<0>(inv_out) == pj_ll.u
-                               && bg::get<1>(inv_out) == pj_ll.v;
+                //bool same_as_pj = bg::get<0>(inv_out) == pj_ll.u
+                //               && bg::get<1>(inv_out) == pj_ll.v;
+                double d1 = bg::math::abs(bg::get<0>(inv_out) - pj_ll.u);
+                double d2 = bg::math::abs(bg::get<1>(inv_out) - pj_ll.v);
+                double d = (std::max)(d1, d2);
+                bool same_as_pj = d < 1e-15;
                 BOOST_CHECK_MESSAGE((same_as_pj),
                                     std::setprecision(16) << "Result of " << id << " inverse projection {"
                                     << bg::wkt(inv_out) << "} different than Proj4 {POINT("
-                                    << pj_ll.u << " " << pj_ll.v << ")}");
+                                    << pj_ll.u << " " << pj_ll.v << ")} by " << d);
             }
 #endif
         }
