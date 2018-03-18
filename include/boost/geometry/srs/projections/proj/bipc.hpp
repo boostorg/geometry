@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -86,7 +86,7 @@ namespace projections
 
             struct par_bipc
             {
-                int    noskew;
+                bool    noskew;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -232,7 +232,7 @@ namespace projections
             template <typename Parameters>
             inline void setup_bipc(Parameters& par, par_bipc& proj_parm)
             {
-                proj_parm.noskew = pj_param(par.params, "bns").i;
+                proj_parm.noskew = pj_param_b(par.params, "ns");
                 par.es = 0.;
             }
 

@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -233,8 +233,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_aea(Parameters& par, par_aea<T>& proj_parm)
             {
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
+                proj_parm.phi1 = pj_param_r(par.params, "lat_1");
+                proj_parm.phi2 = pj_param_r(par.params, "lat_2");
                 setup(par, proj_parm);
             }
 
@@ -244,8 +244,8 @@ namespace projections
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
-                proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? -HALFPI : HALFPI;
+                proj_parm.phi2 = pj_param_r(par.params, "lat_1");
+                proj_parm.phi1 = pj_param_b(par.params, "south") ? -HALFPI : HALFPI;
                 setup(par, proj_parm);
             }
 

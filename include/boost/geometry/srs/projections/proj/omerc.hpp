@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -74,7 +74,7 @@ namespace projections
             {
                 T   A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
                 T   v_pole_n, v_pole_s, u_0;
-                int no_rot;
+                bool no_rot;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -182,29 +182,28 @@ namespace projections
                   gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0.0;
                 int alp, gam, no_off = 0;
 
-                proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
-                    if ((alp = pj_param(par.params, "talpha").i) != 0)
-                    alpha_c = pj_param(par.params, "ralpha").f;
-                    if ((gam = pj_param(par.params, "tgamma").i) != 0)
-                    gamma = pj_param(par.params, "rgamma").f;
+                // TODO: shouldn't here pj_param_b be called instead?
+                proj_parm.no_rot = pj_param_e(par.params, "no_rot");
+                alp = pj_param_r(par.params, "alpha", alpha_c);
+                gam = pj_param_r(par.params, "gamma", gamma);
                 if (alp || gam) {
-                    lamc    = pj_param(par.params, "rlonc").f;
-                    no_off =
-                                /* For libproj4 compatability */
-                                pj_param(par.params, "tno_off").i
-                                /* for backward compatibility */
-                                || pj_param(par.params, "tno_uoff").i;
+                    lamc   = pj_param_r(par.params, "lonc");
+                    no_off = /* For libproj4 compatability */
+                             pj_param_e(par.params, "no_off")
+                             /* for backward compatibility */
+                          || pj_param_e(par.params, "no_uoff");
                     if( no_off )
                     {
                         /* Mark the parameter as used, so that the pj_get_def() return them */
-                        pj_param(par.params, "sno_uoff");
-                        pj_param(par.params, "sno_off");
+                        // NOTE: Currently this has no effect
+                        pj_param_s(par.params, "no_uoff");
+                        pj_param_s(par.params, "no_off");
                     }
                 } else {
-                    lam1 = pj_param(par.params, "rlon_1").f;
-                    phi1 = pj_param(par.params, "rlat_1").f;
-                    lam2 = pj_param(par.params, "rlon_2").f;
-                    phi2 = pj_param(par.params, "rlat_2").f;
+                    lam1 = pj_param_r(par.params, "lon_1");
+                    phi1 = pj_param_r(par.params, "lat_1");
+                    lam2 = pj_param_r(par.params, "lon_2");
+                    phi2 = pj_param_r(par.params, "lat_2");
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
                         fabs(con - HALFPI) <= TOL ||

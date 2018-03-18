@@ -732,8 +732,8 @@ inline bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
     }
     else if( srcdefn.datum_type == PJD_GRIDSHIFT )
     {
-        return pj_param(srcdefn.params,"snadgrids").s
-            == pj_param(dstdefn.params,"snadgrids").s;
+        return pj_param_s(srcdefn.params, "nadgrids")
+            == pj_param_s(dstdefn.params, "nadgrids");
     }
     else
         return true;

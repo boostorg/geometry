@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -257,11 +257,11 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_geos(Parameters& par, par_geos<T>& proj_parm)
             {
-                if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.)
+                if ((proj_parm.h = pj_param_f(par.params, "h")) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-30) );
                 if (par.phi0)
                     BOOST_THROW_EXCEPTION( projection_exception(-46) );
-                proj_parm.sweep_axis = pj_param(par.params, "ssweep").s;
+                proj_parm.sweep_axis = pj_param_s(par.params, "sweep");
                 if (proj_parm.sweep_axis.empty())
                     proj_parm.flip_axis = 0;
                 else {

@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -199,9 +199,10 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
-                if (pj_param(par.params, "tn").i && pj_param(par.params, "tm").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
-                    proj_parm.m = pj_param(par.params, "dm").f;
+                T n = 0, m = 0;
+                if (pj_param_f(par.params, "n", n) && pj_param_f(par.params, "m", m)) {
+                    proj_parm.n = n;
+                    proj_parm.m = m;
                 } else
                     BOOST_THROW_EXCEPTION( projection_exception(-99) );
                 setup(par, proj_parm);

@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -192,13 +192,12 @@ namespace projections
                 static const T ONEPI = detail::ONEPI<T>();
 
                 int i, j;
-                char line[10];
+                static const std::string lats[3] = {"lat_1", "lat_2", "lat_3"};
+                static const std::string lons[3] = {"lon_1", "lon_2", "lon_3"};
 
                 for (i = 0; i < 3; ++i) { /* get control point locations */
-                    (void)sprintf(line, "rlat_%d", i+1);
-                    proj_parm.c[i].phi = pj_param(par.params, line).f;
-                    (void)sprintf(line, "rlon_%d", i+1);
-                    proj_parm.c[i].lam = pj_param(par.params, line).f;
+                    proj_parm.c[i].phi = pj_param_r(par.params, lats[i]);
+                    proj_parm.c[i].lam = pj_param_r(par.params, lons[i]);
                     proj_parm.c[i].lam = adjlon(proj_parm.c[i].lam - par.lam0);
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);

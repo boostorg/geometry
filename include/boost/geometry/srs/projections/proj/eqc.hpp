@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -108,7 +108,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
             {
-                if ((proj_parm.rc = cos(pj_param(par.params, "rlat_ts").f)) <= 0.)
+                if ((proj_parm.rc = cos(pj_param_r(par.params, "lat_ts"))) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 par.es = 0.;
             }

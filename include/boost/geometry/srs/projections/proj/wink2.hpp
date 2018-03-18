@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -129,7 +129,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_wink2(Parameters& par, par_wink2<T>& proj_parm)
             {
-                proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f);
+                proj_parm.cosphi1 = cos(pj_param_r(par.params, "lat_1"));
                 par.es = 0.;
             }
 

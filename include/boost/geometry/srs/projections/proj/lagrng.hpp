@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -122,10 +122,10 @@ namespace projections
             {
                 T phi1;
 
-                if ((proj_parm.rw = pj_param(par.params, "dW").f) <= 0)
+                if ((proj_parm.rw = pj_param_f(par.params, "W")) <= 0)
                     BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 proj_parm.hrw = 0.5 * (proj_parm.rw = 1. / proj_parm.rw);
-                phi1 = pj_param(par.params, "rlat_1").f;
+                phi1 = pj_param_r(par.params, "lat_1");
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
                     BOOST_THROW_EXCEPTION( projection_exception(-22) );
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);

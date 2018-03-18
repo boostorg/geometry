@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -134,11 +134,11 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_oea(Parameters& par, par_oea<T>& proj_parm)
             {
-                if (((proj_parm.n = pj_param(par.params, "dn").f) <= 0.) ||
-                    ((proj_parm.m = pj_param(par.params, "dm").f) <= 0.))
+                if (((proj_parm.n = pj_param_f(par.params, "n")) <= 0.) ||
+                    ((proj_parm.m = pj_param_f(par.params, "m")) <= 0.))
                     BOOST_THROW_EXCEPTION( projection_exception(-39) );
                 else {
-                    proj_parm.theta = pj_param(par.params, "rtheta").f;
+                    proj_parm.theta = pj_param_r(par.params, "theta");
                     proj_parm.sp0 = sin(par.phi0);
                     proj_parm.cp0 = cos(par.phi0);
                     proj_parm.rn = 1./ proj_parm.n;

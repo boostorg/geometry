@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -220,10 +220,11 @@ namespace projections
             inline void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
             {
                 static const T TWO_D_PI = detail::TWO_D_PI<T>();
+                T phi1 = 0.0;
 
                 proj_parm.mode = 1;
-                if (pj_param(par.params, "tlat_1").i) {
-                    if ((proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f)) == 0.)
+                if (pj_param_r(par.params, "lat_1", phi1)) {
+                    if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-22) );
                 } else /* 50d28' or phi1=acos(2/pi) */
                     proj_parm.cosphi1 = TWO_D_PI;

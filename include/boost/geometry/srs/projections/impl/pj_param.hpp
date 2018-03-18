@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -43,6 +43,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/srs/projections/exception.hpp>
+
 #include <boost/geometry/srs/projections/impl/dms_parser.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
@@ -54,6 +56,16 @@ namespace detail {
 
 
 /* create pvalue list entry */
+template <typename T>
+inline pvalue<T> pj_mkparam(std::string const& name, std::string const& value)
+{
+    pvalue<T> newitem;
+    newitem.param = name;
+    newitem.s = value;
+    //newitem.used = false;
+    return newitem;
+}
+
 template <typename T>
 inline pvalue<T> pj_mkparam(std::string const& str)
 {
@@ -67,92 +79,169 @@ inline pvalue<T> pj_mkparam(std::string const& str)
         name.erase(loc);
     }
 
-
-    pvalue<T> newitem;
-    newitem.param = name;
-    newitem.s = value;
-    newitem.used = 0;
-    newitem.i = atoi(value.c_str());
-    newitem.f = atof(value.c_str());
-    return newitem;
+    return pj_mkparam<T>(name, value);
 }
 
 /************************************************************************/
-/*                              pj_param()                              */
+/*                              pj_param_X()                            */
 /*                                                                      */
-/*      Test for presence or get pvalue value.  The first            */
-/*      character in `opt' is a pvalue type which can take the       */
-/*      values:                                                         */
+/*      Test for presence and/or get pvalue value.                      */
+/*      Where X can be:                                                 */
 /*                                                                      */
-/*       `t' - test for presence, return TRUE/FALSE in pvalue.i         */
-/*       `i' - integer value returned in pvalue.i                       */
-/*       `d' - simple valued real input returned in pvalue.f            */
-/*       `r' - degrees (DMS translation applied), returned as           */
-/*             radians in pvalue.f                                      */
-/*       `s' - string returned in pvalue.s                              */
-/*       `b' - test for t/T/f/F, return in pvalue.i                     */
+/*       `e' - test for presence, return true/false                     */
+/*       `i' - integral number, returned as int                         */
+/*       `f' - floating point number, returned as T                     */
+/*       `r' - radians, returned as T                                   */
+/*       `s' - string, returned as std::string                          */
+/*       `b' - boolean, test for t/T/f/F, returned as bool              */
 /*                                                                      */
 /************************************************************************/
 
+/* input exists */
 template <typename T>
-inline pvalue<T> pj_param(std::vector<pvalue<T> > const& pl, std::string opt)
+inline bool pj_param_e(std::vector<pvalue<T> > const& pl, std::string const& name)
 {
-    char type = opt[0];
-    opt.erase(opt.begin());
-
-    pvalue<T> value;
-
-    /* simple linear lookup */
     typedef typename std::vector<pvalue<T> >::const_iterator iterator;
     for (iterator it = pl.begin(); it != pl.end(); it++)
     {
-        if (it->param == opt)
+        if (it->param == name)
         {
-            //it->used = 1;
-            switch (type)
-            {
-            case 't':
-                value.i = 1;
-                break;
-            case 'i':    /* integer input */
-                value.i = atoi(it->s.c_str());
-                break;
-            case 'd':    /* simple real input */
-                value.f = atof(it->s.c_str());
-                break;
-            case 'r':    /* degrees input */
-                {
-                    dms_parser<T, true> parser;
-                    value.f = parser.apply(it->s.c_str()).angle();
-                }
-                break;
-            case 's':    /* char string */
-                value.s = it->s;
-                break;
-            case 'b':    /* boolean */
-                switch (it->s[0])
-                {
-                case 'F': case 'f':
-                    value.i = 0;
-                    break;
-                case '\0': case 'T': case 't':
-                    value.i = 1;
-                    break;
-                default:
-                    value.i = 0;
-                    break;
-                }
-                break;
-            }
-            return value;
+            return true;
         }
-
     }
 
-    value.i = 0;
-    value.f = 0.0;
-    value.s = "";
-    return value;
+    return false;
+}
+
+/* integer input */
+template <typename T>
+inline bool pj_param_i(std::vector<pvalue<T> > const& pl, std::string const& name, int & par)
+{
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
+    {
+        if (it->param == name)
+        {
+            //it->used = true;
+            par = atoi(it->s.c_str());
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <typename T>
+inline int pj_param_i(std::vector<pvalue<T> > const& pl, std::string const& name)
+{
+    int res = 0;
+    pj_param_i(pl, name, res);
+    return res;
+}
+
+/* floating point input */
+template <typename T>
+inline bool pj_param_f(std::vector<pvalue<T> > const& pl, std::string const& name, T & par)
+{
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
+    {
+        if (it->param == name)
+        {
+            //it->used = true;
+            par = atof(it->s.c_str());
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <typename T>
+inline T pj_param_f(std::vector<pvalue<T> > const& pl, std::string const& name)
+{
+    T res = 0;
+    pj_param_f(pl, name, res);
+    return res;
+}
+
+/* radians input */
+template <typename T>
+inline bool pj_param_r(std::vector<pvalue<T> > const& pl, std::string const& name, T & par)
+{
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
+    {
+        if (it->param == name)
+        {
+            //it->used = true;
+            dms_parser<T, true> parser;
+            par = parser.apply(it->s.c_str()).angle();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <typename T>
+inline T pj_param_r(std::vector<pvalue<T> > const& pl, std::string const& name)
+{
+    T res = 0;
+    pj_param_r(pl, name, res);
+    return res;
+}
+
+/* string input */
+template <typename T>
+inline bool pj_param_s(std::vector<pvalue<T> > const& pl, std::string const& name, std::string & par)
+{
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
+    {
+        if (it->param == name)
+        {
+            //it->used = true;
+            par = it->s;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <typename T>
+inline std::string pj_param_s(std::vector<pvalue<T> > const& pl, std::string const& name)
+{
+    std::string res;
+    pj_param_s(pl, name, res);
+    return res;
+}
+
+/* bool input */
+template <typename T>
+inline bool pj_param_b(std::vector<pvalue<T> > const& pl, std::string const& name)
+{
+    typedef typename std::vector<pvalue<T> >::const_iterator iterator;
+    for (iterator it = pl.begin(); it != pl.end(); it++)
+    {
+        if (it->param == name)
+        {
+            //it->used = true;
+            switch (it->s[0])
+            {
+            case '\0': case 'T': case 't':
+                return true;
+            case 'F': case 'f':
+                return false;
+            default:
+                BOOST_THROW_EXCEPTION( projection_exception(-8) );
+                return false;
+            }
+        }
+    }
+
+    return false;
 }
 
 } // namespace detail

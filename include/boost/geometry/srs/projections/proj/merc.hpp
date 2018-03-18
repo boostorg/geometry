@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -164,8 +164,8 @@ namespace projections
                 calc_t phits=0.0;
                 int is_phits;
 
-                if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
-                    phits = fabs(pj_param(par.params, "rlat_ts").f);
+                if( (is_phits = pj_param_r(par.params, "lat_ts", phits)) ) {
+                    phits = fabs(phits);
                     if (phits >= HALFPI)
                         BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 }

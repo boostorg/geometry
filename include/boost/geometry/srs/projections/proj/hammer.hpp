@@ -6,8 +6,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -123,13 +123,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
             {
-                if (pj_param(par.params, "tW").i) {
-                    if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.)
+                T p = 0;
+                if (pj_param_f(par.params, "W", p)) {
+                    if ((proj_parm.w = fabs(p)) <= 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.w = .5;
-                if (pj_param(par.params, "tM").i) {
-                    if ((proj_parm.m = fabs(pj_param(par.params, "dM").f)) <= 0.)
+                if (pj_param_f(par.params, "M", p)) {
+                    if ((proj_parm.m = fabs(p)) <= 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.m = 1.;

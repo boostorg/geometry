@@ -71,21 +71,21 @@ namespace detail
 template <typename BGParams, typename T>
 inline void pj_push_defaults(BGParams const& /*bg_params*/, parameters<T>& pin)
 {
-    pin.params.push_back(pj_mkparam<T>("ellps=WGS84"));
+    pin.params.push_back(pj_mkparam<T>("ellps", "WGS84"));
 
     if (pin.name == "aea")
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45.5 "));
     }
     else if (pin.name == "lcc")
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45"));
     }
     else if (pin.name == "lagrng")
     {
-        pin.params.push_back(pj_mkparam<T>("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W", "2"));
     }
 }
 
@@ -100,21 +100,21 @@ inline void pj_push_defaults(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL
         >::type proj_tag;
 
     // statically defaulting to WGS84
-    //pin.params.push_back(pj_mkparam("ellps=WGS84"));
+    //pin.params.push_back(pj_mkparam("ellps", "WGS84"));
 
     if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::aea>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45.5 "));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lcc>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45"));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lagrng>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W", "2"));
     }
 }
 
@@ -128,7 +128,7 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
                           T const& default_fr_meter)
 {
     std::string s;
-    std::string units = pj_param(params, sunits).s;
+    std::string units = pj_param_s(params, sunits);
     if (! units.empty())
     {
         const int n = sizeof(pj_units) / sizeof(pj_units[0]);
@@ -149,7 +149,7 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
 
     if (s.empty())
     {
-        s = pj_param(params, sto_meter).s;
+        s = pj_param_s(params, sto_meter);
     }
 
     if (! s.empty())
@@ -201,14 +201,14 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     }
 
     /* check if +init present */
-    if (pj_param(pin.params, "tinit").i)
-    {
-        // maybe TODO: handle "init" parameter
-        //if (!(curr = get_init(&arguments, curr, pj_param(pin.params, "sinit").s)))
-    }
+    // maybe TODO: handle "init" parameter
+    //if (pj_param_e(pin.params, "init"))
+    //{
+        //if (!(curr = get_init(&arguments, curr, pj_param_s(pin.params, "init"))))
+    //}
 
     // find projection -> implemented in projection factory
-    pin.name = pj_param(pin.params, "sproj").s;
+    pin.name = pj_param_s(pin.params, "proj");
     // exception thrown in projection<>
     // TODO: consider throwing here both projection_unknown_id_exception and
     // projection_not_named_exception in order to throw before other exceptions
@@ -217,7 +217,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
 
     // set defaults, unless inhibited
     // GL-Addition, if use_defaults is false then defaults are ignored
-    if (use_defaults && ! pj_param(pin.params, "bno_defs").i)
+    if (use_defaults && ! pj_param_b(pin.params, "no_defs"))
     {
         // proj4 gets defaults from "proj_def.dat", file of 94/02/23 with a few defaults.
         // Here manually
@@ -262,45 +262,46 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     }
 
     /* set pin.geoc coordinate system */
-    pin.geoc = (pin.es && pj_param(pin.params, "bgeoc").i);
+    pin.geoc = (pin.es && pj_param_b(pin.params, "geoc"));
 
     /* over-ranging flag */
-    pin.over = pj_param(pin.params, "bover").i;
+    pin.over = pj_param_b(pin.params, "over");
 
     /* longitude center for wrapping */
-    pin.is_long_wrap_set = pj_param(pin.params, "tlon_wrap").i != 0;
-    if (pin.is_long_wrap_set)
-        pin.long_wrap_center = pj_param(pin.params, "rlon_wrap").f;
+    pin.is_long_wrap_set = pj_param_r(pin.params, "lon_wrap", pin.long_wrap_center);
 
     /* central meridian */
-    pin.lam0 = pj_param(pin.params, "rlon_0").f;
+    pin.lam0 = pj_param_r(pin.params, "lon_0");
 
     /* central latitude */
-    pin.phi0 = pj_param(pin.params, "rlat_0").f;
+    pin.phi0 = pj_param_r(pin.params, "lat_0");
 
     /* false easting and northing */
-    pin.x0 = pj_param(pin.params, "dx_0").f;
-    pin.y0 = pj_param(pin.params, "dy_0").f;
+    pin.x0 = pj_param_f(pin.params, "x_0");
+    pin.y0 = pj_param_f(pin.params, "y_0");
 
     /* general scaling factor */
-    if (pj_param(pin.params, "tk_0").i)
-        pin.k0 = pj_param(pin.params, "dk_0").f;
-    else if (pj_param(pin.params, "tk").i)
-        pin.k0 = pj_param(pin.params, "dk").f;
-    else
-        pin.k0 = 1.;
-    if (pin.k0 <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-31) );
+    if (pj_param_f(pin.params, "k_0", pin.k0)
+     || pj_param_f(pin.params, "k", pin.k0))
+    {
+        if (pin.k0 <= 0.)
+        {
+            BOOST_THROW_EXCEPTION( projection_exception(-31) );
+        }
     }
-
+    else
+    {
+        pin.k0 = 1.;
+    }
+        
     /* set units */
-    pj_init_units(pin.params, "sunits", "sto_meter",
+    pj_init_units(pin.params, "units", "to_meter",
                   pin.to_meter, pin.fr_meter, 1., 1.);
-    pj_init_units(pin.params, "svunits", "svto_meter",
+    pj_init_units(pin.params, "vunits", "vto_meter",
                   pin.vto_meter, pin.vfr_meter, pin.to_meter, pin.fr_meter);
 
     /* prime meridian */
-    std::string pm = pj_param(pin.params, "spm").s;
+    std::string pm = pj_param_s(pin.params, "pm");
     if (! pm.empty())
     {
         std::string value;
