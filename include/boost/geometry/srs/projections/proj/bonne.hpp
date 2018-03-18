@@ -197,7 +197,7 @@ namespace projections
                 if (fabs(proj_parm.phi1) < EPS10)
                     BOOST_THROW_EXCEPTION( projection_exception(-23) );
 
-                if (par.es) {
+                if (par.es != 0.0) {
                     proj_parm.en = pj_enfn<T>(par.es);
                     proj_parm.m1 = pj_mlfn(proj_parm.phi1, proj_parm.am1 = sin(proj_parm.phi1),
                         c = cos(proj_parm.phi1), proj_parm.en);
