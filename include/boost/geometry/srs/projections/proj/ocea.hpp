@@ -136,10 +136,10 @@ namespace projections
                 proj_parm.rok = 1. / par.k0;
                 proj_parm.rtk = par.k0;
                 /*If the keyword "alpha" is found in the sentence then use 1point+1azimuth*/
-                if ( pj_param(par.params, "talpha").i) {
+                if ( pj_param_r(par.params, "alpha", alpha)) {
                     /*Define Pole of oblique transformation from 1 point & 1 azimuth*/
-                    alpha    = pj_param(par.params, "ralpha").f;
-                    lonz = pj_param(par.params, "rlonc").f;
+                    //alpha = pj_get_param_r(par.params, "alpha"); // set above
+                    lonz = pj_get_param_r(par.params, "lonc");
                     /*Equation 9-8 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan(-cos(alpha)/(-sin(phi_0) * sin(alpha))) + lonz;
                     /*Equation 9-7 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
@@ -147,10 +147,10 @@ namespace projections
                 /*If the keyword "alpha" is NOT found in the sentence then use 2points*/
                 } else {
                     /*Define Pole of oblique transformation from 2 points*/
-                    phi_1 = pj_param(par.params, "rlat_1").f;
-                    phi_2 = pj_param(par.params, "rlat_2").f;
-                    lam_1 = pj_param(par.params, "rlon_1").f;
-                    lam_2 = pj_param(par.params, "rlon_2").f;
+                    phi_1 = pj_get_param_r(par.params, "lat_1");
+                    phi_2 = pj_get_param_r(par.params, "lat_2");
+                    lam_1 = pj_get_param_r(par.params, "lon_1");
+                    lam_2 = pj_get_param_r(par.params, "lon_2");
                     /*Equation 9-1 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan2(cos(phi_1) * sin(phi_2) * cos(lam_1) -
                         sin(phi_1) * cos(phi_2) * cos(lam_2),

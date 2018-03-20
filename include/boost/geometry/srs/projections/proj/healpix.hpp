@@ -745,8 +745,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_rhealpix(Parameters& par, par_healpix<T>& proj_parm)
             {
-                proj_parm.north_square = pj_param(par.params,"inorth_square").i;
-                proj_parm.south_square = pj_param(par.params,"isouth_square").i;
+                proj_parm.north_square = pj_get_param_i(par.params, "north_square");
+                proj_parm.south_square = pj_get_param_i(par.params, "south_square");
                 /* Check for valid north_square and south_square inputs. */
                 if (proj_parm.north_square < 0 || proj_parm.north_square > 3) {
                     BOOST_THROW_EXCEPTION( projection_exception(-47) );

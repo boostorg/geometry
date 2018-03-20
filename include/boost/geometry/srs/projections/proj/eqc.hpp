@@ -107,7 +107,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
             {
-                if ((proj_parm.rc = cos(pj_param(par.params, "rlat_ts").f)) <= 0.)
+                if ((proj_parm.rc = cos(pj_get_param_r(par.params, "lat_ts"))) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 par.es = 0.;
             }

@@ -122,13 +122,13 @@ namespace projections
             {
                 T phi1;
 
-                proj_parm.rw = pj_param(par.params, "dW").f;
+                proj_parm.rw = pj_get_param_f(par.params, "W");
                 if (proj_parm.rw <= 0)
                     BOOST_THROW_EXCEPTION( projection_exception(-27) );
 
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
-                phi1 = pj_param(par.params, "rlat_1").f;
+                phi1 = pj_get_param_r(par.params, "lat_1");
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
                     BOOST_THROW_EXCEPTION( projection_exception(-22) );
 

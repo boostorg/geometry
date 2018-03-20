@@ -169,8 +169,8 @@ namespace projections
 
                 T beta;
 
-                proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
-                beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
+                proj_parm.no_cut = pj_get_param_b(par.params, "no_cut");
+                beta = 0.5 * (HALFPI - pj_get_param_r(par.params, "lat_b"));
                 if (fabs(beta) < EPS)
                     proj_parm.Cb = -0.5;
                 else {

@@ -84,7 +84,7 @@ namespace projections
                 Parameters pj = par;
 
                 /* get name of projection to be translated */
-                pj.name = pj_param(par.params, "so_proj").s;
+                pj.name = pj_get_param_s(par.params, "o_proj");
                 if (pj.name.empty())
                     BOOST_THROW_EXCEPTION( projection_exception(-26) );
 
@@ -233,34 +233,34 @@ namespace projections
             {
                 static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
 
-                CalculationType phip;
+                CalculationType phip, alpha;
 
                 par.es = 0.; /* force to spherical */
 
                 // proj_parm.link should be created at this point
 
-                if (pj_param(par.params, "to_alpha").i) {
-                    CalculationType lamc, phic, alpha;
+                if (pj_param_r(par.params, "o_alpha", alpha)) {
+                    CalculationType lamc, phic;
 
-                    lamc    = pj_param(par.params, "ro_lon_c").f;
-                    phic    = pj_param(par.params, "ro_lat_c").f;
-                    alpha    = pj_param(par.params, "ro_alpha").f;
+                    lamc    = pj_get_param_r(par.params, "o_lon_c");
+                    phic    = pj_get_param_r(par.params, "o_lat_c");
+                    //alpha   = pj_get_param_r(par.params, "o_alpha");
             
                     if (fabs(fabs(phic) - HALFPI) <= TOL)
                         BOOST_THROW_EXCEPTION( projection_exception(-33) );
 
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
-                } else if (pj_param(par.params, "to_lat_p").i) { /* specified new pole */
-                    proj_parm.lamp = pj_param(par.params, "ro_lon_p").f;
-                    phip = pj_param(par.params, "ro_lat_p").f;
+                } else if (pj_param_r(par.params, "o_lat_p", phip)) { /* specified new pole */
+                    proj_parm.lamp = pj_get_param_r(par.params, "o_lon_p");
+                    //phip = pj_param_r(par.params, "o_lat_p");
                 } else { /* specified new "equator" points */
                     CalculationType lam1, lam2, phi1, phi2, con;
 
-                    lam1 = pj_param(par.params, "ro_lon_1").f;
-                    phi1 = pj_param(par.params, "ro_lat_1").f;
-                    lam2 = pj_param(par.params, "ro_lon_2").f;
-                    phi2 = pj_param(par.params, "ro_lat_2").f;
+                    lam1 = pj_get_param_r(par.params, "o_lon_1");
+                    phi1 = pj_get_param_r(par.params, "o_lat_1");
+                    lam2 = pj_get_param_r(par.params, "o_lon_2");
+                    phi2 = pj_get_param_r(par.params, "o_lat_2");
                     if (fabs(phi1 - phi2) <= TOL || (con = fabs(phi1)) <= TOL ||
                         fabs(con - HALFPI) <= TOL || fabs(fabs(phi2) - HALFPI) <= TOL)
                         BOOST_THROW_EXCEPTION( projection_exception(-32) );

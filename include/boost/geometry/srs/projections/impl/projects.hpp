@@ -100,11 +100,8 @@ template <typename T>
 struct pvalue
 {
     std::string param;
-    int used;
-
-    int i;
-    T f;
     std::string s;
+    //int used;
 };
 
 template <typename T>

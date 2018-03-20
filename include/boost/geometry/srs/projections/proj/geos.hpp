@@ -264,13 +264,13 @@ namespace projections
             {
                 std::string sweep_axis;
 
-                if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.)
+                if ((proj_parm.h = pj_get_param_f(par.params, "h")) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(-30) );
 
                 if (par.phi0 != 0.0)
                     BOOST_THROW_EXCEPTION( projection_exception(-46) );
 
-                sweep_axis = pj_param(par.params, "ssweep").s;
+                sweep_axis = pj_get_param_s(par.params, "sweep");
                 if (sweep_axis.empty())
                     proj_parm.flip_axis = 0;
                 else {

@@ -140,10 +140,10 @@ namespace projections
                 T lam_1, lam_2, phi_1, phi_2, A12, pp;
 
                 /* get control point locations */
-                phi_1 = pj_param(par.params, "rlat_1").f;
-                lam_1 = pj_param(par.params, "rlon_1").f;
-                phi_2 = pj_param(par.params, "rlat_2").f;
-                lam_2 = pj_param(par.params, "rlon_2").f;
+                phi_1 = pj_get_param_r(par.params, "lat_1");
+                lam_1 = pj_get_param_r(par.params, "lon_1");
+                phi_2 = pj_get_param_r(par.params, "lat_2");
+                lam_2 = pj_get_param_r(par.params, "lon_2");
 
                 if (phi_1 == phi_2 && lam_1 == lam_2)
                     BOOST_THROW_EXCEPTION( projection_exception(-25) );

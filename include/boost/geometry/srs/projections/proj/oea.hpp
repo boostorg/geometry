@@ -133,11 +133,11 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_oea(Parameters& par, par_oea<T>& proj_parm)
             {
-                if (((proj_parm.n = pj_param(par.params, "dn").f) <= 0.) ||
-                    ((proj_parm.m = pj_param(par.params, "dm").f) <= 0.)) {
+                if (((proj_parm.n = pj_get_param_f(par.params, "n")) <= 0.) ||
+                    ((proj_parm.m = pj_get_param_f(par.params, "m")) <= 0.)) {
                     BOOST_THROW_EXCEPTION( projection_exception(-39) );
                 } else {
-                    proj_parm.theta = pj_param(par.params, "rtheta").f;
+                    proj_parm.theta = pj_get_param_r(par.params, "theta");
                     proj_parm.sp0 = sin(par.phi0);
                     proj_parm.cp0 = cos(par.phi0);
                     proj_parm.rn = 1./ proj_parm.n;

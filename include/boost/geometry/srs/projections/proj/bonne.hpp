@@ -193,7 +193,7 @@ namespace projections
 
                 T c;
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 if (fabs(proj_parm.phi1) < EPS10)
                     BOOST_THROW_EXCEPTION( projection_exception(-23) );
 

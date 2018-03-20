@@ -233,9 +233,11 @@ namespace projections
             {
                 static const T TWO_D_PI = detail::TWO_D_PI<T>();
 
+                T phi1;
+
                 proj_parm.mode = WINKEL_TRIPEL;
-                if (pj_param(par.params, "tlat_1").i) {
-                    if ((proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f)) == 0.)
+                if (pj_param_r(par.params, "lat_1", phi1)) {
+                    if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-22) );
                 } else /* 50d28' or phi1=acos(2/pi) */
                     proj_parm.cosphi1 = TWO_D_PI;

@@ -75,7 +75,7 @@ inline void pj_datum_add_defn(BGParams const& , std::vector<pvalue<T> >& pvalues
     /*      definition will last into the pj_ell_set() function called      */
     /*      after this one.                                                 */
     /* -------------------------------------------------------------------- */
-    std::string name = pj_param(pvalues, "sdatum").s;
+    std::string name = pj_get_param_s(pvalues, "datum");
     if(! name.empty())
     {
         /* find the datum definition */
@@ -153,8 +153,8 @@ inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pva
 /* -------------------------------------------------------------------- */
 /*      Check for nadgrids parameter.                                   */
 /* -------------------------------------------------------------------- */
-    std::string nadgrids = pj_param(pvalues, "snadgrids").s;
-    std::string towgs84 = pj_param(pvalues, "stowgs84").s;
+    std::string nadgrids = pj_get_param_s(pvalues, "nadgrids");
+    std::string towgs84 = pj_get_param_s(pvalues, "towgs84");
     if(! nadgrids.empty())
     {
         /* We don't actually save the value separately.  It will continue

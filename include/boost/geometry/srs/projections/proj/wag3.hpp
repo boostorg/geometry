@@ -113,7 +113,7 @@ namespace projections
             {
                 T ts;
 
-                ts = pj_param(par.params, "rlat_ts").f;
+                ts = pj_get_param_r(par.params, "lat_ts");
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
             }

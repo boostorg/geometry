@@ -234,7 +234,7 @@ namespace projections
             template <typename Parameters>
             inline void setup_bipc(Parameters& par, par_bipc& proj_parm)
             {
-                proj_parm.noskew = pj_param(par.params, "bns").i;
+                proj_parm.noskew = pj_get_param_b(par.params, "ns");
                 par.es = 0.;
             }
 

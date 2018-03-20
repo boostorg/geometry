@@ -167,12 +167,12 @@ namespace projections
                 T cosphi, sinphi;
                 int secant;
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                if (pj_param(par.params, "tlat_2").i)
-                    proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
-                else {
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
+                if (pj_param_r(par.params, "lat_2", proj_parm.phi2)) {
+                    /* empty */
+                } else {
                     proj_parm.phi2 = proj_parm.phi1;
-                    if (!pj_param(par.params, "tlat_0").i)
+                    if (!pj_param_exists(par.params, "lat_0"))
                         par.phi0 = proj_parm.phi1;
                 }
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)

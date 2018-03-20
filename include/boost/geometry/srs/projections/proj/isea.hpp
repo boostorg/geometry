@@ -1171,7 +1171,7 @@ namespace projections
             /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
                 /* calling library will scale, I think */
 
-                opt = pj_param(par.params, "sorient").s;
+                opt = pj_get_param_s(par.params, "orient");
                 if (! opt.empty()) {
                     if (opt == std::string("isea")) {
                         isea_orient_isea(&proj_parm.dgg);
@@ -1182,29 +1182,15 @@ namespace projections
                     }
                 }
 
-                if (pj_param(par.params, "tazi").i) {
-                    proj_parm.dgg.o_az = pj_param(par.params, "razi").f;
-                }
-
-                if (pj_param(par.params, "tlon_0").i) {
-                    proj_parm.dgg.o_lon = pj_param(par.params, "rlon_0").f;
-                }
-
-                if (pj_param(par.params, "tlat_0").i) {
-                    proj_parm.dgg.o_lat = pj_param(par.params, "rlat_0").f;
-                }
-
+                pj_param_r(par.params, "azi", proj_parm.dgg.o_az);
+                pj_param_r(par.params, "lon_0", proj_parm.dgg.o_lon);
+                pj_param_r(par.params, "lat_0", proj_parm.dgg.o_lat);
                 // TODO: this parameter is set below second time
-                if (pj_param(par.params, "taperture").i) {
-                    proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
-                }
-
+                pj_param_i(par.params, "aperture", proj_parm.dgg.aperture);
                 // TODO: this parameter is set below second time
-                if (pj_param(par.params, "tresolution").i) {
-                    proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
-                }
-
-                opt = pj_param(par.params, "smode").s;
+                pj_param_i(par.params, "resolution", proj_parm.dgg.resolution);
+                
+                opt = pj_get_param_s(par.params, "mode");
                 if (! opt.empty()) {
                     if (opt == std::string("plane")) {
                         proj_parm.dgg.output = ISEA_PLANE;
@@ -1223,18 +1209,19 @@ namespace projections
                     }
                 }
 
-                if (pj_param(par.params, "trescale").i) {
+                // TODO: pj_param_exists -> pj_get_param_b ?
+                if (pj_param_exists(par.params, "rescale")) {
                     proj_parm.dgg.radius = ISEA_SCALE;
                 }
 
-                if (pj_param(par.params, "tresolution").i) {
-                    proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
+                if (pj_param_i(par.params, "resolution", proj_parm.dgg.resolution)) {
+                    /* empty */
                 } else {
                     proj_parm.dgg.resolution = 4;
                 }
 
-                if (pj_param(par.params, "taperture").i) {
-                    proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
+                if (pj_param_i(par.params, "aperture", proj_parm.dgg.aperture)) {
+                    /* empty */
                 } else {
                     proj_parm.dgg.aperture = 3;
                 }
