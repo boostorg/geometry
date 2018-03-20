@@ -656,8 +656,12 @@ private:
         {
             typename other_compare<LessEqual>::type less_equal;
 
+            bool south = geometry::get<1>(p1) < 0 ? true : false;
+
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
+            //if (geometry::get<1>(p1) * geometry::get<1>(bottom_left) > 0 &&
+            //     (math::abs(geometry::get<1>(p1)) < math::abs(geometry::get<1>(bottom_left))))
             {
                 result = check_below_of_box
                          <
@@ -673,6 +677,9 @@ private:
 
             // the segment lies above the box
             if (geometry::get<1>(p0) > geometry::get<1>(top_right))
+            //if (geometry::get<1>(p0) * geometry::get<1>(top_right) < 0 ||
+            //   (math::abs(geometry::get<1>(p0)) > math::abs(geometry::get<1>(top_right))))
+
             {
                 result = std::min(above_of_box
                         <
@@ -920,6 +927,65 @@ public:
     }
 };
 
+//=========================================================================
+template <typename CS_Tag>
+struct mirror_geometries
+{
+    template <typename Point>
+    static void apply(Point& p0,
+                      Point& p1,
+                      Point& bottom_left,
+                      Point& bottom_right,
+                      Point& top_left,
+                      Point& top_right)
+    {}
+};
+
+template <>
+struct mirror_geometries<spherical_equatorial_tag>
+{
+    template <typename Point>
+    static void apply(Point& p0,
+                      Point& p1,
+                      Point& bottom_left,
+                      Point& bottom_right,
+                      Point& top_left,
+                      Point& top_right)
+    {
+        //if segment's vertex is the southest point then mirror geometries
+        if (geometry::get<1>(p0) + geometry::get<1>(p1) < 0)
+        {
+            Point bl = bottom_left;
+            Point br = bottom_right;
+            geometry::set<1>(p0, geometry::get<1>(p0) * -1);
+            geometry::set<1>(p1, geometry::get<1>(p1) * -1);
+            geometry::set<1>(bottom_left, geometry::get<1>(top_left) * -1);
+            geometry::set<1>(top_left, geometry::get<1>(bl) * -1);
+            geometry::set<1>(bottom_right, geometry::get<1>(top_right) * -1);
+            geometry::set<1>(top_right, geometry::get<1>(br) * -1);
+        }
+    }
+};
+
+template <>
+struct mirror_geometries<geographic_tag>
+{
+    template <typename Point>
+    static void apply(Point& p0,
+                      Point& p1,
+                      Point& bottom_left,
+                      Point& bottom_right,
+                      Point& top_left,
+                      Point& top_right)
+    {
+        return mirror_geometries<spherical_equatorial_tag>::apply(p0, p1,
+                                                                  bottom_left,
+                                                                  bottom_right,
+                                                                  top_left,
+                                                                  top_right);
+    }
+};
+
 
 //=========================================================================
 
@@ -1012,6 +1078,10 @@ public:
         box_point top_left, top_right, bottom_left, bottom_right;
         detail::assign_box_corners(box, bottom_left, bottom_right,
                                    top_left, top_right);
+
+        mirror_geometries<typename cs_tag<Box>::type>::apply(p[0], p[1],
+                                                             bottom_left, bottom_right,
+                                                             top_left, top_right);
 
         if (geometry::less<segment_point>()(p[0], p[1]))
         {
