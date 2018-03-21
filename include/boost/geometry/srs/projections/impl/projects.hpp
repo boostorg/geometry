@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -44,6 +44,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/config.hpp>
 #include <boost/geometry/srs/projections/exception.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/mpl/if.hpp>
@@ -104,97 +105,87 @@ struct pvalue
     //int used;
 };
 
-template <typename T>
-struct pj_const_pod
-{
-    int over;   /* over-range flag */
-    int geoc;   /* geocentric latitude flag */
-    int is_latlong; /* proj=latlong ... not really a projection at all */
-    int is_geocent; /* proj=geocent ... not really a projection at all */
-    T
-        a,  /* major axis or radius if es==0 */
-        a_orig, /* major axis before any +proj related adjustment */
-        es, /* e ^ 2 */
-        es_orig, /* es before any +proj related adjustment */
-        e,  /* eccentricity */
-        ra, /* 1/A */
-        one_es, /* 1 - e^2 */
-        rone_es, /* 1/one_es */
-        lam0, phi0, /* central longitude, latitude */
-        x0, y0, /* easting and northing */
-        k0,    /* general scaling factor */
-        to_meter, fr_meter, /* cartesian scaling */
-        vto_meter, vfr_meter;      /* Vertical scaling. Internal unit [m] */
+// Originally defined in proj_internal.h
+//enum pj_io_units {
+//    PJ_IO_UNITS_WHATEVER  = 0,  /* Doesn't matter (or depends on pipeline neighbours) */
+//    PJ_IO_UNITS_CLASSIC   = 1,  /* Scaled meters (right), projected system */
+//    PJ_IO_UNITS_PROJECTED = 2,  /* Meters, projected system */
+//    PJ_IO_UNITS_CARTESIAN = 3,  /* Meters, 3D cartesian system */
+//    PJ_IO_UNITS_ANGULAR   = 4   /* Radians */
+//};
 
-    int datum_type; /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
-    T  datum_params[7];
-    T  from_greenwich; /* prime meridian offset (in radians) */
-    T  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
-    bool    is_long_wrap_set;
-
-    // Initialize all variables to zero
-    pj_const_pod()
-    {
-        std::memset(this, 0, sizeof(pj_const_pod));
-    }
-};
+// Originally defined in proj_internal.h
+/* Maximum latitudinal overshoot accepted */
+//static const double PJ_EPS_LAT = 1e-12;
 
 template <typename T>
-struct pj_const_non_pod
+struct pj_consts
 {
-    int over;   /* over-range flag */
-    int geoc;   /* geocentric latitude flag */
-    int is_latlong; /* proj=latlong ... not really a projection at all */
-    int is_geocent; /* proj=geocent ... not really a projection at all */
-    T
-        a,  /* major axis or radius if es==0 */
-        a_orig, /* major axis before any +proj related adjustment */
-        es, /* e ^ 2 */
-        es_orig, /* es before any +proj related adjustment */
-        e,  /* eccentricity */
-        ra, /* 1/A */
-        one_es, /* 1 - e^2 */
-        rone_es, /* 1/one_es */
-        lam0, phi0, /* central longitude, latitude */
-        x0, y0, /* easting and northing */
-        k0,    /* general scaling factor */
-        to_meter, fr_meter, /* cartesian scaling */
-        vto_meter, vfr_meter;      /* Vertical scaling. Internal unit [m] */
+    // E L L I P S O I D     P A R A M E T E R S
 
-    int datum_type; /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
-    T  datum_params[7];
-    T  from_greenwich; /* prime meridian offset (in radians) */
-    T  long_wrap_center; /* 0.0 for -180 to 180, actually in radians*/
-    bool    is_long_wrap_set;
+    T a;                            /* semimajor axis (radius if eccentricity==0) */
+    T ra;                           /* 1/a */
 
-    // Initialize all variables to zero
-    pj_const_non_pod()
-        : over(0), geoc(0), is_latlong(0), is_geocent(0)
-        , a(0), a_orig(0), es(0), es_orig(0), e(0), ra(0)
-        , one_es(0), rone_es(0), lam0(0), phi0(0), x0(0), y0(0), k0(0)
-        , to_meter(0), fr_meter(0), vto_meter(0), vfr_meter(0)
+    T e;                            /* first  eccentricity */
+    T es;                           /* first  eccentricity squared */
+    T one_es;                       /* 1 - e^2 */
+    T rone_es;                      /* 1/one_es */
+
+    T es_orig, a_orig;              /* es and a before any +proj related adjustment */
+
+    // C O O R D I N A T E   H A N D L I N G
+
+    int over;                       /* over-range flag */
+    int geoc;                       /* geocentric latitude flag */
+    int is_latlong;                 /* proj=latlong ... not really a projection at all */
+    int is_geocent;                 /* proj=geocent ... not really a projection at all */
+    //int need_ellps;                 /* 0 for operations that are purely cartesian */
+
+    //enum pj_io_units left;          /* Flags for input/output coordinate types */
+    //enum pj_io_units right;
+
+    // C A R T O G R A P H I C       O F F S E T S
+
+    T lam0, phi0;                   /* central longitude, latitude */
+    T x0, y0/*, z0, t0*/;           /* false easting and northing (and height and time) */
+
+    // S C A L I N G
+
+    T k0;                           /* general scaling factor */
+    T to_meter, fr_meter;           /* cartesian scaling */
+    T vto_meter, vfr_meter;         /* Vertical scaling. Internal unit [m] */
+
+    // D A T U M S   A N D   H E I G H T   S Y S T E M S    
+
+    int datum_type;                 /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
+    T datum_params[7];              /* Parameters for 3PARAM and 7PARAM */
+
+    T from_greenwich;               /* prime meridian offset (in radians) */
+    T long_wrap_center;             /* 0.0 for -180 to 180, actually in radians*/
+    bool is_long_wrap_set;
+
+    // Initialize all variables
+    pj_consts()
+        : a(0), ra(0)
+        , e(0), es(0), one_es(0), rone_es(0)
+        , es_orig(0), a_orig(0)
+        , over(0), geoc(0), is_latlong(0), is_geocent(0)
+        //, need_ellps(1)
+        //, left(PJ_IO_UNITS_ANGULAR), right(PJ_IO_UNITS_CLASSIC)
+        , lam0(0), phi0(0)
+        , x0(0), y0(0)/*, z0(0), t0(0)*/
+        , k0(0) , to_meter(0), fr_meter(0), vto_meter(0), vfr_meter(0)
         , datum_type(PJD_UNKNOWN)
+#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+        , datum_params{0, 0, 0, 0, 0, 0, 0}
+#endif
         , from_greenwich(0), long_wrap_center(0), is_long_wrap_set(false)
     {
-        datum_params[0] = 0;
-        datum_params[1] = 0;
-        datum_params[2] = 0;
-        datum_params[3] = 0;
-        datum_params[4] = 0;
-        datum_params[5] = 0;
-        datum_params[6] = 0;
+#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+        std::fill(datum_params, datum_params + 7, T(0));
+#endif
     }
 };
-
-template <typename T>
-struct pj_const
-    : boost::mpl::if_c
-        <
-            boost::is_pod<T>::value,
-            pj_const_pod<T>,
-            pj_const_non_pod<T>
-        >::type
-{};
 
 // PROJ4 complex. Might be replaced with std::complex
 template <typename T>
@@ -257,7 +248,7 @@ struct FACTORS
     \ingroup projection
 */
 template <typename T>
-struct parameters : public detail::pj_const<T>
+struct parameters : public detail::pj_consts<T>
 {
     typedef T type;
 
