@@ -4,8 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -13,8 +14,6 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_ALGORITHMS_OVERLAY_TEST_GET_TURNS_HPP
 #define BOOST_GEOMETRY_TEST_ALGORITHMS_OVERLAY_TEST_GET_TURNS_HPP
@@ -34,27 +33,13 @@
 #include <boost/geometry/io/wkt/write.hpp>
 
 struct expected_pusher
+    : std::vector<std::string>
 {
-    void push_back(std::string const& ex)
-    {
-        vec.push_back(ex);
-    }
-
     expected_pusher & operator()(std::string const& ex)
     {
-        push_back(ex);
+        std::vector<std::string>::push_back(ex);
         return *this;
     }
-
-    typedef std::vector<std::string>::iterator iterator;
-    typedef std::vector<std::string>::const_iterator const_iterator;
-
-    iterator begin() { return vec.begin(); }
-    iterator end() { return vec.end(); }
-    const_iterator begin() const { return vec.begin(); }
-    const_iterator end() const { return vec.end(); }
-
-    std::vector<std::string> vec;
 };
 
 inline expected_pusher expected(std::string const& ex)
@@ -116,6 +101,65 @@ struct equal_turn
     const std::string * turn_ptr;
 };
 
+template <typename Turns>
+struct turns_printer
+{
+    turns_printer(Turns const& t) : turns(t) {}
+
+    friend std::ostream & operator<<(std::ostream & os, turns_printer const& tp)
+    {
+        std::vector<std::string> vec(tp.turns.size());
+        std::transform(tp.turns.begin(), tp.turns.end(), vec.begin(), to_string());
+        std::sort(vec.begin(), vec.end());
+        std::copy(vec.begin(), vec.end(), std::ostream_iterator<std::string>(os, " "));
+        return os;
+    }
+
+    struct to_string
+    {
+        template <typename P, typename R>
+        std::string operator()(bg::detail::overlay::turn_info<P, R, bg::detail::overlay::turn_operation<P, R> > const& t) const
+        {
+            std::string res(3, ' ');
+            res[0] = bg::method_char(t.method);
+            res[1] = bg::operation_char(t.operations[0].operation);
+            res[2] = bg::operation_char(t.operations[1].operation);
+            return res;
+        }
+
+        template <typename P, typename R>
+        std::string operator()(bg::detail::overlay::turn_info<P, R, bg::detail::overlay::turn_operation_linear<P, R> > const& t) const
+        {
+            std::string res(5, ' ');
+            res[0] = bg::method_char(t.method);
+            res[1] = bg::operation_char(t.operations[0].operation);
+            res[2] = bg::operation_char(t.operations[1].operation);
+            res[3] = equal_turn::is_colinear_char(t.operations[0].is_collinear);
+            res[4] = equal_turn::is_colinear_char(t.operations[1].is_collinear);
+            return res;
+        }
+    };
+
+    Turns const& turns;
+};
+
+template <>
+struct turns_printer<expected_pusher>
+{
+    turns_printer(expected_pusher const& t) : turns(t) {}
+
+    friend std::ostream & operator<<(std::ostream & os, turns_printer const& tp)
+    {
+        std::vector<std::string> vec(tp.turns.size());
+        std::copy(tp.turns.begin(), tp.turns.end(), vec.begin());
+        std::sort(vec.begin(), vec.end());
+        std::copy(vec.begin(), vec.end(), std::ostream_iterator<std::string>(os, " "));
+        return os;
+    }
+
+    expected_pusher const& turns;
+};
+
 template <typename Geometry1, typename Geometry2, typename Expected, typename Strategy>
 void check_geometry_range(Geometry1 const& g1,
                           Geometry2 const& g2,
@@ -146,7 +190,7 @@ void check_geometry_range(Geometry1 const& g1,
     typedef bg::detail::overlay::assign_null_policy assign_policy_t;
     typedef bg::detail::get_turns::no_interrupt_policy interrupt_policy_t;
 
-    std::vector<turn_info> turns;
+    std::vector<turn_info> detected;
     interrupt_policy_t interrupt_policy;
     robust_policy_type robust_policy;
     
@@ -161,65 +205,51 @@ void check_geometry_range(Geometry1 const& g1,
             typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
             Geometry1, Geometry2, false, false,
             turn_policy_t
-        >::apply(0, g1, 1, g2, strategy, robust_policy, turns, interrupt_policy);
+        >::apply(0, g1, 1, g2, strategy, robust_policy, detected, interrupt_policy);
 
-    bool ok = boost::size(expected) == turns.size();
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::vector<turn_info> turns_dbg = turns;
-#endif
+    bool ok = boost::size(expected) == detected.size();
 
     BOOST_CHECK_MESSAGE(ok,
         "get_turns: " << wkt1 << " and " << wkt2
-        << " -> Expected turns #: " << boost::size(expected) << " detected turns #: " << turns.size());
+        << " -> Expected turns #: " << boost::size(expected) << " detected turns #: " << detected.size());
 
-    for ( typename boost::range_iterator<Expected const>::type sit = boost::begin(expected) ;
-          sit != boost::end(expected) ; ++sit)
+    if (ok)
     {
-        typename std::vector<turn_info>::iterator
-            it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
+        std::vector<turn_info> turns = detected;
 
-        if ( it != turns.end() )
-            turns.erase(it);
-        else
+        for ( typename boost::range_iterator<Expected const>::type sit = boost::begin(expected) ;
+              sit != boost::end(expected) ; ++sit)
         {
-            ok = false;
-            BOOST_CHECK_MESSAGE(false,
-                "get_turns: " << wkt1 << " and " << wkt2
-                << " -> Expected turn: " << *sit << " not found");
+            typename std::vector<turn_info>::iterator
+                it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
+
+            if ( it != turns.end() )
+            {
+                turns.erase(it);
+            }
+            else
+            {
+                ok = false;
+                break;
+            }
         }
     }
 
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
     if ( !ok )
     {
+        BOOST_CHECK_MESSAGE(false,
+            "get_turns: " << wkt1 << " and " << wkt2
+            << " -> Expected turns: " << turns_printer<Expected>(expected)
+            << "Detected turns: " << turns_printer<std::vector<turn_info> >(detected));
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Coordinates: "
                   << typeid(typename bg::coordinate_type<Geometry1>::type).name()
                   << ", "
                   << typeid(typename bg::coordinate_type<Geometry2>::type).name()
                   << std::endl;
-        std::cout << "Detected: ";
-        if ( turns_dbg.empty() )
-        {
-            std::cout << "{empty}";
-        }
-        else
-        {
-            for ( typename std::vector<turn_info>::const_iterator it = turns_dbg.begin() ;
-                  it != turns_dbg.end() ; ++it )
-            {
-                if ( it != turns_dbg.begin() )
-                    std::cout << ", ";
-                std::cout << bg::method_char(it->method);
-                std::cout << bg::operation_char(it->operations[0].operation);
-                std::cout << bg::operation_char(it->operations[1].operation);
-                std::cout << equal_turn<1>::is_colinear_char(it->operations[0].is_collinear);
-                std::cout << equal_turn<1>::is_colinear_char(it->operations[1].is_collinear);
-            }
-        }
-        std::cout << std::endl;
-    }
 #endif
+    }
 }
 
 template <typename Geometry1, typename Geometry2, typename Expected>

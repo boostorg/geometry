@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -48,6 +48,8 @@
 #endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
 
 #include <boost/algorithm/string.hpp>
+
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 
@@ -127,8 +129,15 @@ struct dms_parser
         bool has_dms[3];
 
         dms_value()
+#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+            : dms{0, 0, 0}
+            , has_dms{false, false, false}
+#endif
         {
-            memset(this, 0, sizeof(dms_value));
+#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+            std::fill(dms, dms + 3, T(0));
+            std::fill(has_dms, has_dms + 3, false);
+#endif
         }
     };
 
@@ -157,6 +166,10 @@ struct dms_parser
         }
     }
 
+    dms_result<T> apply(std::string const& is) const
+    {
+        return apply(is.c_str());
+    }
 
     dms_result<T> apply(const char* is) const
     {
