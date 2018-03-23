@@ -33,6 +33,7 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
@@ -113,12 +114,15 @@ public:
 
         geometry::model::box<segment_point_type> box_seg;
 
+        geometry::envelope(segment,box_seg);
+        /*
         geometry::detail::envelope::envelope_segment_impl<segment_cs_type>
                 ::template apply<geometry::radian>(lon1, lat1,
                                                    lon2, lat2,
                                                    box_seg,
                                                    azimuth_strategy,
                                                    alp1);
+        */
         if (disjoint_box_box(box, box_seg))
         {
             return true;

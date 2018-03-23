@@ -316,14 +316,29 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
                   strategy_ps);
 
     //Box crossing equator
-    std::string const box_crossing = "BOX(10 -10,20 10)";
+    std::string const box_crossing_eq = "BOX(10 -10,20 10)";
 
-    tester::apply("test_cr1", "SEGMENT(10 20, 15 30)", box_crossing,
+    tester::apply("test_cr1", "SEGMENT(10 20, 15 30)", box_crossing_eq,
                   pp_distance("POINT(10 10)", "POINT(10 20)", strategy_pp),
                   strategy_ps);
-    tester::apply("test_cr2", "SEGMENT(10 -20, 15 -30)", box_crossing,
+    tester::apply("test_cr2", "SEGMENT(10 -20, 15 -30)", box_crossing_eq,
                   pp_distance("POINT(10 10)", "POINT(10 20)", strategy_pp),
                   strategy_ps);
+
+    //Box crossing prime meridian
+
+    std::string const box_crossing_mer = "BOX(-10 10,15 20)";
+
+    tester::apply("test_cr3", "SEGMENT(-5 25, 10 30)", box_crossing_mer,
+                  pp_distance("POINT(-5 25)", "POINT(-5 20)", strategy_pp),
+                  strategy_ps);
+    tester::apply("test_cr4", "SEGMENT(-5 5, 10 7)", box_crossing_mer,
+                  pp_distance("POINT(10 7)", "POINT(10 10)", strategy_pp),
+                  strategy_ps);
+    tester::apply("test_cr5", "SEGMENT(-5 5, 10 5)", box_crossing_mer,
+                  ps_distance("POINT(2.5 10)", "SEGMENT(-5 5, 10 5)", strategy_ps),
+                  strategy_ps);
+
 
     //Geometries in south hemisphere
     tester::apply("test_south1", "SEGMENT(10 -30, 15 -30)", box_south,

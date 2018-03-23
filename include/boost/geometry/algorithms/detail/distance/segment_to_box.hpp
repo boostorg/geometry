@@ -432,7 +432,7 @@ private:
             // (and inside its band)
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
-                std::cout << "pmax inside band\n";
+                //std::cout << "pmax inside band\n";
                 ReturnType diff =
                 //ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
 
@@ -570,7 +570,7 @@ private:
             CT lon2 = geometry::get_as_radian<0>(p1);
             CT lat2 = geometry::get_as_radian<1>(p1);
 
-            std::cout << "lat1=" << lat1 << " lat2=" << lat2<< std::endl;
+            //std::cout << "lat1=" << lat1 << " lat2=" << lat2<< std::endl;
 
             CT vertex_lat;
             CT lat_sum = lat1 + lat2;
@@ -585,7 +585,7 @@ private:
                 vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(mbr);
                 //b_lat_below = b_lat_max;
             }
-            std::cout << "vertex lat=" << vertex_lat * geometry::math::r2d<CT>() << std::endl;
+            //std::cout << "vertex lat=" << vertex_lat * geometry::math::r2d<CT>() << std::endl;
 
             CT alp1;
 
@@ -601,8 +601,8 @@ private:
                             alp1,
                             azimuth_strategy);
 
-            std::cout << "vertex lon=" << vertex_lon * geometry::math::r2d<CT>()
-                      << std::endl;
+            //std::cout << "vertex lon=" << vertex_lon * geometry::math::r2d<CT>()
+            //          << std::endl;
 
             SegmentPoint p_max(vertex_lon* geometry::math::r2d<CT>(),
                                vertex_lat* geometry::math::r2d<CT>());
@@ -627,12 +627,12 @@ private:
             }
             else
             {
-                std::cout << "p1=" << geometry::get<0>(p1) << ","
-                                   << geometry::get<1>(p1)
-                                   << " p_max="
-                                   << geometry::get<0>(p_max) << ","
-                                   << geometry::get<1>(p_max)
-                                   << std::endl;
+                //std::cout << "p1=" << geometry::get<0>(p1) << ","
+                //                   << geometry::get<1>(p1)
+                //                   << " p_max="
+                //                   << geometry::get<0>(p_max) << ","
+                //                   << geometry::get<1>(p_max)
+                //                   << std::endl;
                 result = above_of_box
                         <
                             typename other_compare<LessEqual>::type
