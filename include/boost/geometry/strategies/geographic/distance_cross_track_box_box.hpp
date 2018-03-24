@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -23,9 +24,9 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
@@ -88,7 +89,7 @@ public:
 #endif
 */
         typedef typename return_type<Box1, Box2>::type return_type;
-        return cross_track_box_box_generic
+        return details::cross_track_box_box_generic
                                        <return_type>::apply(box1, box2, Strategy());
     }
 };
@@ -147,7 +148,7 @@ struct get_comparable<geographic_cross_track_box_box<Strategy, Spheroid, Calcula
     typedef typename comparable_type<this_strategy>::type comparable_type;
 
 public:
-    static inline comparable_type apply(this_strategy const& strategy)
+    static inline comparable_type apply(this_strategy const& /*strategy*/)
     {
         return comparable_type();
     }

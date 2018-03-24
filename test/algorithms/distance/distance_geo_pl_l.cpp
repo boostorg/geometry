@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
 
-#include <boost/geometry/core/srs.hpp>
+#include <boost/geometry/srs/spheroid.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_geo_common.hpp"

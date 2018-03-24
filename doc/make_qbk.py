@@ -5,6 +5,9 @@
 #  Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 #  Copyright (c) 2009-2012 Mateusz Loskot (mateusz@loskot.net), London, UK
 #  Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland
+#
+#  Copyright (c) 2018, Oracle and/or its affiliates.
+#  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 # 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -75,6 +78,9 @@ def class_to_quickbook(section):
 def class_to_quickbook2(classname, section):
     run_command(cmd % ("classboost_1_1geometry_1_1" + classname, section))
 
+def srs_class_to_quickbook(section):
+    run_command(cmd % ("classboost_1_1geometry_1_1srs_1_1" + section.replace("_", "__"), "srs_" + section))
+
 def strategy_to_quickbook(section):
     p = section.find("::")
     ns = section[:p]
@@ -91,7 +97,7 @@ call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "crosses", "difference", "disjoint", "distance" 
+    , "convex_hull", "crosses", "densify", "difference", "disjoint", "distance" 
     , "envelope", "equals", "expand", "for_each", "is_empty"
     , "is_simple", "is_valid", "intersection", "intersects", "length"
     , "num_geometries", "num_interior_rings", "num_points"
@@ -119,14 +125,9 @@ models = ["point", "linestring", "box"
     , "polygon", "segment", "ring"
     , "multi_linestring", "multi_point", "multi_polygon", "referring_segment"]
 
+srs = ["spheroid"]
 
-strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
-    , "distance::pythagoras_point_box", "distance::haversine"
-    , "distance::cross_track", "distance::cross_track_point_box"
-    , "distance::projected_point"
-    , "within::winding", "within::franklin", "within::crossings_multiply"
-    , "area::surveyor", "area::spherical"
-    #, "area::geographic"
+strategies = ["area::cartesian", "area::spherical", "area::geographic"
     , "buffer::point_circle", "buffer::point_square"
     , "buffer::join_round", "buffer::join_miter"
     , "buffer::end_round", "buffer::end_flat"
@@ -134,8 +135,15 @@ strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "buffer::side_straight"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
+    , "densify::cartesian", "densify::geographic", "densify::spherical"
+    , "distance::pythagoras", "distance::pythagoras_box_box"
+    , "distance::pythagoras_point_box", "distance::haversine"
+    , "distance::cross_track", "distance::cross_track_point_box"
+    , "distance::projected_point"
+    , "within::winding", "within::franklin", "within::crossings_multiply"
     , "simplify::douglas_peucker"
-    , "side::side_by_triangle", "side::side_by_cross_track", "side::spherical_side_formula"
+    , "side::side_by_triangle", "side::side_by_cross_track"
+    , "side::spherical_side_formula", "side::geographic"
     , "transform::inverse_transformer", "transform::map_transformer"
     , "transform::rotate_transformer", "transform::scale_transformer"
     , "transform::translate_transformer", "transform::matrix_transformer"
@@ -167,6 +175,9 @@ for i in iterators:
 for i in models:
     model_to_quickbook(i)
    
+for i in srs:
+    srs_class_to_quickbook(i)
+
 for i in strategies:
     strategy_to_quickbook(i)
 

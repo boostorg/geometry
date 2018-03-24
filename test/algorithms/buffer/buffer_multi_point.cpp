@@ -153,7 +153,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_1_250k",
             mysql_report_2015_02_25_1, join, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(250000),
-            115058672879977.0, ut_settings(75.0 * tolerance));
+            115058672879977.0, ut_settings(150.0 * tolerance));
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Takes about 110 seconds in release mode
@@ -173,7 +173,7 @@ void test_many_points_per_circle()
             "mysql_report_2015_02_25_2",
             mysql_report_2015_02_25_2, join, end_flat,
             distance_strategy(5666962), side_strategy, point_circle(46641),
-            100891031341795.0, ut_settings(3.0 * tolerance));
+            100891031341795.0, ut_settings(200.0 * tolerance));
 
     // Multipoint b with large distances/many points
     // Area ~> pi * 10x
@@ -187,7 +187,7 @@ void test_many_points_per_circle()
             "multipoint_b_50k",
             multipoint_b, join, end_flat,
             distance_strategy(1000000), side_strategy, point_circle(50000),
-            3141871558227.0, ut_settings(10.0 * tolerance));
+            3141871558227.0, ut_settings(40.0 * tolerance));
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
     // Tests optimization min/max radius

@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
   Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2014, 2017.
-  Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2014, 2017, 2018.
+  Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -45,6 +45,7 @@
 
 [section:adapted Adapted models]
 [include reference/geometries/adapted/c_array.qbk]
+[include reference/geometries/adapted/std_array.qbk]
 [include reference/geometries/adapted/boost_array.qbk]
 [include reference/geometries/adapted/boost_fusion.qbk]
 [include reference/geometries/adapted/boost_tuple.qbk]
@@ -100,6 +101,10 @@
 
 [section:crosses crosses]
 [include generated/crosses.qbk]
+[endsect]
+
+[section:densify densify]
+[include generated/densify.qbk]
 [endsect]
 
 [section:difference difference]
@@ -330,18 +335,14 @@
 
 [endsect]
 
+[section:srs SRS]
+[include generated/srs_spheroid.qbk]
+[endsect]
 
 [section:strategies Strategies]
-[include generated/distance_pythagoras.qbk]
-[include generated/distance_pythagoras_box_box.qbk]
-[include generated/distance_pythagoras_point_box.qbk]
-[include generated/distance_haversine.qbk]
-[include generated/distance_projected_point.qbk]
-[include generated/distance_cross_track.qbk]
-[include generated/distance_cross_track_point_box.qbk]
-[include generated/area_surveyor.qbk]
+[include generated/area_cartesian.qbk]
 [include generated/area_spherical.qbk]
-[/include generated/area_geographic.qbk]
+[include generated/area_geographic.qbk]
 [include generated/buffer_join_round.qbk]
 [include generated/buffer_join_miter.qbk]
 [include generated/buffer_end_round.qbk]
@@ -354,9 +355,20 @@
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
 [include generated/convex_hull_graham_andrew.qbk]
+[include generated/densify_cartesian.qbk]
+[include generated/densify_geographic.qbk]
+[include generated/densify_spherical.qbk]
+[include generated/distance_pythagoras.qbk]
+[include generated/distance_pythagoras_box_box.qbk]
+[include generated/distance_pythagoras_point_box.qbk]
+[include generated/distance_haversine.qbk]
+[include generated/distance_projected_point.qbk]
+[include generated/distance_cross_track.qbk]
+[include generated/distance_cross_track_point_box.qbk]
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
 [include generated/side_spherical_side_formula.qbk]
+[include generated/side_geographic.qbk]
 [include generated/simplify_douglas_peucker.qbk]
 [include generated/transform_inverse_transformer.qbk]
 [include generated/transform_map_transformer.qbk]

@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,8 +16,9 @@
 #include <algorithm>
 
 // Boost
-#include <boost/tuple/tuple.hpp>
+#include <boost/container/new_allocator.hpp>
 #include <boost/move/move.hpp>
+#include <boost/tuple/tuple.hpp>
 
 // Boost.Geometry
 #include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
@@ -149,7 +150,7 @@ template
     typename Parameters,
     typename IndexableGetter = index::indexable<Value>,
     typename EqualTo = index::equal_to<Value>,
-    typename Allocator = std::allocator<Value>
+    typename Allocator = boost::container::new_allocator<Value>
 >
 class rtree
 {

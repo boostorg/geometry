@@ -36,6 +36,8 @@
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
 #include <boost/geometry/strategies/cartesian/side_of_intersection.hpp>
+#else
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #endif
 
 

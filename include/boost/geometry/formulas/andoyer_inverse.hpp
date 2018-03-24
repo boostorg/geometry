@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2015-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -15,7 +17,6 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/radius.hpp>
-#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -116,7 +117,7 @@ public:
 
             CT const dd = -(f/CT(4))*(H*K+G*L);
 
-            CT const a = get_radius<0>(spheroid);
+            CT const a = CT(get_radius<0>(spheroid));
 
             result.distance = a * (d + dd);
         }
@@ -219,10 +220,12 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
         {
+            CT const b = CT(get_radius<2>(spheroid));
+
             typedef differential_quantities<CT, EnableReducedLength, EnableGeodesicScale, 1> quantities;
             quantities::apply(dlon, sin_lat1, cos_lat1, sin_lat2, cos_lat2,
                               result.azimuth, result.reverse_azimuth,
-                              get_radius<2>(spheroid), f,
+                              b, f,
                               result.reduced_length, result.geodesic_scale);
         }
 

@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -26,7 +27,7 @@
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
-#include <boost/geometry/strategies/distance_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
@@ -89,7 +90,7 @@ public:
 
         typedef typename return_type<Point, Box>::type return_type;
 
-        return cross_track_point_box_generic
+        return details::cross_track_point_box_generic
                         <return_type>::apply(point, box, Strategy());
     }
 };
@@ -174,12 +175,10 @@ public:
     static inline return_type apply(this_strategy const& strategy,
                                     T const& distance)
     {
-        Strategy s();
-
         result_from_distance
             <
                 Strategy, P, typename point_type<Box>::type
-            >::apply(s, distance);
+            >::apply(strategy, distance);
     }
 };
 
