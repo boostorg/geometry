@@ -52,7 +52,12 @@ public :
         return m_spheroid;
     }
 
-    template <typename T>
+    template
+    <
+        bool EnableAzimuth = true,
+        bool EnableReverseAzimuth = true,
+        typename T
+    >
     inline void apply(T const& lon1_rad, T const& lat1_rad,
                       T const& lon2_rad, T const& lat2_rad,
                       T& a1, T& a2) const
@@ -60,15 +65,29 @@ public :
         typedef typename boost::mpl::if_
             <
                 boost::is_void<CalculationType>, T, CalculationType
-            >::type calc_t;            
+            >::type calc_t;
 
-        typedef typename FormulaPolicy::template inverse<calc_t, false, true, true, false, false> inverse_type;
+        typedef typename FormulaPolicy::template inverse
+        <
+            calc_t,
+            false,
+            EnableAzimuth,
+            EnableReverseAzimuth,
+            false,
+            false
+        > inverse_type;
         typedef typename inverse_type::result_type inverse_result;
         inverse_result i_res = inverse_type::apply(calc_t(lon1_rad), calc_t(lat1_rad),
                                                    calc_t(lon2_rad), calc_t(lat2_rad),
                                                    m_spheroid);
-        a1 = i_res.azimuth;
-        a2 = i_res.reverse_azimuth;
+        if (EnableAzimuth)
+        {
+            a1 = i_res.azimuth;
+        }
+        if (EnableReverseAzimuth)
+        {
+            a2 = i_res.reverse_azimuth;
+        }
     }
 
     template <typename T>
@@ -76,17 +95,7 @@ public :
                       T const& lon2_rad, T const& lat2_rad,
                       T& a1) const
     {
-        typedef typename boost::mpl::if_
-                <
-                    boost::is_void<CalculationType>, T, CalculationType
-                >::type calc_t;
-
-        typedef typename FormulaPolicy::template inverse<calc_t, false, true, false, false, false> inverse_type;
-        typedef typename inverse_type::result_type inverse_result;
-        inverse_result i_res = inverse_type::apply(calc_t(lon1_rad), calc_t(lat1_rad),
-                                                   calc_t(lon2_rad), calc_t(lat2_rad),
-                                                   m_spheroid);
-        a1 = i_res.azimuth;
+        apply<true, false>(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a1);
     }
 
 private :
