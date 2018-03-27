@@ -571,8 +571,8 @@ struct buffered_piece_collection
             const buffer_turn_info_type& turn = *it;
             if (turn.location == location_ok)
             {
-                const buffer_turn_operation_type& op0 = turn.operations[0];
-                const buffer_turn_operation_type& op1 = turn.operations[1];
+                buffer_turn_operation_type const& op0 = turn.operations[0];
+                buffer_turn_operation_type const& op1 = turn.operations[1];
 
                 if (! m_pieces[op0.seg_id.piece_index].is_deflated
                  || ! m_pieces[op1.seg_id.piece_index].is_deflated)
@@ -585,7 +585,7 @@ struct buffered_piece_collection
                 // It is deflated, update counts
                 for (int i = 0; i < 2; i++)
                 {
-                    const buffer_turn_operation_type& op = turn.operations[i];
+                    buffer_turn_operation_type const& op = turn.operations[i];
                     if (op.operation == detail::overlay::operation_union
                         || op.operation == detail::overlay::operation_continue)
                     {
@@ -602,15 +602,19 @@ struct buffered_piece_collection
 
             if (turn.location == location_ok)
             {
-                const buffer_turn_operation_type& op0 = turn.operations[0];
-                const buffer_turn_operation_type& op1 = turn.operations[1];
+                buffer_turn_operation_type const& op0 = turn.operations[0];
+                buffer_turn_operation_type const& op1 = turn.operations[1];
                 signed_size_type const multi0 = op0.seg_id.multi_index;
                 signed_size_type const multi1 = op1.seg_id.multi_index;
 
                 if (multi0 == multi1)
                 {
-                    const deflate_properties& prop =  properties[multi0];
-                    if (! prop.has_inflated && prop.count < 3)
+                    deflate_properties const& prop = properties[multi0];
+
+                    // NOTE: Keep brackets around prop.count
+                    // avoid gcc-bug "parse error in template argument list"
+                    // GCC versions 5.4 and 5.5 (and probably more)
+                    if (! prop.has_inflated && (prop.count) < 3)
                     {
                         // Property is not inflated
                         // Not enough points, this might be caused by <float> where
