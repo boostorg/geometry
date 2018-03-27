@@ -610,7 +610,11 @@ struct buffered_piece_collection
                 if (multi0 == multi1)
                 {
                     const deflate_properties& prop =  properties[multi0];
-                    if (! prop.has_inflated && prop.count < 3)
+
+                    // NOTE: Keep brackets around prop.count
+                    // avoid gcc-bug "parse error in template argument list"
+                    // GCC versions 5.4 and 5.5 (and probably more)
+                    if (! prop.has_inflated && (prop.count) < 3)
                     {
                         // Property is not inflated
                         // Not enough points, this might be caused by <float> where
