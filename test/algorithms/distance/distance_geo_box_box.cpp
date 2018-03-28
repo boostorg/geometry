@@ -8,6 +8,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_box_box
 #endif
@@ -235,12 +237,22 @@ void test_distance_box_box(Strategy_pp const& strategy_pp,
                   strategy_bb);
 
     // case 10
-    tester::apply("bb10", box1, "BOX(4 18, 8 22)",
+    tester::apply("bb10a", box1, "BOX(4 18, 8 22)",
                   ps_distance("POINT(10 20)", "SEGMENT(8 18, 8 22)", strategy_ps),
                   strategy_bb);
 
-    tester::apply("bb10", box1, "BOX(4 20, 8 22)",
+    std::string const box1m = "BOX(10 -20,20 -10)";
+    tester::apply("bb10am", box1m, "BOX(4 -22, 8 -18)",
+                  ps_distance("POINT(10 20)", "SEGMENT(8 18, 8 22)", strategy_ps),
+                  strategy_bb);
+
+    tester::apply("bb10b", box1, "BOX(4 20, 8 22)",
                   ps_distance("POINT(10 20)", "SEGMENT(8 20, 8 22)", strategy_ps),
+                  strategy_bb);
+
+    tester::apply("bb10bm", box1m, "BOX(4 -22, 8 -20)",
+                  ps_distance("POINT(10 20)", "SEGMENT(8 22, 8 20)", strategy_ps),
+                  //ps_distance("POINT(10 -20)", "SEGMENT(8 -20, 8 -22)", strategy_ps),
                   strategy_bb);
 
     // case 11
@@ -297,6 +309,14 @@ void test_distance_box_box(Strategy_pp const& strategy_pp,
 
     tester::apply("bb-eq1", "BOX(30 -15, 40 30)", "BOX(10 -20, 20 25)",
                   ps_distance("POINT(20 25)", "SEGMENT(30 -15, 30 30)", strategy_ps),
+                  strategy_bb);
+
+    tester::apply("bb-eq1b", "BOX(30 -15, 40 30)", "BOX(10 -20, 20 10)",
+                  ps_distance("POINT(30 -15)", "SEGMENT(20 10, 20 -20)", strategy_ps),
+                  strategy_bb);
+
+    tester::apply("bb-eq1bm", "BOX(30 -30, 40 15)", "BOX(10 -10, 20 20)",
+                  ps_distance("POINT(30 15)", "SEGMENT(20 -10, 20 20)", strategy_ps),
                   strategy_bb);
 
     tester::apply("bb-eq2", "BOX(30 -15, 40 20)", "BOX(10 -20, 20 25)",

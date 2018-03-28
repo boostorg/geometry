@@ -44,6 +44,31 @@ class cross_track_box_box_generic
 {
 public :
 
+    template <typename Point, typename Strategy>
+    ReturnType static inline diagonal_case(Point topA,
+                                           Point topB,
+                                           Point bottomA,
+                                           Point bottomB,
+                                           bool north_shortest,
+                                           bool non_overlap,
+                                           Strategy ps_strategy)
+    {
+        if (north_shortest && non_overlap)
+        {
+            return ps_strategy.get_distance_strategy().apply(topA, bottomB);
+        }
+        if (north_shortest && !non_overlap)
+        {
+            return ps_strategy.apply(topA, topB, bottomB);
+        }
+        if (!north_shortest && non_overlap)
+        {
+            return ps_strategy.get_distance_strategy().apply(bottomA, topB);
+        }
+        return ps_strategy.apply(bottomA, topB, bottomB);
+    }
+
+
     template
     <
             typename Box1,
@@ -162,9 +187,12 @@ public :
         ReturnType bottom_common = (std::max)(lat_min1, lat_min2);
 
         // true if the closest points are on northern hemisphere
-        bool north_shortest = math::abs(top_common) > math::abs(bottom_common)
-                || lat_max1 <= lat_min2
-                || lat_min1 >= lat_max2;
+        bool north_shortest = top_common + bottom_common > 0;
+                //|| top_common < bottom_common;
+                //math::abs(top_common) > math::abs(bottom_common)
+                //|| lat_max1 <= lat_min2
+                //|| lat_min1 >= lat_max2;
+        bool non_overlap = top_common < bottom_common;
 
         if (north_shortest)
         {
@@ -183,6 +211,10 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(bottom left)";
 #endif
+            return diagonal_case(top_right2, top_left1,
+                                 bottom_right2, bottom_left1,
+                                 north_shortest, non_overlap,
+                                 ps_strategy);
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right2, top_left1, bottom_left1);
@@ -194,6 +226,10 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(bottom right)";
 #endif
+            return diagonal_case(top_left2, top_right1,
+                                 bottom_left2, bottom_right1,
+                                 north_shortest, non_overlap,
+                                 ps_strategy);
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left2, top_right1, bottom_right1);
@@ -205,6 +241,10 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(top left)";
 #endif
+            return diagonal_case(top_left1, top_right2,
+                                 bottom_left1, bottom_right2,
+                                 north_shortest, non_overlap,
+                                 ps_strategy);
             if (north_shortest)
             {
                 return ps_strategy.apply(top_left1, top_right2, bottom_right2);
@@ -216,6 +256,10 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(top right)";
 #endif
+            return diagonal_case(top_right1, top_left2,
+                                 bottom_right1, bottom_left2,
+                                 north_shortest, non_overlap,
+                                 ps_strategy);
             if (north_shortest)
             {
                 return ps_strategy.apply(top_right1, top_left2, bottom_left2);
