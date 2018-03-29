@@ -188,10 +188,7 @@ public :
 
         // true if the closest points are on northern hemisphere
         bool north_shortest = top_common + bottom_common > 0;
-                //|| top_common < bottom_common;
-                //math::abs(top_common) > math::abs(bottom_common)
-                //|| lat_max1 <= lat_min2
-                //|| lat_min1 >= lat_max2;
+        // true if box bands do not overlap
         bool non_overlap = top_common < bottom_common;
 
         if (north_shortest)
@@ -215,11 +212,6 @@ public :
                                  bottom_right2, bottom_left1,
                                  north_shortest, non_overlap,
                                  ps_strategy);
-            if (north_shortest)
-            {
-                return ps_strategy.apply(top_right2, top_left1, bottom_left1);
-            }
-            return ps_strategy.apply(bottom_right2, top_left1, bottom_left1);
         }
         if (bottom_max && right_wrap)
         {
@@ -230,11 +222,6 @@ public :
                                  bottom_left2, bottom_right1,
                                  north_shortest, non_overlap,
                                  ps_strategy);
-            if (north_shortest)
-            {
-                return ps_strategy.apply(top_left2, top_right1, bottom_right1);
-            }
-            return ps_strategy.apply(bottom_left2, top_right1, bottom_right1);
         }
         if (!bottom_max && !right_wrap)
         {
@@ -245,11 +232,6 @@ public :
                                  bottom_left1, bottom_right2,
                                  north_shortest, non_overlap,
                                  ps_strategy);
-            if (north_shortest)
-            {
-                return ps_strategy.apply(top_left1, top_right2, bottom_right2);
-            }
-            return ps_strategy.apply(bottom_left1, top_right2, bottom_right2);
         }
         if (!bottom_max && right_wrap)
         {
@@ -260,11 +242,6 @@ public :
                                  bottom_right1, bottom_left2,
                                  north_shortest, non_overlap,
                                  ps_strategy);
-            if (north_shortest)
-            {
-                return ps_strategy.apply(top_right1, top_left2, bottom_left2);
-            }
-            return ps_strategy.apply(bottom_right1, top_left2, bottom_left2);
         }
         return ReturnType(0);
     }

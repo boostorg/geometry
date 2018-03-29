@@ -252,7 +252,6 @@ void test_distance_box_box(Strategy_pp const& strategy_pp,
 
     tester::apply("bb10bm", box1m, "BOX(4 -22, 8 -20)",
                   ps_distance("POINT(10 20)", "SEGMENT(8 22, 8 20)", strategy_ps),
-                  //ps_distance("POINT(10 -20)", "SEGMENT(8 -20, 8 -22)", strategy_ps),
                   strategy_bb);
 
     // case 11
