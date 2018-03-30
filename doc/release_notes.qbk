@@ -37,6 +37,7 @@
 
 [*Solved issues]
 
+* [@https://svn.boost.org/trac10/ticket/13386 13386] Workaround for some gcc compilers
 * [@https://svn.boost.org/trac10/ticket/13381 13381] Compile error with matrix_transformer in Visual C++ 2015
 * [@https://svn.boost.org/trac10/ticket/13436 13436] Incorrectness in boost::geometry::model::polygon documentation
 
