@@ -656,7 +656,7 @@ private:
         {
             typename other_compare<LessEqual>::type less_equal;
 
-            bool south = geometry::get<1>(p1) < 0 ? true : false;
+            //bool south = geometry::get<1>(p1) < 0 ? true : false;
 
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
@@ -931,32 +931,32 @@ public:
 template <typename CS_Tag>
 struct mirror_geometries
 {
-    template <typename Point>
-    static void apply(Point& p0,
-                      Point& p1,
-                      Point& bottom_left,
-                      Point& bottom_right,
-                      Point& top_left,
-                      Point& top_right)
+    template <typename SPoint, typename BPoint>
+    static void apply(SPoint& p0,
+                      SPoint& p1,
+                      BPoint& bottom_left,
+                      BPoint& bottom_right,
+                      BPoint& top_left,
+                      BPoint& top_right)
     {}
 };
 
 template <>
 struct mirror_geometries<spherical_equatorial_tag>
 {
-    template <typename Point>
-    static void apply(Point& p0,
-                      Point& p1,
-                      Point& bottom_left,
-                      Point& bottom_right,
-                      Point& top_left,
-                      Point& top_right)
+    template <typename SPoint, typename BPoint>
+    static void apply(SPoint& p0,
+                      SPoint& p1,
+                      BPoint& bottom_left,
+                      BPoint& bottom_right,
+                      BPoint& top_left,
+                      BPoint& top_right)
     {
         //if segment's vertex is the southest point then mirror geometries
         if (geometry::get<1>(p0) + geometry::get<1>(p1) < 0)
         {
-            Point bl = bottom_left;
-            Point br = bottom_right;
+            BPoint bl = bottom_left;
+            BPoint br = bottom_right;
             geometry::set<1>(p0, geometry::get<1>(p0) * -1);
             geometry::set<1>(p1, geometry::get<1>(p1) * -1);
             geometry::set<1>(bottom_left, geometry::get<1>(top_left) * -1);
@@ -970,13 +970,13 @@ struct mirror_geometries<spherical_equatorial_tag>
 template <>
 struct mirror_geometries<geographic_tag>
 {
-    template <typename Point>
-    static void apply(Point& p0,
-                      Point& p1,
-                      Point& bottom_left,
-                      Point& bottom_right,
-                      Point& top_left,
-                      Point& top_right)
+    template <typename SPoint, typename BPoint>
+    static void apply(SPoint& p0,
+                      SPoint& p1,
+                      BPoint& bottom_left,
+                      BPoint& bottom_right,
+                      BPoint& top_left,
+                      BPoint& top_right)
     {
         return mirror_geometries<spherical_equatorial_tag>::apply(p0, p1,
                                                                   bottom_left,

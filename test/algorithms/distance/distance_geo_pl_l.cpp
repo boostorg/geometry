@@ -8,9 +8,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-//#define BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
@@ -362,7 +359,6 @@ void test_distance_point_segment_no_thomas(Strategy_pp const& strategy_pp,
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", strategy_pp),
                   strategy_ps, true, true);
-
     tester::apply("p-s-mer4",
                   "POINT(1 80)",
                   "SEGMENT(0 0,0 90)",
