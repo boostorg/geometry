@@ -173,21 +173,22 @@ private :
         if (g4 < -1.25*pi)//close to -270
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "g4=" << g4 <<  ", close to -270" << std::endl;
+            std::cout << "g4=" << g4 * math::r2d<CT>() <<  ", close to -270" << std::endl;
 #endif
             return g4 + 1.5 * pi;
         }
         else if (g4 > 1.25*pi)//close to 270
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "g4=" << g4 <<  ", close to 270" << std::endl;
+            std::cout << "g4=" << g4 * math::r2d<CT>() <<  ", close to 270" << std::endl;
 #endif
+            der = -der;
             return - g4 + 1.5 * pi;
         }
         else if (g4 < 0 && g4 > -0.75*pi)//close to -90
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "g4=" << g4 <<  ", close to -90" << std::endl;
+            std::cout << "g4=" << g4 * math::r2d<CT>() <<  ", close to -90" << std::endl;
 #endif
             der = -der;
             return -g4 - pi/2;
@@ -236,7 +237,7 @@ private :
         }
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-        std::cout << "Segment=(" << lon1 * math::r2d<CT>();
+        std::cout << ">>\nSegment=(" << lon1 * math::r2d<CT>();
         std::cout << "," << lat1 * math::r2d<CT>();
         std::cout << "),(" << lon2 * math::r2d<CT>();
         std::cout << "," << lat2 * math::r2d<CT>();
@@ -280,8 +281,11 @@ private :
             return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
         }
 
-        if ( (meridian_not_crossing_pole || meridian_crossing_pole ) && lat1 > lat2)
+        if ( (meridian_not_crossing_pole || meridian_crossing_pole ) && std::abs(lat1) > std::abs(lat2))
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "Meridian segment not crossing pole" << std::endl;
+#endif
             std::swap(lat1,lat2);
         }
 
@@ -290,8 +294,9 @@ private :
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Meridian segment crossing pole" << std::endl;
 #endif
-            result_distance_point_segment<CT> d1 = apply<geometry::radian>(lon1, lat1, lon1, half_pi, lon3, lat3, spheroid);
-            result_distance_point_segment<CT> d2 = apply<geometry::radian>(lon2, lat2, lon2, half_pi, lon3, lat3, spheroid);
+            CT sign_non_zero = lat3 >= c0 ? 1 : -1;
+            result_distance_point_segment<CT> d1 = apply<geometry::radian>(lon1, lat1, lon1, half_pi * sign_non_zero, lon3, lat3, spheroid);
+            result_distance_point_segment<CT> d2 = apply<geometry::radian>(lon2, lat2, lon2, half_pi * sign_non_zero, lon3, lat3, spheroid);
             if (d1.distance < d2.distance)
             {
                 return d1;
@@ -433,13 +438,11 @@ private :
                                                                     lon3, lat3, spheroid);
             g4 = res34.azimuth - a4;
 
-
-
             CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
             CT m34 = res34.reduced_length;
             CT der = (M43 / m34) * sin(g4);
 
-            // normalize (g4 - pi/2)
+            //normalize (g4 - pi/2)
             delta_g4 = normalize(g4, der);
 
             s14 = s14 - delta_g4 / der;
@@ -449,7 +452,7 @@ private :
                          "," << res14.lat2 * math::r2d<CT>() << std::endl;
             std::cout << "a34=" << res34.azimuth * math::r2d<CT>() << std::endl;
             std::cout << "a4=" << a4 * math::r2d<CT>() << std::endl;
-            std::cout << "g4=" << g4 * math::r2d<CT>() << std::endl;
+            std::cout << "g4(normalized)=" << g4 * math::r2d<CT>() << std::endl;
             std::cout << "delta_g4=" << delta_g4 * math::r2d<CT>()  << std::endl;
             std::cout << "der=" << der  << std::endl;
             std::cout << "M43=" << M43 << std::endl;
@@ -474,7 +477,7 @@ private :
             {
                 std::cout << "Stop msg: delta_g4 == 0" << std::endl;
             }
-            if (counter == 19)
+            if (counter == BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS)
             {
                 std::cout << "Stop msg: counter" << std::endl;
             }

@@ -8,6 +8,9 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+//#define BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
@@ -240,7 +243,7 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-mer1",
                   "POINT(2.5 2)",
                   "SEGMENT(2 2,2 4)",
-                  pp_distance("POINT(2.5 2)", "POINT(2 2)", strategy_pp),
+                  pp_distance("POINT(2.5 2)", "POINT(2 2.000076608014728)", strategy_pp),
                   strategy_ps, true, true);
     tester::apply("p-s-mer3",
                   "POINT(2.5 5)",
@@ -338,7 +341,6 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(0 0,180 0)",
                   0,
                   strategy_ps, true, true);
-
 }
 
 template <typename Strategy_pp, typename Strategy_ps>
@@ -380,7 +382,7 @@ void test_distance_point_segment_no_thomas(Strategy_pp const& strategy_pp,
                   pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
                   strategy_ps, true, true);
 
-    tester::apply("p-s-20",
+    tester::apply("p-s-21",
                   "POINT(80 89)",
                   "SEGMENT(0 -1,180 1)",
                   pp_distance("POINT(80 89)", "POINT(0 89.82633489283377)", strategy_pp),
@@ -403,42 +405,42 @@ void test_distance_point_linestring(Strategy_pp const& strategy_pp,
                   "POINT(0 0)",
                   "LINESTRING(2 0,2 0)",
                   pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-02",
                   "POINT(0 0)",
                   "LINESTRING(2 0,3 0)",
                   pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-03",
                   "POINT(2.5 3)",
                   "LINESTRING(2 0,3 0)",
                   pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-04",
                   "POINT(2 0)",
                   "LINESTRING(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-05",
                   "POINT(3 0)",
                   "LINESTRING(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-06",
                   "POINT(2.5 0)",
                   "LINESTRING(2 0,3 0)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-07",
                   "POINT(7.5 10)",
                   "LINESTRING(1 0,2 0,3 0,4 0,5 0,6 0,7 0,8 0,9 0)",
                   ps_distance("POINT(7.5 10)", "SEGMENT(7 0,8 0)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-l-08",
                   "POINT(7.5 10)",
                   "LINESTRING(1 1,2 1,3 1,4 1,5 1,6 1,7 1,20 2,21 2)",
                   ps_distance("POINT(7.5 10)", "SEGMENT(7 1,20 2)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
 }
 
 void test_distance_point_linestring_strategies()
@@ -449,19 +451,22 @@ void test_distance_point_linestring_strategies()
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221147.24332788656,
-                  vincenty_strategy());
+                  vincenty_strategy(),
+                  true, false, false);
 
     tester::apply("p-l-03",
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221147.36682199029,
-                  thomas_strategy());
+                  thomas_strategy(),
+                  true, false, false);
 
     tester::apply("p-l-03",
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221144.76527049288,
-                  andoyer_strategy());
+                  andoyer_strategy(),
+                  true, false, false);
 }
 
 //===========================================================================
@@ -483,37 +488,37 @@ void test_distance_point_multilinestring(Strategy_pp const& strategy_pp,
                   "POINT(0 0)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
                   pp_distance("POINT(0 0)", "POINT(2 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-02",
                   "POINT(2.5 3)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
                   pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-03",
                   "POINT(2 0)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-04",
                   "POINT(3 0)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-05",
                   "POINT(2.5 0)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-06",
                   "POINT(7.5 10)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0,4 0,5 0,6 0,20 1,21 1))",
                   ps_distance("POINT(7.5 10)", "SEGMENT(6 0,20 1)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("p-ml-07",
                   "POINT(-8 10)",
                   "MULTILINESTRING((-20 10,-19 11,-18 10,-6 0,-5 0,-3 0),(2 0,6 0,20 1,21 1))",
                   ps_distance("POINT(-8 10)", "SEGMENT(-6 0,-18 10)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
 }
 
 //===========================================================================
@@ -535,28 +540,27 @@ void test_distance_linestring_multipoint(Strategy_pp const& strategy_pp,
                   "LINESTRING(2 0,0 2,100 80)",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
-                  strategy_ps);
-
+                  strategy_ps, true, false, false);
     tester::apply("l-mp-02",
                   "LINESTRING(4 0,0 4,100 80)",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   ps_distance("POINT(1 1)", "SEGMENT(0 4,4 0)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("l-mp-03",
                   "LINESTRING(1 1,2 2,100 80)",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("l-mp-04",
                   "LINESTRING(3 3,4 4,100 80)",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("l-mp-05",
                   "LINESTRING(0 0,10 0,10 10,0 10,0 0)",
                   "MULTIPOINT(1 -1,80 80,5 0,150 90)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
 }
 
 //===========================================================================
@@ -577,22 +581,22 @@ void test_distance_multipoint_multilinestring(Strategy_pp const& strategy_pp,
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "MULTILINESTRING((2 0,0 2),(2 2,3 3))",
                   ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-ml-02",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "MULTILINESTRING((3 0,0 3),(4 4,5 5))",
                   ps_distance("POINT(1 1)", "SEGMENT(3 0,0 3)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-ml-03",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "MULTILINESTRING((4 4,5 5),(1 1,2 2))",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-ml-04",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "MULTILINESTRING((4 4,3 3),(4 4,5 5))",
                   pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
 }
 
 //===========================================================================
@@ -611,27 +615,27 @@ void test_distance_multipoint_segment(Strategy_pp const& strategy_pp,
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(2 0,0 2)",
                   ps_distance("POINT(1 1)", "SEGMENT(2 0,0 2)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-s-02",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(0 -3,1 -10)",
                   pp_distance("POINT(0 0)", "POINT(0 -3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-s-03",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(1 1,2 2)",
                   0,
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-s-04",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(3 3,4 4)",
                   pp_distance("POINT(1 1)", "POINT(3 3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
     tester::apply("mp-s-05",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(0.5 -3,1 -10)",
                   pp_distance("POINT(1 0)", "POINT(0.5 -3)", strategy_pp),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
 }
 
 //===========================================================================
@@ -677,6 +681,7 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_point_segment(thomas_pp(), thomas_strategy());
     test_distance_point_segment(andoyer_pp(), andoyer_strategy());
 
+
     test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_strategy());
     ///test_distance_point_segment_no_thomas(thomas_pp(), thomas_strategy());
     test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_strategy());
@@ -705,4 +710,5 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_empty_input_pointlike_linear<point_type>(vincenty_strategy());
     test_empty_input_pointlike_linear<point_type>(thomas_strategy());
     test_empty_input_pointlike_linear<point_type>(andoyer_strategy());
+
 }

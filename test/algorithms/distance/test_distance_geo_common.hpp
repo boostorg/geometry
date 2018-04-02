@@ -116,6 +116,28 @@ template <> struct dispatch<boost::geometry::box_tag>
     }
 };
 
+
+// Specialization for points
+template <> struct dispatch<boost::geometry::point_tag>
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    template <typename Point>
+    static inline Point mirror(Point const& p)
+    {
+        Point p_mirror;
+
+        bg::set<0>(p_mirror, bg::get<0>(p));
+        bg::set<1>(p_mirror, bg::get<1>(p) * -1);
+
+        return p_mirror;
+    }
+};
+
 //========================================================================
 
 
