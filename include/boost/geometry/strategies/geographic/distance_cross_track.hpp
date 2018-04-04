@@ -333,13 +333,6 @@ private :
 
         CT a312 = a13 - a12;
 
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-        std::cout << "a1=" << a12 * math::r2d<CT>() << std::endl;
-        std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
-        std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
-        std::cout << "cos(a312)=" << cos(a312) << std::endl;
-#endif
-
         // TODO: meridian case optimization
         if (geometry::math::equals(a312, c0) && meridian_not_crossing_pole)
         {
@@ -356,6 +349,14 @@ private :
 
         CT projection1 = cos( a312 ) * d1 / d3;
 
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+        std::cout << "a1=" << a12 * math::r2d<CT>() << std::endl;
+        std::cout << "a13=" << a13 * math::r2d<CT>() << std::endl;
+        std::cout << "a312=" << a312 * math::r2d<CT>() << std::endl;
+        std::cout << "cos(a312)=" << cos(a312) << std::endl;
+        std::cout << "projection 1=" << projection1 << std::endl;
+#endif
+
         if (projection1 < c0)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
@@ -371,13 +372,15 @@ private :
 
         CT a321 = a23 - a21;
 
+        CT projection2 = cos( a321 ) * d2 / d3;
+
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "a21=" << a21 * math::r2d<CT>() << std::endl;
         std::cout << "a23=" << a23 * math::r2d<CT>() << std::endl;
         std::cout << "a321=" << a321 * math::r2d<CT>() << std::endl;
         std::cout << "cos(a321)=" << cos(a321) << std::endl;
+        std::cout << "projection 2=" << projection2 << std::endl;
 #endif
-        CT projection2 = cos( a321 ) * d2 / d3;
 
         if (projection2 < c0)
         {
