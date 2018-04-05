@@ -295,8 +295,14 @@ private :
             std::cout << "Meridian segment crossing pole" << std::endl;
 #endif
             CT sign_non_zero = lat3 >= c0 ? 1 : -1;
-            result_distance_point_segment<CT> d1 = apply<geometry::radian>(lon1, lat1, lon1, half_pi * sign_non_zero, lon3, lat3, spheroid);
-            result_distance_point_segment<CT> d2 = apply<geometry::radian>(lon2, lat2, lon2, half_pi * sign_non_zero, lon3, lat3, spheroid);
+            result_distance_point_segment<CT> d1 =
+                    apply<geometry::radian>(lon1, lat1,
+                                            lon1, half_pi * sign_non_zero,
+                                            lon3, lat3, spheroid);
+            result_distance_point_segment<CT> d2 =
+                    apply<geometry::radian>(lon2, lat2,
+                                            lon2, half_pi * sign_non_zero,
+                                            lon3, lat3, spheroid);
             if (d1.distance < d2.distance)
             {
                 return d1;
@@ -418,13 +424,15 @@ private :
 #endif
 
         // Update s14 (using Newton method)
-        CT prev_distance = 0;
+        CT prev_distance;
         geometry::formula::result_direct<CT> res14;
         geometry::formula::result_inverse<CT> res34;
+        res34.distance = -1;
 
         int counter = 0; // robustness
         CT g4;
         CT delta_g4;
+        bool dist_improve = true;
 
         do{
             prev_distance = res34.distance;
@@ -445,10 +453,16 @@ private :
             CT m34 = res34.reduced_length;
             CT der = (M43 / m34) * sin(g4);
 
-            //normalize (g4 - pi/2)
+            //normalize
             delta_g4 = normalize(g4, der);
-
             s14 = s14 - delta_g4 / der;
+            result.distance = res34.distance;
+
+            dist_improve = prev_distance > res34.distance || prev_distance == -1;
+            if (!dist_improve)
+            {
+                result.distance = prev_distance;
+            }
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
@@ -464,15 +478,11 @@ private :
             std::cout << "new_s14=" << s14 << std::endl;
             std::cout << std::setprecision(16) << "dist     =" << res34.distance << std::endl;
             std::cout << "---------end of step " << counter << std::endl<< std::endl;
-#endif
-            result.distance = prev_distance;
-
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             if (g4 == half_pi)
             {
                 std::cout << "Stop msg: g4 == half_pi" << std::endl;
             }
-            if (res34.distance >= prev_distance && prev_distance != 0)
+            if (!dist_improve)
             {
                 std::cout << "Stop msg: res34.distance >= prev_distance" << std::endl;
             }
@@ -487,9 +497,9 @@ private :
 #endif
 
         } while (g4 != half_pi
-                 && (prev_distance > res34.distance || prev_distance == 0)
+                 && dist_improve
                  && delta_g4 != 0
-                 && ++counter < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS ) ;
+                 && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "distance=" << res34.distance << std::endl;

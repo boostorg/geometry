@@ -352,18 +352,21 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   strategy_ps, true, true);
 
     // meridian special case
-    tester::apply("p-s-mer2",
+    tester::apply("p-s-mer1",
                   "POINT(2.5 3)",
                   "SEGMENT(2 2,2 4)",
                   pp_distance("POINT(2.5 3)", "POINT(2 3.000114792872075)", strategy_pp),
                   strategy_ps, true, true);
-    tester::apply("p-s-mer4",
+    tester::apply("p-s-mer2",
                   "POINT(1 80)",
                   "SEGMENT(0 0,0 90)",
                   pp_distance("POINT(1 80)", "POINT(0 80.00149225834545)", strategy_pp),
                   strategy_ps, true, true);
-
-
+    tester::apply("p-s-mer3",
+                  "POINT(2 0)",
+                  "SEGMENT(1 -1,1 0)",
+                  pp_distance("POINT(2 0)", "POINT(1 0)", strategy_pp),
+                  strategy_ps, true, true);
 }
 
 template <typename Strategy_pp, typename Strategy_ps>
