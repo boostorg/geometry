@@ -14,7 +14,9 @@
 // This file is converted from PROJ4, http://trac.osgeo.org/proj
 // PROJ4 is originally written by Gerald Evenden (then of the USGS)
 // PROJ4 is maintained by Frank Warmerdam
-// PROJ4 is converted to Geometry Library by Barend Gehrels (Geodan, Amsterdam)
+// PROJ4 is converted to Geometry Library by
+//     Barend Gehrels (Geodan, Amsterdam)
+//     Adam Wulkiewicz
 
 // Original copyright notice:
 
@@ -198,6 +200,78 @@ inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> c
         BOOST_THROW_EXCEPTION( projection_exception(-13) );
     }
 }
+
+template <typename T>
+inline void pj_calc_ellipsoid_params(parameters<T> & p, T const& a, T const& es) {
+/****************************************************************************************
+    Calculate a large number of ancillary ellipsoidal parameters, in addition to
+    the two traditional PROJ defining parameters: Semimajor axis, a, and the
+    eccentricity squared, es.
+
+    Most of these parameters are fairly cheap to compute in comparison to the overall
+    effort involved in initializing a PJ object. They may, however, take a substantial
+    part of the time taken in computing an individual point transformation.
+
+    So by providing them up front, we can amortize the (already modest) cost over all
+    transformations carried out over the entire lifetime of a PJ object, rather than
+    incur that cost for every single transformation.
+
+    Most of the parameter calculations here are based on the "angular eccentricity",
+    i.e. the angle, measured from the semiminor axis, of a line going from the north
+    pole to one of the foci of the ellipsoid - or in other words: The arc sine of the
+    eccentricity.
+
+    The formulae used are mostly taken from:
+
+    Richard H. Rapp: Geometric Geodesy, Part I, (178 pp, 1991).
+    Columbus, Ohio:  Dept. of Geodetic Science
+    and Surveying, Ohio State University.
+
+****************************************************************************************/
+
+    p.a = a;
+    p.es = es;
+
+    /* Compute some ancillary ellipsoidal parameters */
+    if (p.e==0)
+        p.e = sqrt(p.es);  /* eccentricity */
+    //p.alpha = asin (p.e);  /* angular eccentricity */
+
+    /* second eccentricity */
+    //p.e2  = tan (p.alpha);
+    //p.e2s = p.e2 * p.e2;
+
+    /* third eccentricity */
+    //p.e3    = (0!=p.alpha)? sin (p.alpha) / sqrt(2 - sin (p.alpha)*sin (p.alpha)): 0;
+    //p.e3s = p.e3 * p.e3;
+
+    /* flattening */
+    //if (0==p.f)
+    //    p.f  = 1 - cos (p.alpha);   /* = 1 - sqrt (1 - PIN->es); */
+    //p.rf = p.f != 0.0 ? 1.0/p.f: HUGE_VAL;
+
+    /* second flattening */
+    //p.f2  = (cos(p.alpha)!=0)? 1/cos (p.alpha) - 1: 0;
+    //p.rf2 = p.f2 != 0.0 ? 1/p.f2: HUGE_VAL;
+
+    /* third flattening */
+    //p.n  = pow (tan (p.alpha/2), 2);
+    //p.rn = p.n != 0.0 ? 1/p.n: HUGE_VAL;
+
+    /* ...and a few more */
+    //if (0==p.b)
+    //    p.b  = (1 - p.f)*p.a;
+    //p.rb = 1. / p.b;
+    p.ra = 1. / p.a;
+
+    p.one_es = 1. - p.es;
+    if (p.one_es == 0.) {
+        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+    }
+
+    p.rone_es = 1./p.one_es;
+}
+
 
 } // namespace detail
 }}} // namespace boost::geometry::projections

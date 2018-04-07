@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -63,8 +63,10 @@ void test_deg_rad(double factor)
     typedef typename bg::coordinate_type<P>::type coord_type;
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<D> > point_type;
 
+    // sterea
     test_one<28992, point_type, P>(4.897000 * factor, 52.371000 * factor, 121590.388077, 487013.903377);
-    test_one<29118, point_type, P>(4.897000 * factor, 52.371000 * factor, 4852882, 9129373);
+    // utm
+    test_one<29118, point_type, P>(4.897000 * factor, 52.371000 * factor, 4938115.7568751378, 9139797.6057944782);
 }
 
 template <typename P>
