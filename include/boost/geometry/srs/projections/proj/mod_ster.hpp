@@ -100,7 +100,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType sinlon, coslon, esphi, chi, schi, cchi, s;
                     COMPLEX<CalculationType> p;
@@ -108,8 +108,8 @@ namespace projections
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
-                    chi = 2. * atan(tan((HALFPI + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - HALFPI;
+                    chi = 2. * atan(tan((half_pi + lp_lat) * .5) *
+                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - half_pi;
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -124,7 +124,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     int nn;
                     COMPLEX<CalculationType> p, fxy, fpxy, dp;
@@ -162,8 +162,8 @@ namespace projections
                         phi = chi;
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
-                            dphi = 2. * atan(tan((HALFPI + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - HALFPI - phi;
+                            dphi = 2. * atan(tan((half_pi + chi) * .5) *
+                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - half_pi - phi;
                             phi += dphi;
                             if (fabs(dphi) <= EPSLN)
                                 break;
@@ -187,14 +187,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup(Parameters& par, par_mod_ster<T>& proj_parm)  /* general initialization */
             {
-                static T const HALFPI = detail::HALFPI<T>();
+                static T const half_pi = detail::half_pi<T>();
 
                 T esphi, chio;
 
                 if (par.es != 0.0) {
                     esphi = par.e * sin(par.phi0);
-                    chio = 2. * atan(tan((HALFPI + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - HALFPI;
+                    chio = 2. * atan(tan((half_pi + par.phi0) * .5) *
+                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - half_pi;
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);

@@ -154,7 +154,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType rho = 0.0;
                     if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
@@ -170,15 +170,15 @@ namespace projections
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
                                     BOOST_THROW_EXCEPTION( projection_exception(-20) );
                             } else
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
                             lp_lat = asin(lp_lat);
                         else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? half_pi : - half_pi;
                     }
                 }
 
@@ -247,10 +247,10 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_leac(Parameters& par, par_aea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 proj_parm.phi2 = pj_get_param_r(par.params, "lat_1");
-                proj_parm.phi1 = pj_get_param_b(par.params, "south") ? -HALFPI : HALFPI;
+                proj_parm.phi1 = pj_get_param_b(par.params, "south") ? -half_pi : half_pi;
                 setup(par, proj_parm);
             }
 

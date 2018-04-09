@@ -92,15 +92,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType HLFPI2 = detail::HALFPI_SQR<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType HLFPI2 = detail::half_pi_sqr<CalculationType>();
 
                     CalculationType ax, f;
 
-                    xy_y = this->m_proj_parm.bacn ? HALFPI * sin(lp_lat) : lp_lat;
+                    xy_y = this->m_proj_parm.bacn ? half_pi * sin(lp_lat) : lp_lat;
                     if ((ax = fabs(lp_lon)) >= EPS) {
-                        if (this->m_proj_parm.ortl && ax >= HALFPI)
-                            xy_x = sqrt(HLFPI2 - lp_lat * lp_lat + EPS) + ax - HALFPI;
+                        if (this->m_proj_parm.ortl && ax >= half_pi)
+                            xy_x = sqrt(HLFPI2 - lp_lat * lp_lat + EPS) + ax - half_pi;
                         else {
                             f = 0.5 * (HLFPI2 / ax + ax);
                             xy_x = ax - f + sqrt(f * f - xy_y * xy_y);

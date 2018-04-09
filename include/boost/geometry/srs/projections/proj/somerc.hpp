@@ -90,41 +90,41 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType phip, lamp, phipp, lampp, sp, cp;
 
                     sp = this->m_par.e * sin(lp_lat);
                     phip = 2.* atan( exp( this->m_proj_parm.c * (
-                        log(tan(FORTPI + 0.5 * lp_lat)) - this->m_proj_parm.hlf_e * log((1. + sp)/(1. - sp)))
-                        + this->m_proj_parm.K)) - HALFPI;
+                        log(tan(fourth_pi + 0.5 * lp_lat)) - this->m_proj_parm.hlf_e * log((1. + sp)/(1. - sp)))
+                        + this->m_proj_parm.K)) - half_pi;
                     lamp = this->m_proj_parm.c * lp_lon;
                     cp = cos(phip);
                     phipp = aasin(this->m_proj_parm.cosp0 * sin(phip) - this->m_proj_parm.sinp0 * cp * cos(lamp));
                     lampp = aasin(cp * sin(lamp) / cos(phipp));
                     xy_x = this->m_proj_parm.kR * lampp;
-                    xy_y = this->m_proj_parm.kR * log(tan(FORTPI + 0.5 * phipp));
+                    xy_y = this->m_proj_parm.kR * log(tan(fourth_pi + 0.5 * phipp));
                 }
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     CalculationType phip, lamp, phipp, lampp, cp, esp, con, delp;
                     int i;
 
-                    phipp = 2. * (atan(exp(xy_y / this->m_proj_parm.kR)) - FORTPI);
+                    phipp = 2. * (atan(exp(xy_y / this->m_proj_parm.kR)) - fourth_pi);
                     lampp = xy_x / this->m_proj_parm.kR;
                     cp = cos(phipp);
                     phip = aasin(this->m_proj_parm.cosp0 * sin(phipp) + this->m_proj_parm.sinp0 * cp * cos(lampp));
                     lamp = aasin(cp * sin(lampp) / cos(phip));
-                    con = (this->m_proj_parm.K - log(tan(FORTPI + 0.5 * phip)))/this->m_proj_parm.c;
+                    con = (this->m_proj_parm.K - log(tan(fourth_pi + 0.5 * phip)))/this->m_proj_parm.c;
                     for (i = NITER; i ; --i) {
                         esp = this->m_par.e * sin(phip);
-                        delp = (con + log(tan(FORTPI + 0.5 * phip)) - this->m_proj_parm.hlf_e *
+                        delp = (con + log(tan(fourth_pi + 0.5 * phip)) - this->m_proj_parm.hlf_e *
                             log((1. + esp)/(1. - esp)) ) *
                             (1. - esp * esp) * cos(phip) * this->m_par.rone_es;
                         phip -= delp;
@@ -150,7 +150,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_somerc(Parameters& par, par_somerc<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T cp, phip0, sp;
 
@@ -161,8 +161,8 @@ namespace projections
                 sp = sin(par.phi0);
                 proj_parm.cosp0 = cos( phip0 = aasin(proj_parm.sinp0 = sp / proj_parm.c) );
                 sp *= par.e;
-                proj_parm.K = log(tan(FORTPI + 0.5 * phip0)) - proj_parm.c * (
-                    log(tan(FORTPI + 0.5 * par.phi0)) - proj_parm.hlf_e *
+                proj_parm.K = log(tan(fourth_pi + 0.5 * phip0)) - proj_parm.c * (
+                    log(tan(fourth_pi + 0.5 * par.phi0)) - proj_parm.hlf_e *
                     log((1. + sp) / (1. - sp)));
                 proj_parm.kR = par.k0 * sqrt(par.one_es) / (1. - sp * sp);
             }

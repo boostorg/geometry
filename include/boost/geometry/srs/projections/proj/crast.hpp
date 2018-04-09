@@ -64,7 +64,7 @@ namespace projections
             static const double RXM = 1.02332670794648848847;
             static const double YM = 3.06998012383946546542;
             static const double RYM = 0.32573500793527994772;
-            //static const double THIRD = 0.333333333333333333;
+            //static const double third = 0.333333333333333333;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -84,9 +84,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType THIRD = detail::THIRD<CalculationType>();
+                    static const CalculationType third = detail::third<CalculationType>();
 
-                    lp_lat *= THIRD;
+                    lp_lat *= third;
                     xy_x = XM * lp_lon * (2. * cos(lp_lat + lp_lat) - 1.);
                     xy_y = YM * sin(lp_lat);
                 }
@@ -95,10 +95,10 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType THIRD = detail::THIRD<CalculationType>();
+                    static const CalculationType third = detail::third<CalculationType>();
 
                     lp_lat = 3. * asin(xy_y * RYM);
-                    lp_lon = xy_x * RXM / (2. * cos((lp_lat + lp_lat) * THIRD) - 1);
+                    lp_lon = xy_x * RXM / (2. * cos((lp_lat + lp_lat) * third) - 1);
                 }
 
                 static inline std::string get_name()

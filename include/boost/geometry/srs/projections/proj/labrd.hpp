@@ -87,15 +87,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     CalculationType V1, V2, ps, sinps, cosps, sinps2, cosps2;
                     CalculationType I1, I2, I3, I4, I5, I6, x2, y2, t;
 
-                    V1 = this->m_proj_parm.A * log( tan(FORTPI + .5 * lp_lat) );
+                    V1 = this->m_proj_parm.A * log( tan(fourth_pi + .5 * lp_lat) );
                     t = this->m_par.e * sin(lp_lat);
                     V2 = .5 * this->m_par.e * this->m_proj_parm.A * log ((1. + t)/(1. - t));
-                    ps = 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - FORTPI);
+                    ps = 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - fourth_pi);
                     I1 = ps - this->m_proj_parm.p0s;
                     cosps = cos(ps);    cosps2 = cosps * cosps;
                     sinps = sin(ps);    sinps2 = sinps * sinps;
@@ -121,7 +121,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     /* t = 0.0 optimization is to avoid a false positive cppcheck warning */
                     /* (cppcheck git beaf29c15867984aa3c2a15cf15bd7576ccde2b3). Might no */
@@ -142,10 +142,10 @@ namespace projections
                     pe = ps + this->m_par.phi0 - this->m_proj_parm.p0s;
 
                     for ( i = 20; i; --i) {
-                        V1 = this->m_proj_parm.A * log(tan(FORTPI + .5 * pe));
+                        V1 = this->m_proj_parm.A * log(tan(fourth_pi + .5 * pe));
                         tpe = this->m_par.e * sin(pe);
                         V2 = .5 * this->m_par.e * this->m_proj_parm.A * log((1. + tpe)/(1. - tpe));
-                        t = ps - 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - FORTPI);
+                        t = ps - 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - fourth_pi);
                         pe += t;
                         if (fabs(t) < EPS)
                             break;
@@ -181,7 +181,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T Az, sinp, R, N, t;
 
@@ -196,8 +196,8 @@ namespace projections
                 proj_parm.A = sinp / sin(proj_parm.p0s);
                 t = par.e * sinp;
                 proj_parm.C = .5 * par.e * proj_parm.A * log((1. + t)/(1. - t)) +
-                    - proj_parm.A * log( tan(FORTPI + .5 * par.phi0))
-                    + log( tan(FORTPI + .5 * proj_parm.p0s));
+                    - proj_parm.A * log( tan(fourth_pi + .5 * par.phi0))
+                    + log( tan(fourth_pi + .5 * proj_parm.p0s));
                 t = Az + Az;
                 proj_parm.Ca = (1. - cos(t)) * ( proj_parm.Cb = 1. / (12. * proj_parm.kRg * proj_parm.kRg) );
                 proj_parm.Cb *= sin(t);

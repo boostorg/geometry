@@ -86,18 +86,18 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
                     static const CalculationType SQRT2 = boost::math::constants::root_two<CalculationType>();
 
                     CalculationType theta, th1, c;
                     int i;
 
                     theta = lp_lat;
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS)
+                    if (fabs(fabs(lp_lat) - half_pi) < EPS)
                         xy_x = 0.;
                     else {
-                        c = sin(theta) * ONEPI;
+                        c = sin(theta) * pi;
                         for (i = NITER; i; --i) {
                             theta -= th1 = (theta + sin(theta) - c) /
                                 (1. + cos(theta));

@@ -111,7 +111,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
                     static const CalculationType FC1 = tmerc::FC1<CalculationType>();
                     static const CalculationType FC2 = tmerc::FC2<CalculationType>();
                     static const CalculationType FC3 = tmerc::FC3<CalculationType>();
@@ -130,7 +130,7 @@ namespace projections
                      *
                      *  http://trac.osgeo.org/proj/ticket/5
                      */
-                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    if( lp_lon < -half_pi || lp_lon > half_pi )
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
@@ -163,7 +163,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
                     static const CalculationType FC1 = tmerc::FC1<CalculationType>();
                     static const CalculationType FC2 = tmerc::FC2<CalculationType>();
                     static const CalculationType FC3 = tmerc::FC3<CalculationType>();
@@ -176,8 +176,8 @@ namespace projections
                     CalculationType n, con, cosphi, d, ds, sinphi, t;
 
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
-                    if (fabs(lp_lat) >= HALFPI) {
-                        lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                    if (fabs(lp_lat) >= half_pi) {
+                        lp_lat = xy_y < 0. ? -half_pi : half_pi;
                         lp_lon = 0.;
                     } else {
                         sinphi = sin(lp_lat);
@@ -228,7 +228,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType b, cosphi;
 
@@ -239,7 +239,7 @@ namespace projections
                      *
                      *  http://trac.osgeo.org/proj/ticket/5
                      */
-                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    if( lp_lon < -half_pi || lp_lon > half_pi )
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;

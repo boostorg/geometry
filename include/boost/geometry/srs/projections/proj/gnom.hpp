@@ -145,7 +145,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType  rh, cosz, sinz;
 
@@ -161,7 +161,7 @@ namespace projections
                         case OBLIQ:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
+                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
@@ -170,17 +170,17 @@ namespace projections
                         case EQUIT:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
+                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
                         case S_POLE:
-                            lp_lat -= HALFPI;
+                            lp_lat -= half_pi;
                             break;
                         case N_POLE:
-                            lp_lat = HALFPI - lp_lat;
+                            lp_lat = half_pi - lp_lat;
                             xy_y = -xy_y;
                             break;
                         }
@@ -199,9 +199,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gnom(Parameters& par, par_gnom<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
+                if (fabs(fabs(par.phi0) - half_pi) < EPS10) {
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 } else if (fabs(par.phi0) < EPS10) {
                     proj_parm.mode = EQUIT;

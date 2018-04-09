@@ -91,7 +91,7 @@ namespace projections
             static const double EPS = 1e-11;
 
             template <typename T>
-            inline T MAX_Y() { return (0.8707 * 0.52 * detail::ONEPI<T>()); }
+            inline T MAX_Y() { return (0.8707 * 0.52 * detail::pi<T>()); }
 
             /* Not sure at all of the appropriate number for MAX_ITER... */
             static const int MAX_ITER = 100;

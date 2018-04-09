@@ -90,15 +90,15 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     xy_y = lp_lat - this->m_proj_parm.phi1;
                     if (fabs(xy_y) < EPS)
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
-                        xy_x = FORTPI + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - HALFPI) < EPS)
+                        xy_x = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - half_pi) < EPS)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -109,15 +109,15 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     lp_lat = xy_y + this->m_proj_parm.phi1;
                     if (fabs(xy_y) < EPS) {
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     } else {
-                        lp_lon = FORTPI + 0.5 * lp_lat;
-                        if (fabs(lp_lon) < EPS || fabs(fabs(lp_lon) - HALFPI) < EPS)
+                        lp_lon = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(lp_lon) < EPS || fabs(fabs(lp_lon) - half_pi) < EPS)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
@@ -135,14 +135,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
                 if (proj_parm.cosphi1 < EPS)
                     BOOST_THROW_EXCEPTION( projection_exception(-22) );
 
-                proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);
+                proj_parm.tanphi1 = tan(fourth_pi + 0.5 * proj_parm.phi1);
 
                 par.es = 0.;
             }

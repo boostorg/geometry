@@ -102,7 +102,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static CalculationType const HALFPI = detail::HALFPI<CalculationType>();
+                    static CalculationType const half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType V;
                     int i;
@@ -116,7 +116,7 @@ namespace projections
                                 break;
                         }
                         if (!i)
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -half_pi : half_pi;
                     } else
                         lp_lat = aasin(xy_y);
                     V = cos(lp_lat);

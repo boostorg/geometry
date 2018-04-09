@@ -86,11 +86,11 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static CalculationType const THIRD = detail::THIRD<CalculationType>();
+                    static CalculationType const third = detail::third<CalculationType>();
 
                     lp_lat = aasin(0.883883476 * sin(lp_lat));
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
-                    xy_x /= cos(lp_lat *= THIRD);
+                    xy_x /= cos(lp_lat *= third);
                     xy_y = this->m_proj_parm.C_y * sin(lp_lat);
                 }
 

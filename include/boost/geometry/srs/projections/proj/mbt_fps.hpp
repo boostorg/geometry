@@ -71,7 +71,7 @@ namespace projections
             //static const double C1_2 = 0.33333333333333333333333333;
 
             template <typename T>
-            inline T C1_2() { return detail::THIRD<T>(); }
+            inline T C1_2() { return detail::third<T>(); }
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>

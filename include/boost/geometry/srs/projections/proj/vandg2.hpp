@@ -89,30 +89,30 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const CalculationType two_div_pi = detail::two_div_pi<CalculationType>();
 
                     CalculationType x1, at, bt, ct;
 
-                    bt = fabs(TWO_D_PI * lp_lat);
+                    bt = fabs(two_div_pi * lp_lat);
                     if ((ct = 1. - bt * bt) < 0.)
                         ct = 0.;
                     else
                         ct = sqrt(ct);
                     if (fabs(lp_lon) < TOL) {
                         xy_x = 0.;
-                        xy_y = ONEPI * (lp_lat < 0. ? -bt : bt) / (1. + ct);
+                        xy_y = pi * (lp_lat < 0. ? -bt : bt) / (1. + ct);
                     } else {
-                        at = 0.5 * fabs(ONEPI / lp_lon - lp_lon / ONEPI);
+                        at = 0.5 * fabs(pi / lp_lon - lp_lon / pi);
                         if (this->m_proj_parm.vdg3) {
                             x1 = bt / (1. + ct);
-                            xy_x = ONEPI * (sqrt(at * at + 1. - x1 * x1) - at);
-                            xy_y = ONEPI * x1;
+                            xy_x = pi * (sqrt(at * at + 1. - x1 * x1) - at);
+                            xy_y = pi * x1;
                         } else {
                             x1 = (ct * sqrt(1. + at * at) - at * ct * ct) /
                                 (1. + at * at * bt * bt);
-                            xy_x = ONEPI * x1;
-                            xy_y = ONEPI * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
+                            xy_x = pi * x1;
+                            xy_y = pi * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
                         }
                         if ( lp_lon < 0.) xy_x = -xy_x;
                         if ( lp_lat < 0.) xy_y = -xy_y;

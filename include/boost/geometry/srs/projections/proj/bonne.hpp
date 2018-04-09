@@ -107,17 +107,17 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType s, rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, this->m_par.es, this->m_proj_parm.en);
-                    if ((s = fabs(lp_lat)) < HALFPI) {
+                    if ((s = fabs(lp_lat)) < half_pi) {
                         s = sin(lp_lat);
                         lp_lon = rh * atan2(xy_x, xy_y) *
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if (fabs(s - HALFPI) <= EPS10)
+                    } else if (fabs(s - half_pi) <= EPS10)
                         lp_lon = 0.;
                     else
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
@@ -163,16 +163,16 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
-                    if (fabs(lp_lat) > HALFPI) {
+                    if (fabs(lp_lat) > half_pi) {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     }
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
+                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10)
                         lp_lon = 0.;
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
@@ -189,7 +189,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_bonne(Parameters& par, par_bonne<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T c;
 
@@ -203,7 +203,7 @@ namespace projections
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
                 } else {
-                    if (fabs(proj_parm.phi1) + EPS10 >= HALFPI)
+                    if (fabs(proj_parm.phi1) + EPS10 >= half_pi)
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);

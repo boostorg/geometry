@@ -93,7 +93,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType k, V;
                     int i;
@@ -106,7 +106,7 @@ namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
                     else
                         lp_lat *= 0.5;
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
@@ -117,11 +117,11 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
 
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(lp_lat));
-                    if (fabs(lp_lon) < ONEPI) {
+                    if (fabs(lp_lon) < pi) {
                         lp_lat += lp_lat;
                         lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                     } else {

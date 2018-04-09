@@ -68,7 +68,7 @@ inline T srat(T const& esinp, T const& exp)
 template <typename T>
 inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 {
-    static const T FORTPI = detail::FORTPI<T>();
+    static const T fourth_pi = detail::fourth_pi<T>();
 
     using std::asin;
     using std::cos;
@@ -91,8 +91,8 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
     en.C = sqrt(1.0 + es * cphi * cphi / (1.0 - es));
     chi = asin(sphi / en.C);
     en.ratexp = 0.5 * en.C * e;
-    en.K = tan(0.5 * chi + FORTPI)
-           / (pow(tan(0.5 * phi0 + FORTPI), en.C) * srat(en.e * sphi, en.ratexp));
+    en.K = tan(0.5 * chi + fourth_pi)
+           / (pow(tan(0.5 * phi0 + fourth_pi), en.C) * srat(en.e * sphi, en.ratexp));
 
     return en;
 }
@@ -100,9 +100,9 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 template <typename T>
 inline void gauss(GAUSS<T> const& en, T& lam, T& phi)
 {
-    static const T FORTPI = detail::FORTPI<T>();
+    static const T fourth_pi = detail::fourth_pi<T>();
 
-    phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + FORTPI), en.C)
+    phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + fourth_pi), en.C)
           * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<T>();
 
     lam *= en.C;
@@ -111,11 +111,11 @@ inline void gauss(GAUSS<T> const& en, T& lam, T& phi)
 template <typename T>
 inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
 {
-    static const T FORTPI = detail::FORTPI<T>();
+    static const T fourth_pi = detail::fourth_pi<T>();
     static const T DEL_TOL = 1e-14;
 
     lam /= en.C;
-    const T num = pow(tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
+    const T num = pow(tan(0.5 * phi + fourth_pi) / en.K, 1.0 / en.C);
 
     int i = 0;
     for (i = MAX_ITER; i; --i)

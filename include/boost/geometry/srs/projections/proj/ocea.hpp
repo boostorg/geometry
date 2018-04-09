@@ -91,7 +91,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
 
                     CalculationType t;
 
@@ -99,7 +99,7 @@ namespace projections
                     t = cos(lp_lon);
                     xy_x = atan((tan(lp_lat) * this->m_proj_parm.cosphi + this->m_proj_parm.sinphi * xy_y) / t);
                     if (t < 0.)
-                        xy_x += ONEPI;
+                        xy_x += pi;
                     xy_x *= this->m_proj_parm.rtk;
                     xy_y = this->m_proj_parm.rok * (this->m_proj_parm.sinphi * sin(lp_lat) - this->m_proj_parm.cosphi * cos(lp_lat) * xy_y);
                 }
@@ -129,7 +129,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
 
@@ -158,13 +158,13 @@ namespace projections
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
 
                     /* take care of P->lam0 wrap-around when +lam_1=-90*/
-                    if (lam_1 == -HALFPI)
+                    if (lam_1 == -half_pi)
                         proj_parm.singam = -proj_parm.singam;
 
                     /*Equation 9-2 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
-                par.lam0 = proj_parm.singam + HALFPI;
+                par.lam0 = proj_parm.singam + half_pi;
                 proj_parm.cosphi = cos(proj_parm.sinphi);
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);

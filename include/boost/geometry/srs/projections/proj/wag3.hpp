@@ -84,9 +84,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+                    static const CalculationType two_thirds = detail::two_thirds<CalculationType>();
 
-                    xy_x = this->m_proj_parm.C_x * lp_lon * cos(TWOTHIRD * lp_lat);
+                    xy_x = this->m_proj_parm.C_x * lp_lon * cos(two_thirds * lp_lat);
                     xy_y = lp_lat;
                 }
 
@@ -94,10 +94,10 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+                    static const CalculationType two_thirds = detail::two_thirds<CalculationType>();
 
                     lp_lat = xy_y;
-                    lp_lon = xy_x / (this->m_proj_parm.C_x * cos(TWOTHIRD * lp_lat));
+                    lp_lon = xy_x / (this->m_proj_parm.C_x * cos(two_thirds * lp_lat));
                 }
 
                 static inline std::string get_name()

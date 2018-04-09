@@ -139,8 +139,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType TWOPI = detail::TWOPI<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const CalculationType two_pi = detail::two_pi<CalculationType>();
                     static const CalculationType EPSILON = 1e-12;
 
                     int iter, MAXITER = 10, round = 0, MAXROUND = 20;
@@ -178,12 +178,12 @@ namespace projections
                             f1 -= xy_x; f2 -= xy_y;
                             dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
                             dp = (f1 * f2l - f2 * f1l) / dp;
-                            dl = fmod(dl, ONEPI); /* set to interval [-M_PI, M_PI] */
+                            dl = fmod(dl, pi); /* set to interval [-M_PI, M_PI] */
                             lp_lat -= dp;    lp_lon -= dl;
                         } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
-                        if (lp_lat > TWOPI) lp_lat -= 2.*(lp_lat-TWOPI); /* correct if symmetrical solution for Aitoff */
-                        if (lp_lat < -TWOPI) lp_lat -= 2.*(lp_lat+TWOPI); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - TWOPI) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        if (lp_lat > two_pi) lp_lat -= 2.*(lp_lat-two_pi); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -two_pi) lp_lat -= 2.*(lp_lat+two_pi); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - two_pi) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon))) != 0.0) {/* Aitoff */
@@ -231,7 +231,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
             {
-                static const T TWO_D_PI = detail::TWO_D_PI<T>();
+                static const T two_div_pi = detail::two_div_pi<T>();
 
                 T phi1;
 
@@ -240,7 +240,7 @@ namespace projections
                     if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-22) );
                 } else /* 50d28' or phi1=acos(2/pi) */
-                    proj_parm.cosphi1 = TWO_D_PI;
+                    proj_parm.cosphi1 = two_div_pi;
                 setup(par);
             }
 

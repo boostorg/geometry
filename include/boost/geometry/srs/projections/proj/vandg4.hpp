@@ -82,27 +82,27 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType two_div_pi = detail::two_div_pi<CalculationType>();
 
                     CalculationType x1, t, bt, ct, ft, bt2, ct2, dt, dt2;
 
                     if (fabs(lp_lat) < TOL) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - half_pi) < TOL) {
                         xy_x = 0.;
                         xy_y = lp_lat;
                     } else {
-                        bt = fabs(TWO_D_PI * lp_lat);
+                        bt = fabs(two_div_pi * lp_lat);
                         bt2 = bt * bt;
                         ct = 0.5 * (bt * (8. - bt * (2. + bt2)) - 5.)
                             / (bt2 * (bt - 1.));
                         ct2 = ct * ct;
-                        dt = TWO_D_PI * lp_lon;
+                        dt = two_div_pi * lp_lon;
                         dt = dt + 1. / dt;
                         dt = sqrt(dt * dt - 4.);
-                        if ((fabs(lp_lon) - HALFPI) < 0.) dt = -dt;
+                        if ((fabs(lp_lon) - half_pi) < 0.) dt = -dt;
                         dt2 = dt * dt;
                         x1 = bt + ct; x1 *= x1;
                         t = bt + 3.*ct;
@@ -111,8 +111,8 @@ namespace projections
                             ct2 * (12. * bt * ct + 4. * ct2) );
                         x1 = (dt*(x1 + ct2 - 1.) + 2.*sqrt(ft)) /
                             (4.* x1 + dt2);
-                        xy_x = HALFPI * x1;
-                        xy_y = HALFPI * sqrt(1. + dt * fabs(x1) - x1 * x1);
+                        xy_x = half_pi * x1;
+                        xy_y = half_pi * sqrt(1. + dt * fabs(x1) - x1 * x1);
                         if (lp_lon < 0.) xy_x = -xy_x;
                         if (lp_lat < 0.) xy_y = -xy_y;
                     }

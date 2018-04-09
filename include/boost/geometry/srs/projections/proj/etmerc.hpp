@@ -203,7 +203,7 @@ namespace projections
                     Ce     = atan2(sin_Ce*cos_Cn, boost::math::hypot(sin_Cn, cos_Cn*cos_Ce));
 
                     /* compl. sph. N, E -> ell. norm. N, E */
-                    Ce  = asinhy(tan(Ce));     /* Replaces: Ce  = log(tan(FORTPI + Ce*0.5)); */
+                    Ce  = asinhy(tan(Ce));     /* Replaces: Ce  = log(tan(fourth_pi + Ce*0.5)); */
                     Cn += clenS(this->m_proj_parm.gtu, PROJ_ETMERC_ORDER, 2*Cn, 2*Ce, &dCn, &dCe);
                     Ce += dCe;
                     if (fabs(Ce) <= 2.623395162778) {
@@ -228,7 +228,7 @@ namespace projections
                         /* norm. N, E -> compl. sph. LAT, LNG */
                         Cn += clenS(this->m_proj_parm.utg, PROJ_ETMERC_ORDER, 2*Cn, 2*Ce, &dCn, &dCe);
                         Ce += dCe;
-                        Ce = atan(sinh(Ce)); /* Replaces: Ce = 2*(atan(exp(Ce)) - FORTPI); */
+                        Ce = atan(sinh(Ce)); /* Replaces: Ce = 2*(atan(exp(Ce)) - fourth_pi); */
                         /* compl. sph. LAT -> Gaussian LAT, LNG */
                         sin_Cn = sin(Cn);
                         cos_Cn = cos(Cn);
@@ -346,7 +346,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_utm(Parameters& par, par_etmerc<T>& proj_parm)
             {
-                static const T ONEPI = detail::ONEPI<T>();
+                static const T pi = detail::pi<T>();
 
                 int zone;
 
@@ -366,13 +366,13 @@ namespace projections
                 }
                 else /* nearest central meridian input */
                 {
-                    zone = int_floor((adjlon(par.lam0) + ONEPI) * 30. / ONEPI);
+                    zone = int_floor((adjlon(par.lam0) + pi) * 30. / pi);
                     if (zone < 0)
                         zone = 0;
                     else if (zone >= 60)
                         zone = 59;
                 }
-                par.lam0 = (zone + .5) * ONEPI / 30. - ONEPI;
+                par.lam0 = (zone + .5) * pi / 30. - pi;
                 par.k0 = 0.9996;
                 par.phi0 = 0.;
 

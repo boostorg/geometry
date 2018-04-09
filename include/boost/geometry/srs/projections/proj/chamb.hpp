@@ -64,7 +64,7 @@ namespace projections
     namespace detail { namespace chamb
     {
 
-            //static const double THIRD = 0.333333333333333333;
+            //static const double third = 0.333333333333333333;
             static const double TOL = 1e-9;
 
             // specific for 'chamb'
@@ -135,7 +135,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType THIRD = detail::THIRD<CalculationType>();
+                    static const CalculationType third = detail::third<CalculationType>();
 
                     CalculationType sinphi, cosphi, a;
                     VECT<CalculationType> v[3];
@@ -172,8 +172,8 @@ namespace projections
                                 xy_y += v[i].r * sin(a);
                             }
                         }
-                        xy_x *= THIRD; /* mean of arc intercepts */
-                        xy_y *= THIRD;
+                        xy_x *= third; /* mean of arc intercepts */
+                        xy_y *= third;
                     }
                 }
 
@@ -188,7 +188,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
             {
-                static const T ONEPI = detail::ONEPI<T>();
+                static const T pi = detail::pi<T>();
 
                 static const std::string lat[3] = {"lat_1", "lat_2", "lat_3"};
                 static const std::string lon[3] = {"lon_1", "lon_2", "lon_3"};
@@ -212,7 +212,7 @@ namespace projections
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);
                 proj_parm.beta_1 = lc(proj_parm.c[0].v.r, proj_parm.c[1].v.r, proj_parm.c[2].v.r);
-                proj_parm.beta_2 = ONEPI - proj_parm.beta_0;
+                proj_parm.beta_2 = pi - proj_parm.beta_0;
                 proj_parm.p.y = 2. * (proj_parm.c[0].p.y = proj_parm.c[1].p.y = proj_parm.c[2].v.r * sin(proj_parm.beta_0));
                 proj_parm.c[2].p.y = 0.;
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);

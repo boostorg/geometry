@@ -66,7 +66,7 @@ namespace projections
             static const double C_p = 0.6141848493043784;
             static const double EPS = 1e-10;
             static const int NITER = 10;
-            //static const double PI_DIV_3 = 1.0471975511965977;
+            //static const double third_pi = 1.0471975511965977;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -86,7 +86,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType PI_DIV_3 = detail::PI_DIV_3<CalculationType>();
+                    static const CalculationType third_pi = detail::third_pi<CalculationType>();
 
                     CalculationType p, c, s, V;
                     int i;
@@ -103,7 +103,7 @@ namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = lp_lat < 0 ? - PI_DIV_3 : PI_DIV_3;
+                        lp_lat = lp_lat < 0 ? - third_pi : third_pi;
                     xy_x = C_x * lp_lon * (cos(lp_lat) - 0.5);
                     xy_y = C_y * sin(lp_lat);
                 }

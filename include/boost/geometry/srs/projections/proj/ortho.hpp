@@ -100,7 +100,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType coslam, cosphi, sinphi;
 
@@ -124,7 +124,7 @@ namespace projections
                         coslam = - coslam;
                         BOOST_FALLTHROUGH;
                     case S_POLE:
-                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) {
+                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > half_pi) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         }
                         xy_y = cosphi * coslam;
@@ -137,7 +137,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType rh, cosc, sinc;
 
@@ -171,13 +171,13 @@ namespace projections
                             xy_x *= sinc * this->m_proj_parm.cosph0;
                         sinchk:
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                             else
                                 lp_lat = asin(lp_lat);
                             break;
                         }
                         lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT))
-                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -HALFPI : HALFPI)
+                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -half_pi : half_pi)
                                            : atan2(xy_x, xy_y);
                     }
                 }

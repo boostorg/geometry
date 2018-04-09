@@ -107,8 +107,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
 
                     CalculationType cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
                     int tag;
@@ -117,8 +117,8 @@ namespace projections
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
-                        Az = lp_lat < 0. ? ONEPI : 0.;
+                    if (fabs(fabs(lp_lat) - half_pi) < EPS10) {
+                        Az = lp_lat < 0. ? pi : 0.;
                         tphi = HUGE_VAL;
                     } else {
                         tphi = sphi / cphi;

@@ -85,9 +85,9 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;
@@ -129,23 +129,23 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;
-                    xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
+                    xy_y = this->m_par.k0 * log(tan(fourth_pi + .5 * lp_lat));
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
-                    lp_lat = HALFPI - 2. * atan(exp(-xy_y / this->m_par.k0));
+                    lp_lat = half_pi - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
                 }
 
@@ -161,14 +161,14 @@ namespace projections
             inline void setup_merc(Parameters& par)
             {
                 typedef typename Parameters::type calc_t;
-                static const calc_t HALFPI = detail::HALFPI<calc_t>();
+                static const calc_t half_pi = detail::half_pi<calc_t>();
 
                 calc_t phits=0.0;
                 int is_phits;
 
                 if( (is_phits = pj_param_r(par.params, "lat_ts", phits)) ) {
                     phits = fabs(phits);
-                    if (phits >= HALFPI)
+                    if (phits >= half_pi)
                         BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 }
                 if (par.es != 0.0) { /* ellipsoid */

@@ -77,20 +77,20 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     xy_x = lp_lon;
-                    xy_y = log(tan(FORTPI + lp_lat * .4)) * 1.25;
+                    xy_y = log(tan(fourth_pi + lp_lat * .4)) * 1.25;
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     lp_lon = xy_x;
-                    lp_lat = 2.5 * (atan(exp(.8 * xy_y)) - FORTPI);
+                    lp_lat = 2.5 * (atan(exp(.8 * xy_y)) - fourth_pi);
                 }
 
                 static inline std::string get_name()

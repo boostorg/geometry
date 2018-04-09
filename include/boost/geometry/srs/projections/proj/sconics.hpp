@@ -186,7 +186,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup(Parameters& par, par_sconics<T>& proj_parm, Type type) 
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T del, cs;
                 int err;
@@ -229,7 +229,7 @@ namespace projections
                     proj_parm.n = sin(proj_parm.sig);
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
-                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= HALFPI)
+                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= half_pi)
                         BOOST_THROW_EXCEPTION( projection_exception(-43) );
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;

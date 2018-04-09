@@ -108,7 +108,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
 
@@ -130,11 +130,11 @@ namespace projections
                         b = 1. + cosb * coslam;
                         break;
                     case N_POLE:
-                        b = HALFPI + lp_lat;
+                        b = half_pi + lp_lat;
                         q = this->m_proj_parm.qp - q;
                         break;
                     case S_POLE:
-                        b = lp_lat - HALFPI;
+                        b = lp_lat - half_pi;
                         q = this->m_proj_parm.qp + q;
                         break;
                     }
@@ -240,7 +240,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     CalculationType  coslam, cosphi, sinphi;
 
@@ -269,7 +269,7 @@ namespace projections
                         if (fabs(lp_lat + this->m_par.phi0) < EPS10) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         }
-                        xy_y = FORTPI - lp_lat * .5;
+                        xy_y = fourth_pi - lp_lat * .5;
                         xy_y = 2. * (this->m_proj_parm.mode == S_POLE ? cos(xy_y) : sin(xy_y));
                         xy_x = xy_y * sin(lp_lon);
                         xy_y *= coslam;
@@ -281,7 +281,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType  cosz=0.0, rh, sinz=0.0;
 
@@ -308,10 +308,10 @@ namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
-                        lp_lat = HALFPI - lp_lat;
+                        lp_lat = half_pi - lp_lat;
                         break;
                     case S_POLE:
-                        lp_lat -= HALFPI;
+                        lp_lat -= half_pi;
                         break;
                     }
                     lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == EQUIT || this->m_proj_parm.mode == OBLIQ)) ?
@@ -329,12 +329,12 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_laea(Parameters& par, par_laea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T t;
 
                 t = fabs(par.phi0);
-                if (fabs(t - HALFPI) < EPS10)
+                if (fabs(t - half_pi) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(t) < EPS10)
                     proj_parm.mode = EQUIT;

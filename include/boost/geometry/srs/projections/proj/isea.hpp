@@ -402,7 +402,7 @@ namespace projections
             template <typename T>
             inline int isea_snyder_forward(isea_geo<T> * ll, isea_pt<T> * out)
             {
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const two_pi = detail::two_pi<T>();
                 static T const DEG2RAD = geometry::math::d2r<T>();
 
                 int             i;
@@ -475,7 +475,7 @@ namespace projections
                     /* TODO I don't know why we do this.  It's not in snyder */
                     /* maybe because we should have picked a better vertex */
                     if (Az < 0.0) {
-                        Az += TWOPI;
+                        Az += two_pi;
                     }
                     /*
                      * adjust Az for the point to fall within the range of 0 to
@@ -597,8 +597,8 @@ namespace projections
             template <typename T>
             inline isea_geo<T> snyder_ctran(isea_geo<T> * np, isea_geo<T> * pt)
             {
-                static T const ONEPI = detail::ONEPI<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const pi = detail::pi<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 isea_geo<T> npt;
                 T           alpha, phi, lambda, lambda0, beta, lambdap, phip;
@@ -628,11 +628,11 @@ namespace projections
 
                 /* normalize longitude */
                 /* TODO can we just do a modulus ? */
-                lambdap = fmod(lambdap, TWOPI);
-                while (lambdap > ONEPI)
-                    lambdap -= TWOPI;
-                while (lambdap < -ONEPI)
-                    lambdap += TWOPI;
+                lambdap = fmod(lambdap, two_pi);
+                while (lambdap > pi)
+                    lambdap -= two_pi;
+                while (lambdap < -pi)
+                    lambdap += two_pi;
 
                 phip = asin(sin_phip);
 
@@ -645,28 +645,28 @@ namespace projections
             template <typename T>
             inline isea_geo<T> isea_ctran(isea_geo<T> * np, isea_geo<T> * pt, T const& lon0)
             {
-                static T const ONEPI = detail::ONEPI<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const pi = detail::pi<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 isea_geo<T> npt;
 
-                np->lon += ONEPI;
+                np->lon += pi;
                 npt = snyder_ctran(np, pt);
-                np->lon -= ONEPI;
+                np->lon -= pi;
 
-                npt.lon -= (ONEPI - lon0 + np->lon);
+                npt.lon -= (pi - lon0 + np->lon);
 
                 /*
                  * snyder is down tri 3, isea is along side of tri1 from vertex 0 to
                  * vertex 1 these are 180 degrees apart
                  */
-                npt.lon += ONEPI;
+                npt.lon += pi;
                 /* normalize longitude */
-                npt.lon = fmod(npt.lon, TWOPI);
-                while (npt.lon > ONEPI)
-                    npt.lon -= TWOPI;
-                while (npt.lon < -ONEPI)
-                    npt.lon += TWOPI;
+                npt.lon = fmod(npt.lon, two_pi);
+                while (npt.lon > pi)
+                    npt.lon -= two_pi;
+                while (npt.lon < -pi)
+                    npt.lon += two_pi;
 
                 return npt;
             }
@@ -707,11 +707,11 @@ namespace projections
             template <typename T>
             inline int isea_orient_pole(isea_dgg<T> * g)
             {
-                static T const HALFPI = detail::HALFPI<T>();
+                static T const half_pi = detail::half_pi<T>();
 
                 if (!g)
                     return 0;
-                g->o_lat = HALFPI;
+                g->o_lat = half_pi;
                 g->o_lon = 0.0;
                 g->o_az = 0;
                 return 1;
@@ -742,15 +742,15 @@ namespace projections
             inline void isea_rotate(isea_pt<T> * pt, T const& degrees)
             {
                 static T const DEG2RAD = geometry::math::d2r<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 T          rad;
 
                 T          x, y;
 
                 rad = -degrees * DEG2RAD;
-                while (rad >= TWOPI) rad -= TWOPI;
-                while (rad <= -TWOPI) rad += TWOPI;
+                while (rad >= two_pi) rad -= two_pi;
+                while (rad <= -two_pi) rad += two_pi;
 
                 x = pt->x * cos(rad) + pt->y * sin(rad);
                 y = -pt->x * sin(rad) + pt->y * cos(rad);
@@ -797,7 +797,7 @@ namespace projections
             template <typename T>
             inline int isea_dddi_ap3odd(isea_dgg<T> *g, int quad, isea_pt<T> *pt, isea_pt<T> *di)
             {
-                static T const ONEPI = detail::ONEPI<T>();
+                static T const pi = detail::pi<T>();
 
                 isea_pt<T> v;
                 T          hexwidth;
@@ -810,7 +810,7 @@ namespace projections
                 sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
 
                 /* apex to base is cos(30deg) */
-                hexwidth = cos(ONEPI / 6.0) / sidelength;
+                hexwidth = cos(pi / 6.0) / sidelength;
 
                 /* TODO I think sidelength is always x.5, so
                  * (int)sidelength * 2 + 1 might be just as good

@@ -206,7 +206,7 @@ namespace projections
             template <typename T, typename Par, typename ProjParm>
             inline void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& /*par*/, ProjParm const& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
                     
                 T coslam, cosphi, sinphi;
 
@@ -238,9 +238,9 @@ namespace projections
                     coslam = -coslam;
                     BOOST_FALLTHROUGH;
                 case S_POLE:
-                    if (fabs(lp_lat - HALFPI) < EPS10)
+                    if (fabs(lp_lat - half_pi) < EPS10)
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                    xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
+                    xy_x = (xy_y = (half_pi + lp_lat)) * sin(lp_lon);
                     xy_y *= coslam;
                     break;
                 }
@@ -249,15 +249,15 @@ namespace projections
             template <typename T, typename Par, typename ProjParm>
             inline void s_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& par, ProjParm const& proj_parm)
             {
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
                     
                 T cosc, c_rh, sinc;
 
-                if ((c_rh = boost::math::hypot(xy_x, xy_y)) > ONEPI) {
-                    if (c_rh - EPS10 > ONEPI)
+                if ((c_rh = boost::math::hypot(xy_x, xy_y)) > pi) {
+                    if (c_rh - EPS10 > pi)
                         BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                    c_rh = ONEPI;
+                    c_rh = pi;
                 } else if (c_rh < EPS10) {
                     lp_lat = par.phi0;
                     lp_lon = 0.;
@@ -278,10 +278,10 @@ namespace projections
                     }
                     lp_lon = xy_y == 0. ? 0. : atan2(xy_x, xy_y);
                 } else if (proj_parm.mode == N_POLE) {
-                    lp_lat = HALFPI - c_rh;
+                    lp_lat = half_pi - c_rh;
                     lp_lon = atan2(xy_x, -xy_y);
                 } else {
-                    lp_lat = c_rh - HALFPI;
+                    lp_lat = c_rh - half_pi;
                     lp_lon = atan2(xy_x, xy_y);
                 }
             }
@@ -290,10 +290,10 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_aeqd(Parameters& par, par_aeqd<T>& proj_parm, bool is_sphere, bool is_guam)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 par.phi0 = pj_get_param_r(par.params, "lat_0");
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
+                if (fabs(fabs(par.phi0) - half_pi) < EPS10) {
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                     proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
                     proj_parm.cosph0 = 0.;
@@ -315,10 +315,10 @@ namespace projections
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
-                            proj_parm.Mp = pj_mlfn<T>(HALFPI, 1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn<T>(half_pi, 1., 0., proj_parm.en);
                             break;
                         case S_POLE:
-                            proj_parm.Mp = pj_mlfn<T>(-HALFPI, -1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn<T>(-half_pi, -1., 0., proj_parm.en);
                             break;
                         case EQUIT:
                         case OBLIQ:

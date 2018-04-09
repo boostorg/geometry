@@ -184,7 +184,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
                     const COEFS<CalculationType> * X = robin::X<CalculationType>();
                     const COEFS<CalculationType> * Y = robin::Y<CalculationType>();
 
@@ -199,7 +199,7 @@ namespace projections
                         if (lp_lat > ONEEPS) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         } else {
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -half_pi : half_pi;
                             lp_lon /= X[NODES].c0;
                         }
                     } else { /* general problem */

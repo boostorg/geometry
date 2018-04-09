@@ -231,7 +231,7 @@ namespace projections
             template <typename CalculationType, typename Parameters, typename ProjParameters>
             inline CalculationType setup_ob_tran(Parameters & par, ProjParameters& proj_parm)
             {
-                static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                 CalculationType phip, alpha;
 
@@ -246,7 +246,7 @@ namespace projections
                     phic    = pj_get_param_r(par.params, "o_lat_c");
                     //alpha   = pj_get_param_r(par.params, "o_alpha");
             
-                    if (fabs(fabs(phic) - HALFPI) <= TOL)
+                    if (fabs(fabs(phic) - half_pi) <= TOL)
                         BOOST_THROW_EXCEPTION( projection_exception(-33) );
 
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
@@ -262,7 +262,7 @@ namespace projections
                     lam2 = pj_get_param_r(par.params, "o_lon_2");
                     phi2 = pj_get_param_r(par.params, "o_lat_2");
                     if (fabs(phi1 - phi2) <= TOL || (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL || fabs(fabs(phi2) - HALFPI) <= TOL)
+                        fabs(con - half_pi) <= TOL || fabs(fabs(phi2) - half_pi) <= TOL)
                         BOOST_THROW_EXCEPTION( projection_exception(-32) );
 
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -

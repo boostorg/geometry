@@ -90,16 +90,16 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const CalculationType two_div_pi = detail::two_div_pi<CalculationType>();
 
                     CalculationType k, V;
                     int i;
 
-                    xy_y = lp_lat * TWO_D_PI;
-                    k = ONEPI * sin(lp_lat);
+                    xy_y = lp_lat * two_div_pi;
+                    k = pi * sin(lp_lat);
                     lp_lat *= 1.8;
                     for (i = MAX_ITER; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
@@ -108,11 +108,11 @@ namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
                     else
                         lp_lat *= 0.5;
                     xy_x = 0.5 * lp_lon * (cos(lp_lat) + this->m_proj_parm.cosphi1);
-                    xy_y = FORTPI * (sin(lp_lat) + xy_y);
+                    xy_y = fourth_pi * (sin(lp_lat) + xy_y);
                 }
 
                 static inline std::string get_name()

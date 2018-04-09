@@ -204,47 +204,47 @@ namespace projections
             template <typename T>
             inline int in_image(T const& x, T const& y, int proj, int north_square, int south_square)
             {
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 if (proj == 0) {
                     T healpixVertsJit[][2] = {
-                        {-ONEPI - EPS,   FORTPI},
-                        {-3.0*FORTPI,   HALFPI + EPS},
-                        {-HALFPI,       FORTPI + EPS},
-                        {-FORTPI,       HALFPI + EPS},
-                        {0.0,           FORTPI + EPS},
-                        {FORTPI,        HALFPI + EPS},
-                        {HALFPI,        FORTPI + EPS},
-                        {3.0*FORTPI,    HALFPI + EPS},
-                        {ONEPI + EPS,    FORTPI},
-                        {ONEPI + EPS,   -FORTPI},
-                        {3.0*FORTPI,   -HALFPI - EPS},
-                        {HALFPI,       -FORTPI - EPS},
-                        {FORTPI,       -HALFPI - EPS},
-                        {0.0,          -FORTPI - EPS},
-                        {-FORTPI,      -HALFPI - EPS},
-                        {-HALFPI,      -FORTPI - EPS},
-                        {-3.0*FORTPI,  -HALFPI - EPS},
-                        {-ONEPI - EPS, -FORTPI}
+                        {-pi - EPS,   fourth_pi},
+                        {-3.0*fourth_pi,   half_pi + EPS},
+                        {-half_pi,       fourth_pi + EPS},
+                        {-fourth_pi,       half_pi + EPS},
+                        {0.0,           fourth_pi + EPS},
+                        {fourth_pi,        half_pi + EPS},
+                        {half_pi,        fourth_pi + EPS},
+                        {3.0*fourth_pi,    half_pi + EPS},
+                        {pi + EPS,    fourth_pi},
+                        {pi + EPS,   -fourth_pi},
+                        {3.0*fourth_pi,   -half_pi - EPS},
+                        {half_pi,       -fourth_pi - EPS},
+                        {fourth_pi,       -half_pi - EPS},
+                        {0.0,          -fourth_pi - EPS},
+                        {-fourth_pi,      -half_pi - EPS},
+                        {-half_pi,      -fourth_pi - EPS},
+                        {-3.0*fourth_pi,  -half_pi - EPS},
+                        {-pi - EPS, -fourth_pi}
                     };
                     return pnpoly((int)sizeof(healpixVertsJit)/
                                   sizeof(healpixVertsJit[0]), healpixVertsJit, x, y);
                 } else {
                     T rhealpixVertsJit[][2] = {
-                        {-ONEPI - EPS,                                FORTPI + EPS},
-                        {-ONEPI + north_square*HALFPI - EPS,          FORTPI + EPS},
-                        {-ONEPI + north_square*HALFPI - EPS,          3.0*FORTPI + EPS},
-                        {-ONEPI + (north_square + 1.0)*HALFPI + EPS,  3.0*FORTPI + EPS},
-                        {-ONEPI + (north_square + 1.0)*HALFPI + EPS,  FORTPI + EPS},
-                        {ONEPI + EPS,                                 FORTPI + EPS},
-                        {ONEPI + EPS,                                -FORTPI - EPS},
-                        {-ONEPI + (south_square + 1.0)*HALFPI + EPS, -FORTPI - EPS},
-                        {-ONEPI + (south_square + 1.0)*HALFPI + EPS, -3.0*FORTPI - EPS},
-                        {-ONEPI + south_square*HALFPI - EPS,         -3.0*FORTPI - EPS},
-                        {-ONEPI + south_square*HALFPI - EPS,         -FORTPI - EPS},
-                        {-ONEPI - EPS,                               -FORTPI - EPS}
+                        {-pi - EPS,                                fourth_pi + EPS},
+                        {-pi + north_square*half_pi - EPS,          fourth_pi + EPS},
+                        {-pi + north_square*half_pi - EPS,          3.0*fourth_pi + EPS},
+                        {-pi + (north_square + 1.0)*half_pi + EPS,  3.0*fourth_pi + EPS},
+                        {-pi + (north_square + 1.0)*half_pi + EPS,  fourth_pi + EPS},
+                        {pi + EPS,                                 fourth_pi + EPS},
+                        {pi + EPS,                                -fourth_pi - EPS},
+                        {-pi + (south_square + 1.0)*half_pi + EPS, -fourth_pi - EPS},
+                        {-pi + (south_square + 1.0)*half_pi + EPS, -3.0*fourth_pi - EPS},
+                        {-pi + south_square*half_pi - EPS,         -3.0*fourth_pi - EPS},
+                        {-pi + south_square*half_pi - EPS,         -fourth_pi - EPS},
+                        {-pi - EPS,                               -fourth_pi - EPS}
                     };
 
                     return pnpoly((int)sizeof(rhealpixVertsJit)/
@@ -283,9 +283,9 @@ namespace projections
             template <typename T>
             inline void healpix_sphere(T const& lp_lam, T const& lp_phi, T& xy_x, T& xy_y)
             {               
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T lam = lp_lam;
                 T phi = lp_phi;
@@ -294,17 +294,17 @@ namespace projections
                 /* equatorial region */
                 if ( fabsl(phi) <= phi0) {
                     xy_x = lam;
-                    xy_y = 3.0*ONEPI/8.0*sin(phi);
+                    xy_y = 3.0*pi/8.0*sin(phi);
                 } else {
                     T lamc;
                     T sigma = sqrt(3.0*(1 - math::abs(sin(phi))));
-                    T cn = floor(2*lam / ONEPI + 2);
+                    T cn = floor(2*lam / pi + 2);
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    lamc = -3*FORTPI + HALFPI*cn;
+                    lamc = -3*fourth_pi + half_pi*cn;
                     xy_x = lamc + (lam - lamc)*sigma;
-                    xy_y = pj_sign(phi)*FORTPI*(2 - sigma);
+                    xy_y = pj_sign(phi)*fourth_pi*(2 - sigma);
                 }
                 return;
             }
@@ -314,31 +314,31 @@ namespace projections
             template <typename T>
             inline void healpix_sphere_inverse(T const& xy_x, T const& xy_y, T& lp_lam, T& lp_phi)
             {                
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T x = xy_x;
                 T y = xy_y;
-                T y0 = FORTPI;
+                T y0 = fourth_pi;
 
                 /* Equatorial region. */
                 if (math::abs(y) <= y0) {
                     lp_lam = x;
-                    lp_phi = asin(8.0*y/(3.0*ONEPI));
-                } else if (fabsl(y) < HALFPI) {
-                    T cn = floor(2.0*x/ONEPI + 2.0);
+                    lp_phi = asin(8.0*y/(3.0*pi));
+                } else if (fabsl(y) < half_pi) {
+                    T cn = floor(2.0*x/pi + 2.0);
                     T xc, tau;
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    xc = -3.0*FORTPI + (HALFPI)*cn;
-                    tau = 2.0 - 4.0*fabsl(y)/ONEPI;
+                    xc = -3.0*fourth_pi + (half_pi)*cn;
+                    tau = 2.0 - 4.0*fabsl(y)/pi;
                     lp_lam = xc + (x - xc)/tau;
                     lp_phi = pj_sign(y)*asin(1.0 - pow(tau, 2)/3.0);
                 } else {
-                    lp_lam = -1.0*ONEPI;
-                    lp_phi = pj_sign(y)*HALFPI;
+                    lp_lam = -1.0*pi;
+                    lp_phi = pj_sign(y)*half_pi;
                 }
                 return;
             }
@@ -395,55 +395,55 @@ namespace projections
             inline CapMap<T> get_cap(T x, T const& y, int north_square, int south_square,
                                      int inverse)
             {
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 CapMap<T> capmap;
                 T c;
                 capmap.x = x;
                 capmap.y = y;
                 if (inverse == 0) {
-                    if (y > FORTPI) {
+                    if (y > fourth_pi) {
                         capmap.region = CapMap<T>::north;
-                        c = HALFPI;
-                    } else if (y < -FORTPI) {
+                        c = half_pi;
+                    } else if (y < -fourth_pi) {
                         capmap.region = CapMap<T>::south;
-                        c = -HALFPI;
+                        c = -half_pi;
                     } else {
                         capmap.region = CapMap<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* polar region */
-                    if (x < -HALFPI) {
+                    if (x < -half_pi) {
                         capmap.cn = 0;
-                        capmap.x = (-3.0*FORTPI);
+                        capmap.x = (-3.0*fourth_pi);
                         capmap.y = c;
-                    } else if (x >= -HALFPI && x < 0) {
+                    } else if (x >= -half_pi && x < 0) {
                         capmap.cn = 1;
-                        capmap.x = -FORTPI;
+                        capmap.x = -fourth_pi;
                         capmap.y = c;
-                    } else if (x >= 0 && x < HALFPI) {
+                    } else if (x >= 0 && x < half_pi) {
                         capmap.cn = 2;
-                        capmap.x = FORTPI;
+                        capmap.x = fourth_pi;
                         capmap.y = c;
                     } else {
                         capmap.cn = 3;
-                        capmap.x = 3.0*FORTPI;
+                        capmap.x = 3.0*fourth_pi;
                         capmap.y = c;
                     }
                 } else {
-                    if (y > FORTPI) {
+                    if (y > fourth_pi) {
                         capmap.region = CapMap<T>::north;
-                        capmap.x = (-3.0*FORTPI + north_square*HALFPI);
-                        capmap.y = HALFPI;
-                        x = x - north_square*HALFPI;
-                    } else if (y < -FORTPI) {
+                        capmap.x = (-3.0*fourth_pi + north_square*half_pi);
+                        capmap.y = half_pi;
+                        x = x - north_square*half_pi;
+                    } else if (y < -fourth_pi) {
                         capmap.region = CapMap<T>::south;
-                        capmap.x = (-3.0*FORTPI + south_square*ONEPI/2);
-                        capmap.y = -HALFPI;
-                        x = x - south_square*HALFPI;
+                        capmap.x = (-3.0*fourth_pi + south_square*pi/2);
+                        capmap.y = -half_pi;
+                        x = x - south_square*half_pi;
                     } else {
                         capmap.region = CapMap<T>::equatorial;
                         capmap.cn = 0;
@@ -452,21 +452,21 @@ namespace projections
                     /* Polar Region, find the HEALPix polar cap number that
                        x, y moves to when rHEALPix polar square is disassembled. */
                     if (capmap.region == CapMap<T>::north) {
-                        if (y >= -x - FORTPI - EPS && y < x + 5.0*FORTPI - EPS) {
+                        if (y >= -x - fourth_pi - EPS && y < x + 5.0*fourth_pi - EPS) {
                             capmap.cn = (north_square + 1) % 4;
-                        } else if (y > -x -FORTPI + EPS && y >= x + 5.0*FORTPI - EPS) {
+                        } else if (y > -x -fourth_pi + EPS && y >= x + 5.0*fourth_pi - EPS) {
                             capmap.cn = (north_square + 2) % 4;
-                        } else if (y <= -x -FORTPI + EPS && y > x + 5.0*FORTPI + EPS) {
+                        } else if (y <= -x -fourth_pi + EPS && y > x + 5.0*fourth_pi + EPS) {
                             capmap.cn = (north_square + 3) % 4;
                         } else {
                             capmap.cn = north_square;
                         }
                     } else if (capmap.region == CapMap<T>::south) {
-                        if (y <= x + FORTPI + EPS && y > -x - 5.0*FORTPI + EPS) {
+                        if (y <= x + fourth_pi + EPS && y > -x - 5.0*fourth_pi + EPS) {
                             capmap.cn = (south_square + 1) % 4;
-                        } else if (y < x + FORTPI - EPS && y <= -x - 5.0*FORTPI + EPS) {
+                        } else if (y < x + fourth_pi - EPS && y <= -x - 5.0*fourth_pi + EPS) {
                             capmap.cn = (south_square + 2) % 4;
-                        } else if (y >= x + FORTPI - EPS && y < -x - 5.0*FORTPI - EPS) {
+                        } else if (y >= x + fourth_pi - EPS && y < -x - 5.0*fourth_pi - EPS) {
                             capmap.cn = (south_square + 3) % 4;
                         } else {
                             capmap.cn = south_square;
@@ -488,8 +488,8 @@ namespace projections
             inline void combine_caps(T& xy_x, T& xy_y, int north_square, int south_square,
                                      int inverse)
             {
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T v[2];
                 T c[2];
@@ -542,9 +542,9 @@ namespace projections
                     /* Workaround cppcheck git issue */
                     T* pa = a;
                     // TODO: in proj4 5.0.0 this line is used instead
-                    //pa[0] = -3.0*FORTPI + ((inverse == 0) ? 0 : capmap.cn) *HALFPI;
-                    pa[0] = -3.0*FORTPI + ((inverse == 0) ? pole : capmap.cn) *HALFPI;
-                    pa[1] = HALFPI;
+                    //pa[0] = -3.0*fourth_pi + ((inverse == 0) ? 0 : capmap.cn) *half_pi;
+                    pa[0] = -3.0*fourth_pi + ((inverse == 0) ? pole : capmap.cn) *half_pi;
+                    pa[1] = half_pi;
                     vector_add(ret_dot, a, vector);
                 }
 

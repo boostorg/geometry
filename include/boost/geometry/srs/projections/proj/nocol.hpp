@@ -82,7 +82,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     if (fabs(lp_lon) < EPS) {
                         xy_x = 0;
@@ -90,17 +90,17 @@ namespace projections
                     } else if (fabs(lp_lat) < EPS) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(fabs(lp_lon) - HALFPI) < EPS) {
+                    } else if (fabs(fabs(lp_lon) - half_pi) < EPS) {
                         xy_x = lp_lon * cos(lp_lat);
-                        xy_y = HALFPI * sin(lp_lat);
-                    } else if (fabs(fabs(lp_lat) - HALFPI) < EPS) {
+                        xy_y = half_pi * sin(lp_lat);
+                    } else if (fabs(fabs(lp_lat) - half_pi) < EPS) {
                         xy_x = 0;
                         xy_y = lp_lat;
                     } else {
                         CalculationType tb, c, d, m, n, r2, sp;
 
-                        tb = HALFPI / lp_lon - lp_lon / HALFPI;
-                        c = lp_lat / HALFPI;
+                        tb = half_pi / lp_lon - lp_lon / half_pi;
+                        c = lp_lat / half_pi;
                         d = (1 - c * c)/((sp = sin(lp_lat)) - c);
                         r2 = tb / d;
                         r2 *= r2;
@@ -108,10 +108,10 @@ namespace projections
                         n = (sp / r2 + 0.5 * d)/(1. + 1./r2);
                         xy_x = cos(lp_lat);
                         xy_x = sqrt(m * m + xy_x * xy_x / (1. + r2));
-                        xy_x = HALFPI * ( m + (lp_lon < 0. ? -xy_x : xy_x));
+                        xy_x = half_pi * ( m + (lp_lon < 0. ? -xy_x : xy_x));
                         xy_y = sqrt(n * n - (sp * sp / r2 + d * sp - 1.) /
                             (1. + 1./r2));
-                        xy_y = HALFPI * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
+                        xy_y = half_pi * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
                     }
                 }
 

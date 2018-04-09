@@ -98,19 +98,19 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType rho;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) < EPS10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) {
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         }
                         rho = 0.;
                     } else {
                         rho = this->m_proj_parm.c * (this->m_proj_parm.ellips ? pow(pj_tsfn(lp_lat, sin(lp_lat),
-                            this->m_par.e), this->m_proj_parm.n) : pow(tan(FORTPI + .5 * lp_lat), -this->m_proj_parm.n));
+                            this->m_par.e), this->m_proj_parm.n) : pow(tan(fourth_pi + .5 * lp_lat), -this->m_proj_parm.n));
                     }
                     lp_lon *= this->m_proj_parm.n;
                     xy_x = this->m_par.k0 * (rho * sin( lp_lon) );
@@ -121,7 +121,7 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType rho;
 
@@ -142,11 +142,11 @@ namespace projections
                                 BOOST_THROW_EXCEPTION( projection_exception(-20) );
                             }
                         } else
-                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - HALFPI;
+                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - half_pi;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : -HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? half_pi : -half_pi;
                     }
                 }
 
@@ -161,8 +161,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_lcc(Parameters& par, par_lcc<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T cosphi, sinphi;
                 int secant;
@@ -193,16 +193,16 @@ namespace projections
                         proj_parm.n /= log(ml1 / pj_tsfn(proj_parm.phi2, sinphi, par.e));
                     }
                     proj_parm.c = (proj_parm.rho0 = m1 * pow(ml1, -proj_parm.n) / proj_parm.n);
-                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
+                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < EPS10) ? 0. :
                         pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
                 } else {
                     if (secant)
                         proj_parm.n = log(cosphi / cos(proj_parm.phi2)) /
-                           log(tan(FORTPI + .5 * proj_parm.phi2) /
-                           tan(FORTPI + .5 * proj_parm.phi1));
-                    proj_parm.c = cosphi * pow(tan(FORTPI + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
-                    proj_parm.rho0 = (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
-                        proj_parm.c * pow(tan(FORTPI + .5 * par.phi0), -proj_parm.n);
+                           log(tan(fourth_pi + .5 * proj_parm.phi2) /
+                           tan(fourth_pi + .5 * proj_parm.phi1));
+                    proj_parm.c = cosphi * pow(tan(fourth_pi + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
+                    proj_parm.rho0 = (fabs(fabs(par.phi0) - half_pi) < EPS10) ? 0. :
+                        proj_parm.c * pow(tan(fourth_pi + .5 * par.phi0), -proj_parm.n);
                 }
             }
 

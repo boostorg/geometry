@@ -108,7 +108,7 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
 
@@ -140,7 +140,7 @@ namespace projections
                     case S_POLE:
                     case N_POLE:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
-                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > HALFPI)
+                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > half_pi)
                             BOOST_THROW_EXCEPTION( projection_exception(-20) );
                         if ((lp_lat *= 0.5) > EPS) {
                             t = tan(lp_lat);
@@ -165,12 +165,12 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_airy(Parameters& par, par_airy<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T beta;
 
                 proj_parm.no_cut = pj_get_param_b(par.params, "no_cut");
-                beta = 0.5 * (HALFPI - pj_get_param_r(par.params, "lat_b"));
+                beta = 0.5 * (half_pi - pj_get_param_r(par.params, "lat_b"));
                 if (fabs(beta) < EPS)
                     proj_parm.Cb = -0.5;
                 else {
@@ -178,12 +178,12 @@ namespace projections
                     proj_parm.Cb *= proj_parm.Cb * log(cos(beta));
                 }
 
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS)
+                if (fabs(fabs(par.phi0) - half_pi) < EPS)
                     if (par.phi0 < 0.) {
-                        proj_parm.p_halfpi = -HALFPI;
+                        proj_parm.p_halfpi = -half_pi;
                         proj_parm.mode = S_POLE;
                     } else {
-                        proj_parm.p_halfpi =  HALFPI;
+                        proj_parm.p_halfpi =  half_pi;
                         proj_parm.mode = N_POLE;
                     }
                 else {

@@ -91,11 +91,11 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType v, c;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    if (fabs(fabs(lp_lat) - half_pi) < TOL) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
