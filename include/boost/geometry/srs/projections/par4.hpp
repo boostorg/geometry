@@ -485,7 +485,7 @@ struct pick_o_proj_tag
 
     static const bool is_non_void = ! boost::is_void<proj_type>::value;
 
-    BOOST_MPL_ASSERT_MSG((is_non_void), PROJECTION_NOT_NAMED, (Tuple));
+    BOOST_MPL_ASSERT_MSG((is_non_void), NO_O_PROJ_PARAMETER, (Tuple));
 
     typedef typename proj_type::type type;
 };
