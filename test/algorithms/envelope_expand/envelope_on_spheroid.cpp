@@ -2474,6 +2474,7 @@ BOOST_AUTO_TEST_CASE( envelope_polygon )
 // unit test for rings de-activated for now (current implementation
 // for area on the spherical equatorial coordinate system is not complete)
 // TODO: re-activate once implementation is done
+// right now implementation does not distinguish between ccw and cw rings
 BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
