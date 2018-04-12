@@ -19,6 +19,14 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.68]
+[/=================]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/470 470] Assertion failure with short spherical and geographic segments.
+
+[/=================]
 [heading Boost 1.67]
 [/=================]
 
