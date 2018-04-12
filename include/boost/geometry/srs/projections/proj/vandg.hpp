@@ -105,7 +105,7 @@ namespace projections
 
                     p2 = fabs(lp_lat / half_pi);
                     if ((p2 - TOL) > 1.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     if (p2 > 1.)
                         p2 = 1.;
@@ -130,7 +130,7 @@ namespace projections
                         xy_y = fabs(xy_x / pi);
                         xy_y = 1. - xy_y * (xy_y + 2. * al);
                         if (xy_y < -TOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         if (xy_y < 0.)
                             xy_y = 0.;
@@ -182,7 +182,7 @@ namespace projections
                         lp_lon = fabs(xy_x) <= TOL ? 0. :
                            .5 * (r - PISQ + (t <= 0. ? 0. : sqrt(t))) / xy_x;
                     } else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                 }
 

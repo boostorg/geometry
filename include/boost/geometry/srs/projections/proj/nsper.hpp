@@ -131,7 +131,7 @@ namespace projections
                         break;
                     }
                     if (xy_y < this->m_proj_parm.rp) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_y = this->m_proj_parm.pn1 / (this->m_proj_parm.p - xy_y);
                     xy_x = xy_y * cosphi * sin(lp_lon);
@@ -177,7 +177,7 @@ namespace projections
                     }
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((sinz = 1. - rh * rh * this->m_proj_parm.pfact) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     sinz = (this->m_proj_parm.p - sqrt(sinz)) / (this->m_proj_parm.pn1 / rh + rh / this->m_proj_parm.pn1);
                     cosz = sqrt(1. - sinz * sinz);
@@ -219,7 +219,7 @@ namespace projections
             inline void setup(Parameters& par, par_nsper<T>& proj_parm) 
             {
                 if ((proj_parm.height = pj_get_param_f(par.params, "h")) <= 0.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-30) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_h_less_than_zero) );
 
                 if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;

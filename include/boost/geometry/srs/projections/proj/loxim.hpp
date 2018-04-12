@@ -140,7 +140,7 @@ namespace projections
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
                 if (proj_parm.cosphi1 < EPS)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
                 proj_parm.tanphi1 = tan(fourth_pi + 0.5 * proj_parm.phi1);
 

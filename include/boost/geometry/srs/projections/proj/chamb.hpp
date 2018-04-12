@@ -207,7 +207,7 @@ namespace projections
                     proj_parm.c[i].v = vect(proj_parm.c[j].phi - proj_parm.c[i].phi, proj_parm.c[i].cosphi, proj_parm.c[i].sinphi,
                         proj_parm.c[j].cosphi, proj_parm.c[j].sinphi, proj_parm.c[j].lam - proj_parm.c[i].lam);
                     if (proj_parm.c[i].v.r == 0.0)
-                        BOOST_THROW_EXCEPTION( projection_exception(-25) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
                     /* co-linearity problem ignored for now */
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);

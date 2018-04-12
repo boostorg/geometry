@@ -124,7 +124,7 @@ namespace projections
                             sp = sin(lp_lat);
                             s2ph = sp * ( cp = cos(lp_lat));
                             if (fabs(cp) < ITOL) {
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                             c = sp * (mlp = sqrt(1. - this->m_par.es * sp * sp)) / cp;
                             ml = pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en);
@@ -138,7 +138,7 @@ namespace projections
                                 break;
                         }
                         if (!i) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         c = sin(lp_lat);
                         lp_lon = asin(xy_x * tan(lp_lat) * sqrt(1. - this->m_par.es * c * c)) / sin(lp_lat);
@@ -204,7 +204,7 @@ namespace projections
                                 ((lp_lat - xy_y) / tp - 1.));
                         } while (fabs(dphi) > CONV && --i);
                         if (! i) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         lp_lon = asin(xy_x * tan(lp_lat)) / sin(lp_lat);
                     }

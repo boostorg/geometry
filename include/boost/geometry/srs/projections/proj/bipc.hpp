@@ -130,7 +130,7 @@ namespace projections
                         z = S20 * sphi + C20 * cphi * cdlam;
                         if (fabs(z) > 1.) {
                             if (fabs(z) > ONEEPS)
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
                         } else
@@ -143,7 +143,7 @@ namespace projections
                         z = S45 * (sphi + cphi * cdlam);
                         if (fabs(z) > 1.) {
                             if (fabs(z) > ONEEPS)
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
                         } else
@@ -152,16 +152,16 @@ namespace projections
                         xy_y = -rhoc;
                     }
                     if (z < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     r = F * (t = pow(tan(.5 * z), n));
                     if ((al = .5 * (R104 - z)) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     al = (t + pow(al, n)) / T;
                     if (fabs(al) > 1.) {
                         if (fabs(al) > ONEEPS)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
                             al = al < 0. ? -1. : 1.;
                     } else
@@ -213,7 +213,7 @@ namespace projections
                         rl = r;
                     }
                     if (! i)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     Az = Av - Az / n;
                     lp_lat = asin(s * cos(z) + c * sin(z) * cos(Az));
                     lp_lon = atan2(sin(Az), c / tan(z) - s * cos(Az));

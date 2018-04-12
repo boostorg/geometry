@@ -151,7 +151,7 @@ namespace projections
                         }
                     }
                     if( i == 0 )
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                     lp_lat = yc;
 
                     /* longitude */

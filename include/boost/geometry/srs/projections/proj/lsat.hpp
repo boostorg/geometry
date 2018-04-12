@@ -249,11 +249,11 @@ namespace projections
 
                 land = pj_get_param_i(par.params, "lsat");
                 if (land <= 0 || land > 5)
-                    BOOST_THROW_EXCEPTION( projection_exception(-28) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lsat_not_in_range) );
 
                 path = pj_get_param_i(par.params, "path");
                 if (path <= 0 || path > (land <= 3 ? 251 : 233))
-                    BOOST_THROW_EXCEPTION( projection_exception(-29) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_path_not_in_range) );
 
                 if (land <= 3) {
                     par.lam0 = d2r * 128.87 - two_pi / 251. * path;

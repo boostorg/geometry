@@ -139,7 +139,7 @@ namespace projections
                         break;
                     }
                     if (fabs(b) < EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     switch (this->m_proj_parm.mode) {
@@ -255,7 +255,7 @@ namespace projections
                         xy_y = 1. + this->m_proj_parm.sinb1 * sinphi + this->m_proj_parm.cosb1 * cosphi * coslam;
                 oblcon:
                         if (xy_y <= EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = sqrt(2. / xy_y);
                         xy_x = xy_y * cosphi * sin(lp_lon);
@@ -267,7 +267,7 @@ namespace projections
                         BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(lp_lat + this->m_par.phi0) < EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = fourth_pi - lp_lat * .5;
                         xy_y = 2. * (this->m_proj_parm.mode == S_POLE ? cos(xy_y) : sin(xy_y));
@@ -287,7 +287,7 @@ namespace projections
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((lp_lat = rh * .5 ) > 1.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     lp_lat = 2. * asin(lp_lat);
                     if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {

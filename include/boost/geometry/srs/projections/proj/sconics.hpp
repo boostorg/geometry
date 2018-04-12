@@ -230,7 +230,7 @@ namespace projections
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
                     if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= half_pi)
-                        BOOST_THROW_EXCEPTION( projection_exception(-43) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_half_pi_from_mean) );
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;
                 case VITK1:

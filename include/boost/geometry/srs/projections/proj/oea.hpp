@@ -135,7 +135,7 @@ namespace projections
             {
                 if (((proj_parm.n = pj_get_param_f(par.params, "n")) <= 0.) ||
                     ((proj_parm.m = pj_get_param_f(par.params, "m")) <= 0.)) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-39) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_invalid_m_or_n) );
                 } else {
                     proj_parm.theta = pj_get_param_r(par.params, "theta");
                     proj_parm.sp0 = sin(par.phi0);

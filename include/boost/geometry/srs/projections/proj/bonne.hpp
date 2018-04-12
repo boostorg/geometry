@@ -120,7 +120,7 @@ namespace projections
                     } else if (fabs(s - half_pi) <= EPS10)
                         lp_lon = 0.;
                     else
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
 
                 static inline std::string get_name()
@@ -170,7 +170,7 @@ namespace projections
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
                     if (fabs(lp_lat) > half_pi) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     if (fabs(fabs(lp_lat) - half_pi) <= EPS10)
                         lp_lon = 0.;
@@ -195,7 +195,7 @@ namespace projections
 
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 if (fabs(proj_parm.phi1) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-23) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat1_is_zero) );
 
                 if (par.es != 0.0) {
                     proj_parm.en = pj_enfn<T>(par.es);

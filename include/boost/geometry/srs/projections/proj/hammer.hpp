@@ -104,7 +104,7 @@ namespace projections
                     if (geometry::math::abs(2.*z*z-1.) < EPS) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                     } else {
                         lp_lon = aatan2(this->m_proj_parm.w * xy_x * z,2. * z * z - 1)/this->m_proj_parm.w;
                         lp_lat = aasin(z * xy_y);
@@ -126,12 +126,12 @@ namespace projections
 
                 if (pj_param_f(par.params, "W", tmp)) {
                     if ((proj_parm.w = fabs(tmp)) <= 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-27) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
                 } else
                     proj_parm.w = .5;
                 if (pj_param_f(par.params, "M", tmp)) {
                     if ((proj_parm.m = fabs(tmp)) <= 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-27) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
                 } else
                     proj_parm.m = 1.;
 

@@ -108,9 +108,9 @@ namespace projections
 
                 if (pj_param_f(par.params, "n", proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 } else {
-                    BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 }
                 proj_parm.q3 = pj_get_param_f(par.params, "q") / 3.;
                 alpha = pj_get_param_r(par.params, "alpha");

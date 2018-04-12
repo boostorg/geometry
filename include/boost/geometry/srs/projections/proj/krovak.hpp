@@ -185,7 +185,7 @@ namespace projections
                         fi1 = lp_lat;
                     }
                     if( i == 0 )
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
 
                    lp_lon -= this->m_par.lam0;
                 }

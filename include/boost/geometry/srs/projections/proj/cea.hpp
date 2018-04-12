@@ -149,7 +149,7 @@ namespace projections
                             lp_lat = asin(xy_y);
                         lp_lon = xy_x / this->m_par.k0;
                     } else
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
 
                 static inline std::string get_name()
@@ -168,7 +168,7 @@ namespace projections
                 if (pj_param_r(par.params, "lat_ts", t)) {
                     par.k0 = cos(t);
                     if (par.k0 < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-24) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
                     }
                 }
                 if (par.es != 0.0) {

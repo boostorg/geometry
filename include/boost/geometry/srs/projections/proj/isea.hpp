@@ -1178,7 +1178,7 @@ namespace projections
                     } else if (opt == std::string("pole")) {
                         isea_orient_pole(&proj_parm.dgg);
                     } else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                     }
                 }
 
@@ -1205,7 +1205,7 @@ namespace projections
                     }
                     else {
                         /* TODO verify error code.  Possibly eliminate magic */
-                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                     }
                 }
 

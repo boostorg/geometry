@@ -102,7 +102,7 @@ namespace projections
                     if (fabs(lp_lat = 1. - lp_lat * lp_lat) < 1.)
                         lp_lat = asin(lp_lat);
                     else if (fabs(lp_lat) > ONEEPS) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     } else {
                         lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                     }

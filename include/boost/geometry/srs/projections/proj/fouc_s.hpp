@@ -136,7 +136,7 @@ namespace projections
             {
                 proj_parm.n = pj_get_param_f(par.params, "n");
                 if (proj_parm.n < 0. || proj_parm.n > 1.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
 
                 proj_parm.n1 = 1. - proj_parm.n;
                 par.es = 0;

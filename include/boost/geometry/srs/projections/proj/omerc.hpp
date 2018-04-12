@@ -107,7 +107,7 @@ namespace projections
                         V = sin(this->m_proj_parm.B * lp_lon);
                         U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
                         if (fabs(fabs(U) - 1.0) < EPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
@@ -156,7 +156,7 @@ namespace projections
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         lp_lon = - this->m_proj_parm.rB * atan2((Sp * this->m_proj_parm.cosgam -
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
@@ -210,7 +210,7 @@ namespace projections
                         fabs(con - half_pi) <= TOL ||
                         fabs(fabs(par.phi0) - half_pi) <= TOL ||
                         fabs(fabs(phi2) - half_pi) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-33) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
                 }
                 com = sqrt(par.one_es);
                 if (fabs(par.phi0) > EPS) {

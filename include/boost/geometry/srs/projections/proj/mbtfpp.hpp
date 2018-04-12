@@ -110,7 +110,7 @@ namespace projections
                     lp_lat = xy_y / FYC;
                     if (fabs(lp_lat) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
                         }
@@ -120,7 +120,7 @@ namespace projections
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
                     if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
                         }

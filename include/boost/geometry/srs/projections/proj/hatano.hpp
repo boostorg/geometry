@@ -117,7 +117,7 @@ namespace projections
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
                     if (fabs(th) > 1.) {
                         if (fabs(th) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             th = th > 0. ? half_pi : - half_pi;
                         }
@@ -130,7 +130,7 @@ namespace projections
                     lp_lat = (th + sin(th)) * (xy_y < 0. ? RCS : RCN);
                     if (fabs(lp_lat) > 1.) {
                         if (fabs(lp_lat) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = lp_lat > 0. ? half_pi : - half_pi;
                         }

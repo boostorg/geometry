@@ -177,7 +177,7 @@ namespace projections
                         if (fabs(dif) < DEL_TOL) break;
                     }
                     if (!i) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
@@ -198,7 +198,7 @@ namespace projections
                 proj_parm.en = pj_enfn<T>(par.es);
                 
                 if (par.phi0 == 0.) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-55) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_is_zero) );
                 }
                 proj_parm.l = sin(par.phi0);
                 proj_parm.M0 = pj_mlfn(par.phi0, proj_parm.l, cos(par.phi0), proj_parm.en);

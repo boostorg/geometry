@@ -83,7 +83,7 @@ namespace projections
 
                     b = cos(lp_lat) * sin(lp_lon);
                     if ((bt = 1. - b * b) < EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = b / sqrt(bt);
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon));

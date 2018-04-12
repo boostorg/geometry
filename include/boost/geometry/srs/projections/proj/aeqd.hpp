@@ -222,7 +222,7 @@ namespace projections
             oblcon:
                     if (fabs(fabs(xy_y) - 1.) < TOL)
                         if (xy_y < 0.)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
                             xy_x = xy_y = 0.;
                     else {
@@ -239,7 +239,7 @@ namespace projections
                     BOOST_FALLTHROUGH;
                 case S_POLE:
                     if (fabs(lp_lat - half_pi) < EPS10)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     xy_x = (xy_y = (half_pi + lp_lat)) * sin(lp_lon);
                     xy_y *= coslam;
                     break;
@@ -256,7 +256,7 @@ namespace projections
 
                 if ((c_rh = boost::math::hypot(xy_x, xy_y)) > pi) {
                     if (c_rh - EPS10 > pi)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     c_rh = pi;
                 } else if (c_rh < EPS10) {
                     lp_lat = par.phi0;

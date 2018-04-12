@@ -105,7 +105,7 @@ namespace projections
 
                     if (fabs(fabs(lp_lat) - half_pi) < EPS10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         rho = 0.;
                     } else {
@@ -139,7 +139,7 @@ namespace projections
                         if (this->m_proj_parm.ellips) {
                             lp_lat = pj_phi2(pow(rho / this->m_proj_parm.c, 1./this->m_proj_parm.n), this->m_par.e);
                             if (lp_lat == HUGE_VAL) {
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                         } else
                             lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - half_pi;
@@ -176,7 +176,7 @@ namespace projections
                         par.phi0 = proj_parm.phi1;
                 }
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);

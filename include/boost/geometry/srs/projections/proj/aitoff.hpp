@@ -200,7 +200,7 @@ namespace projections
 
                     if (iter == MAXITER && round == MAXROUND)
                     {
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                         //fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                     }
                 }
@@ -238,7 +238,7 @@ namespace projections
                 proj_parm.mode = WINKEL_TRIPEL;
                 if (pj_param_r(par.params, "lat_1", phi1)) {
                     if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
                 } else /* 50d28' or phi1=acos(2/pi) */
                     proj_parm.cosphi1 = two_div_pi;
                 setup(par);

@@ -3,6 +3,10 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -135,7 +139,7 @@ namespace detail
                 return phi;
         }
             /* convergence failed */
-        BOOST_THROW_EXCEPTION( projection_exception(-17) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_non_conv_inv_meri_dist) );
     }
 } // namespace detail
 

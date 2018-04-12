@@ -84,7 +84,7 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = lp_lon;
                     xy_y = tan(lp_lat);

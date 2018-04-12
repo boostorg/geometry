@@ -115,7 +115,7 @@ namespace projections
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
                         if (fabs(lp_lat) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else if (lp_lat < 0.) {
                             t = -1.; lp_lat = -pi;
                         } else {
@@ -127,7 +127,7 @@ namespace projections
                     lp_lat = RC * (t + sin(lp_lat));
                     if (fabs(lp_lat) > 1.)
                         if (fabs(lp_lat) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else
                             lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                     else

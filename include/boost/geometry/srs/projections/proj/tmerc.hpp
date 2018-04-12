@@ -134,7 +134,7 @@ namespace projections
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                         return;
                     }
 
@@ -243,14 +243,14 @@ namespace projections
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                         return;
                     }
 
                     cosphi = cos(lp_lat);
                     b = cosphi * sin(lp_lon);
                     if (fabs(fabs(b) - 1.) <= EPS10)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
                     xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b);
@@ -258,7 +258,7 @@ namespace projections
                     b = fabs( xy_y );
                     if (b >= 1.) {
                         if ((b - 1.) > EPS10)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else xy_y = 0.;
                     } else
                         xy_y = acos(xy_y);

@@ -157,7 +157,7 @@ inline void pj_gridlist_from_nadgrids(std::string const& nadgrids,
         if ( ! pj_gridlist_merge_gridfile(name, stream_policy, grids, gridindexes) 
           && required )
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-38) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_failed_to_load_grid) );
         }
     }
 }

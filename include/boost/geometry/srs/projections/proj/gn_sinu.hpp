@@ -119,7 +119,7 @@ namespace projections
                     } else if ((s - EPS10) < half_pi)
                         lp_lon = 0.;
                     else
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
                 /* General spherical sinusoidals */
 
@@ -163,7 +163,7 @@ namespace projections
                                 break;
                         }
                         if (!i) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                     }
                     xy_x = this->m_proj_parm.C_x * lp_lon * (this->m_proj_parm.m + cos(lp_lat));
@@ -203,9 +203,9 @@ namespace projections
                 if (pj_param_f(par.params, "n", proj_parm.n)
                  && pj_param_f(par.params, "m", proj_parm.m)) {
                     if (proj_parm.n <= 0 || proj_parm.m < 0)
-                        BOOST_THROW_EXCEPTION( projection_exception(-39) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_m_or_n) );
                 } else
-                    BOOST_THROW_EXCEPTION( projection_exception(-39) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_invalid_m_or_n) );
 
                 setup(par, proj_parm);
             }

@@ -86,11 +86,11 @@ namespace projections
                 /* get name of projection to be translated */
                 pj.name = pj_get_param_s(par.params, "o_proj");
                 if (pj.name.empty())
-                    BOOST_THROW_EXCEPTION( projection_exception(-26) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_no_rotation_proj) );
 
                 /* avoid endless recursion */
                 if( pj.name == "ob_tran")
-                    BOOST_THROW_EXCEPTION( projection_exception(-37) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_failed_to_find_proj) );
 
                 /* force spherical earth */
                 pj.one_es = pj.rone_es = 1.;
@@ -106,7 +106,7 @@ namespace projections
                     : link(projections::detail::create_new(o_proj_parameters(par)))
                 {
                     if (! link.get())
-                        BOOST_THROW_EXCEPTION( projection_exception(-5) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_unknown_projection_id) );
                 }
 
                 template <typename T>
@@ -247,7 +247,7 @@ namespace projections
                     //alpha   = pj_get_param_r(par.params, "o_alpha");
             
                     if (fabs(fabs(phic) - half_pi) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-33) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
 
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
@@ -263,7 +263,7 @@ namespace projections
                     phi2 = pj_get_param_r(par.params, "o_lat_2");
                     if (fabs(phi1 - phi2) <= TOL || (con = fabs(phi1)) <= TOL ||
                         fabs(con - half_pi) <= TOL || fabs(fabs(phi2) - half_pi) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-32) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_1_or_2_zero_or_90) );
 
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
                         sin(phi1) * cos(phi2) * cos(lam2),

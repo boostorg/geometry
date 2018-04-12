@@ -206,7 +206,7 @@ namespace projections
                             return;
                         }
                     }
-                    BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
 
                 static inline std::string get_name()
@@ -252,7 +252,7 @@ namespace projections
                         xy_y = 1. + this->m_proj_parm.sinX1 * sinphi + this->m_proj_parm.cosX1 * cosphi * coslam;
                 oblcon:
                         if (xy_y <= EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = (xy_y = this->m_proj_parm.akm1 / xy_y) * cosphi * sinlam;
                         xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
@@ -264,7 +264,7 @@ namespace projections
                         BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(lp_lat - half_pi) < TOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(fourth_pi + .5 * lp_lat) );
                         xy_y *= coslam;
@@ -400,7 +400,7 @@ namespace projections
                 /* International Ellipsoid */
                 par.phi0 = pj_get_param_b(par.params, "south") ? -half_pi: half_pi;
                 if (par.es == 0.0) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
                 par.k0 = .994;
                 par.x0 = 2000000.;

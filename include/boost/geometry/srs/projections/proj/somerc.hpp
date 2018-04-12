@@ -135,7 +135,7 @@ namespace projections
                         lp_lat = phip;
                         lp_lon = lamp / this->m_proj_parm.c;
                     } else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                 }
 

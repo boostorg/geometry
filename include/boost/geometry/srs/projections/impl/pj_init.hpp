@@ -142,7 +142,7 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
         }
 
         if (index == -1) {
-            BOOST_THROW_EXCEPTION( projection_exception(-7) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknow_unit_id) );
         }
         s = pj_units[index].to_meter;
     }
@@ -165,13 +165,13 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
             T const denominator = lexical_cast<T>(s.substr(pos + 1));
             if (numerator == 0.0 || denominator == 0.0)
             {
-                BOOST_THROW_EXCEPTION( projection_exception(-99) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_unit_factor_less_than_0) );
             }
             to_meter = numerator / denominator;
         }
         if (to_meter == 0.0)
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-99) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unit_factor_less_than_0) );
         }
         fr_meter = 1. / to_meter;
     }
@@ -247,19 +247,19 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     pin.ra = 1. / pin.a;
     pin.one_es = 1. - pin.es;
     if (pin.one_es == 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_eccentricity_is_one) );
     }
     pin.rone_es = 1./pin.one_es;
 
     /* Now that we have ellipse information check for WGS84 datum */
-    if( pin.datum_type == PJD_3PARAM
+    if( pin.datum_type == datum_3param
         && pin.datum_params[0] == 0.0
         && pin.datum_params[1] == 0.0
         && pin.datum_params[2] == 0.0
         && pin.a == 6378137.0
         && geometry::math::abs(pin.es - 0.006694379990) < 0.000000000050 )/*WGS84/GRS80*/
     {
-        pin.datum_type = PJD_WGS84;
+        pin.datum_type = datum_wgs84;
     }
 
     /* set pin.geoc coordinate system */
@@ -289,7 +289,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     } else
         pin.k0 = 1.;
     if (pin.k0 <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-31) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_k_less_than_zero) );
     }
 
     /* set units */
@@ -328,7 +328,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
         }
         BOOST_CATCH(boost::bad_lexical_cast const&)
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-46) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknown_prime_meridian) );
         }
         BOOST_CATCH_END
     }

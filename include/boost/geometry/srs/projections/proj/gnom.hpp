@@ -121,7 +121,7 @@ namespace projections
                     }
 
                     if (xy_y <= EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     xy_x = (xy_y = 1. / xy_y) * cosphi * sin(lp_lon);

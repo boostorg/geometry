@@ -88,7 +88,7 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
@@ -99,7 +99,7 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     lp_lon = xy_x / this->m_par.k0;
                 }
@@ -133,7 +133,7 @@ namespace projections
                     static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
                     if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = this->m_par.k0 * log(tan(fourth_pi + .5 * lp_lat));
@@ -169,7 +169,7 @@ namespace projections
                 if( (is_phits = pj_param_r(par.params, "lat_ts", phits)) ) {
                     phits = fabs(phits);
                     if (phits >= half_pi)
-                        BOOST_THROW_EXCEPTION( projection_exception(-24) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
                 }
                 if (par.es != 0.0) { /* ellipsoid */
                     if (is_phits)

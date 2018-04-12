@@ -109,14 +109,14 @@ namespace projections
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:
                         if (cosphi * coslam < - EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = sin(lp_lat);
                         break;
                     case OBLIQ:
                         if (this->m_proj_parm.sinph0 * (sinphi = sin(lp_lat)) +
                            this->m_proj_parm.cosph0 * cosphi * coslam < - EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
                         break;
@@ -125,7 +125,7 @@ namespace projections
                         BOOST_FALLTHROUGH;
                     case S_POLE:
                         if (fabs(lp_lat - this->m_par.phi0) - EPS10 > half_pi) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = cosphi * coslam;
                         break;
@@ -143,7 +143,7 @@ namespace projections
 
                     if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
                         if ((sinc - 1.) > EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         sinc = 1.;
                     }

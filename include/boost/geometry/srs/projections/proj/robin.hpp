@@ -171,7 +171,7 @@ namespace projections
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i < 0) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     if (i >= NODES) i = NODES - 1;
                     dphi = geometry::math::r2d<CalculationType>() * (dphi - RC1 * i);
@@ -197,7 +197,7 @@ namespace projections
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */
                         if (lp_lat > ONEEPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = xy_y < 0. ? -half_pi : half_pi;
                             lp_lon /= X[NODES].c0;
@@ -206,7 +206,7 @@ namespace projections
                         /* in Y space, reduce to table interval */
                         i = int_floor(lp_lat * NODES);
                         if( i < 0 || i >= NODES ) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         for (;;) {
                             if (Y[i].c0 > lp_lat) --i;
@@ -224,7 +224,7 @@ namespace projections
                                 break;
                         }
                         if( iters == 0 )
-                            BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                         lp_lat = (5 * i + t) * geometry::math::d2r<CalculationType>();
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         lp_lon /= V(X[i], t);

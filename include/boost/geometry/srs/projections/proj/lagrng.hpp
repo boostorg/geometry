@@ -102,7 +102,7 @@ namespace projections
                         lp_lat = sin(lp_lat);
                         v = this->m_proj_parm.a1 * pow((1. + lp_lat)/(1. - lp_lat), this->m_proj_parm.hrw);
                         if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < TOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = 2. * sin(lp_lon) / c;
                         xy_y = (v - 1./v) / c;
@@ -124,13 +124,13 @@ namespace projections
 
                 proj_parm.rw = pj_get_param_f(par.params, "W");
                 if (proj_parm.rw <= 0)
-                    BOOST_THROW_EXCEPTION( projection_exception(-27) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
 
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
                 phi1 = pj_get_param_r(par.params, "lat_1");
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);
 

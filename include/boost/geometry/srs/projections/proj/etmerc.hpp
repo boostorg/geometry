@@ -257,7 +257,7 @@ namespace projections
                 T f, n, np, Z;
 
                 if (par.es <= 0) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
 
                 f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */
@@ -351,7 +351,7 @@ namespace projections
                 int zone;
 
                 if (par.es == 0.0) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
 
                 par.y0 = pj_get_param_b(par.params, "south") ? 10000000. : 0.;
@@ -361,7 +361,7 @@ namespace projections
                     if (zone > 0 && zone <= 60)
                         --zone;
                     else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-35) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_utm_zone) );
                     }
                 }
                 else /* nearest central meridian input */

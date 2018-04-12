@@ -146,7 +146,7 @@ namespace projections
                 lam_2 = pj_get_param_r(par.params, "lon_2");
 
                 if (phi_1 == phi_2 && lam_1 == lam_2)
-                    BOOST_THROW_EXCEPTION( projection_exception(-25) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
 
                 par.lam0 = adjlon(0.5 * (lam_1 + lam_2));
                 proj_parm.dlam2 = adjlon(lam_2 - lam_1);

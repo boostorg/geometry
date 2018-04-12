@@ -113,7 +113,7 @@ namespace projections
 
                     /* Check visibility. */
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz * this->m_proj_parm.radius_p_inv2) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation based on view angles from satellite. */
@@ -150,7 +150,7 @@ namespace projections
                     a   = Vy * Vy + a * a + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
                     if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation of three components of vector from satellite to position.*/
@@ -203,7 +203,7 @@ namespace projections
                     /* Check visibility.*/
                     // TODO: in proj4 5.0.0 this check is not present
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                     /* Calculation based on view angles from satellite.*/
                     tmp = this->m_proj_parm.radius_g - Vx;
@@ -237,7 +237,7 @@ namespace projections
                     a   = Vy * Vy + Vz * Vz + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
                     if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation of three components of vector from satellite to position.*/
@@ -265,17 +265,17 @@ namespace projections
                 std::string sweep_axis;
 
                 if ((proj_parm.h = pj_get_param_f(par.params, "h")) <= 0.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-30) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_h_less_than_zero) );
 
                 if (par.phi0 != 0.0)
-                    BOOST_THROW_EXCEPTION( projection_exception(-46) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_unknown_prime_meridian) );
 
                 sweep_axis = pj_get_param_s(par.params, "sweep");
                 if (sweep_axis.empty())
                     proj_parm.flip_axis = 0;
                 else {
                     if (sweep_axis[1] != '\0' || (sweep_axis[0] != 'x' && sweep_axis[0] != 'y'))
-                        BOOST_THROW_EXCEPTION( projection_exception(-49) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_sweep_axis) );
 
                     if (sweep_axis[0] == 'x')
                         proj_parm.flip_axis = 1;

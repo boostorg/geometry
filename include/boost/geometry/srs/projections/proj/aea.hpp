@@ -144,7 +144,7 @@ namespace projections
                                                                     ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es)
                                                                     : this->m_proj_parm.n2 * sin(lp_lat));
                     if (rho < 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     rho = this->m_proj_parm.dd * sqrt(rho);
                     xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
@@ -168,7 +168,7 @@ namespace projections
                             lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n;
                             if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > TOL7) {
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
-                                    BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                    BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             } else
                                 lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
@@ -196,7 +196,7 @@ namespace projections
                 int secant;
 
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
