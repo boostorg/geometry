@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -110,16 +110,28 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
     if (res_count > 0 && expected_count > 0)
     {
         P const& res_i0 = boost::get<0>(res).intersections[0];
+        coord_t denom_a0 = boost::get<0>(res).fractions[0].robust_ra.denominator();
+        coord_t denom_b0 = boost::get<0>(res).fractions[0].robust_rb.denominator();
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i0, ip0, eps_scale),
                             "IP0: " << std::setprecision(16) << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
+        BOOST_CHECK_MESSAGE(denom_a0 > coord_t(0),
+                            "IP0 fraction A denominator: " << std::setprecision(16) << denom_a0 << " is incorrect");
+        BOOST_CHECK_MESSAGE(denom_b0 > coord_t(0),
+                            "IP0 fraction B denominator: " << std::setprecision(16) << denom_b0 << " is incorrect");
     }
     if (res_count > 1 && expected_count > 1)
     {
         P const& res_i1 = boost::get<0>(res).intersections[1];
+        coord_t denom_a1 = boost::get<0>(res).fractions[1].robust_ra.denominator();
+        coord_t denom_b1 = boost::get<0>(res).fractions[1].robust_rb.denominator();
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i1, ip1, eps_scale),
                             "IP1: " << std::setprecision(16) << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
+        BOOST_CHECK_MESSAGE(denom_a1 > coord_t(0),
+                            "IP1 fraction A denominator: " << std::setprecision(16) << denom_a1 << " is incorrect");
+        BOOST_CHECK_MESSAGE(denom_b1 > coord_t(0),
+                            "IP1 fraction B denominator: " << std::setprecision(16) << denom_b1 << " is incorrect");
     }
 
     if (opposite_id >= 0)
