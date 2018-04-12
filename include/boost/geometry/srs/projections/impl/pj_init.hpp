@@ -305,25 +305,32 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
         std::string value;
 
         int n = sizeof(pj_prime_meridians) / sizeof(pj_prime_meridians[0]);
-        int index = -1;
-        for (int i = 0; i < n && index == -1; i++)
+        for (int i = 0; i < n ; i++)
         {
             if(pj_prime_meridians[i].id == pm)
             {
                 value = pj_prime_meridians[i].defn;
-                index = i;
+                break;
             }
         }
 
-        if (index == -1) {
-            BOOST_THROW_EXCEPTION( projection_exception(-7) );
+        dms_parser<T, true> parser;
+
+        // TODO: Handle case when lexical_cast is not used consistently.
+        //       This should probably be done in dms_parser.
+        BOOST_TRY
+        {
+            if (value.empty()) {
+                pin.from_greenwich = parser.apply(pm).angle();
+            } else {
+                pin.from_greenwich = parser.apply(value).angle();
+            }
         }
-        if (value.empty()) {
+        BOOST_CATCH(boost::bad_lexical_cast const&)
+        {
             BOOST_THROW_EXCEPTION( projection_exception(-46) );
         }
-
-        dms_parser<T, true> parser;
-        pin.from_greenwich = parser.apply(value.c_str()).angle();
+        BOOST_CATCH_END
     }
     else
     {

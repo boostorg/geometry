@@ -8,6 +8,7 @@
 
   This file was modified by Oracle on 2015, 2017, 2018.
   Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,6 +18,14 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.68]
+[/=================]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/471 471] Invalid envelope of spherical polygon
 
 [/=================]
 [heading Boost 1.67]
@@ -37,6 +46,7 @@
 
 [*Solved issues]
 
+* [@https://svn.boost.org/trac10/ticket/13386 13386] Workaround for some gcc compilers
 * [@https://svn.boost.org/trac10/ticket/13381 13381] Compile error with matrix_transformer in Visual C++ 2015
 * [@https://svn.boost.org/trac10/ticket/13436 13436] Incorrectness in boost::geometry::model::polygon documentation
 
