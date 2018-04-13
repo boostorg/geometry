@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,9 +41,27 @@
 
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
+#include <string>
+
 namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
+
+// Originally defined in projects.h
+struct pj_datums_type
+{
+    std::string id;         /* datum keyword */
+    std::string defn;       /* ie. "to_wgs84=..." */
+    std::string ellipse_id; /* ie from ellipse table */
+    std::string comments;   /* EPSG code, etc */
+};
+
+// Originally defined in projects.h
+struct pj_prime_meridians_type
+{
+    std::string id;   /* prime meridian keyword */
+    std::string defn; /* offset from greenwich in DMS format. */
+};
 
 /*
  * The ellipse code must match one from pj_ellps.c.  The datum id should
@@ -51,7 +69,7 @@ namespace detail {
  * datum name for the comments if available.
  */
 
-static const PJ_DATUMS pj_datums[] =
+static const pj_datums_type pj_datums[] =
 {
     /* id          definition        ellipse  comments */
     /* --          ----------        -------  -------- */
@@ -87,7 +105,7 @@ static const PJ_DATUMS pj_datums[] =
 };
 
 
-static const PJ_PRIME_MERIDIANS pj_prime_meridians[] =
+static const pj_prime_meridians_type pj_prime_meridians[] =
 {
     /* id          definition */
     /* --          ---------- */

@@ -102,7 +102,7 @@ namespace projections
             template <typename T>
             inline T d180() { return T(180) * geometry::math::d2r<T>(); }
 
-            static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
+            static const double epsilon = 1.e-10; // allow a little 'slack' on zone edge positions
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
             template <template <typename, typename> class Entry, typename Parameters, typename CalculationType>
@@ -192,7 +192,7 @@ namespace projections
                     const CalculationType y90 = this->m_proj_parm.dy0 + sqrt(c2); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
-                        if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
+                        if (xy_y > y90+epsilon || xy_y < -y90+epsilon) // 0
                           z = 0;
                         else if (xy_y >=  d4044118)       // 1|2
                           z = (xy_x <= -d40? 1: 2);
@@ -221,24 +221,24 @@ namespace projections
                           lp_lon += this->m_proj_parm.pj[z-1]->params().lam0;
 
                           switch (z) {
-                            case  1: ok = (lp_lon >= -d180-EPSLN && lp_lon <=  -d40+EPSLN) ||
-                                         ((lp_lon >=  -d40-EPSLN && lp_lon <=  -d10+EPSLN) &&
-                                          (lp_lat >=   d60-EPSLN && lp_lat <=   d90+EPSLN)); break;
-                            case  2: ok = (lp_lon >=  -d40-EPSLN && lp_lon <=  d180+EPSLN) ||
-                                         ((lp_lon >= -d180-EPSLN && lp_lon <= -d160+EPSLN) &&
-                                          (lp_lat >=   d50-EPSLN && lp_lat <=   d90+EPSLN)) ||
-                                         ((lp_lon >=  -d50-EPSLN && lp_lon <=  -d40+EPSLN) &&
-                                          (lp_lat >=   d60-EPSLN && lp_lat <=   d90+EPSLN)); break;
-                            case  3: ok = (lp_lon >= -d180-EPSLN && lp_lon <=  -d40+EPSLN); break;
-                            case  4: ok = (lp_lon >=  -d40-EPSLN && lp_lon <=  d180+EPSLN); break;
-                            case  5: ok = (lp_lon >= -d180-EPSLN && lp_lon <= -d100+EPSLN); break;
-                            case  6: ok = (lp_lon >= -d100-EPSLN && lp_lon <=  -d20+EPSLN); break;
-                            case  7: ok = (lp_lon >=  -d20-EPSLN && lp_lon <=   d80+EPSLN); break;
-                            case  8: ok = (lp_lon >=   d80-EPSLN && lp_lon <=  d180+EPSLN); break;
-                            case  9: ok = (lp_lon >= -d180-EPSLN && lp_lon <= -d100+EPSLN); break;
-                            case 10: ok = (lp_lon >= -d100-EPSLN && lp_lon <=  -d20+EPSLN); break;
-                            case 11: ok = (lp_lon >=  -d20-EPSLN && lp_lon <=   d80+EPSLN); break;
-                            case 12: ok = (lp_lon >=   d80-EPSLN && lp_lon <=  d180+EPSLN); break;
+                            case  1: ok = (lp_lon >= -d180-epsilon && lp_lon <=  -d40+epsilon) ||
+                                         ((lp_lon >=  -d40-epsilon && lp_lon <=  -d10+epsilon) &&
+                                          (lp_lat >=   d60-epsilon && lp_lat <=   d90+epsilon)); break;
+                            case  2: ok = (lp_lon >=  -d40-epsilon && lp_lon <=  d180+epsilon) ||
+                                         ((lp_lon >= -d180-epsilon && lp_lon <= -d160+epsilon) &&
+                                          (lp_lat >=   d50-epsilon && lp_lat <=   d90+epsilon)) ||
+                                         ((lp_lon >=  -d50-epsilon && lp_lon <=  -d40+epsilon) &&
+                                          (lp_lat >=   d60-epsilon && lp_lat <=   d90+epsilon)); break;
+                            case  3: ok = (lp_lon >= -d180-epsilon && lp_lon <=  -d40+epsilon); break;
+                            case  4: ok = (lp_lon >=  -d40-epsilon && lp_lon <=  d180+epsilon); break;
+                            case  5: ok = (lp_lon >= -d180-epsilon && lp_lon <= -d100+epsilon); break;
+                            case  6: ok = (lp_lon >= -d100-epsilon && lp_lon <=  -d20+epsilon); break;
+                            case  7: ok = (lp_lon >=  -d20-epsilon && lp_lon <=   d80+epsilon); break;
+                            case  8: ok = (lp_lon >=   d80-epsilon && lp_lon <=  d180+epsilon); break;
+                            case  9: ok = (lp_lon >= -d180-epsilon && lp_lon <= -d100+epsilon); break;
+                            case 10: ok = (lp_lon >= -d100-epsilon && lp_lon <=  -d20+epsilon); break;
+                            case 11: ok = (lp_lon >=  -d20-epsilon && lp_lon <=   d80+epsilon); break;
+                            case 12: ok = (lp_lon >=   d80-epsilon && lp_lon <=  d180+epsilon); break;
                           }
 
                           z = (!ok? 0: z); // projectable?

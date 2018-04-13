@@ -60,11 +60,11 @@ namespace detail
 /* datum_type values */
 enum datum_type
 {
-    datum_unknown = 0,
-    datum_3param = 1,
-    datum_7param = 2,
+    datum_unknown   = 0,
+    datum_3param    = 1,
+    datum_7param    = 2,
     datum_gridshift = 3,
-    datum_wgs84 = 4   /* WGS84 (or anything considered equivelent) */
+    datum_wgs84     = 4  /* WGS84 (or anything considered equivelent) */
 };
 
 /* library errors */
@@ -140,16 +140,16 @@ struct pvalue
 
 // Originally defined in proj_internal.h
 //enum pj_io_units {
-//    PJ_IO_UNITS_WHATEVER  = 0,  /* Doesn't matter (or depends on pipeline neighbours) */
-//    PJ_IO_UNITS_CLASSIC   = 1,  /* Scaled meters (right), projected system */
-//    PJ_IO_UNITS_PROJECTED = 2,  /* Meters, projected system */
-//    PJ_IO_UNITS_CARTESIAN = 3,  /* Meters, 3D cartesian system */
-//    PJ_IO_UNITS_ANGULAR   = 4   /* Radians */
+//    pj_io_units_whatever  = 0,  /* Doesn't matter (or depends on pipeline neighbours) */
+//    pj_io_units_classic   = 1,  /* Scaled meters (right), projected system */
+//    pj_io_units_projected = 2,  /* Meters, projected system */
+//    pj_io_units_cartesian = 3,  /* Meters, 3D cartesian system */
+//    pj_io_units_angular   = 4   /* Radians */
 //};
 
 // Originally defined in proj_internal.h
 /* Maximum latitudinal overshoot accepted */
-//static const double PJ_EPS_LAT = 1e-12;
+//static const double pj_epsilon_lat = 1e-12;
 
 template <typename T>
 struct pj_consts
@@ -222,55 +222,7 @@ struct pj_consts
 
 // PROJ4 complex. Might be replaced with std::complex
 template <typename T>
-struct COMPLEX { T r, i; };
-
-struct PJ_ELLPS
-{
-    std::string id;    /* ellipse keyword name */
-    std::string major;    /* a= value */
-    std::string ell;    /* elliptical parameter */
-    std::string name;    /* comments */
-};
-
-struct PJ_DATUMS
-{
-    std::string id;     /* datum keyword */
-    std::string defn;   /* ie. "to_wgs84=..." */
-    std::string ellipse_id; /* ie from ellipse table */
-    std::string comments; /* EPSG code, etc */
-};
-
-struct PJ_PRIME_MERIDIANS
-{
-    std::string id;     /* prime meridian keyword */
-    std::string defn;   /* offset from greenwich in DMS format. */
-};
-
-struct PJ_UNITS
-{
-    std::string id;    /* units keyword */
-    std::string to_meter;    /* multiply by value to get meters */
-    std::string name;    /* comments */
-};
-
-template <typename T>
-struct DERIVS
-{
-    T x_l, x_p; /* derivatives of x for lambda-phi */
-    T y_l, y_p; /* derivatives of y for lambda-phi */
-};
-
-template <typename T>
-struct FACTORS
-{
-    DERIVS<T> der;
-    T h, k;    /* meridinal, parallel scales */
-    T omega, thetap;    /* angular distortion, theta prime */
-    T conv;    /* convergence */
-    T s;        /* areal scale factor */
-    T a, b;    /* max-min scale error */
-    int code;        /* info as to analytics, see following */
-};
+struct pj_complex { T r, i; };
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

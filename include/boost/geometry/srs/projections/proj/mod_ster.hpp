@@ -69,12 +69,12 @@ namespace projections
     namespace detail { namespace mod_ster
     {
 
-            static const double EPSLN = 1e-12;
+            static const double epsilon = 1e-12;
 
             template <typename T>
             struct par_mod_ster
             {
-                COMPLEX<T> *zcoeff;
+                pj_complex<T> *zcoeff;
                 T          cchio, schio;
                 int        n;
             };
@@ -103,7 +103,7 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     CalculationType sinlon, coslon, esphi, chi, schi, cchi, s;
-                    COMPLEX<CalculationType> p;
+                    pj_complex<CalculationType> p;
 
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
@@ -127,7 +127,7 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     int nn;
-                    COMPLEX<CalculationType> p, fxy, fpxy, dp;
+                    pj_complex<CalculationType> p, fxy, fpxy, dp;
                     CalculationType den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
 
                     p.r = xy_x;
@@ -141,7 +141,7 @@ namespace projections
                         dp.i = -(fxy.i * fpxy.r - fxy.r * fpxy.i) / den;
                         p.r += dp.r;
                         p.i += dp.i;
-                        if ((fabs(dp.r) + fabs(dp.i)) <= EPSLN)
+                        if ((fabs(dp.r) + fabs(dp.i)) <= epsilon)
                             break;
                     }
                     if (nn) {
@@ -150,7 +150,7 @@ namespace projections
                         sinz = sin(z);
                         cosz = cos(z);
                         lp_lon = this->m_par.lam0;
-                        if (fabs(rh) <= EPSLN) {
+                        if (fabs(rh) <= epsilon) {
                             /* if we end up here input coordinates were (0,0).
                              * pj_inv() adds P->lam0 to lp.lam, this way we are
                              * sure to get the correct offset */
@@ -165,7 +165,7 @@ namespace projections
                             dphi = 2. * atan(tan((half_pi + chi) * .5) *
                                 pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - half_pi - phi;
                             phi += dphi;
-                            if (fabs(dphi) <= EPSLN)
+                            if (fabs(dphi) <= epsilon)
                                 break;
                         }
                     }
@@ -206,15 +206,17 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_mil_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = {
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = {
                     {0.924500, 0.},
                     {0.,       0.},
                     {0.019430, 0.}
                 };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<T>() * 20.;
-                par.phi0 = geometry::math::d2r<T>() * 18.;
+                par.lam0 = d2r * 20.;
+                par.phi0 = d2r * 18.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
 
@@ -225,15 +227,17 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_lee_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = {
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = {
                     { 0.721316,   0.},
                     { 0.,         0.},
                     {-0.0088162, -0.00617325}
                 };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<T>() * -165.;
-                par.phi0 = geometry::math::d2r<T>() * -10.;
+                par.lam0 = d2r * -165.;
+                par.phi0 = d2r * -10.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
 
@@ -244,7 +248,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gs48(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = { /* 48 United States */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = { /* 48 United States */
                     { 0.98879,  0.},
                     { 0.,       0.},
                     {-0.050909, 0.},
@@ -253,8 +259,8 @@ namespace projections
                 };
 
                 proj_parm.n = 4;
-                par.lam0 = geometry::math::d2r<T>() * -96.;
-                par.phi0 = geometry::math::d2r<T>() * -39.;
+                par.lam0 = d2r * -96.;
+                par.phi0 = d2r * -39.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 par.a = 6370997.;
@@ -266,7 +272,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_alsk(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> ABe[] = { /* Alaska ellipsoid */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> ABe[] = { /* Alaska ellipsoid */
                     { .9945303, 0.},
                     { .0052083, -.0027404},
                     { .0072721,  .0048181},
@@ -275,7 +283,7 @@ namespace projections
                     { .3582802, -.2884586}
                 };
 
-                static COMPLEX<T> ABs[] = { /* Alaska sphere */
+                static pj_complex<T> ABs[] = { /* Alaska sphere */
                     { .9972523, 0.},
                     { .0052513, -.0041175},
                     { .0074606,  .0048125},
@@ -285,8 +293,8 @@ namespace projections
                 };
 
                 proj_parm.n = 5;
-                par.lam0 = geometry::math::d2r<T>() * -152.;
-                par.phi0 = geometry::math::d2r<T>() * 64.;
+                par.lam0 = d2r * -152.;
+                par.phi0 = d2r * 64.;
                 if (par.es != 0.0) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -303,7 +311,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gs50(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> ABe[] = { /* GS50 ellipsoid */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> ABe[] = { /* GS50 ellipsoid */
                     { .9827497, 0.},
                     { .0210669,  .0053804},
                     {-.1031415, -.0571664},
@@ -315,7 +325,7 @@ namespace projections
                     {-.0194029,  .0759677},
                     {-.0210072,  .0834037}
                 };
-                static COMPLEX<T> ABs[] = { /* GS50 sphere */
+                static pj_complex<T> ABs[] = { /* GS50 sphere */
                     { .9842990, 0.},
                     { .0211642,  .0037608},
                     {-.1036018, -.0575102},
@@ -329,8 +339,8 @@ namespace projections
                 };
 
                 proj_parm.n = 9;
-                par.lam0 = geometry::math::d2r<T>() * -120.;
-                par.phi0 = geometry::math::d2r<T>() * 45.;
+                par.lam0 = d2r * -120.;
+                par.phi0 = d2r * 45.;
                 if (par.es != 0.0) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
