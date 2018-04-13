@@ -67,7 +67,7 @@ namespace projections
             static const double FYC = 1.3523;
             static const double C1 = 11.45915590261646417544;
             static const double RC1 = 0.08726646259971647884;
-            static const int NODES = 18;
+            static const int n_nodes = 18;
             static const double one_plus_eps = 1.000001;
             static const double epsilon = 1e-8;
             /* Not sure at all of the appropriate number for max_iter... */
@@ -83,14 +83,14 @@ namespace projections
             */
 
             template <typename T>
-            struct COEFS {
+            struct coefs {
                 T c0, c1, c2, c3;
             };
 
             template <typename T>
-            inline const COEFS<T> * X()
+            inline const coefs<T> * coefs_x()
             {
-                static const COEFS<T> result[] = {
+                static const coefs<T> result[] = {
                     {1.0, 2.2199e-17, -7.15515e-05, 3.1103e-06},
                     {0.9986, -0.000482243, -2.4897e-05, -1.3309e-06},
                     {0.9954, -0.00083103, -4.48605e-05, -9.86701e-07},
@@ -115,9 +115,9 @@ namespace projections
             }
 
             template <typename T>
-            inline const COEFS<T> * Y()
+            inline const coefs<T> * coefs_y()
             {
-                static const COEFS<T> result[] = {
+                static const coefs<T> result[] = {
                     {-5.20417e-18, 0.0124, 1.21431e-18, -8.45284e-11},
                     {0.062, 0.0124, -1.26793e-09, 4.22642e-10},
                     {0.124, 0.0124, 5.07171e-09, -1.60604e-09},
@@ -151,11 +151,11 @@ namespace projections
                 {}
 
                 template <typename T>
-                inline T V(COEFS<T> const& C, T const& z) const
-                { return (C.c0 + z * (C.c1 + z * (C.c2 + z * C.c3))); }
+                inline T v(coefs<T> const& c, T const& z) const
+                { return (c.c0 + z * (c.c1 + z * (c.c2 + z * c.c3))); }
                 template <typename T>
-                inline T DV(COEFS<T> const& C, T const&  z) const
-                { return (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3)); }
+                inline T dv(coefs<T> const& c, T const&  z) const
+                { return (c.c1 + z * (c.c2 + c.c2 + z * 3. * c.c3)); }
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -168,10 +168,10 @@ namespace projections
                     if (i < 0) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    if (i >= NODES) i = NODES - 1;
+                    if (i >= n_nodes) i = n_nodes - 1;
                     dphi = geometry::math::r2d<T>() * (dphi - RC1 * i);
-                    xy_x = V(X<T>()[i], dphi) * FXC * lp_lon;
-                    xy_y = V(Y<T>()[i], dphi) * FYC;
+                    xy_x = v(coefs_x<T>()[i], dphi) * FXC * lp_lon;
+                    xy_y = v(coefs_y<T>()[i], dphi) * FYC;
                     if (lp_lat < 0.) xy_y = -xy_y;
                 }
 
@@ -180,12 +180,12 @@ namespace projections
                 inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
-                    const COEFS<T> * coefs_x = robin::X<T>();
-                    const COEFS<T> * coefs_y = robin::Y<T>();
+                    const coefs<T> * coefs_x = robin::coefs_x<T>();
+                    const coefs<T> * coefs_y = robin::coefs_y<T>();
 
                     int i;
                     T t, t1;
-                    COEFS<T> coefs_t;
+                    coefs<T> coefs_t;
                     int iters;
 
                     lp_lon = xy_x / FXC;
@@ -195,12 +195,12 @@ namespace projections
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = xy_y < 0. ? -half_pi : half_pi;
-                            lp_lon /= coefs_x[NODES].c0;
+                            lp_lon /= coefs_x[n_nodes].c0;
                         }
                     } else { /* general problem */
                         /* in Y space, reduce to table interval */
-                        i = int_floor(lp_lat * NODES);
-                        if( i < 0 || i >= NODES ) {
+                        i = int_floor(lp_lat * n_nodes);
+                        if( i < 0 || i >= n_nodes ) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         for (;;) {
@@ -214,7 +214,7 @@ namespace projections
                         /* make into root */
                         coefs_t.c0 = (T)(coefs_t.c0 - lp_lat);
                         for (iters = max_iter; iters ; --iters) { /* Newton-Raphson */
-                            t -= t1 = V(coefs_t,t) / DV(coefs_t,t);
+                            t -= t1 = v(coefs_t,t) / dv(coefs_t,t);
                             if (fabs(t1) < epsilon)
                                 break;
                         }
@@ -222,7 +222,7 @@ namespace projections
                             BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                         lp_lat = (5 * i + t) * geometry::math::d2r<T>();
                         if (xy_y < 0.) lp_lat = -lp_lat;
-                        lp_lon /= V(coefs_x[i], t);
+                        lp_lon /= v(coefs_x[i], t);
                     }
                 }
 

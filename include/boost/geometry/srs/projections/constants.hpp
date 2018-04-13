@@ -47,6 +47,8 @@ template <typename T>
 inline T pi_sqr() { return boost::math::constants::pi_sqr<T>(); }
 
 template <typename T>
+inline T sixth() { return boost::math::constants::sixth<T>(); }
+template <typename T>
 inline T third() { return boost::math::constants::third<T>(); }
 template <typename T>
 inline T two_thirds() { return boost::math::constants::two_thirds<T>(); }

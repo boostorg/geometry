@@ -101,19 +101,19 @@ namespace projections
     {
 
             /* The six cube faces. */
-            enum Face {
-                FACE_FRONT  = 0,
-                FACE_RIGHT  = 1,
-                FACE_BACK   = 2,
-                FACE_LEFT   = 3,
-                FACE_TOP    = 4,
-                FACE_BOTTOM = 5
+            enum face_type {
+                face_front  = 0,
+                face_right  = 1,
+                face_back   = 2,
+                face_left   = 3,
+                face_top    = 4,
+                face_bottom = 5
             };
 
             template <typename T>
             struct par_qsc
             {
-                enum Face face;
+                face_type face;
                 T a_squared;
                 T b;
                 T one_minus_f;
@@ -124,17 +124,17 @@ namespace projections
 
             /* The four areas on a cube face. AREA_0 is the area of definition,
              * the other three areas are counted counterclockwise. */
-            enum Area {
-                AREA_0 = 0,
-                AREA_1 = 1,
-                AREA_2 = 2,
-                AREA_3 = 3
+            enum area_type {
+                area_0 = 0,
+                area_1 = 1,
+                area_2 = 2,
+                area_3 = 3
             };
 
             /* Helper function for forward projection: compute the theta angle
              * and determine the area number. */
             template <typename T>
-            inline T qsc_fwd_equat_face_theta(T const& phi, T const& y, T const& x, enum Area *area)
+            inline T qsc_fwd_equat_face_theta(T const& phi, T const& y, T const& x, area_type *area)
             {
                 static const T fourth_pi = detail::fourth_pi<T>();
                 static const T half_pi = detail::half_pi<T>();
@@ -142,20 +142,20 @@ namespace projections
 
                 T theta;
                 if (phi < epsilon10) {
-                    *area = AREA_0;
+                    *area = area_0;
                     theta = 0.0;
                 } else {
                     theta = atan2(y, x);
                     if (fabs(theta) <= fourth_pi) {
-                        *area = AREA_0;
+                        *area = area_0;
                     } else if (theta > fourth_pi && theta <= half_pi + fourth_pi) {
-                        *area = AREA_1;
+                        *area = area_1;
                         theta -= half_pi;
                     } else if (theta > half_pi + fourth_pi || theta <= -(half_pi + fourth_pi)) {
-                        *area = AREA_2;
+                        *area = area_2;
                         theta = (theta >= 0.0 ? theta - pi : theta + pi);
                     } else {
-                        *area = AREA_3;
+                        *area = area_3;
                         theta += half_pi;
                     }
                 }
@@ -202,7 +202,7 @@ namespace projections
                         T lat, lon;
                         T theta, phi;
                         T t, mu; /* nu; */ 
-                        enum Area area;
+                        area_type area;
 
                         /* Convert the geodetic latitude to a geocentric latitude.
                          * This corresponds to the shift from the ellipsoid to the sphere
@@ -219,34 +219,34 @@ namespace projections
                          * directly from phi, lam. For the other faces, we must use
                          * unit sphere cartesian coordinates as an intermediate step. */
                         lon = lp_lon;
-                        if (this->m_proj_parm.face == FACE_TOP) {
+                        if (this->m_proj_parm.face == face_top) {
                             phi = half_pi - lat;
                             if (lon >= fourth_pi && lon <= half_pi + fourth_pi) {
-                                area = AREA_0;
+                                area = area_0;
                                 theta = lon - half_pi;
                             } else if (lon > half_pi + fourth_pi || lon <= -(half_pi + fourth_pi)) {
-                                area = AREA_1;
+                                area = area_1;
                                 theta = (lon > 0.0 ? lon - pi : lon + pi);
                             } else if (lon > -(half_pi + fourth_pi) && lon <= -fourth_pi) {
-                                area = AREA_2;
+                                area = area_2;
                                 theta = lon + half_pi;
                             } else {
-                                area = AREA_3;
+                                area = area_3;
                                 theta = lon;
                             }
-                        } else if (this->m_proj_parm.face == FACE_BOTTOM) {
+                        } else if (this->m_proj_parm.face == face_bottom) {
                             phi = half_pi + lat;
                             if (lon >= fourth_pi && lon <= half_pi + fourth_pi) {
-                                area = AREA_0;
+                                area = area_0;
                                 theta = -lon + half_pi;
                             } else if (lon < fourth_pi && lon >= -fourth_pi) {
-                                area = AREA_1;
+                                area = area_1;
                                 theta = -lon;
                             } else if (lon < -fourth_pi && lon >= -(half_pi + fourth_pi)) {
-                                area = AREA_2;
+                                area = area_2;
                                 theta = -lon - half_pi;
                             } else {
-                                area = AREA_3;
+                                area = area_3;
                                 theta = (lon > 0.0 ? -lon + pi : -lon - pi);
                             }
                         } else {
@@ -254,11 +254,11 @@ namespace projections
                             T sinlat, coslat;
                             T sinlon, coslon;
 
-                            if (this->m_proj_parm.face == FACE_RIGHT) {
+                            if (this->m_proj_parm.face == face_right) {
                                 lon = qsc_shift_lon_origin(lon, +half_pi);
-                            } else if (this->m_proj_parm.face == FACE_BACK) {
+                            } else if (this->m_proj_parm.face == face_back) {
                                 lon = qsc_shift_lon_origin(lon, +pi);
-                            } else if (this->m_proj_parm.face == FACE_LEFT) {
+                            } else if (this->m_proj_parm.face == face_left) {
                                 lon = qsc_shift_lon_origin(lon, -half_pi);
                             }
                             sinlat = sin(lat);
@@ -269,22 +269,22 @@ namespace projections
                             r = coslat * sinlon;
                             s = sinlat;
 
-                            if (this->m_proj_parm.face == FACE_FRONT) {
+                            if (this->m_proj_parm.face == face_front) {
                                 phi = acos(q);
                                 theta = qsc_fwd_equat_face_theta(phi, s, r, &area);
-                            } else if (this->m_proj_parm.face == FACE_RIGHT) {
+                            } else if (this->m_proj_parm.face == face_right) {
                                 phi = acos(r);
                                 theta = qsc_fwd_equat_face_theta(phi, s, -q, &area);
-                            } else if (this->m_proj_parm.face == FACE_BACK) {
+                            } else if (this->m_proj_parm.face == face_back) {
                                 phi = acos(-q);
                                 theta = qsc_fwd_equat_face_theta(phi, s, -r, &area);
-                            } else if (this->m_proj_parm.face == FACE_LEFT) {
+                            } else if (this->m_proj_parm.face == face_left) {
                                 phi = acos(-r);
                                 theta = qsc_fwd_equat_face_theta(phi, s, q, &area);
                             } else {
                                 /* Impossible */
                                 phi = theta = 0.0;
-                                area = AREA_0;
+                                area = area_0;
                             }
                         }
 
@@ -297,11 +297,11 @@ namespace projections
                         /* nu = atan(t);        We don't really need nu, just t, see below. */
 
                         /* Apply the result to the real area. */
-                        if (area == AREA_1) {
+                        if (area == area_1) {
                             mu += half_pi;
-                        } else if (area == AREA_2) {
+                        } else if (area == area_2) {
                             mu += pi;
-                        } else if (area == AREA_3) {
+                        } else if (area == area_3) {
                             mu += half_pi + pi;
                         }
 
@@ -329,15 +329,15 @@ namespace projections
                         nu = atan(sqrt(xy_x * xy_x + xy_y * xy_y));
                         mu = atan2(xy_y, xy_x);
                         if (xy_x >= 0.0 && xy_x >= fabs(xy_y)) {
-                            area = AREA_0;
+                            area = area_0;
                         } else if (xy_y >= 0.0 && xy_y >= fabs(xy_x)) {
-                            area = AREA_1;
+                            area = area_1;
                             mu -= half_pi;
                         } else if (xy_x < 0.0 && -xy_x >= fabs(xy_y)) {
-                            area = AREA_2;
+                            area = area_2;
                             mu = (mu < 0.0 ? mu + pi : mu - pi);
                         } else {
-                            area = AREA_3;
+                            area = area_3;
                             mu += half_pi;
                         }
 
@@ -362,28 +362,28 @@ namespace projections
                          * For the top and bottom face, we can compute phi and lam directly.
                          * For the other faces, we must use unit sphere cartesian coordinates
                          * as an intermediate step. */
-                        if (this->m_proj_parm.face == FACE_TOP) {
+                        if (this->m_proj_parm.face == face_top) {
                             phi = acos(cosphi);
                             lp_lat = half_pi - phi;
-                            if (area == AREA_0) {
+                            if (area == area_0) {
                                 lp_lon = theta + half_pi;
-                            } else if (area == AREA_1) {
+                            } else if (area == area_1) {
                                 lp_lon = (theta < 0.0 ? theta + pi : theta - pi);
-                            } else if (area == AREA_2) {
+                            } else if (area == area_2) {
                                 lp_lon = theta - half_pi;
                             } else /* area == AREA_3 */ {
                                 lp_lon = theta;
                             }
-                        } else if (this->m_proj_parm.face == FACE_BOTTOM) {
+                        } else if (this->m_proj_parm.face == face_bottom) {
                             phi = acos(cosphi);
                             lp_lat = phi - half_pi;
-                            if (area == AREA_0) {
+                            if (area == area_0) {
                                 lp_lon = -theta + half_pi;
-                            } else if (area == AREA_1) {
+                            } else if (area == area_1) {
                                 lp_lon = -theta;
-                            } else if (area == AREA_2) {
+                            } else if (area == area_2) {
                                 lp_lon = -theta - half_pi;
-                            } else /* area == AREA_3 */ {
+                            } else /* area == area_3 */ {
                                 lp_lon = (theta < 0.0 ? -theta - pi : -theta + pi);
                             }
                         } else {
@@ -403,27 +403,27 @@ namespace projections
                                 r = sqrt(1.0 - t);
                             }
                             /* Rotate q,r,s into the correct area. */
-                            if (area == AREA_1) {
+                            if (area == area_1) {
                                 t = r;
                                 r = -s;
                                 s = t;
-                            } else if (area == AREA_2) {
+                            } else if (area == area_2) {
                                 r = -r;
                                 s = -s;
-                            } else if (area == AREA_3) {
+                            } else if (area == area_3) {
                                 t = r;
                                 r = s;
                                 s = -t;
                             }
                             /* Rotate q,r,s into the correct cube face. */
-                            if (this->m_proj_parm.face == FACE_RIGHT) {
+                            if (this->m_proj_parm.face == face_right) {
                                 t = q;
                                 q = -r;
                                 r = t;
-                            } else if (this->m_proj_parm.face == FACE_BACK) {
+                            } else if (this->m_proj_parm.face == face_back) {
                                 q = -q;
                                 r = -r;
-                            } else if (this->m_proj_parm.face == FACE_LEFT) {
+                            } else if (this->m_proj_parm.face == face_left) {
                                 t = q;
                                 q = r;
                                 r = -t;
@@ -431,11 +431,11 @@ namespace projections
                             /* Now compute phi and lam from the unit sphere coordinates. */
                             lp_lat = acos(-s) - half_pi;
                             lp_lon = atan2(r, q);
-                            if (this->m_proj_parm.face == FACE_RIGHT) {
+                            if (this->m_proj_parm.face == face_right) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, -half_pi);
-                            } else if (this->m_proj_parm.face == FACE_BACK) {
+                            } else if (this->m_proj_parm.face == face_back) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, -pi);
-                            } else if (this->m_proj_parm.face == FACE_LEFT) {
+                            } else if (this->m_proj_parm.face == face_left) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, +half_pi);
                             }
                         }
@@ -471,15 +471,15 @@ namespace projections
 
                 /* Determine the cube face from the center of projection. */
                 if (par.phi0 >= half_pi - fourth_pi / 2.0) {
-                    proj_parm.face = FACE_TOP;
+                    proj_parm.face = face_top;
                 } else if (par.phi0 <= -(half_pi - fourth_pi / 2.0)) {
-                    proj_parm.face = FACE_BOTTOM;
+                    proj_parm.face = face_bottom;
                 } else if (fabs(par.lam0) <= fourth_pi) {
-                    proj_parm.face = FACE_FRONT;
+                    proj_parm.face = face_front;
                 } else if (fabs(par.lam0) <= half_pi + fourth_pi) {
-                    proj_parm.face = (par.lam0 > 0.0 ? FACE_RIGHT : FACE_LEFT);
+                    proj_parm.face = (par.lam0 > 0.0 ? face_right : face_left);
                 } else {
-                    proj_parm.face = FACE_BACK;
+                    proj_parm.face = face_back;
                 }
                 /* Fill in useful values for the ellipsoid <-> sphere shift
                  * described in [LK12]. */

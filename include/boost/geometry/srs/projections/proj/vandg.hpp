@@ -63,13 +63,6 @@ namespace projections
     {
 
             static const double tolerance = 1.e-10;
-            //static const double third = .33333333333333333333;
-            //static const double TWO_THRD = .66666666666666666666;
-            //static const double C2_27 = .07407407407407407407;
-            //static const double PI4_3 = 4.18879020478639098458;
-            //static const double PISQ = 9.86960440108935861869;
-            //static const double TPISQ = 19.73920880217871723738;
-            //static const double HPISQ = 4.93480220054467930934;
 
             template <typename T>
             inline T C2_27() { return .07407407407407407407407407407407; }
@@ -140,7 +133,7 @@ namespace projections
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T pi = detail::pi<T>();
-                    static const T PISQ = detail::pi_sqr<T>();
+                    static const T pi_sqr = detail::pi_sqr<T>();
                     static const T third = detail::third<T>();
                     static const T two_pi = detail::two_pi<T>();
 
@@ -156,14 +149,14 @@ namespace projections
                         lp_lat = 0.;
                         t = x2 * x2 + TPISQ * (x2 + HPISQ);
                         lp_lon = fabs(xy_x) <= tolerance ? 0. :
-                           .5 * (x2 - PISQ + sqrt(t)) / xy_x;
+                           .5 * (x2 - pi_sqr + sqrt(t)) / xy_x;
                             return;
                     }
                     y2 = xy_y * xy_y;
                     r = x2 + y2;    r2 = r * r;
-                    c1 = - pi * ay * (r + PISQ);
+                    c1 = - pi * ay * (r + pi_sqr);
                     c3 = r2 + two_pi * (ay * r + pi * (y2 + pi * (ay + half_pi)));
-                    c2 = c1 + PISQ * (r - 3. *  y2);
+                    c2 = c1 + pi_sqr * (r - 3. *  y2);
                     c0 = pi * ay;
                     c2 /= c3;
                     al = c1 / c3 - third * c2 * c2;
@@ -175,7 +168,7 @@ namespace projections
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         t = r2 + TPISQ * (x2 - y2 + HPISQ);
                         lp_lon = fabs(xy_x) <= tolerance ? 0. :
-                           .5 * (r - PISQ + (t <= 0. ? 0. : sqrt(t))) / xy_x;
+                           .5 * (r - pi_sqr + (t <= 0. ? 0. : sqrt(t))) / xy_x;
                     } else {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }

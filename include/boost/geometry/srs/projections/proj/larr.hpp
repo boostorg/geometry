@@ -60,11 +60,6 @@ namespace projections
     namespace detail { namespace larr
     {
 
-            //static const double SIXTH = .16666666666666666;
-
-            template <typename T>
-            inline T SIXTH() { return .16666666666666666666666666666666; }
-
             // template class, using CRTP to implement forward/inverse
             template <typename T, typename Parameters>
             struct base_larr_spheroid
@@ -78,10 +73,10 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const T SIXTH = larr::SIXTH<T>();
+                    static const T sixth = detail::sixth<T>();
 
                     xy_x = 0.5 * lp_lon * (1. + sqrt(cos(lp_lat)));
-                    xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(SIXTH * lp_lon));
+                    xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(sixth * lp_lon));
                 }
 
                 static inline std::string get_name()

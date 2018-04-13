@@ -69,9 +69,9 @@ namespace projections
 
             // specific for 'chamb'
             template <typename T>
-            struct VECT { T r, Az; };
+            struct vect_ra { T r, Az; };
             template <typename T>
-            struct XY { T x, y; };
+            struct point_xy { T x, y; };
 
             template <typename T>
             struct par_chamb
@@ -79,19 +79,19 @@ namespace projections
                 struct { /* control point data */
                     T phi, lam;
                     T cosphi, sinphi;
-                    VECT<T> v;
-                    XY<T>   p;
+                    vect_ra<T> v;
+                    point_xy<T> p;
                     T Az;
                 } c[3];
-                XY<T> p;
+                point_xy<T> p;
                 T beta_0, beta_1, beta_2;
             };
 
             /* distance and azimuth from point 1 to point 2 */
             template <typename T>
-            inline VECT<T> vect(T const& dphi, T const& c1, T const& s1, T const& c2, T const& s2, T const& dlam)
+            inline vect_ra<T> vect(T const& dphi, T const& c1, T const& s1, T const& c2, T const& s2, T const& dlam)
             {
-                VECT<T> v;
+                vect_ra<T> v;
                 T cdl, dp, dl;
 
                 cdl = cos(dlam);
@@ -134,7 +134,7 @@ namespace projections
                     static const T third = detail::third<T>();
 
                     T sinphi, cosphi, a;
-                    VECT<T> v[3];
+                    vect_ra<T> v[3];
                     int i, j;
 
                     sinphi = sin(lp_lat);

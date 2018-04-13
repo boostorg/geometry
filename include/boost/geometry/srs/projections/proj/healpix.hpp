@@ -87,14 +87,14 @@ namespace projections
             };
 
             template <typename T>
-            struct CapMap
+            struct cap_map
             {
                 int cn; /* An integer 0--3 indicating the position of the polar cap. */
                 T x, y; /* Coordinates of the pole point (point of most extreme latitude on the polar caps). */
-                enum Region {north, south, equatorial} region;
+                enum region_type {north, south, equatorial} region;
             };
             template <typename T>
-            struct Point
+            struct point_xy
             {
                 T x, y;
             };
@@ -161,7 +161,7 @@ namespace projections
                 int i;
                 int counter = 0;
                 T xinters;
-                Point<T> p1, p2;
+                point_xy<T> p1, p2;
 
                 /* Check for boundrary cases */
                 for (i = 0; i < nvert; i++) {
@@ -392,26 +392,26 @@ namespace projections
              * (north_square, south_square)-rHEALPix projection of the unit sphere.
              **/
             template <typename T>
-            inline CapMap<T> get_cap(T x, T const& y, int north_square, int south_square,
+            inline cap_map<T> get_cap(T x, T const& y, int north_square, int south_square,
                                      int inverse)
             {
                 static const T pi = detail::pi<T>();
                 static const T half_pi = detail::half_pi<T>();
                 static const T fourth_pi = detail::fourth_pi<T>();
 
-                CapMap<T> capmap;
+                cap_map<T> capmap;
                 T c;
                 capmap.x = x;
                 capmap.y = y;
                 if (inverse == 0) {
                     if (y > fourth_pi) {
-                        capmap.region = CapMap<T>::north;
+                        capmap.region = cap_map<T>::north;
                         c = half_pi;
                     } else if (y < -fourth_pi) {
-                        capmap.region = CapMap<T>::south;
+                        capmap.region = cap_map<T>::south;
                         c = -half_pi;
                     } else {
-                        capmap.region = CapMap<T>::equatorial;
+                        capmap.region = cap_map<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
@@ -435,23 +435,23 @@ namespace projections
                     }
                 } else {
                     if (y > fourth_pi) {
-                        capmap.region = CapMap<T>::north;
+                        capmap.region = cap_map<T>::north;
                         capmap.x = (-3.0*fourth_pi + north_square*half_pi);
                         capmap.y = half_pi;
                         x = x - north_square*half_pi;
                     } else if (y < -fourth_pi) {
-                        capmap.region = CapMap<T>::south;
+                        capmap.region = cap_map<T>::south;
                         capmap.x = (-3.0*fourth_pi + south_square*pi/2);
                         capmap.y = -half_pi;
                         x = x - south_square*half_pi;
                     } else {
-                        capmap.region = CapMap<T>::equatorial;
+                        capmap.region = cap_map<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* Polar Region, find the HEALPix polar cap number that
                        x, y moves to when rHEALPix polar square is disassembled. */
-                    if (capmap.region == CapMap<T>::north) {
+                    if (capmap.region == cap_map<T>::north) {
                         if (y >= -x - fourth_pi - epsilon && y < x + 5.0*fourth_pi - epsilon) {
                             capmap.cn = (north_square + 1) % 4;
                         } else if (y > -x -fourth_pi + epsilon && y >= x + 5.0*fourth_pi - epsilon) {
@@ -461,7 +461,7 @@ namespace projections
                         } else {
                             capmap.cn = north_square;
                         }
-                    } else if (capmap.region == CapMap<T>::south) {
+                    } else if (capmap.region == cap_map<T>::south) {
                         if (y <= x + fourth_pi + epsilon && y > -x - 5.0*fourth_pi + epsilon) {
                             capmap.cn = (south_square + 1) % 4;
                         } else if (y < x + fourth_pi - epsilon && y <= -x - 5.0*fourth_pi + epsilon) {
@@ -499,8 +499,8 @@ namespace projections
                 const double (*tmpRot)[2];
                 int pole = 0;
 
-                CapMap<T> capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
-                if (capmap.region == CapMap<T>::equatorial) {
+                cap_map<T> capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
+                if (capmap.region == cap_map<T>::equatorial) {
                     xy_x = capmap.x;
                     xy_y = capmap.y;
                     return;
@@ -513,7 +513,7 @@ namespace projections
                     /* Rotate (xy_x, xy_y) about its polar cap tip and then translate it to
                        north_square or south_square. */
 
-                    if (capmap.region == CapMap<T>::north) {
+                    if (capmap.region == cap_map<T>::north) {
                         pole = north_square;
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                     } else {
@@ -525,7 +525,7 @@ namespace projections
                      Unrotate (xy_x, xy_y) and then translate it back. */
 
                     /* disassemble */
-                    if (capmap.region == CapMap<T>::north) {
+                    if (capmap.region == cap_map<T>::north) {
                         pole = north_square;
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                     } else {
