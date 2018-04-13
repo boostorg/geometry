@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, 2017 Oracle and/or its affiliates.
+// Copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -421,26 +421,18 @@ private:
                                        PSStrategy const& ps_strategy)
         {
             boost::ignore_unused(ps_strategy);
-
-            // the segment lies above the box
-
             typedef cast_to_result<ReturnType> cast;
-
             LessEqual less_equal;
 
-            // p0 is above the upper segment of the box
-            // (and inside its band)
+            // p0 is above the upper segment of the box (and inside its band)
+            // then compute the vertical (meridian) distance
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
-                //std::cout << "pmax inside band\n";
                 ReturnType diff =
-                //ps_strategy.get_distance_strategy().template coordinate<1>(p0, top_left);
+                ps_strategy.get_distance_strategy().meridian(
+                                    geometry::get_as_radian<1>(p0),
+                                    geometry::get_as_radian<1>(top_left));
 
-                ps_strategy.get_distance_strategy().meridian(geometry::get_as_radian<1>(p0),
-                                                             geometry::get_as_radian<1>(top_left));
-
-                //ReturnType diff = cast::apply(geometry::get<1>(p0))
-                //    - cast::apply(geometry::get<1>(top_left));
                 return strategy::distance::services::result_from_distance
                     <
                         PSStrategy, SegmentPoint, BoxPoint
@@ -541,7 +533,6 @@ private:
                              bottom_left, bottom_right,
                              ps_strategy);
         }
-
     };
 
     template <typename LessEqual>
@@ -654,14 +645,10 @@ private:
                                  PSStrategy const& ps_strategy,
                                  ReturnType& result)
         {
-            typename other_compare<LessEqual>::type less_equal;
-
-            //bool south = geometry::get<1>(p1) < 0 ? true : false;
+            typedef compare_less_equal<ReturnType, false> GreaterEqual;
 
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
-            //if (geometry::get<1>(p1) * geometry::get<1>(bottom_left) > 0 &&
-            //     (math::abs(geometry::get<1>(p1)) < math::abs(geometry::get<1>(bottom_left))))
             {
                 result = check_below_of_box
                          <
@@ -677,48 +664,17 @@ private:
 
             // the segment lies above the box
             if (geometry::get<1>(p0) > geometry::get<1>(top_right))
-            //if (geometry::get<1>(p0) * geometry::get<1>(top_right) < 0 ||
-            //   (math::abs(geometry::get<1>(p0)) > math::abs(geometry::get<1>(top_right))))
-
             {
-                result = std::min(above_of_box
-                        <
-                            LessEqual
-                        >::apply(p0, p1, top_left, ps_strategy),
-                        above_of_box
-                        <
-                            LessEqual
-                        >::apply(p0, p1, top_right, ps_strategy));
-
-                //if a segment point is inside the band compare with meridian distance
-                // TODO: not needed for cartesian CS
-                if (less_equal(geometry::get<0>(p0),geometry::get<0>(top_left)))
-                {
-                    ReturnType dist = ps_strategy.get_distance_strategy()
-                            //.apply(p0, top_left));
-                            .meridian(geometry::get_as_radian<1>(p0),
-                                      geometry::get_as_radian<1>(top_left));
-
-                    result = std::min(result,
-                                      strategy::distance::services::result_from_distance
-                                          <
-                                              PSStrategy, SegmentPoint, BoxPoint
-                                          >::apply(ps_strategy, math::abs(dist)));
-                }
-                if (less_equal(geometry::get<0>(top_right),geometry::get<0>(p1)))
-                {
-                    ReturnType dist = ps_strategy.get_distance_strategy()
-                            //.apply(p1, top_right));
-                            .meridian(geometry::get_as_radian<1>(p1),
-                                      geometry::get_as_radian<1>(top_right));
-
-                    result = std::min(result,
-                                      strategy::distance::services::result_from_distance
-                                          <
-                                              PSStrategy, SegmentPoint, BoxPoint
-                                          >::apply(ps_strategy, math::abs(dist)));
-                }
-
+                result =
+                        std::min(
+                            above_of_box
+                            <
+                                LessEqual
+                            >::apply(p0, p1, top_left, ps_strategy),
+                            above_of_box
+                            <
+                                GreaterEqual
+                            >::apply(p1, p0, top_right, ps_strategy));
                 return true;
             }
             return false;
