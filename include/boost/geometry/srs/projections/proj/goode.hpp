@@ -128,29 +128,26 @@ namespace projections
         \par Example
         \image html ex_goode.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct goode_spheroid : public detail::base_t_fi<goode_spheroid<CalculationType, Parameters>, CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct goode_spheroid : public detail::base_t_fi<goode_spheroid<T, Parameters>, T, Parameters>
     {
-        typedef CalculationType geographic_type;
-        typedef CalculationType cartesian_type;
-
-        detail::goode::par_goode<CalculationType, Parameters> m_proj_parm;
+        detail::goode::par_goode<T, Parameters> m_proj_parm;
 
         inline goode_spheroid(const Parameters& par)
-            : detail::base_t_fi<goode_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(*this, par)
+            : detail::base_t_fi<goode_spheroid<T, Parameters>, T, Parameters>(*this, par)
             , m_proj_parm(setup(this->m_par))
         {}
 
         // FORWARD(s_forward)  spheroid
         // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-        inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+        inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
         {
             detail::goode::s_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
         }
 
         // INVERSE(s_inverse)  spheroid
         // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-        inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+        inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
         {
             detail::goode::s_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
         }
@@ -177,20 +174,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::goode, goode_spheroid, goode_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class goode_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class goode_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<goode_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<goode_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void goode_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void goode_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("goode", new goode_entry<CalculationType, Parameters>);
+            factory.add_to_factory("goode", new goode_entry<T, Parameters>);
         }
 
     } // namespace detail

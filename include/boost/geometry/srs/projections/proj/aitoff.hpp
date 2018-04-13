@@ -84,25 +84,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aitoff_spheroid : public base_t_fi<base_aitoff_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aitoff_spheroid
+                : public base_t_fi<base_aitoff_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aitoff<CalculationType> m_proj_parm;
+                par_aitoff<T> m_proj_parm;
 
                 inline base_aitoff_spheroid(const Parameters& par)
-                    : base_t_fi<base_aitoff_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aitoff_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType c, d;
+                    T c, d;
 
                     if((d = acos(cos(lp_lat) * cos(c = 0.5 * lp_lon)))) {/* basic Aitoff */
                         xy_x = 2. * d * cos(lp_lat) * sin(c) * (xy_y = 1. / sin(d));
@@ -137,14 +133,14 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType pi = detail::pi<CalculationType>();
-                    static const CalculationType two_pi = detail::two_pi<CalculationType>();
-                    static const CalculationType epsilon = 1e-12;
+                    static const T pi = detail::pi<T>();
+                    static const T two_pi = detail::two_pi<T>();
+                    static const T epsilon = 1e-12;
 
                     int iter, max_iter = 10, round = 0, max_round = 20;
-                    CalculationType D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
+                    T D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
 
                     if ((fabs(xy_x) < epsilon) && (fabs(xy_y) < epsilon )) {
                         lp_lat = 0.; lp_lon = 0.;
@@ -259,10 +255,10 @@ namespace projections
         \par Example
         \image html ex_aitoff.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<T, Parameters>
     {
-        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
+        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<T, Parameters>(par)
         {
             detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
         }
@@ -282,10 +278,10 @@ namespace projections
         \par Example
         \image html ex_wintri.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<T, Parameters>
     {
-        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
+        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<T, Parameters>(par)
         {
             detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
         }
@@ -300,31 +296,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wintri, wintri_spheroid, wintri_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class aitoff_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class aitoff_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<aitoff_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<aitoff_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class wintri_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wintri_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wintri_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wintri_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void aitoff_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void aitoff_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("aitoff", new aitoff_entry<CalculationType, Parameters>);
-            factory.add_to_factory("wintri", new wintri_entry<CalculationType, Parameters>);
+            factory.add_to_factory("aitoff", new aitoff_entry<T, Parameters>);
+            factory.add_to_factory("wintri", new wintri_entry<T, Parameters>);
         }
 
     } // namespace detail

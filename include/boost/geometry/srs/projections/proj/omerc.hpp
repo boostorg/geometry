@@ -77,27 +77,23 @@ namespace projections
             static const double epsilon = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_omerc_ellipsoid : public base_t_fi<base_omerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_omerc_ellipsoid
+                : public base_t_fi<base_omerc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_omerc<CalculationType> m_proj_parm;
+                par_omerc<T> m_proj_parm;
 
                 inline base_omerc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_omerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_omerc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  S, T, U, V, W, temp, u, v;
+                    T  S, T, U, V, W, temp, u, v;
 
                     if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
                         W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
@@ -132,11 +128,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  u, v, Qp, Sp, Tp, Vp, Up;
+                    T  u, v, Qp, Sp, Tp, Vp, Up;
 
                     if (this->m_proj_parm.no_rot) {
                         v = xy_y;
@@ -306,10 +302,10 @@ namespace projections
         \par Example
         \image html ex_omerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<T, Parameters>
     {
-        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>(par)
+        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<T, Parameters>(par)
         {
             detail::omerc::setup_omerc(this->m_par, this->m_proj_parm);
         }
@@ -323,20 +319,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::omerc, omerc_ellipsoid, omerc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class omerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class omerc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<omerc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<omerc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void omerc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void omerc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("omerc", new omerc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("omerc", new omerc_entry<T, Parameters>);
         }
 
     } // namespace detail

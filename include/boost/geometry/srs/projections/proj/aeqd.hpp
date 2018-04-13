@@ -335,30 +335,26 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aeqd_e : public base_t_fi<base_aeqd_e<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aeqd_e
+                : public base_t_fi<base_aeqd_e<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aeqd<CalculationType> m_proj_parm;
+                par_aeqd<T> m_proj_parm;
 
                 inline base_aeqd_e(const Parameters& par)
-                    : base_t_fi<base_aeqd_e<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_e<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     e_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                 }
 
                 // INVERSE(e_inverse)  elliptical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     e_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                 }
@@ -371,30 +367,26 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aeqd_e_guam : public base_t_fi<base_aeqd_e_guam<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aeqd_e_guam
+                : public base_t_fi<base_aeqd_e_guam<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aeqd<CalculationType> m_proj_parm;
+                par_aeqd<T> m_proj_parm;
 
                 inline base_aeqd_e_guam(const Parameters& par)
-                    : base_t_fi<base_aeqd_e_guam<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_e_guam<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_guam_fwd)  Guam elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     e_guam_fwd(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                 }
 
                 // INVERSE(e_guam_inv)  Guam elliptical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     e_guam_inv(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                 }
@@ -407,15 +399,11 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename BGParameters, typename CalculationType, typename Parameters>
-            struct base_aeqd_e_static : public base_t_fi<base_aeqd_e_static<BGParameters, CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename BGParameters, typename T, typename Parameters>
+            struct base_aeqd_e_static
+                : public base_t_fi<base_aeqd_e_static<BGParameters, T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aeqd<CalculationType> m_proj_parm;
+                par_aeqd<T> m_proj_parm;
 
                 static const bool is_guam = ! boost::is_same
                     <
@@ -429,13 +417,12 @@ namespace projections
                     >::value;
 
                 inline base_aeqd_e_static(const Parameters& par)
-                    : base_t_fi<base_aeqd_e_static<BGParameters, CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par)
+                    : base_t_fi<base_aeqd_e_static<BGParameters, T, Parameters>, T, Parameters>(*this, par)
                 {}
 
                 // FORWARD(e_forward or e_guam_fwd)  elliptical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     if (is_guam)
                         e_guam_fwd(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
@@ -445,7 +432,7 @@ namespace projections
 
                 // INVERSE(e_inverse or e_guam_inv)  elliptical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     if (is_guam)
                         e_guam_inv(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
@@ -461,30 +448,26 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aeqd_s : public base_t_fi<base_aeqd_s<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aeqd_s
+                : public base_t_fi<base_aeqd_s<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aeqd<CalculationType> m_proj_parm;
+                par_aeqd<T> m_proj_parm;
 
                 inline base_aeqd_s(const Parameters& par)
-                    : base_t_fi<base_aeqd_s<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aeqd_s<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spherical
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     s_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
                 }
 
                 // INVERSE(s_inverse)  spherical
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     s_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
                 }
@@ -515,10 +498,10 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aeqd_e : public detail::aeqd::base_aeqd_e<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aeqd_e : public detail::aeqd::base_aeqd_e<T, Parameters>
     {
-        inline aeqd_e(const Parameters& par) : detail::aeqd::base_aeqd_e<CalculationType, Parameters>(par)
+        inline aeqd_e(const Parameters& par) : detail::aeqd::base_aeqd_e<T, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, false, false);
         }
@@ -540,10 +523,10 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aeqd_e_guam : public detail::aeqd::base_aeqd_e_guam<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aeqd_e_guam : public detail::aeqd::base_aeqd_e_guam<T, Parameters>
     {
-        inline aeqd_e_guam(const Parameters& par) : detail::aeqd::base_aeqd_e_guam<CalculationType, Parameters>(par)
+        inline aeqd_e_guam(const Parameters& par) : detail::aeqd::base_aeqd_e_guam<T, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, false, true);
         }
@@ -565,14 +548,14 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename BGParameters, typename CalculationType, typename Parameters>
-    struct aeqd_e_static : public detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>
+    template <typename BGParameters, typename T, typename Parameters>
+    struct aeqd_e_static : public detail::aeqd::base_aeqd_e_static<BGParameters, T, Parameters>
     {
-        inline aeqd_e_static(const Parameters& par) : detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>(par)
+        inline aeqd_e_static(const Parameters& par) : detail::aeqd::base_aeqd_e_static<BGParameters, T, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm,
                                      false,
-                                     detail::aeqd::base_aeqd_e_static<BGParameters, CalculationType, Parameters>::is_guam);
+                                     detail::aeqd::base_aeqd_e_static<BGParameters, T, Parameters>::is_guam);
         }
     };
 
@@ -592,10 +575,10 @@ namespace projections
         \par Example
         \image html ex_aeqd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aeqd_s : public detail::aeqd::base_aeqd_s<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aeqd_s : public detail::aeqd::base_aeqd_s<T, Parameters>
     {
-        inline aeqd_s(const Parameters& par) : detail::aeqd::base_aeqd_s<CalculationType, Parameters>(par)
+        inline aeqd_s(const Parameters& par) : detail::aeqd::base_aeqd_s<T, Parameters>(par)
         {
             detail::aeqd::setup_aeqd(this->m_par, this->m_proj_parm, true, false);
         }
@@ -620,27 +603,27 @@ namespace projections
         //BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aeqd_guam, aeqd_guam, aeqd_guam)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class aeqd_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class aeqd_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     bool const guam = pj_get_param_b(par.params, "guam");
 
                     if (par.es && ! guam)
-                        return new base_v_fi<aeqd_e<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_e<T, Parameters>, T, Parameters>(par);
                     else if (par.es && guam)
-                        return new base_v_fi<aeqd_e_guam<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_e_guam<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<aeqd_s<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<aeqd_s<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void aeqd_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void aeqd_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("aeqd", new aeqd_entry<CalculationType, Parameters>);
+            factory.add_to_factory("aeqd", new aeqd_entry<T, Parameters>);
         }
 
     } // namespace detail

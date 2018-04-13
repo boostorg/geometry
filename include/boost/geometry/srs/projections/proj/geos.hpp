@@ -81,25 +81,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_geos_ellipsoid : public base_t_fi<base_geos_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_geos_ellipsoid
+                : public base_t_fi<base_geos_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_geos<CalculationType> m_proj_parm;
+                par_geos<T> m_proj_parm;
 
                 inline base_geos_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_geos_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_geos_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType r, Vx, Vy, Vz, tmp;
+                    T r, Vx, Vy, Vz, tmp;
 
                     /* Calculation of geocentric latitude. */
                     lp_lat = atan (this->m_proj_parm.radius_p2 * tan (lp_lat));
@@ -130,9 +126,9 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType Vx, Vy, Vz, a, b, det, k;
+                    T Vx, Vy, Vz, a, b, det, k;
 
                     /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -173,25 +169,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_geos_spheroid : public base_t_fi<base_geos_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_geos_spheroid
+                : public base_t_fi<base_geos_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_geos<CalculationType> m_proj_parm;
+                par_geos<T> m_proj_parm;
 
                 inline base_geos_spheroid(const Parameters& par)
-                    : base_t_fi<base_geos_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_geos_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType Vx, Vy, Vz, tmp;
+                    T Vx, Vy, Vz, tmp;
 
                     /* Calculation of the three components of the vector from satellite to
                     ** position on earth surface (lon,lat).*/
@@ -219,9 +211,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType Vx, Vy, Vz, a, b, det, k;
+                    T Vx, Vy, Vz, a, b, det, k;
 
                     /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -314,10 +306,10 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<T, Parameters>
     {
-        inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<CalculationType, Parameters>(par)
+        inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<T, Parameters>(par)
         {
             detail::geos::setup_geos(this->m_par, this->m_proj_parm);
         }
@@ -339,10 +331,10 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct geos_spheroid : public detail::geos::base_geos_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct geos_spheroid : public detail::geos::base_geos_spheroid<T, Parameters>
     {
-        inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<CalculationType, Parameters>(par)
+        inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<T, Parameters>(par)
         {
             detail::geos::setup_geos(this->m_par, this->m_proj_parm);
         }
@@ -356,23 +348,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::geos, geos_spheroid, geos_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class geos_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class geos_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<geos_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<geos_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<geos_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<geos_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void geos_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void geos_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("geos", new geos_entry<CalculationType, Parameters>);
+            factory.add_to_factory("geos", new geos_entry<T, Parameters>);
         }
 
     } // namespace detail

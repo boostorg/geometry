@@ -122,25 +122,21 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aea_ellipsoid : public base_t_fi<base_aea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aea_ellipsoid
+                : public base_t_fi<base_aea_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aea<CalculationType> m_proj_parm;
+                par_aea<T> m_proj_parm;
 
                 inline base_aea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_aea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aea_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid & spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
+                    T rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
                                                                     ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es)
                                                                     : this->m_proj_parm.n2 * sin(lp_lat));
                     if (rho < 0.)
@@ -152,11 +148,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rho = 0.0;
+                    T rho = 0.0;
                     if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
@@ -273,10 +269,10 @@ namespace projections
         \par Example
         \image html ex_aea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
+        inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
         {
             detail::aea::setup_aea(this->m_par, this->m_proj_parm);
         }
@@ -298,10 +294,10 @@ namespace projections
         \par Example
         \image html ex_leac.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
+        inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
         {
             detail::aea::setup_leac(this->m_par, this->m_proj_parm);
         }
@@ -316,31 +312,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::leac, leac_ellipsoid, leac_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class aea_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class aea_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<aea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<aea_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class leac_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class leac_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<leac_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<leac_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void aea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void aea_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("aea", new aea_entry<CalculationType, Parameters>);
-            factory.add_to_factory("leac", new leac_entry<CalculationType, Parameters>);
+            factory.add_to_factory("aea", new aea_entry<T, Parameters>);
+            factory.add_to_factory("leac", new leac_entry<T, Parameters>);
         }
 
     } // namespace detail

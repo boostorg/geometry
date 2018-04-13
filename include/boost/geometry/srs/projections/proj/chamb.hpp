@@ -117,28 +117,24 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_chamb_spheroid : public base_t_f<base_chamb_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_chamb_spheroid
+                : public base_t_f<base_chamb_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_chamb<CalculationType> m_proj_parm;
+                par_chamb<T> m_proj_parm;
 
                 inline base_chamb_spheroid(const Parameters& par)
-                    : base_t_f<base_chamb_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_chamb_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType third = detail::third<CalculationType>();
+                    static const T third = detail::third<T>();
 
-                    CalculationType sinphi, cosphi, a;
-                    VECT<CalculationType> v[3];
+                    T sinphi, cosphi, a;
+                    VECT<T> v[3];
                     int i, j;
 
                     sinphi = sin(lp_lat);
@@ -244,10 +240,10 @@ namespace projections
         \par Example
         \image html ex_chamb.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<T, Parameters>
     {
-        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<CalculationType, Parameters>(par)
+        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<T, Parameters>(par)
         {
             detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
         }
@@ -261,20 +257,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::chamb, chamb_spheroid, chamb_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class chamb_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class chamb_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<chamb_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<chamb_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void chamb_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void chamb_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("chamb", new chamb_entry<CalculationType, Parameters>);
+            factory.add_to_factory("chamb", new chamb_entry<T, Parameters>);
         }
 
     } // namespace detail

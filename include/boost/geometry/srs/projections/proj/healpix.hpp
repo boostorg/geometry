@@ -553,23 +553,19 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_healpix_ellipsoid : public base_t_fi<base_healpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_healpix_ellipsoid
+                : public base_t_fi<base_healpix_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
+                par_healpix<T> m_proj_parm;
 
                 inline base_healpix_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_healpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_healpix_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_healpix_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
@@ -577,7 +573,7 @@ namespace projections
 
                 // INVERSE(e_healpix_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image. */
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
@@ -597,30 +593,26 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_healpix_spheroid : public base_t_fi<base_healpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_healpix_spheroid
+                : public base_t_fi<base_healpix_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
+                par_healpix<T> m_proj_parm;
 
                 inline base_healpix_spheroid(const Parameters& par)
-                    : base_t_fi<base_healpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_healpix_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_healpix_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
                 // INVERSE(s_healpix_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image */
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
@@ -639,23 +631,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_rhealpix_ellipsoid : public base_t_fi<base_rhealpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_rhealpix_ellipsoid
+                : public base_t_fi<base_rhealpix_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
+                par_healpix<T> m_proj_parm;
 
                 inline base_rhealpix_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_rhealpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_rhealpix_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_rhealpix_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
                     healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
@@ -664,7 +652,7 @@ namespace projections
 
                 // INVERSE(e_rhealpix_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
@@ -685,23 +673,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_rhealpix_spheroid : public base_t_fi<base_rhealpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_rhealpix_spheroid
+                : public base_t_fi<base_rhealpix_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
+                par_healpix<T> m_proj_parm;
 
                 inline base_rhealpix_spheroid(const Parameters& par)
-                    : base_t_fi<base_rhealpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_rhealpix_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_rhealpix_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 0);
@@ -709,7 +693,7 @@ namespace projections
 
                 // INVERSE(s_rhealpix_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
@@ -780,10 +764,10 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<T, Parameters>
     {
-        inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>(par)
+        inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<T, Parameters>(par)
         {
             detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
         }
@@ -801,10 +785,10 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<T, Parameters>
     {
-        inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<CalculationType, Parameters>(par)
+        inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<T, Parameters>(par)
         {
             detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
         }
@@ -825,10 +809,10 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<T, Parameters>
     {
-        inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>(par)
+        inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<T, Parameters>(par)
         {
             detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
         }
@@ -849,10 +833,10 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<T, Parameters>
     {
-        inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>(par)
+        inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<T, Parameters>(par)
         {
             detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
         }
@@ -867,37 +851,37 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class healpix_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class healpix_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<healpix_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<healpix_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<healpix_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<healpix_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class rhealpix_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class rhealpix_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<rhealpix_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<rhealpix_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<rhealpix_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<rhealpix_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void healpix_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void healpix_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("healpix", new healpix_entry<CalculationType, Parameters>);
-            factory.add_to_factory("rhealpix", new rhealpix_entry<CalculationType, Parameters>);
+            factory.add_to_factory("healpix", new healpix_entry<T, Parameters>);
+            factory.add_to_factory("rhealpix", new rhealpix_entry<T, Parameters>);
         }
 
     } // namespace detail

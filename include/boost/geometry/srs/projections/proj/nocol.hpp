@@ -65,24 +65,19 @@ namespace projections
             static const double epsilon = 1e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nocol_spheroid : public base_t_f<base_nocol_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nocol_spheroid
+                : public base_t_f<base_nocol_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_nocol_spheroid(const Parameters& par)
-                    : base_t_f<base_nocol_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_nocol_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     if (fabs(lp_lon) < epsilon) {
                         xy_x = 0;
@@ -97,7 +92,7 @@ namespace projections
                         xy_x = 0;
                         xy_y = lp_lat;
                     } else {
-                        CalculationType tb, c, d, m, n, r2, sp;
+                        T tb, c, d, m, n, r2, sp;
 
                         tb = half_pi / lp_lon - lp_lon / half_pi;
                         c = lp_lat / half_pi;
@@ -145,10 +140,10 @@ namespace projections
         \par Example
         \image html ex_nicol.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nicol_spheroid : public detail::nocol::base_nocol_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nicol_spheroid : public detail::nocol::base_nocol_spheroid<T, Parameters>
     {
-        inline nicol_spheroid(const Parameters& par) : detail::nocol::base_nocol_spheroid<CalculationType, Parameters>(par)
+        inline nicol_spheroid(const Parameters& par) : detail::nocol::base_nocol_spheroid<T, Parameters>(par)
         {
             detail::nocol::setup_nicol(this->m_par);
         }
@@ -162,20 +157,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nicol, nicol_spheroid, nicol_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nicol_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class nicol_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<nicol_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<nicol_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void nocol_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void nocol_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("nicol", new nicol_entry<CalculationType, Parameters>);
+            factory.add_to_factory("nicol", new nicol_entry<T, Parameters>);
         }
 
     } // namespace detail

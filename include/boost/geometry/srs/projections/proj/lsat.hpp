@@ -99,32 +99,28 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_lsat_ellipsoid : public base_t_fi<base_lsat_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_lsat_ellipsoid
+                : public base_t_fi<base_lsat_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_lsat<CalculationType> m_proj_parm;
+                par_lsat<T> m_proj_parm;
 
                 inline base_lsat_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_lsat_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_lsat_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType one_and_half_pi = detail::one_and_half_pi<CalculationType>();
-                    static const CalculationType two_and_half_pi = detail::two_and_half_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T one_and_half_pi = detail::one_and_half_pi<T>();
+                    static const T two_and_half_pi = detail::two_and_half_pi<T>();
 
                     int l, nn;
-                    CalculationType lamt = 0.0, xlam, sdsq, c, d, s, lamdp = 0.0, phidp, lampp, tanph;
-                    CalculationType lamtp, cl, sd, sp, sav, tanphi;
+                    T lamt = 0.0, xlam, sdsq, c, d, s, lamdp = 0.0, phidp, lampp, tanph;
+                    T lamtp, cl, sd, sp, sav, tanphi;
 
                     if (lp_lat > half_pi)
                         lp_lat = half_pi;
@@ -137,7 +133,7 @@ namespace projections
                         lampp = one_and_half_pi;
                     tanphi = tan(lp_lat);
                     for (nn = 0;;) {
-                        CalculationType fac;
+                        T fac;
                         sav = lampp;
                         lamtp = lp_lon + this->m_proj_parm.p22 * lampp;
                         cl = cos(lamtp);
@@ -184,13 +180,13 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     int nn;
-                    CalculationType lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
+                    T lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
 
                     lamdp = xy_x / this->m_proj_parm.b;
                     nn = 50;
@@ -312,10 +308,10 @@ namespace projections
         \par Example
         \image html ex_lsat.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<T, Parameters>
     {
-        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>(par)
+        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<T, Parameters>(par)
         {
             detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
         }
@@ -329,20 +325,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lsat, lsat_ellipsoid, lsat_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lsat_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class lsat_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lsat_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<lsat_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void lsat_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void lsat_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("lsat", new lsat_entry<CalculationType, Parameters>);
+            factory.add_to_factory("lsat", new lsat_entry<T, Parameters>);
         }
 
     } // namespace detail

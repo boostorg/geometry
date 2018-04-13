@@ -90,27 +90,23 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_airy_spheroid : public base_t_f<base_airy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_airy_spheroid
+                : public base_t_f<base_airy_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_airy<CalculationType> m_proj_parm;
+                par_airy<T> m_proj_parm;
 
                 inline base_airy_spheroid(const Parameters& par)
-                    : base_t_f<base_airy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_airy_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
+                    T  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
 
                     sinlam = sin(lp_lon);
                     coslam = cos(lp_lon);
@@ -217,10 +213,10 @@ namespace projections
         \par Example
         \image html ex_airy.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct airy_spheroid : public detail::airy::base_airy_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct airy_spheroid : public detail::airy::base_airy_spheroid<T, Parameters>
     {
-        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<CalculationType, Parameters>(par)
+        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<T, Parameters>(par)
         {
             detail::airy::setup_airy(this->m_par, this->m_proj_parm);
         }
@@ -234,20 +230,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::airy, airy_spheroid, airy_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class airy_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class airy_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<airy_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<airy_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void airy_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void airy_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("airy", new airy_entry<CalculationType, Parameters>);
+            factory.add_to_factory("airy", new airy_entry<T, Parameters>);
         }
 
     } // namespace detail

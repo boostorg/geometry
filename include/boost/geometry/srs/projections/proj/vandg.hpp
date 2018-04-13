@@ -81,27 +81,22 @@ namespace projections
             inline T HPISQ() { return 4.9348022005446793094172454999381; }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_vandg_spheroid : public base_t_fi<base_vandg_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_vandg_spheroid
+                : public base_t_fi<base_vandg_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_vandg_spheroid(const Parameters& par)
-                    : base_t_fi<base_vandg_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_vandg_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
 
-                    CalculationType  al, al2, g, g2, p2;
+                    T  al, al2, g, g2, p2;
 
                     p2 = fabs(lp_lat / half_pi);
                     if ((p2 - tolerance) > 1.) {
@@ -141,20 +136,20 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType pi = detail::pi<CalculationType>();
-                    static const CalculationType PISQ = detail::pi_sqr<CalculationType>();
-                    static const CalculationType third = detail::third<CalculationType>();
-                    static const CalculationType two_pi = detail::two_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
+                    static const T PISQ = detail::pi_sqr<T>();
+                    static const T third = detail::third<T>();
+                    static const T two_pi = detail::two_pi<T>();
 
-                    static const CalculationType C2_27 = vandg::C2_27<CalculationType>();
-                    static const CalculationType PI4_3 = vandg::PI4_3<CalculationType>();                    
-                    static const CalculationType TPISQ = vandg::TPISQ<CalculationType>();
-                    static const CalculationType HPISQ = vandg::HPISQ<CalculationType>();
+                    static const T C2_27 = vandg::C2_27<T>();
+                    static const T PI4_3 = vandg::PI4_3<T>();                    
+                    static const T TPISQ = vandg::TPISQ<T>();
+                    static const T HPISQ = vandg::HPISQ<T>();
                     
-                    CalculationType t, c0, c1, c2, c3, al, r2, r, m, d, ay, x2, y2;
+                    T t, c0, c1, c2, c3, al, r2, r, m, d, ay, x2, y2;
 
                     x2 = xy_x * xy_x;
                     if ((ay = fabs(xy_y)) < tolerance) {
@@ -215,10 +210,10 @@ namespace projections
         \par Example
         \image html ex_vandg.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct vandg_spheroid : public detail::vandg::base_vandg_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct vandg_spheroid : public detail::vandg::base_vandg_spheroid<T, Parameters>
     {
-        inline vandg_spheroid(const Parameters& par) : detail::vandg::base_vandg_spheroid<CalculationType, Parameters>(par)
+        inline vandg_spheroid(const Parameters& par) : detail::vandg::base_vandg_spheroid<T, Parameters>(par)
         {
             detail::vandg::setup_vandg(this->m_par);
         }
@@ -232,20 +227,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::vandg, vandg_spheroid, vandg_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class vandg_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class vandg_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<vandg_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<vandg_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void vandg_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void vandg_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("vandg", new vandg_entry<CalculationType, Parameters>);
+            factory.add_to_factory("vandg", new vandg_entry<T, Parameters>);
         }
 
     } // namespace detail

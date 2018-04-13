@@ -69,28 +69,23 @@ namespace projections
             static const double FYC = 0.49931;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_boggs_spheroid : public base_t_f<base_boggs_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_boggs_spheroid
+                : public base_t_f<base_boggs_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_boggs_spheroid(const Parameters& par)
-                    : base_t_f<base_boggs_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_boggs_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType pi = detail::pi<CalculationType>();
-                    static const CalculationType root_two = boost::math::constants::root_two<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
+                    static const T root_two = boost::math::constants::root_two<T>();
 
-                    CalculationType theta, th1, c;
+                    T theta, th1, c;
                     int i;
 
                     theta = lp_lat;
@@ -139,10 +134,10 @@ namespace projections
         \par Example
         \image html ex_boggs.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct boggs_spheroid : public detail::boggs::base_boggs_spheroid<T, Parameters>
     {
-        inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<CalculationType, Parameters>(par)
+        inline boggs_spheroid(const Parameters& par) : detail::boggs::base_boggs_spheroid<T, Parameters>(par)
         {
             detail::boggs::setup_boggs(this->m_par);
         }
@@ -156,20 +151,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::boggs, boggs_spheroid, boggs_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class boggs_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class boggs_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<boggs_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<boggs_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void boggs_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void boggs_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("boggs", new boggs_entry<CalculationType, Parameters>);
+            factory.add_to_factory("boggs", new boggs_entry<T, Parameters>);
         }
 
     } // namespace detail

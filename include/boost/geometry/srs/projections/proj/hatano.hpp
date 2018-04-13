@@ -77,24 +77,19 @@ namespace projections
             static const double RXC = 1.17647058823529411764;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_hatano_spheroid : public base_t_fi<base_hatano_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_hatano_spheroid
+                : public base_t_fi<base_hatano_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_hatano_spheroid(const Parameters& par)
-                    : base_t_fi<base_hatano_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_hatano_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType th1, c;
+                    T th1, c;
                     int i;
 
                     c = sin(lp_lat) * (lp_lat < 0. ? CS_ : CN_);
@@ -108,11 +103,11 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static CalculationType const half_pi = detail::half_pi<CalculationType>();
+                    static T const half_pi = detail::half_pi<T>();
 
-                    CalculationType th;
+                    T th;
 
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
                     if (fabs(th) > 1.) {
@@ -168,10 +163,10 @@ namespace projections
         \par Example
         \image html ex_hatano.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct hatano_spheroid : public detail::hatano::base_hatano_spheroid<T, Parameters>
     {
-        inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<CalculationType, Parameters>(par)
+        inline hatano_spheroid(const Parameters& par) : detail::hatano::base_hatano_spheroid<T, Parameters>(par)
         {
             detail::hatano::setup_hatano(this->m_par);
         }
@@ -185,20 +180,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::hatano, hatano_spheroid, hatano_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class hatano_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class hatano_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<hatano_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<hatano_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void hatano_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void hatano_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("hatano", new hatano_entry<CalculationType, Parameters>);
+            factory.add_to_factory("hatano", new hatano_entry<T, Parameters>);
         }
 
     } // namespace detail

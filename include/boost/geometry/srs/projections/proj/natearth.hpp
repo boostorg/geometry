@@ -97,24 +97,19 @@ namespace projections
             static const int max_iter = 100;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_natearth_spheroid : public base_t_fi<base_natearth_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_natearth_spheroid
+                : public base_t_fi<base_natearth_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_natearth_spheroid(const Parameters& par)
-                    : base_t_fi<base_natearth_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_natearth_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType phi2, phi4;
+                    T phi2, phi4;
 
                     phi2 = lp_lat * lp_lat;
                     phi4 = phi2 * phi2;
@@ -124,11 +119,11 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType max_y = natearth::max_y<CalculationType>();
+                    static const T max_y = natearth::max_y<T>();
 
-                    CalculationType yc, tol, y2, y4, f, fder;
+                    T yc, tol, y2, y4, f, fder;
                     int i;
 
                     /* make sure y is inside valid range */
@@ -188,10 +183,10 @@ namespace projections
         \par Example
         \image html ex_natearth.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<T, Parameters>
     {
-        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<CalculationType, Parameters>(par)
+        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<T, Parameters>(par)
         {
             detail::natearth::setup_natearth(this->m_par);
         }
@@ -205,20 +200,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::natearth, natearth_spheroid, natearth_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class natearth_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class natearth_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<natearth_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<natearth_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void natearth_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void natearth_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("natearth", new natearth_entry<CalculationType, Parameters>);
+            factory.add_to_factory("natearth", new natearth_entry<T, Parameters>);
         }
 
     } // namespace detail

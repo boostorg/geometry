@@ -98,27 +98,23 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_stere_ellipsoid : public base_t_fi<base_stere_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_stere_ellipsoid
+                : public base_t_fi<base_stere_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_stere<CalculationType> m_proj_parm;
+                par_stere<T> m_proj_parm;
 
                 inline base_stere_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_stere_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_stere_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType coslam, sinlam, sinX=0.0, cosX=0.0, X, A = 0.0, sinphi;
+                    T coslam, sinlam, sinX=0.0, cosX=0.0, X, A = 0.0, sinphi;
 
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
@@ -163,11 +159,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
+                    T cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
                     int i;
 
                     rho = boost::math::hypot(xy_x, xy_y);
@@ -217,28 +213,24 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_stere_spheroid : public base_t_fi<base_stere_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_stere_spheroid
+                : public base_t_fi<base_stere_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_stere<CalculationType> m_proj_parm;
+                par_stere<T> m_proj_parm;
 
                 inline base_stere_spheroid(const Parameters& par)
-                    : base_t_fi<base_stere_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_stere_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  sinphi, cosphi, coslam, sinlam;
+                    T  sinphi, cosphi, coslam, sinlam;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -274,9 +266,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType  c, rh, sinc, cosc;
+                    T  c, rh, sinc, cosc;
 
                     sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
                     cosc = cos(c);
@@ -429,10 +421,10 @@ namespace projections
         \par Example
         \image html ex_stere.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<T, Parameters>
     {
-        inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
+        inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
         {
             detail::stere::setup_stere(this->m_par, this->m_proj_parm);
         }
@@ -453,10 +445,10 @@ namespace projections
         \par Example
         \image html ex_stere.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct stere_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct stere_spheroid : public detail::stere::base_stere_spheroid<T, Parameters>
     {
-        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
+        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<T, Parameters>(par)
         {
             detail::stere::setup_stere(this->m_par, this->m_proj_parm);
         }
@@ -477,10 +469,10 @@ namespace projections
         \par Example
         \image html ex_ups.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<T, Parameters>
     {
-        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<CalculationType, Parameters>(par)
+        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
         {
             detail::stere::setup_ups(this->m_par, this->m_proj_parm);
         }
@@ -501,10 +493,10 @@ namespace projections
         \par Example
         \image html ex_ups.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ups_spheroid : public detail::stere::base_stere_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ups_spheroid : public detail::stere::base_stere_spheroid<T, Parameters>
     {
-        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<CalculationType, Parameters>(par)
+        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<T, Parameters>(par)
         {
             detail::stere::setup_ups(this->m_par, this->m_proj_parm);
         }
@@ -519,37 +511,37 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ups, ups_spheroid, ups_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class stere_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class stere_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<stere_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<stere_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<stere_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<stere_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class ups_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class ups_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<ups_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<ups_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<ups_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<ups_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void stere_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void stere_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("stere", new stere_entry<CalculationType, Parameters>);
-            factory.add_to_factory("ups", new ups_entry<CalculationType, Parameters>);
+            factory.add_to_factory("stere", new stere_entry<T, Parameters>);
+            factory.add_to_factory("ups", new ups_entry<T, Parameters>);
         }
 
     } // namespace detail

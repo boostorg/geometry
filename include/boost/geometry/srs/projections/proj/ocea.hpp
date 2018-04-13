@@ -73,27 +73,23 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_ocea_spheroid : public base_t_fi<base_ocea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_ocea_spheroid
+                : public base_t_fi<base_ocea_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ocea<CalculationType> m_proj_parm;
+                par_ocea<T> m_proj_parm;
 
                 inline base_ocea_spheroid(const Parameters& par)
-                    : base_t_fi<base_ocea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_ocea_spheroid<T, Parameters>,
+                     T, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const T pi = detail::pi<T>();
 
-                    CalculationType t;
+                    T t;
 
                     xy_y = sin(lp_lon);
                     t = cos(lp_lon);
@@ -106,9 +102,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType t, s;
+                    T t, s;
 
                     xy_y /= this->m_proj_parm.rok;
                     xy_x /= this->m_proj_parm.rtk;
@@ -194,10 +190,10 @@ namespace projections
         \par Example
         \image html ex_ocea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<T, Parameters>
     {
-        inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<CalculationType, Parameters>(par)
+        inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<T, Parameters>(par)
         {
             detail::ocea::setup_ocea(this->m_par, this->m_proj_parm);
         }
@@ -211,20 +207,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ocea, ocea_spheroid, ocea_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class ocea_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class ocea_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<ocea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<ocea_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void ocea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void ocea_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("ocea", new ocea_entry<CalculationType, Parameters>);
+            factory.add_to_factory("ocea", new ocea_entry<T, Parameters>);
         }
 
     } // namespace detail

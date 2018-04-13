@@ -181,31 +181,27 @@ namespace projections
             /* Forward projection, ellipsoid */
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_qsc_ellipsoid : public base_t_fi<base_qsc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_qsc_ellipsoid
+                : public base_t_fi<base_qsc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_qsc<CalculationType> m_proj_parm;
+                par_qsc<T> m_proj_parm;
 
                 inline base_qsc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_qsc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_qsc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
 
-                        CalculationType lat, lon;
-                        CalculationType theta, phi;
-                        CalculationType t, mu; /* nu; */ 
+                        T lat, lon;
+                        T theta, phi;
+                        T t, mu; /* nu; */ 
                         enum Area area;
 
                         /* Convert the geodetic latitude to a geocentric latitude.
@@ -254,9 +250,9 @@ namespace projections
                                 theta = (lon > 0.0 ? -lon + pi : -lon - pi);
                             }
                         } else {
-                            CalculationType q, r, s;
-                            CalculationType sinlat, coslat;
-                            CalculationType sinlon, coslon;
+                            T q, r, s;
+                            T sinlat, coslat;
+                            T sinlon, coslon;
 
                             if (this->m_proj_parm.face == FACE_RIGHT) {
                                 lon = qsc_shift_lon_origin(lon, +half_pi);
@@ -318,14 +314,14 @@ namespace projections
 
                 // INVERSE(e_inverse)
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType pi = detail::pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
 
-                        CalculationType mu, nu, cosmu, tannu;
-                        CalculationType tantheta, theta, cosphi, phi;
-                        CalculationType t;
+                        T mu, nu, cosmu, tannu;
+                        T tantheta, theta, cosphi, phi;
+                        T t;
                         int area;
 
                         /* Convert the input x, y to the mu and nu angles as used by QSC.
@@ -392,7 +388,7 @@ namespace projections
                             }
                         } else {
                             /* Compute phi and lam via cartesian unit sphere coordinates. */
-                            CalculationType q, r, s;
+                            T q, r, s;
                             q = cosphi;
                             t = q * q;
                             if (t >= 1.0) {
@@ -448,7 +444,7 @@ namespace projections
                          * in [LK12]. */
                         if (this->m_par.es != 0.0) {
                             int invert_sign;
-                            CalculationType tanphi, xa;
+                            T tanphi, xa;
                             invert_sign = (lp_lat < 0.0 ? 1 : 0);
                             tanphi = tan(lp_lat);
                             xa = this->m_proj_parm.b / sqrt(tanphi * tanphi + this->m_proj_parm.one_minus_f_squared);
@@ -510,10 +506,10 @@ namespace projections
         \par Example
         \image html ex_qsc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<T, Parameters>
     {
-        inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<CalculationType, Parameters>(par)
+        inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<T, Parameters>(par)
         {
             detail::qsc::setup_qsc(this->m_par, this->m_proj_parm);
         }
@@ -527,20 +523,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::qsc, qsc_ellipsoid, qsc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class qsc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class qsc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<qsc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<qsc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void qsc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void qsc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("qsc", new qsc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("qsc", new qsc_entry<T, Parameters>);
         }
 
     } // namespace detail

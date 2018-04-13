@@ -93,25 +93,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nsper_spheroid : public base_t_fi<base_nsper_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nsper_spheroid
+                : public base_t_fi<base_nsper_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_nsper<CalculationType> m_proj_parm;
+                par_nsper<T> m_proj_parm;
 
                 inline base_nsper_spheroid(const Parameters& par)
-                    : base_t_fi<base_nsper_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_nsper_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType  coslam, cosphi, sinphi;
+                    T  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -151,7 +147,7 @@ namespace projections
                         break;
                     }
                     if (this->m_proj_parm.tilt) {
-                        CalculationType yt, ba;
+                        T yt, ba;
 
                         yt = xy_y * this->m_proj_parm.cg + xy_x * this->m_proj_parm.sg;
                         ba = 1. / (yt * this->m_proj_parm.sw * this->m_proj_parm.h + this->m_proj_parm.cw);
@@ -162,12 +158,12 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType  rh, cosz, sinz;
+                    T  rh, cosz, sinz;
 
                     if (this->m_proj_parm.tilt) {
-                        CalculationType bm, bq, yt;
+                        T bm, bq, yt;
 
                         yt = 1./(this->m_proj_parm.pn1 - xy_y * this->m_proj_parm.sw);
                         bm = this->m_proj_parm.pn1 * xy_x * yt;
@@ -280,10 +276,10 @@ namespace projections
         \par Example
         \image html ex_nsper.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<T, Parameters>
     {
-        inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)
+        inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<T, Parameters>(par)
         {
             detail::nsper::setup_nsper(this->m_par, this->m_proj_parm);
         }
@@ -305,10 +301,10 @@ namespace projections
         \par Example
         \image html ex_tpers.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<T, Parameters>
     {
-        inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)
+        inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<T, Parameters>(par)
         {
             detail::nsper::setup_tpers(this->m_par, this->m_proj_parm);
         }
@@ -323,31 +319,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tpers, tpers_spheroid, tpers_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nsper_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class nsper_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<nsper_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<nsper_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class tpers_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class tpers_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<tpers_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<tpers_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void nsper_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void nsper_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("nsper", new nsper_entry<CalculationType, Parameters>);
-            factory.add_to_factory("tpers", new tpers_entry<CalculationType, Parameters>);
+            factory.add_to_factory("nsper", new nsper_entry<T, Parameters>);
+            factory.add_to_factory("tpers", new tpers_entry<T, Parameters>);
         }
 
     } // namespace detail

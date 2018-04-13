@@ -72,28 +72,24 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_somerc_ellipsoid : public base_t_fi<base_somerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_somerc_ellipsoid
+                : public base_t_fi<base_somerc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_somerc<CalculationType> m_proj_parm;
+                par_somerc<T> m_proj_parm;
 
                 inline base_somerc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_somerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_somerc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType phip, lamp, phipp, lampp, sp, cp;
+                    T phip, lamp, phipp, lampp, sp, cp;
 
                     sp = this->m_par.e * sin(lp_lat);
                     phip = 2.* atan( exp( this->m_proj_parm.c * (
@@ -109,11 +105,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
-                    CalculationType phip, lamp, phipp, lampp, cp, esp, con, delp;
+                    T phip, lamp, phipp, lampp, cp, esp, con, delp;
                     int i;
 
                     phipp = 2. * (atan(exp(xy_y / this->m_proj_parm.kR)) - fourth_pi);
@@ -183,10 +179,10 @@ namespace projections
         \par Example
         \image html ex_somerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct somerc_ellipsoid : public detail::somerc::base_somerc_ellipsoid<T, Parameters>
     {
-        inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<CalculationType, Parameters>(par)
+        inline somerc_ellipsoid(const Parameters& par) : detail::somerc::base_somerc_ellipsoid<T, Parameters>(par)
         {
             detail::somerc::setup_somerc(this->m_par, this->m_proj_parm);
         }
@@ -200,20 +196,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::somerc, somerc_ellipsoid, somerc_ellipsoid)
     
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class somerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class somerc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<somerc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<somerc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void somerc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void somerc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("somerc", new somerc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("somerc", new somerc_entry<T, Parameters>);
         }
 
     } // namespace detail

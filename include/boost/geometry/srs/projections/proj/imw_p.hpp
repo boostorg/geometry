@@ -165,35 +165,31 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_imw_p_ellipsoid : public base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_imw_p_ellipsoid
+                : public base_t_fi<base_imw_p_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_imw_p<CalculationType> m_proj_parm;
+                par_imw_p<T> m_proj_parm;
 
                 inline base_imw_p_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_imw_p_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType yc = 0;
-                    point_xy<CalculationType> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    T yc = 0;
+                    point_xy<T> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    point_xy<CalculationType> t;
-                    CalculationType yc = 0.0;
+                    point_xy<T> t;
+                    T yc = 0.0;
                     int i = 0;
                     const int n_max_iter = 1000; /* Arbitrarily choosen number... */
 
@@ -291,10 +287,10 @@ namespace projections
         \par Example
         \image html ex_imw_p.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<T, Parameters>
     {
-        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)
+        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<T, Parameters>(par)
         {
             detail::imw_p::setup_imw_p(this->m_par, this->m_proj_parm);
         }
@@ -308,20 +304,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::imw_p, imw_p_ellipsoid, imw_p_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class imw_p_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class imw_p_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<imw_p_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<imw_p_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void imw_p_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void imw_p_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("imw_p", new imw_p_entry<CalculationType, Parameters>);
+            factory.add_to_factory("imw_p", new imw_p_entry<T, Parameters>);
         }
 
     } // namespace detail

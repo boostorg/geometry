@@ -68,24 +68,19 @@ namespace projections
             static const double epsilon10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_merc_ellipsoid : public base_t_fi<base_merc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_merc_ellipsoid
+                : public base_t_fi<base_merc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_merc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_merc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_merc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     if (fabs(fabs(lp_lat) - half_pi) <= epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -96,7 +91,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -112,25 +107,20 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_merc_spheroid : public base_t_fi<base_merc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_merc_spheroid
+                : public base_t_fi<base_merc_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_merc_spheroid(const Parameters& par)
-                    : base_t_fi<base_merc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_merc_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
                     if (fabs(fabs(lp_lat) - half_pi) <= epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -141,9 +131,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     lp_lat = half_pi - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
@@ -198,10 +188,10 @@ namespace projections
         \par Example
         \image html ex_merc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<T, Parameters>
     {
-        inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<CalculationType, Parameters>(par)
+        inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<T, Parameters>(par)
         {
             detail::merc::setup_merc(this->m_par);
         }
@@ -222,10 +212,10 @@ namespace projections
         \par Example
         \image html ex_merc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct merc_spheroid : public detail::merc::base_merc_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct merc_spheroid : public detail::merc::base_merc_spheroid<T, Parameters>
     {
-        inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<CalculationType, Parameters>(par)
+        inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<T, Parameters>(par)
         {
             detail::merc::setup_merc(this->m_par);
         }
@@ -239,23 +229,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::merc, merc_spheroid, merc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class merc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class merc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<merc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<merc_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<merc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<merc_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void merc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void merc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("merc", new merc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("merc", new merc_entry<T, Parameters>);
         }
 
     } // namespace detail

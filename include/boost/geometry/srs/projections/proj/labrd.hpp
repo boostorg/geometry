@@ -69,28 +69,24 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_labrd_ellipsoid : public base_t_fi<base_labrd_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_labrd_ellipsoid
+                : public base_t_fi<base_labrd_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_labrd<CalculationType> m_proj_parm;
+                par_labrd<T> m_proj_parm;
 
                 inline base_labrd_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_labrd_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_labrd_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
-                    CalculationType V1, V2, ps, sinps, cosps, sinps2, cosps2;
-                    CalculationType I1, I2, I3, I4, I5, I6, x2, y2, t;
+                    T V1, V2, ps, sinps, cosps, sinps2, cosps2;
+                    T I1, I2, I3, I4, I5, I6, x2, y2, t;
 
                     V1 = this->m_proj_parm.A * log( tan(fourth_pi + .5 * lp_lat) );
                     t = this->m_par.e * sin(lp_lat);
@@ -119,15 +115,15 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
                     /* t = 0.0 optimization is to avoid a false positive cppcheck warning */
                     /* (cppcheck git beaf29c15867984aa3c2a15cf15bd7576ccde2b3). Might no */
                     /* longer be necessary with later versions. */
-                    CalculationType x2, y2, V1, V2, V3, V4, t = 0.0, t2, ps, pe, tpe, s;
-                    CalculationType I7, I8, I9, I10, I11, d, Re;
+                    T x2, y2, V1, V2, V3, V4, t = 0.0, t2, ps, pe, tpe, s;
+                    T I7, I8, I9, I10, I11, d, Re;
                     int i;
 
                     x2 = xy_x * xy_x;
@@ -224,10 +220,10 @@ namespace projections
         \par Example
         \image html ex_labrd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<T, Parameters>
     {
-        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>(par)
+        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<T, Parameters>(par)
         {
             detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
         }
@@ -241,20 +237,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::labrd, labrd_ellipsoid, labrd_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class labrd_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class labrd_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<labrd_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<labrd_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void labrd_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void labrd_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("labrd", new labrd_entry<CalculationType, Parameters>);
+            factory.add_to_factory("labrd", new labrd_entry<T, Parameters>);
         }
 
     } // namespace detail

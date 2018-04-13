@@ -72,25 +72,20 @@ namespace projections
             inline T C3() { return 0.0016666666666666666666666666666; }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_denoy_spheroid : public base_t_f<base_denoy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_denoy_spheroid
+                : public base_t_f<base_denoy_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_denoy_spheroid(const Parameters& par)
-                    : base_t_f<base_denoy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_denoy_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType C1 = denoy::C1<CalculationType>();
-                    static const CalculationType C3 = denoy::C3<CalculationType>();
+                    static const T C1 = denoy::C1<T>();
+                    static const T C3 = denoy::C3<T>();
 
                     xy_y = lp_lat;
                     xy_x = lp_lon;
@@ -129,10 +124,10 @@ namespace projections
         \par Example
         \image html ex_denoy.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<T, Parameters>
     {
-        inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<CalculationType, Parameters>(par)
+        inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<T, Parameters>(par)
         {
             detail::denoy::setup_denoy(this->m_par);
         }
@@ -146,20 +141,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::denoy, denoy_spheroid, denoy_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class denoy_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class denoy_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<denoy_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<denoy_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void denoy_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void denoy_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("denoy", new denoy_entry<CalculationType, Parameters>);
+            factory.add_to_factory("denoy", new denoy_entry<T, Parameters>);
         }
 
     } // namespace detail

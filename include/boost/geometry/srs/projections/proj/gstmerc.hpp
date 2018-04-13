@@ -74,25 +74,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_gstmerc_spheroid : public base_t_fi<base_gstmerc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_gstmerc_spheroid
+                : public base_t_fi<base_gstmerc_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_gstmerc<CalculationType> m_proj_parm;
+                par_gstmerc<T> m_proj_parm;
 
                 inline base_gstmerc_spheroid(const Parameters& par)
-                    : base_t_fi<base_gstmerc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_gstmerc_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType L, Ls, sinLs1, Ls1;
+                    T L, Ls, sinLs1, Ls1;
 
                     L= this->m_proj_parm.n1*lp_lon;
                     Ls= this->m_proj_parm.c+this->m_proj_parm.n1*log(pj_tsfn(-1.0*lp_lat,-1.0*sin(lp_lat),this->m_par.e));
@@ -104,9 +100,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType L, LC, sinC;
+                    T L, LC, sinC;
 
                     L= atan(sinh((xy_x*this->m_par.a - this->m_proj_parm.XS)/this->m_proj_parm.n2)/cos((xy_y*this->m_par.a - this->m_proj_parm.YS)/this->m_proj_parm.n2));
                     sinC= sin((xy_y*this->m_par.a - this->m_proj_parm.YS)/this->m_proj_parm.n2)/cosh((xy_x*this->m_par.a - this->m_proj_parm.XS)/this->m_proj_parm.n2);
@@ -156,10 +152,10 @@ namespace projections
         \par Example
         \image html ex_gstmerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<T, Parameters>
     {
-        inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<CalculationType, Parameters>(par)
+        inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<T, Parameters>(par)
         {
             detail::gstmerc::setup_gstmerc(this->m_par, this->m_proj_parm);
         }
@@ -173,20 +169,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gstmerc, gstmerc_spheroid, gstmerc_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class gstmerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gstmerc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gstmerc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<gstmerc_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void gstmerc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void gstmerc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("gstmerc", new gstmerc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gstmerc", new gstmerc_entry<T, Parameters>);
         }
 
     } // namespace detail

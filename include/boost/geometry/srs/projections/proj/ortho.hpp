@@ -82,27 +82,23 @@ namespace projections
             static const double epsilon10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_ortho_spheroid : public base_t_fi<base_ortho_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_ortho_spheroid
+                : public base_t_fi<base_ortho_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ortho<CalculationType> m_proj_parm;
+                par_ortho<T> m_proj_parm;
 
                 inline base_ortho_spheroid(const Parameters& par)
-                    : base_t_fi<base_ortho_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_ortho_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType coslam, cosphi, sinphi;
+                    T coslam, cosphi, sinphi;
 
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -135,11 +131,11 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType half_pi = detail::half_pi<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rh, cosc, sinc;
+                    T rh, cosc, sinc;
 
                     if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
                         if ((sinc - 1.) > epsilon10) {
@@ -219,10 +215,10 @@ namespace projections
         \par Example
         \image html ex_ortho.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<T, Parameters>
     {
-        inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<CalculationType, Parameters>(par)
+        inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<T, Parameters>(par)
         {
             detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
         }
@@ -236,20 +232,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ortho, ortho_spheroid, ortho_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class ortho_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class ortho_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<ortho_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<ortho_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void ortho_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void ortho_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("ortho", new ortho_entry<CalculationType, Parameters>);
+            factory.add_to_factory("ortho", new ortho_entry<T, Parameters>);
         }
 
     } // namespace detail
