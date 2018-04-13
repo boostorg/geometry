@@ -65,7 +65,7 @@ namespace projections
     namespace detail { namespace eqdc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             struct par_eqdc
@@ -147,14 +147,14 @@ namespace projections
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 proj_parm.phi2 = pj_get_param_r(par.params, "lat_2");
 
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
                     BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
 
                 proj_parm.en = pj_enfn<T>(par.es);
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es > 0.)) ) {
                     double ml1, m1;
 

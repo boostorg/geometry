@@ -64,13 +64,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace krovak
     {
-            static double EPS = 1e-15;
+            static double epsilon = 1e-15;
             static double S45 = 0.785398163397448;  /* 45 deg */
             static double S90 = 1.570796326794896;  /* 90 deg */
             static double UQ  = 1.04216856380474;   /* DU(2, 59, 42, 42.69689) */
             static double S0  = 1.37008346281555;   /* Latitude of pseudo standard parallel 78deg 30'00" N */
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static int MAX_ITER = 100;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static int max_iter = 100;
 
             template <typename T>
             struct par_krovak
@@ -174,13 +174,13 @@ namespace projections
                     /* ITERATION FOR lp_lat */
                     fi1 = u;
 
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat = 2. * ( atan( pow( this->m_proj_parm.k, -1. / this->m_proj_parm.alpha)  *
                                               pow( tan(u / 2. + S45) , 1. / this->m_proj_parm.alpha)  *
                                               pow( (1. + this->m_par.e * sin(fi1)) / (1. - this->m_par.e * sin(fi1)) , this->m_par.e / 2.)
                                             )  - S45);
 
-                        if (fabs(fi1 - lp_lat) < EPS)
+                        if (fabs(fi1 - lp_lat) < epsilon)
                             break;
                         fi1 = lp_lat;
                     }

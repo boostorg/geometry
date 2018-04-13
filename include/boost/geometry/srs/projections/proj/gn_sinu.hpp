@@ -67,9 +67,9 @@ namespace projections
     namespace detail { namespace gn_sinu
     {
 
-            static const double EPS10 = 1e-10;
-            static const int MAX_ITER = 8;
-            static const double LOOP_TOL = 1e-7;
+            static const double epsilon10 = 1e-10;
+            static const int max_iter = 8;
+            static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_gn_sinu
@@ -116,7 +116,7 @@ namespace projections
                     if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < half_pi) {
                         s = sin(lp_lat);
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if ((s - EPS10) < half_pi)
+                    } else if ((s - epsilon10) < half_pi)
                         lp_lon = 0.;
                     else
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -156,10 +156,10 @@ namespace projections
                         int i;
 
                         k = this->m_proj_parm.n * sin(lp_lat);
-                        for (i = MAX_ITER; i ; --i) {
+                        for (i = max_iter; i ; --i) {
                             lp_lat -= V = (this->m_proj_parm.m * lp_lat + sin(lp_lat) - k) /
                                 (this->m_proj_parm.m + cos(lp_lat));
-                            if (fabs(V) < LOOP_TOL)
+                            if (fabs(V) < loop_tol)
                                 break;
                         }
                         if (!i) {

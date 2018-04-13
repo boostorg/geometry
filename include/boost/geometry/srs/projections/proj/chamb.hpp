@@ -65,7 +65,7 @@ namespace projections
     {
 
             //static const double third = 0.333333333333333333;
-            static const double TOL = 1e-9;
+            static const double tolerance = 1e-9;
 
             // specific for 'chamb'
             template <typename T>
@@ -102,7 +102,7 @@ namespace projections
                     dl = sin(.5 * dlam);
                     v.r = 2. * aasin(sqrt(dp * dp + c1 * c2 * dl * dl));
                 }
-                if (fabs(v.r) > TOL)
+                if (fabs(v.r) > tolerance)
                     v.Az = atan2(c2 * sin(dlam), c1 * s2 - s1 * c2 * cdl);
                 else
                     v.r = v.Az = 0.;

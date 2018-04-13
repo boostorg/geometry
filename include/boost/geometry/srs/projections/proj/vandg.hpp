@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace vandg
     {
 
-            static const double TOL = 1.e-10;
+            static const double tolerance = 1.e-10;
             //static const double third = .33333333333333333333;
             //static const double TWO_THRD = .66666666666666666666;
             //static const double C2_27 = .07407407407407407407;
@@ -104,15 +104,15 @@ namespace projections
                     CalculationType  al, al2, g, g2, p2;
 
                     p2 = fabs(lp_lat / half_pi);
-                    if ((p2 - TOL) > 1.) {
+                    if ((p2 - tolerance) > 1.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     if (p2 > 1.)
                         p2 = 1.;
-                    if (fabs(lp_lat) <= TOL) {
+                    if (fabs(lp_lat) <= tolerance) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) <= TOL || fabs(p2 - 1.) < TOL) {
+                    } else if (fabs(lp_lon) <= tolerance || fabs(p2 - 1.) < tolerance) {
                         xy_x = 0.;
                         xy_y = pi * tan(.5 * asin(p2));
                         if (lp_lat < 0.) xy_y = -xy_y;
@@ -129,7 +129,7 @@ namespace projections
                         if (lp_lon < 0.) xy_x = -xy_x;
                         xy_y = fabs(xy_x / pi);
                         xy_y = 1. - xy_y * (xy_y + 2. * al);
-                        if (xy_y < -TOL) {
+                        if (xy_y < -tolerance) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         if (xy_y < 0.)
@@ -157,10 +157,10 @@ namespace projections
                     CalculationType t, c0, c1, c2, c3, al, r2, r, m, d, ay, x2, y2;
 
                     x2 = xy_x * xy_x;
-                    if ((ay = fabs(xy_y)) < TOL) {
+                    if ((ay = fabs(xy_y)) < tolerance) {
                         lp_lat = 0.;
                         t = x2 * x2 + TPISQ * (x2 + HPISQ);
-                        lp_lon = fabs(xy_x) <= TOL ? 0. :
+                        lp_lon = fabs(xy_x) <= tolerance ? 0. :
                            .5 * (x2 - PISQ + sqrt(t)) / xy_x;
                             return;
                     }
@@ -174,12 +174,12 @@ namespace projections
                     al = c1 / c3 - third * c2 * c2;
                     m = 2. * sqrt(-third * al);
                     d = C2_27 * c2 * c2 * c2 + (c0 * c0 - third * c2 * c1) / c3;
-                    if (((t = fabs(d = 3. * d / (al * m))) - TOL) <= 1.) {
+                    if (((t = fabs(d = 3. * d / (al * m))) - tolerance) <= 1.) {
                         d = t > 1. ? (d > 0. ? 0. : pi) : acos(d);
                         lp_lat = pi * (m * cos(d * third + PI4_3) - third * c2);
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         t = r2 + TPISQ * (x2 - y2 + HPISQ);
-                        lp_lon = fabs(xy_x) <= TOL ? 0. :
+                        lp_lon = fabs(xy_x) <= tolerance ? 0. :
                            .5 * (r - PISQ + (t <= 0. ? 0. : sqrt(t))) / xy_x;
                     } else {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );

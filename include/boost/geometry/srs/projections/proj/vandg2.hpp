@@ -63,7 +63,7 @@ namespace projections
     namespace detail { namespace vandg2
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             struct par_vandg2
             {
@@ -99,7 +99,7 @@ namespace projections
                         ct = 0.;
                     else
                         ct = sqrt(ct);
-                    if (fabs(lp_lon) < TOL) {
+                    if (fabs(lp_lon) < tolerance) {
                         xy_x = 0.;
                         xy_y = pi * (lp_lat < 0. ? -bt : bt) / (1. + ct);
                     } else {
@@ -112,7 +112,7 @@ namespace projections
                             x1 = (ct * sqrt(1. + at * at) - at * ct * ct) /
                                 (1. + at * at * bt * bt);
                             xy_x = pi * x1;
-                            xy_y = pi * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
+                            xy_y = pi * sqrt(1. - x1 * (x1 + 2. * at) + tolerance);
                         }
                         if ( lp_lon < 0.) xy_x = -xy_x;
                         if ( lp_lat < 0.) xy_y = -xy_y;

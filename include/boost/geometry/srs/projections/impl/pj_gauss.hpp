@@ -45,13 +45,11 @@
 
 namespace boost { namespace geometry { namespace projections {
 
-namespace detail { namespace gauss {
+namespace detail {
 
-
-static const int MAX_ITER = 20;
 
 template <typename T>
-struct GAUSS
+struct gauss
 {
     T C;
     T K;
@@ -66,7 +64,7 @@ inline T srat(T const& esinp, T const& exp)
 }
 
 template <typename T>
-inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
+inline gauss<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 {
     static const T fourth_pi = detail::fourth_pi<T>();
 
@@ -80,7 +78,7 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
     T cphi = 0;
     T es = 0;
 
-    GAUSS<T> en;
+    gauss<T> en;
     es = e * e;
     en.e = e;
     sphi = sin(phi0);
@@ -98,31 +96,34 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 }
 
 template <typename T>
-inline void gauss(GAUSS<T> const& en, T& lam, T& phi)
+inline void gauss_fwd(gauss<T> const& en, T& lam, T& phi)
 {
     static const T fourth_pi = detail::fourth_pi<T>();
+    static const T half_pi = detail::half_pi<T>();
 
     phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + fourth_pi), en.C)
-          * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<T>();
+          * srat(en.e * sin(phi), en.ratexp) ) - half_pi;
 
     lam *= en.C;
 }
 
 template <typename T>
-inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
+inline void gauss_inv(gauss<T> const& en, T& lam, T& phi)
 {
+    static const int max_iter = 20;
     static const T fourth_pi = detail::fourth_pi<T>();
-    static const T DEL_TOL = 1e-14;
+    static const T half_pi = detail::half_pi<T>();
+    static const T del_tol = 1e-14;
 
     lam /= en.C;
     const T num = pow(tan(0.5 * phi + fourth_pi) / en.K, 1.0 / en.C);
 
     int i = 0;
-    for (i = MAX_ITER; i; --i)
+    for (i = max_iter; i; --i)
     {
-        const T elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - geometry::math::half_pi<T>();
+        const T elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - half_pi;
 
-        if (geometry::math::abs(elp_phi - phi) < DEL_TOL)
+        if (geometry::math::abs(elp_phi - phi) < del_tol)
         {
             break;
         }
@@ -136,7 +137,8 @@ inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
     }
 }
 
-}} // namespace detail::gauss
+} // namespace detail
+
 }}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GAUSS_HPP

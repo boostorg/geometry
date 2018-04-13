@@ -61,7 +61,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace loxim
     {
-            static const double EPS = 1e-8;
+            static const double epsilon = 1e-8;
 
             template <typename T>
             struct par_loxim
@@ -94,11 +94,11 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     xy_y = lp_lat - this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS)
+                    if (fabs(xy_y) < epsilon)
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
                         xy_x = fourth_pi + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - half_pi) < EPS)
+                        if (fabs(xy_x) < epsilon || fabs(fabs(xy_x) - half_pi) < epsilon)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -113,11 +113,11 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
                     lp_lat = xy_y + this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS) {
+                    if (fabs(xy_y) < epsilon) {
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     } else {
                         lp_lon = fourth_pi + 0.5 * lp_lat;
-                        if (fabs(lp_lon) < EPS || fabs(fabs(lp_lon) - half_pi) < EPS)
+                        if (fabs(lp_lon) < epsilon || fabs(fabs(lp_lon) - half_pi) < epsilon)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
@@ -139,7 +139,7 @@ namespace projections
 
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
-                if (proj_parm.cosphi1 < EPS)
+                if (proj_parm.cosphi1 < epsilon)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
                 proj_parm.tanphi1 = tan(fourth_pi + 0.5 * proj_parm.phi1);

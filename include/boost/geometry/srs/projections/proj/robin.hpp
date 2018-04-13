@@ -68,10 +68,10 @@ namespace projections
             static const double C1 = 11.45915590261646417544;
             static const double RC1 = 0.08726646259971647884;
             static const int NODES = 18;
-            static const double ONEEPS = 1.000001;
-            static const double EPS = 1e-8;
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static const int MAX_ITER = 100;
+            static const double one_plus_eps = 1.000001;
+            static const double epsilon = 1e-8;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static const int max_iter = 100;
 
             /*
             note: following terms based upon 5 deg. intervals in degrees.
@@ -196,7 +196,7 @@ namespace projections
                     lp_lon = xy_x / FXC;
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */
-                        if (lp_lat > ONEEPS) {
+                        if (lp_lat > one_plus_eps) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = xy_y < 0. ? -half_pi : half_pi;
@@ -218,9 +218,9 @@ namespace projections
                         t = 5. * (lp_lat - T.c0)/(Y[i+1].c0 - T.c0);
                         /* make into root */
                         T.c0 = (CalculationType)(T.c0 - lp_lat);
-                        for (iters = MAX_ITER; iters ; --iters) { /* Newton-Raphson */
+                        for (iters = max_iter; iters ; --iters) { /* Newton-Raphson */
                             t -= t1 = V(T,t) / DV(T,t);
-                            if (fabs(t1) < EPS)
+                            if (fabs(t1) < epsilon)
                                 break;
                         }
                         if( iters == 0 )

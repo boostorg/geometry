@@ -61,8 +61,8 @@ namespace projections
     namespace detail { namespace mbt_fps
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
             static const double C1 = 0.45503;
             static const double C2 = 1.36509;
             static const double C3 = 1.41546;
@@ -97,11 +97,11 @@ namespace projections
                     int i;
 
                     k = C3 * sin(lp_lat);
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         t = lp_lat / C2;
                         lp_lat -= V = (C1 * sin(t) + sin(lp_lat) - k) /
                             (C1_2 * cos(t) + cos(lp_lat));
-                        if (fabs(V) < LOOP_TOL)
+                        if (fabs(V) < loop_tol)
                             break;
                     }
                     t = lp_lat / C2;

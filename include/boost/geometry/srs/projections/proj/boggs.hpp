@@ -62,8 +62,8 @@ namespace projections
     namespace detail { namespace boggs
     {
 
-            static const int NITER = 20;
-            static const double EPS = 1e-7;
+            static const int n_iter = 20;
+            static const double epsilon = 1e-7;
             static const double FXC = 2.00276;
             static const double FXC2 = 1.11072;
             static const double FYC = 0.49931;
@@ -88,25 +88,25 @@ namespace projections
                 {
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
                     static const CalculationType pi = detail::pi<CalculationType>();
-                    static const CalculationType SQRT2 = boost::math::constants::root_two<CalculationType>();
+                    static const CalculationType root_two = boost::math::constants::root_two<CalculationType>();
 
                     CalculationType theta, th1, c;
                     int i;
 
                     theta = lp_lat;
-                    if (fabs(fabs(lp_lat) - half_pi) < EPS)
+                    if (fabs(fabs(lp_lat) - half_pi) < epsilon)
                         xy_x = 0.;
                     else {
                         c = sin(theta) * pi;
-                        for (i = NITER; i; --i) {
+                        for (i = n_iter; i; --i) {
                             theta -= th1 = (theta + sin(theta) - c) /
                                 (1. + cos(theta));
-                            if (fabs(th1) < EPS) break;
+                            if (fabs(th1) < epsilon) break;
                         }
                         theta *= 0.5;
                         xy_x = FXC * lp_lon / (1. / cos(lp_lat) + FXC2 / cos(theta));
                     }
-                    xy_y = FYC * (lp_lat + SQRT2 * sin(theta));
+                    xy_y = FYC * (lp_lat + root_two * sin(theta));
                 }
 
                 static inline std::string get_name()

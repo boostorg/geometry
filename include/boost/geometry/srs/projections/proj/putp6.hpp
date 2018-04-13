@@ -62,8 +62,8 @@ namespace projections
     namespace detail { namespace putp6
     {
 
-            static const double EPS = 1e-10;
-            static const int NITER = 10;
+            static const double epsilon = 1e-10;
+            static const int n_iter = 10;
             static const double CON_POLE = 1.732050807568877;
 
             template <typename T>
@@ -96,11 +96,11 @@ namespace projections
 
                     p = this->m_proj_parm.B * sin(lp_lat);
                     lp_lat *=  1.10265779;
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         r = sqrt(1. + lp_lat * lp_lat);
                         lp_lat -= V = ( (this->m_proj_parm.A - r) * lp_lat - log(lp_lat + r) - p ) /
                             (this->m_proj_parm.A - 2. * r);
-                        if (fabs(V) < EPS)
+                        if (fabs(V) < epsilon)
                             break;
                     }
                     if (!i)

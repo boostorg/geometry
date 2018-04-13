@@ -62,8 +62,8 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace somerc
     {
-            static const double EPS = 1.e-10;
-            static const int NITER = 6;
+            static const double epsilon = 1.e-10;
+            static const int n_iter = 6;
 
             template <typename T>
             struct par_somerc
@@ -122,13 +122,13 @@ namespace projections
                     phip = aasin(this->m_proj_parm.cosp0 * sin(phipp) + this->m_proj_parm.sinp0 * cp * cos(lampp));
                     lamp = aasin(cp * sin(lampp) / cos(phip));
                     con = (this->m_proj_parm.K - log(tan(fourth_pi + 0.5 * phip)))/this->m_proj_parm.c;
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         esp = this->m_par.e * sin(phip);
                         delp = (con + log(tan(fourth_pi + 0.5 * phip)) - this->m_proj_parm.hlf_e *
                             log((1. + esp)/(1. - esp)) ) *
                             (1. - esp * esp) * cos(phip) * this->m_par.rone_es;
                         phip -= delp;
-                        if (fabs(delp) < EPS)
+                        if (fabs(delp) < epsilon)
                             break;
                     }
                     if (i) {

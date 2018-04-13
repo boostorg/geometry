@@ -76,11 +76,11 @@ namespace projections
     namespace detail { namespace aea
     {
 
-            static const double EPS10 = 1.e-10;
-            static const double TOL7 = 1.e-7;
-            static const double EPSILON = 1.0e-7;
-            static const double TOL = 1.0e-10;
-            static const int N_ITER = 15;
+            static const double epsilon10 = 1.e-10;
+            static const double tolerance7 = 1.e-7;
+            static const double epsilon = 1.0e-7;
+            static const double tolerance = 1.0e-10;
+            static const int n_iter = 15;
 
             template <typename T>
             struct par_aea
@@ -105,9 +105,9 @@ namespace projections
                 T Phi, sinpi, cospi, con, com, dphi;
 
                 Phi = asin (.5 * qs);
-                if (Te < EPSILON)
+                if (Te < epsilon)
                     return( Phi );
-                i = N_ITER;
+                i = n_iter;
                 do {
                     sinpi = sin (Phi);
                     cospi = cos (Phi);
@@ -117,7 +117,7 @@ namespace projections
                        sinpi / com + .5 / Te * log ((1. - con) /
                        (1. + con)));
                     Phi += dphi;
-                } while (fabs(dphi) > TOL && --i);
+                } while (fabs(dphi) > tolerance && --i);
                 return( i ? Phi : HUGE_VAL );
             }
 
@@ -166,7 +166,7 @@ namespace projections
                         lp_lat =  rho / this->m_proj_parm.dd;
                         if (this->m_proj_parm.ellips) {
                             lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n;
-                            if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > TOL7) {
+                            if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > tolerance7) {
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
                                     BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             } else
@@ -195,11 +195,11 @@ namespace projections
                 T cosphi, sinphi;
                 int secant;
 
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
                     BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es > 0.))) {
                     T ml1, m1;
 

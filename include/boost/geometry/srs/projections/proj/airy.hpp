@@ -70,12 +70,12 @@ namespace projections
     namespace detail { namespace airy
     {
 
-            static const double EPS = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -85,7 +85,7 @@ namespace projections
                 T    sinph0;
                 T    cosph0;
                 T    Cb;
-                enum Mode mode;
+                mode_type mode;
                 int  no_cut;    /* do not cut at hemisphere limit */
             };
 
@@ -115,39 +115,39 @@ namespace projections
                     sinlam = sin(lp_lon);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                    case OBLIQ:
+                    case equit:
+                    case obliq:
                         sinphi = sin(lp_lat);
                         cosphi = cos(lp_lat);
                         cosz = cosphi * coslam;
-                        if (this->m_proj_parm.mode == OBLIQ)
+                        if (this->m_proj_parm.mode == obliq)
                             cosz = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosz;
-                        if (!this->m_proj_parm.no_cut && cosz < -EPS) {
+                        if (!this->m_proj_parm.no_cut && cosz < -epsilon) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
-                        if (fabs(s = 1. - cosz) > EPS) {
+                        if (fabs(s = 1. - cosz) > epsilon) {
                             t = 0.5 * (1. + cosz);
                             Krho = -log(t)/s - this->m_proj_parm.Cb / t;
                         } else
                             Krho = 0.5 - this->m_proj_parm.Cb;
                         xy_x = Krho * cosphi * sinlam;
-                        if (this->m_proj_parm.mode == OBLIQ)
+                        if (this->m_proj_parm.mode == obliq)
                             xy_y = Krho * (this->m_proj_parm.cosph0 * sinphi -
                                 this->m_proj_parm.sinph0 * cosphi * coslam);
                         else
                             xy_y = Krho * sinphi;
                         break;
-                    case S_POLE:
-                    case N_POLE:
+                    case s_pole:
+                    case n_pole:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
-                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > half_pi)
+                        if (!this->m_proj_parm.no_cut && (lp_lat - epsilon) > half_pi)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
-                        if ((lp_lat *= 0.5) > EPS) {
+                        if ((lp_lat *= 0.5) > epsilon) {
                             t = tan(lp_lat);
                             Krho = -2.*(log(cos(lp_lat)) / t + t * this->m_proj_parm.Cb);
                             xy_x = Krho * sinlam;
                             xy_y = Krho * coslam;
-                            if (this->m_proj_parm.mode == N_POLE)
+                            if (this->m_proj_parm.mode == n_pole)
                                 xy_y = -xy_y;
                         } else
                             xy_x = xy_y = 0.;
@@ -171,26 +171,26 @@ namespace projections
 
                 proj_parm.no_cut = pj_get_param_b(par.params, "no_cut");
                 beta = 0.5 * (half_pi - pj_get_param_r(par.params, "lat_b"));
-                if (fabs(beta) < EPS)
+                if (fabs(beta) < epsilon)
                     proj_parm.Cb = -0.5;
                 else {
                     proj_parm.Cb = 1./tan(beta);
                     proj_parm.Cb *= proj_parm.Cb * log(cos(beta));
                 }
 
-                if (fabs(fabs(par.phi0) - half_pi) < EPS)
+                if (fabs(fabs(par.phi0) - half_pi) < epsilon)
                     if (par.phi0 < 0.) {
                         proj_parm.p_halfpi = -half_pi;
-                        proj_parm.mode = S_POLE;
+                        proj_parm.mode = s_pole;
                     } else {
                         proj_parm.p_halfpi =  half_pi;
-                        proj_parm.mode = N_POLE;
+                        proj_parm.mode = n_pole;
                     }
                 else {
-                    if (fabs(par.phi0) < EPS)
-                        proj_parm.mode = EQUIT;
+                    if (fabs(par.phi0) < epsilon)
+                        proj_parm.mode = equit;
                     else {
-                        proj_parm.mode = OBLIQ;
+                        proj_parm.mode = obliq;
                         proj_parm.sinph0 = sin(par.phi0);
                         proj_parm.cosph0 = cos(par.phi0);
                     }

@@ -70,17 +70,17 @@ namespace projections
     namespace detail { namespace sconics
     {
 
-            enum Type {
-                EULER  = 0,
-                MURD1  = 1,
-                MURD2  = 2,
-                MURD3  = 3,
-                PCONIC = 4,
-                TISSOT = 5,
-                VITK1  = 6
+            enum proj_type {
+                proj_euler  = 0,
+                proj_murd1  = 1,
+                proj_murd2  = 2,
+                proj_murd3  = 3,
+                proj_pconic = 4,
+                proj_tissot = 5,
+                proj_vitk1  = 6
             };
-            static const double EPS10 = 1.e-10;
-            static const double EPS = 1e-10;
+            static const double epsilon10 = 1.e-10;
+            static const double epsilon = 1e-10;
 
             template <typename T>
             struct par_sconics
@@ -90,7 +90,7 @@ namespace projections
                 T   rho_0;
                 T   sig;
                 T   c1, c2;
-                enum Type type;
+                proj_type type;
             };
 
             /* get common factors for simple conics */
@@ -108,7 +108,7 @@ namespace projections
                     //p2 = pj_get_param_r(par.params, "lat_2"); // set above
                     *del = 0.5 * (p2 - p1);
                     proj_parm.sig = 0.5 * (p2 + p1);
-                    err = (fabs(*del) < EPS || fabs(proj_parm.sig) < EPS) ? -42 : 0;
+                    err = (fabs(*del) < epsilon || fabs(proj_parm.sig) < epsilon) ? -42 : 0;
                 }
                 return err;
             }
@@ -135,10 +135,10 @@ namespace projections
                     CalculationType rho;
 
                     switch (this->m_proj_parm.type) {
-                    case MURD2:
+                    case proj_murd2:
                         rho = this->m_proj_parm.rho_c + tan(this->m_proj_parm.sig - lp_lat);
                         break;
-                    case PCONIC:
+                    case proj_pconic:
                         rho = this->m_proj_parm.c2 * (this->m_proj_parm.c1 - tan(lp_lat - this->m_proj_parm.sig));
                         break;
                     default:
@@ -165,10 +165,10 @@ namespace projections
                     lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
 
                     switch (this->m_proj_parm.type) {
-                    case PCONIC:
+                    case proj_pconic:
                         lp_lat = atan(this->m_proj_parm.c1 - rho / this->m_proj_parm.c2) + this->m_proj_parm.sig;
                         break;
-                    case MURD2:
+                    case proj_murd2:
                         lp_lat = this->m_proj_parm.sig - atan(rho - this->m_proj_parm.rho_c);
                         break;
                     default:
@@ -184,7 +184,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            inline void setup(Parameters& par, par_sconics<T>& proj_parm, Type type) 
+            inline void setup(Parameters& par, par_sconics<T>& proj_parm, proj_type type) 
             {
                 static const T half_pi = detail::half_pi<T>();
 
@@ -198,42 +198,42 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(err) );
 
                 switch (proj_parm.type) {
-                case TISSOT:
+                case proj_tissot:
                     proj_parm.n = sin(proj_parm.sig);
                     cs = cos(del);
                     proj_parm.rho_c = proj_parm.n / cs + cs / proj_parm.n;
                     proj_parm.rho_0 = sqrt((proj_parm.rho_c - 2 * sin(par.phi0))/proj_parm.n);
                     break;
-                case MURD1:
+                case proj_murd1:
                     proj_parm.rho_c = sin(del)/(del * tan(proj_parm.sig)) + proj_parm.sig;
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     proj_parm.n = sin(proj_parm.sig);
                     break;
-                case MURD2:
+                case proj_murd2:
                     proj_parm.rho_c = (cs = sqrt(cos(del))) / tan(proj_parm.sig);
                     proj_parm.rho_0 = proj_parm.rho_c + tan(proj_parm.sig - par.phi0);
                     proj_parm.n = sin(proj_parm.sig) * cs;
                     break;
-                case MURD3:
+                case proj_murd3:
                     proj_parm.rho_c = del / (tan(proj_parm.sig) * tan(del)) + proj_parm.sig;
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     proj_parm.n = sin(proj_parm.sig) * sin(del) * tan(del) / (del * del);
                     break;
-                case EULER:
+                case proj_euler:
                     proj_parm.n = sin(proj_parm.sig) * sin(del) / del;
                     del *= 0.5;
                     proj_parm.rho_c = del / (tan(del) * tan(proj_parm.sig)) + proj_parm.sig;
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     break;
-                case PCONIC:
+                case proj_pconic:
                     proj_parm.n = sin(proj_parm.sig);
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
-                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= half_pi)
+                    if (fabs(del = par.phi0 - proj_parm.sig) - epsilon10 >= half_pi)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_half_pi_from_mean) );
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;
-                case VITK1:
+                case proj_vitk1:
                     proj_parm.n = (cs = tan(del)) * sin(proj_parm.sig) / del;
                     proj_parm.rho_c = del / (cs * tan(proj_parm.sig)) + proj_parm.sig;
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
@@ -248,49 +248,49 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_euler(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, EULER);
+                setup(par, proj_parm, proj_euler);
             }
 
             // Tissot
             template <typename Parameters, typename T>
             inline void setup_tissot(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, TISSOT);
+                setup(par, proj_parm, proj_tissot);
             }
 
             // Murdoch I
             template <typename Parameters, typename T>
             inline void setup_murd1(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, MURD1);
+                setup(par, proj_parm, proj_murd1);
             }
 
             // Murdoch II
             template <typename Parameters, typename T>
             inline void setup_murd2(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, MURD2);
+                setup(par, proj_parm, proj_murd2);
             }
 
             // Murdoch III
             template <typename Parameters, typename T>
             inline void setup_murd3(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, MURD3);
+                setup(par, proj_parm, proj_murd3);
             }            
 
             // Perspective Conic
             template <typename Parameters, typename T>
             inline void setup_pconic(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, PCONIC);
+                setup(par, proj_parm, proj_pconic);
             }
 
             // Vitkovsky I
             template <typename Parameters, typename T>
             inline void setup_vitk1(Parameters& par, par_sconics<T>& proj_parm)
             {
-                setup(par, proj_parm, VITK1);
+                setup(par, proj_parm, proj_vitk1);
             }
 
     }} // namespace detail::sconics

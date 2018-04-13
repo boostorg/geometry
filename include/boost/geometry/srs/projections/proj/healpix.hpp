@@ -75,7 +75,7 @@ namespace projections
     {
 
             /* Fuzz to handle rounding errors: */
-            static const double EPS = 1e-15;
+            static const double epsilon = 1e-15;
 
             template <typename T>
             struct par_healpix
@@ -210,41 +210,41 @@ namespace projections
 
                 if (proj == 0) {
                     T healpixVertsJit[][2] = {
-                        {-pi - EPS,   fourth_pi},
-                        {-3.0*fourth_pi,   half_pi + EPS},
-                        {-half_pi,       fourth_pi + EPS},
-                        {-fourth_pi,       half_pi + EPS},
-                        {0.0,           fourth_pi + EPS},
-                        {fourth_pi,        half_pi + EPS},
-                        {half_pi,        fourth_pi + EPS},
-                        {3.0*fourth_pi,    half_pi + EPS},
-                        {pi + EPS,    fourth_pi},
-                        {pi + EPS,   -fourth_pi},
-                        {3.0*fourth_pi,   -half_pi - EPS},
-                        {half_pi,       -fourth_pi - EPS},
-                        {fourth_pi,       -half_pi - EPS},
-                        {0.0,          -fourth_pi - EPS},
-                        {-fourth_pi,      -half_pi - EPS},
-                        {-half_pi,      -fourth_pi - EPS},
-                        {-3.0*fourth_pi,  -half_pi - EPS},
-                        {-pi - EPS, -fourth_pi}
+                        {-pi - epsilon,   fourth_pi},
+                        {-3.0*fourth_pi,  half_pi + epsilon},
+                        {-half_pi,        fourth_pi + epsilon},
+                        {-fourth_pi,      half_pi + epsilon},
+                        {0.0,             fourth_pi + epsilon},
+                        {fourth_pi,       half_pi + epsilon},
+                        {half_pi,         fourth_pi + epsilon},
+                        {3.0*fourth_pi,   half_pi + epsilon},
+                        {pi + epsilon,    fourth_pi},
+                        {pi + epsilon,   -fourth_pi},
+                        {3.0*fourth_pi,  -half_pi - epsilon},
+                        {half_pi,        -fourth_pi - epsilon},
+                        {fourth_pi,      -half_pi - epsilon},
+                        {0.0,            -fourth_pi - epsilon},
+                        {-fourth_pi,     -half_pi - epsilon},
+                        {-half_pi,       -fourth_pi - epsilon},
+                        {-3.0*fourth_pi, -half_pi - epsilon},
+                        {-pi - epsilon,  -fourth_pi}
                     };
                     return pnpoly((int)sizeof(healpixVertsJit)/
                                   sizeof(healpixVertsJit[0]), healpixVertsJit, x, y);
                 } else {
                     T rhealpixVertsJit[][2] = {
-                        {-pi - EPS,                                fourth_pi + EPS},
-                        {-pi + north_square*half_pi - EPS,          fourth_pi + EPS},
-                        {-pi + north_square*half_pi - EPS,          3.0*fourth_pi + EPS},
-                        {-pi + (north_square + 1.0)*half_pi + EPS,  3.0*fourth_pi + EPS},
-                        {-pi + (north_square + 1.0)*half_pi + EPS,  fourth_pi + EPS},
-                        {pi + EPS,                                 fourth_pi + EPS},
-                        {pi + EPS,                                -fourth_pi - EPS},
-                        {-pi + (south_square + 1.0)*half_pi + EPS, -fourth_pi - EPS},
-                        {-pi + (south_square + 1.0)*half_pi + EPS, -3.0*fourth_pi - EPS},
-                        {-pi + south_square*half_pi - EPS,         -3.0*fourth_pi - EPS},
-                        {-pi + south_square*half_pi - EPS,         -fourth_pi - EPS},
-                        {-pi - EPS,                               -fourth_pi - EPS}
+                        {-pi - epsilon,                                 fourth_pi + epsilon},
+                        {-pi + north_square*half_pi - epsilon,          fourth_pi + epsilon},
+                        {-pi + north_square*half_pi - epsilon,          3.0*fourth_pi + epsilon},
+                        {-pi + (north_square + 1.0)*half_pi + epsilon,  3.0*fourth_pi + epsilon},
+                        {-pi + (north_square + 1.0)*half_pi + epsilon,  fourth_pi + epsilon},
+                        {pi + epsilon,                                  fourth_pi + epsilon},
+                        {pi + epsilon,                                 -fourth_pi - epsilon},
+                        {-pi + (south_square + 1.0)*half_pi + epsilon, -fourth_pi - epsilon},
+                        {-pi + (south_square + 1.0)*half_pi + epsilon, -3.0*fourth_pi - epsilon},
+                        {-pi + south_square*half_pi - epsilon,         -3.0*fourth_pi - epsilon},
+                        {-pi + south_square*half_pi - epsilon,         -fourth_pi - epsilon},
+                        {-pi - epsilon,                                -fourth_pi - epsilon}
                     };
 
                     return pnpoly((int)sizeof(rhealpixVertsJit)/
@@ -452,21 +452,21 @@ namespace projections
                     /* Polar Region, find the HEALPix polar cap number that
                        x, y moves to when rHEALPix polar square is disassembled. */
                     if (capmap.region == CapMap<T>::north) {
-                        if (y >= -x - fourth_pi - EPS && y < x + 5.0*fourth_pi - EPS) {
+                        if (y >= -x - fourth_pi - epsilon && y < x + 5.0*fourth_pi - epsilon) {
                             capmap.cn = (north_square + 1) % 4;
-                        } else if (y > -x -fourth_pi + EPS && y >= x + 5.0*fourth_pi - EPS) {
+                        } else if (y > -x -fourth_pi + epsilon && y >= x + 5.0*fourth_pi - epsilon) {
                             capmap.cn = (north_square + 2) % 4;
-                        } else if (y <= -x -fourth_pi + EPS && y > x + 5.0*fourth_pi + EPS) {
+                        } else if (y <= -x -fourth_pi + epsilon && y > x + 5.0*fourth_pi + epsilon) {
                             capmap.cn = (north_square + 3) % 4;
                         } else {
                             capmap.cn = north_square;
                         }
                     } else if (capmap.region == CapMap<T>::south) {
-                        if (y <= x + fourth_pi + EPS && y > -x - 5.0*fourth_pi + EPS) {
+                        if (y <= x + fourth_pi + epsilon && y > -x - 5.0*fourth_pi + epsilon) {
                             capmap.cn = (south_square + 1) % 4;
-                        } else if (y < x + fourth_pi - EPS && y <= -x - 5.0*fourth_pi + EPS) {
+                        } else if (y < x + fourth_pi - epsilon && y <= -x - 5.0*fourth_pi + epsilon) {
                             capmap.cn = (south_square + 2) % 4;
-                        } else if (y >= x + fourth_pi - EPS && y < -x - 5.0*fourth_pi - EPS) {
+                        } else if (y >= x + fourth_pi - epsilon && y < -x - 5.0*fourth_pi - epsilon) {
                             capmap.cn = (south_square + 3) % 4;
                         } else {
                             capmap.cn = south_square;

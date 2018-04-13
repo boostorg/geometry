@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace nocol
     {
 
-            static const double EPS = 1e-10;
+            static const double epsilon = 1e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -84,16 +84,16 @@ namespace projections
                 {
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
-                    if (fabs(lp_lon) < EPS) {
+                    if (fabs(lp_lon) < epsilon) {
                         xy_x = 0;
                         xy_y = lp_lat;
-                    } else if (fabs(lp_lat) < EPS) {
+                    } else if (fabs(lp_lat) < epsilon) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(fabs(lp_lon) - half_pi) < EPS) {
+                    } else if (fabs(fabs(lp_lon) - half_pi) < epsilon) {
                         xy_x = lp_lon * cos(lp_lat);
                         xy_y = half_pi * sin(lp_lat);
-                    } else if (fabs(fabs(lp_lat) - half_pi) < EPS) {
+                    } else if (fabs(fabs(lp_lat) - half_pi) < epsilon) {
                         xy_x = 0;
                         xy_y = lp_lat;
                     } else {

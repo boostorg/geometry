@@ -60,7 +60,7 @@ namespace projections
     namespace detail { namespace tcc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -82,7 +82,7 @@ namespace projections
                     CalculationType b, bt;
 
                     b = cos(lp_lat) * sin(lp_lon);
-                    if ((bt = 1. - b * b) < EPS10) {
+                    if ((bt = 1. - b * b) < epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = b / sqrt(bt);

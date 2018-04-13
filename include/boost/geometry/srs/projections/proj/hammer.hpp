@@ -59,7 +59,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace hammer
     {
-            static const double EPS = 1.0e-10;
+            static const double epsilon = 1.0e-10;
 
             template <typename T>
             struct par_hammer
@@ -101,7 +101,7 @@ namespace projections
                     CalculationType z;
 
                     z = sqrt(1. - 0.25*this->m_proj_parm.w*this->m_proj_parm.w*xy_x*xy_x - 0.25*xy_y*xy_y);
-                    if (geometry::math::abs(2.*z*z-1.) < EPS) {
+                    if (geometry::math::abs(2.*z*z-1.) < epsilon) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );

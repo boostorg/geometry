@@ -65,7 +65,7 @@ namespace projections
     namespace detail { namespace tmerc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             inline T FC1() { return 1.; }
@@ -249,7 +249,7 @@ namespace projections
 
                     cosphi = cos(lp_lat);
                     b = cosphi * sin(lp_lon);
-                    if (fabs(fabs(b) - 1.) <= EPS10)
+                    if (fabs(fabs(b) - 1.) <= epsilon10)
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
@@ -257,7 +257,7 @@ namespace projections
 
                     b = fabs( xy_y );
                     if (b >= 1.) {
-                        if ((b - 1.) > EPS10)
+                        if ((b - 1.) > epsilon10)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else xy_y = 0.;
                     } else

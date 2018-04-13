@@ -62,7 +62,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lsat
     {
-            static const double TOL = 1e-7;
+            static const double tolerance = 1e-7;
 
             template <typename T>
             struct par_lsat
@@ -141,8 +141,8 @@ namespace projections
                         sav = lampp;
                         lamtp = lp_lon + this->m_proj_parm.p22 * lampp;
                         cl = cos(lamtp);
-                        if (fabs(cl) < TOL)
-                            lamtp -= TOL;
+                        if (fabs(cl) < tolerance)
+                            lamtp -= tolerance;
                         if( cl < 0 )
                             fac = lampp + sin(lampp) * half_pi;
                         else
@@ -150,11 +150,11 @@ namespace projections
                         for (l = 50; l; --l) {
                             lamt = lp_lon + this->m_proj_parm.p22 * sav;
                             c = cos(lamt);
-                            if (fabs(c) < TOL)
-                                lamt -= TOL;
+                            if (fabs(c) < tolerance)
+                                lamt -= tolerance;
                             xlam = (this->m_par.one_es * tanphi * this->m_proj_parm.sa + sin(lamt) * this->m_proj_parm.ca) / c;
                             lamdp = atan(xlam) + fac;
-                            if (fabs(fabs(sav) - fabs(lamdp)) < TOL)
+                            if (fabs(fabs(sav) - fabs(lamdp)) < tolerance)
                                 break;
                             sav = lamdp;
                         }
@@ -204,14 +204,14 @@ namespace projections
                             2. * lamdp) - this->m_proj_parm.a4 * sin(lamdp * 4.) - s / this->m_proj_parm.xj * (
                             this->m_proj_parm.c1 * sin(lamdp) + this->m_proj_parm.c3 * sin(lamdp * 3.));
                         lamdp /= this->m_proj_parm.b;
-                    } while (fabs(lamdp - sav) >= TOL && --nn);
+                    } while (fabs(lamdp - sav) >= tolerance && --nn);
                     sl = sin(lamdp);
                     fac = exp(sqrt(1. + s * s / this->m_proj_parm.xj / this->m_proj_parm.xj) * (xy_y -
                         this->m_proj_parm.c1 * sl - this->m_proj_parm.c3 * sin(lamdp * 3.)));
                     phidp = 2. * (atan(fac) - fourth_pi);
                     dd = sl * sl;
-                    if (fabs(cos(lamdp)) < TOL)
-                        lamdp -= TOL;
+                    if (fabs(cos(lamdp)) < tolerance)
+                        lamdp -= tolerance;
                     spp = sin(phidp);
                     sppsq = spp * spp;
                     lamt = atan(((1. - sppsq * this->m_par.rone_es) * tan(lamdp) *
@@ -222,7 +222,7 @@ namespace projections
                     scl = cos(lamdp) >= 0. ? 1. : -1;
                     lamt -= half_pi * (1. - scl) * sl;
                     lp_lon = lamt - this->m_proj_parm.p22 * lamdp;
-                    if (fabs(this->m_proj_parm.sa) < TOL)
+                    if (fabs(this->m_proj_parm.sa) < tolerance)
                         lp_lat = aasin(spp / sqrt(this->m_par.one_es * this->m_par.one_es + this->m_par.es * sppsq));
                     else
                         lp_lat = atan((tan(lamdp) * cos(lamt) - this->m_proj_parm.ca * sin(lamt)) /

@@ -60,7 +60,7 @@ namespace projections
     namespace detail { namespace rpoly
     {
 
-            static const double EPS = 1e-9;
+            static const double epsilon = 1e-9;
 
             template <typename T>
             struct par_rpoly
@@ -96,7 +96,7 @@ namespace projections
                         fa = tan(lp_lon * this->m_proj_parm.fxb) * this->m_proj_parm.fxa;
                     else
                         fa = 0.5 * lp_lon;
-                    if (fabs(lp_lat) < EPS) {
+                    if (fabs(lp_lat) < epsilon) {
                         xy_x = fa + fa;
                         xy_y = - this->m_par.phi0;
                     } else {
@@ -117,7 +117,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
             {
-                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_get_param_r(par.params, "lat_ts"))) > EPS)) {
+                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_get_param_r(par.params, "lat_ts"))) > epsilon)) {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }

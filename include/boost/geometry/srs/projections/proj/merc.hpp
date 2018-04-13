@@ -65,7 +65,7 @@ namespace projections
     namespace detail { namespace merc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -87,7 +87,7 @@ namespace projections
                 {
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) <= epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;
@@ -132,7 +132,7 @@ namespace projections
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
                     static const CalculationType fourth_pi = detail::fourth_pi<CalculationType>();
 
-                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) <= epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = this->m_par.k0 * lp_lon;

@@ -65,12 +65,12 @@ namespace projections
     namespace detail { namespace nsper
     {
 
-            static const double EPS10 = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon10 = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -88,7 +88,7 @@ namespace projections
                 T   sg;
                 T   sw;
                 T   cw;
-                enum Mode mode;
+                mode_type mode;
                 int tilt;
             };
 
@@ -117,16 +117,16 @@ namespace projections
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         xy_y = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosphi * coslam;
                         break;
-                    case EQUIT:
+                    case equit:
                         xy_y = cosphi * coslam;
                         break;
-                    case S_POLE:
+                    case s_pole:
                         xy_y = - sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = sinphi;
                         break;
                     }
@@ -136,17 +136,17 @@ namespace projections
                     xy_y = this->m_proj_parm.pn1 / (this->m_proj_parm.p - xy_y);
                     xy_x = xy_y * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         xy_y *= (this->m_proj_parm.cosph0 * sinphi -
                            this->m_proj_parm.sinph0 * cosphi * coslam);
                         break;
-                    case EQUIT:
+                    case equit:
                         xy_y *= sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = - coslam;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         xy_y *= cosphi * coslam;
                         break;
                     }
@@ -181,26 +181,26 @@ namespace projections
                     }
                     sinz = (this->m_proj_parm.p - sqrt(sinz)) / (this->m_proj_parm.pn1 / rh + rh / this->m_proj_parm.pn1);
                     cosz = sqrt(1. - sinz * sinz);
-                    if (fabs(rh) <= EPS10) {
+                    if (fabs(rh) <= epsilon10) {
                         lp_lon = 0.;
                         lp_lat = this->m_par.phi0;
                     } else {
                         switch (this->m_proj_parm.mode) {
-                        case OBLIQ:
+                        case obliq:
                             lp_lat = asin(cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
                             xy_x *= sinz * this->m_proj_parm.cosph0;
                             break;
-                        case EQUIT:
+                        case equit:
                             lp_lat = asin(xy_y * sinz / rh);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
-                        case N_POLE:
+                        case n_pole:
                             lp_lat = asin(cosz);
                             xy_y = -xy_y;
                             break;
-                        case S_POLE:
+                        case s_pole:
                             lp_lat = - asin(cosz);
                             break;
                         }
@@ -221,12 +221,12 @@ namespace projections
                 if ((proj_parm.height = pj_get_param_f(par.params, "h")) <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(error_h_less_than_zero) );
 
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < EPS10)
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                else if (fabs(par.phi0) < EPS10)
-                    proj_parm.mode = EQUIT;
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < epsilon10)
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
+                else if (fabs(par.phi0) < epsilon10)
+                    proj_parm.mode = equit;
                 else {
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }

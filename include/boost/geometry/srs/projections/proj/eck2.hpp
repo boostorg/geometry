@@ -65,7 +65,7 @@ namespace projections
             static const double FXC = 0.46065886596178063902;
             static const double FYC = 1.44720250911653531871;
             //static const double C13 = 0.33333333333333333333;
-            static const double ONEEPS = 1.0000001;
+            static const double one_plus_eps = 1.0000001;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -100,7 +100,7 @@ namespace projections
                     lp_lon = xy_x / (FXC * ( lp_lat = 2. - fabs(xy_y) / FYC) );
                     lp_lat = (4. - lp_lat * lp_lat) * C13;
                     if (fabs(lp_lat) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS)
+                        if (fabs(lp_lat) > one_plus_eps)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
                             lp_lat = lp_lat < 0. ? -half_pi : half_pi;

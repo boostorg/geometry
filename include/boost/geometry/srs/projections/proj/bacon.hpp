@@ -64,8 +64,8 @@ namespace projections
     namespace detail { namespace bacon
     {
 
-            //static const double HLFPI2 = 2.46740110027233965467;
-            static const double EPS = 1e-10;
+            //static const double half_pi_sqr = 2.46740110027233965467;
+            static const double epsilon = 1e-10;
 
             struct par_bacon
             {
@@ -93,16 +93,16 @@ namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType HLFPI2 = detail::half_pi_sqr<CalculationType>();
+                    static const CalculationType half_pi_sqr = detail::half_pi_sqr<CalculationType>();
 
                     CalculationType ax, f;
 
                     xy_y = this->m_proj_parm.bacn ? half_pi * sin(lp_lat) : lp_lat;
-                    if ((ax = fabs(lp_lon)) >= EPS) {
+                    if ((ax = fabs(lp_lon)) >= epsilon) {
                         if (this->m_proj_parm.ortl && ax >= half_pi)
-                            xy_x = sqrt(HLFPI2 - lp_lat * lp_lat + EPS) + ax - half_pi;
+                            xy_x = sqrt(half_pi_sqr - lp_lat * lp_lat + epsilon) + ax - half_pi;
                         else {
-                            f = 0.5 * (HLFPI2 / ax + ax);
+                            f = 0.5 * (half_pi_sqr / ax + ax);
                             xy_x = ax - f + sqrt(f * f - xy_y * xy_y);
                         }
                         if (lp_lon < 0.) xy_x = - xy_x;

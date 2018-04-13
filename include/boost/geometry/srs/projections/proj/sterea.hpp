@@ -72,7 +72,7 @@ namespace projections
                 T phic0;
                 T cosc0, sinc0;
                 T R2;
-                gauss::GAUSS<T> en;
+                gauss<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -96,7 +96,7 @@ namespace projections
                 {
                     CalculationType cosc, sinc, cosl_, k;
 
-                    detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_fwd(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
                     cosc = cos(lp_lat);
                     cosl_ = cos(lp_lon);
@@ -124,7 +124,7 @@ namespace projections
                         lp_lat = this->m_proj_parm.phic0;
                         lp_lon = 0.;
                     }
-                    detail::gauss::inv_gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_inv(m_proj_parm.en, lp_lon, lp_lat);
                 }
 
                 static inline std::string get_name()
@@ -140,7 +140,7 @@ namespace projections
             {
                 T R;
 
-                proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
+                proj_parm.en = detail::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);
                 proj_parm.cosc0 = cos(proj_parm.phic0);
                 proj_parm.R2 = 2. * R;

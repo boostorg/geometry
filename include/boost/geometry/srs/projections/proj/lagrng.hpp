@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace lagrng
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             template <typename T>
             struct par_lagrng
@@ -95,13 +95,13 @@ namespace projections
 
                     CalculationType v, c;
 
-                    if (fabs(fabs(lp_lat) - half_pi) < TOL) {
+                    if (fabs(fabs(lp_lat) - half_pi) < tolerance) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
                         lp_lat = sin(lp_lat);
                         v = this->m_proj_parm.a1 * pow((1. + lp_lat)/(1. - lp_lat), this->m_proj_parm.hrw);
-                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < TOL) {
+                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < tolerance) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = 2. * sin(lp_lon) / c;
@@ -129,7 +129,7 @@ namespace projections
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
                 phi1 = pj_get_param_r(par.params, "lat_1");
-                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
+                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < tolerance)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);

@@ -61,7 +61,7 @@ namespace projections
     namespace detail { namespace fahey
     {
 
-            static const double TOL = 1e-6;
+            static const double tolerance = 1e-6;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -93,7 +93,7 @@ namespace projections
                     xy_y /= 1.819152;
                     lp_lat = 2. * atan(xy_y);
                     xy_y = 1. - xy_y * xy_y;
-                    lp_lon = fabs(xy_y) < TOL ? 0. : xy_x / (0.819152 * sqrt(xy_y));
+                    lp_lon = fabs(xy_y) < tolerance ? 0. : xy_x / (0.819152 * sqrt(xy_y));
                 }
 
                 static inline std::string get_name()

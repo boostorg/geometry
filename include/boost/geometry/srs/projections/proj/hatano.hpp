@@ -62,9 +62,9 @@ namespace projections
     namespace detail { namespace hatano
     {
 
-            static const int NITER = 20;
-            static const double EPS = 1e-7;
-            static const double ONETOL = 1.000001;
+            static const int n_iter = 20;
+            static const double epsilon = 1e-7;
+            static const double one_plus_tol = 1.000001;
             static const double CN_ = 2.67595;
             static const double CS_ = 2.43763;
             static const double RCN = 0.37369906014686373063;
@@ -98,9 +98,9 @@ namespace projections
                     int i;
 
                     c = sin(lp_lat) * (lp_lat < 0. ? CS_ : CN_);
-                    for (i = NITER; i; --i) {
+                    for (i = n_iter; i; --i) {
                         lp_lat -= th1 = (lp_lat + sin(lp_lat) - c) / (1. + cos(lp_lat));
-                        if (fabs(th1) < EPS) break;
+                        if (fabs(th1) < epsilon) break;
                     }
                     xy_x = FXC * lp_lon * cos(lp_lat *= .5);
                     xy_y = sin(lp_lat) * (lp_lat < 0. ? FYCS : FYCN);
@@ -116,7 +116,7 @@ namespace projections
 
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
                     if (fabs(th) > 1.) {
-                        if (fabs(th) > ONETOL) {
+                        if (fabs(th) > one_plus_tol) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             th = th > 0. ? half_pi : - half_pi;
@@ -129,7 +129,7 @@ namespace projections
                     th += th;
                     lp_lat = (th + sin(th)) * (xy_y < 0. ? RCS : RCN);
                     if (fabs(lp_lat) > 1.) {
-                        if (fabs(lp_lat) > ONETOL) {
+                        if (fabs(lp_lat) > one_plus_tol) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = lp_lat > 0. ? half_pi : - half_pi;

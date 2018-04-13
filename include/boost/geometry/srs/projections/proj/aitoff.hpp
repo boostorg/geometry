@@ -71,16 +71,16 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace aitoff
     {
-            enum Mode {
-                AITOFF = 0,
-                WINKEL_TRIPEL = 1
+            enum mode_type {
+                mode_aitoff = 0,
+                mode_winkel_tripel = 1
             };
 
             template <typename T>
             struct par_aitoff
             {
                 T    cosphi1;
-                enum Mode mode;
+                mode_type mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -109,7 +109,7 @@ namespace projections
                         xy_y *= d * sin(lp_lat);
                     } else
                         xy_x = xy_y = 0.;
-                    if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                    if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
                     }
@@ -123,7 +123,7 @@ namespace projections
                 * Third International Symposium Mathematical & Computational Applications,
                 * pages 175{182, Turkey, September 2002.
                 *
-                * Expected accuracy is defined by EPSILON = 1e-12. Should be appropriate for
+                * Expected accuracy is defined by epsilon = 1e-12. Should be appropriate for
                 * most applications of Aitoff and Winkel Tripel projections.
                 *
                 * Longitudes of 180W and 180E can be mixed in solution obtained.
@@ -141,12 +141,12 @@ namespace projections
                 {
                     static const CalculationType pi = detail::pi<CalculationType>();
                     static const CalculationType two_pi = detail::two_pi<CalculationType>();
-                    static const CalculationType EPSILON = 1e-12;
+                    static const CalculationType epsilon = 1e-12;
 
-                    int iter, MAXITER = 10, round = 0, MAXROUND = 20;
+                    int iter, max_iter = 10, round = 0, max_round = 20;
                     CalculationType D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
 
-                    if ((fabs(xy_x) < EPSILON) && (fabs(xy_y) < EPSILON )) {
+                    if ((fabs(xy_x) < epsilon) && (fabs(xy_y) < epsilon )) {
                         lp_lat = 0.; lp_lon = 0.;
                         return;
                     }
@@ -167,7 +167,7 @@ namespace projections
                             f1l = cp * cp * sl * sl / C + D * cp * cl * sp * sp;
                             f2p = sp * sp * cl / C + D * sl * sl * cp;
                             f2l = 0.5 * (sp * cp * sl / C - D * sp * cp * cp * sl * cl);
-                            if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                            if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                                 f1 = 0.5 * (f1 + lp_lon * this->m_proj_parm.cosphi1);
                                 f2 = 0.5 * (f2 + lp_lat);
                                 f1p *= 0.5;
@@ -180,10 +180,10 @@ namespace projections
                             dp = (f1 * f2l - f2 * f1l) / dp;
                             dl = fmod(dl, pi); /* set to interval [-M_PI, M_PI] */
                             lp_lat -= dp;    lp_lon -= dl;
-                        } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
+                        } while ((fabs(dp) > epsilon || fabs(dl) > epsilon) && (iter++ < max_iter));
                         if (lp_lat > two_pi) lp_lat -= 2.*(lp_lat-two_pi); /* correct if symmetrical solution for Aitoff */
                         if (lp_lat < -two_pi) lp_lat -= 2.*(lp_lat+two_pi); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - two_pi) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        if ((fabs(fabs(lp_lat) - two_pi) < epsilon) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon))) != 0.0) {/* Aitoff */
@@ -191,14 +191,14 @@ namespace projections
                             y *= D * sin(lp_lat);
                         } else
                             x = y = 0.;
-                        if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                        if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                             x = (x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                             y = (y + lp_lat) * 0.5;
                         }
                     /* if too far from given values of x,y, repeat with better approximation of phi,lam */
-                    } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
+                    } while (((fabs(xy_x-x) > epsilon) || (fabs(xy_y-y) > epsilon)) && (round++ < max_round));
 
-                    if (iter == MAXITER && round == MAXROUND)
+                    if (iter == max_iter && round == max_round)
                     {
                         BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                         //fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
@@ -223,7 +223,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_aitoff(Parameters& par, par_aitoff<T>& proj_parm)
             {
-                proj_parm.mode = AITOFF;
+                proj_parm.mode = mode_aitoff;
                 setup(par);
             }
 
@@ -235,7 +235,7 @@ namespace projections
 
                 T phi1;
 
-                proj_parm.mode = WINKEL_TRIPEL;
+                proj_parm.mode = mode_winkel_tripel;
                 if (pj_param_r(par.params, "lat_1", phi1)) {
                     if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );

@@ -66,7 +66,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lcc
     {
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             struct par_lcc
@@ -103,7 +103,7 @@ namespace projections
 
                     CalculationType rho;
 
-                    if (fabs(fabs(lp_lat) - half_pi) < EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) < epsilon10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
@@ -175,12 +175,12 @@ namespace projections
                     if (!pj_param_exists(par.params, "lat_0"))
                         par.phi0 = proj_parm.phi1;
                 }
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
                     BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es != 0.)) ) {
                     double ml1, m1;
 
@@ -193,7 +193,7 @@ namespace projections
                         proj_parm.n /= log(ml1 / pj_tsfn(proj_parm.phi2, sinphi, par.e));
                     }
                     proj_parm.c = (proj_parm.rho0 = m1 * pow(ml1, -proj_parm.n) / proj_parm.n);
-                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < EPS10) ? 0. :
+                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
                         pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
                 } else {
                     if (secant)
@@ -201,7 +201,7 @@ namespace projections
                            log(tan(fourth_pi + .5 * proj_parm.phi2) /
                            tan(fourth_pi + .5 * proj_parm.phi1));
                     proj_parm.c = cosphi * pow(tan(fourth_pi + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
-                    proj_parm.rho0 = (fabs(fabs(par.phi0) - half_pi) < EPS10) ? 0. :
+                    proj_parm.rho0 = (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
                         proj_parm.c * pow(tan(fourth_pi + .5 * par.phi0), -proj_parm.n);
                 }
             }

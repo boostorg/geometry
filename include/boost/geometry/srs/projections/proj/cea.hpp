@@ -64,7 +64,7 @@ namespace projections
     namespace detail { namespace cea
     {
 
-            static const double EPS = 1e-10;
+            static const double epsilon = 1e-10;
 
             template <typename T>
             struct par_cea
@@ -142,7 +142,7 @@ namespace projections
 
                     CalculationType t;
 
-                    if ((t = fabs(xy_y *= this->m_par.k0)) - EPS <= 1.) {
+                    if ((t = fabs(xy_y *= this->m_par.k0)) - epsilon <= 1.) {
                         if (t >= 1.)
                             lp_lat = xy_y < 0. ? -half_pi : half_pi;
                         else

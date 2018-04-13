@@ -88,13 +88,13 @@ namespace projections
             static const double C2 = (7 * B2);
             static const double C3 = (9 * B3);
             static const double C4 = (11 * B4);
-            static const double EPS = 1e-11;
+            static const double epsilon = 1e-11;
 
             template <typename T>
-            inline T MAX_Y() { return (0.8707 * 0.52 * detail::pi<T>()); }
+            inline T max_y() { return (0.8707 * 0.52 * detail::pi<T>()); }
 
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static const int MAX_ITER = 100;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static const int max_iter = 100;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -126,27 +126,27 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    static const CalculationType MAX_Y = natearth::MAX_Y<CalculationType>();
+                    static const CalculationType max_y = natearth::max_y<CalculationType>();
 
                     CalculationType yc, tol, y2, y4, f, fder;
                     int i;
 
                     /* make sure y is inside valid range */
-                    if (xy_y > MAX_Y) {
-                        xy_y = MAX_Y;
-                    } else if (xy_y < -MAX_Y) {
-                        xy_y = -MAX_Y;
+                    if (xy_y > max_y) {
+                        xy_y = max_y;
+                    } else if (xy_y < -max_y) {
+                        xy_y = -max_y;
                     }
 
                     /* latitude */
                     yc = xy_y;
-                    for (i = MAX_ITER; i ; --i) { /* Newton-Raphson */
+                    for (i = max_iter; i ; --i) { /* Newton-Raphson */
                         y2 = yc * yc;
                         y4 = y2 * y2;
                         f = (yc * (B0 + y2 * (B1 + y4 * (B2 + B3 * y2 + B4 * y4)))) - xy_y;
                         fder = C0 + y2 * (C1 + y4 * (C2 + C3 * y2 + C4 * y4));
                         yc -= tol = f / fder;
-                        if (fabs(tol) < EPS) {
+                        if (fabs(tol) < epsilon) {
                             break;
                         }
                     }

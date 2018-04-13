@@ -73,8 +73,8 @@ namespace projections
                 int no_rot;
             };
 
-            static const double TOL = 1.e-7;
-            static const double EPS = 1.e-10;
+            static const double tolerance = 1.e-7;
+            static const double epsilon = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -99,19 +99,19 @@ namespace projections
 
                     CalculationType  S, T, U, V, W, temp, u, v;
 
-                    if (fabs(fabs(lp_lat) - half_pi) > EPS) {
+                    if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
                         W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / W;
                         S = .5 * (W - temp);
                         T = .5 * (W + temp);
                         V = sin(this->m_proj_parm.B * lp_lon);
                         U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
-                        if (fabs(fabs(U) - 1.0) < EPS) {
+                        if (fabs(fabs(U) - 1.0) < epsilon) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
-                        if(fabs(temp) < TOL) {
+                        if(fabs(temp) < tolerance) {
                             u = this->m_proj_parm.A * lp_lon;
                         } else {
                             u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
@@ -150,7 +150,7 @@ namespace projections
                     Tp = .5 * (Qp + 1. / Qp);
                     Vp = sin(this->m_proj_parm.BrA * u);
                     Up = (Vp * this->m_proj_parm.cosgam + Sp * this->m_proj_parm.singam) / Tp;
-                    if (fabs(fabs(Up) - 1.) < EPS) {
+                    if (fabs(fabs(Up) - 1.) < epsilon) {
                         lp_lon = 0.;
                         lp_lat = Up < 0. ? -half_pi : half_pi;
                     } else {
@@ -205,15 +205,15 @@ namespace projections
                     phi1 = pj_get_param_r(par.params, "lat_1");
                     lam2 = pj_get_param_r(par.params, "lon_2");
                     phi2 = pj_get_param_r(par.params, "lat_2");
-                    if (fabs(phi1 - phi2) <= TOL ||
-                        (con = fabs(phi1)) <= TOL ||
-                        fabs(con - half_pi) <= TOL ||
-                        fabs(fabs(par.phi0) - half_pi) <= TOL ||
-                        fabs(fabs(phi2) - half_pi) <= TOL)
+                    if (fabs(phi1 - phi2) <= tolerance ||
+                        (con = fabs(phi1)) <= tolerance ||
+                        fabs(con - half_pi) <= tolerance ||
+                        fabs(fabs(par.phi0) - half_pi) <= tolerance ||
+                        fabs(fabs(phi2) - half_pi) <= tolerance)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
                 }
                 com = sqrt(par.one_es);
-                if (fabs(par.phi0) > EPS) {
+                if (fabs(par.phi0) > epsilon) {
                     sinph0 = sin(par.phi0);
                     cosph0 = cos(par.phi0);
                     con = 1. - par.es * sinph0 * sinph0;

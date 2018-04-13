@@ -62,11 +62,11 @@ namespace projections
     namespace detail { namespace poly
     {
 
-            static const double TOL = 1e-10;
-            static const double CONV = 1e-10;
-            static const int N_ITER = 10;
-            static const int I_ITER = 20;
-            static const double ITOL = 1.e-12;
+            static const double tolerance = 1e-10;
+            static const double conv_tolerance = 1e-10;
+            static const int n_iter = 10;
+            static const int i_iter = 20;
+            static const double i_tolerance = 1.e-12;
 
             template <typename T>
             struct par_poly
@@ -96,12 +96,12 @@ namespace projections
                 {
                     CalculationType  ms, sp, cp;
 
-                    if (fabs(lp_lat) <= TOL) {
+                    if (fabs(lp_lat) <= tolerance) {
                         xy_x = lp_lon;
                         xy_y = -this->m_proj_parm.ml0;
                     } else {
                         sp = sin(lp_lat);
-                        ms = fabs(cp = cos(lp_lat)) > TOL ? pj_msfn(sp, cp, this->m_par.es) / sp : 0.;
+                        ms = fabs(cp = cos(lp_lat)) > tolerance ? pj_msfn(sp, cp, this->m_par.es) / sp : 0.;
                         xy_x = ms * sin(lp_lon *= sp);
                         xy_y = (pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en) - this->m_proj_parm.ml0) + ms * (1. - cos(lp_lon));
                     }
@@ -112,7 +112,7 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     xy_y += this->m_proj_parm.ml0;
-                    if (fabs(xy_y) <= TOL) {
+                    if (fabs(xy_y) <= tolerance) {
                         lp_lon = xy_x;
                         lp_lat = 0.;
                     } else {
@@ -120,10 +120,10 @@ namespace projections
                         int i;
 
                         r = xy_y * xy_y + xy_x * xy_x;
-                        for (lp_lat = xy_y, i = I_ITER; i ; --i) {
+                        for (lp_lat = xy_y, i = i_iter; i ; --i) {
                             sp = sin(lp_lat);
                             s2ph = sp * ( cp = cos(lp_lat));
-                            if (fabs(cp) < ITOL) {
+                            if (fabs(cp) < i_tolerance) {
                                 BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                             c = sp * (mlp = sqrt(1. - this->m_par.es * sp * sp)) / cp;
@@ -134,7 +134,7 @@ namespace projections
                                 ( ml + ml + c * mlb - 2. * xy_y * (c * ml + 1.) ) / (
                                 this->m_par.es * s2ph * (mlb - 2. * xy_y * ml) / c +
                                 2.* (xy_y - ml) * (c * mlp - 1. / s2ph) - mlp - mlp ));
-                            if (fabs(dPhi) <= ITOL)
+                            if (fabs(dPhi) <= i_tolerance)
                                 break;
                         }
                         if (!i) {
@@ -173,7 +173,7 @@ namespace projections
                 {
                     CalculationType  cot, E;
 
-                    if (fabs(lp_lat) <= TOL) {
+                    if (fabs(lp_lat) <= tolerance) {
                         xy_x = lp_lon;
                         xy_y = this->m_proj_parm.ml0;
                     } else {
@@ -190,19 +190,19 @@ namespace projections
                     CalculationType B, dphi, tp;
                     int i;
 
-                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) {
+                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= tolerance) {
                         lp_lon = xy_x;
                         lp_lat = 0.;
                     } else {
                         lp_lat = xy_y;
                         B = xy_x * xy_x + xy_y * xy_y;
-                        i = N_ITER;
+                        i = n_iter;
                         do {
                             tp = tan(lp_lat);
                             lp_lat -= (dphi = (xy_y * (lp_lat * tp + 1.) - lp_lat -
                                 .5 * ( lp_lat * lp_lat + B) * tp) /
                                 ((lp_lat - xy_y) / tp - 1.));
-                        } while (fabs(dphi) > CONV && --i);
+                        } while (fabs(dphi) > conv_tolerance && --i);
                         if (! i) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }

@@ -63,8 +63,8 @@ namespace projections
     namespace detail { namespace fouc_s
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_fouc_s
@@ -109,10 +109,10 @@ namespace projections
 
                     if (this->m_proj_parm.n != 0.0) {
                         lp_lat = xy_y;
-                        for (i = MAX_ITER; i ; --i) {
+                        for (i = max_iter; i ; --i) {
                             lp_lat -= V = (this->m_proj_parm.n * lp_lat + this->m_proj_parm.n1 * sin(lp_lat) - xy_y ) /
                                 (this->m_proj_parm.n + this->m_proj_parm.n1 * cos(lp_lat));
-                            if (fabs(V) < LOOP_TOL)
+                            if (fabs(V) < loop_tol)
                                 break;
                         }
                         if (!i)

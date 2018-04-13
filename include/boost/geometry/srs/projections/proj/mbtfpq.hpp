@@ -62,9 +62,9 @@ namespace projections
     namespace detail { namespace mbtfpq
     {
 
-            static const int NITER = 20;
-            static const double EPS = 1e-7;
-            static const double ONETOL = 1.000001;
+            static const int n_iter = 20;
+            static const double epsilon = 1e-7;
+            static const double one_plus_tol = 1.000001;
             static const double C = 1.70710678118654752440;
             static const double RC = 0.58578643762690495119;
             static const double FYC = 1.87475828462269495505;
@@ -94,10 +94,10 @@ namespace projections
                     int i;
 
                     c = C * sin(lp_lat);
-                    for (i = NITER; i; --i) {
+                    for (i = n_iter; i; --i) {
                         lp_lat -= th1 = (sin(.5*lp_lat) + sin(lp_lat) - c) /
                             (.5*cos(.5*lp_lat)  + cos(lp_lat));
-                        if (fabs(th1) < EPS) break;
+                        if (fabs(th1) < epsilon) break;
                     }
                     xy_x = FXC * lp_lon * (1.0 + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     xy_y = FYC * sin(0.5 * lp_lat);
@@ -114,7 +114,7 @@ namespace projections
 
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
-                        if (fabs(lp_lat) > ONETOL) {
+                        if (fabs(lp_lat) > one_plus_tol) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else if (lp_lat < 0.) {
                             t = -1.; lp_lat = -pi;
@@ -126,7 +126,7 @@ namespace projections
                     lp_lon = RXC * xy_x / (1. + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     lp_lat = RC * (t + sin(lp_lat));
                     if (fabs(lp_lat) > 1.)
-                        if (fabs(lp_lat) > ONETOL) {
+                        if (fabs(lp_lat) > one_plus_tol) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else
                             lp_lat = lp_lat < 0. ? -half_pi : half_pi;

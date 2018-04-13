@@ -62,8 +62,8 @@ namespace projections
     namespace detail { namespace wink2
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_wink2
@@ -101,10 +101,10 @@ namespace projections
                     xy_y = lp_lat * two_div_pi;
                     k = pi * sin(lp_lat);
                     lp_lat *= 1.8;
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
                             (1. + cos(lp_lat));
-                        if (fabs(V) < LOOP_TOL)
+                        if (fabs(V) < loop_tol)
                             break;
                     }
                     if (!i)

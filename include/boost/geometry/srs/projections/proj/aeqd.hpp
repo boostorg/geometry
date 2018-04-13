@@ -77,13 +77,13 @@ namespace projections
     namespace detail { namespace aeqd
     {
 
-            static const double EPS10 = 1.e-10;
-            static const double TOL = 1.e-14;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon10 = 1.e-10;
+            static const double tolerance = 1.e-14;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -97,7 +97,7 @@ namespace projections
                 T    Mp;
                 T    He;
                 T    G;
-                Mode mode;
+                mode_type mode;
                 srs::spheroid<T> spheroid;
             };
 
@@ -112,17 +112,17 @@ namespace projections
                 cosphi = cos(lp_lat);
                 sinphi = sin(lp_lat);
                 switch (proj_parm.mode) {
-                case N_POLE:
+                case n_pole:
                     coslam = - coslam;
                     BOOST_FALLTHROUGH;
-                case S_POLE:
+                case s_pole:
                     xy_x = (rho = fabs(proj_parm.Mp - pj_mlfn(lp_lat, sinphi, cosphi, proj_parm.en))) *
                         sin(lp_lon);
                     xy_y = rho * coslam;
                     break;
-                case EQUIT:
-                case OBLIQ:
-                    if (fabs(lp_lon) < EPS10 && fabs(lp_lat - par.phi0) < EPS10) {
+                case equit:
+                case obliq:
+                    if (fabs(lp_lon) < epsilon10 && fabs(lp_lat - par.phi0) < epsilon10) {
                         xy_x = xy_y = 0.;
                         break;
                     }
@@ -147,12 +147,12 @@ namespace projections
             {
                 T c;
 
-                if ((c = boost::math::hypot(xy_x, xy_y)) < EPS10) {
+                if ((c = boost::math::hypot(xy_x, xy_y)) < epsilon10) {
                     lp_lat = par.phi0;
                     lp_lon = 0.;
                         return;
                 }
-                if (proj_parm.mode == OBLIQ || proj_parm.mode == EQUIT) {
+                if (proj_parm.mode == obliq || proj_parm.mode == equit) {
                     T const x2 = xy_x * par.a;
                     T const y2 = xy_y * par.a;
                     //T const lat1 = par.phi0;
@@ -168,9 +168,9 @@ namespace projections
                     lp_lon = dir.lon2;
                     lp_lon -= par.lam0;
                 } else { /* Polar */
-                    lp_lat = pj_inv_mlfn(proj_parm.mode == N_POLE ? proj_parm.Mp - c : proj_parm.Mp + c,
+                    lp_lat = pj_inv_mlfn(proj_parm.mode == n_pole ? proj_parm.Mp - c : proj_parm.Mp + c,
                         par.es, proj_parm.en);
-                    lp_lon = atan2(xy_x, proj_parm.mode == N_POLE ? -xy_y : xy_y);
+                    lp_lon = atan2(xy_x, proj_parm.mode == n_pole ? -xy_y : xy_y);
                 }
             }
 
@@ -214,13 +214,13 @@ namespace projections
                 cosphi = cos(lp_lat);
                 coslam = cos(lp_lon);
                 switch (proj_parm.mode) {
-                case EQUIT:
+                case equit:
                     xy_y = cosphi * coslam;
                     goto oblcon;
-                case OBLIQ:
+                case obliq:
                     xy_y = proj_parm.sinph0 * sinphi + proj_parm.cosph0 * cosphi * coslam;
             oblcon:
-                    if (fabs(fabs(xy_y) - 1.) < TOL)
+                    if (fabs(fabs(xy_y) - 1.) < tolerance)
                         if (xy_y < 0.)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
@@ -229,16 +229,16 @@ namespace projections
                         xy_y = acos(xy_y);
                         xy_y /= sin(xy_y);
                         xy_x = xy_y * cosphi * sin(lp_lon);
-                        xy_y *= (proj_parm.mode == EQUIT) ? sinphi :
+                        xy_y *= (proj_parm.mode == equit) ? sinphi :
                                 proj_parm.cosph0 * sinphi - proj_parm.sinph0 * cosphi * coslam;
                     }
                     break;
-                case N_POLE:
+                case n_pole:
                     lp_lat = -lp_lat;
                     coslam = -coslam;
                     BOOST_FALLTHROUGH;
-                case S_POLE:
-                    if (fabs(lp_lat - half_pi) < EPS10)
+                case s_pole:
+                    if (fabs(lp_lat - half_pi) < epsilon10)
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     xy_x = (xy_y = (half_pi + lp_lat)) * sin(lp_lon);
                     xy_y *= coslam;
@@ -255,18 +255,18 @@ namespace projections
                 T cosc, c_rh, sinc;
 
                 if ((c_rh = boost::math::hypot(xy_x, xy_y)) > pi) {
-                    if (c_rh - EPS10 > pi)
+                    if (c_rh - epsilon10 > pi)
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     c_rh = pi;
-                } else if (c_rh < EPS10) {
+                } else if (c_rh < epsilon10) {
                     lp_lat = par.phi0;
                     lp_lon = 0.;
                         return;
                 }
-                if (proj_parm.mode == OBLIQ || proj_parm.mode == EQUIT) {
+                if (proj_parm.mode == obliq || proj_parm.mode == equit) {
                     sinc = sin(c_rh);
                     cosc = cos(c_rh);
-                    if (proj_parm.mode == EQUIT) {
+                    if (proj_parm.mode == equit) {
                                     lp_lat = aasin(xy_y * sinc / c_rh);
                         xy_x *= sinc;
                         xy_y = cosc * c_rh;
@@ -277,7 +277,7 @@ namespace projections
                         xy_x *= sinc * proj_parm.cosph0;
                     }
                     lp_lon = xy_y == 0. ? 0. : atan2(xy_x, xy_y);
-                } else if (proj_parm.mode == N_POLE) {
+                } else if (proj_parm.mode == n_pole) {
                     lp_lat = half_pi - c_rh;
                     lp_lon = atan2(xy_x, -xy_y);
                 } else {
@@ -293,16 +293,16 @@ namespace projections
                 static const T half_pi = detail::half_pi<T>();
 
                 par.phi0 = pj_get_param_r(par.params, "lat_0");
-                if (fabs(fabs(par.phi0) - half_pi) < EPS10) {
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
+                if (fabs(fabs(par.phi0) - half_pi) < epsilon10) {
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
                     proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
                     proj_parm.cosph0 = 0.;
-                } else if (fabs(par.phi0) < EPS10) {
-                    proj_parm.mode = EQUIT;
+                } else if (fabs(par.phi0) < epsilon10) {
+                    proj_parm.mode = equit;
                     proj_parm.sinph0 = 0.;
                     proj_parm.cosph0 = 1.;
                 } else {
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
@@ -314,14 +314,14 @@ namespace projections
                         proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
                     } else {
                         switch (proj_parm.mode) {
-                        case N_POLE:
+                        case n_pole:
                             proj_parm.Mp = pj_mlfn<T>(half_pi, 1., 0., proj_parm.en);
                             break;
-                        case S_POLE:
+                        case s_pole:
                             proj_parm.Mp = pj_mlfn<T>(-half_pi, -1., 0., proj_parm.en);
                             break;
-                        case EQUIT:
-                        case OBLIQ:
+                        case equit:
+                        case obliq:
                             proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
                             proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
                             proj_parm.He *= proj_parm.cosph0;

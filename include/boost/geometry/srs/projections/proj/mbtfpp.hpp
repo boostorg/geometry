@@ -67,12 +67,7 @@ namespace projections
             static const double FYC = 3.40168025708304504493;
             //static const double C23 = .66666666666666666666;
             //static const double C13 = .33333333333333333333;
-            static const double ONEEPS = 1.0000001;
-
-            template <typename T>
-            inline T C23() { return detail::two_thirds<T>(); }
-            template <typename T>
-            inline T C13() { return detail::third<T>(); }
+            static const double one_plus_eps = 1.0000001;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -92,8 +87,8 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    static const CalculationType C23 = mbtfpp::C23<CalculationType>();
-                    static const CalculationType C13 = mbtfpp::C13<CalculationType>();
+                    static const CalculationType C23 = detail::two_thirds<CalculationType>();
+                    static const CalculationType C13 = detail::third<CalculationType>();
 
                     lp_lat = asin(CS_ * sin(lp_lat));
                     xy_x = FXC * lp_lon * (2. * cos(C23 * lp_lat) - 1.);
@@ -105,11 +100,11 @@ namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     static const CalculationType half_pi = detail::half_pi<CalculationType>();
-                    static const CalculationType C23 = mbtfpp::C23<CalculationType>();
+                    static const CalculationType C23 = detail::two_thirds<CalculationType>();
 
                     lp_lat = xy_y / FYC;
                     if (fabs(lp_lat) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS) {
+                        if (fabs(lp_lat) > one_plus_eps) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
@@ -119,7 +114,7 @@ namespace projections
 
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
                     if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
-                        if (fabs(lp_lat) > ONEEPS) {
+                        if (fabs(lp_lat) > one_plus_eps) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
                             lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;

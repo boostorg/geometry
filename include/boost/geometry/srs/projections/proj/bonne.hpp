@@ -64,7 +64,7 @@ namespace projections
     namespace detail { namespace bonne
     {
 
-            static const double EPS10 = 1e-10;
+            static const double epsilon10 = 1e-10;
 
             template <typename T>
             struct par_bonne
@@ -117,7 +117,7 @@ namespace projections
                         s = sin(lp_lat);
                         lp_lon = rh * atan2(xy_x, xy_y) *
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if (fabs(s - half_pi) <= EPS10)
+                    } else if (fabs(s - half_pi) <= epsilon10)
                         lp_lon = 0.;
                     else
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -152,7 +152,7 @@ namespace projections
                     CalculationType E, rh;
 
                     rh = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - lp_lat;
-                    if (fabs(rh) > EPS10) {
+                    if (fabs(rh) > epsilon10) {
                         xy_x = rh * sin(E = lp_lon * cos(lp_lat) / rh);
                         xy_y = this->m_proj_parm.cphi1 - rh * cos(E);
                     } else
@@ -172,7 +172,7 @@ namespace projections
                     if (fabs(lp_lat) > half_pi) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    if (fabs(fabs(lp_lat) - half_pi) <= EPS10)
+                    if (fabs(fabs(lp_lat) - half_pi) <= epsilon10)
                         lp_lon = 0.;
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
@@ -194,7 +194,7 @@ namespace projections
                 T c;
 
                 proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
-                if (fabs(proj_parm.phi1) < EPS10)
+                if (fabs(proj_parm.phi1) < epsilon10)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat1_is_zero) );
 
                 if (par.es != 0.0) {
@@ -203,7 +203,7 @@ namespace projections
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
                 } else {
-                    if (fabs(proj_parm.phi1) + EPS10 >= half_pi)
+                    if (fabs(proj_parm.phi1) + epsilon10 >= half_pi)
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);

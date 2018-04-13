@@ -63,10 +63,10 @@ namespace projections
     namespace detail { namespace bipc
     {
 
-            static const double EPS = 1e-10;
-            static const double EPS10 = 1e-10;
-            static const double ONEEPS = 1.000000001;
-            static const int NITER = 10;
+            static const double epsilon = 1e-10;
+            static const double epsilon10 = 1e-10;
+            static const double one_plus_eps = 1.000000001;
+            static const int n_iter = 10;
             static const double lamB = -.34894976726250681539;
             static const double n = .63055844881274687180;
             static const double F = 1.89724742567461030582;
@@ -117,7 +117,7 @@ namespace projections
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
-                    if (fabs(fabs(lp_lat) - half_pi) < EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) < epsilon10) {
                         Az = lp_lat < 0. ? pi : 0.;
                         tphi = HUGE_VAL;
                     } else {
@@ -129,7 +129,7 @@ namespace projections
                         sdlam = sin(sdlam);
                         z = S20 * sphi + C20 * cphi * cdlam;
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS)
+                            if (fabs(z) > one_plus_eps)
                                 BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
@@ -142,7 +142,7 @@ namespace projections
                     } else {
                         z = S45 * (sphi + cphi * cdlam);
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS)
+                            if (fabs(z) > one_plus_eps)
                                 BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
@@ -160,7 +160,7 @@ namespace projections
                     }
                     al = (t + pow(al, n)) / T;
                     if (fabs(al) > 1.) {
-                        if (fabs(al) > ONEEPS)
+                        if (fabs(al) > one_plus_eps)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
                             al = al < 0. ? -1. : 1.;
@@ -202,13 +202,13 @@ namespace projections
                     }
                     rl = rp = r = boost::math::hypot(xy_x, xy_y);
                     fAz = fabs(Az = atan2(xy_x, xy_y));
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         z = 2. * atan(pow(r / F,1 / n));
                         al = acos((pow(tan(.5 * z), n) +
                            pow(tan(.5 * (R104 - z)), n)) / T);
                         if (fAz < al)
                             r = rp * cos(al + (neg ? Az : -Az));
-                        if (fabs(rl - r) < EPS)
+                        if (fabs(rl - r) < epsilon)
                             break;
                         rl = r;
                     }

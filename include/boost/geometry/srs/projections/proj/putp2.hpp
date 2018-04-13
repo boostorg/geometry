@@ -64,8 +64,8 @@ namespace projections
             static const double C_x = 1.89490;
             static const double C_y = 1.71848;
             static const double C_p = 0.6141848493043784;
-            static const double EPS = 1e-10;
-            static const int NITER = 10;
+            static const double epsilon = 1e-10;
+            static const int n_iter = 10;
             //static const double third_pi = 1.0471975511965977;
 
             // template class, using CRTP to implement forward/inverse
@@ -94,12 +94,12 @@ namespace projections
                     p = C_p * sin(lp_lat);
                     s = lp_lat * lp_lat;
                     lp_lat *= 0.615709 + s * ( 0.00909953 + s * 0.0046292 );
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         c = cos(lp_lat);
                         s = sin(lp_lat);
                         lp_lat -= V = (lp_lat + s * (c - 1.) - p) /
                             (1. + c * (c - 1.) - s * s);
-                        if (fabs(V) < EPS)
+                        if (fabs(V) < epsilon)
                             break;
                     }
                     if (!i)

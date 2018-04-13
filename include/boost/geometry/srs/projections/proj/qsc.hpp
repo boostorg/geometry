@@ -120,7 +120,7 @@ namespace projections
                 T one_minus_f_squared;
             };
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             /* The four areas on a cube face. AREA_0 is the area of definition,
              * the other three areas are counted counterclockwise. */
@@ -141,7 +141,7 @@ namespace projections
                 static const T pi = detail::pi<T>();
 
                 T theta;
-                if (phi < EPS10) {
+                if (phi < epsilon10) {
                     *area = AREA_0;
                     theta = 0.0;
                 } else {

@@ -59,7 +59,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace labrd
     {
-            static const double EPS = 1.e-10;
+            static const double epsilon = 1.e-10;
 
             template <typename T>
             struct par_labrd
@@ -147,7 +147,7 @@ namespace projections
                         V2 = .5 * this->m_par.e * this->m_proj_parm.A * log((1. + tpe)/(1. - tpe));
                         t = ps - 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - fourth_pi);
                         pe += t;
-                        if (fabs(t) < EPS)
+                        if (fabs(t) < epsilon)
                             break;
                     }
 

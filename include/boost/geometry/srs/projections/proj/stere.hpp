@@ -65,16 +65,16 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace stere
     {
-            static const double EPS10 = 1.e-10;
-            static const double TOL = 1.e-8;
-            static const int NITER = 8;
-            static const double CONV = 1.e-10;
+            static const double epsilon10 = 1.e-10;
+            static const double tolerance = 1.e-8;
+            static const int n_iter = 8;
+            static const double conv_tolerance = 1.e-10;
 
-            enum Mode {
-                S_POLE = 0,
-                N_POLE = 1,
-                OBLIQ  = 2,
-                EQUIT  = 3
+            enum mode_type {
+                s_pole = 0,
+                n_pole = 1,
+                obliq  = 2,
+                equit  = 3
             };
 
             template <typename T>
@@ -84,7 +84,7 @@ namespace projections
                 T   sinX1;
                 T   cosX1;
                 T   akm1;
-                enum Mode mode;
+                mode_type mode;
             };
 
             template <typename T>
@@ -123,18 +123,18 @@ namespace projections
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
-                    if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
+                    if (this->m_proj_parm.mode == obliq || this->m_proj_parm.mode == equit) {
                         sinX = sin(X = 2. * atan(ssfn_(lp_lat, sinphi, this->m_par.e)) - half_pi);
                         cosX = cos(X);
                     }
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         A = this->m_proj_parm.akm1 / (this->m_proj_parm.cosX1 * (1. + this->m_proj_parm.sinX1 * sinX +
                            this->m_proj_parm.cosX1 * cosX * coslam));
                         xy_y = A * (this->m_proj_parm.cosX1 * sinX - this->m_proj_parm.sinX1 * cosX * coslam);
                         goto xmul; /* but why not just  xy.x = A * cosX; break;  ? */
 
-                    case EQUIT:
+                    case equit:
                         // TODO: calculate denominator once
                         /* avoid zero division */
                         if (1. + cosX * coslam == 0.0) {
@@ -147,12 +147,12 @@ namespace projections
                         xy_x = A * cosX;
                         break;
 
-                    case S_POLE:
+                    case s_pole:
                         lp_lat = -lp_lat;
                         coslam = - coslam;
                         sinphi = -sinphi;
                         BOOST_FALLTHROUGH;
-                    case N_POLE:
+                    case n_pole:
                         xy_x = this->m_proj_parm.akm1 * pj_tsfn(lp_lat, sinphi, this->m_par.e);
                         xy_y = - xy_x * coslam;
                         break;
@@ -172,8 +172,8 @@ namespace projections
 
                     rho = boost::math::hypot(xy_x, xy_y);
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
-                    case EQUIT:
+                    case obliq:
+                    case equit:
                         cosphi = cos( tp = 2. * atan2(rho * this->m_proj_parm.cosX1 , this->m_proj_parm.akm1) );
                         sinphi = sin(tp);
                         if( rho == 0.0 )
@@ -187,20 +187,20 @@ namespace projections
                         halfpi = half_pi;
                         halfe = .5 * this->m_par.e;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = -xy_y;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         phi_l = half_pi - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
                         halfpi = -half_pi;
                         halfe = -.5 * this->m_par.e;
                         break;
                     }
-                    for (i = NITER; i--; phi_l = lp_lat) {
+                    for (i = n_iter; i--; phi_l = lp_lat) {
                         sinphi = this->m_par.e * sin(phi_l);
                         lp_lat = 2. * atan(tp * pow((1.+sinphi)/(1.-sinphi), halfe)) - halfpi;
-                        if (fabs(phi_l - lp_lat) < CONV) {
-                            if (this->m_proj_parm.mode == S_POLE)
+                        if (fabs(phi_l - lp_lat) < conv_tolerance) {
+                            if (this->m_proj_parm.mode == s_pole)
                                 lp_lat = -lp_lat;
                             lp_lon = (xy_x == 0. && xy_y == 0.) ? 0. : atan2(xy_x, xy_y);
                             return;
@@ -245,25 +245,25 @@ namespace projections
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y = 1. + cosphi * coslam;
                         goto oblcon;
-                    case OBLIQ:
+                    case obliq:
                         xy_y = 1. + this->m_proj_parm.sinX1 * sinphi + this->m_proj_parm.cosX1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10) {
+                        if (xy_y <= epsilon10) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = (xy_y = this->m_proj_parm.akm1 / xy_y) * cosphi * sinlam;
-                        xy_y *= (this->m_proj_parm.mode == EQUIT) ? sinphi :
+                        xy_y *= (this->m_proj_parm.mode == equit) ? sinphi :
                            this->m_proj_parm.cosX1 * sinphi - this->m_proj_parm.sinX1 * cosphi * coslam;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = - coslam;
                         lp_lat = - lp_lat;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
-                        if (fabs(lp_lat - half_pi) < TOL) {
+                    case s_pole:
+                        if (fabs(lp_lat - half_pi) < tolerance) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = sinlam * ( xy_y = this->m_proj_parm.akm1 * tan(fourth_pi + .5 * lp_lat) );
@@ -283,30 +283,30 @@ namespace projections
                     lp_lon = 0.;
 
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                        if (fabs(rh) <= EPS10)
+                    case equit:
+                        if (fabs(rh) <= epsilon10)
                             lp_lat = 0.;
                         else
                             lp_lat = asin(xy_y * sinc / rh);
                         if (cosc != 0. || xy_x != 0.)
                             lp_lon = atan2(xy_x * sinc, cosc * rh);
                         break;
-                    case OBLIQ:
-                        if (fabs(rh) <= EPS10)
+                    case obliq:
+                        if (fabs(rh) <= epsilon10)
                             lp_lat = this->m_par.phi0;
                         else
                             lp_lat = asin(cosc * this->m_proj_parm.sinX1 + xy_y * sinc * this->m_proj_parm.cosX1 / rh);
                         if ((c = cosc - this->m_proj_parm.sinX1 * sin(lp_lat)) != 0. || xy_x != 0.)
                             lp_lon = atan2(xy_x * sinc * this->m_proj_parm.cosX1, c * rh);
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = -xy_y;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
-                        if (fabs(rh) <= EPS10)
+                    case s_pole:
+                        if (fabs(rh) <= epsilon10)
                             lp_lat = this->m_par.phi0;
                         else
-                            lp_lat = asin(this->m_proj_parm.mode == S_POLE ? - cosc : cosc);
+                            lp_lat = asin(this->m_proj_parm.mode == s_pole ? - cosc : cosc);
                         lp_lon = (xy_x == 0. && xy_y == 0.) ? 0. : atan2(xy_x, xy_y);
                         break;
                     }
@@ -327,19 +327,19 @@ namespace projections
 
                 T t;
 
-                if (fabs((t = fabs(par.phi0)) - half_pi) < EPS10)
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
+                if (fabs((t = fabs(par.phi0)) - half_pi) < epsilon10)
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
                 else
-                    proj_parm.mode = t > EPS10 ? OBLIQ : EQUIT;
+                    proj_parm.mode = t > epsilon10 ? obliq : equit;
                 proj_parm.phits = fabs(proj_parm.phits);
 
                 if (par.es != 0.0) {
                     T X;
 
                     switch (proj_parm.mode) {
-                    case N_POLE:
-                    case S_POLE:
-                        if (fabs(proj_parm.phits - half_pi) < EPS10)
+                    case n_pole:
+                    case s_pole:
+                        if (fabs(proj_parm.phits - half_pi) < epsilon10)
                             proj_parm.akm1 = 2. * par.k0 /
                                sqrt(pow(1+par.e,1+par.e)*pow(1-par.e,1-par.e));
                         else {
@@ -349,8 +349,8 @@ namespace projections
                             proj_parm.akm1 /= sqrt(1. - t * t);
                         }
                         break;
-                    case EQUIT:
-                    case OBLIQ:
+                    case equit:
+                    case obliq:
                         t = sin(par.phi0);
                         X = 2. * atan(ssfn_(par.phi0, t, par.e)) - half_pi;
                         t *= par.e;
@@ -361,16 +361,16 @@ namespace projections
                     }
                 } else {
                     switch (proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         proj_parm.sinX1 = sin(par.phi0);
                         proj_parm.cosX1 = cos(par.phi0);
                         BOOST_FALLTHROUGH;
-                    case EQUIT:
+                    case equit:
                         proj_parm.akm1 = 2. * par.k0;
                         break;
-                    case S_POLE:
-                    case N_POLE:
-                        proj_parm.akm1 = fabs(proj_parm.phits - half_pi) >= EPS10 ?
+                    case s_pole:
+                    case n_pole:
+                        proj_parm.akm1 = fabs(proj_parm.phits - half_pi) >= epsilon10 ?
                            cos(proj_parm.phits) / tan(fourth_pi - .5 * proj_parm.phits) :
                            2. * par.k0 ;
                         break;

@@ -75,7 +75,7 @@ namespace projections
     namespace detail { namespace ob_tran
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             template <typename Parameters>
             inline Parameters o_proj_parameters(Parameters const& par)
@@ -246,7 +246,7 @@ namespace projections
                     phic    = pj_get_param_r(par.params, "o_lat_c");
                     //alpha   = pj_get_param_r(par.params, "o_alpha");
             
-                    if (fabs(fabs(phic) - half_pi) <= TOL)
+                    if (fabs(fabs(phic) - half_pi) <= tolerance)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
 
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
@@ -261,8 +261,8 @@ namespace projections
                     phi1 = pj_get_param_r(par.params, "o_lat_1");
                     lam2 = pj_get_param_r(par.params, "o_lon_2");
                     phi2 = pj_get_param_r(par.params, "o_lat_2");
-                    if (fabs(phi1 - phi2) <= TOL || (con = fabs(phi1)) <= TOL ||
-                        fabs(con - half_pi) <= TOL || fabs(fabs(phi2) - half_pi) <= TOL)
+                    if (fabs(phi1 - phi2) <= tolerance || (con = fabs(phi1)) <= tolerance ||
+                        fabs(con - half_pi) <= tolerance || fabs(fabs(phi2) - half_pi) <= tolerance)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_1_or_2_zero_or_90) );
 
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
@@ -272,7 +272,7 @@ namespace projections
                     phip = atan(-cos(proj_parm.lamp - lam1) / tan(phi1));
                 }
 
-                if (fabs(phip) > TOL) { /* oblique */
+                if (fabs(phip) > tolerance) { /* oblique */
                     proj_parm.cphip = cos(phip);
                     proj_parm.sphip = sin(phip);
                 } else { /* transverse */
@@ -525,7 +525,7 @@ namespace projections
             : detail::ob_tran::base_ob_tran_static<StaticParameters, CalculationType, Parameters>(par)
         {
             CalculationType phip = detail::ob_tran::setup_ob_tran<CalculationType>(this->m_par, this->m_proj_parm);
-            this->m_is_oblique = fabs(phip) > detail::ob_tran::TOL;
+            this->m_is_oblique = fabs(phip) > detail::ob_tran::tolerance;
         }
     };
 
@@ -556,7 +556,7 @@ namespace projections
                     detail::ob_tran::par_ob_tran<CalculationType, Parameters> proj_parm(params);
                     CalculationType phip = detail::ob_tran::setup_ob_tran<CalculationType>(params, proj_parm);
 
-                    if (fabs(phip) > detail::ob_tran::TOL)
+                    if (fabs(phip) > detail::ob_tran::tolerance)
                         return new base_v_fi<ob_tran_oblique<CalculationType, Parameters>, CalculationType, Parameters>(params, proj_parm);
                     else
                         return new base_v_fi<ob_tran_transverse<CalculationType, Parameters>, CalculationType, Parameters>(params, proj_parm);

@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace vandg4
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -87,10 +87,10 @@ namespace projections
 
                     CalculationType x1, t, bt, ct, ft, bt2, ct2, dt, dt2;
 
-                    if (fabs(lp_lat) < TOL) {
+                    if (fabs(lp_lat) < tolerance) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - half_pi) < TOL) {
+                    } else if (fabs(lp_lon) < tolerance || fabs(fabs(lp_lat) - half_pi) < tolerance) {
                         xy_x = 0.;
                         xy_y = lp_lat;
                     } else {

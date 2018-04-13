@@ -108,8 +108,8 @@ namespace projections
     namespace detail { namespace lcca
     {
 
-            static const int MAX_ITER = 10;
-            static const double DEL_TOL = 1e-12;
+            static const int max_iter = 10;
+            static const double del_tol = 1e-12;
 
             template <typename T>
             struct par_lcca
@@ -172,9 +172,9 @@ namespace projections
                     dr = xy_y - xy_x * tan(0.5 * theta);
                     lp_lon = theta / this->m_proj_parm.l;
                     S = dr;
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         S -= (dif = (fS(S, this->m_proj_parm.C) - dr) / fSp(S, this->m_proj_parm.C));
-                        if (fabs(dif) < DEL_TOL) break;
+                        if (fabs(dif) < del_tol) break;
                     }
                     if (!i) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );

@@ -64,12 +64,12 @@ namespace projections
     namespace detail { namespace gnom
     {
 
-            static const double EPS10 = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon10 = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -77,7 +77,7 @@ namespace projections
             {
                 T    sinph0;
                 T    cosph0;
-                enum Mode mode;
+                mode_type mode;
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -106,36 +106,36 @@ namespace projections
                     coslam = cos(lp_lon);
 
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y = cosphi * coslam;
                         break;
-                    case OBLIQ:
+                    case obliq:
                         xy_y = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosphi * coslam;
                         break;
-                    case S_POLE:
+                    case s_pole:
                         xy_y = - sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = sinphi;
                         break;
                     }
 
-                    if (xy_y <= EPS10) {
+                    if (xy_y <= epsilon10) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     xy_x = (xy_y = 1. / xy_y) * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y *= sinphi;
                         break;
-                    case OBLIQ:
+                    case obliq:
                         xy_y *= this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = - coslam;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         xy_y *= cosphi * coslam;
                         break;
                     }
@@ -153,12 +153,12 @@ namespace projections
                     sinz = sin(lp_lat = atan(rh));
                     cosz = sqrt(1. - sinz * sinz);
 
-                    if (fabs(rh) <= EPS10) {
+                    if (fabs(rh) <= epsilon10) {
                         lp_lat = this->m_par.phi0;
                         lp_lon = 0.;
                     } else {
                         switch (this->m_proj_parm.mode) {
-                        case OBLIQ:
+                        case obliq:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
                                 lp_lat = lp_lat > 0. ? half_pi : -half_pi;
@@ -167,7 +167,7 @@ namespace projections
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
                             xy_x *= sinz * this->m_proj_parm.cosph0;
                             break;
-                        case EQUIT:
+                        case equit:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
                                 lp_lat = lp_lat > 0. ? half_pi : -half_pi;
@@ -176,10 +176,10 @@ namespace projections
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
-                        case S_POLE:
+                        case s_pole:
                             lp_lat -= half_pi;
                             break;
-                        case N_POLE:
+                        case n_pole:
                             lp_lat = half_pi - lp_lat;
                             xy_y = -xy_y;
                             break;
@@ -201,12 +201,12 @@ namespace projections
             {
                 static const T half_pi = detail::half_pi<T>();
 
-                if (fabs(fabs(par.phi0) - half_pi) < EPS10) {
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                } else if (fabs(par.phi0) < EPS10) {
-                    proj_parm.mode = EQUIT;
+                if (fabs(fabs(par.phi0) - half_pi) < epsilon10) {
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
+                } else if (fabs(par.phi0) < epsilon10) {
+                    proj_parm.mode = equit;
                 } else {
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }

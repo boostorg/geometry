@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace cass
     {
 
-            //static const double EPS10 = 1e-10;
+            //static const double epsilon10 = 1e-10;
             //static const double C1 = .16666666666666666666;
             //static const double C2 = .00833333333333333333;
             //static const double C3 = .04166666666666666666;

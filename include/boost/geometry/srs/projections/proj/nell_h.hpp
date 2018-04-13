@@ -62,8 +62,8 @@ namespace projections
     namespace detail { namespace nell_h
     {
 
-            static const int NITER = 9;
-            static const double EPS = 1e-7;
+            static const int n_iter = 9;
+            static const double epsilon = 1e-7;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -97,10 +97,10 @@ namespace projections
                     int i;
 
                     p = 0.5 * xy_y;
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         c = cos(0.5 * lp_lat);
                         lp_lat -= V = (lp_lat - tan(lp_lat/2) - p)/(1. - 0.5/(c*c));
-                        if (fabs(V) < EPS)
+                        if (fabs(V) < epsilon)
                             break;
                     }
                     if (!i) {

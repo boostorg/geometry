@@ -61,8 +61,8 @@ namespace projections
     namespace detail { namespace nell
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             // template class, using CRTP to implement forward/inverse
             template <typename CalculationType, typename Parameters>
@@ -88,10 +88,10 @@ namespace projections
                     k = 2. * sin(lp_lat);
                     V = lp_lat * lp_lat;
                     lp_lat *= 1.00371 + V * (-0.0935382 + V * -0.011412);
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
                             (1. + cos(lp_lat));
-                        if (fabs(V) < LOOP_TOL)
+                        if (fabs(V) < loop_tol)
                             break;
                     }
                     xy_x = 0.5 * lp_lon * (1. + cos(lp_lat));
