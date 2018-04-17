@@ -70,6 +70,22 @@ public:
                              Box const& box,
                              Strategy const& azimuth_strategy)
     {
+        typedef typename point_type<Segment>::type segment_point;
+        segment_point vertex;
+        std::cout << apply(segment, box, azimuth_strategy, vertex) << std::endl;
+
+        return (apply(segment, box, azimuth_strategy, vertex) > 0);
+    }
+
+    // returns 0 if intersect,
+    //         1 if disjoint (vertex not computed),
+    //         2 if disjoint (vertex computed)
+    template <typename Segment, typename Box, typename Strategy, typename P>
+    static inline std::size_t apply(Segment const& segment,
+                                    Box const& box,
+                                    Strategy const& azimuth_strategy,
+                                    P& vertex)
+    {
         assert_dimension_equal<Segment, Box>();
 
         typedef typename point_type<Segment>::type segment_point_type;
@@ -84,7 +100,7 @@ public:
         // Case 1: if box contains one of segment's endpoints then they are not disjoint
         if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
         {
-            return false;
+            return 0;
         }
 
         // Case 2: disjoint if bounding boxes are disjoint
@@ -123,7 +139,7 @@ public:
 
         if (disjoint_box_box(box, box_seg))
         {
-            return true;
+            return 1;
         }
 
         // Case 3: test intersection by comparing angles
@@ -149,7 +165,7 @@ public:
         // there is an intersection
         if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
-            return false;
+            return 0;
         }
 
         // Case 4: The only intersection case not covered above is when all four
@@ -182,6 +198,9 @@ public:
                                             alp1,
                                             azimuth_strategy);
 
+            geometry::set_from_radian<0>(vertex, vertex_lon);
+            geometry::set_from_radian<1>(vertex, vertex_lat);
+
             // Check if the vertex point is within the band defined by the
             // minimum and maximum longitude of the box; if yes, then return
             // false if the point is above the min latitude of the box; return
@@ -189,11 +208,11 @@ public:
             if (vertex_lon >= b_lon_min && vertex_lon <= b_lon_max
                     && std::abs(vertex_lat) > std::abs(b_lat_below))
             {
-                return false;
+                return 0;
             }
         }
 
-        return true;
+        return 2;
     }
 };
 

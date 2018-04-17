@@ -358,6 +358,6 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
     test_distance_segment_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
-    //test_distance_segment_box(thomas_pp(), thomas_ps(), thomas_pb());
+    test_distance_segment_box(thomas_pp(), thomas_ps(), thomas_pb());
     test_distance_segment_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
 }
