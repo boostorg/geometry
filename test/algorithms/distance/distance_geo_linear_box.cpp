@@ -182,6 +182,9 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
     tester::apply("test_b12", "SEGMENT(22 5, 24 5)", box_north,
                   ps_distance("POINT(20 10)", "SEGMENT(22 5,24 5)", strategy_ps),
                   strategy_ps);
+    tester::apply("test_b13", "SEGMENT(0 5, 125 5)", box_north,
+                  ps_distance("POINT(20 10)", "SEGMENT(0 5, 125 5)", strategy_ps),
+                  strategy_ps);
 
     // Test segments above box
     tester::apply("test_a1", "SEGMENT(0 25, 9 25)", box_north,

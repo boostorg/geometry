@@ -412,11 +412,22 @@ private:
 
     // it is assumed here that p0 lies above the box (so the
     // entire segment lies above the box)
+
     template <typename LessEqual>
     struct above_of_box
     {
+
         static inline ReturnType apply(SegmentPoint const& p0,
                                        SegmentPoint const& p1,
+                                       BoxPoint const& top_left,
+                                       PSStrategy const& ps_strategy)
+        {
+            return apply(p0, p1, p0, top_left, ps_strategy);
+        }
+
+        static inline ReturnType apply(SegmentPoint const& p0,
+                                       SegmentPoint const& p1,
+                                       SegmentPoint const& p_max,
                                        BoxPoint const& top_left,
                                        PSStrategy const& ps_strategy)
         {
@@ -426,11 +437,11 @@ private:
 
             // p0 is above the upper segment of the box (and inside its band)
             // then compute the vertical (meridian) distance
-            if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
+            if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
                 ReturnType diff =
                 ps_strategy.get_distance_strategy().meridian(
-                                    geometry::get_as_radian<1>(p0),
+                                    geometry::get_as_radian<1>(p_max),
                                     geometry::get_as_radian<1>(top_left));
 
                 return strategy::distance::services::result_from_distance
@@ -627,7 +638,7 @@ private:
                 result = above_of_box
                         <
                             typename other_compare<LessEqual>::type
-                        >::apply(p_max, p0, bottom_right, ps_strategy);
+                        >::apply(p1, p0, p_max, bottom_right, ps_strategy);
             }
             return result;
         }
