@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -401,10 +401,31 @@ void test_geographic()
         geodesic_andoyer('i',  "POINT(89.99999993672924 -45.00437824794587)"));*/
 }
 
+template <typename T>
+void test_geographic_radian()
+{
+    typedef bg::model::point<T, 2, bg::cs::geographic<bg::radian> > point_t;
+    typedef bg::model::segment<point_t> segment_t;
+
+    T const d2r = bg::math::d2r<T>();
+    bg::strategy::intersection::geographic_segments<bg::strategy::vincenty> strategy;
+
+    // https://github.com/boostorg/geometry/issues/470
+    point_t p0(0.000000001, 0.000000001);
+    point_t p1(0.000000001, 0.000000005);
+    point_t p2(0.000000005, 0.000000005);
+    segment_t s1(p0, p1);
+    segment_t s2(p1, p2);    
+    test_strategy_one(s1, s1, strategy, 'e', 2, p0, p1);
+    test_strategy_one(s2, s2, strategy, 'e', 2, p1, p2);
+}
+
 int test_main(int, char* [])
 {
     //test_geographic<float>();
     test_geographic<double>();
+
+    test_geographic_radian<double>();
 
     return 0;
 }

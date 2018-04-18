@@ -25,6 +25,7 @@
 
 [*Solved issues]
 
+* [@https://github.com/boostorg/geometry/issues/470 470] Assertion failure with short spherical and geographic segments.
 * [@https://github.com/boostorg/geometry/issues/471 471] Invalid envelope of spherical polygon
 
 [/=================]
