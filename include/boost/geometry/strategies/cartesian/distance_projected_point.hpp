@@ -99,6 +99,16 @@ public :
         return Strategy();
     }
 
+    inline Strategy get_azimuth_strategy() const
+    {
+        return Strategy();
+    }
+
+    inline Strategy get_envelope_segment_strategy() const
+    {
+        return Strategy();
+    }
+
     template <typename Point, typename PointOfSegment>
     inline typename calculation_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& p1, PointOfSegment const& p2) const

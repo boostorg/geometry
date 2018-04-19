@@ -72,7 +72,6 @@ public:
     {
         typedef typename point_type<Segment>::type segment_point;
         segment_point vertex;
-        std::cout << apply(segment, box, azimuth_strategy, vertex) << std::endl;
 
         return (apply(segment, box, azimuth_strategy, vertex) > 0);
     }

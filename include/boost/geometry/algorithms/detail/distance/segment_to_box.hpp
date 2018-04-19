@@ -32,6 +32,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/segment_below_of_box.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
@@ -457,7 +458,6 @@ private:
         }
     };
 
-
     template <typename LessEqual>
     struct check_right_left_of_box
     {
@@ -497,146 +497,6 @@ private:
         }
     };
 
-    template <typename LessEqual, typename CS_Tag>
-    struct check_below_of_box
-    {
-        BOOST_MPL_ASSERT_MSG
-             (
-                 false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM, (types<CS_Tag>)
-             );
-    };
-
-    template <typename LessEqual>
-    struct check_below_of_box<LessEqual, cartesian_tag>
-    {
-        static inline ReturnType apply(SegmentPoint const& p0,
-                                       SegmentPoint const& p1,
-                                       BoxPoint const&,
-                                       BoxPoint const&,
-                                       BoxPoint const&,
-                                       BoxPoint const& bottom_right,
-                                       PSStrategy const& ps_strategy)
-        {
-            return above_of_box
-                    <
-                        typename other_compare<LessEqual>::type
-                    >::apply(p1, p0, bottom_right, ps_strategy);
-        }
-    };
-
-    template <typename LessEqual>
-    struct check_below_of_box<LessEqual, spherical_equatorial_tag>
-    {
-        static inline ReturnType apply(SegmentPoint const& p0,
-                                       SegmentPoint const& p1,
-                                       BoxPoint const& top_left,
-                                       BoxPoint const& top_right,
-                                       BoxPoint const& bottom_left,
-                                       BoxPoint const& bottom_right,
-                                       PSStrategy const& ps_strategy)
-        {
-            return check_below_of_box
-                    <
-                        LessEqual,
-                        geographic_tag
-                    >::apply(p0, p1,
-                             top_left, top_right,
-                             bottom_left, bottom_right,
-                             ps_strategy);
-        }
-    };
-
-    template <typename LessEqual>
-    struct check_below_of_box<LessEqual, geographic_tag>
-    {
-        static inline ReturnType apply(SegmentPoint const& p0,
-                                       SegmentPoint const& p1,
-                                       BoxPoint const&,
-                                       BoxPoint const& top_right,
-                                       BoxPoint const& bottom_left,
-                                       BoxPoint const& bottom_right,
-                                       PSStrategy const& ps_strategy)
-        {
-            ReturnType result;
-            typename other_compare<LessEqual>::type less_equal;
-
-            //geometry::model::box<SegmentPoint> mbr;
-            typedef geometry::model::segment<SegmentPoint> Segment;
-            Segment seg(p0, p1);
-
-            //TODO: do it for general Units
-            typedef geometry::model::box<BoxPoint> box;
-            box input_box = geometry::make<box>(geometry::get<0>(bottom_left),
-                                                geometry::get<1>(bottom_left),
-                                                geometry::get<0>(top_right),
-                                                geometry::get<1>(top_right));
-
-            geometry::strategy::azimuth::geographic<> azimuth_strategy;
-
-            SegmentPoint p_max;
-
-            std::size_t disjoint_result =
-                    geometry::detail::disjoint::
-                    disjoint_segment_box_sphere_or_spheroid<geographic_tag>::
-                    apply(seg,input_box,azimuth_strategy,p_max);
-
-            if (disjoint_result == 0) //intersect
-            {
-                return 0;
-            }
-            if (disjoint_result == 1) // disjoint but vertex not computed
-            {
-                typedef typename coordinate_type<SegmentPoint>::type CT;
-                geometry::model::box<SegmentPoint> mbr;
-                geometry::envelope(seg, mbr);
-
-                CT lon1 = geometry::get_as_radian<0>(p0);
-                CT lat1 = geometry::get_as_radian<1>(p0);
-                CT lon2 = geometry::get_as_radian<0>(p1);
-                CT lat2 = geometry::get_as_radian<1>(p1);
-
-                CT vertex_lat;
-                CT lat_sum = lat1 + lat2;
-                if (lat_sum > CT(0))
-                {
-                    vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(mbr);
-                } else {
-                    vertex_lat = geometry::get_as_radian<geometry::min_corner, 1>(mbr);
-                }
-
-                CT alp1;
-                azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
-                typedef typename cs_tag<Segment>::type segment_cs_type;
-                CT vertex_lon = geometry::formula::vertex_longitude<CT, segment_cs_type>
-                        ::apply(lon1, lat1,
-                                lon2, lat2,
-                                vertex_lat,
-                                alp1,
-                                azimuth_strategy);
-
-                geometry::set_from_radian<0>(p_max, vertex_lon);
-                geometry::set_from_radian<1>(p_max, vertex_lat);
-            }
-            //otherwise disjoint_result == 2 i.e. disjoint and vertex computed
-            //inside disjoint
-
-            if (less_equal(geometry::get_as_radian<0>(bottom_left),
-                           geometry::get_as_radian<0>(p_max)))
-            {
-                typedef cast_to_result<ReturnType> cast;
-                result = cast::apply(ps_strategy.apply(bottom_left, p0, p1));
-            }
-            else
-            {
-                result = above_of_box
-                        <
-                            typename other_compare<LessEqual>::type
-                        >::apply(p1, p0, p_max, bottom_right, ps_strategy);
-            }
-            return result;
-        }
-    };
-
     template <typename LessEqual>
     struct check_above_below_of_box
     {
@@ -654,14 +514,16 @@ private:
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
-                result = check_below_of_box
-                         <
-                            LessEqual,
-                            typename geometry::cs_tag<SegmentPoint>::type
-                         >::apply(p0, p1,
-                                  top_left, top_right,
-                                  bottom_left, bottom_right,
-                                  ps_strategy);
+                result = strategy::segment_below_of_box::services::default_strategy
+                    <
+                        LessEqual,
+                        ReturnType,
+                        PPStrategy,
+                        typename geometry::cs_tag<SegmentPoint>::type
+                    >::type::apply(p0, p1,
+                                   top_left, top_right,
+                                   bottom_left, bottom_right,
+                                   ps_strategy);
 
                 return true;
             }
@@ -855,6 +717,25 @@ public:
                                           top_left, top_right,
                                           bottom_left, bottom_right,
                                           pp_strategy, ps_strategy);
+    }
+
+    template <typename LessEqual>
+    static inline ReturnType call_above_of_box(SegmentPoint const& p0,
+                                               SegmentPoint const& p1,
+                                               SegmentPoint const& p_max,
+                                               BoxPoint const& top_left,
+                                               PSStrategy const& ps_strategy)
+    {
+        return above_of_box<LessEqual>::apply(p0, p1, p_max, top_left, ps_strategy);
+    }
+
+    template <typename LessEqual>
+    static inline ReturnType call_above_of_box(SegmentPoint const& p0,
+                                               SegmentPoint const& p1,
+                                               BoxPoint const& top_left,
+                                               PSStrategy const& ps_strategy)
+    {
+        return above_of_box<LessEqual>::apply(p0, p1, top_left, ps_strategy);
     }
 };
 

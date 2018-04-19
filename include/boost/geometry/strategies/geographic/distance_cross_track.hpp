@@ -29,6 +29,7 @@
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/geometry/formulas/vincenty_direct.hpp>
@@ -96,6 +97,9 @@ public :
           >
     {};
 
+    //Strategy getters
+    //TODO: construct a general mechanism for this
+
     struct distance_strategy
     {
         typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
@@ -106,6 +110,30 @@ public :
         typedef typename distance_strategy::type distance_type;
         return distance_type(m_spheroid);
     }
+
+    struct azimuth_strategy
+    {
+        typedef azimuth::geographic<FormulaPolicy, Spheroid, CalculationType> type;
+    };
+
+    inline typename azimuth_strategy::type get_azimuth_strategy() const
+    {
+        typedef typename azimuth_strategy::type azimuth_type;
+        return azimuth_type(m_spheroid);
+    }
+
+    struct envelope_segment_strategy
+    {
+        typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType> type;
+    };
+
+    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
+    {
+        typedef typename envelope_segment_strategy::type envelope_segment_type;
+        return envelope_segment_type(m_spheroid);
+    }
+
+    //
 
     explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)

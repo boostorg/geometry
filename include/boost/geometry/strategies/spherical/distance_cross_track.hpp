@@ -358,6 +358,28 @@ public :
         return m_strategy;
     }
 
+    struct azimuth_strategy
+    {
+        typedef azimuth::spherical<CalculationType> type;
+    };
+
+    inline typename azimuth_strategy::type get_azimuth_strategy() const
+    {
+        typedef typename azimuth_strategy::type azimuth_type;
+        return azimuth_type();
+    }
+
+    struct envelope_segment_strategy
+    {
+        typedef envelope::spherical_segment<CalculationType> type;
+    };
+
+    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
+    {
+        typedef typename envelope_segment_strategy::type envelope_segment_type;
+        return envelope_segment_type();
+    }
+
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -532,9 +554,42 @@ public :
     {}
 
     //TODO: apply a more general strategy getter
-    inline Strategy get_distance_strategy() const
+//    inline Strategy get_distance_strategy() const
+//    {
+//        return m_strategy;
+//    }
+
+    struct distance_strategy
     {
-        return m_strategy;
+        typedef haversine<double, CalculationType> type;
+    };
+
+    inline typename distance_strategy::type get_distance_strategy() const
+    {
+        typedef typename distance_strategy::type distance_type;
+        return distance_type(m_strategy);
+    }
+
+    struct azimuth_strategy
+    {
+        typedef azimuth::spherical<CalculationType> type;
+    };
+
+    inline typename azimuth_strategy::type get_azimuth_strategy() const
+    {
+        typedef typename azimuth_strategy::type azimuth_type;
+        return azimuth_type();
+    }
+
+    struct envelope_segment_strategy
+    {
+        typedef envelope::spherical_segment<CalculationType> type;
+    };
+
+    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
+    {
+        typedef typename envelope_segment_strategy::type envelope_segment_type;
+        return envelope_segment_type();
     }
 
     // It might be useful in the future
