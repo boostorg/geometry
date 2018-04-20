@@ -36,19 +36,20 @@ struct spherical
         ReturnType result;
         typename LessEqual::other less_equal;
 
-        //geometry::model::box<SegmentPoint> mbr;
         typedef geometry::model::segment<SegmentPoint> Segment;
         Segment seg(p0, p1);
 
-        //TODO: do it for general Units
-        typedef geometry::model::box<BoxPoint> box;
-        box input_box = geometry::make<box>(geometry::get<0>(bottom_left),
-                                            geometry::get<1>(bottom_left),
-                                            geometry::get<0>(top_right),
-                                            geometry::get<1>(top_right));
+        typedef geometry::model::box<BoxPoint> input_box;
+        geometry::set_from_radian<geometry::min_corner, 0>
+                (input_box, geometry::get_as_radian<0>(bottom_left));
+        geometry::set_from_radian<geometry::min_corner, 1>
+                (input_box, geometry::get_as_radian<1>(bottom_left));
+        geometry::set_from_radian<geometry::max_corner, 0>
+                (input_box, geometry::get_as_radian<0>(top_right));
+        geometry::set_from_radian<geometry::max_corner, 1>
+                (input_box, geometry::get_as_radian<1>(top_right));
 
         typedef typename cs_tag<Segment>::type segment_cs_type;
-
         SegmentPoint p_max;
 
         std::size_t disjoint_result =
@@ -84,17 +85,15 @@ struct spherical
             CT alp1;
             ps_strategy.get_azimuth_strategy().apply(lon1, lat1, lon2, lat2, alp1);
             CT vertex_lon = geometry::formula::vertex_longitude<CT, segment_cs_type>
-                    ::apply(lon1, lat1,
-                            lon2, lat2,
-                            vertex_lat,
-                            alp1,
-                            ps_strategy.get_azimuth_strategy());
+                            ::apply(lon1, lat1, lon2, lat2,
+                                    vertex_lat, alp1,
+                                    ps_strategy.get_azimuth_strategy());
 
             geometry::set_from_radian<0>(p_max, vertex_lon);
             geometry::set_from_radian<1>(p_max, vertex_lat);
         }
-        //otherwise disjoint_result == 2 i.e. disjoint and vertex computed
-        //inside disjoint
+        //otherwise disjoint_result == 2
+        //i.e. disjoint and vertex computed inside disjoint
 
         if (less_equal(geometry::get_as_radian<0>(bottom_left),
                        geometry::get_as_radian<0>(p_max)))
@@ -116,7 +115,6 @@ struct spherical
                     >(p1, p0, p_max, bottom_right, ps_strategy);
         }
         return result;
-
     }
 };
 
