@@ -32,6 +32,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/mirror_box.hpp>
 #include <boost/geometry/strategies/segment_below_of_box.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
@@ -739,69 +740,6 @@ public:
     }
 };
 
-//=========================================================================
-template <typename CS_Tag>
-struct mirror_geometries
-{
-    template <typename SPoint, typename BPoint>
-    static void apply(SPoint& p0,
-                      SPoint& p1,
-                      BPoint& bottom_left,
-                      BPoint& bottom_right,
-                      BPoint& top_left,
-                      BPoint& top_right)
-    {}
-};
-
-template <>
-struct mirror_geometries<spherical_equatorial_tag>
-{
-    template <typename SPoint, typename BPoint>
-    static void apply(SPoint& p0,
-                      SPoint& p1,
-                      BPoint& bottom_left,
-                      BPoint& bottom_right,
-                      BPoint& top_left,
-                      BPoint& top_right)
-    {
-        //if segment's vertex is the southest point then mirror geometries
-        if (geometry::get<1>(p0) + geometry::get<1>(p1) < 0)
-        {
-            BPoint bl = bottom_left;
-            BPoint br = bottom_right;
-            geometry::set<1>(p0, geometry::get<1>(p0) * -1);
-            geometry::set<1>(p1, geometry::get<1>(p1) * -1);
-            geometry::set<1>(bottom_left, geometry::get<1>(top_left) * -1);
-            geometry::set<1>(top_left, geometry::get<1>(bl) * -1);
-            geometry::set<1>(bottom_right, geometry::get<1>(top_right) * -1);
-            geometry::set<1>(top_right, geometry::get<1>(br) * -1);
-        }
-    }
-};
-
-template <>
-struct mirror_geometries<geographic_tag>
-{
-    template <typename SPoint, typename BPoint>
-    static void apply(SPoint& p0,
-                      SPoint& p1,
-                      BPoint& bottom_left,
-                      BPoint& bottom_right,
-                      BPoint& top_left,
-                      BPoint& top_right)
-    {
-        return mirror_geometries<spherical_equatorial_tag>::apply(p0, p1,
-                                                                  bottom_left,
-                                                                  bottom_right,
-                                                                  top_left,
-                                                                  top_right);
-    }
-};
-
-
-//=========================================================================
-
-
 template
 <
     typename Segment,
@@ -891,9 +829,12 @@ public:
         detail::assign_box_corners(box, bottom_left, bottom_right,
                                    top_left, top_right);
 
-        mirror_geometries<typename cs_tag<Box>::type>::apply(p[0], p[1],
-                                                             bottom_left, bottom_right,
-                                                             top_left, top_right);
+        strategy::mirror_box::services::default_strategy
+            <
+                typename geometry::cs_tag<Box>::type
+            >::type::apply(p[0], p[1],
+                           bottom_left, bottom_right,
+                           top_left, top_right);
 
         if (geometry::less<segment_point>()(p[0], p[1]))
         {

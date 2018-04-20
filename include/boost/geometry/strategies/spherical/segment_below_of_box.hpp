@@ -22,7 +22,7 @@ namespace strategy { namespace segment_below_of_box
 {
 
 template <typename LessEqual, typename ReturnType, typename PPStrategy>
-struct spherical
+struct spherical_or_geographic
 {
     template <typename SegmentPoint, typename BoxPoint, typename PSStrategy>
     static inline ReturnType apply(SegmentPoint const& p0,
@@ -39,7 +39,7 @@ struct spherical
         typedef geometry::model::segment<SegmentPoint> Segment;
         Segment seg(p0, p1);
 
-        typedef geometry::model::box<BoxPoint> input_box;
+        geometry::model::box<BoxPoint> input_box;
         geometry::set_from_radian<geometry::min_corner, 0>
                 (input_box, geometry::get_as_radian<0>(bottom_left));
         geometry::set_from_radian<geometry::min_corner, 1>
@@ -125,7 +125,7 @@ namespace services
 template <typename LessEqual, typename ReturnType, typename PPStrategy>
 struct default_strategy<LessEqual, ReturnType, PPStrategy, spherical_equatorial_tag>
 {
-    typedef spherical<LessEqual, ReturnType, PPStrategy> type;
+    typedef spherical_or_geographic<LessEqual, ReturnType, PPStrategy> type;
 };
 
 }

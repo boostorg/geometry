@@ -31,8 +31,11 @@ struct geographic
                                    BoxPoint const& bottom_right,
                                    PSStrategy const& ps_strategy)
     {
-        return spherical<LessEqual, ReturnType, PPStrategy>::
-                apply(p0, p1, top_left, top_right, bottom_left, bottom_right, ps_strategy);
+        return spherical_or_geographic<LessEqual, ReturnType, PPStrategy>::
+                   apply(p0, p1,
+                         top_left, top_right,
+                         bottom_left, bottom_right,
+                         ps_strategy);
     }
 };
 
