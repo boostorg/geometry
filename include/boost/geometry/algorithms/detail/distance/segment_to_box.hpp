@@ -357,51 +357,26 @@ private:
 
             LessEqual less_equal;
 
-            /*
-            if (less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)))
-            {
-                // closest box point is the top-right corner
-                //return cast::apply(pp_strategy.apply(p0, top_right));
-                return cast::apply(ps_strategy.apply(top_right, p0, p1));
-            }
-            else*/
             if (less_equal(geometry::get<1>(bottom_right), geometry::get<1>(p0)))
             {
-                //meridian segment & crosses band
-                if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
-                {/*
-                    if (math::abs(geometry::get<1>(p0)) > math::abs(geometry::get<1>(p1)))
+                //if p0 is in box's band
+                if (less_equal(geometry::get<1>(p0), geometry::get<1>(top_right)))
+                {
+                    //meridian segment & crosses band (TODO:merge with box-box dist)
+                    if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
                     {
-                        return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                        SegmentPoint high = geometry::get<1>(p1) > geometry::get<1>(p0) ? p1 : p0;
+                        if (less_equal(geometry::get<1>(high), geometry::get<1>(top_right)))
+                        {
+                            return cast::apply(ps_strategy.apply(high, bottom_right, top_right));
+                        }
+                        return cast::apply(ps_strategy.apply(top_right, p0, p1));
                     }
-                    return cast::apply(ps_strategy.apply(p1, bottom_right, top_right));
-
-                   */
-                    return std::min(
-                                cast::apply(ps_strategy.apply(p0, bottom_right, top_right)),
-                                cast::apply(ps_strategy.apply(p1, bottom_right, top_right))
-                                );
+                    return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
                 }
-
-                return std::min(
-                            cast::apply(ps_strategy.apply(top_right, p0, p1)),
-                            cast::apply(ps_strategy.apply(p0, bottom_right, top_right))
-                            );
-
-
-                // distance is realized between p0 and right-most
-                // segment of box
-                //ReturnType diff =
-                //ps_strategy.get_distance_strategy().apply(p0, bottom_right);
-                ///return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
-                //ReturnType diff =
-                //ps_strategy.get_distance_strategy().template coordinate<0>(p0, bottom_right);
-                //ReturnType diff = cast::apply(geometry::get<0>(p0))
-                //    - cast::apply(geometry::get<0>(bottom_right));
-                //return strategy::distance::services::result_from_distance
-                //    <
-                //        PSStrategy, BoxPoint, SegmentPoint
-                //    >::apply(ps_strategy, math::abs(diff));
+                // distance is realized between the top-right
+                // corner of the box and the segment
+                return cast::apply(ps_strategy.apply(top_right, p0, p1));
             }
             else
             {
