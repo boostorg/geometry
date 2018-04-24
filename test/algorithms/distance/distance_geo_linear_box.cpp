@@ -8,8 +8,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -53,29 +51,6 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, sty
 typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
         vincenty_ps;
 
-// Strategies for point-box distance
-
-typedef bg::strategy::distance::geographic_cross_track_point_box
-        <
-            bg::strategy::andoyer,
-            stype,
-            double
-        > andoyer_pb;
-
-typedef bg::strategy::distance::geographic_cross_track_point_box
-        <
-            bg::strategy::thomas,
-            stype,
-            double
-        > thomas_pb;
-
-typedef bg::strategy::distance::geographic_cross_track_point_box
-        <
-            bg::strategy::vincenty,
-            stype,
-            double
-        > vincenty_pb;
-
 //===========================================================================
 
 template <typename Strategy>
@@ -104,10 +79,9 @@ ps_distance(std::string const& wkt1,
 }
 
 
-template <typename Strategy_pp, typename Strategy_ps, typename Strategy_pb>
+template <typename Strategy_pp, typename Strategy_ps>
 void test_distance_segment_box(Strategy_pp const& strategy_pp,
-                               Strategy_ps const& strategy_ps,
-                               Strategy_pb const& strategy_pb)
+                               Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -357,7 +331,7 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
-    test_distance_segment_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
-    test_distance_segment_box(thomas_pp(), thomas_ps(), thomas_pb());
-    test_distance_segment_box(andoyer_pp(), andoyer_ps(), andoyer_pb());
+    test_distance_segment_box(vincenty_pp(), vincenty_ps());
+    test_distance_segment_box(thomas_pp(), thomas_ps());
+    test_distance_segment_box(andoyer_pp(), andoyer_ps());
 }
