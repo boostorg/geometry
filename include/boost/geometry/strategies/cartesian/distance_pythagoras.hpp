@@ -119,7 +119,7 @@ public :
     }
 
     template <typename CT>
-    inline CT meridian(CT const& lat1, CT const& lat2) const
+    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
     {
         return lat1 - lat2;
     }
@@ -194,7 +194,7 @@ public :
     }
 
     template <typename CT>
-    inline CT meridian(CT const& lat1, CT const& lat2) const
+    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
     {
         return lat1 - lat2;
     }

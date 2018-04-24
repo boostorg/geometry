@@ -41,7 +41,6 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -362,7 +361,7 @@ private:
                 //if p0 is in box's band
                 if (less_equal(geometry::get<1>(p0), geometry::get<1>(top_right)))
                 {
-                    //meridian segment & crosses band (TODO:merge with box-box dist)
+                    // segment & crosses band (TODO:merge with box-box dist)
                     if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
                     {
                         SegmentPoint high = geometry::get<1>(p1) > geometry::get<1>(p0) ? p1 : p0;
@@ -399,6 +398,7 @@ private:
                                        BoxPoint const& top_left,
                                        PSStrategy const& ps_strategy)
         {
+            boost::ignore_unused(ps_strategy);
             return apply(p0, p1, p0, top_left, ps_strategy);
         }
 
@@ -413,11 +413,11 @@ private:
             LessEqual less_equal;
 
             // p0 is above the upper segment of the box (and inside its band)
-            // then compute the vertical (meridian) distance
+            // then compute the vertical (i.e. meridian for spherical) distance
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
                 ReturnType diff =
-                ps_strategy.get_distance_strategy().meridian(
+                ps_strategy.get_distance_strategy().vertical_or_meridian(
                                     geometry::get_as_radian<1>(p_max),
                                     geometry::get_as_radian<1>(top_left));
 
@@ -714,6 +714,8 @@ public:
         return above_of_box<LessEqual>::apply(p0, p1, top_left, ps_strategy);
     }
 };
+
+//=========================================================================
 
 template
 <

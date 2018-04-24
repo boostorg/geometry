@@ -107,7 +107,7 @@ public :
     }
 
     template <typename T1, typename T2>
-    inline radius_type meridian(T1 lat1, T2 lat2) const
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
     {
         return m_radius * (lat1 - lat2);
     }
@@ -217,7 +217,7 @@ public :
     */
 
     template <typename T1, typename T2>
-    inline radius_type meridian(T1 lat1, T2 lat2) const
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
     {
         return m_radius * (lat1 - lat2);
     }

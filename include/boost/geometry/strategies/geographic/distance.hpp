@@ -144,7 +144,7 @@ public :
 
     // points on a meridian not crossing poles
     template <typename CT>
-    inline CT meridian(CT lat1, CT lat2) const
+    inline CT vertical_or_meridian(CT lat1, CT lat2) const
     {
         typedef typename formula::elliptic_arc_length
                 <
