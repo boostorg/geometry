@@ -45,12 +45,19 @@
 namespace bg = ::boost::geometry;
 
 //===================================================================
-//tag dispatching for swaping arguments in segments
 
 template <typename Tag> struct dispatch
 {
+    //tag dispatching for swaping arguments in segments
     template <typename T>
     static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    // mirror geometry w.r.t. equator
+    template <typename T>
+    static inline T mirror(T const& t)
     {
         return t;
     }
@@ -70,6 +77,64 @@ template <> struct dispatch<boost::geometry::segment_tag>
         bg::set<1, 1>(s_swaped, bg::get<0, 1>(s));
 
         return s_swaped;
+    }
+
+    template <typename Segment>
+    static inline Segment mirror(Segment const& s)
+    {
+        Segment s_mirror;
+
+        bg::set<0, 0>(s_mirror, bg::get<0, 0>(s));
+        bg::set<0, 1>(s_mirror, bg::get<0, 1>(s) * -1);
+        bg::set<1, 0>(s_mirror, bg::get<1, 0>(s));
+        bg::set<1, 1>(s_mirror, bg::get<1, 1>(s) * -1);
+
+        return s_mirror;
+    }
+};
+
+// Specialization for boxes
+template <> struct dispatch<boost::geometry::box_tag>
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    template <typename Box>
+    static inline Box mirror(Box const& b)
+    {
+        Box b_mirror;
+
+        bg::set<0, 0>(b_mirror, bg::get<bg::min_corner, 0>(b));
+        bg::set<0, 1>(b_mirror, bg::get<bg::max_corner, 1>(b) * -1);
+        bg::set<1, 0>(b_mirror, bg::get<bg::max_corner, 0>(b));
+        bg::set<1, 1>(b_mirror, bg::get<bg::min_corner, 1>(b) * -1);
+
+        return b_mirror;
+    }
+};
+
+
+// Specialization for points
+template <> struct dispatch<boost::geometry::point_tag>
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    template <typename Point>
+    static inline Point mirror(Point const& p)
+    {
+        Point p_mirror;
+
+        bg::set<0>(p_mirror, bg::get<0>(p));
+        bg::set<1>(p_mirror, bg::get<1>(p) * -1);
+
+        return p_mirror;
     }
 };
 
@@ -133,14 +198,16 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                DistanceType const& expected_distance,
                Strategy const& strategy,
                bool test_reversed = true,
-               bool swap_geometry_args = false)
+               bool swap_geometry_args = false,
+               bool mirror_geometry = true)
     {
         Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
         apply(case_id, geometry1, geometry2,
               expected_distance,
-              strategy, test_reversed, swap_geometry_args);
+              strategy, test_reversed, swap_geometry_args,
+              mirror_geometry);
     }
 
 
@@ -156,7 +223,8 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                DistanceType const& expected_distance,
                Strategy const& strategy,
                bool test_reversed = true,
-               bool swap_geometry_args = false)
+               bool swap_geometry_args = false,
+               bool mirror_geometry = true)
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "case ID: " << case_id << "; "
@@ -272,7 +340,35 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                       << std::endl;
             std::cout << std::endl;
 #endif
-         }
+        }
+        if (mirror_geometry)
+        {
+            Geometry1 g1 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry1>::type
+                >::mirror(geometry1);
+
+            Geometry2 g2 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry2>::type
+                >::mirror(geometry2);
+
+            // check distance with given strategy
+            dist = bg::distance(g1, g2, strategy);
+
+            check_equal
+                <
+                    default_distance_result
+                >::apply(case_id, "mirror", g1, g2,
+                         dist, expected_distance);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "distance[mirror geometries] = "
+                      << dist
+                      << std::endl;
+            std::cout << std::endl;
+#endif
+        }
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << std::endl;
 #endif

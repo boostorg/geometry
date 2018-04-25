@@ -20,6 +20,7 @@
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/meridian_segment.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {

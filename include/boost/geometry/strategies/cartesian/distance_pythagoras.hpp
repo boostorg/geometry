@@ -105,6 +105,24 @@ public :
                 typename calculation_type<Point1, Point2>::type
             >::apply(p1, p2);
     }
+
+    template <unsigned int Index, typename Point1, typename Point2>
+    inline typename calculation_type<Point1, Point2>::type
+    coordinate(Point1 const& p1, Point2 const& p2)
+    {
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point1>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point2>) );
+
+        assert_dimension_equal<Point1, Point2>();
+
+        return geometry::get<Index>(p1) - geometry::get<Index>(p2);
+    }
+
+    template <typename CT>
+    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
+    {
+        return lat1 - lat2;
+    }
 };
 
 } // namespace comparable
@@ -161,6 +179,24 @@ public :
                         comparable::pythagoras<CalculationType>::apply(p1, p2)
                     )
             );
+    }
+
+    template <unsigned int Index, typename Point1, typename Point2>
+    inline typename calculation_type<Point1, Point2>::type
+    coordinate(Point1 const& p1, Point2 const& p2)
+    {
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point1>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point2>) );
+
+        assert_dimension_equal<Point1, Point2>();
+
+        return geometry::get<Index>(p1) - geometry::get<Index>(p2);
+    }
+
+    template <typename CT>
+    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
+    {
+        return lat1 - lat2;
     }
 };
 

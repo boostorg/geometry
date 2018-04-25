@@ -35,13 +35,12 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
+#include <boost/geometry/formulas/meridian_segment.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
-
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -168,17 +167,17 @@ private:
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
 
+        if (math::equals(a1, a2))
+        {
+            // the segment must lie on the equator or is very short or is meridian
+            return;
+        }
+
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);
             std::swap(lat1_rad, lat2_rad);
             std::swap(a1, a2);
-        }
-
-        if (math::equals(a1, a2))
-        {
-            // the segment must lie on the equator or is very short
-            return;
         }
 
         if (contains_pi_half(a1, a2))
@@ -354,8 +353,7 @@ private:
         CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
         CalculationType alp2;
-        strategy.apply(lon2_rad, lat2_rad, lon1_rad, lat1_rad, alp2);
-        alp2 += math::pi<CalculationType>();
+        strategy.apply<false, true>(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp1, alp2);
 
         compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
     }
