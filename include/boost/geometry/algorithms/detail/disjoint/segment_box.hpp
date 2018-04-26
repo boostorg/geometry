@@ -72,7 +72,6 @@ public:
     {
         typedef typename point_type<Segment>::type segment_point;
         segment_point vertex;
-
         return (apply(segment, box, azimuth_strategy, vertex) > 0);
     }
 
@@ -93,6 +92,8 @@ public:
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
+
+        std::size_t disjoint_return_value = 1; //vertex not computed here
 
         // Simplest cases first
 
@@ -138,7 +139,7 @@ public:
 
         if (disjoint_box_box(box, box_seg))
         {
-            return 1;
+            return disjoint_return_value;
         }
 
         // Case 3: test intersection by comparing angles
@@ -155,13 +156,11 @@ public:
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_max, a_b3);
 
-        bool b0 = alp1 > a_b0;
-        bool b1 = alp1 > a_b1;
-        bool b2 = alp1 > a_b2;
-        bool b3 = alp1 > a_b3;
+        bool b0 = formula::azimuth_side_value(alp1, a_b0) > 0;
+        bool b1 = formula::azimuth_side_value(alp1, a_b1) > 0;
+        bool b2 = formula::azimuth_side_value(alp1, a_b2) > 0;
+        bool b3 = formula::azimuth_side_value(alp1, a_b3) > 0;
 
-        // if not all box points on the same side of the segment then
-        // there is an intersection
         if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
             return 0;
@@ -174,8 +173,8 @@ public:
         CT vertex_lat;
         CT lat_sum = lat1 + lat2;
 
-        if ((b0 && b1 && b2 && b3 && lat_sum > CT(0))
-                || (!(b0 && b1 && b2 && b3) && lat_sum < CT(0)))
+        if ((lat1 < b_lat_min && lat_sum > CT(0))
+                || (lat1 > b_lat_max && lat_sum < CT(0)))
         {
             CT b_lat_below; //latitude of box closest to equator
 
@@ -199,6 +198,7 @@ public:
 
             geometry::set_from_radian<0>(vertex, vertex_lon);
             geometry::set_from_radian<1>(vertex, vertex_lat);
+            disjoint_return_value = 2; //vertex_computed
 
             // Check if the vertex point is within the band defined by the
             // minimum and maximum longitude of the box; if yes, then return
@@ -211,7 +211,7 @@ public:
             }
         }
 
-        return 2;
+        return disjoint_return_value;
     }
 };
 

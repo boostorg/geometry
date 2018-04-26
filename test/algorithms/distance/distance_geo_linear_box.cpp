@@ -322,7 +322,19 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
                   ps_distance("POINT(10 -20)", "SEGMENT(10 -30, 15 -30)", strategy_ps),
                   strategy_ps);
 
-
+    //Segments in boxes corner
+    tester::apply("corner1", "SEGMENT(17 21, 25 20)", box_north,
+                  ps_distance("POINT(20 20)", "SEGMENT(17 21, 25 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner2", "SEGMENT(17 21, 0 20)", box_north,
+                  ps_distance("POINT(10 20)", "SEGMENT(17 21, 0 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner3", "SEGMENT(17 5, 0 10)", box_north,
+                  ps_distance("POINT(10 10)", "SEGMENT(17 5, 0 10)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner4", "SEGMENT(17 5, 25 9)", box_north,
+                  ps_distance("POINT(20 10)", "SEGMENT(17 5, 25 9)", strategy_ps),
+                  strategy_ps);
 }
 
 //===========================================================================
