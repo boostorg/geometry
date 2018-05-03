@@ -28,6 +28,7 @@ typedef bg::model::point<double, 2, cs_type> point_type;
 typedef bg::model::multi_point<point_type> multi_point_type;
 typedef bg::model::segment<point_type> segment_type;
 typedef bg::model::linestring<point_type> linestring_type;
+typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 typedef bg::model::box<point_type> box_type;
 
 namespace services = bg::strategy::distance::services;
@@ -322,11 +323,24 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
     tester::apply("test_south1", "SEGMENT(10 -30, 15 -30)", box_south,
                   ps_distance("POINT(10 -20)", "SEGMENT(10 -30, 15 -30)", strategy_ps),
                   strategy_ps);
+
+    //Segments in boxes corner
+    tester::apply("corner1", "SEGMENT(17 21, 25 20)", box_north,
+                  ps_distance("POINT(20 20)", "SEGMENT(17 21, 25 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner2", "SEGMENT(17 21, 0 20)", box_north,
+                  ps_distance("POINT(10 20)", "SEGMENT(17 21, 0 20)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner3", "SEGMENT(17 5, 0 10)", box_north,
+                  ps_distance("POINT(10 10)", "SEGMENT(17 5, 0 10)", strategy_ps),
+                  strategy_ps);
+    tester::apply("corner4", "SEGMENT(17 5, 25 9)", box_north,
+                  ps_distance("POINT(20 10)", "SEGMENT(17 5, 25 9)", strategy_ps),
+                  strategy_ps);
 }
 
-template <typename Strategy_pp, typename Strategy_ps>
-void test_distance_linestring_box(Strategy_pp const& strategy_pp,
-                                  Strategy_ps const& strategy_ps)
+template <typename Strategy_ps>
+void test_distance_linestring_box(Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -337,10 +351,34 @@ void test_distance_linestring_box(Strategy_pp const& strategy_pp,
 
     std::string const box_north = "BOX(10 10,20 20)";
 
-    tester::apply("sb1-1a", "LINESTRING(0 20, 15 21, 25 19.9)", box_north,
+    tester::apply("sl1", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)", box_north,
                   ps_distance("POINT(20 20)", "SEGMENT(15 21, 25 19.9)", strategy_ps),
-                  strategy_ps);
+                  strategy_ps, true, false, false);
+
+    tester::apply("sl2", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 15 15)", box_north,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("sl3", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 2 20)", box_north,
+                  0, strategy_ps, true, false, false);
 }
+
+template <typename Strategy_ps>
+void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multi_linestring/box distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<multi_linestring_type, box_type> tester;
+
+    std::string const box_north = "BOX(10 10,20 20)";
+
+    tester::apply("sl1", "MULTILINESTRING((0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)(25 20, 22 4, 0 0))", box_north,
+                  ps_distance("POINT(20 20)", "SEGMENT(15 21, 25 19.9)", strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
 
 //===========================================================================
 //===========================================================================
@@ -352,7 +390,11 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_segment_box(thomas_pp(), thomas_ps());
     test_distance_segment_box(andoyer_pp(), andoyer_ps());
 
-    test_distance_linestring_box(vincenty_pp(), vincenty_ps());
-    test_distance_linestring_box(thomas_pp(), thomas_ps());
-    test_distance_linestring_box(andoyer_pp(), andoyer_ps());
+    test_distance_linestring_box(vincenty_ps());
+    test_distance_linestring_box(thomas_ps());
+    test_distance_linestring_box(andoyer_ps());
+
+    test_distance_multi_linestring_box(vincenty_ps());
+    test_distance_multi_linestring_box(thomas_ps());
+    test_distance_multi_linestring_box(andoyer_ps());
 }

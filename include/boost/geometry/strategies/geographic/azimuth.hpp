@@ -54,8 +54,8 @@ public :
 
     template
     <
-        bool EnableAzimuth = true,
-        bool EnableReverseAzimuth = true,
+        bool EnableAzimuth,
+        bool EnableReverseAzimuth,
         typename T
     >
     inline void apply(T const& lon1_rad, T const& lat1_rad,
@@ -95,7 +95,9 @@ public :
                       T const& lon2_rad, T const& lat2_rad,
                       T& a1) const
     {
-        apply<true, false>(lon1_rad, lat1_rad, lon2_rad, lat2_rad, a1, a1);
+        apply<true, false>(lon1_rad, lat1_rad,
+                           lon2_rad, lat2_rad,
+                           a1, a1);
     }
 
 private :

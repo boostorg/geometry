@@ -333,7 +333,7 @@ private:
         CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
         CalculationType alp1, alp2;
-        strategy.apply(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp1, alp2);
+        strategy.apply<true, true>(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp1, alp2);
 
         compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
     }
