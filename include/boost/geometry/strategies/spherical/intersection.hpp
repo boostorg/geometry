@@ -695,6 +695,7 @@ private:
         {
             if (is_near_b1 && sides.template get<1, 0>() == 0) // b1 wrt a
             {
+                calculate_dist(a1v, a2v, plane1, b1v, dist_a1_ip); // for consistency
                 dist_b1_ip = 0;
                 //i1 = b1v;
                 ip_flag = ipi_at_b1;
@@ -703,6 +704,7 @@ private:
 
             if (is_near_b2 && sides.template get<1, 1>() == 0) // b2 wrt a
             {
+                calculate_dist(a1v, a2v, plane1, b2v, dist_a1_ip); // for consistency
                 dist_b1_ip = dist_b1_b2;
                 //i1 = b2v;
                 ip_flag = ipi_at_b2;
@@ -715,6 +717,7 @@ private:
             if (is_near_a1 && sides.template get<0, 0>() == 0) // a1 wrt b
             {
                 dist_a1_ip = 0;
+                calculate_dist(b1v, b2v, plane2, a1v, dist_b1_ip); // for consistency
                 //i1 = a1v;
                 ip_flag = ipi_at_a1;
                 return true;
@@ -723,6 +726,7 @@ private:
             if (is_near_a2 && sides.template get<0, 1>() == 0) // a2 wrt b
             {
                 dist_a1_ip = dist_a1_a2;
+                calculate_dist(b1v, b2v, plane2, a2v, dist_b1_ip); // for consistency
                 //i1 = a2v;
                 ip_flag = ipi_at_a2;
                 return true;
