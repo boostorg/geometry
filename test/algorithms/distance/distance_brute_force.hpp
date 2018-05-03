@@ -250,6 +250,36 @@ struct distance_brute_force
 > : detail::distance_brute_force::distance_from_bg
 {};
 
+template
+<
+    typename Linear,
+    typename Box,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Linear, Box, Strategy,
+    linear_tag, box_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Linear, Box, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Linear const& linear,
+                                      Box const& box,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                detail::distance_brute_force::distance_from_bg
+            >::apply(box,
+                     geometry::segments_begin(linear),
+                     geometry::segments_end(linear),
+                     strategy);
+    }
+};
 
 template
 <
