@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -12,10 +12,10 @@
 #define BOOST_TEST_MODULE test_distance_geographic_pl_l
 #endif
 
-//#include <boost/geometry/core/srs.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_geo_common.hpp"
+#include "test_empty_geometry.hpp"
 
 typedef bg::cs::geographic<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
@@ -49,6 +49,25 @@ pp_distance(std::string const& wkt1,
 //===========================================================================
 
 template <typename Strategy>
+void test_distance_point_point(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/point distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, point_type> tester;
+
+    tester::apply("p-p-01",
+                  "POINT(1 1)",
+                  "POINT(0 0)",
+                  strategy.apply(point_type(1,1), point_type(0,0)),
+                  strategy, true, false, false);
+}
+
+//===========================================================================
+
+template <typename Strategy>
 void test_distance_multipoint_point(Strategy const& strategy)
 {
 
@@ -73,30 +92,21 @@ void test_distance_multipoint_point(Strategy const& strategy)
 
 //===========================================================================
 
-template <typename Point, typename Strategy>
-void test_empty_input_pointlike_linear(Strategy const& strategy)
+template <typename Strategy>
+void test_distance_multipoint_multipoint(Strategy const& strategy)
 {
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
-    std::cout << "testing on empty inputs... " << std::flush;
+    std::cout << "multipoint/multipoint distance tests" << std::endl;
 #endif
-    bg::model::multi_point<Point> multipoint_empty;
-    Point point_empty;
+    typedef test_distance_of_geometries<multi_point_type, multi_point_type> tester;
 
-    Point point = from_wkt<Point>("POINT(0 0)");
-
-    // 1st geometry is empty
-    test_empty_input(multipoint_empty, point, strategy);
-
-    // 2nd geometry is empty
-    test_empty_input(point, multipoint_empty, strategy);
-
-    // both geometries are empty
-    test_empty_input(multipoint_empty, point_empty, strategy);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "done!" << std::endl;
-#endif
+    tester::apply("mp-mp-01",
+                  "MULTIPOINT(1 1,1 2,2 3)",
+                  "MULTIPOINT(0 0, 0 -1)",
+                  pp_distance("POINT(0 0)","POINT(1 1)",strategy),
+                  strategy, true, false, false);
 }
 
 //===========================================================================
@@ -105,11 +115,19 @@ void test_empty_input_pointlike_linear(Strategy const& strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_point_segment )
 {
+    test_distance_point_point(vincenty());
+    test_distance_point_point(thomas());
+    test_distance_point_point(andoyer());
+
     test_distance_multipoint_point(vincenty());
     test_distance_multipoint_point(thomas());
     test_distance_multipoint_point(andoyer());
 
-    test_empty_input_pointlike_linear<point_type>(vincenty());
-    test_empty_input_pointlike_linear<point_type>(thomas());
-    test_empty_input_pointlike_linear<point_type>(andoyer());
+    test_distance_multipoint_multipoint(vincenty());
+    test_distance_multipoint_multipoint(thomas());
+    test_distance_multipoint_multipoint(andoyer());
+
+    test_more_empty_input_pointlike_pointlike<point_type>(vincenty());
+    test_more_empty_input_pointlike_pointlike<point_type>(thomas());
+    test_more_empty_input_pointlike_pointlike<point_type>(andoyer());
 }

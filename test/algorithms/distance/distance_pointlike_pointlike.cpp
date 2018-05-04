@@ -17,6 +17,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_common.hpp"
+#include "test_empty_geometry.hpp"
 
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
@@ -93,33 +94,6 @@ void test_distance_multipoint_multipoint(Strategy const& strategy)
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
                   "multipoint(2 2,2 3,3 2,3 3)",
                   sqrt(2.0), 2, strategy);
-}
-
-//===========================================================================
-
-template <typename Point, typename Strategy>
-void test_more_empty_input_pointlike_pointlike(Strategy const& strategy)
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
-    std::cout << "testing on empty inputs... " << std::flush;
-#endif
-    bg::model::multi_point<Point> multipoint_empty;
-
-    Point point = from_wkt<Point>("point(0 0)");
-
-    // 1st geometry is empty
-    test_empty_input(multipoint_empty, point, strategy);
-
-    // 2nd geometry is empty
-    test_empty_input(point, multipoint_empty, strategy);
-
-    // both geometries are empty
-    test_empty_input(multipoint_empty, multipoint_empty, strategy);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "done!" << std::endl;
-#endif
 }
 
 //===========================================================================
