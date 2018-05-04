@@ -9,7 +9,7 @@
 // http://www.boost.org/users/license.html
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_geographic_pl_l
+#define BOOST_TEST_MODULE test_distance_geographic_pointlike_pointlike
 #endif
 
 #include <boost/test/included/unit_test.hpp>

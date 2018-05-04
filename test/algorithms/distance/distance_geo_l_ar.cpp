@@ -11,7 +11,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_geographic_linear_box
+#define BOOST_TEST_MODULE test_distance_geographic_linear_areal
 #endif
 
 #include <boost/range.hpp>

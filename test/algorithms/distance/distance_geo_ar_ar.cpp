@@ -11,7 +11,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_geographic_box_box
+#define BOOST_TEST_MODULE test_distance_geographic_areal_areal
 #endif
 
 #include <boost/range.hpp>

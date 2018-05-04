@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2016, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -13,7 +14,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_spherical_equatorial_pl_l
+#define BOOST_TEST_MODULE test_distance_spherical_equatorial_pointlike_linear
 #endif
 
 #include <boost/test/included/unit_test.hpp>

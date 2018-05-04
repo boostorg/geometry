@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2016-2017, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -9,7 +9,7 @@
 // http://www.boost.org/users/license.html
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_geographic_pl_l
+#define BOOST_TEST_MODULE test_distance_geographic_pointlike_linear
 #endif
 
 #include <boost/geometry/srs/spheroid.hpp>
