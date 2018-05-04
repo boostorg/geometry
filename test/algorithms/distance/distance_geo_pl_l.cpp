@@ -16,6 +16,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_geo_common.hpp"
+#include "test_empty_geometry.hpp"
 
 typedef bg::cs::geographic<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
@@ -640,39 +641,6 @@ void test_distance_multipoint_segment(Strategy_pp const& strategy_pp,
 }
 
 //===========================================================================
-
-template <typename Point, typename Strategy>
-void test_empty_input_pointlike_linear(Strategy const& strategy)
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
-    std::cout << "testing on empty inputs... " << std::flush;
-#endif
-    bg::model::linestring<Point> line_empty;
-    bg::model::multi_point<Point> multipoint_empty;
-    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
-
-    Point point = from_wkt<Point>("POINT(0 0)");
-    bg::model::linestring<Point> line =
-        from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
-
-    // 1st geometry is empty
-    test_empty_input(multipoint_empty, line, strategy);
-
-    // 2nd geometry is empty
-    test_empty_input(point, line_empty, strategy);
-    test_empty_input(point, multiline_empty, strategy);
-
-    // both geometries are empty
-    test_empty_input(multipoint_empty, line_empty, strategy);
-    test_empty_input(multipoint_empty, multiline_empty, strategy);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "done!" << std::endl;
-#endif
-}
-
-//===========================================================================
 //===========================================================================
 //===========================================================================
 
@@ -707,8 +675,8 @@ BOOST_AUTO_TEST_CASE( test_all_point_segment )
     test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
     test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
 
-    test_empty_input_pointlike_linear<point_type>(vincenty_strategy());
-    test_empty_input_pointlike_linear<point_type>(thomas_strategy());
-    test_empty_input_pointlike_linear<point_type>(andoyer_strategy());
+    test_more_empty_input_pointlike_linear<point_type>(vincenty_strategy());
+    test_more_empty_input_pointlike_linear<point_type>(thomas_strategy());
+    test_more_empty_input_pointlike_linear<point_type>(andoyer_strategy());
 
 }

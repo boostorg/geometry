@@ -36,4 +36,35 @@ void test_more_empty_input_pointlike_pointlike(Strategy const& strategy)
 #endif
 }
 
+template <typename Point, typename Strategy>
+void test_more_empty_input_pointlike_linear(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "testing on empty inputs... " << std::flush;
+#endif
+    bg::model::linestring<Point> line_empty;
+    bg::model::multi_point<Point> multipoint_empty;
+    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
+
+    Point point = from_wkt<Point>("POINT(0 0)");
+    bg::model::linestring<Point> line =
+        from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
+
+    // 1st geometry is empty
+    test_empty_input(multipoint_empty, line, strategy);
+
+    // 2nd geometry is empty
+    test_empty_input(point, line_empty, strategy);
+    test_empty_input(point, multiline_empty, strategy);
+
+    // both geometries are empty
+    test_empty_input(multipoint_empty, line_empty, strategy);
+    test_empty_input(multipoint_empty, multiline_empty, strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << "done!" << std::endl;
+#endif
+}
+
 #endif // BOOST_GEOMETRY_TEST_EMPTY_GEOMETRY_HPP
