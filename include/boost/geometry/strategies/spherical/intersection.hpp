@@ -421,23 +421,19 @@ struct ecef_segments
             {
                 calc_t dist_a1_b1, dist_a1_b2;
                 calc_t dist_b1_a1, dist_b1_a2;
-                // use shorter segment
-                if (len1 <= len2)
-                {
-                    calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b1v, b2v, dist_a1_a2, dist_a1_b1);
-                    calculate_collinear_data(a1, a2, b2, b1, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
-                    dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
-                    dist_b1_a1 = -dist_a1_b1;
-                    dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
-                }
-                else
-                {
-                    calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a1v, a2v, dist_b1_b2, dist_b1_a1);
-                    calculate_collinear_data(b1, b2, a2, a1, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
-                    dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
-                    dist_a1_b1 = -dist_b1_a1;
-                    dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
-                }
+                calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b1v, b2v, dist_a1_a2, dist_a1_b1);
+                calculate_collinear_data(a1, a2, b2, b1, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
+                calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a1v, a2v, dist_b1_b2, dist_b1_a1);
+                calculate_collinear_data(b1, b2, a2, a1, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
+                // NOTE: The following optimization causes problems with consitency
+                // It may either be caused by numerical issues or the way how distance is coded:
+                //   as cosine of angle scaled and translated, see: calculate_dist()
+                /*dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
+                dist_b1_a1 = -dist_a1_b1;
+                dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
+                dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
+                dist_a1_b1 = -dist_b1_a1;
+                dist_a1_b2 = dist_b1_b2 - dist_b1_a1;*/
 
                 segment_ratio<calc_t> ra_from(dist_b1_a1, dist_b1_b2);
                 segment_ratio<calc_t> ra_to(dist_b1_a2, dist_b1_b2);
