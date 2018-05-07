@@ -484,7 +484,7 @@ void test_distance_multipoint_segment(Strategy const& strategy)
 //===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
     test_distance_point_segment(point_segment_strategy());
     test_distance_point_segment(point_segment_strategy(earth_radius_km));

@@ -547,7 +547,7 @@ void test_distance_box_box_deg(Strategy_pp const& strategy_pp,
 
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_areal_areal )
 {
     test_distance_box_box(vincenty_pp(), vincenty_ps(), vincenty_bb());
     test_distance_box_box(thomas_pp(), thomas_ps(), thomas_bb());

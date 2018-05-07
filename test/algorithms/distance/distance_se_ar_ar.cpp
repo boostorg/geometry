@@ -520,7 +520,7 @@ void test_distance_box_box_negative(Strategy const& strategy)
                   strategy);
 }
 
-BOOST_AUTO_TEST_CASE( test_box_box )
+BOOST_AUTO_TEST_CASE( test_all_areal_areal )
 {
     test_distance_box_box(box_box_strategy());
     test_distance_box_box_negative(box_box_strategy());

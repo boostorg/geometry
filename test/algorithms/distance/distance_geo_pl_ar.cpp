@@ -447,7 +447,7 @@ void test_distance_multipoint_box(Strategy_pp const& strategy_pp,
 //===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
     test_distance_point_box(vincenty_pp(), vincenty_ps(), vincenty_pb());
     test_distance_point_box(thomas_pp(), thomas_ps(), thomas_pb());

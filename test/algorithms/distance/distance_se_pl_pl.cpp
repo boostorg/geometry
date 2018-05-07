@@ -225,7 +225,7 @@ void test_distance_multipoint_multipoint(Strategy const& strategy)
 
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_point )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
 {
     test_distance_point_point(point_point_strategy());
     test_distance_point_point(point_point_strategy(earth_radius_km));

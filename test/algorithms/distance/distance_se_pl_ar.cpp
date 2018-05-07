@@ -476,7 +476,7 @@ void test_distance_multipoint_box(Strategy const& strategy)
                   strategy);
 }
 
-BOOST_AUTO_TEST_CASE( test_point_box )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
     test_distance_point_box(point_box_strategy());
     test_distance_point_box(point_box_strategy(earth_radius_km));

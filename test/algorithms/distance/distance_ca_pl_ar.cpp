@@ -604,7 +604,7 @@ void test_more_empty_input_pointlike_areal(Strategy const& strategy)
 
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_polygon )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_polygon )
 {
     test_distance_point_polygon(point_point_strategy()); // back-compatibility
     test_distance_point_polygon(point_segment_strategy());

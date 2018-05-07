@@ -644,7 +644,7 @@ void test_distance_multipoint_segment(Strategy_pp const& strategy_pp,
 //===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
     test_distance_point_segment(vincenty_pp(), vincenty_strategy());
     test_distance_point_segment(thomas_pp(), thomas_strategy());

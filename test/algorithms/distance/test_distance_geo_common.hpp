@@ -44,6 +44,63 @@
 
 namespace bg = ::boost::geometry;
 
+typedef bg::srs::spheroid<double> stype;
+
+// Spherical strategy  for point-point distance
+
+typedef bg::strategy::distance::haversine<double> haversine;
+
+// Geo strategies for point-point distance
+
+typedef bg::strategy::distance::andoyer<stype> andoyer;
+typedef bg::strategy::distance::thomas<stype> thomas;
+typedef bg::strategy::distance::vincenty<stype> vincenty;
+
+// Spherical strategy  for point-segment distance
+
+typedef bg::strategy::distance::cross_track<> spherical_ps;
+
+// Geo strategies for point-segment distance
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, stype, double>
+        andoyer_ps;
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, stype, double>
+        thomas_ps;
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
+        vincenty_ps;
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+pp_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    Point p1, p2;
+    bg::read_wkt(wkt1, p1);
+    bg::read_wkt(wkt2, p2);
+    return bg::distance(p1, p2, strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+ps_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    Point p;
+    typedef bg::model::segment<Point> segment_type;
+    segment_type s;
+    bg::read_wkt(wkt1, p);
+    bg::read_wkt(wkt2, s);
+    return bg::distance(p, s, strategy);
+}
+
 //===================================================================
 
 template <typename Tag> struct dispatch

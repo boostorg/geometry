@@ -11,7 +11,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_geographic_linear_box
+#define BOOST_TEST_MODULE test_distance_geographic_linear_linear
 #endif
 
 #include <boost/range.hpp>
@@ -22,90 +22,226 @@
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "test_distance_geo_common.hpp"
-
-typedef bg::cs::geographic<bg::degree> cs_type;
-typedef bg::model::point<double, 2, cs_type> point_type;
-typedef bg::model::segment<point_type> segment_type;
-typedef bg::model::linestring<point_type> linestring_type;
-typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
-
-namespace services = bg::strategy::distance::services;
-typedef bg::default_distance_result<point_type>::type return_type;
-
-typedef bg::srs::spheroid<double> stype;
-
-// Strategies for point-point distance
-
-typedef bg::strategy::distance::andoyer<stype> andoyer_pp;
-typedef bg::strategy::distance::thomas<stype> thomas_pp;
-typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
-
-// Strategies for point-segment distance
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, stype, double>
-        andoyer_ps;
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, stype, double>
-        thomas_ps;
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
-        vincenty_ps;
+#include "test_empty_geometry.hpp"
 
 //===========================================================================
 
-template <typename Strategy>
-inline bg::default_distance_result<point_type>::type
-pp_distance(std::string const& wkt1,
-            std::string const& wkt2,
-            Strategy const& strategy)
-{
-    point_type p1, p2;
-    bg::read_wkt(wkt1, p1);
-    bg::read_wkt(wkt2, p2);
-    return bg::distance(p1, p2, strategy);
-}
-
-template <typename Strategy>
-inline bg::default_distance_result<point_type>::type
-ps_distance(std::string const& wkt1,
-            std::string const& wkt2,
-            Strategy const& strategy)
-{
-    point_type p;
-    segment_type s;
-    bg::read_wkt(wkt1, p);
-    bg::read_wkt(wkt2, s);
-    return bg::distance(p, s, strategy);
-}
-
-
-template <typename Strategy_pp, typename Strategy_ps>
-void test_distance_segment_segment(Strategy_pp const& strategy_pp,
-                                   Strategy_ps const& strategy_ps)
+template <typename Point, typename Strategy>
+void test_distance_segment_segment(Strategy const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
-    std::cout << "segment/box distance tests" << std::endl;
+    std::cout << "segment/segment distance tests" << std::endl;
 #endif
+
+    typedef bg::model::segment<Point> segment_type;
+
     typedef test_distance_of_geometries<segment_type, segment_type> tester;
 
     tester::apply("s-s-01",
                   "SEGMENT(0 0,1 1)",
                   "SEGMENT(2 0,3 0)",
-                  ps_distance("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-s-02",
+                  "SEGMENT(2 1,3 1)",
+                  "SEGMENT(2 0,3 0)",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(2 1,3 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-s-03",
+                  "SEGMENT(2.5 1,3.5 1)",
+                  "SEGMENT(2 0,3 0)",
+                  ps_distance<Point>("POINT(2.5 0)", "SEGMENT(2.5 1,3.5 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-s-04",
+                  "SEGMENT(2.5 1,3.5 1)",
+                  "SEGMENT(2 2,3 2)",
+                  ps_distance<Point>("POINT(3 2)", "SEGMENT(2.5 1,3.5 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_distance_segment_linestring(Strategy const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "segment/linestring distance tests" << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> segment_type;
+    typedef bg::model::linestring<Point> linestring_type;
+
+    typedef test_distance_of_geometries<segment_type, linestring_type> tester;
+
+    tester::apply("s-l-01",
+                  "SEGMENT(0 0,1 1)",
+                  "LINESTRING(2 0,3 0)",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-l-02",
+                  "SEGMENT(0 0,1 1)",
+                  "LINESTRING(2 0,3 0,2 2,0.5 0.7)",
+                  ps_distance<Point>("POINT(1 1)", "SEGMENT(0.5 0.7,2 2)", strategy_ps),
+                  strategy_ps, true, true, false);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_distance_linestring_linestring(Strategy const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/linestring distance tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> linestring_type;
+
+    typedef test_distance_of_geometries
+        <
+            linestring_type, linestring_type
+        > tester;
+
+    tester::apply("l-l-01",
+                  "LINESTRING(0 0,1 1)",
+                  "LINESTRING(2 0,3 0)",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("l-l-02",
+                  "LINESTRING(0 0,1 1,2 2)",
+                  "LINESTRING(2 0,3 0,4 1)",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(1 1,2 2)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("l-l-03",
+                  "LINESTRING(0 0,1 1,2 2)",
+                  "LINESTRING(2 0)",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(1 1,2 2)", strategy_ps),
+                  strategy_ps, true, true, false);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_distance_segment_multilinestring(Strategy const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "segment/multilinestring distance tests" << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> segment_type;
+    typedef bg::model::linestring<Point> linestring_type;
+    typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
+
+    typedef test_distance_of_geometries
+        <
+            segment_type, multi_linestring_type
+        > tester;
+
+    tester::apply("s-ml-01",
+                  "SEGMENT(0 0,1 1)",
+                  "MULTILINESTRING((2 0,3 0)(2 5, 5 5, 2 -1))",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-ml-02",
+                  "SEGMENT(0 0,1 1)",
+                  "MULTILINESTRING((2 0,3 0))",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_distance_linestring_multilinestring(Strategy const& strategy_ps)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/multilinestring distance tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> linestring_type;
+    typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
+
+    typedef test_distance_of_geometries
+        <
+            linestring_type, multi_linestring_type
+        > tester;
+
+    tester::apply("l-ml-01",
+                  "LINESTRING(0 0,1 1,2 2,3 3,4 4,6 6)",
+                  "MULTILINESTRING((2 0,3 0)(2 1, 5 5))",
+                  ps_distance<Point>("POINT(5 5)", "SEGMENT(4 4,6 6)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("l-ml-02",
+                  "LINESTRING(0 0,1 1,2 2,3 3,4 4,6 6)",
+                  "MULTILINESTRING((2 0,3 0)(2 5, 5 5))",
+                  0,
                   strategy_ps, true, true, false);
 
 }
 
-
-//===========================================================================
-//===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+template <typename Point, typename Strategy>
+void test_distance_multilinestring_multilinestring(Strategy const& strategy_ps)
 {
-    test_distance_segment_segment(vincenty_pp(), vincenty_ps());
-    test_distance_segment_segment(thomas_pp(), thomas_ps());
-    test_distance_segment_segment(andoyer_pp(), andoyer_ps());
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multilinestring/multilinestring distance tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> linestring_type;
+    typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
+
+    typedef test_distance_of_geometries
+        <
+            multi_linestring_type, multi_linestring_type
+        > tester;
+
+    tester::apply("s-ml-01",
+                  "MULTILINESTRING((0 0,1 1)(-1 0, -1 -1))",
+                  "MULTILINESTRING((2 0,3 0)(2 5, 5 5))",
+                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  strategy_ps, true, true, false);
+    tester::apply("s-ml-02",
+                  "MULTILINESTRING((0 0,1 1)(-1 0, -1 -1)(5 0, 5 6))",
+                  "MULTILINESTRING((2 0,3 0)(2 5, 5 5))",
+                  0,
+                  strategy_ps, true, true, false);
+}
+
+//===========================================================================
+//===========================================================================
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_all_l_l(Strategy ps_strategy)
+{
+    test_distance_segment_segment<Point>(ps_strategy);
+    test_distance_segment_linestring<Point>(ps_strategy);
+    test_distance_linestring_linestring<Point>(ps_strategy);
+    test_distance_segment_multilinestring<Point>(ps_strategy);
+    test_distance_linestring_multilinestring<Point>(ps_strategy);
+    test_distance_multilinestring_multilinestring<Point>(ps_strategy);
+}
+
+BOOST_AUTO_TEST_CASE( test_all_linear_linear )
+{
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >
+                                                                    sph_point;
+    test_all_l_l<sph_point>(spherical_ps());
+    test_more_empty_input_linear_linear<sph_point>(spherical_ps());
+
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > geo_point;
+    test_all_l_l<geo_point>(vincenty_ps());
+    test_all_l_l<geo_point>(thomas_ps());
+    test_all_l_l<geo_point>(andoyer_ps());
+
+    test_more_empty_input_linear_linear<geo_point>(vincenty_ps());
+    test_more_empty_input_linear_linear<geo_point>(thomas_ps());
+    test_more_empty_input_linear_linear<geo_point>(andoyer_ps());
 }

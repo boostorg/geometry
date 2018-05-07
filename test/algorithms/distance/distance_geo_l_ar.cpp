@@ -384,7 +384,7 @@ void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps)
 //===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_linear_areal )
 {
     test_distance_segment_box(vincenty_pp(), vincenty_ps());
     test_distance_segment_box(thomas_pp(), thomas_ps());
