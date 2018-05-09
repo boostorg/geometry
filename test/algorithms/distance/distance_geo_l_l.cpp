@@ -227,6 +227,8 @@ void test_all_l_l(Strategy ps_strategy)
     test_distance_segment_multilinestring<Point>(ps_strategy);
     test_distance_linestring_multilinestring<Point>(ps_strategy);
     test_distance_multilinestring_multilinestring<Point>(ps_strategy);
+
+    test_more_empty_input_linear_linear<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_linear )
@@ -234,14 +236,9 @@ BOOST_AUTO_TEST_CASE( test_all_linear_linear )
     typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >
                                                                     sph_point;
     test_all_l_l<sph_point>(spherical_ps());
-    test_more_empty_input_linear_linear<sph_point>(spherical_ps());
 
     typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > geo_point;
     test_all_l_l<geo_point>(vincenty_ps());
     test_all_l_l<geo_point>(thomas_ps());
     test_all_l_l<geo_point>(andoyer_ps());
-
-    test_more_empty_input_linear_linear<geo_point>(vincenty_ps());
-    test_more_empty_input_linear_linear<geo_point>(thomas_ps());
-    test_more_empty_input_linear_linear<geo_point>(andoyer_ps());
 }

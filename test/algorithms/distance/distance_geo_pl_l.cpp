@@ -26,27 +26,6 @@ typedef bg::model::segment<point_type> segment_type;
 typedef bg::model::linestring<point_type> linestring_type;
 typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 
-namespace services = bg::strategy::distance::services;
-typedef bg::default_distance_result<point_type>::type return_type;
-
-typedef bg::srs::spheroid<double> stype;
-
-// Strategies for point-point distance
-
-typedef bg::strategy::distance::andoyer<stype> andoyer_pp;
-typedef bg::strategy::distance::thomas<stype> thomas_pp;
-typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
-
-// Strategies for point-segment distance
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, stype, double>
-        andoyer_strategy;
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, stype, double>
-        thomas_strategy;
-
-typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
-        vincenty_strategy;
 
 //===========================================================================
 
@@ -449,25 +428,25 @@ void test_distance_point_linestring_strategies()
 {
     typedef test_distance_of_geometries<point_type, linestring_type> tester;
 
-    tester::apply("p-l-03",
+    tester::apply("p-l-s-01",
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221147.24332788656,
-                  vincenty_strategy(),
+                  vincenty_ps(),
                   true, false, false);
 
-    tester::apply("p-l-03",
+    tester::apply("p-l-s-02",
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221147.36682199029,
-                  thomas_strategy(),
+                  thomas_ps(),
                   true, false, false);
 
-    tester::apply("p-l-03",
+    tester::apply("p-l-s-03",
                   "POINT(2.5 3)",
                   "LINESTRING(2 1,3 1)",
                   221144.76527049288,
-                  andoyer_strategy(),
+                  andoyer_ps(),
                   true, false, false);
 }
 
@@ -644,39 +623,26 @@ void test_distance_multipoint_segment(Strategy_pp const& strategy_pp,
 //===========================================================================
 //===========================================================================
 
+template <typename Strategy_pp, typename Strategy_ps>
+void test_all_pl_l(Strategy_pp pp_strategy, Strategy_ps ps_strategy)
+{
+    test_distance_point_segment(pp_strategy, ps_strategy);
+    test_distance_point_linestring(pp_strategy, ps_strategy);
+    test_distance_point_multilinestring(pp_strategy, ps_strategy);
+    test_distance_linestring_multipoint(pp_strategy, ps_strategy);
+    test_distance_multipoint_multilinestring(pp_strategy, ps_strategy);
+    test_distance_multipoint_segment(pp_strategy, ps_strategy);
+
+    test_more_empty_input_pointlike_linear<point_type>(ps_strategy);
+}
+
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
-    test_distance_point_segment(vincenty_pp(), vincenty_strategy());
-    test_distance_point_segment(thomas_pp(), thomas_strategy());
-    test_distance_point_segment(andoyer_pp(), andoyer_strategy());
+    test_all_pl_l(vincenty_pp(), vincenty_ps());
+    test_all_pl_l(thomas_pp(), thomas_ps());
+    test_all_pl_l(andoyer_pp(), andoyer_ps());
 
-    test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_strategy());
-    //test_distance_point_segment_no_thomas(thomas_pp(), thomas_strategy());
-    test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_strategy());
-
-    test_distance_point_linestring(vincenty_pp(), vincenty_strategy());
-    test_distance_point_linestring(thomas_pp(), thomas_strategy());
-    test_distance_point_linestring(andoyer_pp(), andoyer_strategy());
-    test_distance_point_linestring_strategies();
-
-    test_distance_point_multilinestring(vincenty_pp(), vincenty_strategy());
-    test_distance_point_multilinestring(thomas_pp(), thomas_strategy());
-    test_distance_point_multilinestring(andoyer_pp(), andoyer_strategy());
-
-    test_distance_linestring_multipoint(vincenty_pp(), vincenty_strategy());
-    test_distance_linestring_multipoint(thomas_pp(), thomas_strategy());
-    test_distance_linestring_multipoint(andoyer_pp(), andoyer_strategy());
-
-    test_distance_multipoint_multilinestring(vincenty_pp(), vincenty_strategy());
-    test_distance_multipoint_multilinestring(thomas_pp(), thomas_strategy());
-    test_distance_multipoint_multilinestring(andoyer_pp(), andoyer_strategy());
-
-    test_distance_multipoint_segment(vincenty_pp(), vincenty_strategy());
-    test_distance_multipoint_segment(thomas_pp(), thomas_strategy());
-    test_distance_multipoint_segment(andoyer_pp(), andoyer_strategy());
-
-    test_more_empty_input_pointlike_linear<point_type>(vincenty_strategy());
-    test_more_empty_input_pointlike_linear<point_type>(thomas_strategy());
-    test_more_empty_input_pointlike_linear<point_type>(andoyer_strategy());
-
+    test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_ps());
+    //test_distance_point_segment_no_thomas(thomas_pp(), thomas_ps());
+    test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_ps());
 }

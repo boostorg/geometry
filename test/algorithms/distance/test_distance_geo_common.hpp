@@ -48,13 +48,13 @@ typedef bg::srs::spheroid<double> stype;
 
 // Spherical strategy  for point-point distance
 
-typedef bg::strategy::distance::haversine<double> haversine;
+typedef bg::strategy::distance::haversine<double> spherical_pp;
 
 // Geo strategies for point-point distance
 
-typedef bg::strategy::distance::andoyer<stype> andoyer;
-typedef bg::strategy::distance::thomas<stype> thomas;
-typedef bg::strategy::distance::vincenty<stype> vincenty;
+typedef bg::strategy::distance::andoyer<stype> andoyer_pp;
+typedef bg::strategy::distance::thomas<stype> thomas_pp;
+typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
 
 // Spherical strategy  for point-segment distance
 
