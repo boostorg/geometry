@@ -71,6 +71,34 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, sty
 typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
         vincenty_ps;
 
+// Spherical strategy  for point-box distance
+
+typedef bg::strategy::distance::cross_track_point_box<> spherical_pb;
+
+// Geo strategies for point-box distance
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::andoyer,
+    stype,
+    double
+> andoyer_pb;
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::thomas,
+    stype,
+    double
+> thomas_pb;
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::vincenty,
+    stype,
+    double
+> vincenty_pb;
+
+
 //===========================================================================
 
 template <typename Point, typename Strategy>

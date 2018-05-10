@@ -348,6 +348,39 @@ struct distance_brute_force
     }
 };
 
+template
+<
+    typename Point,
+    typename MultiPolygon,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Point, MultiPolygon, Strategy,
+    point_tag, multi_polygon_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Point, MultiPolygon, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Point const& p,
+                                      MultiPolygon const& mp,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    Point,
+                    typename boost::range_value<MultiPolygon>::type,
+                    Strategy
+                >
+            >::apply(p, boost::begin(mp), boost::end(mp), strategy);
+    }
+};
+
 //=======================================================================
 
 template
@@ -677,6 +710,45 @@ struct distance_brute_force
     }
 };
 
+template
+<
+    typename Polygon,
+    typename MultiPoint,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Polygon, MultiPoint, Strategy,
+    polygon_tag, multi_point_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Polygon, MultiPoint, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Polygon const& polygon,
+                                      MultiPoint const& mp,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                    <
+                        MultiPoint,
+                        typename std::iterator_traits
+                            <
+                                segment_iterator<Polygon const>
+                            >::value_type,
+                        Strategy
+                    >
+            >::apply(mp,
+                     geometry::segments_begin(polygon),
+                     geometry::segments_end(polygon),
+                     strategy);
+    }
+};
+
 //========================================================================
 
 template
@@ -736,12 +808,51 @@ struct distance_brute_force
         return detail::distance_brute_force::one_to_many
             <
                 distance_brute_force
+                    <
+                        MultiPoint,
+                        typename std::iterator_traits
+                            <
+                                segment_iterator<Linear const>
+                            >::value_type,
+                        Strategy
+                    >
+            >::apply(mp,
+                     geometry::segments_begin(l),
+                     geometry::segments_end(l),
+                     strategy);
+    }
+};
+
+template
+<
+    typename MultiPoint,
+    typename MultiPolygon,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPoint, MultiPolygon, Strategy,
+    multi_point_tag, multi_polygon_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPoint, MultiPolygon, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(MultiPoint const& mp,
+                                      MultiPolygon const& mpl,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
                 <
                     MultiPoint,
-                    typename boost::range_value<Linear>::type,
+                    typename boost::range_value<MultiPolygon>::type,
                     Strategy
                 >
-            >::apply(mp, boost::begin(l), boost::end(l), strategy);
+            >::apply(mp, boost::begin(mpl), boost::end(mpl), strategy);
     }
 };
 
@@ -772,6 +883,48 @@ struct distance_brute_force
             >::apply(segment, boost::begin(mp), boost::end(mp), strategy);
     }
 };
+
+template
+<
+    typename MultiPoint,
+    typename Ring,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPoint, Ring, Strategy,
+    multi_point_tag, ring_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPoint, Ring, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(MultiPoint const& mp,
+                                      Ring const& ring,
+                                      Strategy const& strategy)
+    {
+
+
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    MultiPoint,
+                    typename std::iterator_traits
+                    <
+                        segment_iterator<Ring const>
+                    >::value_type,
+                    Strategy
+                >
+            >::apply(mp,
+                     geometry::segments_begin(ring),
+                     geometry::segments_end(ring),
+                     strategy);
+    }
+};
+
 
 template
 <

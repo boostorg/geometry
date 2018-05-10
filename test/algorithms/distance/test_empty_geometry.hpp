@@ -140,4 +140,39 @@ void test_more_empty_input_linear_areal(Strategy const& strategy)
 #endif
 }
 
+template <typename Point, typename Strategy>
+void test_more_empty_input_pointlike_areal(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "testing on empty inputs... " << std::flush;
+#endif
+    bg::model::multi_point<Point> multipoint_empty;
+
+    bg::model::polygon<Point> polygon_empty;
+    bg::model::multi_polygon<bg::model::polygon<Point> > multipolygon_empty;
+
+    Point point = from_wkt<Point>("POINT(0 0)");
+    bg::model::polygon<Point> polygon =
+        from_wkt<bg::model::polygon<Point> >("POLYGON((0 0,1 0,1 1,0 1,0 0))");
+
+    // 1st geometry is empty
+    test_empty_input(multipoint_empty, polygon, strategy);
+    test_empty_input(polygon_empty, point, strategy);
+    test_empty_input(multipolygon_empty, point, strategy);
+
+    // 2nd geometry is empty
+    test_empty_input(point, polygon_empty, strategy);
+    test_empty_input(point, multipolygon_empty, strategy);
+    test_empty_input(polygon, multipoint_empty, strategy);
+
+    // both geometries are empty
+    test_empty_input(multipoint_empty, polygon_empty, strategy);
+    test_empty_input(multipoint_empty, multipolygon_empty, strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << "done!" << std::endl;
+#endif
+}
+
 #endif // BOOST_GEOMETRY_TEST_EMPTY_GEOMETRY_HPP
