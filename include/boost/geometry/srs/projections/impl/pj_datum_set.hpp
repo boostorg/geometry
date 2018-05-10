@@ -94,16 +94,16 @@ inline void pj_datum_add_defn(BGParams const& , std::vector<pvalue<T> >& pvalues
             BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
         }
 
-        if(! pj_datums[index].ellipse_id.empty())
+        pj_datums_type const& datum = pj_datums[index];
+
+        if(! datum.ellipse_id.empty())
         {
-            std::string entry("ellps=");
-            entry +=pj_datums[index].ellipse_id;
-            pvalues.push_back(pj_mkparam<T>(entry));
+            pvalues.push_back(pj_mkparam<T>("ellps", datum.ellipse_id));
         }
 
-        if(! pj_datums[index].defn.empty())
+        if(! datum.defn_n.empty() && ! datum.defn_v.empty())
         {
-            pvalues.push_back(pj_mkparam<T>(pj_datums[index].defn));
+            pvalues.push_back(pj_mkparam<T>(datum.defn_n, datum.defn_v));
         }
     }
 }
@@ -129,11 +129,12 @@ inline void pj_datum_add_defn(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAI
                                       || ! boost::is_same<typename datum_traits::ellps_type, void>::value;
     BOOST_MPL_ASSERT_MSG((not_set_or_known), UNKNOWN_DATUM, (bg_parameters_type));
 
-    std::string defn = datum_traits::definition();
+    std::string def_n = datum_traits::def_n();
+    std::string def_v = datum_traits::def_v();
 
-    if (! defn.empty())
+    if (! def_n.empty() && ! def_v.empty())
     {
-        pvalues.push_back(pj_mkparam<T>(defn));
+        pvalues.push_back(pj_mkparam<T>(def_n, def_v));
     }
 }
 

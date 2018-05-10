@@ -241,28 +241,30 @@ struct datum_traits
 {
     typedef void ellps_type;
     static std::string id() { return ""; }
-    static std::string definition() { return ""; }
+    static std::string def_n() { return ""; }
+    static std::string def_v() { return ""; }
 };
 
-#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAME, ID, ELLPS, DEF) \
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAME, ID, ELLPS, DEF_N, DEF_V) \
 template <> \
 struct datum_traits< datum<par4::NAME> > \
 { \
     typedef par4::ellps<par4::ELLPS> ellps_type; \
     static std::string id() { return ID; } \
-    static std::string definition() { return DEF; } \
+    static std::string def_n() { return DEF_N; } \
+    static std::string def_v() { return DEF_V; } \
 };
 
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(WGS84, "WGS84", WGS84, "towgs84=0,0,0")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(GGRS87, "GGRS87", GRS80, "towgs84=-199.87,74.79,246.62")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAD83, "NAD83", GRS80, "towgs84=0,0,0")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAD27, "NAD27", clrk66, "nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(potsdam, "potsdam", bessel, "towgs84=598.1,73.7,418.2,0.202,0.045,-2.455,6.7")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(carthage, "carthage", clrk80ign, "towgs84=-263.0,6.0,431.0")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(hermannskogel, "hermannskogel", bessel, "towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(ire65, "ire65", mod_airy, "towgs84=482.530,-130.596,564.557,-1.042,-0.214,-0.631,8.15")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(nzgd49, "nzgd49", intl, "towgs84=59.47,-5.04,187.44,0.47,-0.1,1.024,-4.5993")
-BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(OSGB36, "OSGB36", airy, "towgs84=446.448,-125.157,542.060,0.1502,0.2470,0.8421,-20.4894")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(WGS84, "WGS84", WGS84, "towgs84", "0,0,0")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(GGRS87, "GGRS87", GRS80, "towgs84", "-199.87,74.79,246.62")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAD83, "NAD83", GRS80, "towgs84", "0,0,0")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(NAD27, "NAD27", clrk66, "nadgrids", "@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(potsdam, "potsdam", bessel, "towgs84", "598.1,73.7,418.2,0.202,0.045,-2.455,6.7")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(carthage, "carthage", clrk80ign, "towgs84", "-263.0,6.0,431.0")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(hermannskogel, "hermannskogel", bessel, "towgs84", "577.326,90.129,463.919,5.137,1.474,5.297,2.4232")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(ire65, "ire65", mod_airy, "towgs84", "482.530,-130.596,564.557,-1.042,-0.214,-0.631,8.15")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(nzgd49, "nzgd49", intl, "towgs84", "59.47,-5.04,187.44,0.47,-0.1,1.024,-4.5993")
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_DATUM(OSGB36, "OSGB36", airy, "towgs84", "446.448,-125.157,542.060,0.1502,0.2470,0.8421,-20.4894")
 
 
 template

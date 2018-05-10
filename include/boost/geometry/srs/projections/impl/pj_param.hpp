@@ -122,7 +122,7 @@ inline bool pj_param_i(std::vector<pvalue<T> > const& pl, std::string const& nam
     typename std::vector<pvalue<T> >::const_iterator it = pj_param_find(pl, name);        
     if (it != pl.end())
     {
-        par = atoi(it->s.c_str());
+        par = geometry::str_cast<int>(it->s);
         return true;
     }    
     return false;
@@ -135,7 +135,7 @@ inline bool pj_param_f(std::vector<pvalue<T> > const& pl, std::string const& nam
     typename std::vector<pvalue<T> >::const_iterator it = pj_param_find(pl, name);        
     if (it != pl.end())
     {
-        par = atof(it->s.c_str());
+        par = geometry::str_cast<T>(it->s);
         return true;
     }    
     return false;

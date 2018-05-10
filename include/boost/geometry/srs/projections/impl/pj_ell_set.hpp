@@ -102,8 +102,9 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
                 BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
             }
 
-            parameters.push_back(pj_mkparam<T>(pj_ellps[index].major));
-            parameters.push_back(pj_mkparam<T>(pj_ellps[index].ell));
+            pj_ellps_type const& pj_ellp = pj_ellps[index];
+            parameters.push_back(pj_mkparam<T>("a", pj_ellp.major_v));
+            parameters.push_back(pj_mkparam<T>(pj_ellp.ell_n, pj_ellp.ell_v));
         }
         a = pj_get_param_f(parameters, "a");
         if (pj_param_f(parameters, "es", es)) {/* eccentricity squared */

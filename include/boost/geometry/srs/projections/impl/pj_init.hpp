@@ -44,7 +44,6 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
 
@@ -157,12 +156,12 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
         std::size_t const pos = s.find('/');
         if (pos == std::string::npos)
         {
-            to_meter = lexical_cast<T>(s);
+            to_meter = geometry::str_cast<T>(s);
         }
         else
         {
-            T const numerator = lexical_cast<T>(s.substr(0, pos));
-            T const denominator = lexical_cast<T>(s.substr(pos + 1));
+            T const numerator = geometry::str_cast<T>(s.substr(0, pos));
+            T const denominator = geometry::str_cast<T>(s.substr(pos + 1));
             if (numerator == 0.0 || denominator == 0.0)
             {
                 BOOST_THROW_EXCEPTION( projection_exception(error_unit_factor_less_than_0) );
@@ -316,8 +315,8 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
 
         dms_parser<T, true> parser;
 
-        // TODO: Handle case when lexical_cast is not used consistently.
-        //       This should probably be done in dms_parser.
+        // TODO: Is this try-catch needed?
+        // In other cases the bad_str_cast exception is simply thrown
         BOOST_TRY
         {
             if (value.empty()) {
@@ -326,7 +325,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
                 pin.from_greenwich = parser.apply(value).angle();
             }
         }
-        BOOST_CATCH(boost::bad_lexical_cast const&)
+        BOOST_CATCH(geometry::bad_str_cast const&)
         {
             BOOST_THROW_EXCEPTION( projection_exception(error_unknown_prime_meridian) );
         }
