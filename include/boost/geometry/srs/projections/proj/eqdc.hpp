@@ -144,8 +144,8 @@ namespace projections
                 T cosphi, sinphi;
                 int secant;
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
+                proj_parm.phi2 = pj_get_param_r(par.params, "lat_2");
 
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
                     BOOST_THROW_EXCEPTION( projection_exception(-21) );

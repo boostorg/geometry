@@ -185,8 +185,8 @@ namespace projections
 
                 T Az, sinp, R, N, t;
 
-                proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
-                Az = pj_param(par.params, "razi").f;
+                proj_parm.rot    = pj_get_param_b(par.params, "no_rot");
+                Az = pj_get_param_r(par.params, "azi");
                 sinp = sin(par.phi0);
                 t = 1. - par.es * sinp * sinp;
                 N = 1. / sqrt(t);

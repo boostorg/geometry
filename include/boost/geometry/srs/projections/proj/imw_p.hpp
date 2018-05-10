@@ -90,12 +90,12 @@ namespace projections
             {
                 int err = 0;
 
-                if (!pj_param(par.params, "tlat_1").i ||
-                    !pj_param(par.params, "tlat_2").i) {
+                if (!pj_param_r(par.params, "lat_1", proj_parm.phi_1) ||
+                    !pj_param_r(par.params, "lat_2", proj_parm.phi_2)) {
                     err = -41;
                 } else {
-                    proj_parm.phi_1 = pj_param(par.params, "rlat_1").f;
-                    proj_parm.phi_2 = pj_param(par.params, "rlat_2").f;
+                    //proj_parm.phi_1 = pj_get_param_r(par.params, "lat_1"); // set above
+                    //proj_parm.phi_2 = pj_get_param_r(par.params, "lat_2"); // set above
                     *del = 0.5 * (proj_parm.phi_2 - proj_parm.phi_1);
                     *sig = 0.5 * (proj_parm.phi_2 + proj_parm.phi_1);
                     err = (fabs(*del) < EPS || fabs(*sig) < EPS) ? -42 : 0;
@@ -235,9 +235,9 @@ namespace projections
                     proj_parm.phi_1 = proj_parm.phi_2;
                     proj_parm.phi_2 = del;
                 }
-                if (pj_param(par.params, "tlon_1").i)
-                    proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
-                else { /* use predefined based upon latitude */
+                if (pj_param_r(par.params, "lon_1", proj_parm.lam_1)) {
+                    /* empty */
+                } else { /* use predefined based upon latitude */
                     sig = fabs(sig * geometry::math::r2d<T>());
                     if (sig <= 60)      sig = 2.;
                     else if (sig <= 76) sig = 4.;

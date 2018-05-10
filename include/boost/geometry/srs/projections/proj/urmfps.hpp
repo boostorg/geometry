@@ -123,8 +123,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_urmfps(Parameters& par, par_urmfps<T>& proj_parm)
             {
-                if (pj_param(par.params, "tn").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
+                if (pj_param_f(par.params, "n", proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
                         BOOST_THROW_EXCEPTION( projection_exception(-40) );
                 } else

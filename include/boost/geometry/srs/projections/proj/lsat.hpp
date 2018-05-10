@@ -247,11 +247,11 @@ namespace projections
                 int land, path;
                 T lam, alf, esc, ess;
 
-                land = pj_param(par.params, "ilsat").i;
+                land = pj_get_param_i(par.params, "lsat");
                 if (land <= 0 || land > 5)
                     BOOST_THROW_EXCEPTION( projection_exception(-28) );
 
-                path = pj_param(par.params, "ipath").i;
+                path = pj_get_param_i(par.params, "path");
                 if (path <= 0 || path > (land <= 3 ? 251 : 233))
                     BOOST_THROW_EXCEPTION( projection_exception(-29) );
 

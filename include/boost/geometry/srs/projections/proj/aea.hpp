@@ -238,8 +238,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_aea(Parameters& par, par_aea<T>& proj_parm)
             {
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
+                proj_parm.phi2 = pj_get_param_r(par.params, "lat_2");
                 setup(par, proj_parm);
             }
 
@@ -249,8 +249,8 @@ namespace projections
             {
                 static const T HALFPI = detail::HALFPI<T>();
 
-                proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? -HALFPI : HALFPI;
+                proj_parm.phi2 = pj_get_param_r(par.params, "lat_1");
+                proj_parm.phi1 = pj_get_param_b(par.params, "south") ? -HALFPI : HALFPI;
                 setup(par, proj_parm);
             }
 

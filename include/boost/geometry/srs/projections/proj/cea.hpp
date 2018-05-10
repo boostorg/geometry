@@ -165,8 +165,8 @@ namespace projections
             {
                 T t = 0;
 
-                if (pj_param(par.params, "tlat_ts").i) {
-                    par.k0 = cos(t = pj_param(par.params, "rlat_ts").f);
+                if (pj_param_r(par.params, "lat_ts", t)) {
+                    par.k0 = cos(t);
                     if (par.k0 < 0.) {
                         BOOST_THROW_EXCEPTION( projection_exception(-24) );
                     }

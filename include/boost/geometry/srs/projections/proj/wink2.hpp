@@ -126,7 +126,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_wink2(Parameters& par, par_wink2<T>& proj_parm)
             {
-                proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f);
+                proj_parm.cosphi1 = cos(pj_get_param_r(par.params, "lat_1"));
                 par.es = 0.;
             }
 

@@ -166,8 +166,8 @@ namespace projections
                 calc_t phits=0.0;
                 int is_phits;
 
-                if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
-                    phits = fabs(pj_param(par.params, "rlat_ts").f);
+                if( (is_phits = pj_param_r(par.params, "lat_ts", phits)) ) {
+                    phits = fabs(phits);
                     if (phits >= HALFPI)
                         BOOST_THROW_EXCEPTION( projection_exception(-24) );
                 }

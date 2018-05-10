@@ -183,29 +183,28 @@ namespace projections
                   gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0;
                 int alp, gam, no_off = 0;
 
-                proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
-                if ((alp = pj_param(par.params, "talpha").i) != 0)
-                    alpha_c = pj_param(par.params, "ralpha").f;
-                if ((gam = pj_param(par.params, "tgamma").i) != 0)
-                    gamma = pj_param(par.params, "rgamma").f;
+                proj_parm.no_rot = pj_get_param_b(par.params, "no_rot");
+                alp = pj_param_r(par.params, "alpha", alpha_c);
+                gam = pj_param_r(par.params, "gamma", gamma);
                 if (alp || gam) {
-                    lamc    = pj_param(par.params, "rlonc").f;
-                    no_off =
-                                /* For libproj4 compatability */
-                                pj_param(par.params, "tno_off").i
-                                /* for backward compatibility */
-                                || pj_param(par.params, "tno_uoff").i;
-                    if( no_off )
-                    {
-                        /* Mark the parameter as used, so that the pj_get_def() return them */
-                        pj_param(par.params, "sno_uoff");
-                        pj_param(par.params, "sno_off");
-                    }
+                    lamc = pj_get_param_r(par.params, "lonc");
+                    // NOTE: This is not needed in Boost.Geometry
+                    //no_off =
+                    //            /* For libproj4 compatability */
+                    //            pj_param_exists(par.params, "no_off")
+                    //            /* for backward compatibility */
+                    //            || pj_param_exists(par.params, "no_uoff");
+                    //if( no_off )
+                    //{
+                    //    /* Mark the parameter as used, so that the pj_get_def() return them */
+                    //    pj_get_param_s(par.params, "no_uoff");
+                    //    pj_get_param_s(par.params, "no_off");
+                    //}
                 } else {
-                    lam1 = pj_param(par.params, "rlon_1").f;
-                    phi1 = pj_param(par.params, "rlat_1").f;
-                    lam2 = pj_param(par.params, "rlon_2").f;
-                    phi2 = pj_param(par.params, "rlat_2").f;
+                    lam1 = pj_get_param_r(par.params, "lon_1");
+                    phi1 = pj_get_param_r(par.params, "lat_1");
+                    lam2 = pj_get_param_r(par.params, "lon_2");
+                    phi2 = pj_get_param_r(par.params, "lat_2");
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
                         fabs(con - HALFPI) <= TOL ||

@@ -190,14 +190,14 @@ namespace projections
             {
                 static const T ONEPI = detail::ONEPI<T>();
 
+                static const std::string lat[3] = {"lat_1", "lat_2", "lat_3"};
+                static const std::string lon[3] = {"lon_1", "lon_2", "lon_3"};
+
                 int i, j;
-                char line[10];
 
                 for (i = 0; i < 3; ++i) { /* get control point locations */
-                    (void)sprintf(line, "rlat_%d", i+1);
-                    proj_parm.c[i].phi = pj_param(par.params, line).f;
-                    (void)sprintf(line, "rlon_%d", i+1);
-                    proj_parm.c[i].lam = pj_param(par.params, line).f;
+                    proj_parm.c[i].phi = pj_get_param_r(par.params, lat[i]);
+                    proj_parm.c[i].lam = pj_get_param_r(par.params, lon[i]);
                     proj_parm.c[i].lam = adjlon(proj_parm.c[i].lam - par.lam0);
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);

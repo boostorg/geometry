@@ -134,7 +134,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
             {
-                proj_parm.n = pj_param(par.params, "dn").f;
+                proj_parm.n = pj_get_param_f(par.params, "n");
                 if (proj_parm.n < 0. || proj_parm.n > 1.)
                     BOOST_THROW_EXCEPTION( projection_exception(-40) );
 

@@ -200,9 +200,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
             {
-                if (pj_param(par.params, "tn").i && pj_param(par.params, "tm").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
-                    proj_parm.m = pj_param(par.params, "dm").f;
+                if (pj_param_f(par.params, "n", proj_parm.n)
+                 && pj_param_f(par.params, "m", proj_parm.m)) {
                     if (proj_parm.n <= 0 || proj_parm.m < 0)
                         BOOST_THROW_EXCEPTION( projection_exception(-39) );
                 } else

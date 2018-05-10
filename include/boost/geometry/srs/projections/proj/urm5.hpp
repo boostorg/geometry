@@ -106,15 +106,14 @@ namespace projections
             {
                 T alpha, t;
 
-                if (pj_param(par.params, "tn").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
+                if (pj_param_f(par.params, "n", proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
                         BOOST_THROW_EXCEPTION( projection_exception(-40) );
                 } else {
                     BOOST_THROW_EXCEPTION( projection_exception(-40) );
                 }
-                proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
-                alpha = pj_param(par.params, "ralpha").f;
+                proj_parm.q3 = pj_get_param_f(par.params, "q") / 3.;
+                alpha = pj_get_param_r(par.params, "alpha");
                 t = proj_parm.n * sin(alpha);
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);

@@ -122,13 +122,15 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_hammer(Parameters& par, par_hammer<T>& proj_parm)
             {
-                if (pj_param(par.params, "tW").i) {
-                    if ((proj_parm.w = fabs(pj_param(par.params, "dW").f)) <= 0.)
+                T tmp;
+
+                if (pj_param_f(par.params, "W", tmp)) {
+                    if ((proj_parm.w = fabs(tmp)) <= 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.w = .5;
-                if (pj_param(par.params, "tM").i) {
-                    if ((proj_parm.m = fabs(pj_param(par.params, "dM").f)) <= 0.)
+                if (pj_param_f(par.params, "M", tmp)) {
+                    if ((proj_parm.m = fabs(tmp)) <= 0.)
                         BOOST_THROW_EXCEPTION( projection_exception(-27) );
                 } else
                     proj_parm.m = 1.;

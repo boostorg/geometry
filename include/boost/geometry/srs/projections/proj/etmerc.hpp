@@ -354,11 +354,10 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(-34) );
                 }
 
-                par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
+                par.y0 = pj_get_param_b(par.params, "south") ? 10000000. : 0.;
                 par.x0 = 500000.;
-                if (pj_param(par.params, "tzone").i) /* zone input ? */
+                if (pj_param_i(par.params, "zone", zone)) /* zone input ? */
                 {
-                    zone = pj_param(par.params, "izone").i;
                     if (zone > 0 && zone <= 60)
                         --zone;
                     else {

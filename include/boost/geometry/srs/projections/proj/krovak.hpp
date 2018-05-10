@@ -208,21 +208,21 @@ namespace projections
                 par.e = sqrt(par.es = 0.006674372230614);
 
                 /* if latitude of projection center is not set, use 49d30'N */
-                if (!pj_param(par.params, "tlat_0").i)
+                if (!pj_param_exists(par.params, "lat_0"))
                     par.phi0 = 0.863937979737193;
 
                 /* if center long is not set use 42d30'E of Ferro - 17d40' for Ferro */
                 /* that will correspond to using longitudes relative to greenwich    */
                 /* as input and output, instead of lat/long relative to Ferro */
-                if (!pj_param(par.params, "tlon_0").i)
+                if (!pj_param_exists(par.params, "lon_0"))
                     par.lam0 = 0.7417649320975901 - 0.308341501185665;
 
                 /* if scale not set default to 0.9999 */
-                if (!pj_param(par.params, "tk").i)
+                if (!pj_param_exists(par.params, "k"))
                     par.k0 = 0.9999;
 
                 proj_parm.czech = 1;
-                if( !pj_param(par.params, "tczech").i )
+                if( !pj_param_exists(par.params, "czech") )
                     proj_parm.czech = -1;
 
                 /* Set up shared parameters between forward and inverse */

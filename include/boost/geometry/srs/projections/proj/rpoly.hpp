@@ -117,7 +117,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
             {
-                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_param(par.params, "rlat_ts").f)) > EPS)) {
+                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_get_param_r(par.params, "lat_ts"))) > EPS)) {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }
