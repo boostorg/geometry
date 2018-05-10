@@ -64,13 +64,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace krovak
     {
-            static double EPS = 1e-15;
+            static double epsilon = 1e-15;
             static double S45 = 0.785398163397448;  /* 45 deg */
             static double S90 = 1.570796326794896;  /* 90 deg */
             static double UQ  = 1.04216856380474;   /* DU(2, 59, 42, 42.69689) */
             static double S0  = 1.37008346281555;   /* Latitude of pseudo standard parallel 78deg 30'00" N */
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static int MAX_ITER = 100;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static int max_iter = 100;
 
             template <typename T>
             struct par_krovak
@@ -107,25 +107,21 @@ namespace projections
              **/
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_krovak_ellipsoid : public base_t_fi<base_krovak_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_krovak_ellipsoid
+                : public base_t_fi<base_krovak_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_krovak<CalculationType> m_proj_parm;
+                par_krovak<T> m_proj_parm;
 
                 inline base_krovak_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_krovak_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_krovak_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType gfi, u, deltav, s, d, eps, rho;
+                    T gfi, u, deltav, s, d, eps, rho;
 
                     gfi = pow ( (1. + this->m_par.e * sin(lp_lat)) / (1. - this->m_par.e * sin(lp_lat)), this->m_proj_parm.alpha * this->m_par.e / 2.);
 
@@ -147,9 +143,9 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType u, deltav, s, d, eps, rho, fi1, xy0;
+                    T u, deltav, s, d, eps, rho, fi1, xy0;
                     int i;
 
                     // TODO: replace with std::swap()
@@ -174,18 +170,18 @@ namespace projections
                     /* ITERATION FOR lp_lat */
                     fi1 = u;
 
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat = 2. * ( atan( pow( this->m_proj_parm.k, -1. / this->m_proj_parm.alpha)  *
                                               pow( tan(u / 2. + S45) , 1. / this->m_proj_parm.alpha)  *
                                               pow( (1. + this->m_par.e * sin(fi1)) / (1. - this->m_par.e * sin(fi1)) , this->m_par.e / 2.)
                                             )  - S45);
 
-                        if (fabs(fi1 - lp_lat) < EPS)
+                        if (fabs(fi1 - lp_lat) < epsilon)
                             break;
                         fi1 = lp_lat;
                     }
                     if( i == 0 )
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
 
                    lp_lon -= this->m_par.lam0;
                 }
@@ -256,10 +252,10 @@ namespace projections
         \par Example
         \image html ex_krovak.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<T, Parameters>
     {
-        inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<CalculationType, Parameters>(par)
+        inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<T, Parameters>(par)
         {
             detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
         }
@@ -273,20 +269,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::krovak, krovak_ellipsoid, krovak_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class krovak_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class krovak_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<krovak_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<krovak_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void krovak_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void krovak_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("krovak", new krovak_entry<CalculationType, Parameters>);
+            factory.add_to_factory("krovak", new krovak_entry<T, Parameters>);
         }
 
     } // namespace detail

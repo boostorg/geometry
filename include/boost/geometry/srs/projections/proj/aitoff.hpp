@@ -71,45 +71,41 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace aitoff
     {
-            enum Mode {
-                AITOFF = 0,
-                WINKEL_TRIPEL = 1
+            enum mode_type {
+                mode_aitoff = 0,
+                mode_winkel_tripel = 1
             };
 
             template <typename T>
             struct par_aitoff
             {
                 T    cosphi1;
-                enum Mode mode;
+                mode_type mode;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aitoff_spheroid : public base_t_fi<base_aitoff_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aitoff_spheroid
+                : public base_t_fi<base_aitoff_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aitoff<CalculationType> m_proj_parm;
+                par_aitoff<T> m_proj_parm;
 
                 inline base_aitoff_spheroid(const Parameters& par)
-                    : base_t_fi<base_aitoff_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_aitoff_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType c, d;
+                    T c, d;
 
                     if((d = acos(cos(lp_lat) * cos(c = 0.5 * lp_lon)))) {/* basic Aitoff */
                         xy_x = 2. * d * cos(lp_lat) * sin(c) * (xy_y = 1. / sin(d));
                         xy_y *= d * sin(lp_lat);
                     } else
                         xy_x = xy_y = 0.;
-                    if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                    if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
                     }
@@ -123,7 +119,7 @@ namespace projections
                 * Third International Symposium Mathematical & Computational Applications,
                 * pages 175{182, Turkey, September 2002.
                 *
-                * Expected accuracy is defined by EPSILON = 1e-12. Should be appropriate for
+                * Expected accuracy is defined by epsilon = 1e-12. Should be appropriate for
                 * most applications of Aitoff and Winkel Tripel projections.
                 *
                 * Longitudes of 180W and 180E can be mixed in solution obtained.
@@ -137,16 +133,16 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType TWOPI = detail::TWOPI<CalculationType>();
-                    static const CalculationType EPSILON = 1e-12;
+                    static const T pi = detail::pi<T>();
+                    static const T two_pi = detail::two_pi<T>();
+                    static const T epsilon = 1e-12;
 
-                    int iter, MAXITER = 10, round = 0, MAXROUND = 20;
-                    CalculationType D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
+                    int iter, max_iter = 10, round = 0, max_round = 20;
+                    T D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
 
-                    if ((fabs(xy_x) < EPSILON) && (fabs(xy_y) < EPSILON )) {
+                    if ((fabs(xy_x) < epsilon) && (fabs(xy_y) < epsilon )) {
                         lp_lat = 0.; lp_lon = 0.;
                         return;
                     }
@@ -167,7 +163,7 @@ namespace projections
                             f1l = cp * cp * sl * sl / C + D * cp * cl * sp * sp;
                             f2p = sp * sp * cl / C + D * sl * sl * cp;
                             f2l = 0.5 * (sp * cp * sl / C - D * sp * cp * cp * sl * cl);
-                            if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                            if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                                 f1 = 0.5 * (f1 + lp_lon * this->m_proj_parm.cosphi1);
                                 f2 = 0.5 * (f2 + lp_lat);
                                 f1p *= 0.5;
@@ -178,12 +174,12 @@ namespace projections
                             f1 -= xy_x; f2 -= xy_y;
                             dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
                             dp = (f1 * f2l - f2 * f1l) / dp;
-                            dl = fmod(dl, ONEPI); /* set to interval [-M_PI, M_PI] */
+                            dl = fmod(dl, pi); /* set to interval [-M_PI, M_PI] */
                             lp_lat -= dp;    lp_lon -= dl;
-                        } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
-                        if (lp_lat > TWOPI) lp_lat -= 2.*(lp_lat-TWOPI); /* correct if symmetrical solution for Aitoff */
-                        if (lp_lat < -TWOPI) lp_lat -= 2.*(lp_lat+TWOPI); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - TWOPI) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        } while ((fabs(dp) > epsilon || fabs(dl) > epsilon) && (iter++ < max_iter));
+                        if (lp_lat > two_pi) lp_lat -= 2.*(lp_lat-two_pi); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -two_pi) lp_lat -= 2.*(lp_lat+two_pi); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - two_pi) < epsilon) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon))) != 0.0) {/* Aitoff */
@@ -191,16 +187,16 @@ namespace projections
                             y *= D * sin(lp_lat);
                         } else
                             x = y = 0.;
-                        if (this->m_proj_parm.mode == WINKEL_TRIPEL) { /* Winkel Tripel */
+                        if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                             x = (x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                             y = (y + lp_lat) * 0.5;
                         }
                     /* if too far from given values of x,y, repeat with better approximation of phi,lam */
-                    } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
+                    } while (((fabs(xy_x-x) > epsilon) || (fabs(xy_y-y) > epsilon)) && (round++ < max_round));
 
-                    if (iter == MAXITER && round == MAXROUND)
+                    if (iter == max_iter && round == max_round)
                     {
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                         //fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                     }
                 }
@@ -223,7 +219,7 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_aitoff(Parameters& par, par_aitoff<T>& proj_parm)
             {
-                proj_parm.mode = AITOFF;
+                proj_parm.mode = mode_aitoff;
                 setup(par);
             }
 
@@ -231,16 +227,16 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_wintri(Parameters& par, par_aitoff<T>& proj_parm)
             {
-                static const T TWO_D_PI = detail::TWO_D_PI<T>();
+                static const T two_div_pi = detail::two_div_pi<T>();
 
                 T phi1;
 
-                proj_parm.mode = WINKEL_TRIPEL;
+                proj_parm.mode = mode_winkel_tripel;
                 if (pj_param_r(par.params, "lat_1", phi1)) {
                     if ((proj_parm.cosphi1 = cos(phi1)) == 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
                 } else /* 50d28' or phi1=acos(2/pi) */
-                    proj_parm.cosphi1 = TWO_D_PI;
+                    proj_parm.cosphi1 = two_div_pi;
                 setup(par);
             }
 
@@ -259,10 +255,10 @@ namespace projections
         \par Example
         \image html ex_aitoff.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aitoff_spheroid : public detail::aitoff::base_aitoff_spheroid<T, Parameters>
     {
-        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
+        inline aitoff_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<T, Parameters>(par)
         {
             detail::aitoff::setup_aitoff(this->m_par, this->m_proj_parm);
         }
@@ -282,10 +278,10 @@ namespace projections
         \par Example
         \image html ex_wintri.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wintri_spheroid : public detail::aitoff::base_aitoff_spheroid<T, Parameters>
     {
-        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<CalculationType, Parameters>(par)
+        inline wintri_spheroid(const Parameters& par) : detail::aitoff::base_aitoff_spheroid<T, Parameters>(par)
         {
             detail::aitoff::setup_wintri(this->m_par, this->m_proj_parm);
         }
@@ -300,31 +296,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wintri, wintri_spheroid, wintri_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class aitoff_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class aitoff_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<aitoff_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<aitoff_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class wintri_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wintri_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wintri_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wintri_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void aitoff_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void aitoff_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("aitoff", new aitoff_entry<CalculationType, Parameters>);
-            factory.add_to_factory("wintri", new wintri_entry<CalculationType, Parameters>);
+            factory.add_to_factory("aitoff", new aitoff_entry<T, Parameters>);
+            factory.add_to_factory("wintri", new wintri_entry<T, Parameters>);
         }
 
     } // namespace detail

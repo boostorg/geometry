@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace cass
     {
 
-            //static const double EPS10 = 1e-10;
+            //static const double epsilon10 = 1e-10;
             //static const double C1 = .16666666666666666666;
             //static const double C2 = .00833333333333333333;
             //static const double C3 = .04166666666666666666;
@@ -88,37 +88,33 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_cass_ellipsoid : public base_t_fi<base_cass_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_cass_ellipsoid
+                : public base_t_fi<base_cass_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_cass<CalculationType> m_proj_parm;
+                par_cass<T> m_proj_parm;
 
                 inline base_cass_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_cass_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_cass_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType C1 = cass::C1<CalculationType>();
-                    static const CalculationType C2 = cass::C2<CalculationType>();
-                    static const CalculationType C3 = cass::C3<CalculationType>();
+                    static const T C1 = cass::C1<T>();
+                    static const T C2 = cass::C2<T>();
+                    static const T C3 = cass::C3<T>();
 
-                    CalculationType n = sin(lp_lat);
-                    CalculationType c = cos(lp_lat);
+                    T n = sin(lp_lat);
+                    T c = cos(lp_lat);
                     xy_y = pj_mlfn(lp_lat, n, c, this->m_proj_parm.en);
                     n = 1./sqrt(1. - this->m_par.es * n * n);
-                    CalculationType tn = tan(lp_lat);
-                    CalculationType t = tn * tn;
-                    CalculationType a1 = lp_lon * c;
+                    T tn = tan(lp_lat);
+                    T t = tn * tn;
+                    T a1 = lp_lon * c;
                     c *= this->m_par.es * c / (1 - this->m_par.es);
-                    CalculationType a2 = a1 * a1;
+                    T a2 = a1 * a1;
                     xy_x = n * a1 * (1. - a2 * t *
                         (C1 - (8. - t + 8. * c) * a2 * C2));
                     xy_y -= this->m_proj_parm.m0 - n * tn * a2 *
@@ -127,22 +123,22 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType C3 = cass::C3<CalculationType>();
-                    static const CalculationType C4 = cass::C4<CalculationType>();
-                    static const CalculationType C5 = cass::C5<CalculationType>();
+                    static const T C3 = cass::C3<T>();
+                    static const T C4 = cass::C4<T>();
+                    static const T C5 = cass::C5<T>();
 
-                    CalculationType ph1;
+                    T ph1;
 
                     ph1 = pj_inv_mlfn(this->m_proj_parm.m0 + xy_y, this->m_par.es, this->m_proj_parm.en);
-                    CalculationType tn = tan(ph1); CalculationType t = tn * tn;
-                    CalculationType n = sin(ph1);
-                    CalculationType r = 1. / (1. - this->m_par.es * n * n);
+                    T tn = tan(ph1); T t = tn * tn;
+                    T n = sin(ph1);
+                    T r = 1. / (1. - this->m_par.es * n * n);
                     n = sqrt(r);
                     r *= (1. - this->m_par.es) * n;
-                    CalculationType dd = xy_x / n;
-                    CalculationType d2 = dd * dd;
+                    T dd = xy_x / n;
+                    T d2 = dd * dd;
                     lp_lat = ph1 - (n * tn / r) * d2 *
                         (.5 - (1. + 3. * t) * d2 * C3);
                     lp_lon = dd * (1. + t * d2 *
@@ -157,23 +153,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_cass_spheroid : public base_t_fi<base_cass_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_cass_spheroid
+                : public base_t_fi<base_cass_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_cass<CalculationType> m_proj_parm;
+                par_cass<T> m_proj_parm;
 
                 inline base_cass_spheroid(const Parameters& par)
-                    : base_t_fi<base_cass_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_cass_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = asin(cos(lp_lat) * sin(lp_lon));
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon)) - this->m_par.phi0;
@@ -181,9 +173,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType dd = xy_y + this->m_par.phi0;
+                    T dd = xy_y + this->m_par.phi0;
                     lp_lat = asin(sin(dd) * cos(xy_x));
                     lp_lon = atan2(tan(xy_x), cos(dd));
                 }
@@ -222,10 +214,10 @@ namespace projections
         \par Example
         \image html ex_cass.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<T, Parameters>
     {
-        inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<CalculationType, Parameters>(par)
+        inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<T, Parameters>(par)
         {
             detail::cass::setup_cass(this->m_par, this->m_proj_parm);
         }
@@ -244,10 +236,10 @@ namespace projections
         \par Example
         \image html ex_cass.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct cass_spheroid : public detail::cass::base_cass_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct cass_spheroid : public detail::cass::base_cass_spheroid<T, Parameters>
     {
-        inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<CalculationType, Parameters>(par)
+        inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<T, Parameters>(par)
         {
             detail::cass::setup_cass(this->m_par, this->m_proj_parm);
         }
@@ -261,23 +253,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::cass, cass_spheroid, cass_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class cass_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class cass_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<cass_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<cass_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<cass_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<cass_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void cass_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void cass_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("cass", new cass_entry<CalculationType, Parameters>);
+            factory.add_to_factory("cass", new cass_entry<T, Parameters>);
         }
 
     } // namespace detail

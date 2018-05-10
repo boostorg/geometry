@@ -63,7 +63,7 @@ namespace projections
     namespace detail { namespace vandg2
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             struct par_vandg2
             {
@@ -71,48 +71,44 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_vandg2_spheroid : public base_t_f<base_vandg2_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_vandg2_spheroid
+                : public base_t_f<base_vandg2_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
                 par_vandg2 m_proj_parm;
 
                 inline base_vandg2_spheroid(const Parameters& par)
-                    : base_t_f<base_vandg2_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_vandg2_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+                    static const T pi = detail::pi<T>();
+                    static const T two_div_pi = detail::two_div_pi<T>();
 
-                    CalculationType x1, at, bt, ct;
+                    T x1, at, bt, ct;
 
-                    bt = fabs(TWO_D_PI * lp_lat);
+                    bt = fabs(two_div_pi * lp_lat);
                     if ((ct = 1. - bt * bt) < 0.)
                         ct = 0.;
                     else
                         ct = sqrt(ct);
-                    if (fabs(lp_lon) < TOL) {
+                    if (fabs(lp_lon) < tolerance) {
                         xy_x = 0.;
-                        xy_y = ONEPI * (lp_lat < 0. ? -bt : bt) / (1. + ct);
+                        xy_y = pi * (lp_lat < 0. ? -bt : bt) / (1. + ct);
                     } else {
-                        at = 0.5 * fabs(ONEPI / lp_lon - lp_lon / ONEPI);
+                        at = 0.5 * fabs(pi / lp_lon - lp_lon / pi);
                         if (this->m_proj_parm.vdg3) {
                             x1 = bt / (1. + ct);
-                            xy_x = ONEPI * (sqrt(at * at + 1. - x1 * x1) - at);
-                            xy_y = ONEPI * x1;
+                            xy_x = pi * (sqrt(at * at + 1. - x1 * x1) - at);
+                            xy_y = pi * x1;
                         } else {
                             x1 = (ct * sqrt(1. + at * at) - at * ct * ct) /
                                 (1. + at * at * bt * bt);
-                            xy_x = ONEPI * x1;
-                            xy_y = ONEPI * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
+                            xy_x = pi * x1;
+                            xy_y = pi * sqrt(1. - x1 * (x1 + 2. * at) + tolerance);
                         }
                         if ( lp_lon < 0.) xy_x = -xy_x;
                         if ( lp_lat < 0.) xy_y = -xy_y;
@@ -157,10 +153,10 @@ namespace projections
         \par Example
         \image html ex_vandg2.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct vandg2_spheroid : public detail::vandg2::base_vandg2_spheroid<T, Parameters>
     {
-        inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
+        inline vandg2_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<T, Parameters>(par)
         {
             detail::vandg2::setup_vandg2(this->m_par, this->m_proj_parm);
         }
@@ -179,10 +175,10 @@ namespace projections
         \par Example
         \image html ex_vandg3.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct vandg3_spheroid : public detail::vandg2::base_vandg2_spheroid<T, Parameters>
     {
-        inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<CalculationType, Parameters>(par)
+        inline vandg3_spheroid(const Parameters& par) : detail::vandg2::base_vandg2_spheroid<T, Parameters>(par)
         {
             detail::vandg2::setup_vandg3(this->m_par, this->m_proj_parm);
         }
@@ -197,31 +193,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::vandg3, vandg3_spheroid, vandg3_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class vandg2_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class vandg2_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<vandg2_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<vandg2_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class vandg3_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class vandg3_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<vandg3_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<vandg3_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void vandg2_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void vandg2_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("vandg2", new vandg2_entry<CalculationType, Parameters>);
-            factory.add_to_factory("vandg3", new vandg3_entry<CalculationType, Parameters>);
+            factory.add_to_factory("vandg2", new vandg2_entry<T, Parameters>);
+            factory.add_to_factory("vandg3", new vandg3_entry<T, Parameters>);
         }
 
     } // namespace detail

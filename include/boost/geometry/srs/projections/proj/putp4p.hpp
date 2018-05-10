@@ -68,35 +68,31 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_putp4p_spheroid : public base_t_fi<base_putp4p_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_putp4p_spheroid
+                : public base_t_fi<base_putp4p_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_putp4p<CalculationType> m_proj_parm;
+                par_putp4p<T> m_proj_parm;
 
                 inline base_putp4p_spheroid(const Parameters& par)
-                    : base_t_fi<base_putp4p_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_putp4p_spheroid<T, Parameters>,
+                     T, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static CalculationType const THIRD = detail::THIRD<CalculationType>();
+                    static T const third = detail::third<T>();
 
                     lp_lat = aasin(0.883883476 * sin(lp_lat));
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
-                    xy_x /= cos(lp_lat *= THIRD);
+                    xy_x /= cos(lp_lat *= third);
                     xy_y = this->m_proj_parm.C_y * sin(lp_lat);
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
                     lp_lon = xy_x * cos(lp_lat) / this->m_proj_parm.C_x;
@@ -148,10 +144,10 @@ namespace projections
         \par Example
         \image html ex_putp4p.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct putp4p_spheroid : public detail::putp4p::base_putp4p_spheroid<T, Parameters>
     {
-        inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
+        inline putp4p_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<T, Parameters>(par)
         {
             detail::putp4p::setup_putp4p(this->m_par, this->m_proj_parm);
         }
@@ -169,10 +165,10 @@ namespace projections
         \par Example
         \image html ex_weren.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct weren_spheroid : public detail::putp4p::base_putp4p_spheroid<T, Parameters>
     {
-        inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<CalculationType, Parameters>(par)
+        inline weren_spheroid(const Parameters& par) : detail::putp4p::base_putp4p_spheroid<T, Parameters>(par)
         {
             detail::putp4p::setup_weren(this->m_par, this->m_proj_parm);
         }
@@ -187,31 +183,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::weren, weren_spheroid, weren_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class putp4p_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class putp4p_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<putp4p_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<putp4p_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class weren_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class weren_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<weren_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<weren_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void putp4p_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void putp4p_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("putp4p", new putp4p_entry<CalculationType, Parameters>);
-            factory.add_to_factory("weren", new weren_entry<CalculationType, Parameters>);
+            factory.add_to_factory("putp4p", new putp4p_entry<T, Parameters>);
+            factory.add_to_factory("weren", new weren_entry<T, Parameters>);
         }
 
     } // namespace detail

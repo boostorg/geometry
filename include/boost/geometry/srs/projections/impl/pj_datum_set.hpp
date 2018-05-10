@@ -91,7 +91,7 @@ inline void pj_datum_add_defn(BGParams const& , std::vector<pvalue<T> >& pvalues
 
         if (index == -1)
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-9) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
         }
 
         if(! pj_datums[index].ellipse_id.empty())
@@ -146,7 +146,7 @@ inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pva
 {
     static const T SEC_TO_RAD = detail::SEC_TO_RAD<T>();
 
-    projdef.datum_type = PJD_UNKNOWN;
+    projdef.datum_type = datum_unknown;
 
     pj_datum_add_defn(bg_params, pvalues);
 
@@ -160,7 +160,7 @@ inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pva
         /* We don't actually save the value separately.  It will continue
            to exist int he param list for use in pj_apply_gridshift.c */
 
-        projdef.datum_type = PJD_GRIDSHIFT;
+        projdef.datum_type = datum_gridshift;
     }
 
 /* -------------------------------------------------------------------- */
@@ -187,7 +187,7 @@ inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pva
             || projdef.datum_params[5] != 0.0
             || projdef.datum_params[6] != 0.0 )
         {
-            projdef.datum_type = PJD_7PARAM;
+            projdef.datum_type = datum_7param;
 
             /* transform from arc seconds to radians */
             projdef.datum_params[3] *= SEC_TO_RAD;
@@ -199,7 +199,7 @@ inline void pj_datum_set(BGParams const& bg_params, std::vector<pvalue<T> >& pva
         }
         else
         {
-            projdef.datum_type = PJD_3PARAM;
+            projdef.datum_type = datum_3param;
         }
 
         /* Note that pj_init() will later switch datum_type to

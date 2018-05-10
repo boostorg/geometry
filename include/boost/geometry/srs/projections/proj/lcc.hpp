@@ -66,7 +66,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lcc
     {
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             struct par_lcc
@@ -80,37 +80,33 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_lcc_ellipsoid : public base_t_fi<base_lcc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_lcc_ellipsoid
+                : public base_t_fi<base_lcc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_lcc<CalculationType> m_proj_parm;
+                par_lcc<T> m_proj_parm;
 
                 inline base_lcc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_lcc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_lcc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid & spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rho;
+                    T rho;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                    if (fabs(fabs(lp_lat) - half_pi) < epsilon10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         rho = 0.;
                     } else {
                         rho = this->m_proj_parm.c * (this->m_proj_parm.ellips ? pow(pj_tsfn(lp_lat, sin(lp_lat),
-                            this->m_par.e), this->m_proj_parm.n) : pow(tan(FORTPI + .5 * lp_lat), -this->m_proj_parm.n));
+                            this->m_par.e), this->m_proj_parm.n) : pow(tan(fourth_pi + .5 * lp_lat), -this->m_proj_parm.n));
                     }
                     lp_lon *= this->m_proj_parm.n;
                     xy_x = this->m_par.k0 * (rho * sin( lp_lon) );
@@ -119,11 +115,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rho;
+                    T rho;
 
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
@@ -139,14 +135,14 @@ namespace projections
                         if (this->m_proj_parm.ellips) {
                             lp_lat = pj_phi2(pow(rho / this->m_proj_parm.c, 1./this->m_proj_parm.n), this->m_par.e);
                             if (lp_lat == HUGE_VAL) {
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                         } else
-                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - HALFPI;
+                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - half_pi;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : -HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? half_pi : -half_pi;
                     }
                 }
 
@@ -161,8 +157,8 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_lcc(Parameters& par, par_lcc<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T cosphi, sinphi;
                 int secant;
@@ -175,12 +171,12 @@ namespace projections
                     if (!pj_param_exists(par.params, "lat_0"))
                         par.phi0 = proj_parm.phi1;
                 }
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es != 0.)) ) {
                     double ml1, m1;
 
@@ -193,16 +189,16 @@ namespace projections
                         proj_parm.n /= log(ml1 / pj_tsfn(proj_parm.phi2, sinphi, par.e));
                     }
                     proj_parm.c = (proj_parm.rho0 = m1 * pow(ml1, -proj_parm.n) / proj_parm.n);
-                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
+                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
                         pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
                 } else {
                     if (secant)
                         proj_parm.n = log(cosphi / cos(proj_parm.phi2)) /
-                           log(tan(FORTPI + .5 * proj_parm.phi2) /
-                           tan(FORTPI + .5 * proj_parm.phi1));
-                    proj_parm.c = cosphi * pow(tan(FORTPI + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
-                    proj_parm.rho0 = (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
-                        proj_parm.c * pow(tan(FORTPI + .5 * par.phi0), -proj_parm.n);
+                           log(tan(fourth_pi + .5 * proj_parm.phi2) /
+                           tan(fourth_pi + .5 * proj_parm.phi1));
+                    proj_parm.c = cosphi * pow(tan(fourth_pi + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
+                    proj_parm.rho0 = (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
+                        proj_parm.c * pow(tan(fourth_pi + .5 * par.phi0), -proj_parm.n);
                 }
             }
 
@@ -226,10 +222,10 @@ namespace projections
         \par Example
         \image html ex_lcc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lcc_ellipsoid : public detail::lcc::base_lcc_ellipsoid<T, Parameters>
     {
-        inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<CalculationType, Parameters>(par)
+        inline lcc_ellipsoid(const Parameters& par) : detail::lcc::base_lcc_ellipsoid<T, Parameters>(par)
         {
             detail::lcc::setup_lcc(this->m_par, this->m_proj_parm);
         }
@@ -243,20 +239,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lcc, lcc_ellipsoid, lcc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lcc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class lcc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lcc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<lcc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void lcc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void lcc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("lcc", new lcc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("lcc", new lcc_entry<T, Parameters>);
         }
 
     } // namespace detail

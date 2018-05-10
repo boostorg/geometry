@@ -69,12 +69,12 @@ namespace projections
     namespace detail { namespace mod_ster
     {
 
-            static const double EPSLN = 1e-12;
+            static const double epsilon = 1e-12;
 
             template <typename T>
             struct par_mod_ster
             {
-                COMPLEX<T> *zcoeff;
+                pj_complex<T> *zcoeff;
                 T          cchio, schio;
                 int        n;
             };
@@ -82,34 +82,30 @@ namespace projections
             /* based upon Snyder and Linck, USGS-NMD */
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_mod_ster_ellipsoid : public base_t_fi<base_mod_ster_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_mod_ster_ellipsoid
+                : public base_t_fi<base_mod_ster_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_mod_ster<CalculationType> m_proj_parm;
+                par_mod_ster<T> m_proj_parm;
 
                 inline base_mod_ster_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_mod_ster_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_mod_ster_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType sinlon, coslon, esphi, chi, schi, cchi, s;
-                    COMPLEX<CalculationType> p;
+                    T sinlon, coslon, esphi, chi, schi, cchi, s;
+                    pj_complex<T> p;
 
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
-                    chi = 2. * atan(tan((HALFPI + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - HALFPI;
+                    chi = 2. * atan(tan((half_pi + lp_lat) * .5) *
+                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - half_pi;
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -122,13 +118,13 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     int nn;
-                    COMPLEX<CalculationType> p, fxy, fpxy, dp;
-                    CalculationType den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
+                    pj_complex<T> p, fxy, fpxy, dp;
+                    T den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
 
                     p.r = xy_x;
                     p.i = xy_y;
@@ -141,7 +137,7 @@ namespace projections
                         dp.i = -(fxy.i * fpxy.r - fxy.r * fpxy.i) / den;
                         p.r += dp.r;
                         p.i += dp.i;
-                        if ((fabs(dp.r) + fabs(dp.i)) <= EPSLN)
+                        if ((fabs(dp.r) + fabs(dp.i)) <= epsilon)
                             break;
                     }
                     if (nn) {
@@ -150,7 +146,7 @@ namespace projections
                         sinz = sin(z);
                         cosz = cos(z);
                         lp_lon = this->m_par.lam0;
-                        if (fabs(rh) <= EPSLN) {
+                        if (fabs(rh) <= epsilon) {
                             /* if we end up here input coordinates were (0,0).
                              * pj_inv() adds P->lam0 to lp.lam, this way we are
                              * sure to get the correct offset */
@@ -162,10 +158,10 @@ namespace projections
                         phi = chi;
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
-                            dphi = 2. * atan(tan((HALFPI + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - HALFPI - phi;
+                            dphi = 2. * atan(tan((half_pi + chi) * .5) *
+                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - half_pi - phi;
                             phi += dphi;
-                            if (fabs(dphi) <= EPSLN)
+                            if (fabs(dphi) <= epsilon)
                                 break;
                         }
                     }
@@ -187,14 +183,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup(Parameters& par, par_mod_ster<T>& proj_parm)  /* general initialization */
             {
-                static T const HALFPI = detail::HALFPI<T>();
+                static T const half_pi = detail::half_pi<T>();
 
                 T esphi, chio;
 
                 if (par.es != 0.0) {
                     esphi = par.e * sin(par.phi0);
-                    chio = 2. * atan(tan((HALFPI + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - HALFPI;
+                    chio = 2. * atan(tan((half_pi + par.phi0) * .5) *
+                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - half_pi;
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);
@@ -206,15 +202,17 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_mil_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = {
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = {
                     {0.924500, 0.},
                     {0.,       0.},
                     {0.019430, 0.}
                 };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<T>() * 20.;
-                par.phi0 = geometry::math::d2r<T>() * 18.;
+                par.lam0 = d2r * 20.;
+                par.phi0 = d2r * 18.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
 
@@ -225,15 +223,17 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_lee_os(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = {
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = {
                     { 0.721316,   0.},
                     { 0.,         0.},
                     {-0.0088162, -0.00617325}
                 };
 
                 proj_parm.n = 2;
-                par.lam0 = geometry::math::d2r<T>() * -165.;
-                par.phi0 = geometry::math::d2r<T>() * -10.;
+                par.lam0 = d2r * -165.;
+                par.phi0 = d2r * -10.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
 
@@ -244,7 +244,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gs48(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> AB[] = { /* 48 United States */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> AB[] = { /* 48 United States */
                     { 0.98879,  0.},
                     { 0.,       0.},
                     {-0.050909, 0.},
@@ -253,8 +255,8 @@ namespace projections
                 };
 
                 proj_parm.n = 4;
-                par.lam0 = geometry::math::d2r<T>() * -96.;
-                par.phi0 = geometry::math::d2r<T>() * -39.;
+                par.lam0 = d2r * -96.;
+                par.phi0 = d2r * -39.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 par.a = 6370997.;
@@ -266,7 +268,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_alsk(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> ABe[] = { /* Alaska ellipsoid */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> ABe[] = { /* Alaska ellipsoid */
                     { .9945303, 0.},
                     { .0052083, -.0027404},
                     { .0072721,  .0048181},
@@ -275,7 +279,7 @@ namespace projections
                     { .3582802, -.2884586}
                 };
 
-                static COMPLEX<T> ABs[] = { /* Alaska sphere */
+                static pj_complex<T> ABs[] = { /* Alaska sphere */
                     { .9972523, 0.},
                     { .0052513, -.0041175},
                     { .0074606,  .0048125},
@@ -285,8 +289,8 @@ namespace projections
                 };
 
                 proj_parm.n = 5;
-                par.lam0 = geometry::math::d2r<T>() * -152.;
-                par.phi0 = geometry::math::d2r<T>() * 64.;
+                par.lam0 = d2r * -152.;
+                par.phi0 = d2r * 64.;
                 if (par.es != 0.0) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -303,7 +307,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gs50(Parameters& par, par_mod_ster<T>& proj_parm)
             {
-                static COMPLEX<T> ABe[] = { /* GS50 ellipsoid */
+                static const T d2r = geometry::math::d2r<T>();
+
+                static pj_complex<T> ABe[] = { /* GS50 ellipsoid */
                     { .9827497, 0.},
                     { .0210669,  .0053804},
                     {-.1031415, -.0571664},
@@ -315,7 +321,7 @@ namespace projections
                     {-.0194029,  .0759677},
                     {-.0210072,  .0834037}
                 };
-                static COMPLEX<T> ABs[] = { /* GS50 sphere */
+                static pj_complex<T> ABs[] = { /* GS50 sphere */
                     { .9842990, 0.},
                     { .0211642,  .0037608},
                     {-.1036018, -.0575102},
@@ -329,8 +335,8 @@ namespace projections
                 };
 
                 proj_parm.n = 9;
-                par.lam0 = geometry::math::d2r<T>() * -120.;
-                par.phi0 = geometry::math::d2r<T>() * 45.;
+                par.lam0 = d2r * -120.;
+                par.phi0 = d2r * 45.;
                 if (par.es != 0.0) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -357,10 +363,10 @@ namespace projections
         \par Example
         \image html ex_mil_os.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct mil_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>
     {
-        inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
+        inline mil_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>(par)
         {
             detail::mod_ster::setup_mil_os(this->m_par, this->m_proj_parm);
         }
@@ -377,10 +383,10 @@ namespace projections
         \par Example
         \image html ex_lee_os.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lee_os_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>
     {
-        inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
+        inline lee_os_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>(par)
         {
             detail::mod_ster::setup_lee_os(this->m_par, this->m_proj_parm);
         }
@@ -397,10 +403,10 @@ namespace projections
         \par Example
         \image html ex_gs48.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gs48_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>
     {
-        inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
+        inline gs48_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>(par)
         {
             detail::mod_ster::setup_gs48(this->m_par, this->m_proj_parm);
         }
@@ -417,10 +423,10 @@ namespace projections
         \par Example
         \image html ex_alsk.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct alsk_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>
     {
-        inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
+        inline alsk_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>(par)
         {
             detail::mod_ster::setup_alsk(this->m_par, this->m_proj_parm);
         }
@@ -437,10 +443,10 @@ namespace projections
         \par Example
         \image html ex_gs50.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gs50_ellipsoid : public detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>
     {
-        inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<CalculationType, Parameters>(par)
+        inline gs50_ellipsoid(const Parameters& par) : detail::mod_ster::base_mod_ster_ellipsoid<T, Parameters>(par)
         {
             detail::mod_ster::setup_gs50(this->m_par, this->m_proj_parm);
         }
@@ -458,64 +464,64 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gs50, gs50_ellipsoid, gs50_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class mil_os_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class mil_os_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<mil_os_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<mil_os_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class lee_os_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class lee_os_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lee_os_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<lee_os_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class gs48_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gs48_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gs48_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<gs48_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class alsk_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class alsk_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<alsk_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<alsk_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class gs50_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gs50_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gs50_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<gs50_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void mod_ster_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void mod_ster_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("mil_os", new mil_os_entry<CalculationType, Parameters>);
-            factory.add_to_factory("lee_os", new lee_os_entry<CalculationType, Parameters>);
-            factory.add_to_factory("gs48", new gs48_entry<CalculationType, Parameters>);
-            factory.add_to_factory("alsk", new alsk_entry<CalculationType, Parameters>);
-            factory.add_to_factory("gs50", new gs50_entry<CalculationType, Parameters>);
+            factory.add_to_factory("mil_os", new mil_os_entry<T, Parameters>);
+            factory.add_to_factory("lee_os", new lee_os_entry<T, Parameters>);
+            factory.add_to_factory("gs48", new gs48_entry<T, Parameters>);
+            factory.add_to_factory("alsk", new alsk_entry<T, Parameters>);
+            factory.add_to_factory("gs50", new gs50_entry<T, Parameters>);
         }
 
     } // namespace detail

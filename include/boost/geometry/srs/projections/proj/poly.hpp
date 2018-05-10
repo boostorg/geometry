@@ -62,11 +62,11 @@ namespace projections
     namespace detail { namespace poly
     {
 
-            static const double TOL = 1e-10;
-            static const double CONV = 1e-10;
-            static const int N_ITER = 10;
-            static const int I_ITER = 20;
-            static const double ITOL = 1.e-12;
+            static const double tolerance = 1e-10;
+            static const double conv_tolerance = 1e-10;
+            static const int n_iter = 10;
+            static const int i_iter = 20;
+            static const double i_tolerance = 1.e-12;
 
             template <typename T>
             struct par_poly
@@ -76,32 +76,28 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_poly_ellipsoid : public base_t_fi<base_poly_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_poly_ellipsoid
+                : public base_t_fi<base_poly_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_poly<CalculationType> m_proj_parm;
+                par_poly<T> m_proj_parm;
 
                 inline base_poly_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_poly_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_poly_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType  ms, sp, cp;
+                    T  ms, sp, cp;
 
-                    if (fabs(lp_lat) <= TOL) {
+                    if (fabs(lp_lat) <= tolerance) {
                         xy_x = lp_lon;
                         xy_y = -this->m_proj_parm.ml0;
                     } else {
                         sp = sin(lp_lat);
-                        ms = fabs(cp = cos(lp_lat)) > TOL ? pj_msfn(sp, cp, this->m_par.es) / sp : 0.;
+                        ms = fabs(cp = cos(lp_lat)) > tolerance ? pj_msfn(sp, cp, this->m_par.es) / sp : 0.;
                         xy_x = ms * sin(lp_lon *= sp);
                         xy_y = (pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en) - this->m_proj_parm.ml0) + ms * (1. - cos(lp_lon));
                     }
@@ -109,22 +105,22 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     xy_y += this->m_proj_parm.ml0;
-                    if (fabs(xy_y) <= TOL) {
+                    if (fabs(xy_y) <= tolerance) {
                         lp_lon = xy_x;
                         lp_lat = 0.;
                     } else {
-                        CalculationType r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
+                        T r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
                         int i;
 
                         r = xy_y * xy_y + xy_x * xy_x;
-                        for (lp_lat = xy_y, i = I_ITER; i ; --i) {
+                        for (lp_lat = xy_y, i = i_iter; i ; --i) {
                             sp = sin(lp_lat);
                             s2ph = sp * ( cp = cos(lp_lat));
-                            if (fabs(cp) < ITOL) {
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            if (fabs(cp) < i_tolerance) {
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                             c = sp * (mlp = sqrt(1. - this->m_par.es * sp * sp)) / cp;
                             ml = pj_mlfn(lp_lat, sp, cp, this->m_proj_parm.en);
@@ -134,11 +130,11 @@ namespace projections
                                 ( ml + ml + c * mlb - 2. * xy_y * (c * ml + 1.) ) / (
                                 this->m_par.es * s2ph * (mlb - 2. * xy_y * ml) / c +
                                 2.* (xy_y - ml) * (c * mlp - 1. / s2ph) - mlp - mlp ));
-                            if (fabs(dPhi) <= ITOL)
+                            if (fabs(dPhi) <= i_tolerance)
                                 break;
                         }
                         if (!i) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         c = sin(lp_lat);
                         lp_lon = asin(xy_x * tan(lp_lat) * sqrt(1. - this->m_par.es * c * c)) / sin(lp_lat);
@@ -153,27 +149,23 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_poly_spheroid : public base_t_fi<base_poly_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_poly_spheroid
+                : public base_t_fi<base_poly_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_poly<CalculationType> m_proj_parm;
+                par_poly<T> m_proj_parm;
 
                 inline base_poly_spheroid(const Parameters& par)
-                    : base_t_fi<base_poly_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_poly_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType  cot, E;
+                    T  cot, E;
 
-                    if (fabs(lp_lat) <= TOL) {
+                    if (fabs(lp_lat) <= tolerance) {
                         xy_x = lp_lon;
                         xy_y = this->m_proj_parm.ml0;
                     } else {
@@ -185,26 +177,26 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType B, dphi, tp;
+                    T B, dphi, tp;
                     int i;
 
-                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) {
+                    if (fabs(xy_y = this->m_par.phi0 + xy_y) <= tolerance) {
                         lp_lon = xy_x;
                         lp_lat = 0.;
                     } else {
                         lp_lat = xy_y;
                         B = xy_x * xy_x + xy_y * xy_y;
-                        i = N_ITER;
+                        i = n_iter;
                         do {
                             tp = tan(lp_lat);
                             lp_lat -= (dphi = (xy_y * (lp_lat * tp + 1.) - lp_lat -
                                 .5 * ( lp_lat * lp_lat + B) * tp) /
                                 ((lp_lat - xy_y) / tp - 1.));
-                        } while (fabs(dphi) > CONV && --i);
+                        } while (fabs(dphi) > conv_tolerance && --i);
                         if (! i) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         lp_lon = asin(xy_x * tan(lp_lat)) / sin(lp_lat);
                     }
@@ -245,10 +237,10 @@ namespace projections
         \par Example
         \image html ex_poly.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<T, Parameters>
     {
-        inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<CalculationType, Parameters>(par)
+        inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<T, Parameters>(par)
         {
             detail::poly::setup_poly(this->m_par, this->m_proj_parm);
         }
@@ -267,10 +259,10 @@ namespace projections
         \par Example
         \image html ex_poly.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct poly_spheroid : public detail::poly::base_poly_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct poly_spheroid : public detail::poly::base_poly_spheroid<T, Parameters>
     {
-        inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<CalculationType, Parameters>(par)
+        inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<T, Parameters>(par)
         {
             detail::poly::setup_poly(this->m_par, this->m_proj_parm);
         }
@@ -284,23 +276,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::poly, poly_spheroid, poly_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class poly_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class poly_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<poly_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<poly_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<poly_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<poly_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void poly_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void poly_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("poly", new poly_entry<CalculationType, Parameters>);
+            factory.add_to_factory("poly", new poly_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -72,31 +72,27 @@ namespace projections
                 T phic0;
                 T cosc0, sinc0;
                 T R2;
-                gauss::GAUSS<T> en;
+                gauss<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_sterea_ellipsoid : public base_t_fi<base_sterea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_sterea_ellipsoid
+                : public base_t_fi<base_sterea_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_sterea<CalculationType> m_proj_parm;
+                par_sterea<T> m_proj_parm;
 
                 inline base_sterea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_sterea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_sterea_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType cosc, sinc, cosl_, k;
+                    T cosc, sinc, cosl_, k;
 
-                    detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_fwd(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
                     cosc = cos(lp_lat);
                     cosl_ = cos(lp_lon);
@@ -107,9 +103,9 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType rho, c, sinc, cosc;
+                    T rho, c, sinc, cosc;
 
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
@@ -124,7 +120,7 @@ namespace projections
                         lp_lat = this->m_proj_parm.phic0;
                         lp_lon = 0.;
                     }
-                    detail::gauss::inv_gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_inv(m_proj_parm.en, lp_lon, lp_lat);
                 }
 
                 static inline std::string get_name()
@@ -140,7 +136,7 @@ namespace projections
             {
                 T R;
 
-                proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
+                proj_parm.en = detail::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);
                 proj_parm.cosc0 = cos(proj_parm.phic0);
                 proj_parm.R2 = 2. * R;
@@ -162,10 +158,10 @@ namespace projections
         \par Example
         \image html ex_sterea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<T, Parameters>
     {
-        inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>(par)
+        inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<T, Parameters>(par)
         {
             detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
         }
@@ -179,20 +175,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::sterea, sterea_ellipsoid, sterea_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class sterea_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class sterea_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<sterea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<sterea_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void sterea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void sterea_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("sterea", new sterea_entry<CalculationType, Parameters>);
+            factory.add_to_factory("sterea", new sterea_entry<T, Parameters>);
         }
 
     } // namespace detail

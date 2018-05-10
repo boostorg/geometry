@@ -99,7 +99,7 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
             }
 
             if (index == -1) {
-                BOOST_THROW_EXCEPTION( projection_exception(-9) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
             }
 
             parameters.push_back(pj_mkparam<T>(pj_ellps[index].major));
@@ -112,7 +112,7 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
             es = e * e;
         } else if (pj_param_f(parameters, "rf", es)) { /* recip flattening */
             if (!es) {
-                BOOST_THROW_EXCEPTION( projection_exception(-10) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_rev_flattening_is_zero) );
             }
             es = 1./ es;
             es = es * (2. - es);
@@ -147,7 +147,7 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
 
                 tmp = sin(tmp);
                 if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-11) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ref_rad_larger_than_90) );
                 }
                 tmp = 1. - es * tmp * tmp;
                 a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
@@ -159,10 +159,10 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
 
     /* some remaining checks */
     if (es < 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_es_less_than_zero) );
     }
     if (a <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_major_axis_not_given) );
     }
 }
 
@@ -190,10 +190,10 @@ inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> c
 
     /* some remaining checks */
     if (es < 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_es_less_than_zero) );
     }
     if (a <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_major_axis_not_given) );
     }
 }
 
@@ -262,7 +262,7 @@ inline void pj_calc_ellipsoid_params(parameters<T> & p, T const& a, T const& es)
 
     p.one_es = 1. - p.es;
     if (p.one_es == 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_eccentricity_is_one) );
     }
 
     p.rone_es = 1./p.one_es;

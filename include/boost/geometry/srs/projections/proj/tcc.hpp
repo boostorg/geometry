@@ -60,30 +60,26 @@ namespace projections
     namespace detail { namespace tcc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tcc_spheroid : public base_t_f<base_tcc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tcc_spheroid
+                : public base_t_f<base_tcc_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
                 inline base_tcc_spheroid(const Parameters& par)
-                    : base_t_f<base_tcc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_tcc_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType b, bt;
+                    T b, bt;
 
                     b = cos(lp_lat) * sin(lp_lon);
-                    if ((bt = 1. - b * b) < EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    if ((bt = 1. - b * b) < epsilon10) {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_x = b / sqrt(bt);
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon));
@@ -119,10 +115,10 @@ namespace projections
         \par Example
         \image html ex_tcc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tcc_spheroid : public detail::tcc::base_tcc_spheroid<T, Parameters>
     {
-        inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<CalculationType, Parameters>(par)
+        inline tcc_spheroid(const Parameters& par) : detail::tcc::base_tcc_spheroid<T, Parameters>(par)
         {
             detail::tcc::setup_tcc(this->m_par);
         }
@@ -136,20 +132,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tcc, tcc_spheroid, tcc_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class tcc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class tcc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<tcc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<tcc_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void tcc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void tcc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("tcc", new tcc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("tcc", new tcc_entry<T, Parameters>);
         }
 
     } // namespace detail

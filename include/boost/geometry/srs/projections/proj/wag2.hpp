@@ -67,22 +67,17 @@ namespace projections
             static const double C_p2 = 0.88550;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_wag2_spheroid : public base_t_fi<base_wag2_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_wag2_spheroid
+                : public base_t_fi<base_wag2_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_wag2_spheroid(const Parameters& par)
-                    : base_t_fi<base_wag2_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_wag2_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     lp_lat = aasin(C_p1 * sin(C_p2 * lp_lat));
                     xy_x = C_x * lp_lon * cos(lp_lat);
@@ -91,7 +86,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = xy_y / C_y;
                     lp_lon = xy_x / (C_x * cos(lp_lat));
@@ -127,10 +122,10 @@ namespace projections
         \par Example
         \image html ex_wag2.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wag2_spheroid : public detail::wag2::base_wag2_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wag2_spheroid : public detail::wag2::base_wag2_spheroid<T, Parameters>
     {
-        inline wag2_spheroid(const Parameters& par) : detail::wag2::base_wag2_spheroid<CalculationType, Parameters>(par)
+        inline wag2_spheroid(const Parameters& par) : detail::wag2::base_wag2_spheroid<T, Parameters>(par)
         {
             detail::wag2::setup_wag2(this->m_par);
         }
@@ -144,20 +139,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag2, wag2_spheroid, wag2_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class wag2_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wag2_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag2_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wag2_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void wag2_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void wag2_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("wag2", new wag2_entry<CalculationType, Parameters>);
+            factory.add_to_factory("wag2", new wag2_entry<T, Parameters>);
         }
 
     } // namespace detail

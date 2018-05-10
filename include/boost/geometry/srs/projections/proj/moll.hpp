@@ -65,8 +65,8 @@ namespace projections
     namespace detail { namespace moll
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_moll
@@ -75,38 +75,34 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_moll_spheroid : public base_t_fi<base_moll_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_moll_spheroid
+                : public base_t_fi<base_moll_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_moll<CalculationType> m_proj_parm;
+                par_moll<T> m_proj_parm;
 
                 inline base_moll_spheroid(const Parameters& par)
-                    : base_t_fi<base_moll_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_moll_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType k, V;
+                    T k, V;
                     int i;
 
                     k = this->m_proj_parm.C_p * sin(lp_lat);
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
                             (1. + cos(lp_lat));
-                        if (fabs(V) < LOOP_TOL)
+                        if (fabs(V) < loop_tol)
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        lp_lat = (lp_lat < 0.) ? -half_pi : half_pi;
                     else
                         lp_lat *= 0.5;
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
@@ -115,13 +111,13 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const T pi = detail::pi<T>();
 
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(lp_lat));
-                    if (fabs(lp_lon) < ONEPI) {
+                    if (fabs(lp_lon) < pi) {
                         lp_lat += lp_lat;
                         lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                     } else {
@@ -190,10 +186,10 @@ namespace projections
         \par Example
         \image html ex_moll.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct moll_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct moll_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
+        inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_moll(this->m_par, this->m_proj_parm);
         }
@@ -211,10 +207,10 @@ namespace projections
         \par Example
         \image html ex_wag4.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wag4_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wag4_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
+        inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_wag4(this->m_par, this->m_proj_parm);
         }
@@ -232,10 +228,10 @@ namespace projections
         \par Example
         \image html ex_wag5.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wag5_spheroid : public detail::moll::base_moll_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wag5_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<CalculationType, Parameters>(par)
+        inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_wag5(this->m_par, this->m_proj_parm);
         }
@@ -251,42 +247,42 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag5, wag5_spheroid, wag5_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class moll_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class moll_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<moll_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<moll_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class wag4_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wag4_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag4_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wag4_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class wag5_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wag5_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag5_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wag5_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void moll_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void moll_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("moll", new moll_entry<CalculationType, Parameters>);
-            factory.add_to_factory("wag4", new wag4_entry<CalculationType, Parameters>);
-            factory.add_to_factory("wag5", new wag5_entry<CalculationType, Parameters>);
+            factory.add_to_factory("moll", new moll_entry<T, Parameters>);
+            factory.add_to_factory("wag4", new wag4_entry<T, Parameters>);
+            factory.add_to_factory("wag5", new wag5_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -62,7 +62,7 @@ namespace projections
     namespace detail { namespace lagrng
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             template <typename T>
             struct par_lagrng
@@ -73,36 +73,32 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_lagrng_spheroid : public base_t_f<base_lagrng_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_lagrng_spheroid
+                : public base_t_f<base_lagrng_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_lagrng<CalculationType> m_proj_parm;
+                par_lagrng<T> m_proj_parm;
 
                 inline base_lagrng_spheroid(const Parameters& par)
-                    : base_t_f<base_lagrng_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_lagrng_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType v, c;
+                    T v, c;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    if (fabs(fabs(lp_lat) - half_pi) < tolerance) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
                         lp_lat = sin(lp_lat);
                         v = this->m_proj_parm.a1 * pow((1. + lp_lat)/(1. - lp_lat), this->m_proj_parm.hrw);
-                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < TOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < tolerance) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = 2. * sin(lp_lon) / c;
                         xy_y = (v - 1./v) / c;
@@ -124,13 +120,13 @@ namespace projections
 
                 proj_parm.rw = pj_get_param_f(par.params, "W");
                 if (proj_parm.rw <= 0)
-                    BOOST_THROW_EXCEPTION( projection_exception(-27) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
 
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
                 phi1 = pj_get_param_r(par.params, "lat_1");
-                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < tolerance)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);
 
@@ -156,10 +152,10 @@ namespace projections
         \par Example
         \image html ex_lagrng.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<T, Parameters>
     {
-        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>(par)
+        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<T, Parameters>(par)
         {
             detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
         }
@@ -173,20 +169,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lagrng, lagrng_spheroid, lagrng_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lagrng_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class lagrng_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<lagrng_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<lagrng_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void lagrng_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void lagrng_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("lagrng", new lagrng_entry<CalculationType, Parameters>);
+            factory.add_to_factory("lagrng", new lagrng_entry<T, Parameters>);
         }
 
     } // namespace detail

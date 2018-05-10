@@ -64,12 +64,12 @@ namespace projections
     namespace detail { namespace gnom
     {
 
-            static const double EPS10 = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon10 = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -77,65 +77,61 @@ namespace projections
             {
                 T    sinph0;
                 T    cosph0;
-                enum Mode mode;
+                mode_type mode;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_gnom_spheroid : public base_t_fi<base_gnom_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_gnom_spheroid
+                : public base_t_fi<base_gnom_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_gnom<CalculationType> m_proj_parm;
+                par_gnom<T> m_proj_parm;
 
                 inline base_gnom_spheroid(const Parameters& par)
-                    : base_t_fi<base_gnom_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_gnom_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType  coslam, cosphi, sinphi;
+                    T  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
 
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y = cosphi * coslam;
                         break;
-                    case OBLIQ:
+                    case obliq:
                         xy_y = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosphi * coslam;
                         break;
-                    case S_POLE:
+                    case s_pole:
                         xy_y = - sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = sinphi;
                         break;
                     }
 
-                    if (xy_y <= EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    if (xy_y <= epsilon10) {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     xy_x = (xy_y = 1. / xy_y) * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y *= sinphi;
                         break;
-                    case OBLIQ:
+                    case obliq:
                         xy_y *= this->m_proj_parm.cosph0 * sinphi - this->m_proj_parm.sinph0 * cosphi * coslam;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = - coslam;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         xy_y *= cosphi * coslam;
                         break;
                     }
@@ -143,44 +139,44 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  rh, cosz, sinz;
+                    T  rh, cosz, sinz;
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     sinz = sin(lp_lat = atan(rh));
                     cosz = sqrt(1. - sinz * sinz);
 
-                    if (fabs(rh) <= EPS10) {
+                    if (fabs(rh) <= epsilon10) {
                         lp_lat = this->m_par.phi0;
                         lp_lon = 0.;
                     } else {
                         switch (this->m_proj_parm.mode) {
-                        case OBLIQ:
+                        case obliq:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
+                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
                             xy_x *= sinz * this->m_proj_parm.cosph0;
                             break;
-                        case EQUIT:
+                        case equit:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : -HALFPI;
+                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
-                        case S_POLE:
-                            lp_lat -= HALFPI;
+                        case s_pole:
+                            lp_lat -= half_pi;
                             break;
-                        case N_POLE:
-                            lp_lat = HALFPI - lp_lat;
+                        case n_pole:
+                            lp_lat = half_pi - lp_lat;
                             xy_y = -xy_y;
                             break;
                         }
@@ -199,14 +195,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_gnom(Parameters& par, par_gnom<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                } else if (fabs(par.phi0) < EPS10) {
-                    proj_parm.mode = EQUIT;
+                if (fabs(fabs(par.phi0) - half_pi) < epsilon10) {
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
+                } else if (fabs(par.phi0) < epsilon10) {
+                    proj_parm.mode = equit;
                 } else {
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
@@ -229,10 +225,10 @@ namespace projections
         \par Example
         \image html ex_gnom.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gnom_spheroid : public detail::gnom::base_gnom_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gnom_spheroid : public detail::gnom::base_gnom_spheroid<T, Parameters>
     {
-        inline gnom_spheroid(const Parameters& par) : detail::gnom::base_gnom_spheroid<CalculationType, Parameters>(par)
+        inline gnom_spheroid(const Parameters& par) : detail::gnom::base_gnom_spheroid<T, Parameters>(par)
         {
             detail::gnom::setup_gnom(this->m_par, this->m_proj_parm);
         }
@@ -246,20 +242,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gnom, gnom_spheroid, gnom_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class gnom_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gnom_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gnom_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<gnom_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void gnom_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void gnom_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("gnom", new gnom_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gnom", new gnom_entry<T, Parameters>);
         }
 
     } // namespace detail

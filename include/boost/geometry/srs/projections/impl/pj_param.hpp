@@ -182,7 +182,7 @@ inline bool pj_get_param_b(std::vector<pvalue<T> > const& pl, std::string const&
         case 'F': case 'f':
             return false;
         default:
-            BOOST_THROW_EXCEPTION( projection_exception(-8) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_invalid_boolean_param) );
             return false;
         }
     }    

@@ -73,45 +73,41 @@ namespace projections
                 int no_rot;
             };
 
-            static const double TOL = 1.e-7;
-            static const double EPS = 1.e-10;
+            static const double tolerance = 1.e-7;
+            static const double epsilon = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_omerc_ellipsoid : public base_t_fi<base_omerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_omerc_ellipsoid
+                : public base_t_fi<base_omerc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_omerc<CalculationType> m_proj_parm;
+                par_omerc<T> m_proj_parm;
 
                 inline base_omerc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_omerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_omerc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  S, T, U, V, W, temp, u, v;
+                    T  S, T, U, V, W, temp, u, v;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
+                    if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
                         W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / W;
                         S = .5 * (W - temp);
                         T = .5 * (W + temp);
                         V = sin(this->m_proj_parm.B * lp_lon);
                         U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
-                        if (fabs(fabs(U) - 1.0) < EPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (fabs(fabs(U) - 1.0) < epsilon) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
-                        if(fabs(temp) < TOL) {
+                        if(fabs(temp) < tolerance) {
                             u = this->m_proj_parm.A * lp_lon;
                         } else {
                             u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
@@ -132,11 +128,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  u, v, Qp, Sp, Tp, Vp, Up;
+                    T  u, v, Qp, Sp, Tp, Vp, Up;
 
                     if (this->m_proj_parm.no_rot) {
                         v = xy_y;
@@ -150,13 +146,13 @@ namespace projections
                     Tp = .5 * (Qp + 1. / Qp);
                     Vp = sin(this->m_proj_parm.BrA * u);
                     Up = (Vp * this->m_proj_parm.cosgam + Sp * this->m_proj_parm.singam) / Tp;
-                    if (fabs(fabs(Up) - 1.) < EPS) {
+                    if (fabs(fabs(Up) - 1.) < epsilon) {
                         lp_lon = 0.;
-                        lp_lat = Up < 0. ? -HALFPI : HALFPI;
+                        lp_lat = Up < 0. ? -half_pi : half_pi;
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         lp_lon = - this->m_proj_parm.rB * atan2((Sp * this->m_proj_parm.cosgam -
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
@@ -174,10 +170,10 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_omerc(Parameters& par, par_omerc<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T TWOPI = detail::TWOPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T pi = detail::pi<T>();
+                static const T two_pi = detail::two_pi<T>();
 
                 T con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
                   gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0;
@@ -205,15 +201,15 @@ namespace projections
                     phi1 = pj_get_param_r(par.params, "lat_1");
                     lam2 = pj_get_param_r(par.params, "lon_2");
                     phi2 = pj_get_param_r(par.params, "lat_2");
-                    if (fabs(phi1 - phi2) <= TOL ||
-                        (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL ||
-                        fabs(fabs(par.phi0) - HALFPI) <= TOL ||
-                        fabs(fabs(phi2) - HALFPI) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-33) );
+                    if (fabs(phi1 - phi2) <= tolerance ||
+                        (con = fabs(phi1)) <= tolerance ||
+                        fabs(con - half_pi) <= tolerance ||
+                        fabs(fabs(par.phi0) - half_pi) <= tolerance ||
+                        fabs(fabs(phi2) - half_pi) <= tolerance)
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
                 }
                 com = sqrt(par.one_es);
-                if (fabs(par.phi0) > EPS) {
+                if (fabs(par.phi0) > epsilon) {
                     sinph0 = sin(par.phi0);
                     cosph0 = cos(par.phi0);
                     con = 1. - par.es * sinph0 * sinph0;
@@ -251,10 +247,10 @@ namespace projections
                     p = (L - H) / (L + H);
                     J = proj_parm.E * proj_parm.E;
                     J = (J - L * H) / (J + L * H);
-                    if ((con = lam1 - lam2) < -ONEPI)
-                        lam2 -= TWOPI;
-                    else if (con > ONEPI)
-                        lam2 += TWOPI;
+                    if ((con = lam1 - lam2) < -pi)
+                        lam2 -= two_pi;
+                    else if (con > pi)
+                        lam2 += two_pi;
                     par.lam0 = adjlon(.5 * (lam1 + lam2) - atan(
                        J * tan(.5 * proj_parm.B * (lam1 - lam2)) / p) / proj_parm.B);
                     gamma0 = atan(2. * sin(proj_parm.B * adjlon(lam1 - par.lam0)) /
@@ -275,8 +271,8 @@ namespace projections
                         proj_parm.u_0 = - proj_parm.u_0;
                 }
                 F = 0.5 * gamma0;
-                proj_parm.v_pole_n = proj_parm.ArB * log(tan(FORTPI - F));
-                proj_parm.v_pole_s = proj_parm.ArB * log(tan(FORTPI + F));
+                proj_parm.v_pole_n = proj_parm.ArB * log(tan(fourth_pi - F));
+                proj_parm.v_pole_s = proj_parm.ArB * log(tan(fourth_pi + F));
             }
 
     }} // namespace detail::omerc
@@ -306,10 +302,10 @@ namespace projections
         \par Example
         \image html ex_omerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<T, Parameters>
     {
-        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<CalculationType, Parameters>(par)
+        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<T, Parameters>(par)
         {
             detail::omerc::setup_omerc(this->m_par, this->m_proj_parm);
         }
@@ -323,20 +319,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::omerc, omerc_ellipsoid, omerc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class omerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class omerc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<omerc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<omerc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void omerc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void omerc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("omerc", new omerc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("omerc", new omerc_entry<T, Parameters>);
         }
 
     } // namespace detail

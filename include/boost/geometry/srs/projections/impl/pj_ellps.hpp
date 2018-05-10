@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,11 +41,22 @@
 
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
+#include <string>
+
 namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
-static const PJ_ELLPS pj_ellps[] =
+// Originally defined in projects.h
+struct pj_ellps_type
+{
+    std::string id;    /* ellipse keyword name */
+    std::string major; /* a= value */
+    std::string ell;   /* elliptical parameter */
+    std::string name;  /* comments */
+};
+
+static const pj_ellps_type pj_ellps[] =
 {
     {"MERIT",     "a=6378137.0",   "rf=298.257",           "MERIT 1983"},
     {"SGS85",     "a=6378136.0",   "rf=298.257",           "Soviet Geodetic System 85"},
