@@ -541,11 +541,7 @@ private:
             ReturnType diff1 = cast::apply(geometry::get<1>(p1))
                                - cast::apply(geometry::get<1>(p0));
 
-            int sign = 1;
-            if (diff1 < 0)
-            {
-                sign = -1;
-            }
+            int sign = diff1 < 0 ? -1 : 1;
             if (side::apply(p0, p1, corner1) * sign < 0)
             {
                 result = cast::apply(ps_strategy.apply(corner1, p0, p1));
