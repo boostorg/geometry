@@ -52,16 +52,19 @@ struct spherical_or_geographic
         typedef typename cs_tag<Segment>::type segment_cs_type;
         SegmentPoint p_max;
 
-        std::size_t disjoint_result =
-                geometry::detail::disjoint::
-                disjoint_segment_box_sphere_or_spheroid<segment_cs_type>::
+        typedef geometry::detail::disjoint::
+           disjoint_segment_box_sphere_or_spheroid<segment_cs_type> disjoint_sb;
+        typedef typename disjoint_sb::disjoint_info disjoint_info_type;
+
+        disjoint_info_type disjoint_result = disjoint_sb::
                 apply(seg, input_box, ps_strategy.get_azimuth_strategy(), p_max);
 
-        if (disjoint_result == 0) //intersect
+        if (disjoint_result == disjoint_info_type::intersect) //intersect
         {
             return 0;
         }
-        if (disjoint_result == 1) // disjoint but vertex not computed
+        // disjoint but vertex not computed
+        if (disjoint_result == disjoint_info_type::disjoint_no_vertex)
         {
             typedef typename coordinate_type<SegmentPoint>::type CT;
             geometry::model::box<SegmentPoint> mbr;
@@ -92,13 +95,13 @@ struct spherical_or_geographic
             geometry::set_from_radian<0>(p_max, vertex_lon);
             geometry::set_from_radian<1>(p_max, vertex_lat);
         }
-        //otherwise disjoint_result == 2
-        //i.e. disjoint and vertex computed inside disjoint
+        //otherwise disjoint and vertex computed inside disjoint
 
         if (less_equal(geometry::get_as_radian<0>(bottom_left),
                        geometry::get_as_radian<0>(p_max)))
         {
-            result = boost::numeric_cast<ReturnType>(ps_strategy.apply(bottom_left, p0, p1));
+            result = boost::numeric_cast<ReturnType>(ps_strategy.apply(bottom_left,
+                                                                       p0, p1));
         }
         else
         {
