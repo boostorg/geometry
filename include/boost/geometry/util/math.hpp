@@ -771,6 +771,44 @@ inline Result rounding_cast(T const& v)
     return detail::rounding_cast<Result, T>::apply(v);
 }
 
+/*!
+\brief Evaluate the sine and cosine function with the argument in degrees
+\note The results obey exactly the elementary properties of the trigonometric
+      functions, e.g., sin 9&deg; = cos 81&deg; = &minus; sin 123456789&deg;.
+      If x = &minus;0, then \e sinx = &minus;0; this is the only case where
+      &minus;0 is returned.
+*/
+template<typename T>
+inline void sin_cos_degrees(T const& x, T & sinx, T & cosx)
+{
+    // In order to minimize round-off errors, this function exactly reduces
+    // the argument to the range [-45, 45] before converting it to radians.
+    T remainder; int quotient;
+
+    remainder = std::fmod(x, T(360));
+    quotient = int(std::floor(remainder / 90 + T(0.5)));
+    remainder -= 90 * quotient;
+
+    // Convert to radians.
+    remainder = as_radian<T>(remainder);
+
+    T s = std::sin(remainder), c = std::cos(remainder);
+
+    switch (unsigned(quotient) & 3U)
+    {
+        case 0U: sinx =  s; cosx =  c; break;
+        case 1U: sinx =  c; cosx = -s; break;
+        case 2U: sinx = -s; cosx = -c; break;
+        default: sinx = -c; cosx =  s; break; // case 3U
+    }
+
+    // Set sign of 0 results. -0 only produced for sin(-0).
+    if (x != 0)
+    {
+        sinx += T(0); cosx += T(0);
+    }
+}
+
 } // namespace math
 
 
