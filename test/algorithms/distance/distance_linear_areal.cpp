@@ -38,6 +38,7 @@ typedef bg::default_distance_result<point_type>::type return_type;
 
 typedef bg::strategy::distance::pythagoras<> point_point_strategy;
 typedef bg::strategy::distance::projected_point<> point_segment_strategy;
+typedef bg::strategy::distance::cartesian_segment_box<> segment_box_strategy;
 
 //===========================================================================
 
@@ -952,7 +953,7 @@ BOOST_AUTO_TEST_CASE( test_all_multilinestring_ring )
 
 BOOST_AUTO_TEST_CASE( test_all_segment_box )
 {
-    test_distance_segment_box(point_segment_strategy());
+    test_distance_segment_box(segment_box_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linestring_box )

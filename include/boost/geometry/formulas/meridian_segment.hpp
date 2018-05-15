@@ -54,7 +54,7 @@ public :
     template <typename T>
     static bool meridian_not_crossing_pole(T lat1, T lat2, T diff)
     {
-        T half_pi = math::pi<T>()/T(2);
+        T half_pi = math::half_pi<T>();
         return math::equals(diff, T(0)) ||
                (math::equals(lat2, half_pi) && math::equals(lat1, -half_pi));
     }

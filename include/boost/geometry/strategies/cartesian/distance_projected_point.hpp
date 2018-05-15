@@ -94,7 +94,9 @@ public :
           >
     {};
 
-    inline Strategy get_distance_strategy() const
+    typedef Strategy distance_pp_strategy_type;
+
+    inline Strategy get_distance_pp_strategy() const
     {
         return Strategy();
     }

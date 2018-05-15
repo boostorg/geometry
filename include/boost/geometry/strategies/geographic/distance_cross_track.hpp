@@ -111,30 +111,6 @@ public :
         return distance_type(m_spheroid);
     }
 
-    struct azimuth_strategy
-    {
-        typedef azimuth::geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename azimuth_strategy::type get_azimuth_strategy() const
-    {
-        typedef typename azimuth_strategy::type azimuth_type;
-        return azimuth_type(m_spheroid);
-    }
-
-    struct envelope_segment_strategy
-    {
-        typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
-    {
-        typedef typename envelope_segment_strategy::type envelope_segment_type;
-        return envelope_segment_type(m_spheroid);
-    }
-
-    //
-
     explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}

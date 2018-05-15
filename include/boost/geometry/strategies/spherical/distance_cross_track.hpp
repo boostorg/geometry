@@ -352,6 +352,8 @@ public :
         : m_strategy(s)
     {}
 
+    typedef Strategy distance_strategy_type;
+
     //TODO: apply a more general strategy getter
     inline Strategy get_distance_strategy() const
     {
@@ -552,6 +554,8 @@ public :
     inline cross_track(Strategy const& s)
         : m_strategy(s)
     {}
+
+    typedef Strategy distance_strategy_type;
 
     //TODO: apply a more general strategy getter
 //    inline Strategy get_distance_strategy() const
