@@ -100,7 +100,7 @@ public :
                 return geometry::strategy::distance::services::result_from_distance
                         <
                             Strategy, Point, box_point_type
-                        >::apply(ps_strategy, ps_strategy.get_distance_strategy()
+                        >::apply(ps_strategy, ps_strategy
                                  .vertical_or_meridian(plat, lat_max));
             }
             else if (plat < lat_min)
@@ -108,7 +108,7 @@ public :
                 return geometry::strategy::distance::services::result_from_distance
                         <
                             Strategy, Point, box_point_type
-                        >::apply(ps_strategy, ps_strategy.get_distance_strategy()
+                        >::apply(ps_strategy, ps_strategy
                                  .vertical_or_meridian(lat_min, plat));
             }
             else

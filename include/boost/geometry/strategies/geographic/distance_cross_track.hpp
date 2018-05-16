@@ -127,6 +127,19 @@ public :
                                   m_spheroid)).distance;
     }
 
+    // points on a meridian not crossing poles
+    template <typename CT>
+    inline CT vertical_or_meridian(CT lat1, CT lat2) const
+    {
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                    m_spheroid);
+    }
+
 private :
 
     template <typename CT>

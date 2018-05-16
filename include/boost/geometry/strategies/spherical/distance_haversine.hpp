@@ -94,24 +94,6 @@ public :
                );
     }
 
-    template <unsigned int Index, typename Point1, typename Point2>
-    inline typename calculation_type<Point1, Point2>::type
-    coordinate(Point1 const& p1, Point2 const& p2)
-    {
-        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point1>) );
-        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point2>) );
-
-        assert_dimension_equal<Point1, Point2>();
-
-        return geometry::get<Index>(p1) - geometry::get<Index>(p2);
-    }
-
-    template <typename T1, typename T2>
-    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
-    {
-        return m_radius * (lat1 - lat2);
-    }
-
     inline radius_type radius() const
     {
         return m_radius;
@@ -207,19 +189,6 @@ public :
         calculation_type const a = comparable_type::apply(p1, p2);
         calculation_type const c = calculation_type(2.0) * asin(math::sqrt(a));
         return calculation_type(m_radius) * c;
-    }
-
-    /*!
-    \brief meridian distance calculation
-    \return the calculated distance (including multiplying with radius)
-    \param p1 first point
-    \param p2 second point
-    */
-
-    template <typename T1, typename T2>
-    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
-    {
-        return m_radius * (lat1 - lat2);
     }
 
     /*!

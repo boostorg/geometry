@@ -416,7 +416,7 @@ private:
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
                 ReturnType diff =
-                sb_strategy.get_distance_pp_strategy().vertical_or_meridian(
+                sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
                                     geometry::get_as_radian<1>(p_max),
                                     geometry::get_as_radian<1>(top_left));
 
