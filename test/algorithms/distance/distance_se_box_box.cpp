@@ -36,7 +36,7 @@ typedef bg::default_distance_result<point_type, point_type>::type return_type;
 typedef distance::cross_track_box_box<> box_box_strategy;
 typedef distance::cross_track_box_box
 <
-void, distance::comparable::cross_track<>
+    void, distance::comparable::haversine<>
 > comparable_box_box_strategy;
 
 //===========================================================================

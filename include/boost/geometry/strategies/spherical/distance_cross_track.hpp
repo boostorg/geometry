@@ -352,14 +352,6 @@ public :
         : m_strategy(s)
     {}
 
-    typedef Strategy distance_strategy_type;
-
-    //TODO: apply a more general strategy getter
-    inline Strategy get_distance_strategy() const
-    {
-        return m_strategy;
-    }
-
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -538,25 +530,6 @@ public :
     inline cross_track(Strategy const& s)
         : m_strategy(s)
     {}
-
-    typedef Strategy distance_strategy_type;
-
-    //TODO: apply a more general strategy getter
-//    inline Strategy get_distance_strategy() const
-//    {
-//        return m_strategy;
-//    }
-
-    struct distance_strategy
-    {
-        typedef haversine<double, CalculationType> type;
-    };
-
-    inline typename distance_strategy::type get_distance_strategy() const
-    {
-        typedef typename distance_strategy::type distance_type;
-        return distance_type(m_strategy);
-    }
 
     // It might be useful in the future
     // to overload constructor with strategy info.

@@ -97,20 +97,6 @@ public :
           >
     {};
 
-    //Strategy getters
-    //TODO: construct a general mechanism for this
-
-    struct distance_strategy
-    {
-        typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename distance_strategy::type get_distance_strategy() const
-    {
-        typedef typename distance_strategy::type distance_type;
-        return distance_type(m_spheroid);
-    }
-
     explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
