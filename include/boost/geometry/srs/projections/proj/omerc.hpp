@@ -93,15 +93,15 @@ namespace projections
                 {
                     static const T half_pi = detail::half_pi<T>();
 
-                    T  S, T, U, V, W, temp, u, v;
+                    T  s, t, U, V, W, temp, u, v;
 
                     if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
                         W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / W;
-                        S = .5 * (W - temp);
-                        T = .5 * (W + temp);
+                        s = .5 * (W - temp);
+                        t = .5 * (W + temp);
                         V = sin(this->m_proj_parm.B * lp_lon);
-                        U = (S * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / T;
+                        U = (s * this->m_proj_parm.singam - V * this->m_proj_parm.cosgam) / t;
                         if (fabs(fabs(U) - 1.0) < epsilon) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
@@ -110,7 +110,7 @@ namespace projections
                         if(fabs(temp) < tolerance) {
                             u = this->m_proj_parm.A * lp_lon;
                         } else {
-                            u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
+                            u = this->m_proj_parm.ArB * atan2((s * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
                         }
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;

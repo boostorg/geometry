@@ -109,13 +109,11 @@ namespace projections
                         BOOST_THROW_EXCEPTION( projection_exception(error_unknown_projection_id) );
                 }
 
-                template <typename T>
                 inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     link->fwd(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
-                template <typename T>
                 inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     link->inv(xy_x, xy_y, lp_lon, lp_lat);
@@ -152,13 +150,11 @@ namespace projections
                     : link(o_proj_parameters(par))
                 {}
 
-                template <typename T>
                 inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     link.fwd(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
-                template <typename T>
                 inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     link.inv(xy_x, xy_y, lp_lon, lp_lat);
