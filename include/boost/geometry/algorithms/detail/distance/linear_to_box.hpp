@@ -101,6 +101,20 @@ struct distance
 {};
 
 
+template <typename Areal, typename Box, typename Strategy>
+struct distance
+    <
+        Areal, Box, Strategy,
+        areal_tag, box_tag,
+        strategy_tag_distance_segment_box, false
+    >
+    : detail::distance::linear_to_box
+        <
+            Areal, Box, Strategy
+        >
+{};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 

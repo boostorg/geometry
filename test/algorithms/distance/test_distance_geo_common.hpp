@@ -113,6 +113,30 @@ typedef bg::strategy::distance::geographic_segment_box<bg::strategy::thomas, sty
 typedef bg::strategy::distance::geographic_segment_box<bg::strategy::vincenty, stype, double>
         vincenty_sb;
 
+// Strategies for box-box distance
+
+typedef bg::strategy::distance::cross_track_box_box<> spherical_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::andoyer,
+            stype,
+            double
+        > andoyer_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::thomas,
+            stype,
+            double
+        > thomas_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::vincenty,
+            stype,
+            double
+        > vincenty_bb;
 
 //===========================================================================
 
@@ -142,6 +166,24 @@ ps_distance(std::string const& wkt1,
     bg::read_wkt(wkt1, p);
     bg::read_wkt(wkt2, s);
     return bg::distance(p, s, strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+sb_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    Point p;
+    typedef bg::model::segment<Point> segment_type;
+    typedef bg::model::box<Point> box_type;
+    segment_type s;
+    box_type b;
+    bg::read_wkt(wkt1, s);
+    bg::read_wkt(wkt2, b);
+    return bg::distance(s, b, strategy);
 }
 
 //===================================================================
