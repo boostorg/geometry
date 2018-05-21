@@ -98,6 +98,21 @@ typedef bg::strategy::distance::geographic_cross_track_point_box
     double
 > vincenty_pb;
 
+// Spherical strategy  for segment-box distance
+
+typedef bg::strategy::distance::spherical_segment_box<> spherical_sb;
+
+// Geo strategies for segment-box distance
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::andoyer, stype, double>
+        andoyer_sb;
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::thomas, stype, double>
+        thomas_sb;
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::vincenty, stype, double>
+        vincenty_sb;
+
 
 //===========================================================================
 

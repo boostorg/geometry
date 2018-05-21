@@ -36,15 +36,45 @@ public :
     inline spherical()
     {}
 
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1, T& a2) const
+    {
+        compute<true, true>(lon1_rad, lat1_rad,
+                            lon2_rad, lat2_rad,
+                            a1, a2);
+    }
+    template <typename T>
+    inline void apply(T const& lon1_rad, T const& lat1_rad,
+                      T const& lon2_rad, T const& lat2_rad,
+                      T& a1) const
+    {
+        compute<true, false>(lon1_rad, lat1_rad,
+                             lon2_rad, lat2_rad,
+                             a1, a1);
+    }
+    template <typename T>
+    inline void apply_reverse(T const& lon1_rad, T const& lat1_rad,
+                              T const& lon2_rad, T const& lat2_rad,
+                              T& a2) const
+    {
+        compute<false, true>(lon1_rad, lat1_rad,
+                             lon2_rad, lat2_rad,
+                             a2, a2);
+    }
+
+private :
+
     template
     <
         bool EnableAzimuth,
         bool EnableReverseAzimuth,
         typename T
     >
-    inline void apply(T const& lon1_rad, T const& lat1_rad,
-                      T const& lon2_rad, T const& lat2_rad,
-                      T& a1, T& a2) const
+    inline void compute(T const& lon1_rad, T const& lat1_rad,
+                        T const& lon2_rad, T const& lat2_rad,
+                        T& a1, T& a2) const
     {
         typedef typename boost::mpl::if_
             <
@@ -67,16 +97,6 @@ public :
         {
             a2 = result.reverse_azimuth;
         }
-    }
-
-    template <typename T>
-    inline void apply(T const& lon1_rad, T const& lat1_rad,
-                      T const& lon2_rad, T const& lat2_rad,
-                      T& a1) const
-    {
-        apply<true, false>(lon1_rad, lat1_rad,
-                           lon2_rad, lat2_rad,
-                           a1, a1);
     }
 };
 

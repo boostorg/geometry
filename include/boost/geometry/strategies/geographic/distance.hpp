@@ -125,36 +125,6 @@ public :
         return apply(lon1, lat1, lon2, lat2, m_spheroid);
     }
 
-    template <unsigned int Index, typename Point1, typename Point2>
-    inline typename calculation_type<Point1, Point2>::type
-    coordinate(Point1 const& p1, Point2 const& p2) const
-    {
-        assert_dimension_equal<Point1, Point2>();
-
-        if(Index == 1)
-        {
-            return meridian(geometry::get_as_radian<Index>(p1),
-                            geometry::get_as_radian<Index>(p2));
-        }
-        else
-        {
-            return apply(p1, p2);
-        }
-    }
-
-    // points on a meridian not crossing poles
-    template <typename CT>
-    inline CT vertical_or_meridian(CT lat1, CT lat2) const
-    {
-        typedef typename formula::elliptic_arc_length
-                <
-                CT, strategy::default_order<FormulaPolicy>::value
-                > elliptic_arc_length;
-
-        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
-                                                                    m_spheroid);
-    }
-
     inline Spheroid const& model() const
     {
         return m_spheroid;

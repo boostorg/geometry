@@ -97,44 +97,6 @@ public :
           >
     {};
 
-    //Strategy getters
-    //TODO: construct a general mechanism for this
-
-    struct distance_strategy
-    {
-        typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename distance_strategy::type get_distance_strategy() const
-    {
-        typedef typename distance_strategy::type distance_type;
-        return distance_type(m_spheroid);
-    }
-
-    struct azimuth_strategy
-    {
-        typedef azimuth::geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename azimuth_strategy::type get_azimuth_strategy() const
-    {
-        typedef typename azimuth_strategy::type azimuth_type;
-        return azimuth_type(m_spheroid);
-    }
-
-    struct envelope_segment_strategy
-    {
-        typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
-    {
-        typedef typename envelope_segment_strategy::type envelope_segment_type;
-        return envelope_segment_type(m_spheroid);
-    }
-
-    //
-
     explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
@@ -149,6 +111,19 @@ public :
                                   get<0>(sp2), get<1>(sp2),
                                   get<0>(p), get<1>(p),
                                   m_spheroid)).distance;
+    }
+
+    // points on a meridian not crossing poles
+    template <typename CT>
+    inline CT vertical_or_meridian(CT lat1, CT lat2) const
+    {
+        typedef typename formula::elliptic_arc_length
+                <
+                CT, strategy::default_order<FormulaPolicy>::value
+                > elliptic_arc_length;
+
+        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                    m_spheroid);
     }
 
 private :

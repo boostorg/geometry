@@ -352,34 +352,6 @@ public :
         : m_strategy(s)
     {}
 
-    //TODO: apply a more general strategy getter
-    inline Strategy get_distance_strategy() const
-    {
-        return m_strategy;
-    }
-
-    struct azimuth_strategy
-    {
-        typedef azimuth::spherical<CalculationType> type;
-    };
-
-    inline typename azimuth_strategy::type get_azimuth_strategy() const
-    {
-        typedef typename azimuth_strategy::type azimuth_type;
-        return azimuth_type();
-    }
-
-    struct envelope_segment_strategy
-    {
-        typedef envelope::spherical_segment<CalculationType> type;
-    };
-
-    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
-    {
-        typedef typename envelope_segment_strategy::type envelope_segment_type;
-        return envelope_segment_type();
-    }
-
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -495,6 +467,12 @@ public :
         }
     }
 
+    template <typename T1, typename T2>
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    {
+        return m_strategy.radius() * (lat1 - lat2);
+    }
+
     inline typename Strategy::radius_type radius() const
     { return m_strategy.radius(); }
 
@@ -553,45 +531,6 @@ public :
         : m_strategy(s)
     {}
 
-    //TODO: apply a more general strategy getter
-//    inline Strategy get_distance_strategy() const
-//    {
-//        return m_strategy;
-//    }
-
-    struct distance_strategy
-    {
-        typedef haversine<double, CalculationType> type;
-    };
-
-    inline typename distance_strategy::type get_distance_strategy() const
-    {
-        typedef typename distance_strategy::type distance_type;
-        return distance_type(m_strategy);
-    }
-
-    struct azimuth_strategy
-    {
-        typedef azimuth::spherical<CalculationType> type;
-    };
-
-    inline typename azimuth_strategy::type get_azimuth_strategy() const
-    {
-        typedef typename azimuth_strategy::type azimuth_type;
-        return azimuth_type();
-    }
-
-    struct envelope_segment_strategy
-    {
-        typedef envelope::spherical_segment<CalculationType> type;
-    };
-
-    inline typename envelope_segment_strategy::type get_envelope_segment_strategy() const
-    {
-        typedef typename envelope_segment_strategy::type envelope_segment_type;
-        return envelope_segment_type();
-    }
-
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -622,6 +561,12 @@ public :
         return_type const a = cstrategy.apply(p, sp1, sp2);
         return_type const c = return_type(2.0) * asin(math::sqrt(a));
         return c * radius();
+    }
+
+    template <typename T1, typename T2>
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    {
+        return m_strategy.radius() * (lat1 - lat2);
     }
 
     inline typename Strategy::radius_type radius() const

@@ -808,18 +808,12 @@ struct distance_brute_force
         return detail::distance_brute_force::one_to_many
             <
                 distance_brute_force
-                    <
-                        MultiPoint,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Linear const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(mp,
-                     geometry::segments_begin(l),
-                     geometry::segments_end(l),
-                     strategy);
+                <
+                    MultiPoint,
+                    typename boost::range_value<Linear>::type,
+                    Strategy
+                >
+            >::apply(mp, boost::begin(l), boost::end(l), strategy);
     }
 };
 
@@ -924,7 +918,6 @@ struct distance_brute_force
                      strategy);
     }
 };
-
 
 template
 <
@@ -1098,5 +1091,4 @@ distance_brute_force(Geometry1 const& geometry1,
 
 
 }} // namespace boost::geometry
-
 #endif // BOOST_GEOMETRY_TEST_DISTANCE_BRUTE_FORCE_HPP

@@ -22,7 +22,7 @@
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "test_distance_geo_common.hpp"
-#include "test_empty_geometry.hpp"
+//#include "test_empty_geometry.hpp"
 
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps>
@@ -482,8 +482,7 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
 }
 
 template <typename Point, typename Strategy_ps, typename Strategy_sb>
-void test_distance_linestring_box(Strategy_ps const& strategy_ps,
-                                  Strategy_sb const& strategy_sb)
+void test_distance_linestring_box(Strategy_ps const& strategy_ps, Strategy_sb const& strategy_sb)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -498,20 +497,18 @@ void test_distance_linestring_box(Strategy_ps const& strategy_ps,
 
     tester::apply("sl1", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)", box_north,
                   ps_distance<Point>("POINT(20 20)", "SEGMENT(15 21, 25 19.9)", strategy_ps),
-                  strategy_sb, true, false, false);
+                  strategy_ps, true, false, false);
 
     tester::apply("sl2", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 15 15)", box_north,
-                  0, strategy_sb, true, false, false);
+                  0, strategy_ps, true, false, false);
 
     tester::apply("sl3", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 2 20)", box_north,
-                  0, strategy_sb, true, false, false);
+                  0, strategy_ps, true, false, false);
 }
 
 template <typename Point, typename Strategy_ps, typename Strategy_sb>
-void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps,
-                                        Strategy_sb const& strategy_sb)
+void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps, Strategy_sb const& strategy_sb)
 {
-
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
@@ -550,10 +547,10 @@ void test_all_l_ar(Strategy_pp pp_strategy, Strategy_ps ps_strategy, Strategy_sb
     test_distance_multi_linestring_ring<Point>(pp_strategy, ps_strategy);
 
     test_distance_segment_box<Point>(pp_strategy, ps_strategy, sb_strategy);
-    test_distance_linestring_box<Point>(ps_strategy, sb_strategy);
-    test_distance_multi_linestring_box<Point>(ps_strategy, sb_strategy);
+    //test_distance_linestring_box<Point>(ps_strategy, sb_strategy);
+    //test_distance_multi_linestring_box<Point>(ps_strategy, sb_strategy);
 
-    test_more_empty_input_linear_areal<Point>(ps_strategy);
+    //test_more_empty_input_linear_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )

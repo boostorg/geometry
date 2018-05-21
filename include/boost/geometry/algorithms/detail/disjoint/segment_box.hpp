@@ -65,6 +65,23 @@ private:
 
 public:
 
+    struct disjoint_info
+    {
+        enum type
+        {
+            intersect,
+            disjoint_no_vertex,
+            disjoint_vertex
+        };
+        disjoint_info(type t) : t_(t){}
+        operator type () const {return t_;}
+        type t_;
+    private :
+        //prevent automatic conversion for any other built-in types
+        template <typename T>
+        operator T () const;
+    };
+
     template <typename Segment, typename Box, typename Strategy>
     static inline bool apply(Segment const& segment,
                              Box const& box,
@@ -72,17 +89,14 @@ public:
     {
         typedef typename point_type<Segment>::type segment_point;
         segment_point vertex;
-        return (apply(segment, box, azimuth_strategy, vertex) > 0);
+        return (apply(segment, box, azimuth_strategy, vertex) != disjoint_info::intersect);
     }
 
-    // returns 0 if intersect,
-    //         1 if disjoint (vertex not computed),
-    //         2 if disjoint (vertex computed)
     template <typename Segment, typename Box, typename Strategy, typename P>
-    static inline std::size_t apply(Segment const& segment,
-                                    Box const& box,
-                                    Strategy const& azimuth_strategy,
-                                    P& vertex)
+    static inline disjoint_info apply(Segment const& segment,
+                                      Box const& box,
+                                      Strategy const& azimuth_strategy,
+                                      P& vertex)
     {
         assert_dimension_equal<Segment, Box>();
 
@@ -93,14 +107,15 @@ public:
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
-        std::size_t disjoint_return_value = 1; //vertex not computed here
+        //vertex not computed here
+        disjoint_info disjoint_return_value = disjoint_info::disjoint_no_vertex;
 
         // Simplest cases first
 
         // Case 1: if box contains one of segment's endpoints then they are not disjoint
         if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
         {
-            return 0;
+            return disjoint_info::intersect;
         }
 
         // Case 2: disjoint if bounding boxes are disjoint
@@ -163,7 +178,7 @@ public:
 
         if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
-            return 0;
+            return disjoint_info::intersect;
         }
 
         // Case 4: The only intersection case not covered above is when all four
@@ -198,7 +213,7 @@ public:
 
             geometry::set_from_radian<0>(vertex, vertex_lon);
             geometry::set_from_radian<1>(vertex, vertex_lat);
-            disjoint_return_value = 2; //vertex_computed
+            disjoint_return_value = disjoint_info::disjoint_vertex; //vertex_computed
 
             // Check if the vertex point is within the band defined by the
             // minimum and maximum longitude of the box; if yes, then return
@@ -207,7 +222,7 @@ public:
             if (vertex_lon >= b_lon_min && vertex_lon <= b_lon_max
                     && std::abs(vertex_lat) > std::abs(b_lat_below))
             {
-                return 0;
+                return disjoint_info::intersect;
             }
         }
 
