@@ -790,7 +790,7 @@ inline void sin_cos_degrees(T const& x, T & sinx, T & cosx)
     remainder -= 90 * quotient;
 
     // Convert to radians.
-    remainder = as_radian<T>(remainder);
+    remainder *= d2r<T>();
 
     T s = std::sin(remainder), c = std::cos(remainder);
 
