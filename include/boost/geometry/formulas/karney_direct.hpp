@@ -119,6 +119,7 @@ public:
         sin_beta1 *= one_minus_f;
 
         // Obtain alpha 0 by solving the spherical triangle.
+        CT sin_alpha0 = sin_alpha1 * cos_beta1;
         CT cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
         CT k2 = math::sqr(cos_alpha0) * ep2;
@@ -134,11 +135,47 @@ public:
         series_expansion::evaluate_coeffs_C1<CT, SeriesOrder>(epsilon, coeffs_C1);
 
         // Tau is an integration variable.
-        CT tau12 = distance / (b + (c1 + expansion_A1));
+        CT tau12 = distance / (b * (c1 + expansion_A1));
+
         CT sin_tau12 = sin(tau12);
         CT cos_tau12 = cos(tau12);
-    }
 
+        CT sin_sigma1 = sin_beta1;
+        CT cos_sigma1 = cos_beta1 * cos_alpha1;
+
+        CT B11 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+        CT sin_B11 = sin(B11);
+        CT cos_B11 = cos(B11);
+
+        CT sin_tau1 = sin_sigma1 * cos_B11 + cos_sigma1 * sin_B11;
+        CT cos_tau1 = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
+
+        // Index zero element of coeffs_C1p is unused.
+        CT coeffs_C1p[SeriesOrder + 1];
+        series_expansion::evaluate_coeffs_C1p<CT, SeriesOrder>(epsilon, coeffs_C1p);
+
+        CT B12 = sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+                                cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
+                                coeffs_C1p); // < 0?
+
+        CT sigma12 = tau12 - (B12 - B11);
+        CT sin_sigma12 = sin(sigma12);
+        CT cos_sigma12 = cos(sigma12);
+
+        CT sin_sigma2 = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
+        CT cos_sigma2 = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
+
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
+        {
+            CT sin_beta2 = cos_alpha0 * sin_sigma2;
+            CT cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
+
+            result.lat2 = std::atan2(sin_beta2, one_minus_f * cos_beta2);
+
+            // Convert the angle to radians.
+            result.lat2 /= math::d2r<T>();
+        }
+    }
 };
 
 }}} // namespace boost::geometry::formula
