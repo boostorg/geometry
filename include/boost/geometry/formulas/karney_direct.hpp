@@ -106,6 +106,7 @@ public:
         CT const one_minus_f = c1 - f;
         CT const two_minus_f = c2 - f;
 
+        CT const n = f / two_minus_f;
         CT const e2 = f * two_minus_f;
         CT const ep2 = e2 / math::sqr(one_minus_f);
 
@@ -165,15 +166,68 @@ public:
         CT sin_sigma2 = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
         CT cos_sigma2 = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
 
+        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+        {
+            CT sin_alpha2 = sin_alpha0;
+            CT cos_alpha2 = cos_alpha0 * cos_sigma2;
+
+            result.reverse_azimuth = std::atan2(sin_alpha2, cos_alpha2);
+
+            // Convert the angle to radians.
+            result.reverse_azimuth /= math::d2r<T>();
+        }
+
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
+            // Find the latitude at the second point.
             CT sin_beta2 = cos_alpha0 * sin_sigma2;
             CT cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
             result.lat2 = std::atan2(sin_beta2, one_minus_f * cos_beta2);
 
-            // Convert the angle to radians.
+            // Convert the coordinate to radians.
             result.lat2 /= math::d2r<T>();
+
+            // Find the longitude at the second point.
+            CT sin_omega1 = sin_beta1 * sin_alpha0;
+            CT cos_omega1 = cos_beta1 * cos_alpha1;
+
+            CT sin_omega2 = sin_alpha0 * sin_sigma2;
+            CT cos_omega2 = cos_sigma2;
+
+            CT omega12 = std::atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
+                                    cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
+
+            CT coeffs_A3[SeriesOrder];
+            series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
+
+            CT A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
+            CT A3c = -f * sin_alpha0 * A3;
+
+            // Compute the size of coefficient array.
+            const std::size_t coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
+            CT coeffs_C3x[coeffs_C3_size];
+            series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(n, coeffs_C3x);
+
+            // Evaluate C3 coefficients.
+            CT coeffs_C3[SeriesOrder];
+            math::evaluate_coeffs_var2<double, SeriesOrder>(epsilon, coeffs_C3x, coeffs_C3);
+
+            CT B31 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+
+            CT lam12 = omega12 + A3c *
+                       (sigma12 + (sin_cos_series(sin_sigma2,
+                                                  cos_sigma2,
+                                                  coeffs_C3) - B31));
+
+            // Convert to radians to get the longitudinal
+            // difference.
+            CT lon12 = lam12 / math::d2r<T>();
+
+            // Add the longitude at first point to the longitudinal
+            // difference and normalize the result.
+            result.lon2 = math::normalize_angle(math::normalize_angle(lon1) +
+                                                math::normalize_angle(lon12));
         }
     }
 };
