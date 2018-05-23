@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2018 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -712,6 +713,46 @@ struct distance_brute_force
 
 template
 <
+    typename Polygon1,
+    typename Polygon2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Polygon1, Polygon2, Strategy,
+    polygon_tag, polygon_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Polygon1, Polygon2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Polygon1 const& polygon1,
+                                      Polygon2 const& polygon2,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                    <
+                        Polygon1,
+                        typename std::iterator_traits
+                            <
+                                segment_iterator<Polygon2 const>
+                            >::value_type,
+                        Strategy
+                    >
+            >::apply(polygon1,
+                     geometry::segments_begin(polygon2),
+                     geometry::segments_end(polygon2),
+                     strategy);
+    }
+};
+
+
+template
+<
     typename Polygon,
     typename MultiPoint,
     typename Strategy
@@ -743,6 +784,78 @@ struct distance_brute_force
                         Strategy
                     >
             >::apply(mp,
+                     geometry::segments_begin(polygon),
+                     geometry::segments_end(polygon),
+                     strategy);
+    }
+};
+
+template
+<
+    typename Polygon,
+    typename MultiPolygon,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Polygon, MultiPolygon, Strategy,
+    polygon_tag, multi_polygon_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Polygon, MultiPolygon, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Polygon const& poly,
+                                      MultiPolygon const& mp,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    Polygon,
+                    typename boost::range_value<MultiPolygon>::type,
+                    Strategy
+                >
+            >::apply(poly, boost::begin(mp), boost::end(mp), strategy);
+    }
+};
+
+template
+<
+    typename Polygon,
+    typename Ring,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Polygon, Ring, Strategy,
+    polygon_tag, ring_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Polygon, Ring, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Polygon const& polygon,
+                                      Ring const& ring,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                    <
+                        Ring,
+                        typename std::iterator_traits
+                            <
+                                segment_iterator<Polygon const>
+                            >::value_type,
+                        Strategy
+                    >
+            >::apply(ring,
                      geometry::segments_begin(polygon),
                      geometry::segments_end(polygon),
                      strategy);
@@ -995,6 +1108,39 @@ struct distance_brute_force
 
 template
 <
+    typename MultiPolygon1,
+    typename MultiPolygon2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPolygon1, MultiPolygon2, Strategy,
+    multi_polygon_tag, multi_polygon_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPolygon1, MultiPolygon2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(MultiPolygon1 const& mp1,
+                                      MultiPolygon2 const& mp2,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    MultiPolygon1,
+                    typename boost::range_value<MultiPolygon2>::type,
+                    Strategy
+                >
+            >::apply(mp1, boost::begin(mp2), boost::end(mp2), strategy);
+    }
+};
+
+template
+<
     typename MultiPolygon,
     typename Segment,
     typename Strategy
@@ -1023,6 +1169,39 @@ struct distance_brute_force
                     Strategy
                 >
             >::apply(segment, boost::begin(mp), boost::end(mp), strategy);
+    }
+};
+
+template
+<
+    typename MultiPolygon,
+    typename Ring,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPolygon, Ring, Strategy,
+    multi_polygon_tag, ring_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPolygon, Ring, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(MultiPolygon const& mp,
+                                      Ring const& ring,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    Ring,
+                    typename boost::range_value<MultiPolygon>::type,
+                    Strategy
+                >
+            >::apply(ring, boost::begin(mp), boost::end(mp), strategy);
     }
 };
 
@@ -1097,6 +1276,45 @@ struct distance_brute_force
             >::apply(box,
                      geometry::segments_begin(ring),
                      geometry::segments_end(ring),
+                     strategy);
+    }
+};
+
+template
+<
+    typename Ring1,
+    typename Ring2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Ring1, Ring2, Strategy,
+    ring_tag, ring_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            Ring1, Ring2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(Ring1 const& ring1,
+                                      Ring2 const& ring2,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                    <
+                        Ring1,
+                        typename std::iterator_traits
+                            <
+                                segment_iterator<Ring2 const>
+                            >::value_type,
+                        Strategy
+                    >
+            >::apply(ring1,
+                     geometry::segments_begin(ring2),
+                     geometry::segments_end(ring2),
                      strategy);
     }
 };

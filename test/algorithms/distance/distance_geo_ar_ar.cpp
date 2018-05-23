@@ -20,6 +20,150 @@
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "test_distance_geo_common.hpp"
+#include "test_empty_geometry.hpp"
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_ring_ring(Strategy_pp const& strategy_pp,
+                             Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "ring/ring distance tests" << std::endl;
+#endif
+    typedef bg::model::ring<Point> ring_type;
+
+    typedef test_distance_of_geometries<ring_type, ring_type> tester;
+
+    std::string const ring = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
+
+    // case 1
+    tester::apply("rr1", ring, "POLYGON((16 0,13 0,15 1,16 0))",
+                  ps_distance<Point>("POINT(13 1)", "SEGMENT(13 0,15 1)", strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+//============================================================================
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_ring_polygon(Strategy_pp const& strategy_pp,
+                                Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "ring/polygon distance tests" << std::endl;
+#endif
+    typedef bg::model::ring<Point> ring_type;
+    typedef bg::model::polygon<Point> polygon_type;
+
+    typedef test_distance_of_geometries<ring_type, polygon_type> tester;
+
+    std::string const ring = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
+
+    // case 1
+    tester::apply("rp1", ring, "POLYGON((16 0,13 0,15 1,16 0))",
+                  ps_distance<Point>("POINT(13 1)", "SEGMENT(13 0,15 1)", strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_polygon_polygon(Strategy_pp const& strategy_pp,
+                                   Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "polygon/polygon distance tests" << std::endl;
+#endif
+    typedef bg::model::polygon<Point> polygon_type;
+
+    typedef test_distance_of_geometries<polygon_type, polygon_type> tester;
+
+    std::string const poly = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
+
+    // case 1
+    tester::apply("pp1", poly, "POLYGON((16 0,13 0,15 1,16 0))",
+                  ps_distance<Point>("POINT(13 1)", "SEGMENT(13 0,15 1)", strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+//============================================================================
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_ring_multi_polygon(Strategy_pp const& strategy_pp,
+                                      Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "ring/multi_polygon distance tests" << std::endl;
+#endif
+    typedef bg::model::ring<Point> ring_type;
+    typedef bg::model::polygon<Point> polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+
+    typedef test_distance_of_geometries<ring_type, multi_polygon_type> tester;
+
+    std::string const ring = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
+    // case 1
+    tester::apply("rmp1", ring, "MULTIPOLYGON(((16 0,13 0,15 1,16 0)),\
+                                ((12.5 2.5,12.5 4,14 2.5,12.5 2.5)))",
+                  ps_distance<Point>("POINT(12.5 2.5)", "SEGMENT(12 3,13 1)",
+                                     strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_polygon_multi_polygon(Strategy_pp const& strategy_pp,
+                                         Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "polygon/multi_polygon distance tests" << std::endl;
+#endif
+    typedef bg::model::polygon<Point> polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+
+    typedef test_distance_of_geometries<polygon_type, multi_polygon_type> tester;
+
+    std::string const poly = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
+    // case 1
+    tester::apply("pmp1", poly, "MULTIPOLYGON(((16 0,13 0,15 1,16 0)),\
+                                ((12.5 2.5,12.5 4,14 2.5,12.5 2.5)))",
+                  ps_distance<Point>("POINT(12.5 2.5)", "SEGMENT(12 3,13 1)",
+                                     strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+
+template <typename Point, typename Strategy_pp, typename Strategy_ps>
+void test_distance_multi_polygon_multi_polygon(Strategy_pp const& strategy_pp,
+                                               Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multi_polygon/multi_polygon distance tests" << std::endl;
+#endif
+    typedef bg::model::polygon<Point> polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+
+    typedef test_distance_of_geometries<multi_polygon_type, multi_polygon_type>
+            tester;
+
+    std::string const mpoly = "MULTIPOLYGON(((11 0,10 1,11 2,12 3,13 1,11 0)),\
+                                            ((0 0,0 1,1 1,1 0,0 0)))";
+    // case 1
+    tester::apply("mpmp1", mpoly, "MULTIPOLYGON(((16 0,13 0,15 1,16 0)),\
+                                ((12.5 2.5,12.5 4,14 2.5,12.5 2.5)))",
+                  ps_distance<Point>("POINT(12.5 2.5)", "SEGMENT(12 3,13 1)",
+                                     strategy_ps),
+                  strategy_ps, true, false, false);
+}
+
+//============================================================================
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps, typename Strategy_sb>
 void test_distance_ring_box(Strategy_pp const& strategy_pp,
@@ -39,7 +183,7 @@ void test_distance_ring_box(Strategy_pp const& strategy_pp,
     std::string const ring = "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0))";
 
     // case 1
-    tester::apply("bb1", ring, "BOX(10 10,20 20)",
+    tester::apply("rb1", ring, "BOX(10 10,20 20)",
                   sb_distance<Point>("SEGMENT(11 2,12 3)", "BOX(10 10,20 20)", strategy_sb),
                   strategy_sb, true, false, false);
 }
@@ -529,12 +673,21 @@ void test_distance_box_box(Strategy_pp const& strategy_pp,
 template <typename Point, typename Strategy_pp, typename Strategy_ps, typename Strategy_bb, typename Strategy_sb>
 void test_all_ar_ar(Strategy_pp pp_strategy, Strategy_ps ps_strategy, Strategy_bb bb_strategy, Strategy_sb sb_strategy)
 {
+    test_distance_ring_ring<Point>(pp_strategy, ps_strategy);
+
+    test_distance_ring_polygon<Point>(pp_strategy, ps_strategy);
+    test_distance_polygon_polygon<Point>(pp_strategy, ps_strategy);
+
+    test_distance_ring_multi_polygon<Point>(pp_strategy, ps_strategy);
+    test_distance_polygon_multi_polygon<Point>(pp_strategy, ps_strategy);
+    test_distance_multi_polygon_multi_polygon<Point>(pp_strategy, ps_strategy);
+
     test_distance_polygon_box<Point>(pp_strategy, ps_strategy, sb_strategy);
     test_distance_multi_polygon_box<Point>(pp_strategy, ps_strategy, sb_strategy);
     test_distance_ring_box<Point>(pp_strategy, ps_strategy, sb_strategy);
     test_distance_box_box<Point>(pp_strategy, ps_strategy, bb_strategy);
 
-    //test_more_empty_input_areal_areal<Point>(ps_strategy);
+    test_more_empty_input_areal_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )
