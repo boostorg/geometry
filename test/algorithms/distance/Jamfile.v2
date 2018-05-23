@@ -30,10 +30,6 @@ test-suite boost-geometry-algorithms-distance
     [ run distance_geo_pl_ar.cpp           : : : : algorithms_distance_geo_pl_ar ]
     [ run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_pl_l ]
     [ run distance_geo_pl_pl.cpp           : : : : algorithms_distance_geo_pl_pl ]
-    [ run distance_se_ar_ar.cpp            : : : : algorithms_distance_se_ar_ar ]
-#    [ run distance_se_l_ar.cpp             : : : : algorithms_distance_se_l_ar ]
-#    [ run distance_se_l_l.cpp              : : : : algorithms_distance_se_l_l ]
-    [ run distance_se_pl_ar.cpp            : : : : algorithms_distance_se_pl_ar ]
     [ run distance_se_pl_l.cpp             : : : : algorithms_distance_se_pl_l ]
     [ run distance_se_pl_pl.cpp            : : : : algorithms_distance_se_pl_pl ]
     ;
