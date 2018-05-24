@@ -90,7 +90,7 @@ public:
 
         CT const lon1 = lo1;
         CT const lat1 = la1;
-        Azi azi12 = azimuth12;
+        Azi const azi12 = math::normalize_angle<CT>(azimuth12);
 
         if (math::equals(distance, Dist(0)) || distance < Dist(0))
         {
@@ -112,7 +112,6 @@ public:
         CT const e2 = f * two_minus_f;
         CT const ep2 = e2 / math::sqr(one_minus_f);
 
-        azi12 = math::normalize_angle<CT>(azi12);
         CT sin_alpha1, cos_alpha1;
         math::sin_cos_degrees<CT>(math::round_angle<CT>(azi12), sin_alpha1, cos_alpha1);
 
@@ -122,56 +121,63 @@ public:
         sin_beta1 *= one_minus_f;
 
         // Obtain alpha 0 by solving the spherical triangle.
-        CT sin_alpha0 = sin_alpha1 * cos_beta1;
-        CT cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
+        CT const sin_alpha0
+            = sin_alpha1 * cos_beta1;
+        CT const cos_alpha0
+            = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
-        CT k2 = math::sqr(cos_alpha0) * ep2;
+        CT const k2 = math::sqr(cos_alpha0) * ep2;
 
-        CT epsilon = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
+        CT const epsilon = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
 
         // Find the coefficients for A1 by computing the
         // series expansion using Horner scehme.
-        CT expansion_A1 = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
+        CT const expansion_A1
+            = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
         // Index zero element of coeffs_C1 is unused.
         CT coeffs_C1[SeriesOrder + 1];
         series_expansion::evaluate_coeffs_C1<CT, SeriesOrder>(epsilon, coeffs_C1);
 
         // Tau is an integration variable.
-        CT tau12 = distance / (b * (c1 + expansion_A1));
+        CT const tau12 = distance / (b * (c1 + expansion_A1));
 
-        CT sin_tau12 = sin(tau12);
-        CT cos_tau12 = cos(tau12);
+        CT const sin_tau12 = sin(tau12);
+        CT const cos_tau12 = cos(tau12);
 
-        CT sin_sigma1 = sin_beta1;
-        CT cos_sigma1 = cos_beta1 * cos_alpha1;
+        CT const sin_sigma1 = sin_beta1;
+        CT const cos_sigma1 = cos_beta1 * cos_alpha1;
 
-        CT B11 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
-        CT sin_B11 = sin(B11);
-        CT cos_B11 = cos(B11);
+        CT const B11 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+        CT const sin_B11 = sin(B11);
+        CT const cos_B11 = cos(B11);
 
-        CT sin_tau1 = sin_sigma1 * cos_B11 + cos_sigma1 * sin_B11;
-        CT cos_tau1 = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
+        CT const sin_tau1
+            = sin_sigma1 * cos_B11 + cos_sigma1 * sin_B11;
+        CT const cos_tau1
+            = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
 
         // Index zero element of coeffs_C1p is unused.
         CT coeffs_C1p[SeriesOrder + 1];
         series_expansion::evaluate_coeffs_C1p<CT, SeriesOrder>(epsilon, coeffs_C1p);
 
-        CT B12 = sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
-                                cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
-                                coeffs_C1p); // < 0?
+        CT const B12 = sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+                                      cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
+                                      coeffs_C1p); // < 0?
 
-        CT sigma12 = tau12 - (B12 - B11);
-        CT sin_sigma12 = sin(sigma12);
-        CT cos_sigma12 = cos(sigma12);
+        CT const sigma12 = tau12 - (B12 - B11);
+        CT const sin_sigma12 = sin(sigma12);
+        CT const cos_sigma12 = cos(sigma12);
 
-        CT sin_sigma2 = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
-        CT cos_sigma2 = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
+        CT const sin_sigma2
+            = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
+        CT const cos_sigma2
+            = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
 
         if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
         {
-            CT sin_alpha2 = sin_alpha0;
-            CT cos_alpha2 = cos_alpha0 * cos_sigma2;
+            CT const sin_alpha2 = sin_alpha0;
+            CT const cos_alpha2 = cos_alpha0 * cos_sigma2;
 
             result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2);
 
@@ -182,8 +188,10 @@ public:
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             // Find the latitude at the second point.
-            CT sin_beta2 = cos_alpha0 * sin_sigma2;
-            CT cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
+            CT const sin_beta2
+                = cos_alpha0 * sin_sigma2;
+            CT const cos_beta2
+                = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
             result.lat2 = atan2(sin_beta2, one_minus_f * cos_beta2);
 
@@ -191,20 +199,20 @@ public:
             result.lat2 /= math::d2r<T>();
 
             // Find the longitude at the second point.
-            CT sin_omega1 = sin_beta1 * sin_alpha0;
-            CT cos_omega1 = cos_beta1 * cos_alpha1;
+            CT const sin_omega1 = sin_beta1 * sin_alpha0;
+            CT const cos_omega1 = cos_beta1 * cos_alpha1;
 
-            CT sin_omega2 = sin_alpha0 * sin_sigma2;
-            CT cos_omega2 = cos_sigma2;
+            CT const sin_omega2 = sin_alpha0 * sin_sigma2;
+            CT const cos_omega2 = cos_sigma2;
 
-            CT omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
-                               cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
+            CT const omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
+                                     cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
             CT coeffs_A3[SeriesOrder];
             series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
 
-            CT A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
-            CT A3c = -f * sin_alpha0 * A3;
+            CT const A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
+            CT const A3c = -f * sin_alpha0 * A3;
 
             // Compute the size of coefficient array.
             size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
@@ -215,16 +223,16 @@ public:
             CT coeffs_C3[SeriesOrder];
             math::evaluate_coeffs_var2<double, SeriesOrder>(epsilon, coeffs_C3x, coeffs_C3);
 
-            CT B31 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+            CT const B31 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
-            CT lam12 = omega12 + A3c *
-                       (sigma12 + (sin_cos_series(sin_sigma2,
-                                                  cos_sigma2,
-                                                  coeffs_C3) - B31));
+            CT const lam12 = omega12 + A3c *
+                             (sigma12 + (sin_cos_series(sin_sigma2,
+                                                        cos_sigma2,
+                                                        coeffs_C3) - B31));
 
-            // Convert to radians to get the longitudinal
-            // difference.
-            CT lon12 = lam12 / math::d2r<T>();
+            // Convert to radians to get the
+            // longitudinal difference.
+            CT const lon12 = lam12 / math::d2r<T>();
 
             // Add the longitude at first point to the longitudinal
             // difference and normalize the result.
@@ -239,16 +247,17 @@ public:
             CT coeffs_C2[SeriesOrder + 1];
             series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
 
-            CT B21 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
-            CT B22 = sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
+            CT const B21 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
+            CT const B22 = sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.
-            CT expansion_A2 = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
+            CT const expansion_A2
+                = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
 
-            CT AB1 = (c1 + expansion_A1) * (B12 - B11);
-            CT AB2 = (c1 + expansion_A2) * (B22 - B21);
-            CT J12 = (expansion_A1 - expansion_A2) * sigma12 + (AB1 - AB2);
+            CT const AB1 = (c1 + expansion_A1) * (B12 - B11);
+            CT const AB2 = (c1 + expansion_A2) * (B22 - B21);
+            CT const J12 = (expansion_A1 - expansion_A2) * sigma12 + (AB1 - AB2);
 
             CT const dn1 = sqrt(1 + ep2 * math::sqr(sin_beta1));
             CT const dn2 = sqrt(1 + k2 * math::sqr(sin_sigma2));
@@ -259,8 +268,8 @@ public:
                                           cos_sigma1 * cos_sigma2 * J12);
 
             // Find the geodesic scale.
-            CT t = k2 * (sin_sigma2 - sin_sigma1) *
-                        (sin_sigma2 * sin_sigma1) / (dn1 + dn2);
+            CT const t = k2 * (sin_sigma2 - sin_sigma1) *
+                              (sin_sigma2 * sin_sigma1) / (dn1 + dn2);
 
             result.geodesic_scale = cos_sigma12 +
                                     (t * sin_sigma2 - cos_sigma2 * J12) *
