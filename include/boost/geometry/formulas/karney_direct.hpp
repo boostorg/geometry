@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Contributed and/or modified by Adeel Ahmad.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -30,7 +32,7 @@ https://arxiv.org/pdf/1109.4448.pdf
 */
 template <
     typename CT,
-    std::size_t SeriesOrder = 8,
+    size_t SeriesOrder = 8,
     bool EnableCoordinates = true,
     bool EnableReverseAzimuth = false,
     bool EnableReducedLength = false,
@@ -56,7 +58,7 @@ public:
                                     CT cosx,
                                     const CT coeffs[])
     {
-        std::size_t n = SeriesOrder;
+        size_t n = SeriesOrder;
 
         // Point to one beyond last element.
         coeffs += (n + 1);
@@ -125,9 +127,9 @@ public:
 
         CT k2 = math::sqr(cos_alpha0) * ep2;
 
-        CT epsilon = k2 / (c2 * (c1 + std::sqrt(c1 + k2)) + k2);
+        CT epsilon = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
 
-        // Find the coefficients for Aj by computing the
+        // Find the coefficients for A1 by computing the
         // series expansion using Horner scehme.
         CT expansion_A1 = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
@@ -171,7 +173,7 @@ public:
             CT sin_alpha2 = sin_alpha0;
             CT cos_alpha2 = cos_alpha0 * cos_sigma2;
 
-            result.reverse_azimuth = std::atan2(sin_alpha2, cos_alpha2);
+            result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2);
 
             // Convert the angle to radians.
             result.reverse_azimuth /= math::d2r<T>();
@@ -183,7 +185,7 @@ public:
             CT sin_beta2 = cos_alpha0 * sin_sigma2;
             CT cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
-            result.lat2 = std::atan2(sin_beta2, one_minus_f * cos_beta2);
+            result.lat2 = atan2(sin_beta2, one_minus_f * cos_beta2);
 
             // Convert the coordinate to radians.
             result.lat2 /= math::d2r<T>();
@@ -195,8 +197,8 @@ public:
             CT sin_omega2 = sin_alpha0 * sin_sigma2;
             CT cos_omega2 = cos_sigma2;
 
-            CT omega12 = std::atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
-                                    cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
+            CT omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
+                               cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
             CT coeffs_A3[SeriesOrder];
             series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
@@ -205,7 +207,7 @@ public:
             CT A3c = -f * sin_alpha0 * A3;
 
             // Compute the size of coefficient array.
-            const std::size_t coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
+            size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
             CT coeffs_C3x[coeffs_C3_size];
             series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(n, coeffs_C3x);
 
@@ -229,6 +231,43 @@ public:
             result.lon2 = math::normalize_angle(math::normalize_angle(lon1) +
                                                 math::normalize_angle(lon12));
         }
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        {
+            // Evaluate the coefficients for C2.
+            // Index zero element of coeffs_C2 is unused.
+            CT coeffs_C2[SeriesOrder + 1];
+            series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
+
+            CT B21 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
+            CT B22 = sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
+
+            // Find the coefficients for A2 by computing the
+            // series expansion using Horner scehme.
+            CT expansion_A2 = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
+
+            CT AB1 = (c1 + expansion_A1) * (B12 - B11);
+            CT AB2 = (c1 + expansion_A2) * (B22 - B21);
+            CT J12 = (expansion_A1 - expansion_A2) * sigma12 + (AB1 - AB2);
+
+            CT const dn1 = sqrt(1 + ep2 * math::sqr(sin_beta1));
+            CT const dn2 = sqrt(1 + k2 * math::sqr(sin_sigma2));
+
+            // Find the reduced length.
+            result.reduced_length = b * ((dn2 * (cos_sigma1 * sin_sigma2) -
+                                          dn1 * (sin_sigma1 * cos_sigma2)) -
+                                          cos_sigma1 * cos_sigma2 * J12);
+
+            // Find the geodesic scale.
+            CT t = k2 * (sin_sigma2 - sin_sigma1) *
+                        (sin_sigma2 * sin_sigma1) / (dn1 + dn2);
+
+            result.geodesic_scale = cos_sigma12 +
+                                    (t * sin_sigma2 - cos_sigma2 * J12) *
+                                    sin_sigma1 / dn1;
+        }
+
+        return result;
     }
 };
 
