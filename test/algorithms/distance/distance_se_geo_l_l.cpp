@@ -42,23 +42,35 @@ void test_distance_segment_segment(Strategy const& strategy_ps)
     tester::apply("s-s-01",
                   "SEGMENT(0 0,1 1)",
                   "SEGMENT(2 0,3 0)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-s-02",
                   "SEGMENT(2 1,3 1)",
                   "SEGMENT(2 0,3 0)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(2 1,3 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(2 1,3 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-s-03",
                   "SEGMENT(2.5 1,3.5 1)",
                   "SEGMENT(2 0,3 0)",
-                  ps_distance<Point>("POINT(2.5 0)", "SEGMENT(2.5 1,3.5 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2.5 0)",
+                                     "SEGMENT(2.5 1,3.5 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-s-04",
                   "SEGMENT(2.5 1,3.5 1)",
                   "SEGMENT(2 2,3 2)",
-                  ps_distance<Point>("POINT(3 2)", "SEGMENT(2.5 1,3.5 1)", strategy_ps),
+                  ps_distance<Point>("POINT(3 2)",
+                                     "SEGMENT(2.5 1,3.5 1)", strategy_ps),
                   strategy_ps, true, true, false);
+    tester::apply("s-s-05",
+                  "SEGMENT(2.5 2.1,3.5 1)",
+                  "SEGMENT(2 2,3 2)",
+                  0, strategy_ps, true, true, false);
+    tester::apply("s-s-06",
+                  "SEGMENT(2.5 2.1,3.5 1)",
+                  "SEGMENT(2 2,3.5 1)",
+                  0, strategy_ps, true, true, false);
 }
 
 //===========================================================================
@@ -79,13 +91,19 @@ void test_distance_segment_linestring(Strategy const& strategy_ps)
     tester::apply("s-l-01",
                   "SEGMENT(0 0,1 1)",
                   "LINESTRING(2 0,3 0)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-l-02",
                   "SEGMENT(0 0,1 1)",
                   "LINESTRING(2 0,3 0,2 2,0.5 0.7)",
-                  ps_distance<Point>("POINT(1 1)", "SEGMENT(0.5 0.7,2 2)", strategy_ps),
+                  ps_distance<Point>("POINT(1 1)",
+                                     "SEGMENT(0.5 0.7,2 2)", strategy_ps),
                   strategy_ps, true, true, false);
+    tester::apply("s-l-03",
+                  "SEGMENT(0 0,2 2)",
+                  "LINESTRING(2 0,3 0,2 2,0.5 0.7)",
+                  0, strategy_ps, true, true, false);
 }
 
 //===========================================================================
@@ -108,18 +126,25 @@ void test_distance_linestring_linestring(Strategy const& strategy_ps)
     tester::apply("l-l-01",
                   "LINESTRING(0 0,1 1)",
                   "LINESTRING(2 0,3 0)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("l-l-02",
                   "LINESTRING(0 0,1 1,2 2)",
                   "LINESTRING(2 0,3 0,4 1)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(1 1,2 2)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(1 1,2 2)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("l-l-03",
                   "LINESTRING(0 0,1 1,2 2)",
                   "LINESTRING(2 0)",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(1 1,2 2)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(1 1,2 2)", strategy_ps),
                   strategy_ps, true, true, false);
+    tester::apply("l-l-04",
+                  "LINESTRING(0 0,1 1,2 2)",
+                  "LINESTRING(3 3,1 1)",
+                  0, strategy_ps, true, true, false);
 }
 
 //===========================================================================
@@ -144,13 +169,19 @@ void test_distance_segment_multilinestring(Strategy const& strategy_ps)
     tester::apply("s-ml-01",
                   "SEGMENT(0 0,1 1)",
                   "MULTILINESTRING((2 0,3 0)(2 5, 5 5, 2 -1))",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-ml-02",
                   "SEGMENT(0 0,1 1)",
                   "MULTILINESTRING((2 0,3 0))",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
+    tester::apply("s-ml-03",
+                  "SEGMENT(0 0,2 0)",
+                  "MULTILINESTRING((2 0,3 0)(2 5, 5 5, 2 -1))",
+                  0, strategy_ps, true, true, false);
 }
 
 //===========================================================================
@@ -174,7 +205,8 @@ void test_distance_linestring_multilinestring(Strategy const& strategy_ps)
     tester::apply("l-ml-01",
                   "LINESTRING(0 0,1 1,2 2,3 3,4 4,6 6)",
                   "MULTILINESTRING((2 0,3 0)(2 1, 5 5))",
-                  ps_distance<Point>("POINT(5 5)", "SEGMENT(4 4,6 6)", strategy_ps),
+                  ps_distance<Point>("POINT(5 5)",
+                                     "SEGMENT(4 4,6 6)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("l-ml-02",
                   "LINESTRING(0 0,1 1,2 2,3 3,4 4,6 6)",
@@ -205,7 +237,8 @@ void test_distance_multilinestring_multilinestring(Strategy const& strategy_ps)
     tester::apply("s-ml-01",
                   "MULTILINESTRING((0 0,1 1)(-1 0, -1 -1))",
                   "MULTILINESTRING((2 0,3 0)(2 5, 5 5))",
-                  ps_distance<Point>("POINT(2 0)", "SEGMENT(0 0,1 1)", strategy_ps),
+                  ps_distance<Point>("POINT(2 0)",
+                                     "SEGMENT(0 0,1 1)", strategy_ps),
                   strategy_ps, true, true, false);
     tester::apply("s-ml-02",
                   "MULTILINESTRING((0 0,1 1)(-1 0, -1 -1)(5 0, 5 6))",
@@ -233,11 +266,20 @@ void test_all_l_l(Strategy ps_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_linear_linear )
 {
-    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >
-                                                                    sph_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
     test_all_l_l<sph_point>(spherical_ps());
 
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > geo_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::geographic<bg::degree>
+            > geo_point;
+
     test_all_l_l<geo_point>(vincenty_ps());
     test_all_l_l<geo_point>(thomas_ps());
     test_all_l_l<geo_point>(andoyer_ps());

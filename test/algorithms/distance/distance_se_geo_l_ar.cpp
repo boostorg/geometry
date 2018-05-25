@@ -38,11 +38,21 @@ void test_distance_segment_polygon(Strategy_pp const& strategy_pp,
     typedef bg::model::polygon<Point> polygon_type;
     typedef test_distance_of_geometries<segment_type, polygon_type> tester;
 
-    std::string const polygon = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
+    std::string const polygon = "POLYGON((10 10,0 20,15 30,20 15,15 10,10 10))";
 
-    tester::apply("s-r-1", "SEGMENT(0 0, 0 10)", polygon,
+    tester::apply("s-p-1", "SEGMENT(0 0, 0 10)", polygon,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("s-p-2", "SEGMENT(9 0, 10 9)", polygon,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("s-p-3", "SEGMENT(9 0, 10 10)", polygon,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("s-p-4", "SEGMENT(9 0, 10 11)", polygon,
+                  0, strategy_ps, true, false, false);
 }
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps>
@@ -60,9 +70,19 @@ void test_distance_linestring_polygon(Strategy_pp const& strategy_pp,
 
     std::string const polygon = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
-    tester::apply("l-r-1", "LINESTRING(0 0, 0 10)", polygon,
+    tester::apply("l-p-1", "LINESTRING(0 0,0 10)", polygon,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("l-p-2", "LINESTRING(9 0,10 9,11 8,15 8,20 9)", polygon,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("l-p-3", "LINESTRING(9 0,10 1,10 10,11 9)", polygon,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("l-p-4", "LINESTRING(9 0,10 11,10 9,11 9)", polygon,
+                  0, strategy_ps, true, false, false);
 }
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps>
@@ -81,9 +101,23 @@ void test_distance_multi_linestring_polygon(Strategy_pp const& strategy_pp,
 
     std::string const polygon = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
-    tester::apply("ml-r-1", "MULTILINESTRING((0 0, 0 10)(0 0, 10 0))", polygon,
+    tester::apply("ml-p-1", "MULTILINESTRING((0 0,0 10)\
+                             (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", polygon,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("ml-p-2", "MULTILINESTRING((9 0,10 9,11 8,15 8,20 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", polygon,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("ml-p-3", "MULTILINESTRING((9 0,10 1,10 10,11 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", polygon,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("ml-p-4", "MULTILINESTRING((9 0,10 11,10 9,11 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", polygon,
+                  0, strategy_ps, true, false, false);
 }
 
 //=====================================================================
@@ -105,9 +139,19 @@ void test_distance_segment_multi_polygon(Strategy_pp const& strategy_pp,
     std::string const mp = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
                                   ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
-    tester::apply("s-r-1", "SEGMENT(0 0, 0 10)", mp,
+    tester::apply("s-mp-1", "SEGMENT(0 0, 0 10)", mp,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("s-mp-2", "SEGMENT(9 0, 10 9)", mp,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("s-mp-3", "SEGMENT(9 0, 10 10)", mp,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("s-mp-4", "SEGMENT(9 0, 10 11)", mp,
+                  0, strategy_ps, true, false, false);
 }
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps>
@@ -127,9 +171,20 @@ void test_distance_linestring_multi_polygon(Strategy_pp const& strategy_pp,
     std::string const mp = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
                                     ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
-    tester::apply("l-r-1", "LINESTRING(0 0, 0 10)", mp,
+    tester::apply("l-mp-1", "LINESTRING(0 0, 0 10)", mp,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("l-mp-2", "LINESTRING(9 0,10 9,11 8,15 8,20 9)", mp,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("l-mp-3", "LINESTRING(9 0,10 1,10 10,11 9)", mp,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("l-mp-4", "LINESTRING(9 0,10 11,10 9,11 9)", mp,
+                  0, strategy_ps, true, false, false);
+
 }
 
 template <typename Point, typename Strategy_pp, typename Strategy_ps>
@@ -147,19 +202,31 @@ void test_distance_multi_linestring_multi_polygon(Strategy_pp const& strategy_pp
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
     typedef test_distance_of_geometries<multi_linestring_type, multi_polygon_type> tester;
 
-    std::string const polygon = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
+    std::string const mp = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
                                    ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
-    tester::apply("ml-r-1", "MULTILINESTRING((0 0, 0 10)(0 0, 10 0))", polygon,
+    tester::apply("ml-mp-1", "MULTILINESTRING((0 0, 0 10)(0 0, 10 0))", mp,
                   ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
                   strategy_ps, true, false, false);
+
+    tester::apply("ml-mp-2", "MULTILINESTRING((9 0,10 9,11 8,15 8,20 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", mp,
+                  pp_distance<Point>("POINT(10 10)", "POINT(10 9)", strategy_pp),
+                  strategy_ps, true, false, false);
+
+    tester::apply("ml-mp-3", "MULTILINESTRING((9 0,10 1,10 10,11 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", mp,
+                  0, strategy_ps, true, false, false);
+
+    tester::apply("ml-mp-4", "MULTILINESTRING((9 0,10 11,10 9,11 9)\
+                            (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", mp,
+                  0, strategy_ps, true, false, false);
 }
 
 //=====================================================================
 
-template <typename Point, typename Strategy_pp, typename Strategy_ps>
-void test_distance_segment_ring(Strategy_pp const& strategy_pp,
-                                Strategy_ps const& strategy_ps)
+template <typename Point, typename Strategy_ps>
+void test_distance_segment_ring(Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -177,9 +244,8 @@ void test_distance_segment_ring(Strategy_pp const& strategy_pp,
                   strategy_ps, true, false, false);
 }
 
-template <typename Point, typename Strategy_pp, typename Strategy_ps>
-void test_distance_linestring_ring(Strategy_pp const& strategy_pp,
-                                   Strategy_ps const& strategy_ps)
+template <typename Point, typename Strategy_ps>
+void test_distance_linestring_ring(Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -197,9 +263,8 @@ void test_distance_linestring_ring(Strategy_pp const& strategy_pp,
                   strategy_ps, true, false, false);
 }
 
-template <typename Point, typename Strategy_pp, typename Strategy_ps>
-void test_distance_multi_linestring_ring(Strategy_pp const& strategy_pp,
-                                         Strategy_ps const& strategy_ps)
+template <typename Point, typename Strategy_ps>
+void test_distance_multi_linestring_ring(Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -534,8 +599,16 @@ void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps,
 //===========================================================================
 
 
-template <typename Point, typename Strategy_pp, typename Strategy_ps, typename Strategy_sb>
-void test_all_l_ar(Strategy_pp pp_strategy, Strategy_ps ps_strategy, Strategy_sb sb_strategy)
+template
+<
+    typename Point,
+    typename Strategy_pp,
+    typename Strategy_ps,
+    typename Strategy_sb
+>
+void test_all_l_ar(Strategy_pp pp_strategy,
+                   Strategy_ps ps_strategy,
+                   Strategy_sb sb_strategy)
 {
     test_distance_segment_polygon<Point>(pp_strategy, ps_strategy);
     test_distance_linestring_polygon<Point>(pp_strategy, ps_strategy);
@@ -545,9 +618,9 @@ void test_all_l_ar(Strategy_pp pp_strategy, Strategy_ps ps_strategy, Strategy_sb
     test_distance_linestring_multi_polygon<Point>(pp_strategy, ps_strategy);
     test_distance_multi_linestring_multi_polygon<Point>(pp_strategy, ps_strategy);
 
-    test_distance_segment_ring<Point>(pp_strategy, ps_strategy);
-    test_distance_linestring_ring<Point>(pp_strategy, ps_strategy);
-    test_distance_multi_linestring_ring<Point>(pp_strategy, ps_strategy);
+    test_distance_segment_ring<Point>(ps_strategy);
+    test_distance_linestring_ring<Point>(ps_strategy);
+    test_distance_multi_linestring_ring<Point>(ps_strategy);
 
     test_distance_segment_box<Point>(pp_strategy, ps_strategy, sb_strategy);
     test_distance_linestring_box<Point>(ps_strategy, sb_strategy);
@@ -558,11 +631,19 @@ void test_all_l_ar(Strategy_pp pp_strategy, Strategy_ps ps_strategy, Strategy_sb
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )
 {
-    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >
-                                                                    sph_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
     test_all_l_ar<sph_point>(spherical_pp(), spherical_ps(), spherical_sb());
 
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > geo_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::geographic<bg::degree>
+            > geo_point;
 
     test_all_l_ar<geo_point>(vincenty_pp(), vincenty_ps(), vincenty_sb());
     test_all_l_ar<geo_point>(thomas_pp(), thomas_ps(), thomas_sb());

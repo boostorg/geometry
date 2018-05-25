@@ -100,11 +100,20 @@ void test_all_pl_pl(Strategy pp_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
 {
-    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >
-                                                                    sph_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
     test_all_pl_pl<sph_point>(spherical_pp());
 
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > geo_point;
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::geographic<bg::degree>
+            > geo_point;
+
     test_all_pl_pl<geo_point>(vincenty_pp());
     test_all_pl_pl<geo_point>(thomas_pp());
     test_all_pl_pl<geo_point>(andoyer_pp());

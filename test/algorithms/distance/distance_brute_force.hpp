@@ -250,6 +250,12 @@ struct distance_brute_force
                                       Ring const& ring,
                                       Strategy const& strategy)
     {
+
+        if (geometry::covered_by(point, ring))
+        {
+            return 0;
+        }
+
         return detail::distance_brute_force::one_to_many
             <
                 distance_brute_force
@@ -268,7 +274,7 @@ struct distance_brute_force
     }
 };
 
-//TODO iterate over exterior rings
+//TODO do it more brute force (also in all polygon-geometry cases)
 template
 <
     typename Point,
@@ -290,21 +296,7 @@ struct distance_brute_force
                                       Polygon const& polygon,
                                       Strategy const& strategy)
     {
-        return detail::distance_brute_force::one_to_many
-            <
-                distance_brute_force
-                    <
-                        Point,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(point,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
-                     strategy);
+        return geometry::distance(point, polygon, strategy);
     }
 };
 
@@ -519,16 +511,16 @@ struct distance_brute_force
             <
                 distance_brute_force
                     <
-                        Linear,
+                        Polygon,
                         typename std::iterator_traits
                             <
-                                segment_iterator<Polygon const>
+                                segment_iterator<Linear const>
                             >::value_type,
                         Strategy
                     >
-            >::apply(linear,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
+            >::apply(polygon,
+                     geometry::segments_begin(linear),
+                     geometry::segments_end(linear),
                      strategy);
     }
 };
@@ -654,21 +646,7 @@ struct distance_brute_force
                                       Segment const& segment,
                                       Strategy const& strategy)
     {
-        return detail::distance_brute_force::one_to_many
-            <
-                distance_brute_force
-                    <
-                        Segment,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(segment,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
-                     strategy);
+        return geometry::distance(segment, polygon, strategy);
     }
 };
 
@@ -697,16 +675,16 @@ struct distance_brute_force
             <
                 distance_brute_force
                     <
-                        Linear,
+                        Polygon,
                         typename std::iterator_traits
                             <
-                                segment_iterator<Polygon const>
+                                segment_iterator<Linear const>
                             >::value_type,
                         Strategy
                     >
-            >::apply(linear,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
+            >::apply(polygon,
+                     geometry::segments_begin(linear),
+                     geometry::segments_end(linear),
                      strategy);
     }
 };
@@ -732,21 +710,7 @@ struct distance_brute_force
                                       Polygon2 const& polygon2,
                                       Strategy const& strategy)
     {
-        return detail::distance_brute_force::one_to_many
-            <
-                distance_brute_force
-                    <
-                        Polygon1,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon2 const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(polygon1,
-                     geometry::segments_begin(polygon2),
-                     geometry::segments_end(polygon2),
-                     strategy);
+        return geometry::distance(polygon1, polygon2, strategy);
     }
 };
 
@@ -775,18 +739,12 @@ struct distance_brute_force
         return detail::distance_brute_force::one_to_many
             <
                 distance_brute_force
-                    <
-                        MultiPoint,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(mp,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
-                     strategy);
+                <
+                    Polygon,
+                    typename boost::range_value<MultiPoint>::type,
+                    Strategy
+                >
+            >::apply(polygon, boost::begin(mp), boost::end(mp), strategy);
     }
 };
 
@@ -844,21 +802,7 @@ struct distance_brute_force
                                       Ring const& ring,
                                       Strategy const& strategy)
     {
-        return detail::distance_brute_force::one_to_many
-            <
-                distance_brute_force
-                    <
-                        Ring,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(ring,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
-                     strategy);
+        return geometry::distance(ring, polygon, strategy);
     }
 };
 
@@ -883,21 +827,7 @@ struct distance_brute_force
                                       Box const& box,
                                       Strategy const& strategy)
     {
-        return detail::distance_brute_force::one_to_many
-            <
-                distance_brute_force
-                    <
-                        Box,
-                        typename std::iterator_traits
-                            <
-                                segment_iterator<Polygon const>
-                            >::value_type,
-                        Strategy
-                    >
-            >::apply(box,
-                     geometry::segments_begin(polygon),
-                     geometry::segments_end(polygon),
-                     strategy);
+        return geometry::distance(box, polygon, strategy);
     }
 };
 
