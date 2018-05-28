@@ -11,6 +11,7 @@
 
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/series_expansion.hpp>

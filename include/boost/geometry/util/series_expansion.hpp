@@ -538,7 +538,7 @@ namespace boost { namespace geometry { namespace series_expansion {
                s/eps(CT(2))/eps2/g;'
     */
     template <typename CT, std::size_t SeriesOrder>
-    static inline evaluate_coeffs_C1p(CT eps, CT c[])
+    static inline void evaluate_coeffs_C1p(CT eps, CT c[])
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
