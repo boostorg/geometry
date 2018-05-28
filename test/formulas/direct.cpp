@@ -1,3 +1,4 @@
+
 // Boost.Geometry
 // Unit Test
 
@@ -14,6 +15,7 @@
 
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
+#include <boost/geometry/formulas/karney_direct.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
 
@@ -37,6 +39,10 @@ void test_all(expected_results const& results)
     double distance = results.distance;
     double azi12r = results.azimuth12 * d2r;
 
+    double lon1d = results.p1.lon;
+    double lat1d = results.p1.lat;
+    double azi12d = results.azimuth12;
+
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
 
@@ -54,6 +60,10 @@ void test_all(expected_results const& results)
     result.lon2 *= r2d;
     result.lat2 *= r2d;
     result.reverse_azimuth *= r2d;
+    check_direct(result, results.thomas, results.karney, 0.0000001);
+
+    typedef bg::formula::karney_direct<double, 8, true, true, true, true> ka_t;
+    result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
     check_direct(result, results.thomas, results.karney, 0.0000001);
 }
 
