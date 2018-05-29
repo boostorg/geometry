@@ -842,115 +842,242 @@ namespace boost { namespace geometry { namespace series_expansion {
                s/case\sCT(/case /g; s/):/:/g; s/epsCT(2)/eps2/g;
                s/eps(CT(2))/eps2/g;'
     */
-    template <typename CT, std::size_t SeriesOrder>
-    static inline void evaluate_coeffs_C3(CT const& n, CT c[])
-    {
-        const CT n2 = math::sqr(n);
-        switch (SeriesOrder) {
-        case 0:
-            break;
-        case 1:
-            break;
-        case 2:
-            c[0] = (CT(1)-n)/CT(4);
-            break;
-        case 3:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = ((n-CT(3))*n+CT(2))/CT(32);
-            break;
-        case 4:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = (n*((-CT(5)*n-CT(1))*n+CT(3))+CT(3))/CT(64);
-            c[3] = ((n-CT(3))*n+CT(2))/CT(32);
-            c[4] = (n*(n*(CT(2)*n-CT(3))-CT(2))+CT(3))/CT(64);
-            c[5] = (n*((CT(5)-n)*n-CT(9))+CT(5))/CT(192);
-            break;
-        case 5:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = (n*((-CT(5)*n-CT(1))*n+CT(3))+CT(3))/CT(64);
-            c[3] = (n*((CT(2)-CT(2)*n)*n+CT(2))+CT(5))/CT(128);
-            c[4] = ((n-CT(3))*n+CT(2))/CT(32);
-            c[5] = (n*(n*(CT(2)*n-CT(3))-CT(2))+CT(3))/CT(64);
-            c[6] = (n*((-CT(6)*n-CT(9))*n+CT(2))+CT(6))/CT(256);
-            c[7] = (n*((CT(5)-n)*n-CT(9))+CT(5))/CT(192);
-            c[8] = (n*(n*(CT(10)*n-CT(6))-CT(10))+CT(9))/CT(384);
-            c[9] = (n*((CT(20)-CT(7)*n)*n-CT(28))+CT(14))/CT(1024);
-            break;
-        case 6:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = (n*((-CT(5)*n-CT(1))*n+CT(3))+CT(3))/CT(64);
-            c[3] = (n*((CT(2)-CT(2)*n)*n+CT(2))+CT(5))/CT(128);
-            c[4] = (n*(CT(3)*n+CT(11))+CT(12))/CT(512);
-            c[5] = ((n-CT(3))*n+CT(2))/CT(32);
-            c[6] = (n*(n*(CT(2)*n-CT(3))-CT(2))+CT(3))/CT(64);
-            c[7] = (n*((-CT(6)*n-CT(9))*n+CT(2))+CT(6))/CT(256);
-            c[8] = ((CT(1)-CT(2)*n)*n+CT(5))/CT(256);
-            c[9] = (n*((CT(5)-n)*n-CT(9))+CT(5))/CT(192);
-            c[10] = (n*(n*(CT(10)*n-CT(6))-CT(10))+CT(9))/CT(384);
-            c[11] = ((-CT(77)*n-CT(8))*n+CT(42))/CT(3072);
-            c[12] = (n*((CT(20)-CT(7)*n)*n-CT(28))+CT(14))/CT(1024);
-            c[13] = ((-CT(7)*n-CT(40))*n+CT(28))/CT(2048);
-            c[14] = (n*(CT(75)*n-CT(90))+CT(42))/CT(5120);
-            break;
-        case 7:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = (n*((-CT(5)*n-CT(1))*n+CT(3))+CT(3))/CT(64);
-            c[3] = (n*((CT(2)-CT(2)*n)*n+CT(2))+CT(5))/CT(128);
-            c[4] = (n*(CT(3)*n+CT(11))+CT(12))/CT(512);
-            c[5] = (CT(10)*n+CT(21))/CT(1024);
-            c[6] = ((n-CT(3))*n+CT(2))/CT(32);
-            c[7] = (n*(n*(CT(2)*n-CT(3))-CT(2))+CT(3))/CT(64);
-            c[8] = (n*((-CT(6)*n-CT(9))*n+CT(2))+CT(6))/CT(256);
-            c[9] = ((CT(1)-CT(2)*n)*n+CT(5))/CT(256);
-            c[10] = (CT(69)*n+CT(108))/CT(8192);
-            c[11] = (n*((CT(5)-n)*n-CT(9))+CT(5))/CT(192);
-            c[12] = (n*(n*(CT(10)*n-CT(6))-CT(10))+CT(9))/CT(384);
-            c[13] = ((-CT(77)*n-CT(8))*n+CT(42))/CT(3072);
-            c[14] = (CT(12)-n)/CT(1024);
-            c[15] = (n*((CT(20)-CT(7)*n)*n-CT(28))+CT(14))/CT(1024);
-            c[16] = ((-CT(7)*n-CT(40))*n+CT(28))/CT(2048);
-            c[17] = (CT(72)-CT(43)*n)/CT(8192);
-            c[18] = (n*(CT(75)*n-CT(90))+CT(42))/CT(5120);
-            c[19] = (CT(9)-CT(15)*n)/CT(1024);
-            c[20] = (CT(44)-CT(99)*n)/CT(8192);
-            break;
-        case 8:
-            c[0] = (CT(1)-n)/CT(4);
-            c[1] = (CT(1)-n2)/CT(8);
-            c[2] = (n*((-CT(5)*n-CT(1))*n+CT(3))+CT(3))/CT(64);
-            c[3] = (n*((CT(2)-CT(2)*n)*n+CT(2))+CT(5))/CT(128);
-            c[4] = (n*(CT(3)*n+CT(11))+CT(12))/CT(512);
-            c[5] = (CT(10)*n+CT(21))/CT(1024);
-            c[6] = CT(243)/CT(16384);
-            c[7] = ((n-CT(3))*n+CT(2))/CT(32);
-            c[8] = (n*(n*(CT(2)*n-CT(3))-CT(2))+CT(3))/CT(64);
-            c[9] = (n*((-CT(6)*n-CT(9))*n+CT(2))+CT(6))/CT(256);
-            c[10] = ((CT(1)-CT(2)*n)*n+CT(5))/CT(256);
-            c[11] = (CT(69)*n+CT(108))/CT(8192);
-            c[12] = CT(187)/CT(16384);
-            c[13] = (n*((CT(5)-n)*n-CT(9))+CT(5))/CT(192);
-            c[14] = (n*(n*(CT(10)*n-CT(6))-CT(10))+CT(9))/CT(384);
-            c[15] = ((-CT(77)*n-CT(8))*n+CT(42))/CT(3072);
-            c[16] = (CT(12)-n)/CT(1024);
-            c[17] = CT(139)/CT(16384);
-            c[18] = (n*((CT(20)-CT(7)*n)*n-CT(28))+CT(14))/CT(1024);
-            c[19] = ((-CT(7)*n-CT(40))*n+CT(28))/CT(2048);
-            c[20] = (CT(72)-CT(43)*n)/CT(8192);
-            c[21] = CT(127)/CT(16384);
-            c[22] = (n*(CT(75)*n-CT(90))+CT(42))/CT(5120);
-            c[23] = (CT(9)-CT(15)*n)/CT(1024);
-            c[24] = CT(99)/CT(16384);
-            c[25] = (CT(44)-CT(99)*n)/CT(8192);
-            c[26] = CT(99)/CT(16384);
-            c[27] = CT(429)/CT(114688);
-            break;
+    // TODO: adl1995
+    // Update docstring and function body.
+    // The coefficients C3[l] in the Fourier expansion of B3
+    template <typename CT, int SeriesOrder>
+    void evaluate_coeffs_C3x(CT const& n, CT c[]) {
+        if (SeriesOrder == 3) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^2, polynomial in n of order 0
+            1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^2, polynomial in n of order 0
+            1, 16,
+            };
         }
+        else if (SeriesOrder == 4) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^3, polynomial in n of order 0
+            3, 64,
+            // C3[1], coeff of eps^2, polynomial in n of order 1
+            // This is a case where a leading 0 term has been inserted to maintain the
+            // pattern in the orders of the polynomials.
+            0, 1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^3, polynomial in n of order 0
+            3, 64,
+            // C3[2], coeff of eps^2, polynomial in n of order 1
+            -3, 2, 32,
+            // C3[3], coeff of eps^3, polynomial in n of order 0
+            5, 192,
+            };
+        }
+        else if (SeriesOrder == 5) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^4, polynomial in n of order 0
+            5, 128,
+            // C3[1], coeff of eps^3, polynomial in n of order 1
+            3, 3, 64,
+            // C3[1], coeff of eps^2, polynomial in n of order 2
+            -1, 0, 1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^4, polynomial in n of order 0
+            3, 128,
+            // C3[2], coeff of eps^3, polynomial in n of order 1
+            -2, 3, 64,
+            // C3[2], coeff of eps^2, polynomial in n of order 2
+            1, -3, 2, 32,
+            // C3[3], coeff of eps^4, polynomial in n of order 0
+            3, 128,
+            // C3[3], coeff of eps^3, polynomial in n of order 1
+            -9, 5, 192,
+            // C3[4], coeff of eps^4, polynomial in n of order 0
+            7, 512,
+            };
+        }
+        else if (SeriesOrder == 6) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^5, polynomial in n of order 0
+            3, 128,
+            // C3[1], coeff of eps^4, polynomial in n of order 1
+            2, 5, 128,
+            // C3[1], coeff of eps^3, polynomial in n of order 2
+            -1, 3, 3, 64,
+            // C3[1], coeff of eps^2, polynomial in n of order 2
+            -1, 0, 1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^5, polynomial in n of order 0
+            5, 256,
+            // C3[2], coeff of eps^4, polynomial in n of order 1
+            1, 3, 128,
+            // C3[2], coeff of eps^3, polynomial in n of order 2
+            -3, -2, 3, 64,
+            // C3[2], coeff of eps^2, polynomial in n of order 2
+            1, -3, 2, 32,
+            // C3[3], coeff of eps^5, polynomial in n of order 0
+            7, 512,
+            // C3[3], coeff of eps^4, polynomial in n of order 1
+            -10, 9, 384,
+            // C3[3], coeff of eps^3, polynomial in n of order 2
+            5, -9, 5, 192,
+            // C3[4], coeff of eps^5, polynomial in n of order 0
+            7, 512,
+            // C3[4], coeff of eps^4, polynomial in n of order 1
+            -14, 7, 512,
+            // C3[5], coeff of eps^5, polynomial in n of order 0
+            21, 2560,
+            };
+        }
+        else if (SeriesOrder == 7) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^6, polynomial in n of order 0
+            21, 1024,
+            // C3[1], coeff of eps^5, polynomial in n of order 1
+            11, 12, 512,
+            // C3[1], coeff of eps^4, polynomial in n of order 2
+            2, 2, 5, 128,
+            // C3[1], coeff of eps^3, polynomial in n of order 3
+            -5, -1, 3, 3, 64,
+            // C3[1], coeff of eps^2, polynomial in n of order 2
+            -1, 0, 1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^6, polynomial in n of order 0
+            27, 2048,
+            // C3[2], coeff of eps^5, polynomial in n of order 1
+            1, 5, 256,
+            // C3[2], coeff of eps^4, polynomial in n of order 2
+            -9, 2, 6, 256,
+            // C3[2], coeff of eps^3, polynomial in n of order 3
+            2, -3, -2, 3, 64,
+            // C3[2], coeff of eps^2, polynomial in n of order 2
+            1, -3, 2, 32,
+            // C3[3], coeff of eps^6, polynomial in n of order 0
+            3, 256,
+            // C3[3], coeff of eps^5, polynomial in n of order 1
+            -4, 21, 1536,
+            // C3[3], coeff of eps^4, polynomial in n of order 2
+            -6, -10, 9, 384,
+            // C3[3], coeff of eps^3, polynomial in n of order 3
+            -1, 5, -9, 5, 192,
+            // C3[4], coeff of eps^6, polynomial in n of order 0
+            9, 1024,
+            // C3[4], coeff of eps^5, polynomial in n of order 1
+            -10, 7, 512,
+            // C3[4], coeff of eps^4, polynomial in n of order 2
+            10, -14, 7, 512,
+            // C3[5], coeff of eps^6, polynomial in n of order 0
+            9, 1024,
+            // C3[5], coeff of eps^5, polynomial in n of order 1
+            -45, 21, 2560,
+            // C3[6], coeff of eps^6, polynomial in n of order 0
+            11, 2048,
+            };
+        }
+        else if (SeriesOrder == 8) {
+            static const CT coeff[] = {
+            // C3[1], coeff of eps^7, polynomial in n of order 0
+            243, 16384,
+            // C3[1], coeff of eps^6, polynomial in n of order 1
+            10, 21, 1024,
+            // C3[1], coeff of eps^5, polynomial in n of order 2
+            3, 11, 12, 512,
+            // C3[1], coeff of eps^4, polynomial in n of order 3
+            -2, 2, 2, 5, 128,
+            // C3[1], coeff of eps^3, polynomial in n of order 3
+            -5, -1, 3, 3, 64,
+            // C3[1], coeff of eps^2, polynomial in n of order 2
+            -1, 0, 1, 8,
+            // C3[1], coeff of eps^1, polynomial in n of order 1
+            -1, 1, 4,
+            // C3[2], coeff of eps^7, polynomial in n of order 0
+            187, 16384,
+            // C3[2], coeff of eps^6, polynomial in n of order 1
+            69, 108, 8192,
+            // C3[2], coeff of eps^5, polynomial in n of order 2
+            -2, 1, 5, 256,
+            // C3[2], coeff of eps^4, polynomial in n of order 3
+            -6, -9, 2, 6, 256,
+            // C3[2], coeff of eps^3, polynomial in n of order 3
+            2, -3, -2, 3, 64,
+            // C3[2], coeff of eps^2, polynomial in n of order 2
+            1, -3, 2, 32,
+            // C3[3], coeff of eps^7, polynomial in n of order 0
+            139, 16384,
+            // C3[3], coeff of eps^6, polynomial in n of order 1
+            -1, 12, 1024,
+            // C3[3], coeff of eps^5, polynomial in n of order 2
+            -77, -8, 42, 3072,
+            // C3[3], coeff of eps^4, polynomial in n of order 3
+            10, -6, -10, 9, 384,
+            // C3[3], coeff of eps^3, polynomial in n of order 3
+            -1, 5, -9, 5, 192,
+            // C3[4], coeff of eps^7, polynomial in n of order 0
+            127, 16384,
+            // C3[4], coeff of eps^6, polynomial in n of order 1
+            -43, 72, 8192,
+            // C3[4], coeff of eps^5, polynomial in n of order 2
+            -7, -40, 28, 2048,
+            // C3[4], coeff of eps^4, polynomial in n of order 3
+            -7, 20, -28, 14, 1024,
+            // C3[5], coeff of eps^7, polynomial in n of order 0
+            99, 16384,
+            // C3[5], coeff of eps^6, polynomial in n of order 1
+            -15, 9, 1024,
+            // C3[5], coeff of eps^5, polynomial in n of order 2
+            75, -90, 42, 5120,
+            // C3[6], coeff of eps^7, polynomial in n of order 0
+            99, 16384,
+            // C3[6], coeff of eps^6, polynomial in n of order 1
+            -99, 44, 8192,
+            // C3[7], coeff of eps^7, polynomial in n of order 0
+            429, 114688,
+            };
+
+            int offset = 0, k = 0;
+            // l is index of C3[l].
+            for (int l = 1; l < SeriesOrder; ++l) {
+                for (int j = SeriesOrder - 1; j >= l; --j) {
+                    // Order of polynomial in n.
+                    int m = std::min(SeriesOrder - j - 1, j);
+                    c[k++] = math::polyval(m, coeff + offset, n) /
+                             coeff[offset + m + 1];
+                    offset += m + 2;
+                }
+            }
+        }
+        // Post condition: offset == sizeof(coeff) / sizeof(CT) && k == coeffs_C3_size
     }
+
+    /*
+    \brief Given the set of coefficients coeffs2[] evaluate on
+      C3 and return the set of coefficients coeffs1[].
+
+      Elements coeffs1[1] through coeffs1[SeriesOrder - 1] are set.
+    */
+    template <typename CT, size_t SeriesOrder>
+    static inline void evaluate_coeffs_C3(CT eps, CT coeffs1[], CT coeffs2[])
+    {
+        CT mult = 1;
+        int offset = 0;
+
+        // l is the index of C3[l].
+        for (size_t l = 1; l < SeriesOrder; ++l)
+        {
+            // Order of polynomial in eps.
+            int m = SeriesOrder - l - 1;
+            mult *= eps;
+            coeffs1[l] = mult * math::polyval(m, coeffs2 + offset, eps);
+            offset += m + 1;
+        }
+        // Post condition: offset == coeffs_C3_size
+    }
+
 
 }}} // namespace boost::geometry::series_expansion
 
