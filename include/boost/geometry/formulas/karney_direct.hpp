@@ -103,7 +103,6 @@ public:
         CT const c1 = 1;
         CT const c2 = 2;
 
-        CT const a = CT(get_radius<0>(spheroid));
         CT const b = CT(get_radius<2>(spheroid));
         CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
@@ -120,6 +119,9 @@ public:
         CT sin_beta1, cos_beta1;
         math::sin_cos_degrees<CT>(math::round_angle<CT>(lat1), sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
+
+        math::normalize<CT>(sin_beta1, cos_beta1);
+        cos_beta1 = std::max(sqrt(std::numeric_limits<CT>::min()), cos_beta1);
 
         // Obtain alpha 0 by solving the spherical triangle.
         CT const sin_alpha0
@@ -146,8 +148,12 @@ public:
         CT const sin_tau12 = sin(tau12);
         CT const cos_tau12 = cos(tau12);
 
-        CT const sin_sigma1 = sin_beta1;
-        CT const cos_sigma1 = cos_beta1 * cos_alpha1;
+        CT sin_sigma1 = sin_beta1;
+        CT sin_omega1 = sin_alpha0 * sin_beta1;
+
+        CT cos_sigma1, cos_omega1;
+        cos_sigma1 = cos_omega1 = sin_beta1 != 0 || cos_alpha1 != 0 ? cos_beta1 * cos_alpha1 : 1;
+        math::normalize<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
@@ -162,9 +168,9 @@ public:
         CT coeffs_C1p[SeriesOrder + 1];
         series_expansion::evaluate_coeffs_C1p<CT, SeriesOrder>(epsilon, coeffs_C1p);
 
-        CT const B12 = sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+        CT const B12 = - sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
                                       cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
-                                      coeffs_C1p); // < 0?
+                                      coeffs_C1p);
 
         CT const sigma12 = tau12 - (B12 - B11);
         CT const sin_sigma12 = sin(sigma12);
@@ -200,9 +206,6 @@ public:
             result.lat2 /= math::d2r<T>();
 
             // Find the longitude at the second point.
-            CT const sin_omega1 = sin_beta1 * sin_alpha0;
-            CT const cos_omega1 = cos_beta1 * cos_alpha1;
-
             CT const sin_omega2 = sin_alpha0 * sin_sigma2;
             CT const cos_omega2 = cos_sigma2;
 
@@ -218,11 +221,11 @@ public:
             // Compute the size of coefficient array.
             size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
             CT coeffs_C3x[coeffs_C3_size];
-            series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(n, coeffs_C3x);
+            series_expansion::evaluate_coeffs_C3x<double, SeriesOrder>(n, coeffs_C3x);
 
             // Evaluate C3 coefficients.
             CT coeffs_C3[SeriesOrder];
-            math::evaluate_coeffs_var2<double, SeriesOrder>(epsilon, coeffs_C3x, coeffs_C3);
+            series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(epsilon, coeffs_C3, coeffs_C3x);
 
             CT const B31 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
