@@ -830,10 +830,23 @@ inline T round_angle(T x) {
 }
 
 /*!
+\brief Normalize the given values.
+*/
+template<typename T>
+inline void normalize(T& x, T& y)
+{
+    T h = boost::math::hypot(x, y);
+
+    x /= h; y /= h;
+}
+
+
+/*!
 \brief Normalize a given angle.
 */
 template<typename T>
-    inline T normalize_angle(T x) {
+    inline T normalize_angle(T x)
+{
     T y = std::fmod(x, T(360));
 
     return y <= -180 ? y + 360 : (y <= 180 ? y : y - 360);
@@ -845,7 +858,7 @@ template<typename T>
 // TODO: adl1995 - Merge these functions with formulas/area_formulas.hpp
 // i.e. place them in one file.
 template <typename NT, typename IteratorType>
-static inline NT horner_evaluate(NT x,
+inline NT horner_evaluate(NT x,
                                  IteratorType begin,
                                  IteratorType end)
 {
@@ -860,20 +873,21 @@ static inline NT horner_evaluate(NT x,
 }
 
 /*
-\brief Given the set of coefficients coeffs1[] evaluate on
-    var2 and return the set of coefficients coeffs2[].
+\brief Evaluate the polynomial.
 */
-template <typename CT, std::size_t SeriesOrder>
-static inline void evaluate_coeffs_var2(CT var2,
-                                        CT coeffs1[],
-                                        CT coeffs2[]){
-    std::size_t begin(0), end(0);
-    for(std::size_t i = 0; i <= SeriesOrder; i++){
-        end = begin + SeriesOrder + 1 - i;
-        coeffs2[i] = ((i==0) ? CT(1) : pow(var2,int(i)))
-                    * horner_evaluate(var2, coeffs1 + begin, coeffs1 + end);
-        begin = end;
+template<typename CT>
+inline CT polyval(int N,
+                         const CT coeff[],
+                         const CT eps)
+{
+    CT y = N < 0 ? 0 : *coeff++;
+
+    while (--N >= 0)
+    {
+        y = y * eps + *coeff++;
     }
+
+    return y;
 }
 
 } // namespace math
