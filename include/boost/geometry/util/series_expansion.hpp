@@ -842,9 +842,24 @@ namespace boost { namespace geometry { namespace series_expansion {
                s/case\sCT(/case /g; s/):/:/g; s/epsCT(2)/eps2/g;
                s/eps(CT(2))/eps2/g;'
     */
-    // TODO: adl1995
-    // Update docstring and function body.
-    // The coefficients C3[l] in the Fourier expansion of B3
+    template <typename CT, int SeriesOrder>
+    void evaluate_coeffs_C3x(CT const& n, CT c[], const CT coeff[])
+    {
+        int offset = 0, k = 0;
+        // l is index of C3[l].
+        for (int l = 1; l < SeriesOrder; ++l)
+        {
+            for (int j = SeriesOrder - 1; j >= l; --j)
+            {
+                // Order of polynomial in n.
+                int m = std::min(SeriesOrder - j - 1, j);
+                c[k++] = math::polyval(m, coeff + offset, n) /
+                coeff[offset + m + 1];
+                offset += m + 2;
+            }
+        }
+    }
+
     template <typename CT, int SeriesOrder>
     void evaluate_coeffs_C3x(CT const& n, CT c[]) {
         if (SeriesOrder == 3) {
@@ -856,6 +871,8 @@ namespace boost { namespace geometry { namespace series_expansion {
             // C3[2], coeff of eps^2, polynomial in n of order 0
             1, 16,
             };
+
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         else if (SeriesOrder == 4) {
             static const CT coeff[] = {
@@ -874,6 +891,8 @@ namespace boost { namespace geometry { namespace series_expansion {
             // C3[3], coeff of eps^3, polynomial in n of order 0
             5, 192,
             };
+
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         else if (SeriesOrder == 5) {
             static const CT coeff[] = {
@@ -898,6 +917,8 @@ namespace boost { namespace geometry { namespace series_expansion {
             // C3[4], coeff of eps^4, polynomial in n of order 0
             7, 512,
             };
+
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         else if (SeriesOrder == 6) {
             static const CT coeff[] = {
@@ -932,6 +953,8 @@ namespace boost { namespace geometry { namespace series_expansion {
             // C3[5], coeff of eps^5, polynomial in n of order 0
             21, 2560,
             };
+
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         else if (SeriesOrder == 7) {
             static const CT coeff[] = {
@@ -978,6 +1001,8 @@ namespace boost { namespace geometry { namespace series_expansion {
             // C3[6], coeff of eps^6, polynomial in n of order 0
             11, 2048,
             };
+
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         else if (SeriesOrder == 8) {
             static const CT coeff[] = {
@@ -1039,17 +1064,7 @@ namespace boost { namespace geometry { namespace series_expansion {
             429, 114688,
             };
 
-            int offset = 0, k = 0;
-            // l is index of C3[l].
-            for (int l = 1; l < SeriesOrder; ++l) {
-                for (int j = SeriesOrder - 1; j >= l; --j) {
-                    // Order of polynomial in n.
-                    int m = std::min(SeriesOrder - j - 1, j);
-                    c[k++] = math::polyval(m, coeff + offset, n) /
-                             coeff[offset + m + 1];
-                    offset += m + 2;
-                }
-            }
+            evaluate_coeffs_C3x<CT, SeriesOrder>(n, c, coeff);
         }
         // Post condition: offset == sizeof(coeff) / sizeof(CT) && k == coeffs_C3_size
     }
