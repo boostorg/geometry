@@ -93,7 +93,9 @@ public:
         CT const lat1 = la1;
         Azi const azi12 = math::normalize_angle<CT>(azimuth12);
 
-        if (math::equals(distance, Dist(0)) || distance < Dist(0))
+        CT const dist_c0 = 0;
+
+        if (math::equals(distance, dist_c0) || distance < dist_c0)
         {
             result.lon2 = lon1;
             result.lat2 = lat1;
@@ -263,8 +265,8 @@ public:
             CT const AB2 = (c1 + expansion_A2) * (B22 - B21);
             CT const J12 = (expansion_A1 - expansion_A2) * sigma12 + (AB1 - AB2);
 
-            CT const dn1 = sqrt(1 + ep2 * math::sqr(sin_beta1));
-            CT const dn2 = sqrt(1 + k2 * math::sqr(sin_sigma2));
+            CT const dn1 = sqrt(c1 + ep2 * math::sqr(sin_beta1));
+            CT const dn2 = sqrt(c1 + k2 * math::sqr(sin_sigma2));
 
             // Find the reduced length.
             result.reduced_length = b * ((dn2 * (cos_sigma1 * sin_sigma2) -
