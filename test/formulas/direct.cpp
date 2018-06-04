@@ -64,7 +64,7 @@ void test_all(expected_results const& results)
     result.reverse_azimuth *= r2d;
     check_direct(result, results.thomas, results.karney, 0.0000001);
 
-    typedef bg::formula::karney_direct<double, 8, true, true, true, true> ka_t;
+    typedef bg::formula::karney_direct<double, true, true, true, true, 8> ka_t;
     result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
     check_direct(result, results.thomas, results.karney, 0.0000001);
 }
@@ -81,7 +81,7 @@ void test_karney_antipodal(expected_results_antipodal const& results)
 
     bg::formula::result_direct<double> result;
 
-    typedef bg::formula::karney_direct<double, 8, true, true, true, true> ka_t;
+    typedef bg::formula::karney_direct<double, true, true, true, true, 8> ka_t;
     result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
     check_direct(result, results.karney, results.karney, 0.0000001, true);
 }

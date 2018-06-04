@@ -33,11 +33,11 @@ https://arxiv.org/pdf/1109.4448.pdf
 */
 template <
     typename CT,
-    size_t SeriesOrder = 8,
     bool EnableCoordinates = true,
     bool EnableReverseAzimuth = false,
     bool EnableReducedLength = false,
-    bool EnableGeodesicScale = false
+    bool EnableGeodesicScale = false,
+    size_t SeriesOrder = 8
 >
 class karney_direct
 {
