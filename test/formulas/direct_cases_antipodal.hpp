@@ -20,6 +20,17 @@ struct expected_results_antipodal
     expected_result karney;
 };
 
+/*
+ These values are collected from GeodTest which is associated with GeographicLib:
+     https://zenodo.org/record/32156
+
+ The conversion to C++ array format is done using this Python script:
+     https://github.com/adl1995/boost-geometry-extra/blob/master/geographicLib-dataset-parse.py
+
+ Geodesic scale (M12) is absent from the GeodTest dataset, so it is manually generated
+ using GeographicLib through this C++ script:
+     https://github.com/adl1995/boost-geometry-extra/blob/master/geographicLib-direct-antipodal.cpp
+*/
 expected_results_antipodal expected_antipodal[] =
 {
     {
