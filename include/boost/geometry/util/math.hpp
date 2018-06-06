@@ -810,6 +810,23 @@ inline void sin_cos_degrees(T const& x, T & sinx, T & cosx)
 }
 
 /*!
+\brief The NaN (not a number)
+*/
+template<typename T>
+inline T NaN()
+{
+#if defined(_MSC_VER)
+    return std::numeric_limits<T>::has_quiet_NaN ?
+      std::numeric_limits<T>::quiet_NaN() :
+      (std::numeric_limits<T>::max)();
+#else
+    return std::numeric_limits<T>::has_quiet_NaN ?
+      std::numeric_limits<T>::quiet_NaN() :
+      std::numeric_limits<T>::max();
+#endif
+}
+
+/*!
 \brief Round off a given angle
 */
 template<typename T>
@@ -889,7 +906,7 @@ inline T difference_angle(T x, T y, T& e)
 }
 
 
-/*
+/*!
 \brief Evaluate the polynomial in x using Horner's method.
 */
 // TODO: adl1995 - Merge these functions with formulas/area_formulas.hpp
@@ -909,7 +926,7 @@ inline NT horner_evaluate(NT x,
     return result;
 }
 
-/*
+/*!
 \brief Evaluate the polynomial.
 */
 template<typename CT>
