@@ -105,6 +105,17 @@ struct ever_circling_range_iterator
         typename boost::range_difference<Range>::type
     >
 {
+private:
+    typedef boost::iterator_facade
+        <
+            ever_circling_range_iterator<Range>,
+            typename boost::range_value<Range>::type const,
+            boost::random_access_traversal_tag,
+            typename boost::range_reference<Range>::type const,
+            typename boost::range_difference<Range>::type
+        > base_type;
+
+public:
     /// Constructor including the range it is based on
     explicit inline ever_circling_range_iterator(Range& range)
         : m_range(&range)
@@ -120,13 +131,13 @@ struct ever_circling_range_iterator
         , m_index(0)
     {}
 
-    typedef typename boost::range_reference<Range>::type const reference_type;
-    typedef typename boost::range_difference<Range>::type difference_type;
+    typedef typename base_type::reference reference;
+    typedef typename base_type::difference_type difference_type;
 
 private:
     friend class boost::iterator_core_access;
 
-    inline reference_type dereference() const
+    inline reference dereference() const
     {
         return *m_iterator;
     }

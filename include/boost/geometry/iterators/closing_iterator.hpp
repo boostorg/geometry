@@ -43,8 +43,19 @@ struct closing_iterator
         typename boost::range_difference<Range>::type
     >
 {
-    typedef typename boost::range_reference<Range>::type const reference_type;
-    typedef typename boost::range_difference<Range>::type difference_type;
+private:
+    typedef boost::iterator_facade
+        <
+            closing_iterator<Range>,
+            typename boost::range_value<Range>::type const,
+            boost::random_access_traversal_tag,
+            typename boost::range_reference<Range>::type const,
+            typename boost::range_difference<Range>::type
+        > base_type;
+
+public:
+    typedef typename base_type::reference reference;
+    typedef typename base_type::difference_type difference_type;
 
     /// Constructor including the range it is based on
     explicit inline closing_iterator(Range& range)
@@ -74,7 +85,7 @@ struct closing_iterator
 private:
     friend class boost::iterator_core_access;
 
-    inline reference_type dereference() const
+    inline reference dereference() const
     {
         return *m_iterator;
     }
