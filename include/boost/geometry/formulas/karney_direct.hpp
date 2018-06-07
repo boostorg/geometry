@@ -48,38 +48,6 @@ class karney_direct
 public:
     typedef result_direct<CT> result_type;
 
-    /*
-     Evaluate
-
-     y = sum(c[i] * sin(2*i * x), i, 1, n)
-
-     using Clenshaw summation.
-    */
-    static inline CT sin_cos_series(CT sinx,
-                                    CT cosx,
-                                    const CT coeffs[])
-    {
-        size_t n = SeriesOrder;
-
-        // Point to one beyond last element.
-        coeffs += (n + 1);
-        CT ar = 2 * (cosx - sinx) * (cosx + sinx);
-
-        CT k0 = n & 1 ? *--coeffs : 0;
-        CT k1 = 0;
-
-        // Make n even.
-        n /= 2;
-        while (n--) {
-          // Unroll loop x 2, so accumulators return to their original role.
-          k1 = ar * k0 - k1 + *--coeffs;
-          k0 = ar * k1 - k0 + *--coeffs;
-        }
-
-        return 2 * sinx * cosx * k0;
-    }
-
-
     template <typename T, typename Dist, typename Azi, typename Spheroid>
     static inline result_type apply(T const& lo1,
                                     T const& la1,
@@ -157,7 +125,8 @@ public:
         cos_sigma1 = cos_omega1 = sin_beta1 != 0 || cos_alpha1 != 0 ? cos_beta1 * cos_alpha1 : 1;
         math::normalize<CT>(sin_sigma1, cos_sigma1);
 
-        CT const B11 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+        CT const B11 =
+            series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
         CT const cos_B11 = cos(B11);
 
@@ -170,9 +139,11 @@ public:
         CT coeffs_C1p[SeriesOrder + 1];
         series_expansion::evaluate_coeffs_C1p<CT, SeriesOrder>(epsilon, coeffs_C1p);
 
-        CT const B12 = - sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
-                                      cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
-                                      coeffs_C1p);
+        CT const B12 =
+            - series_expansion::sin_cos_series<CT, SeriesOrder>
+                                (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+                                 cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
+                                 coeffs_C1p);
 
         CT const sigma12 = tau12 - (B12 - B11);
         CT const sin_sigma12 = sin(sigma12);
@@ -229,12 +200,14 @@ public:
             CT coeffs_C3[SeriesOrder];
             series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(epsilon, coeffs_C3, coeffs_C3x);
 
-            CT const B31 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+            CT const B31 =
+                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C3);
 
             CT const lam12 = omega12 + A3c *
-                             (sigma12 + (sin_cos_series(sin_sigma2,
-                                                        cos_sigma2,
-                                                        coeffs_C3) - B31));
+                             (sigma12 + (series_expansion::sin_cos_series<CT, SeriesOrder>
+                                                           (sin_sigma2,
+                                                            cos_sigma2,
+                                                            coeffs_C3) - B31));
 
             // Convert to radians to get the
             // longitudinal difference.
@@ -253,8 +226,10 @@ public:
             CT coeffs_C2[SeriesOrder + 1];
             series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
 
-            CT const B21 = sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
-            CT const B22 = sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
+            CT const B21 =
+                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C2);
+            CT const B22 =
+                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.

@@ -746,6 +746,38 @@ namespace boost { namespace geometry { namespace series_expansion {
         // Post condition: offset == coeffs_C3_size
     }
 
+    /*
+    \brief Evaluate the following:
+
+     y = sum(c[i] * sin(2*i * x), i, 1, n)
+
+     using Clenshaw summation.
+    */
+    template <typename CT, size_t SeriesOrder>
+    static inline CT sin_cos_series(CT sinx,
+                                    CT cosx,
+                                    const CT coeffs[])
+    {
+        size_t n = SeriesOrder;
+
+        // Point to one beyond last element.
+        coeffs += (n + 1);
+        CT ar = 2 * (cosx - sinx) * (cosx + sinx);
+
+        CT k0 = n & 1 ? *--coeffs : 0;
+        CT k1 = 0;
+
+        // Make n even.
+        n /= 2;
+        while (n--) {
+          // Unroll loop x 2, so accumulators return to their original role.
+          k1 = ar * k0 - k1 + *--coeffs;
+          k0 = ar * k1 - k0 + *--coeffs;
+        }
+
+        return 2 * sinx * cosx * k0;
+    }
+
 
 }}} // namespace boost::geometry::series_expansion
 
