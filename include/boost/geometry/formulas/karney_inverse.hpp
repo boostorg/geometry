@@ -73,6 +73,7 @@ public:
 
         CT tiny = std::sqrt(std::numeric_limits<CT>::min());
 
+        CT const a = CT(get_radius<0>(spheroid));
         CT const b = CT(get_radius<2>(spheroid));
         CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
@@ -108,7 +109,7 @@ public:
         lat2 = math::round_angle(lat2);
 
         // Arrange points in a canonical form, as explained in
-        // paper Algorithms for geodesics, Eq. (44):
+        // paper, Algorithms for geodesics, Eq. (44):
         //
         //     0 <= lon12 <= 180
         //     -90 <= lat1 <= 0
@@ -141,7 +142,7 @@ public:
         cos_beta2 = std::max(tiny, cos_beta2);
 
         // If cos_beta1 < -sin_beta1, then cos_beta2 - cos_beta1 is a
-        // sensitive measure of the |beta1| - |beta2|.  Alternatively,
+        // sensitive measure of the |beta1| - |beta2|. Alternatively,
         // (cos_beta1 >= -sin_beta1), abs(sin_beta2) + sin_beta1 is
         // a better measure.
         // Sometimes these quantities vanish and in that case we
@@ -173,17 +174,20 @@ public:
 
         bool meridian = lat1 == -90 || sin_lam12 == 0;
 
+        CT cos_alpha1, sin_alpha1;
+        CT cos_alpha2, sin_alpha2;
+
         if (meridian)
         {
             // Endpoints lie on a single full meridian.
 
             // Point to the target latitude.
-            CT cos_alpha1 = cos_lam12;
-            CT sin_alpha1 = sin_lam12;
+            cos_alpha1 = cos_lam12;
+            sin_alpha1 = sin_lam12;
 
             // Heading north at the target.
-            CT cos_alpha2 = 1;
-            CT sin_alpha2 = 0;
+            cos_alpha2 = 1;
+            sin_alpha2 = 0;
 
             CT sin_sigma1 = sin_beta1;
             CT cos_sigma1 = cos_alpha1 * cos_beta1;
@@ -216,6 +220,28 @@ public:
                 // m12 < 0, i.e., prolate and too close to anti-podal.
                 meridian = false;
             }
+        }
+
+        CT omega12, sin_omega12, cos_omega12;
+
+        if (!meridian && sin_beta1 == 0 &&
+            (f <= 0 || lon12_error >= f * c180))
+        {
+            std::cout << "Points lie on the equator." << std::endl;
+            // Points lie on the equator.
+            cos_alpha1 = cos_alpha2 = c0;
+            sin_alpha1 = sin_alpha2 = c1;
+
+            s12x = a * lam12;
+            sigma12 = omega12 = lam12 / one_minus_f;
+            m12x = b * sin(sigma12);
+
+            if (BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
+            {
+                result.geodesic_scale = cos(sigma12);
+                M21 = cos(sigma12);
+            }
+            a12 = lon12 / one_minus_f;
         }
     }
 
