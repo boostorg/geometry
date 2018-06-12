@@ -22,6 +22,7 @@
 #include <boost/geometry/formulas/differential_quantities.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
+#include <boost/geometry/formulas/thomas_direct.hpp>
 
 
 namespace boost { namespace geometry { namespace formula

@@ -26,7 +26,6 @@ namespace boost { namespace geometry { namespace strategy
 
 struct andoyer
 {
-    //TODO: this should be replaced by an andoyer direct formula
     template
     <
         typename CT,
