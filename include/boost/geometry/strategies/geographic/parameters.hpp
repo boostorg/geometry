@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_PARAMETERS_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_PARAMETERS_HPP
 
-
+#include <boost/geometry/formulas/thomas_first_order_direct.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -36,7 +36,7 @@ struct andoyer
         bool EnableGeodesicScale = false
     >
     struct direct
-            : formula::thomas_direct
+            : formula::thomas_first_order_direct
               <
                   CT, EnableCoordinates, EnableReverseAzimuth,
                   EnableReducedLength, EnableGeodesicScale
