@@ -91,6 +91,7 @@ public:
 
         CT tiny = std::sqrt(std::numeric_limits<CT>::min());
 
+
         CT const n = f / two_minus_f;
         CT const e2 = f * two_minus_f;
         CT const ep2 = e2 / math::sqr(one_minus_f);
@@ -110,8 +111,15 @@ public:
         CT sin_lam12;
         CT cos_lam12;
 
-        lon12 > c90 ? math::sin_cos_degrees(lon12_error, sin_lam12, cos_lam12)
-                    : math::sin_cos_degrees(lon12, sin_lam12, cos_lam12);
+        if (lon12 > c90)
+        {
+            math::sin_cos_degrees(lon12_error, sin_lam12, cos_lam12);
+            cos_lam12 *= -c1;
+        }
+        else
+        {
+            math::sin_cos_degrees(lon12, sin_lam12, cos_lam12);
+        }
 
         // Make points close to the equator to lie on it.
         lat1 = std::abs(lat1) > 90 ? math::NaN<CT>() : lat1;
@@ -421,8 +429,6 @@ public:
         }
 
         sin_alpha1 = cos_beta2 * sin_omega12;
-        // TODO: adl1995 - Resolve inaccuracy with
-        // cos_alpha1 calculation.
         cos_alpha1 = cos_omega12 >= c0 ?
             sin_beta12 + cos_beta2 * sin_beta1 * math::sqr(sin_omega12) / (c1 + cos_omega12) :
             sin_beta12a - cos_beta2 * sin_beta1 * math::sqr(sin_omega12) / (c1 - cos_omega12);
