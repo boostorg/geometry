@@ -57,10 +57,12 @@ public:
     static CT constexpr c1 = 1;
     static CT constexpr c2 = 2;
     static CT constexpr c3 = 3;
+    static CT constexpr c4 = 4;
     static CT constexpr c6 = 6;
     static CT constexpr c90 = 90;
     static CT constexpr c180 = 180;
     static CT constexpr c200 = 200;
+    static CT constexpr c1000 = 1000;
 
     template <typename T1, typename T2, typename Spheroid>
     static inline result_type apply(T1 const& lo1,
@@ -276,7 +278,9 @@ public:
                                  lam12, sin_lam12, cos_lam12,
                                  sin_alpha1, cos_alpha1,
                                  sin_alpha2, cos_alpha2,
-                                 dnm, coeffs_C1, ep2, etol2, n, f);
+                                 dnm, coeffs_C1, ep2,
+                                 tol1, tol2, etol2,
+                                 n, f);
         }
     }
 
@@ -395,9 +399,10 @@ public:
                                   CT& sin_alpha1, CT& cos_alpha1,
                                   CT& sin_alpha2, CT& cos_alpha2,
                                   CT& dnm, CT coeffs_C1[], CT ep2,
-                                  CT etol2, CT n, CT f)
+                                  CT tol1, CT tol2, CT etol2, CT n, CT f)
     {
         CT const one_minus_f = c1 - f;
+        CT const x_thresh = c1000 * tol2;
         CT sig12 = -c1;
 
         CT sin_beta12 = sin_beta2 * cos_beta1 - cos_beta2 * sin_beta1;
@@ -497,7 +502,110 @@ public:
 
                 y = lam12x / lambda_scale;
             }
+
+            if (y > -tol1 && x > -c1 - x_thresh)
+            {
+                // Strip near cut.
+                if (f >= c0)
+                {
+                    sin_alpha1 = std::min(c1, -CT(x));
+                    cos_alpha1 = - std::sqrt(c1 - math::sqr(sin_alpha1));
+                }
+                else
+                {
+                    cos_alpha1 = std::max(x > -tol1 ? c0 : -c1, CT(x));
+                    sin_alpha1 = std::sqrt(c1 - math::sqr(cos_alpha1));
+                }
+            }
+            else
+            {
+                // Solve the astroid problem.
+                CT k = astroid(x, y);
+
+                CT omega12a = lambda_scale * (f >= c0 ? -x * k /
+                    (c1 + k) : -y * (c1 + k) / k);
+
+                CT sin_omega12 = sin(omega12a);
+                CT cos_omega12 = -cos(omega12a);
+
+                // Update spherical estimate of alpha1 using omgega12 instead of lam12.
+                sin_alpha1 = cos_beta2 * sin_omega12;
+                cos_alpha1 = sin_beta12a - cos_beta2 * sin_beta1 *
+                    math::sqr(sin_omega12) / (c1 - cos_omega12);
+            }
         }
+    }
+
+    /*
+     Solve the astroid problem using this equation:
+     κ4 + 2κ3 + (1 − x2 − y 2 )κ2 − 2y 2 κ − y 2 = 0.
+
+     For details, please refer to Eq. (65) in,
+     Geodesics on an ellipsoid of revolution, Charles F.F Karney,
+     https://arxiv.org/abs/1102.1215
+    */
+    static inline CT astroid(CT x, CT y)
+    {
+        CT k;
+
+        CT p = math::sqr(x);
+        CT q = math::sqr(y);
+        CT r = (p + q - c1) / c6;
+
+        if (!(q == c0 && r <= c0))
+        {
+            // Avoid possible division by zero when r = 0 by multiplying
+            // equations for s and t by r^3 and r, respectively.
+            CT S = p * q / c4;
+            CT r2 = math::sqr(r);
+            CT r3 = r * r2;
+
+            // The discriminant of the quadratic equation for T3. This is
+            // zero on the evolute curve p^(1/3)+q^(1/3) = 1.
+            CT discriminant = S * (S + c2 * r3);
+
+            CT u = r;
+
+            if (discriminant >= c0)
+            {
+                CT T3 = S + r3;
+
+                // Pick the sign on the sqrt to maximize abs(T3). This minimizes
+                // loss of precision due to cancellation. The result is unchanged
+                // because of the way the T is used in definition of u.
+                T3 += T3 < c0 ? -std::sqrt(discriminant) : std::sqrt(discriminant);
+
+                CT T = std::cbrt(T3);
+
+                // T can be zero; but then r2 / T -> 0.
+                u += T + (T != c0 ? r2 / T : c0);
+            }
+            else
+            {
+                CT ang = std::atan2(std::sqrt(-discriminant), -(S + r3));
+
+                // There are three possible cube roots. We choose the root which avoids
+                // cancellation. Note that discriminant < 0 implies that r < 0.
+                u += c2 * r * cos(ang / c3);
+            }
+
+            CT v = std::sqrt(math::sqr(u) + q);
+
+            // Avoid loss of accuracy when u < 0.
+            CT uv = u < c0 ? q / (v - u) : u + v;
+            CT w = (uv - q) / (c2 * v);
+
+            // Rearrange expression for k to avoid loss of accuracy due to
+            // subtraction. Division by 0 not possible because uv > 0, w >= 0.
+            k = uv / (std::sqrt(uv + math::sqr(w)) + w);
+        }
+        else // q == 0 && r <= 0
+        {
+            // y = 0 with |x| <= 1. Handle this case directly.
+            // For y small, positive root is k = abs(y)/sqrt(1-x^2)
+            k = c0;
+        }
+        return k;
     }
 };
 
