@@ -534,6 +534,19 @@ public:
                     math::sqr(sin_omega12) / (c1 - cos_omega12);
             }
         }
+
+        // Apply sanity check on starting guess. Backwards check allows NaN through.
+        if (!(sin_alpha1 <= c0))
+        {
+          math::normalize<CT>(sin_alpha1, cos_alpha1);
+        }
+        else
+        {
+          sin_alpha1 = c1;
+          cos_alpha1 = c0;
+        }
+
+        return sig12;
     }
 
     /*
