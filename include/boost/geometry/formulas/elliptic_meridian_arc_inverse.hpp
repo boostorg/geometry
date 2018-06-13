@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
-#define BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_INVERSE_HPP
+#define BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_INVERSE_HPP
 
 #include <boost/math/constants/constants.hpp>
 
@@ -172,4 +172,4 @@ public :
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_INVERSE_HPP

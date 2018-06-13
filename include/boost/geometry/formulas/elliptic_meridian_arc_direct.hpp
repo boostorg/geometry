@@ -19,7 +19,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
-
+#include <boost/geometry/formulas/quarter_meridian.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -41,7 +41,7 @@ public :
     {
         CT const f = formula::flattening<CT>(spheroid);
         CT n = f / (CT(2) - f);
-        CT mp = 10001965.729;
+        CT mp = formula::quarter_meridian<CT>(spheroid);
         CT mu = geometry::math::pi<CT>()/CT(2) * m / mp;
 
         if (Order == 0)
