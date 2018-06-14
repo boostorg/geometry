@@ -250,7 +250,7 @@ public:
 
             // Find the geodesic scale.
             CT const t = k2 * (sin_sigma2 - sin_sigma1) *
-                              (sin_sigma2 * sin_sigma1) / (dn1 + dn2);
+                              (sin_sigma2 + sin_sigma1) / (dn1 + dn2);
 
             result.geodesic_scale = cos_sigma12 +
                                     (t * sin_sigma2 - cos_sigma2 * J12) *
