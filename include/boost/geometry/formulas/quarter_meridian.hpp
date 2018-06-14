@@ -71,6 +71,10 @@ private :
                                      IteratorType end)
     {
         NT result(0);
+        if (begin == end)
+        {
+            return result;
+        }
         IteratorType it = end;
         do
         {
