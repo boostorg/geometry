@@ -186,7 +186,7 @@ public:
                                      cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
             CT coeffs_A3[SeriesOrder];
-            series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
+            series_expansion::evaluate_coeffs_A3<CT, SeriesOrder>(n, coeffs_A3);
 
             CT const A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
             CT const A3c = -f * sin_alpha0 * A3;
@@ -194,11 +194,11 @@ public:
             // Compute the size of coefficient array.
             size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
             CT coeffs_C3x[coeffs_C3_size];
-            series_expansion::evaluate_coeffs_C3x<double, SeriesOrder>(n, coeffs_C3x);
+            series_expansion::evaluate_coeffs_C3x<CT, SeriesOrder>(n, coeffs_C3x);
 
             // Evaluate C3 coefficients.
             CT coeffs_C3[SeriesOrder];
-            series_expansion::evaluate_coeffs_C3<double, SeriesOrder>(epsilon, coeffs_C3, coeffs_C3x);
+            series_expansion::evaluate_coeffs_C3<CT, SeriesOrder>(epsilon, coeffs_C3, coeffs_C3x);
 
             CT const B31 =
                 series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C3);
