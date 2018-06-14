@@ -59,6 +59,8 @@ public:
     static CT constexpr c3 = 3;
     static CT constexpr c4 = 4;
     static CT constexpr c6 = 6;
+    static CT constexpr c10 = 10;
+    static CT constexpr c20 = 20;
     static CT constexpr c90 = 90;
     static CT constexpr c180 = 180;
     static CT constexpr c200 = 200;
@@ -274,13 +276,61 @@ public:
             // Find the starting point for Newton's method.
             CT dnm;
             sigma12 = newton_start(sin_beta1, cos_beta1, dn1,
-                                 sin_beta2, cos_beta2, dn2,
-                                 lam12, sin_lam12, cos_lam12,
-                                 sin_alpha1, cos_alpha1,
-                                 sin_alpha2, cos_alpha2,
-                                 dnm, coeffs_C1, ep2,
-                                 tol1, tol2, etol2,
-                                 n, f);
+                                   sin_beta2, cos_beta2, dn2,
+                                   lam12, sin_lam12, cos_lam12,
+                                   sin_alpha1, cos_alpha1,
+                                   sin_alpha2, cos_alpha2,
+                                   dnm, coeffs_C1, ep2,
+                                   tol1, tol2, etol2,
+                                   n, f);
+
+            if (sigma12 >= c0)
+            {
+                // Short lines case (newton_start sets salp2, calp2, dnm)
+                s12x = sigma12 * b * dnm;
+                m12x = math::sqr(dnm) * b * sin(sigma12 / dnm);
+                if (BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
+                {
+                    result.geodesic_scale = cos(sigma12 / dnm);
+                }
+
+                // Convert to radians.
+                a12 = sigma12 / math::d2r<CT>();
+                omega12 = lam12 / (one_minus_f * dnm);
+            }
+            else
+            {
+                // Apply the Newton's method.
+                CT sin_sigma1 = c0, cos_sigma1 = c0;
+                CT sin_sigma2 = c0, cos_sigma2 = c0;
+                CT eps = c0, diff_omega12 = c0;
+
+                // Bracketing range.
+                CT sin_alpha1a = tiny, cos_alpha1a = c1;
+                CT sin_alpha1b = tiny, cos_alpha1b = -c1;
+
+                size_t iteration = 0;
+                size_t max_iterations = 20 + std::numeric_limits<size_t>::digits + 10;
+
+                for (bool tripn = false, tripb = false;
+                     iteration < max_iterations;
+                     ++iteration)
+                {
+                    CT dv;
+
+                    CT v = lambda12(sin_beta1, cos_beta1, dn1,
+                                    sin_beta2, cos_beta2, dn2,
+                                    sin_alpha1, cos_alpha1,
+                                    sin_lam12, cos_lam12,
+                                    sin_alpha2, cos_alpha2,
+                                    sigma12,
+                                    sin_sigma1, cos_sigma1,
+                                    sin_sigma2, cos_sigma2,
+                                    eps, diff_omega12,
+                                    iteration < max_iterations,
+                                    dv, f, n, ep2, tiny, coeffs_C1);
+                }
+            }
         }
     }
 
@@ -550,7 +600,7 @@ public:
     }
 
     /*
-     Solve the astroid problem using this equation:
+     Solve the astroid problem using the equation:
      κ4 + 2κ3 + (1 − x2 − y 2 )κ2 − 2y 2 κ − y 2 = 0.
 
      For details, please refer to Eq. (65) in,
@@ -615,11 +665,132 @@ public:
         else // q == 0 && r <= 0
         {
             // y = 0 with |x| <= 1. Handle this case directly.
-            // For y small, positive root is k = abs(y)/sqrt(1-x^2)
+            // For y small, positive root is k = abs(y)/sqrt(1-x^2).
             k = c0;
         }
         return k;
     }
+
+    static inline CT lambda12(CT sin_beta1, CT cos_beta1, CT dn1,
+                              CT sin_beta2, CT cos_beta2, CT dn2,
+                              CT sin_alpha1, CT cos_alpha1,
+                              CT sin_lam120, CT cos_lam120,
+                              CT& sin_alpha2, CT& cos_alpha2,
+                              CT& sigma12,
+                              CT& sin_sigma1, CT& cos_sigma1,
+                              CT& sin_sigma2, CT& cos_sigma2,
+                              CT& eps, CT& diff_omega12,
+                              bool diffp, CT& diff_lam12,
+                              CT f, CT n, CT ep2, CT tiny,
+                              CT coeffs_C1[])
+    {
+        CT const one_minus_f = c1 - f;
+
+        if (sin_beta1 == c0 && cos_alpha1 == c0)
+        {
+            // Break degeneracy of equatorial line.
+            cos_alpha1 = -tiny;
+        }
+
+        CT sin_alpha0 = sin_alpha1 * cos_beta1;
+        CT cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
+
+        CT sin_omega1, cos_omega1;
+        CT sin_omega2, cos_omega2;
+        CT sin_omega12, cos_omega12;
+
+        CT lam12;
+
+        sin_sigma1 = sin_beta1;
+        sin_omega1 = sin_alpha0 * sin_beta1;
+
+        cos_sigma1 = cos_omega1 =
+            cos_alpha1 * cos_beta1;
+
+        math::normalize(sin_sigma1, cos_sigma1);
+
+        // Enforce symmetries in the case abs(beta2) = -beta1.
+        // Otherwise, this can yield singularities in the Newton iteration.
+
+        // sin(alpha2) * cos(beta2) = sin(alpha0).
+        sin_alpha2 = cos_beta2 != cos_beta1 ?
+            sin_alpha0 / cos_beta2 : sin_alpha1;
+
+        cos_alpha2 = cos_beta2 != cos_beta1 || std::abs(sin_beta2) != -sin_beta1 ?
+            sqrt(math::sqr(cos_alpha1 * cos_beta1) +
+                (cos_beta1 < -sin_beta1 ?
+                    (cos_beta2 - cos_beta1) * (cos_beta1 + cos_beta2) :
+                    (sin_beta1 - sin_beta2) * (sin_beta1 + sin_beta2))) / cos_beta2 :
+            std::abs(cos_alpha1);
+
+        sin_sigma2 = sin_beta2;
+        sin_omega2 = sin_alpha0 * sin_beta2;
+
+        cos_sigma2 = cos_omega2 =
+            cos_alpha2 * cos_beta2;
+
+        math::normalize(sin_sigma2, cos_sigma2);
+
+        // sig12 = sig2 - sig1, limit to [0, pi].
+        sigma12 = atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+
+        // omg12 = omg2 - omg1, limit to [0, pi].
+        sin_omega12 = std::max(c0, cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
+        cos_omega12 = cos_omega1 * cos_omega2 + sin_omega1 * sin_omega2;
+
+        // eta = omg12 - lam120.
+        CT eta = atan2(sin_omega12 * cos_lam120 - cos_omega12 * sin_lam120,
+                       cos_omega12 * cos_lam120 + sin_omega12 * sin_lam120);
+
+        CT B312;
+        CT k2 = math::sqr(cos_alpha0) * ep2;
+
+        eps = k2 / (c2 * (c1 + std::sqrt(c1 + k2)) + k2);
+
+        // Compute the size of coefficient array.
+        size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
+        CT coeffs_C3x[coeffs_C3_size];
+        series_expansion::evaluate_coeffs_C3x<CT, SeriesOrder>(n, coeffs_C3x);
+
+        // Evaluate C3 coefficients.
+        CT coeffs_C3[SeriesOrder];
+        series_expansion::evaluate_coeffs_C3<CT, SeriesOrder>(eps, coeffs_C3, coeffs_C3x);
+
+        B312 = series_expansion::sin_cos_series<CT, SeriesOrder>
+                   (sin_sigma2, cos_sigma2, coeffs_C3) -
+               series_expansion::sin_cos_series<CT, SeriesOrder>
+                   (sin_sigma1, cos_sigma1, coeffs_C3);
+
+        CT coeffs_A3[SeriesOrder];
+        series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
+
+        CT const A3 = math::horner_evaluate(eps, coeffs_A3, coeffs_A3 + SeriesOrder);
+
+        diff_omega12 = -f * A3 * sin_alpha0 * (sigma12 + B312);
+        lam12 = eta + diff_omega12;
+
+        if (diffp)
+        {
+            if (cos_alpha2 == c0)
+            {
+                diff_lam12 = - c2 * one_minus_f * dn1 / sin_beta1;
+            }
+            else
+            {
+                CT dummy;
+                meridian_length(n, eps, sigma12, sin_sigma1, cos_sigma1, dn1,
+                                                 sin_sigma2, cos_sigma2, dn2,
+                                                 cos_beta1, cos_beta2, dummy,
+                                                 diff_lam12, dummy, dummy,
+                                                 dummy, coeffs_C1);
+
+                diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
+            }
+        }
+        return lam12;
+    }
+
 };
 
 }}} // namespace boost::geometry::formula
