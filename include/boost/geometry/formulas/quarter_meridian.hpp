@@ -33,6 +33,7 @@ template <typename ResultType, typename Geometry>
 struct quarter_meridian<ResultType, Geometry, srs_spheroid_tag>
 {
     //https://en.wikipedia.org/wiki/Meridian_arc#Generalized_series
+    //http://www.wolframalpha.com/input/?i=(sum(((2*j-3)!!%2F(2*j)!!)%5E2*n%5E(2*j),j,0,8))
     static inline ResultType apply(Geometry const& geometry)
     {
         //order 8 expansion

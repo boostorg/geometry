@@ -18,8 +18,10 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/formulas/elliptic_meridian_arc_inverse.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/quarter_meridian.hpp>
+#include <boost/geometry/formulas/result_direct.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -28,11 +30,41 @@ namespace boost { namespace geometry { namespace formula
 \brief Compute the direct geodesic problem on a meridian
 */
 
-template <typename CT, unsigned int Order = 1>
-class elliptic_meridian_arc_direct
+template <
+    typename CT,
+    bool EnableCoordinates = true,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false,
+    unsigned int Order = 4
+>
+class meridian_direct
 {
+    static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
+    static const bool CalcCoordinates = EnableCoordinates || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcCoordinates || CalcQuantities;
 
-public :
+public:
+    typedef result_direct<CT> result_type;
+
+    template <typename T, typename Dist, typename Spheroid>
+    static inline result_type apply(T const& lo1,
+                                    T const& la1,
+                                    Dist const& distance,
+                                    bool north,
+                                    Spheroid const& spheroid)
+    {
+        result_type result;
+        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
+        {
+            CT s0 = elliptic_meridian_arc_inverse<CT, Order>::apply(la1, spheroid);
+            int sign = north ? 1 : -1;
+            result.lon2 = lo1;
+            result.lat2 = apply(s0 + sign * distance, spheroid);
+        }
+
+        return result;
+    }
 
     // https://en.wikipedia.org/wiki/Meridian_arc#The_inverse_meridian_problem_for_the_ellipsoid
     // latitudes are assumed to be in radians and in [-pi/2,pi/2]
