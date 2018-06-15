@@ -636,9 +636,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      using Clenshaw summation.
     */
     template <typename CT, size_t SeriesOrder>
-    static inline CT sin_cos_series(CT sinx,
-                                    CT cosx,
-                                    const CT coeffs[])
+    static inline CT sin_cos_series(CT sinx, CT cosx, const CT coeffs[])
     {
         size_t n = SeriesOrder;
 

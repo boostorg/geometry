@@ -779,7 +779,9 @@ inline Result rounding_cast(T const& v)
       &minus;0 is returned.
 */
 template<typename T>
-inline void sin_cos_degrees(T const& x, T & sinx, T & cosx)
+inline void sin_cos_degrees(T const& x,
+                            T & sinx,
+                            T & cosx)
 {
     // In order to minimize round-off errors, this function exactly reduces
     // the argument to the range [-45, 45] before converting it to radians.
@@ -836,8 +838,8 @@ inline T round_angle(T x) {
 // i.e. place them in one file.
 template <typename NT, typename IteratorType>
 inline NT horner_evaluate(NT x,
-                                 IteratorType begin,
-                                 IteratorType end)
+                          IteratorType begin,
+                          IteratorType end)
 {
     NT result(0);
     IteratorType it = end;
@@ -854,8 +856,8 @@ inline NT horner_evaluate(NT x,
 */
 template<typename CT>
 inline CT polyval(int N,
-                         const CT coeff[],
-                         const CT eps)
+                  const CT coeff[],
+                  const CT eps)
 {
     CT y = N < 0 ? 0 : *coeff++;
 

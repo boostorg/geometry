@@ -64,7 +64,7 @@ public:
         Azi azi12 = azimuth12;
         math::normalize_angle<degree, Azi>(azi12);
 
-        CT const dist_c0 = 0;
+        Dist const dist_c0 = 0;
 
         if (math::equals(distance, dist_c0) || distance < dist_c0)
         {
@@ -73,6 +73,7 @@ public:
             return result;
         }
 
+        CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
 
@@ -126,7 +127,7 @@ public:
         CT sin_omega1 = sin_alpha0 * sin_beta1;
 
         CT cos_sigma1, cos_omega1;
-        cos_sigma1 = cos_omega1 = sin_beta1 != 0 || cos_alpha1 != 0 ? cos_beta1 * cos_alpha1 : 1;
+        cos_sigma1 = cos_omega1 = sin_beta1 != c0 || cos_alpha1 != c0 ? cos_beta1 * cos_alpha1 : c1;
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 =
