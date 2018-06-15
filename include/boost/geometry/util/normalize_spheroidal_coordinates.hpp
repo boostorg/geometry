@@ -383,7 +383,7 @@ inline void normalize_angle(CoordinateType& angle)
 \param x Value x
 \param y Value y
 TODO: adl1995 - Merge this function with
-formulas/vertex_latitude.hpp
+formulas/vertex_longitude.hpp
 */
 template<typename ValueType>
 inline void normalize_values(ValueType& x, ValueType& y)
