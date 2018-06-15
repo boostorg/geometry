@@ -363,6 +363,35 @@ inline void normalize_longitude(CoordinateType& longitude)
         >::apply(longitude);
 }
 
+/*!
+\brief Short utility to normalize an angle on a spheroid
+       normalized in range (-180, 180].
+\tparam Units The units of the coordindate system in the spheroid
+\tparam CoordinateType The type of the coordinates
+\param angle Angle
+\ingroup utility
+*/
+template <typename Units, typename CoordinateType>
+inline void normalize_angle(CoordinateType& angle)
+{
+    normalize_longitude<Units, CoordinateType>(angle);
+}
+
+/*!
+\brief Normalize the given values.
+\tparam ValueType The type of the values
+\param x Value x
+\param y Value y
+TODO: adl1995 - Merge this function with
+formulas/vertex_latitude.hpp
+*/
+template<typename ValueType>
+inline void normalize_values(ValueType& x, ValueType& y)
+{
+    ValueType h = boost::math::hypot(x, y);
+
+    x /= h; y /= h;
+}
 
 /*!
 \brief Short utility to calculate difference between two longitudes

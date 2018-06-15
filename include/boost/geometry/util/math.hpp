@@ -829,29 +829,6 @@ inline T round_angle(T x) {
     return x < 0 ? -y : y;
 }
 
-/*!
-\brief Normalize the given values.
-*/
-template<typename T>
-inline void normalize(T& x, T& y)
-{
-    T h = boost::math::hypot(x, y);
-
-    x /= h; y /= h;
-}
-
-
-/*!
-\brief Normalize a given angle.
-*/
-template<typename T>
-    inline T normalize_angle(T x)
-{
-    T y = std::fmod(x, T(360));
-
-    return y <= -180 ? y + 360 : (y <= 180 ? y : y - 360);
-}
-
 /*
 \brief Evaluate the polynomial in x using Horner's method.
 */
