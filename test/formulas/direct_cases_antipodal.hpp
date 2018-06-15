@@ -1,7 +1,9 @@
 // Boost.Geometry
 // Unit Test
 
-// Contributed and/or modified by Adeel Ahmad.
+// Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
+
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at

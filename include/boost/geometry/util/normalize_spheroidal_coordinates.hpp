@@ -6,6 +6,7 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
