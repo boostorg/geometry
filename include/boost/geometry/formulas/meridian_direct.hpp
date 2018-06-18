@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_DIRECT_HPP
-#define BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_DIRECT_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_MERIDIAN_DIRECT_HPP
+#define BOOST_GEOMETRY_FORMULAS_MERIDIAN_DIRECT_HPP
 
 #include <boost/math/constants/constants.hpp>
 
@@ -18,7 +18,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/formulas/elliptic_meridian_arc_inverse.hpp>
+#include <boost/geometry/formulas/meridian_inverse.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/quarter_meridian.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
@@ -65,7 +65,7 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
-            CT s0 = elliptic_meridian_arc_inverse<CT, Order>::apply(la1, spheroid);
+            CT s0 = meridian_inverse<CT, Order>::apply(la1, spheroid);
             int signed_distance = north ? distance : -distance;
             result.lon2 = lo1;
             result.lat2 = apply(s0 + signed_distance, spheroid);
@@ -81,8 +81,8 @@ public:
             {
                 result.reverse_azimuth =  pi;
             }
-            else if (result.lat2 < - half_pi &&
-                     result.lat2 >  - one_and_a_half_pi)
+            else if (result.lat2 < -half_pi &&
+                     result.lat2 >  -one_and_a_half_pi)
             {
                 result.reverse_azimuth =  c0;
             }
@@ -165,4 +165,4 @@ public:
 
 }}} // namespace boost::geometry::formula
 
-#endif // BOOST_GEOMETRY_FORMULAS_ELLIPTIC_MERIDIAN_ARC_DIRECT_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_MERIDIAN_DIRECT_HPP

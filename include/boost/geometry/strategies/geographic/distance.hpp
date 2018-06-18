@@ -22,7 +22,7 @@
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
-#include <boost/geometry/formulas/elliptic_meridian_arc_inverse.hpp>
+#include <boost/geometry/formulas/meridian_inverse.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
@@ -92,13 +92,13 @@ public :
     static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
                            Spheroid const& spheroid)
     {
-        typedef typename formula::elliptic_meridian_arc_inverse
+        typedef typename formula::meridian_inverse
                 <
                 CT, strategy::default_order<FormulaPolicy>::value
-                > elliptic_meridian_arc_inverse;
+                > meridian_inverse;
 
-        typename elliptic_meridian_arc_inverse::result res =
-                 elliptic_meridian_arc_inverse::apply(lon1, lat1, lon2, lat2, spheroid);
+        typename meridian_inverse::result res =
+                 meridian_inverse::apply(lon1, lat1, lon2, lat2, spheroid);
 
         if (res.meridian)
         {
@@ -129,12 +129,12 @@ public :
     template <typename CT>
     inline CT meridian(CT lat1, CT lat2) const
     {
-        typedef typename formula::elliptic_meridian_arc_inverse
+        typedef typename formula::meridian_inverse
                 <
                 CT, strategy::default_order<FormulaPolicy>::value
-                > elliptic_meridian_arc_inverse;
+                > meridian_inverse;
 
-        return elliptic_meridian_arc_inverse::meridian_not_crossing_pole_dist
+        return meridian_inverse::meridian_not_crossing_pole_dist
                                             (lat1, lat2, m_spheroid);
     }
 

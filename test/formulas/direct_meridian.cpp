@@ -18,7 +18,7 @@
 
 #include <boost/geometry/srs/srs.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
-#include <boost/geometry/formulas/elliptic_meridian_arc_direct.hpp>
+#include <boost/geometry/formulas/meridian_direct.hpp>
 
 template <typename Result, typename Expected, typename Reference>
 void check_meridian_direct(Result& result,
