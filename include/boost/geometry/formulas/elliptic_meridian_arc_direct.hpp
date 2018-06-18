@@ -41,8 +41,8 @@ template <
 class meridian_direct
 {
     static const bool CalcQuantities = EnableReducedLength || EnableGeodesicScale;
-    static const bool CalcCoordinates = EnableCoordinates || CalcQuantities;
-    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcCoordinates || CalcQuantities;
+    static const bool CalcRevAzimuth = EnableReverseAzimuth || CalcQuantities;
+    static const bool CalcCoordinates = EnableCoordinates || CalcRevAzimuth;
 
 public:
     typedef result_direct<CT> result_type;
@@ -55,14 +55,63 @@ public:
                                     Spheroid const& spheroid)
     {
         result_type result;
+
+        CT const half_pi = math::half_pi<CT>();
+        CT const pi = math::pi<CT>();
+        CT const one_and_a_half_pi = pi + half_pi;
+        CT const c0 = 0;
+
+        CT azimuth = north ? c0 : pi;
+
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             CT s0 = elliptic_meridian_arc_inverse<CT, Order>::apply(la1, spheroid);
-            int sign = north ? 1 : -1;
+            int signed_distance = north ? distance : -distance;
             result.lon2 = lo1;
-            result.lat2 = apply(s0 + sign * distance, spheroid);
+            result.lat2 = apply(s0 + signed_distance, spheroid);
         }
 
+        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+        {
+            result.reverse_azimuth = azimuth;
+
+
+            if (result.lat2 > half_pi &&
+                result.lat2 < one_and_a_half_pi)
+            {
+                result.reverse_azimuth =  pi;
+            }
+            else if (result.lat2 < - half_pi &&
+                     result.lat2 >  - one_and_a_half_pi)
+            {
+                result.reverse_azimuth =  c0;
+            }
+
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        {
+            CT const b = CT(get_radius<2>(spheroid));
+            CT const f = formula::flattening<CT>(spheroid);
+
+            boost::geometry::math::normalize_spheroidal_coordinates
+                <
+                    boost::geometry::radian,
+                    double
+                >(result.lon2, result.lat2);
+
+            typedef differential_quantities
+            <
+                CT,
+                EnableReducedLength,
+                EnableGeodesicScale,
+                Order
+            > quantities;
+            quantities::apply(lo1, la1, result.lon2, result.lat2,
+                              azimuth, result.reverse_azimuth,
+                              b, f,
+                              result.reduced_length, result.geodesic_scale);
+        }
         return result;
     }
 

@@ -11,6 +11,8 @@
 
 #define BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
+#include <sstream>
+
 #include "test_formula.hpp"
 #include "direct_meridian_cases.hpp"
 
@@ -36,8 +38,21 @@ void check_meridian_direct(Result& result,
             double
         >(reference.lon2, reference.lat2);
 
-    check_one(result.lon2, expected.lon, reference.lon2, reference_error);
-    check_one(result.lat2, expected.lat, reference.lat2, reference_error);
+    std::stringstream ss;
+    ss << "(" << result.lon2 * bg::math::r2d<double>()
+       << " " << result.lat2 * bg::math::r2d<double>() << ")";
+
+    check_one("lon:" + ss.str(), result.lon2, expected.lon, reference.lon2,
+              reference_error);
+    check_one("lat:" + ss.str(), result.lat2, expected.lat, reference.lat2,
+              reference_error);
+    check_one("rev_az:" + ss.str(), result.reverse_azimuth,
+              result.reverse_azimuth, reference.reverse_azimuth, reference_error);
+    check_one("red len:" + ss.str(), result.reduced_length, result.reduced_length,
+              reference.reduced_length, 0.01);
+    check_one("geo scale:" + ss.str(), result.geodesic_scale, result.geodesic_scale,
+              reference.geodesic_scale, 0.01);
+
 }
 
 void test_all(expected_results const& results)
@@ -58,32 +73,32 @@ void test_all(expected_results const& results)
     bg::formula::result_direct<double> vincenty_result;
     bg::formula::result_direct<double> meridian_result;
 
-    typedef bg::formula::vincenty_direct<double, true, false, false, false> vi_t;
+    typedef bg::formula::vincenty_direct<double, true, true, true, true> vi_t;
     double vincenty_azimuth = direction ? 0.0 : bg::math::pi<double>();
     vincenty_result = vi_t::apply(lon1_rad, lat1_rad, distance, vincenty_azimuth, spheroid);
 
     {
-        typedef bg::formula::meridian_direct<double, true, false, false, false, 1> eli;
+        typedef bg::formula::meridian_direct<double, true, true, true, true, 1> eli;
         meridian_result = eli::apply(lon1_rad, lat1_rad, distance, direction, spheroid);
         check_meridian_direct(meridian_result, expected_point, vincenty_result, 0.001);
     }
     {
-        typedef bg::formula::meridian_direct<double, true, false, false, false, 2> eli;
+        typedef bg::formula::meridian_direct<double, true, true, true, true, 2> eli;
         meridian_result = eli::apply(lon1_rad, lat1_rad, distance, direction, spheroid);
         check_meridian_direct(meridian_result, expected_point, vincenty_result, 0.00001);
     }
     {
-        typedef bg::formula::meridian_direct<double, true, false, false, false, 3> eli;
+        typedef bg::formula::meridian_direct<double, true, true, true, true, 3> eli;
         meridian_result = eli::apply(lon1_rad, lat1_rad, distance, direction, spheroid);
         check_meridian_direct(meridian_result, expected_point, vincenty_result, 0.00000001);
     }
     {
-        typedef bg::formula::meridian_direct<double, true, false, false, false, 4> eli;
+        typedef bg::formula::meridian_direct<double, true, true, true, true, 4> eli;
         meridian_result = eli::apply(lon1_rad, lat1_rad, distance, direction, spheroid);
         check_meridian_direct(meridian_result, expected_point, vincenty_result, 0.00000001);
     }
     {
-        typedef bg::formula::meridian_direct<double, true, false, false, false, 5> eli;
+        typedef bg::formula::meridian_direct<double, true, true, true, true, 5> eli;
         meridian_result = eli::apply(lon1_rad, lat1_rad, distance, direction, spheroid);
         check_meridian_direct(meridian_result, expected_point, vincenty_result, 0.00000000001);
     }
