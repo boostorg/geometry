@@ -15,7 +15,6 @@
 
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
-#include <boost/geometry/formulas/thomas_first_order_direct.hpp>
 //#include <boost/geometry/formulas/series_expansion_direct.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
 
@@ -60,14 +59,14 @@ void test_all(expected_results const& results)
     result.reverse_azimuth *= r2d;
     check_direct(result, results.vincenty, results.karney, 0.00000001);
 
-    typedef bg::formula::thomas_direct<double, true, true, true, true> th_t;
+    typedef bg::formula::thomas_direct<double, true, true, true, true, true> th_t;
     result = th_t::apply(lon1r, lat1r, distance, azi12r, spheroid);
     result.lon2 *= r2d;
     result.lat2 *= r2d;
     result.reverse_azimuth *= r2d;
     check_direct(result, results.thomas, results.karney, 0.0000001);
 
-    typedef bg::formula::thomas_first_order_direct<double, true, true, true, true> th_t1st;
+    typedef bg::formula::thomas_direct<double, false, true, true, true, true> th_t1st;
     result = th_t1st::apply(lon1r, lat1r, distance, azi12r, spheroid);
     result.lon2 *= r2d;
     result.lat2 *= r2d;

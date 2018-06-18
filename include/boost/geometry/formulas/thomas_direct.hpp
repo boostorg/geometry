@@ -40,6 +40,7 @@ namespace boost { namespace geometry { namespace formula
 */
 template <
     typename CT,
+    bool SecondOrder = true,
     bool EnableCoordinates = true,
     bool EnableReverseAzimuth = false,
     bool EnableReducedLength = false,
@@ -59,8 +60,7 @@ public:
                                     T const& la1,
                                     Dist const& distance,
                                     Azi const& azimuth12,
-                                    Spheroid const& spheroid,
-                                    bool SecondOrder = true)
+                                    Spheroid const& spheroid)
     {
         result_type result;
 
