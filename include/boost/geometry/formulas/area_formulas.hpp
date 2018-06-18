@@ -329,7 +329,7 @@ public:
         std::size_t begin(0), end(0);
         for(std::size_t i = 0; i <= SeriesOrder; i++){
             end = begin + SeriesOrder + 1 - i;
-            coeffs2[i] = ((i==0) ? CT(1) : pow(var2,int(i)))
+            coeffs2[i] = ((i==0) ? CT(1) : pow(var2, CT(i)))
                         * horner_evaluate(var2, coeffs1 + begin, coeffs1 + end);
             begin = end;
         }
