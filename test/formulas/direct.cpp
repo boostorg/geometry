@@ -80,7 +80,8 @@ void test_all(expected_results const& results)
     result.reverse_azimuth *= r2d;
     check_direct(result, results.series, results.karney, 0.0000001);
 */
-    result = bg::formula::spherical_direct(lon1r, lat1r, distance, azi12r, sphere);
+    result = bg::formula::spherical_direct<true, true>(lon1r, lat1r, distance,
+                                                       azi12r, sphere);
     result.lon2 *= r2d;
     result.lat2 *= r2d;
     result.reverse_azimuth *= r2d;

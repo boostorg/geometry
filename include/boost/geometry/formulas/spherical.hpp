@@ -220,7 +220,13 @@ inline int azimuth_side_value(T const& azi_a1_p, T const& azi_a1_a2)
         : 1; // left
 }
 
-template <typename CT, typename Sphere>
+template
+<
+    bool Coordinates,
+    bool ReverseAzimuth,
+    typename CT,
+    typename Sphere
+>
 inline result_direct<CT> spherical_direct(CT const& lon1,
                                           CT const& lat1,
                                           CT const& sig12,
@@ -240,23 +246,32 @@ inline result_direct<CT> spherical_direct(CT const& lon1,
     CT const sig1 = atan2(sin_lat1, cos_alp1 * cos_lat1);
     CT const sig2 = sig1 + sig12 / get_radius<0>(sphere);
 
-    CT const sin_sig2 = sin(sig2);
     CT const cos_sig2 = cos(sig2);
-    CT const sin_sig1 = sin(sig1);
-    CT const cos_sig1 = cos(sig1);
     CT const sin_alp0 = sin(alp0);
     CT const cos_alp0 = cos(alp0);
 
-    CT const norm2 = math::sqrt(cos_alp0 * cos_alp0 * cos_sig2 * cos_sig2
-                                + sin_alp0 * sin_alp0);
-    CT const lat2 = atan2(cos_alp0 * sin_sig2, norm2);
-    CT const alp2 = atan2(sin_alp0, cos_alp0 * cos_sig2);
-    CT const omg1 = atan2(sin_alp0 * sin_sig1, cos_sig1);
-    CT const lon2 = atan2(sin_alp0 * sin_sig2, cos_sig2);
+    if (Coordinates)
+    {
+        CT const sin_sig2 = sin(sig2);
+        CT const sin_sig1 = sin(sig1);
+        CT const cos_sig1 = cos(sig1);
 
-    result.lon2 = lon1 + lon2 - omg1;
-    result.lat2 = lat2;
-    result.reverse_azimuth = alp2;
+        CT const norm2 = math::sqrt(cos_alp0 * cos_alp0 * cos_sig2 * cos_sig2
+                                    + sin_alp0 * sin_alp0);
+        CT const lat2 = atan2(cos_alp0 * sin_sig2, norm2);
+
+        CT const omg1 = atan2(sin_alp0 * sin_sig1, cos_sig1);
+        CT const lon2 = atan2(sin_alp0 * sin_sig2, cos_sig2);
+
+        result.lon2 = lon1 + lon2 - omg1;
+        result.lat2 = lat2;
+    }
+
+    if (ReverseAzimuth)
+    {
+        CT const alp2 = atan2(sin_alp0, cos_alp0 * cos_sig2);
+        result.reverse_azimuth = alp2;
+    }
 
     return result;
 }
