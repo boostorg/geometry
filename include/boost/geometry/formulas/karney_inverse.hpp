@@ -60,7 +60,9 @@ public:
     static CT constexpr c3 = 3;
     static CT constexpr c4 = 4;
     static CT constexpr c6 = 6;
+    static CT constexpr c8 = 8;
     static CT constexpr c10 = 10;
+    static CT constexpr c16 = 16;
     static CT constexpr c20 = 20;
     static CT constexpr c90 = 90;
     static CT constexpr c180 = 180;
@@ -331,6 +333,46 @@ public:
                                     iteration < max_iterations,
                                     dv, f, n, ep2, tiny, coeffs_C1);
 
+                    // Reversed test to allow escape with NaNs.
+                    if (tripb || !(std::abs(v) >= (tripn ? c8 : c1) * tol0))
+                        break;
+
+                    // Update bracketing values.
+                    if (v > c0 && (iteration > max_iterations ||
+                        cos_alpha1 / sin_alpha1 > cos_alpha1b / sin_alpha1b))
+                    {
+                        sin_alpha1b = sin_alpha1;
+                        cos_alpha1b = cos_alpha1;   
+                    }
+                    else if (v < c0 && (iteration > max_iterations ||
+                             cos_alpha1 / sin_alpha1 < cos_alpha1a / sin_alpha1a))
+                    {
+                        sin_alpha1a = sin_alpha1;
+                        cos_alpha1a = cos_alpha1;
+                    }
+                    if (iteration < max_iterations && dv > c0)
+                    {
+                        CT diff_alpha1 = -v / dv;
+
+                        CT sin_diff_alpha1 = sin(diff_alpha1);
+                        CT cos_diff_alpha1 = cos(diff_alpha1);
+
+                        CT nsin_alpa1 = sin_alpha1 * cos_diff_alpha1 +
+                                        cos_alpha1 * sin_diff_alpha1;
+
+                        if (nsin_alpa1 > c0 && std::abs(diff_alpha1) < math::pi<CT>())
+                        {
+                            cos_alpha1 = cos_alpha1 * cos_diff_alpha1 - sin_alpha1 * sin_diff_alpha1;
+                            sin_alpha1 = nsin_alpa1;
+                            math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+
+                            // In some regimes we don't get quadratic convergence because
+                            // slope -> 0. So use convergence conditions based on epsilon
+                            // instead of sqrt(epsilon).
+                            tripn = std::abs(v) <= c16 * tol0;
+                            continue;
+                        }
+                    }
                 }
             }
         }
