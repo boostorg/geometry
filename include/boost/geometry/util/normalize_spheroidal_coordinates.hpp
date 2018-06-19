@@ -6,6 +6,7 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -363,6 +364,53 @@ inline void normalize_longitude(CoordinateType& longitude)
         >::apply(longitude);
 }
 
+/*!
+\brief Short utility to normalize an angle on a spheroid
+       normalized in range (-180, 180].
+\tparam Units The units of the coordindate system in the spheroid
+\tparam CoordinateType The type of the coordinates
+\param angle Angle
+\ingroup utility
+*/
+template <typename Units, typename CoordinateType>
+inline void normalize_angle(CoordinateType& angle)
+{
+    normalize_longitude<Units, CoordinateType>(angle);
+}
+
+/*!
+\brief The exact difference of two angles reduced to
+       (&minus;180&deg;, 180&deg;].
+*/
+template<typename T>
+inline T difference_angle(T x, T y, T& e)
+{
+    T t, d = normalize_angle(math::sum_error(std::remainder(-x, T(360)),
+                                             std::remainder(y, T(360)), t));
+
+    // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and
+    // abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
+    // addition of t takes the result outside the range (-180,180] is d = 180
+    // and t > 0.  The case, d = -180 + eps, t = -eps, can't happen, since
+    // sum_error would have returned the exact result in such a case (i.e., given t = 0).
+    return math::sum_error(d == 180 && t > 0 ? -180 : d, t, e);
+}
+
+/*!
+\brief Normalize the given values.
+\tparam ValueType The type of the values
+\param x Value x
+\param y Value y
+TODO: adl1995 - Merge this function with
+formulas/vertex_longitude.hpp
+*/
+template<typename ValueType>
+inline void normalize_values(ValueType& x, ValueType& y)
+{
+    ValueType h = boost::math::hypot(x, y);
+
+    x /= h; y /= h;
+}
 
 /*!
 \brief Short utility to calculate difference between two longitudes

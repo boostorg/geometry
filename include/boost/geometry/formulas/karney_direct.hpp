@@ -1,10 +1,25 @@
 // Boost.Geometry
 
-// Contributed and/or modified by Adeel Ahmad.
+// Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
+
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// This file is converted from GeographicLib, https://geographiclib.sourceforge.io
+// GeographicLib is originally written by Charles Karney.
+
+// Author: Charles Karney (2008-2017)
+
+// Last updated version of GeographicLib: 1.49
+
+// Original copyright notice:
+
+// Copyright (c) Charles Karney (2008-2017) <charles@karney.com> and licensed
+// under the MIT/X11 License. For more information, see
+// https://geographiclib.sourceforge.io
 
 #ifndef BOOST_GEOMETRY_FORMULAS_KARNEY_DIRECT_HPP
 #define BOOST_GEOMETRY_FORMULAS_KARNEY_DIRECT_HPP
@@ -15,6 +30,7 @@
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/series_expansion.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
@@ -57,11 +73,13 @@ public:
     {
         result_type result;
 
-        CT const lon1 = lo1;
+        CT lon1 = lo1;
         CT const lat1 = la1;
-        Azi const azi12 = math::normalize_angle<CT>(azimuth12);
 
-        CT const dist_c0 = 0;
+        Azi azi12 = azimuth12;
+        math::normalize_angle<degree, Azi>(azi12);
+
+        Dist const dist_c0 = 0;
 
         if (math::equals(distance, dist_c0) || distance < dist_c0)
         {
@@ -70,6 +88,7 @@ public:
             return result;
         }
 
+        CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
 
@@ -90,7 +109,8 @@ public:
         math::sin_cos_degrees<CT>(math::round_angle<CT>(lat1), sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
 
-        math::normalize<CT>(sin_beta1, cos_beta1);
+        math::normalize_values<CT>(sin_beta1, cos_beta1);
+
         cos_beta1 = std::max(sqrt(std::numeric_limits<CT>::min()), cos_beta1);
 
         // Obtain alpha 0 by solving the spherical triangle.
@@ -122,8 +142,8 @@ public:
         CT sin_omega1 = sin_alpha0 * sin_beta1;
 
         CT cos_sigma1, cos_omega1;
-        cos_sigma1 = cos_omega1 = sin_beta1 != 0 || cos_alpha1 != 0 ? cos_beta1 * cos_alpha1 : 1;
-        math::normalize<CT>(sin_sigma1, cos_sigma1);
+        cos_sigma1 = cos_omega1 = sin_beta1 != c0 || cos_alpha1 != c0 ? cos_beta1 * cos_alpha1 : c1;
+        math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 =
             series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C1);
@@ -211,12 +231,15 @@ public:
 
             // Convert to radians to get the
             // longitudinal difference.
-            CT const lon12 = lam12 / math::d2r<T>();
+            CT lon12 = lam12 / math::d2r<T>();
 
             // Add the longitude at first point to the longitudinal
             // difference and normalize the result.
-            result.lon2 = math::normalize_angle(math::normalize_angle(lon1) +
-                                                math::normalize_angle(lon12));
+
+            math::normalize_angle<degree, CT>(lon1);
+            math::normalize_angle<degree, CT>(lon12);
+
+            result.lon2 = lon1 + lon12;
         }
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))

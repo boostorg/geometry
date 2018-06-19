@@ -9,6 +9,7 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -779,7 +780,9 @@ inline Result rounding_cast(T const& v)
       &minus;0 is returned.
 */
 template<typename T>
-inline void sin_cos_degrees(T const& x, T & sinx, T & cosx)
+inline void sin_cos_degrees(T const& x,
+                            T & sinx,
+                            T & cosx)
 {
     // In order to minimize round-off errors, this function exactly reduces
     // the argument to the range [-45, 45] before converting it to radians.
@@ -847,29 +850,6 @@ inline T round_angle(T x) {
 }
 
 /*!
-\brief Normalize the given values.
-*/
-template<typename T>
-inline void normalize(T& x, T& y)
-{
-    T h = boost::math::hypot(x, y);
-
-    x /= h; y /= h;
-}
-
-
-/*!
-\brief Normalize a given angle.
-*/
-template<typename T>
-inline T normalize_angle(T x)
-{
-    T y = std::fmod(x, T(360));
-
-    return y <= -180 ? y + 360 : (y <= 180 ? y : y - 360);
-}
-
-/*!
 \brief The error-free sum of two numbers.
 */
 template<typename T>
@@ -885,7 +865,6 @@ inline T sum_error(T u, T v, T& t)
 
     return s;
 }
-
 
 /*!
 \brief The exact difference of two angles reduced to
@@ -905,7 +884,6 @@ inline T difference_angle(T x, T y, T& e)
     return sum_error(d == 180 && t > 0 ? -180 : d, t, e);
 }
 
-
 /*!
 \brief Evaluate the polynomial in x using Horner's method.
 */
@@ -913,8 +891,8 @@ inline T difference_angle(T x, T y, T& e)
 // i.e. place them in one file.
 template <typename NT, typename IteratorType>
 inline NT horner_evaluate(NT x,
-                                 IteratorType begin,
-                                 IteratorType end)
+                          IteratorType begin,
+                          IteratorType end)
 {
     NT result(0);
     IteratorType it = end;
@@ -931,8 +909,8 @@ inline NT horner_evaluate(NT x,
 */
 template<typename CT>
 inline CT polyval(int N,
-                         const CT coeff[],
-                         const CT eps)
+                  const CT coeff[],
+                  const CT eps)
 {
     CT y = N < 0 ? 0 : *coeff++;
 
