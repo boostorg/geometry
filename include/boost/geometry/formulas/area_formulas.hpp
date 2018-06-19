@@ -45,7 +45,7 @@ public:
         Evaluate the polynomial in x using Horner's method.
     */
     template <typename NT, typename IteratorType>
-    static inline NT horner_evaluate(NT x,
+    static inline NT horner_evaluate(NT const& x,
                                      IteratorType begin,
                                      IteratorType end)
     {
@@ -64,7 +64,7 @@ public:
         https://en.wikipedia.org/wiki/Clenshaw_algorithm
     */
     template <typename NT, typename IteratorType>
-    static inline NT clenshaw_sum(NT cosx,
+    static inline NT clenshaw_sum(NT const& cosx,
                                   IteratorType begin,
                                   IteratorType end)
     {
@@ -166,7 +166,7 @@ public:
                s/case\sCT(/case /g; s/):/:/g'
     */
 
-    static inline void evaluate_coeffs_n(CT n, CT coeffs_n[])
+    static inline void evaluate_coeffs_n(CT const& n, CT coeffs_n[])
     {
 
         switch (SeriesOrder) {
@@ -245,7 +245,7 @@ public:
     /*
        Expand in k2 and ep2.
     */
-    static inline void evaluate_coeffs_ep(CT ep, CT coeffs_n[])
+    static inline void evaluate_coeffs_ep(CT const& ep, CT coeffs_n[])
     {
         switch (SeriesOrder) {
         case 0:
@@ -323,17 +323,19 @@ public:
         Given the set of coefficients coeffs1[] evaluate on var2 and return
         the set of coefficients coeffs2[]
     */
-    static inline void evaluate_coeffs_var2(CT var2,
-                                            CT coeffs1[],
+
+    static inline void evaluate_coeffs_var2(CT const& var2,
+                                            CT const coeffs1[],
                                             CT coeffs2[]){
         std::size_t begin(0), end(0);
         for(std::size_t i = 0; i <= SeriesOrder; i++){
             end = begin + SeriesOrder + 1 - i;
-            coeffs2[i] = ((i==0) ? CT(1) : pow(var2, CT(i)))
+            coeffs2[i] = ((i==0) ? CT(1) : pow(var2, int(i)))
                         * horner_evaluate(var2, coeffs1 + begin, coeffs1 + end);
             begin = end;
         }
     }
+
 
     /*
         Compute the spherical excess of a geodesic (or shperical) segment
@@ -403,13 +405,12 @@ public:
     */
     template <
                 template <typename, bool, bool, bool, bool, bool> class Inverse,
-                //typename AzimuthStrategy,
                 typename PointOfSegment,
                 typename SpheroidConst
              >
     static inline return_type_ellipsoidal ellipsoidal(PointOfSegment const& p1,
                                                       PointOfSegment const& p2,
-                                                      SpheroidConst spheroid_const)
+                                                      SpheroidConst const& spheroid_const)
     {
         return_type_ellipsoidal result;
 
