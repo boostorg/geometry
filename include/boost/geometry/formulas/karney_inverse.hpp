@@ -15,6 +15,7 @@
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/series_expansion.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_inverse.hpp>
@@ -155,14 +156,14 @@ public:
         math::sin_cos_degrees(lat1, sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
 
-        math::normalize(sin_beta1, cos_beta1);
+        math::normalize_values<CT>(sin_beta1, cos_beta1);
         cos_beta1 = std::max(tiny, cos_beta1);
 
         CT sin_beta2, cos_beta2;
         math::sin_cos_degrees(lat2, sin_beta2, cos_beta2);
         sin_beta2 *= one_minus_f;
 
-        math::normalize(sin_beta2, cos_beta2);
+        math::normalize_values<CT>(sin_beta2, cos_beta2);
         cos_beta2 = std::max(tiny, cos_beta2);
 
         // If cos_beta1 < -sin_beta1, then cos_beta2 - cos_beta1 is a
@@ -329,6 +330,7 @@ public:
                                     eps, diff_omega12,
                                     iteration < max_iterations,
                                     dv, f, n, ep2, tiny, coeffs_C1);
+
                 }
             }
         }
@@ -588,7 +590,7 @@ public:
         // Apply sanity check on starting guess. Backwards check allows NaN through.
         if (!(sin_alpha1 <= c0))
         {
-          math::normalize<CT>(sin_alpha1, cos_alpha1);
+          math::normalize_values<CT>(sin_alpha1, cos_alpha1);
         }
         else
         {
@@ -707,7 +709,7 @@ public:
         cos_sigma1 = cos_omega1 =
             cos_alpha1 * cos_beta1;
 
-        math::normalize(sin_sigma1, cos_sigma1);
+        math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         // Enforce symmetries in the case abs(beta2) = -beta1.
         // Otherwise, this can yield singularities in the Newton iteration.
@@ -729,7 +731,7 @@ public:
         cos_sigma2 = cos_omega2 =
             cos_alpha2 * cos_beta2;
 
-        math::normalize(sin_sigma2, cos_sigma2);
+        math::normalize_values<CT>(sin_sigma2, cos_sigma2);
 
         // sig12 = sig2 - sig1, limit to [0, pi].
         sigma12 = atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
