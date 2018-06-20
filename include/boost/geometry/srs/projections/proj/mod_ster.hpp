@@ -105,7 +105,7 @@ namespace projections
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
                     chi = 2. * atan(tan((half_pi + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - half_pi;
+                        math::pow((T(1) - esphi) / (T(1) + esphi), this->m_par.e * T(0.5))) - half_pi;
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -159,7 +159,7 @@ namespace projections
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
                             dphi = 2. * atan(tan((half_pi + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - half_pi - phi;
+                                math::pow((T(1) + esphi) / (T(1) - esphi), this->m_par.e * T(0.5))) - half_pi - phi;
                             phi += dphi;
                             if (fabs(dphi) <= epsilon)
                                 break;
@@ -190,7 +190,7 @@ namespace projections
                 if (par.es != 0.0) {
                     esphi = par.e * sin(par.phi0);
                     chio = 2. * atan(tan((half_pi + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - half_pi;
+                        math::pow((T(1) - esphi) / (T(1) + esphi), par.e * T(0.5))) - half_pi;
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);

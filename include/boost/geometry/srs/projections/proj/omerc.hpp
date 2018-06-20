@@ -96,7 +96,7 @@ namespace projections
                     T  s, t, U, V, W, temp, u, v;
 
                     if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
-                        W = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
+                        W = this->m_proj_parm.E / math::pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / W;
                         s = .5 * (W - temp);
                         t = .5 * (W + temp);
@@ -151,7 +151,7 @@ namespace projections
                         lp_lat = Up < 0. ? -half_pi : half_pi;
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
-                        if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL) {
+                        if ((lp_lat = pj_phi2(math::pow(lp_lat, T(1) / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         lp_lon = - this->m_proj_parm.rB * atan2((Sp * this->m_proj_parm.cosgam -
@@ -225,7 +225,7 @@ namespace projections
                             F = -F;
                     }
                     proj_parm.E = F += D;
-                    proj_parm.E *= pow(pj_tsfn(par.phi0, sinph0, par.e), proj_parm.B);
+                    proj_parm.E *= math::pow(pj_tsfn(par.phi0, sinph0, par.e), proj_parm.B);
                 } else {
                     proj_parm.B = 1. / com;
                     proj_parm.A = par.k0;
@@ -241,8 +241,8 @@ namespace projections
                     par.lam0 = lamc - aasin(.5 * (F - 1. / F) *
                        tan(gamma0)) / proj_parm.B;
                 } else {
-                    H = pow(pj_tsfn(phi1, sin(phi1), par.e), proj_parm.B);
-                    L = pow(pj_tsfn(phi2, sin(phi2), par.e), proj_parm.B);
+                    H = math::pow(pj_tsfn(phi1, sin(phi1), par.e), proj_parm.B);
+                    L = math::pow(pj_tsfn(phi2, sin(phi2), par.e), proj_parm.B);
                     F = proj_parm.E / H;
                     p = (L - H) / (L + H);
                     J = proj_parm.E * proj_parm.E;
