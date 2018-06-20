@@ -93,6 +93,10 @@ public:
         CT const tol0 = std::numeric_limits<CT>::epsilon();
         CT const tol1 = c200 * tol0;
         CT const tol2 = sqrt(tol0);
+
+        // Check on bisection interval.
+        CT const tol_bisection = tol0 * tol2;
+
         CT const etol2 = c0_1 * tol2 /
             sqrt(std::max(c0_001, std::abs(f)) * std::min(c1, c1 - f / c2) / c2);
 
@@ -373,6 +377,22 @@ public:
                             continue;
                         }
                     }
+
+                    // Either dv was not positive or updated value was outside legal
+                    // range. Use the midpoint of the bracket as the next estimate.
+                    // This mechanism is not needed for the WGS84 ellipsoid, but it does
+                    // catch problems with more eeccentric ellipsoids. Its efficacy is
+                    // such for the WGS84 test set with the starting guess set to alp1 =
+                    // 90deg:
+                    // the WGS84 test set: mean = 5.21, sd = 3.93, max = 24
+                    // WGS84 and random input: mean = 4.74, sd = 0.99
+                    sin_alpha1 = (sin_alpha1a + sin_alpha1b) / c2;
+                    cos_alpha1 = (cos_alpha1a + cos_alpha1b) / c2;
+                    math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+                    tripn = false;
+                    tripb = (std::abs(sin_alpha1a - sin_alpha1) + (cos_alpha1a - cos_alpha1) < tol_bisection ||
+                             std::abs(sin_alpha1 - sin_alpha1b) + (cos_alpha1 - cos_alpha1b) < tol_bisection);
+
                 }
             }
         }
