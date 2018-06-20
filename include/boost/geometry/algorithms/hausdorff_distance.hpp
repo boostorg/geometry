@@ -52,7 +52,6 @@ struct linestring_linestring
         typedef typename boost::range_size<Linestring1>::type size_type;
         
         result_type dis_max=0,dis_min;
-        result_type const infinite = std::numeric_limits<double>::max();
         boost::geometry::detail::throw_on_empty_input(ls1);
         boost::geometry::detail::throw_on_empty_input(ls2);
         size_type  a = boost::size(ls1);

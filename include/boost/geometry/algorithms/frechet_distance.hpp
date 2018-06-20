@@ -32,15 +32,15 @@ namespace boost { namespace geometry
 namespace detail { namespace frechet_distance
 {
 
-template <typename size_type,typename result_type>
+template <typename size_type1 , typename size_type2,typename result_type>
 class coup_mat
 {
 public:
-    coup_mat(size_type w, size_type h)
+    coup_mat(size_type1 w, size_type2 h)
         : m_data(w * h,-1), m_width(w), m_height(h)
     {}
 
-    result_type & operator()(size_type i, size_type j)
+    result_type & operator()(size_type1 i, size_type2 j)
     {
         BOOST_ASSERT(i < m_width && j < m_height);
         return m_data[j * m_width + i];
@@ -48,8 +48,8 @@ public:
 
 private:
     std::vector<result_type> m_data;
-    size_type m_width;
-    size_type m_height;
+    size_type1 m_width;
+    size_type2 m_height;
 };
 
 struct linestring_linestring
@@ -68,24 +68,25 @@ struct linestring_linestring
                 typename point_type<Linestring2>::type,
                 Strategy
             >::type result_type;
-        typedef typename boost::range_size<Linestring1>::type size_type;
+        typedef typename boost::range_size<Linestring1>::type size_type1;
+        typedef typename boost::range_size<Linestring2>::type size_type2;
         
 
         boost::geometry::detail::throw_on_empty_input(ls1);
         boost::geometry::detail::throw_on_empty_input(ls2);
 
-        size_type const a = boost::size(ls1);
-        size_type const b = boost::size(ls2);
+        size_type1 const a = boost::size(ls1);
+        size_type2 const b = boost::size(ls2);
 
 
         //Coupling Matrix CoupMat(a,b,-1);
-        coup_mat<size_type,result_type>  coup_matrix(a,b);
+        coup_mat<size_type1,size_type2,result_type>  coup_matrix(a,b);
 
         result_type const not_feasible = -100;
         //findin the Coupling Measure
-        for(size_type i=0;i<a;i++)
+        for(size_type1 i=0;i<a;i++)
         {
-            for(size_type j=0;j<b;j++)
+            for(size_type2 j=0;j<b;j++)
             {
                 if(i==0 && j==0)
                     coup_matrix(i,j)= 
