@@ -394,6 +394,25 @@ public:
                              std::abs(sin_alpha1 - sin_alpha1b) + (cos_alpha1 - cos_alpha1b) < tol_bisection);
 
                 }
+                // Store values in temporary vairables.
+                // bool enable_reduced_length = EnableReducedLength;
+                // bool enable_geodesic_scale = EnableGeodesicScale;
+
+                // EnableReducedLength = false;
+                // EnableGeodesicScale = false;
+
+                CT dummy;
+                // Ensure that the reduced length and geodesic scale are computed in
+                // a "canonical" way, with the I2 integral.
+                meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
+                                                 sin_sigma2, cos_sigma2, dn2,
+                                                 cos_beta1, cos_beta2, s12x,
+                                                 m12x, dummy, result.geodesic_scale,
+                                                 M21, coeffs_C1);
+
+                // Restore values to their previous state.
+                // EnableReducedLength = enable_reduced_length;
+                // EnableGeodesicScale = enable_geodesic_scale;
             }
         }
     }
