@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2017 Oracle and/or its affiliates.
+// Copyright (c) 2015-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -13,6 +13,7 @@
 #define BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 
 #include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry { namespace formula
@@ -326,11 +327,13 @@ public:
 
     static inline void evaluate_coeffs_var2(CT const& var2,
                                             CT const coeffs1[],
-                                            CT coeffs2[]){
+                                            CT coeffs2[])
+    {
         std::size_t begin(0), end(0);
-        for(std::size_t i = 0; i <= SeriesOrder; i++){
+        for(std::size_t i = 0; i <= SeriesOrder; i++)
+        {
             end = begin + SeriesOrder + 1 - i;
-            coeffs2[i] = ((i==0) ? CT(1) : std::pow(var2, int(i)))
+            coeffs2[i] = ((i==0) ? CT(1) : math::pow(var2, int(i)))
                         * horner_evaluate(var2, coeffs1 + begin, coeffs1 + end);
             begin = end;
         }

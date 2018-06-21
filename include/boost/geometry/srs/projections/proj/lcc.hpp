@@ -105,8 +105,9 @@ namespace projections
                         }
                         rho = 0.;
                     } else {
-                        rho = this->m_proj_parm.c * (this->m_proj_parm.ellips ? pow(pj_tsfn(lp_lat, sin(lp_lat),
-                            this->m_par.e), this->m_proj_parm.n) : pow(tan(fourth_pi + .5 * lp_lat), -this->m_proj_parm.n));
+                        rho = this->m_proj_parm.c * (this->m_proj_parm.ellips
+                            ? math::pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.n)
+                            : math::pow(tan(fourth_pi + T(0.5) * lp_lat), -this->m_proj_parm.n));
                     }
                     lp_lon *= this->m_proj_parm.n;
                     xy_x = this->m_par.k0 * (rho * sin( lp_lon) );
@@ -133,12 +134,12 @@ namespace projections
                             xy_y = -xy_y;
                         }
                         if (this->m_proj_parm.ellips) {
-                            lp_lat = pj_phi2(pow(rho / this->m_proj_parm.c, 1./this->m_proj_parm.n), this->m_par.e);
+                            lp_lat = pj_phi2(math::pow(rho / this->m_proj_parm.c, T(1)/this->m_proj_parm.n), this->m_par.e);
                             if (lp_lat == HUGE_VAL) {
                                 BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             }
                         } else
-                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - half_pi;
+                            lp_lat = 2. * atan(math::pow(this->m_proj_parm.c / rho, T(1)/this->m_proj_parm.n)) - half_pi;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
@@ -188,17 +189,17 @@ namespace projections
                         proj_parm.n = log(m1 / pj_msfn(sinphi, cos(proj_parm.phi2), par.es));
                         proj_parm.n /= log(ml1 / pj_tsfn(proj_parm.phi2, sinphi, par.e));
                     }
-                    proj_parm.c = (proj_parm.rho0 = m1 * pow(ml1, -proj_parm.n) / proj_parm.n);
-                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
-                        pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
+                    proj_parm.c = (proj_parm.rho0 = m1 * math::pow(ml1, -proj_parm.n) / proj_parm.n);
+                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? T(0) :
+                        math::pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
                 } else {
                     if (secant)
                         proj_parm.n = log(cosphi / cos(proj_parm.phi2)) /
                            log(tan(fourth_pi + .5 * proj_parm.phi2) /
                            tan(fourth_pi + .5 * proj_parm.phi1));
-                    proj_parm.c = cosphi * pow(tan(fourth_pi + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
+                    proj_parm.c = cosphi * math::pow(tan(fourth_pi + T(0.5) * proj_parm.phi1), proj_parm.n) / proj_parm.n;
                     proj_parm.rho0 = (fabs(fabs(par.phi0) - half_pi) < epsilon10) ? 0. :
-                        proj_parm.c * pow(tan(fourth_pi + .5 * par.phi0), -proj_parm.n);
+                        proj_parm.c * math::pow(tan(fourth_pi + T(0.5) * par.phi0), -proj_parm.n);
                 }
             }
 
