@@ -1,9 +1,12 @@
-/*  
-        Boost (Gsoc '18)
-        SimmilarityBetweenGeometries
-        Author : Yaghyavardhan Sing Khangarot
-        Institute: IIIT Hyderabad
-*/
+// Boost.Geometry
+
+// Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
+
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithm> 
 
@@ -110,7 +113,9 @@ struct linestring_linestring
         for(size_type i = 0; i <a; i++)
         {
             for(size_type j = 0; j <b; j++)
-            std::cout << coup_matrix(i,j) << " ";
+            {   
+                std::cout << coup_matrix(i,j) << " ";
+            }
             std::cout << std::endl;
         }
         #endif
