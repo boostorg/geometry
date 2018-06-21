@@ -83,6 +83,69 @@ struct linestring_linestring
     }
 };
 
+struct linestring_multi_linestring
+{
+    template <typename Linestring, typename Multi_linestring, typename Strategy>
+    static inline typename distance_result
+        <
+            typename point_type<Linestring>::type,
+            typename point_type<Multi_linestring>::type,
+            Strategy
+        >::type apply(Linestring const& ls, Multi_linestring const& mls, Strategy const& strategy)
+    {
+        
+        typedef typename distance_result
+            <
+                typename point_type<Linestring>::type,
+                typename point_type<Multi_linestring>::type,
+                Strategy
+            >::type result_type;
+        typedef typename boost::range_size<Linestring>::type size_type1;
+        typedef typename boost::range_size<Multi_linestring>::type size_type2;
+        
+        boost::geometry::detail::throw_on_empty_input(ls);
+        boost::geometry::detail::throw_on_empty_input(mls);
+        size_type1  a = boost::size(ls);
+        size_type2  b = boost::size(mls);
+
+        result_type haus_dis_max=0;
+        //Computing the HausdorffDistance
+        for(size_type1 i=0;i<a;i++)
+        {
+                result_type dis_max=0;
+                for(size_type2 j=0;j<b;j++)
+                {
+                    result_type dis_min;
+                    bool is_dis_min_set = false;
+                    size_type1 c = boost::size(range::at(mls,j));
+                    for (size_type1 k=0;k<c;k++)
+                    { 
+                        result_type dis_temp = geometry::distance(range::at(ls, i), range::at(range::at(mls, j),k), strategy);
+                        if(dis_temp < dis_max)
+                            break; //Early Break
+                        if(!is_dis_min_set || dis_temp < dis_min)
+                        {    
+                            dis_min=dis_temp;
+                            is_dis_min_set = true;
+                        }
+                    }
+                    if (dis_min > dis_max && is_dis_min_set)
+                    {   
+                        dis_max = dis_min;
+                    }
+                }
+
+                if(dis_max > haus_dis_max)
+                {
+                    haus_dis_max=dis_max;
+                }    
+        }
+
+        
+        return haus_dis_max;
+    }
+};
+
 }} // namespace detail::hausdorff_distance
 #endif // DOXYGEN_NO_DETAIL
 
@@ -99,10 +162,16 @@ template
 struct hausdorff_distance : not_implemented<Tag1, Tag2>
 {};
 
-// Specialization for linestrings using your implementation above
+// Specialization for linestrings 
 template <typename Linestring1, typename Linestring2>
 struct hausdorff_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
     : detail::hausdorff_distance::linestring_linestring
+{};
+
+// Specialization for linestring and multi_linestring 
+template <typename linestring, typename multi_linestring>
+struct hausdorff_distance<linestring,multi_linestring,linestring_tag,multi_linestring_tag>
+    : detail::hausdorff_distance::linestring_multi_linestring
 {};
 
 } // namespace dispatch
