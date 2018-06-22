@@ -25,6 +25,8 @@
 #define BOOST_GEOMETRY_FORMULAS_KARNEY_DIRECT_HPP
 
 
+#include <boost/array.hpp>
+
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
@@ -129,8 +131,8 @@ public:
             = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
         // Index zero element of coeffs_C1 is unused.
-        CT coeffs_C1[SeriesOrder + 1];
-        series_expansion::evaluate_coeffs_C1<CT, SeriesOrder>(epsilon, coeffs_C1);
+        boost::array<CT, SeriesOrder + 1> coeffs_C1;
+        series_expansion::evaluate_coeffs_C1(epsilon, coeffs_C1);
 
         // Tau is an integration variable.
         CT const tau12 = distance / (b * (c1 + expansion_A1));
@@ -146,7 +148,7 @@ public:
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 =
-            series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C1);
+            series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
         CT const cos_B11 = cos(B11);
 
@@ -156,11 +158,11 @@ public:
             = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
 
         // Index zero element of coeffs_C1p is unused.
-        CT coeffs_C1p[SeriesOrder + 1];
-        series_expansion::evaluate_coeffs_C1p<CT, SeriesOrder>(epsilon, coeffs_C1p);
+        boost::array<CT, SeriesOrder + 1> coeffs_C1p;
+        series_expansion::evaluate_coeffs_C1p(epsilon, coeffs_C1p);
 
         CT const B12 =
-            - series_expansion::sin_cos_series<CT, SeriesOrder>
+            - series_expansion::sin_cos_series<CT, SeriesOrder + 1>
                                 (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
                                  cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
                                  coeffs_C1p);
@@ -246,13 +248,13 @@ public:
         {
             // Evaluate the coefficients for C2.
             // Index zero element of coeffs_C2 is unused.
-            CT coeffs_C2[SeriesOrder + 1];
-            series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
+            boost::array<CT, SeriesOrder + 1> coeffs_C2;
+            series_expansion::evaluate_coeffs_C2(epsilon, coeffs_C2);
 
             CT const B21 =
-                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C2);
+                series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma1, cos_sigma1, coeffs_C2);
             CT const B22 =
-                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma2, cos_sigma2, coeffs_C2);
+                series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.
@@ -263,8 +265,8 @@ public:
             CT const AB2 = (c1 + expansion_A2) * (B22 - B21);
             CT const J12 = (expansion_A1 - expansion_A2) * sigma12 + (AB1 - AB2);
 
-            CT const dn1 = sqrt(c1 + ep2 * math::sqr(sin_beta1));
-            CT const dn2 = sqrt(c1 + k2 * math::sqr(sin_sigma2));
+            CT const dn1 = math::sqrt(c1 + ep2 * math::sqr(sin_beta1));
+            CT const dn2 = math::sqrt(c1 + k2 * math::sqr(sin_sigma2));
 
             // Find the reduced length.
             result.reduced_length = b * ((dn2 * (cos_sigma1 * sin_sigma2) -
