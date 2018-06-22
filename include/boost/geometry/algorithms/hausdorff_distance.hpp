@@ -119,23 +119,7 @@ struct linestring_multi_linestring
                 for(size_type2 j=0;j<b;j++)
                 {
                     result_type dis_min;
-                    bool is_dis_min_set = false;
-                    size_type1 c = boost::size(range::at(mls,j));
-                    for (size_type1 k=0;k<c;k++)
-                    { 
-                        result_type dis_temp = geometry::distance(range::at(ls, i), range::at(range::at(mls, j),k), strategy);
-                        if(dis_temp < dis_max)
-                            break; //Early Break
-                        if(!is_dis_min_set || dis_temp < dis_min)
-                        {    
-                            dis_min=dis_temp;
-                            is_dis_min_set = true;
-                        }
-                    }
-                    if (dis_min > dis_max && is_dis_min_set)
-                    {   
-                        dis_max = dis_min;
-                    }
+                    dis_max =linestring_linestring::apply(ls,range::at(mls,j),strategy);
                 }
 
                 if(dis_max > haus_dis_max)
