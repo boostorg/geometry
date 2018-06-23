@@ -35,6 +35,43 @@ namespace boost { namespace geometry
 namespace detail { namespace hausdorff_distance
 {
 
+struct point_range
+{
+    template <typename Point, typename Range, typename Strategy>
+    static inline typename distance_result
+        <
+            typename point_type<Range>::type,
+            typename point_type<Range>::type,
+            Strategy
+        >::type apply(Point const& pnt, Range const& rng, Strategy const& strategy)
+    {
+        
+        typedef typename distance_result
+            <
+                typename point_type<Point>::type,
+                typename point_type<Range>::type,
+                Strategy
+            >::type result_type;
+        typedef typename boost::range_size<Range>:: type size_type;
+        
+        boost::geometry::detail::throw_on_empty_input(pnt);
+        boost::geometry::detail::throw_on_empty_input(rng);
+        
+        size_type  b = boost::size(rng);
+        result_type dis_min;
+        bool is_dis_min_set = false;
+        for(size_type i=0;i<b;i++)
+        {
+            result_type dis_temp = geometry::distance(pnt, range::at(rng, i), strategy);
+                if(!is_dis_min_set || dis_temp < dis_min)
+                {    
+                    dis_min=dis_temp;
+                    is_dis_min_set = true;
+                }
+        }
+        return dis_min;
+    }
+};
 struct range_range
 {
     template <typename Range1, typename Range2, typename Strategy>
@@ -52,32 +89,19 @@ struct range_range
                 typename point_type<Range2>::type,
                 Strategy
             >::type result_type;
-        typedef typename boost::range_size<Range1>::type size_type1;
-        typedef typename boost::range_size<Range2>:: type size_type2;
+        typedef typename boost::range_size<Range1>::type size_type;
         
-        result_type dis_max=0,dis_min;
+        
         boost::geometry::detail::throw_on_empty_input(r1);
         boost::geometry::detail::throw_on_empty_input(r2);
-        size_type1  a = boost::size(r1);
-        size_type2  b = boost::size(r2);
-
+        
+        size_type  a = boost::size(r1);
+        result_type dis_max=0;
         //Computing the HausdorffDistance
-        for(size_type1 i=0;i<a;i++)
+        for(size_type i=0;i<a;i++)
         {
-            bool is_dis_min_set = false;
-                for(size_type2 j=0;j<b;j++)
-                {
-                    result_type dis_temp = geometry::distance(range::at(r1, i), range::at(r2, j), strategy);
-                    if(dis_temp < dis_max)
-                        break; //Early Break
-                    if(!is_dis_min_set || dis_temp < dis_min)
-                    {    
-                        dis_min=dis_temp;
-                        is_dis_min_set = true;
-                    }
-                }
-
-            if (dis_min > dis_max && is_dis_min_set)
+            result_type dis_min= point_range::apply(range::at(r1,i),r2,strategy);
+            if (dis_min > dis_max )
             {
               dis_max = dis_min;
             }
@@ -109,9 +133,9 @@ struct range_multi_range
         
         boost::geometry::detail::throw_on_empty_input(rng);
         boost::geometry::detail::throw_on_empty_input(mrng);
+        
         size_type1  a = boost::size(rng);
         size_type2  b = boost::size(mrng);
-
         result_type haus_dis=0;
         //Computing the HausdorffDistance
         for(size_type1 i=0;i<a;i++)
@@ -190,9 +214,21 @@ template
 struct hausdorff_distance : not_implemented<Tag1, Tag2>
 {};
 
+// Specialization for point and multi_point 
+template <typename Point, typename MultiPoint>
+struct hausdorff_distance<Point,MultiPoint,point_tag,multi_point_tag>
+    : detail::hausdorff_distance::point_range
+{};
+
 // Specialization for linestrings 
 template <typename Linestring1, typename Linestring2>
 struct hausdorff_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
+    : detail::hausdorff_distance::range_range
+{};
+
+// Specialization for multi_point-multi_point 
+template <typename MultiPoint1, typename MultiPoint2>
+struct hausdorff_distance<MultiPoint1,MultiPoint2,multi_point_tag,multi_point_tag>
     : detail::hausdorff_distance::range_range
 {};
 
