@@ -2,7 +2,7 @@
 
 // Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
 
-// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
+// Contributed and/or modified by Yaghyavardhan Singh Khangarot, as part of Google Summer of Code 2018 program.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
