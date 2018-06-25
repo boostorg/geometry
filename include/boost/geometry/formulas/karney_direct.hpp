@@ -41,6 +41,7 @@
 namespace boost { namespace geometry { namespace formula
 {
 
+namespace se = series_expansion;
 
 /*!
 \brief The solution of the direct problem of geodesics on latlong coordinates,
@@ -128,10 +129,10 @@ public:
         // Find the coefficients for A1 by computing the
         // series expansion using Horner scehme.
         CT const expansion_A1
-            = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
+            = se::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
         // Index zero element of coeffs_C1 is unused.
-        series_expansion::coeffs_C1<CT, SeriesOrder> const coeffs_C1(epsilon);
+        se::coeffs_C1<CT, SeriesOrder> const coeffs_C1(epsilon);
 
         // Tau is an integration variable.
         CT const tau12 = distance / (b * (c1 + expansion_A1));
@@ -147,7 +148,7 @@ public:
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 =
-            series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+            se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
         CT const cos_B11 = cos(B11);
 
@@ -157,10 +158,10 @@ public:
             = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
 
         // Index zero element of coeffs_C1p is unused.
-        series_expansion::coeffs_C1p<CT, SeriesOrder> const coeffs_C1p(epsilon);
+        se::coeffs_C1p<CT, SeriesOrder> const coeffs_C1p(epsilon);
 
         CT const B12 =
-            - series_expansion::sin_cos_series
+            - se::sin_cos_series
                                 (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
                                  cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
                                  coeffs_C1p);
@@ -205,18 +206,18 @@ public:
             CT const omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
                                      cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
-            series_expansion::coeffs_A3<CT, SeriesOrder> coeffs_A3(n);
+            se::coeffs_A3<CT, SeriesOrder> coeffs_A3(n);
 
             CT const A3 = math::horner_evaluate(epsilon, coeffs_A3.begin(), coeffs_A3.end());
             CT const A3c = -f * sin_alpha0 * A3;
 
-            series_expansion::coeffs_C3<CT, SeriesOrder> coeffs_C3(n, epsilon);
+            se::coeffs_C3<CT, SeriesOrder> coeffs_C3(n, epsilon);
 
             CT const B31 =
-                series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+                se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
             CT const lam12 = omega12 + A3c *
-                             (sigma12 + (series_expansion::sin_cos_series
+                             (sigma12 + (se::sin_cos_series
                                                            (sin_sigma2,
                                                             cos_sigma2,
                                                             coeffs_C3) - B31));
@@ -238,17 +239,17 @@ public:
         {
             // Evaluate the coefficients for C2.
             // Index zero element of coeffs_C2 is unused.
-            series_expansion::coeffs_C2<CT, SeriesOrder> coeffs_C2(epsilon);
+            se::coeffs_C2<CT, SeriesOrder> coeffs_C2(epsilon);
 
             CT const B21 =
-                series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
+                se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
             CT const B22 =
-                series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
+                se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.
             CT const expansion_A2
-                = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
+                = se::evaluate_series_A2<CT, SeriesOrder>(epsilon);
 
             CT const AB1 = (c1 + expansion_A1) * (B12 - B11);
             CT const AB2 = (c1 + expansion_A2) * (B22 - B21);
