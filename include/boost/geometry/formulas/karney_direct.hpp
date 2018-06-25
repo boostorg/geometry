@@ -131,8 +131,7 @@ public:
             = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
         // Index zero element of coeffs_C1 is unused.
-        boost::array<CT, SeriesOrder + 1> coeffs_C1;
-        series_expansion::evaluate_coeffs_C1(epsilon, coeffs_C1);
+        series_expansion::coeffs_C1<CT, SeriesOrder> const coeffs_C1(epsilon);
 
         // Tau is an integration variable.
         CT const tau12 = distance / (b * (c1 + expansion_A1));
@@ -148,7 +147,7 @@ public:
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 =
-            series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma1, cos_sigma1, coeffs_C1);
+            series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
         CT const cos_B11 = cos(B11);
 
@@ -158,11 +157,10 @@ public:
             = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
 
         // Index zero element of coeffs_C1p is unused.
-        boost::array<CT, SeriesOrder + 1> coeffs_C1p;
-        series_expansion::evaluate_coeffs_C1p(epsilon, coeffs_C1p);
+        series_expansion::coeffs_C1p<CT, SeriesOrder> const coeffs_C1p(epsilon);
 
         CT const B12 =
-            - series_expansion::sin_cos_series<CT, SeriesOrder + 1>
+            - series_expansion::sin_cos_series
                                 (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
                                  cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
                                  coeffs_C1p);
@@ -207,26 +205,18 @@ public:
             CT const omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
                                      cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
-            CT coeffs_A3[SeriesOrder];
-            series_expansion::evaluate_coeffs_A3<CT, SeriesOrder>(n, coeffs_A3);
+            series_expansion::coeffs_A3<CT, SeriesOrder> coeffs_A3(n);
 
-            CT const A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
+            CT const A3 = math::horner_evaluate(epsilon, coeffs_A3.begin(), coeffs_A3.end());
             CT const A3c = -f * sin_alpha0 * A3;
 
-            // Compute the size of coefficient array.
-            size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
-            CT coeffs_C3x[coeffs_C3_size];
-            series_expansion::evaluate_coeffs_C3x<CT, SeriesOrder>(n, coeffs_C3x);
-
-            // Evaluate C3 coefficients.
-            CT coeffs_C3[SeriesOrder];
-            series_expansion::evaluate_coeffs_C3<CT, SeriesOrder>(epsilon, coeffs_C3, coeffs_C3x);
+            series_expansion::coeffs_C3<CT, SeriesOrder> coeffs_C3(n, epsilon);
 
             CT const B31 =
-                series_expansion::sin_cos_series<CT, SeriesOrder>(sin_sigma1, cos_sigma1, coeffs_C3);
+                series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
             CT const lam12 = omega12 + A3c *
-                             (sigma12 + (series_expansion::sin_cos_series<CT, SeriesOrder>
+                             (sigma12 + (series_expansion::sin_cos_series
                                                            (sin_sigma2,
                                                             cos_sigma2,
                                                             coeffs_C3) - B31));
@@ -248,13 +238,12 @@ public:
         {
             // Evaluate the coefficients for C2.
             // Index zero element of coeffs_C2 is unused.
-            boost::array<CT, SeriesOrder + 1> coeffs_C2;
-            series_expansion::evaluate_coeffs_C2(epsilon, coeffs_C2);
+            series_expansion::coeffs_C2<CT, SeriesOrder> coeffs_C2(epsilon);
 
             CT const B21 =
-                series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma1, cos_sigma1, coeffs_C2);
+                series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
             CT const B22 =
-                series_expansion::sin_cos_series<CT, SeriesOrder + 1>(sin_sigma2, cos_sigma2, coeffs_C2);
+                series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.
