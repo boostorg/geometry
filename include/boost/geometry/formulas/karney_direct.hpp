@@ -117,10 +117,8 @@ public:
         cos_beta1 = std::max(sqrt(std::numeric_limits<CT>::min()), cos_beta1);
 
         // Obtain alpha 0 by solving the spherical triangle.
-        CT const sin_alpha0
-            = sin_alpha1 * cos_beta1;
-        CT const cos_alpha0
-            = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
+        CT const sin_alpha0 = sin_alpha1 * cos_beta1;
+        CT const cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
         CT const k2 = math::sqr(cos_alpha0) * ep2;
 
@@ -128,11 +126,10 @@ public:
 
         // Find the coefficients for A1 by computing the
         // series expansion using Horner scehme.
-        CT const expansion_A1
-            = se::evaluate_series_A1<CT, SeriesOrder>(epsilon);
+        CT const expansion_A1 = se::evaluate_A1<SeriesOrder>(epsilon);
 
         // Index zero element of coeffs_C1 is unused.
-        se::coeffs_C1<CT, SeriesOrder> const coeffs_C1(epsilon);
+        se::coeffs_C1<SeriesOrder, CT> const coeffs_C1(epsilon);
 
         // Tau is an integration variable.
         CT const tau12 = distance / (b * (c1 + expansion_A1));
@@ -147,33 +144,27 @@ public:
         cos_sigma1 = cos_omega1 = sin_beta1 != c0 || cos_alpha1 != c0 ? cos_beta1 * cos_alpha1 : c1;
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
-        CT const B11 =
-            se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+        CT const B11 = se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
         CT const cos_B11 = cos(B11);
 
-        CT const sin_tau1
-            = sin_sigma1 * cos_B11 + cos_sigma1 * sin_B11;
-        CT const cos_tau1
-            = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
+        CT const sin_tau1 = sin_sigma1 * cos_B11 + cos_sigma1 * sin_B11;
+        CT const cos_tau1 = cos_sigma1 * cos_B11 - sin_sigma1 * sin_B11;
 
         // Index zero element of coeffs_C1p is unused.
-        se::coeffs_C1p<CT, SeriesOrder> const coeffs_C1p(epsilon);
+        se::coeffs_C1p<SeriesOrder, CT> const coeffs_C1p(epsilon);
 
-        CT const B12 =
-            - se::sin_cos_series
-                                (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
-                                 cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
-                                 coeffs_C1p);
+        CT const B12 = - se::sin_cos_series
+                             (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+                              cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
+                              coeffs_C1p);
 
         CT const sigma12 = tau12 - (B12 - B11);
         CT const sin_sigma12 = sin(sigma12);
         CT const cos_sigma12 = cos(sigma12);
 
-        CT const sin_sigma2
-            = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
-        CT const cos_sigma2
-            = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
+        CT const sin_sigma2 = sin_sigma1 * cos_sigma12 + cos_sigma1 * sin_sigma12;
+        CT const cos_sigma2 = cos_sigma1 * cos_sigma12 - sin_sigma1 * sin_sigma12;
 
         if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
         {
@@ -183,21 +174,19 @@ public:
             result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2);
 
             // Convert the angle to radians.
-            result.reverse_azimuth /= math::d2r<T>();
+            result.reverse_azimuth /= math::d2r<CT>();
         }
 
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
         {
             // Find the latitude at the second point.
-            CT const sin_beta2
-                = cos_alpha0 * sin_sigma2;
-            CT const cos_beta2
-                = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
+            CT const sin_beta2 = cos_alpha0 * sin_sigma2;
+            CT const cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
             result.lat2 = atan2(sin_beta2, one_minus_f * cos_beta2);
 
             // Convert the coordinate to radians.
-            result.lat2 /= math::d2r<T>();
+            result.lat2 /= math::d2r<CT>();
 
             // Find the longitude at the second point.
             CT const sin_omega2 = sin_alpha0 * sin_sigma2;
@@ -206,29 +195,27 @@ public:
             CT const omega12 = atan2(sin_omega2 * cos_omega1 - cos_omega2 * sin_omega1,
                                      cos_omega2 * cos_omega1 + sin_omega2 * sin_omega1);
 
-            se::coeffs_A3<CT, SeriesOrder> coeffs_A3(n);
+            se::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
 
             CT const A3 = math::horner_evaluate(epsilon, coeffs_A3.begin(), coeffs_A3.end());
             CT const A3c = -f * sin_alpha0 * A3;
 
-            se::coeffs_C3<CT, SeriesOrder> coeffs_C3(n, epsilon);
+            se::coeffs_C3<SeriesOrder, CT> const coeffs_C3(n, epsilon);
 
-            CT const B31 =
-                se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+            CT const B31 = se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
             CT const lam12 = omega12 + A3c *
                              (sigma12 + (se::sin_cos_series
-                                                           (sin_sigma2,
-                                                            cos_sigma2,
-                                                            coeffs_C3) - B31));
+                                             (sin_sigma2,
+                                              cos_sigma2,
+                                              coeffs_C3) - B31));
 
             // Convert to radians to get the
             // longitudinal difference.
-            CT lon12 = lam12 / math::d2r<T>();
+            CT lon12 = lam12 / math::d2r<CT>();
 
             // Add the longitude at first point to the longitudinal
             // difference and normalize the result.
-
             math::normalize_angle<degree, CT>(lon1);
             math::normalize_angle<degree, CT>(lon12);
 
@@ -239,17 +226,14 @@ public:
         {
             // Evaluate the coefficients for C2.
             // Index zero element of coeffs_C2 is unused.
-            se::coeffs_C2<CT, SeriesOrder> coeffs_C2(epsilon);
+            se::coeffs_C2<SeriesOrder, CT> const coeffs_C2(epsilon);
 
-            CT const B21 =
-                se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
-            CT const B22 =
-                se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
+            CT const B21 = se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
+            CT const B22 = se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2);
 
             // Find the coefficients for A2 by computing the
             // series expansion using Horner scehme.
-            CT const expansion_A2
-                = se::evaluate_series_A2<CT, SeriesOrder>(epsilon);
+            CT const expansion_A2 = se::evaluate_A2<SeriesOrder>(epsilon);
 
             CT const AB1 = (c1 + expansion_A1) * (B12 - B11);
             CT const AB2 = (c1 + expansion_A2) * (B22 - B21);
