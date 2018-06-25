@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 #include <limits>
+#include <initializer_list>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -91,18 +92,18 @@ struct linestring_linestring
         {
             for(size_type2 j=0;j<b;j++)
             {
+                result_type dis = geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy);
                 if(i==0 && j==0)
-                    coup_matrix(i,j)= 
-                    geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy);
+                    coup_matrix(i,j)= dis;
                 else if(i==0 && j>0)
                     coup_matrix(i,j)=
-                    (std::max)(coup_matrix(i,j-1),geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy));
+                    (std::max)(coup_matrix(i,j-1),dis);
                 else if(i>0 && j==0)
                     coup_matrix(i,j)=
-                    (std::max)(coup_matrix(i-1,j),geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy));
+                    (std::max)(coup_matrix(i-1,j),dis);
                 else if(i>0 && j>0)
                     coup_matrix(i,j)=
-                    (std::max)((std::min)((std::min)(coup_matrix(i,j-1),coup_matrix(i-1,j)),coup_matrix(i-1,j-1)),geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy));
+                    (std::max)((std::min)({coup_matrix(i,j-1),coup_matrix(i-1,j),coup_matrix(i-1,j-1)}),dis);
                 else
                     coup_matrix(i,j)=not_feasible;
             }
@@ -113,9 +114,7 @@ struct linestring_linestring
         for(size_type i = 0; i <a; i++)
         {
             for(size_type j = 0; j <b; j++)
-            {   
-                std::cout << coup_matrix(i,j) << " ";
-            }
+            std::cout << coup_matrix(i,j) << " ";
             std::cout << std::endl;
         }
         #endif
