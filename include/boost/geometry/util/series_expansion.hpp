@@ -24,6 +24,7 @@
 #ifndef BOOST_GEOMETRY_UTIL_SERIES_EXPANSION_HPP
 #define BOOST_GEOMETRY_UTIL_SERIES_EXPANSION_HPP
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace series_expansion {
@@ -571,6 +572,9 @@ namespace boost { namespace geometry { namespace series_expansion {
     */
     template <typename Coeffs, typename CT>
     static inline void evaluate_coeffs_C3x(Coeffs &c, size_t const& SeriesOrder, CT const& n) {
+        size_t const coeff_size = Coeffs::static_size;
+        BOOST_GEOMETRY_ASSERT(coeff_size == (SeriesOrder * (SeriesOrder - 1)) / 2);
+
         const CT n2 = math::sqr(n);
         switch (SeriesOrder) {
         case 0:

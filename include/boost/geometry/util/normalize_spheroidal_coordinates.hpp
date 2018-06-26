@@ -391,6 +391,8 @@ inline void normalize_values(ValueType& x, ValueType& y)
 {
     ValueType h = boost::math::hypot(x, y);
 
+    BOOST_GEOMETRY_ASSERT(h > 0);
+
     x /= h; y /= h;
 }
 
