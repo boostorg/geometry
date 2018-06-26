@@ -856,15 +856,17 @@ inline NT horner_evaluate(NT x,
 \brief Evaluate the polynomial.
 */
 template<typename CT>
-inline CT polyval(int N,
-                  const CT coeff[],
+inline CT polyval(std::vector<CT> coeff,
                   const CT eps)
 {
-    CT y = N < 0 ? 0 : *coeff++;
+    int N = boost::size(coeff) - 1;
+    int index = 0;
+
+    CT y = N < 0 ? 0 : coeff[index++];
 
     while (--N >= 0)
     {
-        y = y * eps + *coeff++;
+        y = y * eps + coeff[index++];
     }
 
     return y;

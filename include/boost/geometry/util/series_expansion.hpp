@@ -688,7 +688,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     static inline void evaluate_coeffs_C3(Coeffs1 &coeffs1, Coeffs2 &coeffs2, CT const& eps)
     {
         CT mult = 1;
-        int offset = 0;
+        int offset = 1;
 
         // l is the index of C3[l].
         for (size_t l = 1; l < Coeffs1::static_size; ++l)
@@ -696,7 +696,10 @@ namespace boost { namespace geometry { namespace series_expansion {
             // Order of polynomial in eps.
             int m = Coeffs1::static_size - l - 1;
             mult *= eps;
-            coeffs1[l] = mult * math::polyval(m, coeffs2.begin() + offset, eps);
+
+            std::vector<CT> coeffs2_slice(coeffs2.begin(), coeffs2.begin() + offset);
+            coeffs1[l] = mult * math::polyval(coeffs2_slice, eps);
+
             offset += m + 1;
         }
         // Post condition: offset == coeffs_C3_size
@@ -719,15 +722,16 @@ namespace boost { namespace geometry { namespace series_expansion {
         index += (n + 1);
         CT ar = 2 * (cosx - sinx) * (cosx + sinx);
 
+        // If n is odd, get the last element.
         CT k0 = n & 1 ? coeffs[--index] : 0;
         CT k1 = 0;
 
         // Make n even.
         n /= 2;
         while (n--) {
-          // Unroll loop x 2, so accumulators return to their original role.
-          k1 = ar * k0 - k1 + coeffs[--index];
-          k0 = ar * k1 - k0 + coeffs[--index];
+            // Unroll loop x 2, so accumulators return to their original role.
+            k1 = ar * k0 - k1 + coeffs[--index];
+            k0 = ar * k1 - k0 + coeffs[--index];
         }
 
         return 2 * sinx * cosx * k0;

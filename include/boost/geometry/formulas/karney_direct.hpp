@@ -114,7 +114,7 @@ public:
 
         math::normalize_values<CT>(sin_beta1, cos_beta1);
 
-        cos_beta1 = std::max(sqrt(std::numeric_limits<CT>::min()), cos_beta1);
+        cos_beta1 = std::max(math::sqrt(c0), cos_beta1);
 
         // Obtain alpha 0 by solving the spherical triangle.
         CT const sin_alpha0 = sin_alpha1 * cos_beta1;
@@ -122,7 +122,7 @@ public:
 
         CT const k2 = math::sqr(cos_alpha0) * ep2;
 
-        CT const epsilon = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
+        CT const epsilon = k2 / (c2 * (c1 + math::sqrt(c1 + k2)) + k2);
 
         // Find the coefficients for A1 by computing the
         // series expansion using Horner scehme.
