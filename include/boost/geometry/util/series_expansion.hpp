@@ -115,7 +115,7 @@ namespace boost { namespace geometry { namespace series_expansion {
                s/case\sCT(/case /g; s/):/:/g; s/epsCT(2)/eps2/g;'
     */
     template <size_t SeriesOrder, typename CT>
-    static inline CT evaluate_A1(CT eps)
+    inline CT evaluate_A1(CT eps)
     {
         CT eps2 = math::sqr(eps);
         CT t;
@@ -205,7 +205,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      geometry/doc/other/maxima/geod.mac
     */
     template <typename Coeffs, typename CT>
-    static inline void evaluate_coeffs_A3(Coeffs &c, CT const& n)
+    inline void evaluate_coeffs_A3(Coeffs &c, CT const& n)
     {
         switch (int(Coeffs::static_size)) {
         case 0:
@@ -274,7 +274,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      geometry/doc/other/maxima/geod.mac
     */
     template <typename Coeffs, typename CT>
-    static inline void evaluate_coeffs_C1(Coeffs &c, CT const& eps)
+    inline void evaluate_coeffs_C1(Coeffs &c, CT const& eps)
     {
         CT eps2 = math::sqr(eps);
         CT d = eps;
@@ -373,7 +373,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      geometry/doc/other/maxima/geod.mac
     */
     template <typename Coeffs, typename CT>
-    static inline void evaluate_coeffs_C1p(Coeffs& c, CT const& eps)
+    inline void evaluate_coeffs_C1p(Coeffs& c, CT const& eps)
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
@@ -472,7 +472,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      geometry/doc/other/maxima/geod.mac
     */
     template <typename Coeffs, typename CT>
-    static inline void evaluate_coeffs_C2(Coeffs& c, CT const& eps)
+    inline void evaluate_coeffs_C2(Coeffs& c, CT const& eps)
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
@@ -571,7 +571,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      geometry/doc/other/maxima/geod.mac
     */
     template <typename Coeffs, typename CT>
-    static inline void evaluate_coeffs_C3x(Coeffs &c, size_t const& SeriesOrder, CT const& n) {
+    inline void evaluate_coeffs_C3x(Coeffs &c, size_t const& SeriesOrder, CT const& n) {
         size_t const coeff_size = Coeffs::static_size;
         BOOST_GEOMETRY_ASSERT(coeff_size == (SeriesOrder * (SeriesOrder - 1)) / 2);
 
@@ -689,7 +689,7 @@ namespace boost { namespace geometry { namespace series_expansion {
       Elements coeffs1[1] through coeffs1[SeriesOrder - 1] are set.
     */
     template <typename Coeffs1, typename Coeffs2, typename CT>
-    static inline void evaluate_coeffs_C3(Coeffs1 &coeffs1, Coeffs2 &coeffs2, CT const& eps)
+    inline void evaluate_coeffs_C3(Coeffs1 &coeffs1, Coeffs2 &coeffs2, CT const& eps)
     {
         CT mult = 1;
         int offset = 1;
@@ -717,7 +717,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      using Clenshaw summation.
     */
     template <typename CT, typename Coeffs>
-    static inline CT sin_cos_series(CT const& sinx, CT const& cosx, Coeffs const& coeffs)
+    inline CT sin_cos_series(CT const& sinx, CT const& cosx, Coeffs const& coeffs)
     {
         size_t n = Coeffs::static_size - 1;
         size_t index = 0;
