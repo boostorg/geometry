@@ -788,14 +788,14 @@ inline void sin_cos_degrees(T const& x,
     // the argument to the range [-45, 45] before converting it to radians.
     T remainder; int quotient;
 
-    remainder = std::fmod(x, T(360));
-    quotient = int(std::floor(remainder / 90 + T(0.5)));
+    remainder = math::mod(x, T(360));
+    quotient = floor(remainder / 90 + T(0.5));
     remainder -= 90 * quotient;
 
     // Convert to radians.
     remainder *= d2r<T>();
 
-    T s = std::sin(remainder), c = std::cos(remainder);
+    T s = sin(remainder), c = cos(remainder);
 
     switch (unsigned(quotient) & 3U)
     {
@@ -824,7 +824,7 @@ inline T round_angle(T x) {
         return 0;
     }
 
-    T y = std::abs(x);
+    T y = math::abs(x);
 
     // z - (z - y) must not be simplified to y.
     y = y < z ? z - (z - y) : y;
