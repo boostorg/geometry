@@ -80,7 +80,7 @@ public:
         CT const lat1 = la1;
 
         Azi azi12 = azimuth12;
-        math::normalize_angle<degree, Azi>(azi12);
+        math::normalize_azimuth<degree, Azi>(azi12);
 
         Dist const dist_c0 = 0;
 
@@ -114,7 +114,7 @@ public:
 
         math::normalize_values<CT>(sin_beta1, cos_beta1);
 
-        cos_beta1 = std::max(math::sqrt(c0), cos_beta1);
+        cos_beta1 = (std::max)(c0, cos_beta1);
 
         // Obtain alpha 0 by solving the spherical triangle.
         CT const sin_alpha0 = sin_alpha1 * cos_beta1;
@@ -216,8 +216,8 @@ public:
 
             // Add the longitude at first point to the longitudinal
             // difference and normalize the result.
-            math::normalize_angle<degree, CT>(lon1);
-            math::normalize_angle<degree, CT>(lon12);
+            math::normalize_longitude<degree, CT>(lon1);
+            math::normalize_longitude<degree, CT>(lon12);
 
             result.lon2 = lon1 + lon12;
         }

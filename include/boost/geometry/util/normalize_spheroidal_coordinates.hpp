@@ -365,15 +365,15 @@ inline void normalize_longitude(CoordinateType& longitude)
 }
 
 /*!
-\brief Short utility to normalize an angle on a spheroid
-       normalized in range (-180, 180].
+\brief Short utility to normalize the azimuth on a spheroid
+       in the range (-180, 180].
 \tparam Units The units of the coordindate system in the spheroid
 \tparam CoordinateType The type of the coordinates
 \param angle Angle
 \ingroup utility
 */
 template <typename Units, typename CoordinateType>
-inline void normalize_angle(CoordinateType& angle)
+inline void normalize_azimuth(CoordinateType& angle)
 {
     normalize_longitude<Units, CoordinateType>(angle);
 }
