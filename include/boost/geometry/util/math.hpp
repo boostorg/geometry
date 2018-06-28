@@ -855,18 +855,19 @@ inline NT horner_evaluate(NT x,
 /*
 \brief Evaluate the polynomial.
 */
-template<typename CT>
-inline CT polyval(std::vector<CT> coeff,
+template<typename IteratorType, typename CT>
+inline CT polyval(IteratorType first,
+                  IteratorType last,
                   const CT eps)
 {
-    int N = boost::size(coeff) - 1;
+    int N = std::distance(first, last) - 1;
     int index = 0;
 
-    CT y = N < 0 ? 0 : coeff[index++];
+    CT y = N < 0 ? 0 : *(first + (index++));
 
     while (--N >= 0)
     {
-        y = y * eps + coeff[index++];
+        y = y * eps + *(first + (index++));
     }
 
     return y;

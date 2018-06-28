@@ -642,8 +642,7 @@ namespace boost { namespace geometry { namespace series_expansion {
             int m = Coeffs1::static_size - l - 1;
             mult *= eps;
 
-            std::vector<CT> coeffs2_slice(coeffs2.begin(), coeffs2.begin() + offset);
-            coeffs1[l] = mult * math::polyval(coeffs2_slice, eps);
+            coeffs1[l] = mult * math::polyval(coeffs2.begin(), coeffs2.begin() + offset, eps);
 
             offset += m + 1;
         }
