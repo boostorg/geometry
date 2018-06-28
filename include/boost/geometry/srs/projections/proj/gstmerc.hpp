@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct gstmerc {}; // Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -86,7 +80,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T L, Ls, sinLs1, Ls1;
 
@@ -100,7 +94,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T L, LC, sinC;
 
@@ -155,7 +149,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct gstmerc_spheroid : public detail::gstmerc::base_gstmerc_spheroid<T, Parameters>
     {
-        inline gstmerc_spheroid(const Parameters& par) : detail::gstmerc::base_gstmerc_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline gstmerc_spheroid(Params const& , Parameters const& par)
+            : detail::gstmerc::base_gstmerc_spheroid<T, Parameters>(par)
         {
             detail::gstmerc::setup_gstmerc(this->m_par, this->m_proj_parm);
         }
@@ -166,23 +162,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gstmerc, gstmerc_spheroid, gstmerc_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_gstmerc, gstmerc_spheroid, gstmerc_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class gstmerc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(gstmerc_entry, gstmerc_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(gstmerc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<gstmerc_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void gstmerc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("gstmerc", new gstmerc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(gstmerc, gstmerc_entry);
         }
 
     } // namespace detail

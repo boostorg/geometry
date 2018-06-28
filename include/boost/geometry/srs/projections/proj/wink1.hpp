@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct wink1 {}; // Winkel I
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -79,7 +73,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = .5 * lp_lon * (this->m_proj_parm.cosphi1 + cos(lp_lat));
                     xy_y = lp_lat;
@@ -87,7 +81,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = xy_y;
                     lp_lon = 2. * xy_x / (this->m_proj_parm.cosphi1 + cos(lp_lat));
@@ -101,10 +95,10 @@ namespace projections
             };
 
             // Winkel I
-            template <typename Parameters, typename T>
-            inline void setup_wink1(Parameters& par, par_wink1<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_wink1(Params const& params, Parameters& par, par_wink1<T>& proj_parm)
             {
-                proj_parm.cosphi1 = cos(pj_get_param_r(par.params, "lat_ts"));
+                proj_parm.cosphi1 = cos(pj_get_param_r<T, srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts));
                 par.es = 0.;
             }
 
@@ -128,9 +122,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct wink1_spheroid : public detail::wink1::base_wink1_spheroid<T, Parameters>
     {
-        inline wink1_spheroid(const Parameters& par) : detail::wink1::base_wink1_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline wink1_spheroid(Params const& params, Parameters const& par)
+            : detail::wink1::base_wink1_spheroid<T, Parameters>(par)
         {
-            detail::wink1::setup_wink1(this->m_par, this->m_proj_parm);
+            detail::wink1::setup_wink1(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -139,23 +135,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wink1, wink1_spheroid, wink1_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_wink1, wink1_spheroid, wink1_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class wink1_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(wink1_entry, wink1_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(wink1_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<wink1_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void wink1_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("wink1", new wink1_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(wink1, wink1_entry)
         }
 
     } // namespace detail

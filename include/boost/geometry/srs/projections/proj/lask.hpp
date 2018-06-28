@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct lask {}; // Laskowski
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -82,7 +76,7 @@ namespace projections
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T l2, p2;
 
@@ -126,7 +120,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct lask_spheroid : public detail::lask::base_lask_spheroid<T, Parameters>
     {
-        inline lask_spheroid(const Parameters& par) : detail::lask::base_lask_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline lask_spheroid(Params const& , Parameters const& par)
+            : detail::lask::base_lask_spheroid<T, Parameters>(par)
         {
             detail::lask::setup_lask(this->m_par);
         }
@@ -137,23 +133,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lask, lask_spheroid, lask_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_lask, lask_spheroid, lask_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class lask_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(lask_entry, lask_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(lask_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<lask_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void lask_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("lask", new lask_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lask, lask_entry);
         }
 
     } // namespace detail

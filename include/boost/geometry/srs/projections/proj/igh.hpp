@@ -53,12 +53,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct igh {}; // Interrupted Goode Homolosine
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -105,16 +99,16 @@ namespace projections
             static const double epsilon = 1.e-10; // allow a little 'slack' on zone edge positions
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
-            template <template <typename, typename> class Entry, typename Parameters, typename T>
-            inline void do_setup(int n, Parameters const& par, par_igh<T, Parameters>& proj_parm,
+            template <template <typename, typename, typename> class Entry, typename Params, typename Parameters, typename T>
+            inline void do_setup(int n, Params const& params, Parameters const& par, par_igh<T, Parameters>& proj_parm,
                                  T const& x_0, T const& y_0,
                                  T const& lon_0)
             {
                 // NOTE: in the original proj4 these projections are initialized
                 // with zeroed parameters which could be done here as well instead
                 // of initializing with parent projection's parameters.
-                Entry<T, Parameters> entry;
-                proj_parm.pj[n-1].reset(entry.create_new(par));
+                Entry<Params, T, Parameters> entry;
+                proj_parm.pj[n-1].reset(entry.create_new(params, par));
                 proj_parm.pj[n-1]->mutable_params().x0 = x_0;
                 proj_parm.pj[n-1]->mutable_params().y0 = y_0;
                 proj_parm.pj[n-1]->mutable_params().lam0 = lon_0;
@@ -133,7 +127,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T d4044118 = igh::d4044118<T>();
                     static const T d20  =  igh::d20<T>();
@@ -169,7 +163,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T d4044118 = igh::d4044118<T>();
                     static const T d10  =  igh::d10<T>();
@@ -252,8 +246,8 @@ namespace projections
             };
 
             // Interrupted Goode Homolosine
-            template <typename T, typename Parameters>
-            inline void setup_igh(Parameters& par, par_igh<T, Parameters>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_igh(Params const& params, Parameters& par, par_igh<T, Parameters>& proj_parm)
             {
                 static const T d0   =  0;
                 static const T d4044118 = igh::d4044118<T>();
@@ -296,15 +290,15 @@ namespace projections
                     par.es = 0.;
 
                     // sinusoidal zones
-                    do_setup<sinu_entry>(3, par, proj_parm, -d100, d0, -d100);
-                    do_setup<sinu_entry>(4, par, proj_parm,   d30, d0,   d30);
-                    do_setup<sinu_entry>(5, par, proj_parm, -d160, d0, -d160);
-                    do_setup<sinu_entry>(6, par, proj_parm,  -d60, d0,  -d60);
-                    do_setup<sinu_entry>(7, par, proj_parm,   d20, d0,   d20);
-                    do_setup<sinu_entry>(8, par, proj_parm,  d140, d0,  d140);
+                    do_setup<sinu_entry>(3, params, par, proj_parm, -d100, d0, -d100);
+                    do_setup<sinu_entry>(4, params, par, proj_parm,   d30, d0,   d30);
+                    do_setup<sinu_entry>(5, params, par, proj_parm, -d160, d0, -d160);
+                    do_setup<sinu_entry>(6, params, par, proj_parm,  -d60, d0,  -d60);
+                    do_setup<sinu_entry>(7, params, par, proj_parm,   d20, d0,   d20);
+                    do_setup<sinu_entry>(8, params, par, proj_parm,  d140, d0,  d140);
 
                     // mollweide zones
-                    do_setup<moll_entry>(1, par, proj_parm, -d100, d0, -d100);
+                    do_setup<moll_entry>(1, params, par, proj_parm, -d100, d0, -d100);
 
                     // y0 ?
                      proj_parm.pj[0]->fwd(lp_lam, lp_phi, xy1_x, xy1_y); // zone 1
@@ -315,11 +309,11 @@ namespace projections
                     proj_parm.pj[0]->mutable_params().y0 = proj_parm.dy0;
 
                     // mollweide zones (cont'd)
-                    do_setup<moll_entry>( 2, par, proj_parm,   d30,  proj_parm.dy0,   d30);
-                    do_setup<moll_entry>( 9, par, proj_parm, -d160, -proj_parm.dy0, -d160);
-                    do_setup<moll_entry>(10, par, proj_parm,  -d60, -proj_parm.dy0,  -d60);
-                    do_setup<moll_entry>(11, par, proj_parm,   d20, -proj_parm.dy0,   d20);
-                    do_setup<moll_entry>(12, par, proj_parm,  d140, -proj_parm.dy0,  d140);
+                    do_setup<moll_entry>( 2, params, par, proj_parm,   d30,  proj_parm.dy0,   d30);
+                    do_setup<moll_entry>( 9, params, par, proj_parm, -d160, -proj_parm.dy0, -d160);
+                    do_setup<moll_entry>(10, params, par, proj_parm,  -d60, -proj_parm.dy0,  -d60);
+                    do_setup<moll_entry>(11, params, par, proj_parm,   d20, -proj_parm.dy0,   d20);
+                    do_setup<moll_entry>(12, params, par, proj_parm,  d140, -proj_parm.dy0,  d140);
 
                     // Already done before
                     //par.es = 0.;
@@ -343,9 +337,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct igh_spheroid : public detail::igh::base_igh_spheroid<T, Parameters>
     {
-        inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline igh_spheroid(Params const& params, Parameters const& par)
+            : detail::igh::base_igh_spheroid<T, Parameters>(par)
         {
-            detail::igh::setup_igh(this->m_par, this->m_proj_parm);
+            detail::igh::setup_igh(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -354,23 +350,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::igh, igh_spheroid, igh_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_igh, igh_spheroid, igh_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class igh_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<igh_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(igh_entry, igh_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void igh_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(igh_init)
         {
-            factory.add_to_factory("igh", new igh_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(igh, igh_entry)
         }
 
     } // namespace detail

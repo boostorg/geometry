@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct ocea {}; // Oblique Cylindrical Equal Area
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -85,7 +79,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T pi = detail::pi<T>();
 
@@ -102,7 +96,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T t, s;
 
@@ -122,8 +116,8 @@ namespace projections
             };
 
             // Oblique Cylindrical Equal Area
-            template <typename Parameters, typename T>
-            inline void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_ocea(Params const& params, Parameters& par, par_ocea<T>& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
@@ -132,10 +126,10 @@ namespace projections
                 proj_parm.rok = 1. / par.k0;
                 proj_parm.rtk = par.k0;
                 /*If the keyword "alpha" is found in the sentence then use 1point+1azimuth*/
-                if ( pj_param_r(par.params, "alpha", alpha)) {
+                if ( pj_param_r<srs::spar::alpha>(params, "alpha", srs::dpar::alpha, alpha)) {
                     /*Define Pole of oblique transformation from 1 point & 1 azimuth*/
                     //alpha = pj_get_param_r(par.params, "alpha"); // set above
-                    lonz = pj_get_param_r(par.params, "lonc");
+                    lonz = pj_get_param_r<T, srs::spar::lonc>(params, "lonc", srs::dpar::lonc);
                     /*Equation 9-8 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan(-cos(alpha)/(-sin(phi_0) * sin(alpha))) + lonz;
                     /*Equation 9-7 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
@@ -143,10 +137,10 @@ namespace projections
                 /*If the keyword "alpha" is NOT found in the sentence then use 2points*/
                 } else {
                     /*Define Pole of oblique transformation from 2 points*/
-                    phi_1 = pj_get_param_r(par.params, "lat_1");
-                    phi_2 = pj_get_param_r(par.params, "lat_2");
-                    lam_1 = pj_get_param_r(par.params, "lon_1");
-                    lam_2 = pj_get_param_r(par.params, "lon_2");
+                    phi_1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                    phi_2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
+                    lam_1 = pj_get_param_r<T, srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1);
+                    lam_2 = pj_get_param_r<T, srs::spar::lon_2>(params, "lon_2", srs::dpar::lon_2);
                     /*Equation 9-1 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan2(cos(phi_1) * sin(phi_2) * cos(lam_1) -
                         sin(phi_1) * cos(phi_2) * cos(lam_2),
@@ -193,9 +187,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<T, Parameters>
     {
-        inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline ocea_spheroid(Params const& params, Parameters const& par)
+            : detail::ocea::base_ocea_spheroid<T, Parameters>(par)
         {
-            detail::ocea::setup_ocea(this->m_par, this->m_proj_parm);
+            detail::ocea::setup_ocea(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -204,23 +200,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ocea, ocea_spheroid, ocea_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_ocea, ocea_spheroid, ocea_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class ocea_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<ocea_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(ocea_entry, ocea_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void ocea_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(ocea_init)
         {
-            factory.add_to_factory("ocea", new ocea_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ocea, ocea_entry)
         }
 
     } // namespace detail

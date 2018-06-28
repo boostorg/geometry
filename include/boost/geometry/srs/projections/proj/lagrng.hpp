@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct lagrng {}; // Lagrange
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -85,7 +79,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -113,18 +107,28 @@ namespace projections
             };
 
             // Lagrange
-            template <typename Parameters, typename T>
-            inline void setup_lagrng(Parameters& par, par_lagrng<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_lagrng(Params const& params, Parameters& par, par_lagrng<T>& proj_parm)
             {
                 T phi1;
 
-                proj_parm.rw = pj_get_param_f(par.params, "W");
+                proj_parm.rw = 0.0;
+                bool is_w_set = pj_param_f<srs::spar::w>(params, "W", srs::dpar::w, proj_parm.rw);
+                
+                // Boost.Geometry specific, set default parameters manually
+                if (! is_w_set) {
+                    bool const use_defaults = ! pj_get_param_b<srs::spar::no_defs>(params, "no_defs", srs::dpar::no_defs);
+                    if (use_defaults) {
+                        proj_parm.rw = 2;
+                    }
+                }
+
                 if (proj_parm.rw <= 0)
                     BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
 
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
-                phi1 = pj_get_param_r(par.params, "lat_1");
+                phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < tolerance)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
@@ -155,9 +159,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<T, Parameters>
     {
-        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline lagrng_spheroid(Params const& params, Parameters const& par)
+            : detail::lagrng::base_lagrng_spheroid<T, Parameters>(par)
         {
-            detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
+            detail::lagrng::setup_lagrng(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -166,23 +172,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lagrng, lagrng_spheroid, lagrng_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_lagrng, lagrng_spheroid, lagrng_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class lagrng_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(lagrng_entry, lagrng_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(lagrng_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<lagrng_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void lagrng_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("lagrng", new lagrng_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lagrng, lagrng_entry);
         }
 
     } // namespace detail
