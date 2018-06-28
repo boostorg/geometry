@@ -387,7 +387,7 @@ TODO: adl1995 - Merge this function with
 formulas/vertex_longitude.hpp
 */
 template<typename ValueType>
-inline void normalize_values(ValueType& x, ValueType& y)
+inline void normalize_unit_vector(ValueType& x, ValueType& y)
 {
     ValueType h = boost::math::hypot(x, y);
 

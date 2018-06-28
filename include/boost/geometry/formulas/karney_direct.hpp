@@ -112,7 +112,7 @@ public:
         math::sin_cos_degrees<CT>(math::round_angle<CT>(lat1), sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
 
-        math::normalize_values<CT>(sin_beta1, cos_beta1);
+        math::normalize_unit_vector<CT>(sin_beta1, cos_beta1);
 
         cos_beta1 = (std::max)(c0, cos_beta1);
 
@@ -142,7 +142,7 @@ public:
 
         CT cos_sigma1, cos_omega1;
         cos_sigma1 = cos_omega1 = sin_beta1 != c0 || cos_alpha1 != c0 ? cos_beta1 * cos_alpha1 : c1;
-        math::normalize_values<CT>(sin_sigma1, cos_sigma1);
+        math::normalize_unit_vector<CT>(sin_sigma1, cos_sigma1);
 
         CT const B11 = se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
         CT const sin_B11 = sin(B11);
