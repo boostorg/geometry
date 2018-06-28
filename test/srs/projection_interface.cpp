@@ -27,7 +27,6 @@ int test_main(int, char*[])
     using namespace boost::geometry;
     using namespace boost::geometry::model;
     using namespace boost::geometry::srs;
-    using namespace boost::geometry::srs::par4;
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
     typedef point<double, 2, cs::cartesian> point_xy;
@@ -65,19 +64,52 @@ int test_main(int, char*[])
     }
 
     {
+        using namespace boost::geometry::srs::dpar;
+
         point_ll pt_ll(1, 1);
         point_ll pt_ll2(0, 0);
         point_xy pt_xy(0, 0);
 
-        // default WGS84 spheroid
-        projection<static_proj4<proj<tmerc> > > prj;
-        //projection<static_proj4<proj<tmerc>, ellps<WGS84> > > prj;
+        projection<> prj = parameters<>(proj_tmerc)(ellps_wgs84)(units_m);
 
         prj.forward(pt_ll, pt_xy);
         test::check_geometry(pt_xy, "POINT(111308.33561309829 110591.34223734379)", 0.001);
 
         prj.inverse(pt_xy, pt_ll2);
         test::check_geometry(pt_ll2, "POINT(1 1)", 0.001);
+    }
+
+    {
+        using namespace boost::geometry::srs::spar;
+
+        point_ll pt_ll(1, 1);
+        point_ll pt_ll2(0, 0);
+        point_xy pt_xy(0, 0);
+
+        projection<parameters<proj_tmerc, ellps_wgs84, units_m> > prj;
+        
+        prj.forward(pt_ll, pt_xy);
+        test::check_geometry(pt_xy, "POINT(111308.33561309829 110591.34223734379)", 0.001);
+
+        prj.inverse(pt_xy, pt_ll2);
+        test::check_geometry(pt_ll2, "POINT(1 1)", 0.001);
+    }
+
+    {
+        using namespace boost::geometry::srs::spar;
+
+        projection<parameters<proj_tmerc> > prj1;
+        projection<parameters<proj_tmerc, ellps_wgs84> > prj2;
+        projection<parameters<proj_tmerc, ellps_wgs84, datum_wgs84> > prj3;
+        projection<parameters<proj_tmerc, ellps_wgs84, x_0<>, y_0<> > > prj4
+            = parameters<proj_tmerc, ellps_wgs84, x_0<>, y_0<> >(
+                proj_tmerc(), ellps_wgs84(), x_0<>(0), y_0<>(0));
+
+        typedef spheroid<double> sph;
+        typedef ellps<sph> ell;
+        typedef proj_tmerc prj;
+        projection<parameters<ell, prj> > prj5
+            = parameters<ell, prj>(ell(sph(1000, 999)));
     }
 
     {
@@ -98,40 +130,15 @@ int test_main(int, char*[])
         projection<static_iau2000<19900> > prj3;
     }
 
-    {
-        // static_proj4 constructors
-        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
-            prj1;
-        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
-            prj2;
-#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
-        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
-            prj3 = proj4("");
-#endif
-    }
-
-    {
-        typedef spheroid<double> sph;
-        typedef ellps<sph> ell;
-        typedef proj<tmerc> prj;
-        projection<static_proj4<ell, prj> >
-            prj1 = static_proj4<ell, prj>(ell(sph(1000, 999)));
-#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
-        projection<static_proj4<ell, prj> >
-            prj2(static_proj4<ell, prj>(ell(sph(1000, 999))), proj4(""));
-#endif
-    }
-
     // compile-time errors
     {
         point_ll pt_ll(1, 1);
         point_xy pt_xy(0, 0);
 
-        //projection<static_proj4<int> > prj1;
+        //projection<spar::parameters<int> > prj1;
         //projection<int> prj2;
 
-        projection<static_proj4<proj<bacon> > > prj3;
-        //projection<static_proj4<proj<bacon>, ellps<WGS84> > > prj3;
+        projection<spar::parameters<spar::proj_bacon> > prj3;
         //prj3.inverse(pt_xy, pt_ll);
     }
 
