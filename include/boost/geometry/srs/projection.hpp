@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -21,14 +21,15 @@
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
+#include <boost/geometry/srs/projections/dpar.hpp>
 #include <boost/geometry/srs/projections/exception.hpp>
 #include <boost/geometry/srs/projections/factory.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/pj_init.hpp>
 #include <boost/geometry/srs/projections/invalid_point.hpp>
-#include <boost/geometry/srs/projections/par4.hpp>
 #include <boost/geometry/srs/projections/proj4.hpp>
+#include <boost/geometry/srs/projections/spar.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
@@ -292,22 +293,32 @@ struct project_geometry<MultiPolygon, PointPolicy, multi_polygon_tag>
 #endif // DOXYGEN_NO_DETAIL
 
 
-template <typename Params, typename CT>
+template <typename Params>
 struct dynamic_parameters
 {
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THESE_PARAMETERS,
-                         (Params));
+    static const bool is_specialized = false;
 };
 
-template <typename CT>
-struct dynamic_parameters<srs::proj4, CT>
+template <>
+struct dynamic_parameters<srs::proj4>
 {
-    static inline projections::parameters<CT> apply(srs::proj4 const& params)
+    static const bool is_specialized = true;
+    static inline srs::detail::proj4_parameters apply(srs::proj4 const& params)
     {
-        return projections::detail::pj_init_plus<CT>(srs::dynamic(), params.str);
-    }  
+        return srs::detail::proj4_parameters(params.str());
+    }
 };
+
+template <typename T>
+struct dynamic_parameters<srs::dpar::parameters<T> >
+{
+    static const bool is_specialized = true;
+    static inline srs::dpar::parameters<T> const& apply(srs::dpar::parameters<T> const& params)
+    {
+        return params;
+    }
+};
+
 
 // proj_wrapper class and its specializations wrapps the internal projection
 // representation and implements transparent creation of projection object
@@ -315,7 +326,7 @@ template <typename Proj, typename CT>
 class proj_wrapper
 {
     BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION,
+                         UNKNOWN_PROJECTION_DEFINITION,
                          (Proj));
 };
 
@@ -331,27 +342,35 @@ class proj_wrapper<srs::dynamic, CT>
 
 public:
     template <typename Params>
-    proj_wrapper(Params const& params)
-        : m_ptr(create(projections::dynamic_parameters<Params, calc_t>::apply(params)))
+    proj_wrapper(Params const& params,
+                 typename boost::enable_if_c
+                    <
+                        dynamic_parameters<Params>::is_specialized
+                    >::type * = 0)
+        : m_ptr(create(dynamic_parameters<Params>::apply(params)))
     {}
 
     vprj_t const& proj() const { return *m_ptr; }
     vprj_t & mutable_proj() { return *m_ptr; }
 
 private:
-    static vprj_t* create(parameters_type const& pj_params)
+    template <typename Params>
+    static vprj_t* create(Params const& params)
     {
-        vprj_t* result = projections::detail::create_new(pj_params);
+        parameters_type parameters = projections::detail::pj_init<calc_t>(params);
+
+        vprj_t* result = projections::detail::create_new(params, parameters);
 
         if (result == NULL)
         {
-            if (pj_params.name.empty())
+            if (parameters.id.is_unknown())
             {
                 BOOST_THROW_EXCEPTION(projection_not_named_exception());
             }
             else
             {
-                BOOST_THROW_EXCEPTION(projection_unknown_id_exception(pj_params.name));
+                // TODO: handle non-string projection id
+                BOOST_THROW_EXCEPTION(projection_unknown_id_exception());
             }
         }
 
@@ -368,25 +387,15 @@ class static_proj_wrapper_base
 
     typedef projections::parameters<calc_t> parameters_type;
 
-    typedef typename srs::par4::detail::pick_proj_tag
+    typedef typename srs::spar::detail::pick_proj_tag
         <
             StaticParameters
         >::type proj_tag;
-    typedef typename srs::par4::detail::pick_ellps
-        <
-            StaticParameters
-        >::type ellps_type;
-
+    
     typedef typename projections::detail::static_projection_type
         <
             proj_tag,
-            typename geometry::tag
-                <
-                    typename srs::par4::detail::ellps_traits
-                        <
-                            ellps_type
-                        >::model_type
-                >::type,
+            typename projections::detail::static_srs_tag<StaticParameters>::type,
             StaticParameters,
             calc_t,
             parameters_type
@@ -397,33 +406,20 @@ public:
     projection_type & mutable_proj() { return m_proj; }
 
 protected:
-    explicit static_proj_wrapper_base(StaticParameters const& s_params,
-                                      bool use_defaults = true)
-        : m_proj(get_parameters(s_params, "", use_defaults))
-    {}
-
-    static_proj_wrapper_base(StaticParameters const& s_params,
-                             srs::proj4 const& params,
-                             bool use_defaults = true)
-        : m_proj(get_parameters(s_params, params.str, use_defaults))
+    explicit static_proj_wrapper_base(StaticParameters const& s_params)
+        : m_proj(s_params,
+                 projections::detail::pj_init<calc_t>(s_params))
     {}
 
 private:
-    static parameters_type get_parameters(StaticParameters const& s_params,
-                                          std::string const& params_str,
-                                          bool use_defaults)
-    {
-        return projections::detail::pj_init_plus<calc_t>(s_params, params_str, use_defaults);
-    }
-
     projection_type m_proj;
 };
 
 template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
-class proj_wrapper<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
-    : public static_proj_wrapper_base<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+class proj_wrapper<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+    : public static_proj_wrapper_base<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
 {
-    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+    typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
         static_parameters_type;
     typedef static_proj_wrapper_base
         <
@@ -438,15 +434,6 @@ public:
 
     proj_wrapper(static_parameters_type const& s_params)
         : base_t(s_params)
-    {}
-
-    proj_wrapper(srs::proj4 const& params)
-        : base_t(static_parameters_type(), params)
-    {}
-
-    proj_wrapper(static_parameters_type const& s_params,
-                 srs::proj4 const& params)
-        : base_t(s_params, params)
     {}
 };
 
@@ -465,11 +452,6 @@ public:
     template <typename Params>
     explicit projection(Params const& params)
         : base_t(params)
-    {}
-
-    template <typename SParams, typename Params>
-    projection(SParams const& s_params, Params const& params)
-        : base_t(s_params, params)
     {}
 
     /// Forward projection, from Latitude-Longitude to Cartesian
@@ -518,69 +500,46 @@ namespace srs
     \brief Representation of projection
     \details Either dynamic or static projection representation
     \ingroup projection
-    \tparam Proj default_dynamic or static projection parameters
+    \tparam Parameters default dynamic tag or static projection parameters
     \tparam CT calculation type used internally
 */
 template
 <
-    typename Proj = srs::dynamic,
+    typename Parameters = srs::dynamic,
     typename CT = double
 >
 class projection
+    : public projections::projection<Parameters, CT>
 {
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_PROJECTION,
-                         (Proj));
-};
-
-template <typename CT>
-class projection<srs::dynamic, CT>
-    : public projections::projection<srs::dynamic, CT>
-{
-    typedef projections::projection<srs::dynamic, CT> base_t;
+    typedef projections::projection<Parameters, CT> base_t;
 
 public:
+    projection()
+    {}
+
+    projection(Parameters const& parameters)
+        : base_t(parameters)
+    {}
+
     /*!
     \ingroup projection
     \brief Initializes a projection as a string, using the format with + and =
     \details The projection can be initialized with a string (with the same format as the PROJ4 package) for
       convenient initialization from, for example, the command line
     \par Example
-        <tt>+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000</tt>
+        <tt>srs::proj4("+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000")</tt>
         for the Madagascar projection.
-    \note Parameters are described in the group
     */
-    template <typename Params>
-    projection(Params const& params)
-        : base_t(params)
+    template <typename DynamicParameters>
+    projection(DynamicParameters const& dynamic_parameters,
+               typename boost::enable_if_c
+                <
+                    projections::dynamic_parameters<DynamicParameters>::is_specialized
+                >::type * = 0)
+        : base_t(dynamic_parameters)
     {}
 };
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
-class projection<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
-    : public projections::projection<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
-{
-    typedef projections::projection<srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT> base_t;
-
-public:
-    projection()
-    {}
-
-    projection(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& params)
-        : base_t(params)
-    {}
-
-#ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
-    projection(srs::proj4 const& params)
-        : base_t(params)
-    {}
-
-    projection(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& s_params,
-               srs::proj4 const& params)
-        : base_t(s_params, params)
-    {}
-#endif
-};
 
 } // namespace srs
 

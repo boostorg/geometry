@@ -583,16 +583,70 @@ class transformation
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
 public:
+    // Both static and default constructed
     transformation()
     {}
 
+    // First dynamic, second static and default constructed
     template <typename Parameters1>
-    explicit transformation(Parameters1 const& parameters1)
+    explicit transformation(Parameters1 const& parameters1,
+                            typename boost::enable_if_c
+                                <
+                                    boost::is_same<Proj1, srs::dynamic>::value
+                                 && projections::dynamic_parameters<Parameters1>::is_specialized
+                                >::type * = 0)
         : m_proj1(parameters1)
     {}
 
+    // First static, second static and default constructed
+    explicit transformation(Proj1 const& parameters1)
+        : m_proj1(parameters1)
+    {}
+
+    // Both dynamic
     template <typename Parameters1, typename Parameters2>
-    transformation(Parameters1 const& parameters1, Parameters2 const& parameters2)
+    transformation(Parameters1 const& parameters1,
+                   Parameters2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj1, srs::dynamic>::value
+                         && boost::is_same<Proj2, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters1>::is_specialized
+                         && projections::dynamic_parameters<Parameters2>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // First dynamic, second static
+    template <typename Parameters1>
+    transformation(Parameters1 const& parameters1,
+                   Proj2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj1, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters1>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // First static, second dynamic
+    template <typename Parameters2>
+    transformation(Proj1 const& parameters1,
+                   Parameters2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj2, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters2>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // Both static
+    transformation(Proj1 const& parameters1,
+                   Proj2 const& parameters2)
         : m_proj1(parameters1)
         , m_proj2(parameters2)
     {}
