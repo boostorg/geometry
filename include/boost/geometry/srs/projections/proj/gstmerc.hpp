@@ -123,7 +123,7 @@ namespace projections
             inline void setup_gstmerc(Parameters& par, par_gstmerc<T>& proj_parm)
             {
                 proj_parm.lamc= par.lam0;
-                proj_parm.n1= sqrt(1.0+par.es*pow(cos(par.phi0),4.0)/(1.0-par.es));
+                proj_parm.n1= sqrt(T(1)+par.es*math::pow(cos(par.phi0),4)/(T(1)-par.es));
                 proj_parm.phic= asin(sin(par.phi0)/proj_parm.n1);
                 proj_parm.c= log(pj_tsfn(-1.0*proj_parm.phic,0.0,0.0))
                            - proj_parm.n1*log(pj_tsfn(-1.0*par.phi0,-1.0*sin(par.phi0),par.e));

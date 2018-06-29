@@ -94,7 +94,7 @@ struct ifstream_policy
 
     static inline void open(stream_type & is, std::string const& gridname)
     {
-        is.open(gridname, std::ios::binary);
+        is.open(gridname.c_str(), std::ios::binary);
     }
 };
 
@@ -139,10 +139,10 @@ public:
     }
 
 private:
-    template <typename Par, typename GridsStorage>
+    template <typename Par, typename GridsStor>
     friend inline void projections::detail::pj_gridlist_from_nadgrids(
                             Par const& defn,
-                            srs::projection_grids<GridsStorage> & grids);
+                            srs::projection_grids<GridsStor> & grids);
     template <bool Inverse, typename Par, typename Range, typename Grids>
     friend inline bool projections::detail::pj_apply_gridshift_2(
                             Par const& defn, Range & range, Grids const& grids);

@@ -60,7 +60,7 @@ struct gauss
 template <typename T>
 inline T srat(T const& esinp, T const& exp)
 {
-    return (pow((1.0 - esinp) / (1.0 + esinp), exp));
+    return (math::pow((T(1) - esinp) / (T(1) + esinp), exp));
 }
 
 template <typename T>
@@ -90,7 +90,7 @@ inline gauss<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
     chi = asin(sphi / en.C);
     en.ratexp = 0.5 * en.C * e;
     en.K = tan(0.5 * chi + fourth_pi)
-           / (pow(tan(0.5 * phi0 + fourth_pi), en.C) * srat(en.e * sphi, en.ratexp));
+           / (math::pow(tan(T(0.5) * phi0 + fourth_pi), en.C) * srat(en.e * sphi, en.ratexp));
 
     return en;
 }
@@ -101,7 +101,7 @@ inline void gauss_fwd(gauss<T> const& en, T& lam, T& phi)
     static const T fourth_pi = detail::fourth_pi<T>();
     static const T half_pi = detail::half_pi<T>();
 
-    phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + fourth_pi), en.C)
+    phi = T(2) * atan(en.K * math::pow(tan(T(0.5) * phi + fourth_pi), en.C)
           * srat(en.e * sin(phi), en.ratexp) ) - half_pi;
 
     lam *= en.C;
@@ -116,7 +116,7 @@ inline void gauss_inv(gauss<T> const& en, T& lam, T& phi)
     static const T del_tol = 1e-14;
 
     lam /= en.C;
-    const T num = pow(tan(0.5 * phi + fourth_pi) / en.K, 1.0 / en.C);
+    const T num = math::pow(tan(T(0.5) * phi + fourth_pi) / en.K, T(1) / en.C);
 
     int i = 0;
     for (i = max_iter; i; --i)

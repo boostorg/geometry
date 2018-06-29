@@ -335,7 +335,7 @@ namespace projections
                     xc = -3.0*fourth_pi + (half_pi)*cn;
                     tau = 2.0 - 4.0*fabsl(y)/pi;
                     lp_lam = xc + (x - xc)/tau;
-                    lp_phi = pj_sign(y)*asin(1.0 - pow(tau, 2)/3.0);
+                    lp_phi = pj_sign(y)*asin(1.0 - math::pow(tau, 2)/3.0);
                 } else {
                     lp_lam = -1.0*pi;
                     lp_phi = pj_sign(y)*half_pi;

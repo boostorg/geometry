@@ -16,6 +16,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 
 #include <cstddef>
+#include <cstring>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
