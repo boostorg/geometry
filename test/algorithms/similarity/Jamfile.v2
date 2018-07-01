@@ -1,0 +1,15 @@
+// Boost.Geometry
+
+// Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
+
+// Contributed and/or modified by Yaghyavardhan Singh Khangarot, as part of Google Summer of Code 2018 program.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-algorithms-length
+    :
+    [ run hausdorff_distance.cpp                     : : : : algorithms_hausdorff_distance ]
+    ;
+build-project area ;
