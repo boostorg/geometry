@@ -133,8 +133,8 @@ public:
         }
 
         // Make points close to the equator to lie on it.
-        lat1 = std::abs(lat1) > 90 ? math::NaN<CT>() : lat1;
-        lat2 = std::abs(lat2) > 90 ? math::NaN<CT>() : lat2;
+        lat1 = std::abs(lat1) > c90 ? math::NaN<CT>() : lat1;
+        lat2 = std::abs(lat2) > c90 ? math::NaN<CT>() : lat2;
 
         lat1 = math::round_angle(lat1);
         lat2 = math::round_angle(lat2);
@@ -217,8 +217,8 @@ public:
             sin_alpha1 = sin_lam12;
 
             // Heading north at the target.
-            cos_alpha2 = 1;
-            sin_alpha2 = 0;
+            cos_alpha2 = c1;
+            sin_alpha2 = c0;
 
             CT sin_sigma1 = sin_beta1;
             CT cos_sigma1 = cos_alpha1 * cos_beta1;
@@ -227,7 +227,7 @@ public:
             CT cos_sigma2 = cos_alpha2 * cos_beta2;
 
             CT sigma12 = std::atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                             cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+                                                 cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
             CT dummy;
             meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
@@ -257,8 +257,8 @@ public:
 
         CT omega12, sin_omega12, cos_omega12;
 
-        if (!meridian && sin_beta1 == 0 &&
-            (f <= 0 || lon12_error >= f * c180))
+        if (!meridian && sin_beta1 == c0 &&
+            (f <= c0 || lon12_error >= f * c180))
         {
             // Points lie on the equator.
             cos_alpha1 = cos_alpha2 = c0;
@@ -324,7 +324,6 @@ public:
                      ++iteration)
                 {
                     CT dv;
-
                     CT v = lambda12(sin_beta1, cos_beta1, dn1,
                                     sin_beta2, cos_beta2, dn2,
                                     sin_alpha1, cos_alpha1,
@@ -361,13 +360,13 @@ public:
                         CT sin_diff_alpha1 = sin(diff_alpha1);
                         CT cos_diff_alpha1 = cos(diff_alpha1);
 
-                        CT nsin_alpa1 = sin_alpha1 * cos_diff_alpha1 +
+                        CT nsin_alpha1 = sin_alpha1 * cos_diff_alpha1 +
                                         cos_alpha1 * sin_diff_alpha1;
 
-                        if (nsin_alpa1 > c0 && std::abs(diff_alpha1) < math::pi<CT>())
+                        if (nsin_alpha1 > c0 && std::abs(diff_alpha1) < math::pi<CT>())
                         {
                             cos_alpha1 = cos_alpha1 * cos_diff_alpha1 - sin_alpha1 * sin_diff_alpha1;
-                            sin_alpha1 = nsin_alpa1;
+                            sin_alpha1 = nsin_alpha1;
                             math::normalize_values<CT>(sin_alpha1, cos_alpha1);
 
                             // In some regimes we don't get quadratic convergence because
@@ -394,12 +393,6 @@ public:
                              std::abs(sin_alpha1 - sin_alpha1b) + (cos_alpha1 - cos_alpha1b) < tol_bisection);
 
                 }
-                // Store values in temporary vairables.
-                // bool enable_reduced_length = EnableReducedLength;
-                // bool enable_geodesic_scale = EnableGeodesicScale;
-
-                // EnableReducedLength = false;
-                // EnableGeodesicScale = false;
 
                 CT dummy;
                 // Ensure that the reduced length and geodesic scale are computed in
@@ -410,11 +403,49 @@ public:
                                                  m12x, dummy, result.geodesic_scale,
                                                  M21, coeffs_C1);
 
-                // Restore values to their previous state.
-                // EnableReducedLength = enable_reduced_length;
-                // EnableGeodesicScale = enable_geodesic_scale;
+                m12x *= b;
+                s12x *= b;
+                a12 = sigma12 / math::d2r<CT>();
             }
         }
+
+        if (swap_point < 0)
+        {
+            swap(sin_alpha1, sin_alpha2);
+            swap(cos_alpha1, cos_alpha2);
+            swap(result.geodesic_scale, M21);
+        }
+
+        sin_alpha1 *= swap_point * lon12_sign;
+        cos_alpha1 *= swap_point * lat_sign;
+
+        sin_alpha2 *= swap_point * lon12_sign;
+        cos_alpha2 *= swap_point * lat_sign;
+
+        if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
+        {
+            result.reduced_length = m12x;
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(CalcAzimuths))
+        {
+            if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
+            {
+                result.azimuth = atan2(sin_alpha1, cos_alpha1) * math::r2d<CT>();
+            }
+
+            if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+            {
+                result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2) * math::r2d<CT>();
+            }
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(EnableDistance))
+        {
+            result.distance = s12x;
+        }
+
+        return result;
     }
 
     static inline void meridian_length(CT epsilon, CT ep2, CT sigma12,
@@ -436,8 +467,7 @@ public:
         {
             // Find the coefficients for A1 by computing the
             // series expansion using Horner scehme.
-            expansion_A1
-                = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
+            expansion_A1 = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
 
             // Evaluate the coefficients for C1.
             series_expansion::evaluate_coeffs_C1<CT, SeriesOrder>(epsilon, coeffs_C1);
@@ -447,8 +477,7 @@ public:
             {
                 // Find the coefficients for A2 by computing the
                 // series expansion using Horner scehme.
-                expansion_A2
-                    = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
+                expansion_A2 = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
 
                 // Evaluate the coefficients for C2.
                 series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
@@ -466,7 +495,7 @@ public:
                   - series_expansion::sin_cos_series<CT, SeriesOrder>
                                       (sin_sigma1, cos_sigma1, coeffs_C1);
 
-            m12x = expansion_A1 * (sigma12 + B1);
+            s12x = expansion_A1 * (sigma12 + B1);
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
                 BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
@@ -587,7 +616,7 @@ public:
                  sin_sigma12 >= c6 * std::abs(n) * math::pi<CT>() *
                  math::sqr(cos_beta1))
         {
-            // Nothing to do (?).
+            // Nothing to do.
         }
         else
         {
@@ -751,6 +780,7 @@ public:
             // For y small, positive root is k = abs(y)/sqrt(1-x^2).
             k = c0;
         }
+
         return k;
     }
 
@@ -787,8 +817,7 @@ public:
         sin_sigma1 = sin_beta1;
         sin_omega1 = sin_alpha0 * sin_beta1;
 
-        cos_sigma1 = cos_omega1 =
-            cos_alpha1 * cos_beta1;
+        cos_sigma1 = cos_omega1 = cos_alpha1 * cos_beta1;
 
         math::normalize_values<CT>(sin_sigma1, cos_sigma1);
 
@@ -816,7 +845,7 @@ public:
 
         // sig12 = sig2 - sig1, limit to [0, pi].
         sigma12 = atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+                                     cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
         // omg12 = omg2 - omg1, limit to [0, pi].
         sin_omega12 = std::max(c0, cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
@@ -871,6 +900,7 @@ public:
                 diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
             }
         }
+
         return lam12;
     }
 
