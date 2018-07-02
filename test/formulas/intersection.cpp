@@ -1,8 +1,9 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -20,6 +21,8 @@
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
+
+#include <boost/geometry/strategies/geographic/parameters.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
 
@@ -68,8 +71,8 @@ void test_formulas(expected_results const& results, bool check_reference_only)
 
     if (results.gnomonic_thomas.lon != ND)
     {
-        bg::formula::gnomonic_intersection<double, bg::formula::thomas_inverse, bg::formula::thomas_direct>
-            ::apply(lona1r, lata1r, lona2r, lata2r, lonb1r, latb1r, lonb2r, latb2r, result.lon, result.lat, spheroid);
+        bg::formula::gnomonic_intersection<double, bg::strategy::thomas::inverse, bg::strategy::thomas::direct>
+                ::apply(lona1r, lata1r, lona2r, lata2r, lonb1r, latb1r, lonb2r, latb2r, result.lon, result.lat, spheroid);
         result.lon *= r2d;
         result.lat *= r2d;
         check_result(result, results.gnomonic_thomas, results.sjoberg_vincenty, 0.0000001, check_reference_only);

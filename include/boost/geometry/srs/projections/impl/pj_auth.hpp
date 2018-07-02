@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -48,14 +48,22 @@ namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
-static const int APA_SIZE = 3;
+template <typename T>
+struct apa
+{
+    static const std::size_t size = 3;
+
+    T const& operator[](size_t i) const { return data[i]; }
+    T & operator[](size_t i) { return data[i]; }
+
+private:
+    T data[3];
+};
 
 /* determine latitude from authalic latitude */
 template <typename T>
-inline bool pj_authset(T const& es, T* APA)
+inline detail::apa<T> pj_authset(T const& es)
 {
-    BOOST_GEOMETRY_ASSERT(0 != APA);
-
     static const T P00 = .33333333333333333333;
     static const T P01 = .17222222222222222222;
     static const T P02 = .10257936507936507936;
@@ -64,29 +72,28 @@ inline bool pj_authset(T const& es, T* APA)
     static const T P20 = .01641501294219154443;
 
     T t = 0;
+    detail::apa<T> apa;
 
-    // if (APA = (double *)pj_malloc(APA_SIZE * sizeof(double)))
     {
-        APA[0] = es * P00;
+        apa[0] = es * P00;
         t = es * es;
-        APA[0] += t * P01;
-        APA[1] = t * P10;
+        apa[0] += t * P01;
+        apa[1] = t * P10;
         t *= es;
-        APA[0] += t * P02;
-        APA[1] += t * P11;
-        APA[2] = t * P20;
+        apa[0] += t * P02;
+        apa[1] += t * P11;
+        apa[2] = t * P20;
     }
-    return true;
+
+    return apa;
 }
 
 template <typename T>
-inline T pj_authlat(T const& beta, const T* APA)
+inline T pj_authlat(T const& beta, detail::apa<T> const& apa)
 {
-    BOOST_GEOMETRY_ASSERT(0 != APA);
-
     T const t = beta + beta;
 
-    return(beta + APA[0] * sin(t) + APA[1] * sin(t + t) + APA[2] * sin(t + t + t));
+    return(beta + apa[0] * sin(t) + apa[1] * sin(t + t) + apa[2] * sin(t + t + t));
 }
 
 } // namespace detail

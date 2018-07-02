@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2017, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -425,7 +425,7 @@ struct ecef_segments
                 if (len1 <= len2)
                 {
                     calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b1v, b2v, dist_a1_a2, dist_a1_b1);
-                    calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
+                    calculate_collinear_data(a1, a2, b2, b1, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
                     dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
                     dist_b1_a1 = -dist_a1_b1;
                     dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
@@ -433,7 +433,7 @@ struct ecef_segments
                 else
                 {
                     calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a1v, a2v, dist_b1_b2, dist_b1_a1);
-                    calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
+                    calculate_collinear_data(b1, b2, a2, a1, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
                     dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
                     dist_a1_b1 = -dist_b1_a1;
                     dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
@@ -548,47 +548,47 @@ private:
                                                 Vec3d const& b1v,                   // in
                                                 Vec3d const& b2v,                   // in
                                                 CalcT const& dist_a1_a2,            // in
-                                                CalcT& dist_a1_i1,                  // out
+                                                CalcT& dist_a1_b1,                  // out
                                                 bool degen_neq_coords = false)      // in
     {
-        // calculate dist_a1_a2 and dist_a1_i1
-        calculate_dist(a1v, a2v, plane1, b1v, dist_a1_i1);
+        // calculate dist_a1_b1
+        calculate_dist(a1v, a2v, plane1, b1v, dist_a1_b1);
 
-        // if i1 is close to a1 and b1 or b2 is equal to a1
-        if (is_endpoint_equal(dist_a1_i1, a1, b1, b2))
+        // if b1 is equal to a1
+        if (is_endpoint_equal(dist_a1_b1, a1, b1))
         {
-            dist_a1_i1 = 0;
+            dist_a1_b1 = 0;
             return true;
         }
-        // or i1 is close to a2 and b1 or b2 is equal to a2
-        else if (is_endpoint_equal(dist_a1_a2 - dist_a1_i1, a2, b1, b2))
+        // or b1 is equal to a2
+        else if (is_endpoint_equal(dist_a1_a2 - dist_a1_b1, a2, b1))
         {
-            dist_a1_i1 = dist_a1_a2;
+            dist_a1_b1 = dist_a1_a2;
             return true;
         }
 
-        // check the other endpoint of a very short segment near the pole
+        // check the other endpoint of degenerated segment near a pole
         if (degen_neq_coords)
         {
             static CalcT const c0 = 0;
 
-            CalcT dist_a1_i2 = 0;
-            calculate_dist(a1v, a2v, plane1, b2v, dist_a1_i2);
+            CalcT dist_a1_b2 = 0;
+            calculate_dist(a1v, a2v, plane1, b2v, dist_a1_b2);
 
-            if (math::equals(dist_a1_i2, c0))
+            if (math::equals(dist_a1_b2, c0))
             {
-                dist_a1_i1 = 0;
+                dist_a1_b1 = 0;
                 return true;
             }
-            else if (math::equals(dist_a1_a2 - dist_a1_i2, c0))
+            else if (math::equals(dist_a1_a2 - dist_a1_b2, c0))
             {
-                dist_a1_i1 = dist_a1_a2;
+                dist_a1_b1 = dist_a1_a2;
                 return true;
             }
         }
 
         // or i1 is on b
-        return segment_ratio<CalcT>(dist_a1_i1, dist_a1_a2).on_segment();
+        return segment_ratio<CalcT>(dist_a1_b1, dist_a1_a2).on_segment();
     }
 
     template <typename Point1, typename Point2, typename Vec3d, typename Plane, typename CalcT>
@@ -819,11 +819,11 @@ private:
 
     template <typename CalcT, typename P1, typename P2>
     static inline bool is_endpoint_equal(CalcT const& dist,
-                                         P1 const& ai, P2 const& b1, P2 const& b2)
+                                         P1 const& ai, P2 const& b1)
     {
         static CalcT const c0 = 0;
         using geometry::detail::equals::equals_point_point;
-        return is_near(dist) && (equals_point_point(ai, b1) || equals_point_point(ai, b2) || math::equals(dist, c0));
+        return is_near(dist) && (math::equals(dist, c0) || equals_point_point(ai, b1));
     }
 
     template <typename CalcT>
