@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2017, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -270,10 +270,30 @@ void test_spherical()
         "SEGMENT(10 -1, 20 1)", "SEGMENT(17.5 -1, 17.5 1)", 'i', 1, "POINT(17.5 0.50051443471392)");
 }
 
+template <typename T>
+void test_spherical_radian()
+{
+    typedef bg::model::point<T, 2, bg::cs::spherical_equatorial<bg::radian> > point_t;
+    typedef bg::model::segment<point_t> segment_t;
+
+    bg::strategy::intersection::spherical_segments<> strategy;
+
+    // https://github.com/boostorg/geometry/issues/470
+    point_t p0(0.00001, 0.00001);
+    point_t p1(0.00001, 0.00005);
+    point_t p2(0.00005, 0.00005);
+    segment_t s1(p0, p1);
+    segment_t s2(p1, p2);    
+    test_strategy_one(s1, s1, strategy, 'e', 2, p0, p1);
+    test_strategy_one(s2, s2, strategy, 'e', 2, p1, p2);
+}
+
 int test_main(int, char* [])
 {
     //test_spherical<float>();
     test_spherical<double>();
+
+    test_spherical_radian<double>();
 
     return 0;
 }

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,6 +15,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/radius.hpp>
 
 //#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/cross_product.hpp>
@@ -23,6 +24,8 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
+
+#include <boost/geometry/formulas/result_direct.hpp>
 
 namespace boost { namespace geometry {
     
@@ -215,6 +218,62 @@ inline int azimuth_side_value(T const& azi_a1_p, T const& azi_a1_a2)
         || math::equals(a_diff, -pi) ? 0
         : a_diff > 0 ? -1 // right
         : 1; // left
+}
+
+template
+<
+    bool Coordinates,
+    bool ReverseAzimuth,
+    typename CT,
+    typename Sphere
+>
+inline result_direct<CT> spherical_direct(CT const& lon1,
+                                          CT const& lat1,
+                                          CT const& sig12,
+                                          CT const& alp1,
+                                          Sphere const& sphere)
+{
+    result_direct<CT> result;
+
+    CT const sin_alp1 = sin(alp1);
+    CT const sin_lat1 = sin(lat1);
+    CT const cos_alp1 = cos(alp1);
+    CT const cos_lat1 = cos(lat1);
+
+    CT const norm = math::sqrt(cos_alp1 * cos_alp1 + sin_alp1 * sin_alp1
+                                                   * sin_lat1 * sin_lat1);
+    CT const alp0 = atan2(sin_alp1 * cos_lat1, norm);
+    CT const sig1 = atan2(sin_lat1, cos_alp1 * cos_lat1);
+    CT const sig2 = sig1 + sig12 / get_radius<0>(sphere);
+
+    CT const cos_sig2 = cos(sig2);
+    CT const sin_alp0 = sin(alp0);
+    CT const cos_alp0 = cos(alp0);
+
+    if (Coordinates)
+    {
+        CT const sin_sig2 = sin(sig2);
+        CT const sin_sig1 = sin(sig1);
+        CT const cos_sig1 = cos(sig1);
+
+        CT const norm2 = math::sqrt(cos_alp0 * cos_alp0 * cos_sig2 * cos_sig2
+                                    + sin_alp0 * sin_alp0);
+        CT const lat2 = atan2(cos_alp0 * sin_sig2, norm2);
+
+        CT const omg1 = atan2(sin_alp0 * sin_sig1, cos_sig1);
+        CT const lon2 = atan2(sin_alp0 * sin_sig2, cos_sig2);
+
+        result.lon2 = lon1 + lon2 - omg1;
+        result.lat2 = lat2;
+    }
+
+    if (ReverseAzimuth)
+    {
+        CT const alp2 = atan2(sin_alp0, cos_alp0 * cos_sig2);
+        result.reverse_azimuth = alp2;
+    }
+
+    return result;
 }
 
 } // namespace formula

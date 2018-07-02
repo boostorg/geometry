@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -69,7 +69,7 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
     /* check for forward and latitude or longitude overange */
     if (t > EPS || geometry::math::abs(lp_lon) > 10.)
     {
-        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
     }
 
     if (geometry::math::abs(t) <= EPS)
