@@ -9,7 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <vector>
-
+#define BOOST_GEOMETRY_TEST_DEBUG
 
 #include "./test_hausdorff_distance.hpp"
 
@@ -17,18 +17,9 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/fusion/sequence/intrinsic/size.hpp>
-#include <boost/fusion/include/size.hpp>
 
-
-
-#include <boost/geometry/geometries/register/linestring.hpp>
-#include <boost/geometry/geometries/adapted/c_array.hpp>
-
-BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
-BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
-BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 using namespace boost::geometry;
+
 template <typename P>
 void test_all()
 {
@@ -40,9 +31,10 @@ void test_all()
     p1.set<0>(1.0);
     p1.set<1>(0.0);
 
-    #ifdef BOOST_GEOMETRY_DETAIL_DEBUG
-    typedef coordinate_system<point_2d>::type CordType;
+    #ifdef BOOST_GEOMETRY_TEST_DEBUG
+    typedef typename coordinate_system<P>::type CordType;
     std::cout << typeid(CordType).name() << std::endl;
+    /*
     std::cout << dsv(ls1) << std::endl;
     std::cout << dsv(ls2) << std::endl;
     std::cout << dsv(mpt1) << std::endl;
@@ -51,24 +43,34 @@ void test_all()
     std::cout << dsv(mls2) << std::endl;
     double l = boost::size(mls1);
 	std::cout << l << std::endl;
+    */
     #endif
     
     //test_hausdorff_distance(ls1,ls2,strategy::distance::pythagoras<>(),0);
-    test_geometry<P,mpoint_t>("POINT(0 0)","MULTIPOINT(0 0,3 4,4 3)", 0);
-    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(0 0,3 4,4 3)", 0);
-    test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(0 0,3 4,4 3)","MULTIPOINT(0 0,3 4,4 3)", 0);
-    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(0 0,3 4,4 3)","MULTILINESTRING((0 0,3 4,4 3),(0 0,3 4,4 3))", 0);
-    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((0 0,3 4,4 3),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(0 0,3 4,4 3))", 0);
+    test_geometry<P,mpoint_t>("POINT(3 0)","MULTIPOINT(0 0,3 4,4 3)", 3);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 3);
+    test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(3 0,2 1,3 2)","MULTIPOINT(0 0,3 4,4 3)", 0);
+    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(3 0,2 1,3 2)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", sqrt(10.0));
+    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))", 0);
 
 }
 
 int main()
 {
-	
-    typedef model::d2::point_xy<int> point_2d;
-    test_all<point_2d>();
-    test_all<model::d2::point_xy<float> >();
-    test_all<model::d2::point_xy<double> >();
+    //Cartesian Coordinate System
+    test_all<model::d2::point_xy<int,cs::cartesian> >();
+    test_all<model::d2::point_xy<float,cs::cartesian> >();
+    test_all<model::d2::point_xy<double,cs::cartesian> >();
+
+    //Geographic Coordinate System
+    test_all<model::d2::point_xy<int,cs::geographic<degree> > >();
+    test_all<model::d2::point_xy<float,cs::geographic<degree> > >();
+    test_all<model::d2::point_xy<double,cs::geographic<degree> > >();
+
+    //Spherical_Equatorial Coordinate System
+    test_all<model::d2::point_xy<int,cs::spherical_equatorial<degree> > >();
+    test_all<model::d2::point_xy<float,cs::spherical_equatorial<degree> > >();
+    test_all<model::d2::point_xy<double,cs::spherical_equatorial<degree> > >();
 
     return 0;
 }
