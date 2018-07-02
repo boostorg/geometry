@@ -37,7 +37,7 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get update
+    - sudo apt-get update || true
 
     # gcc, g++, gcov
     - sudo apt-get install gcc-4.9 g++-4.9 build-essential
