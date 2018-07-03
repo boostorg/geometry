@@ -11,4 +11,5 @@
 test-suite boost-geometry-algorithms-length
     :
     [ run hausdorff_distance.cpp                     : : : : algorithms_hausdorff_distance ]
+    [ run frechet_distance.cpp                     : : : : algorithms_frechet_distance ]
     ;
