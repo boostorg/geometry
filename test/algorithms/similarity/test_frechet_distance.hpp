@@ -75,7 +75,7 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
     bg::read_wkt(wkt2, geometry2);
     test_frechet_distance(geometry1,geometry2,expected_frechet_distance);
 #if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_frechet_distance(boost::variant<Geometry1,Geometry2>(geometry1,geometry2), expected_frechet_distance);
+    test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
 #endif
 }
 
@@ -130,7 +130,7 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy stra
     bg::read_wkt(wkt2, geometry2);
     test_frechet_distance(geometry1,geometry2,strategy,expected_frechet_distance);
 #if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_frechet_distance(boost::variant<Geometry1,Geometry2,Strategy>(geometry1,geometry2,strategy), expected_frechet_distance);
+    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2),strategy, expected_hausdorff_distance);
 #endif
 }
 
