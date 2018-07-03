@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_TEST_HAUSDORFF_DISTANCE_HPP
 #define BOOST_GEOMETRY_TEST_HAUSDORFF_DISTANCE_HPP
 
-#define BOOST_GEOMETRY_TEST_DEBUG
 
 //#include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -23,6 +22,8 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/variant/variant.hpp>
+#include <boost/mpl/if.hpp>
+
 
 namespace bg = boost::geometry;
 
@@ -75,7 +76,7 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
     bg::read_wkt(wkt2, geometry2);
     test_hausdorff_distance(geometry1,geometry2,expected_hausdorff_distance);
 #if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_hausdorff_distance(boost::variant<Geometry1,Geometry2>(geometry1,geometry2), expected_hausdorff_distance);
+    test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
 #endif
 }
 
@@ -128,9 +129,9 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy stra
     bg::read_wkt(wkt1, geometry1);
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
-    test_hausdorff_distance(geometry1,geometry2,expected_hausdorff_distance,strategy);
+    test_hausdorff_distance(geometry1,geometry2,strategy,expected_hausdorff_distance);
 #if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_hausdorff_distance(boost::variant<Geometry1,Geometry2,Strategy>(geometry1,geometry2,strategy), expected_hausdorff_distance);
+    test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2),strategy, expected_hausdorff_distance);
 #endif
 }
 
