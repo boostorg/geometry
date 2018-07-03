@@ -98,7 +98,7 @@ public:
         CT const tol_bisection = tol0 * tol2;
 
         CT const etol2 = c0_1 * tol2 /
-            sqrt(std::max(c0_001, std::abs(f)) * std::min(c1, c1 - f / c2) / c2);
+            sqrt(std::max(CT(0.001), std::abs(f)) * std::min(CT(1), CT(1) - f / CT(2)) / c2);
 
         CT tiny = std::sqrt(std::numeric_limits<CT>::min());
 
@@ -226,8 +226,8 @@ public:
             CT sin_sigma2 = sin_beta2;
             CT cos_sigma2 = cos_alpha2 * cos_beta2;
 
-            CT sigma12 = std::atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                                 cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+            CT sigma12 = std::atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                                    cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
             CT dummy;
             meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
@@ -670,8 +670,8 @@ public:
                 // Strip near cut.
                 if (f >= c0)
                 {
-                    sin_alpha1 = std::min(c1, -CT(x));
-                    cos_alpha1 = - std::sqrt(c1 - math::sqr(sin_alpha1));
+                    sin_alpha1 = std::min(CT(1), -CT(x));
+                    cos_alpha1 = - std::sqrt(CT(1) - math::sqr(sin_alpha1));
                 }
                 else
                 {
@@ -780,7 +780,6 @@ public:
             // For y small, positive root is k = abs(y)/sqrt(1-x^2).
             k = c0;
         }
-
         return k;
     }
 
@@ -844,11 +843,11 @@ public:
         math::normalize_values<CT>(sin_sigma2, cos_sigma2);
 
         // sig12 = sig2 - sig1, limit to [0, pi].
-        sigma12 = atan2(std::max(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                     cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+        sigma12 = atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                        cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
         // omg12 = omg2 - omg1, limit to [0, pi].
-        sin_omega12 = std::max(c0, cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
+        sin_omega12 = std::max(CT(0), cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
         cos_omega12 = cos_omega1 * cos_omega2 + sin_omega1 * sin_omega2;
 
         // eta = omg12 - lam120.
@@ -900,7 +899,6 @@ public:
                 diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
             }
         }
-
         return lam12;
     }
 

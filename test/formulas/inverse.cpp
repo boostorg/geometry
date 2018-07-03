@@ -18,6 +18,7 @@
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
+#include <boost/geometry/formulas/karney_inverse.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
 
@@ -53,10 +54,15 @@ void test_all(expected_results const& results)
     double lon2r = results.p2.lon * d2r;
     double lat2r = results.p2.lat * d2r;
 
+    double lon1d = results.p1.lon;
+    double lat1d = results.p1.lat;
+    double lon2d = results.p2.lon;
+    double lat2d = results.p2.lat;
+
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
 
-    bg::formula::result_inverse<double> result_v, result_t, result_a;
+    bg::formula::result_inverse<double> result_v, result_t, result_a, result_k;
 
     typedef bg::formula::vincenty_inverse<double, true, true, true, true, true> vi_t;
     result_v = vi_t::apply(lon1r, lat1r, lon2r, lat2r, spheroid);
@@ -75,6 +81,10 @@ void test_all(expected_results const& results)
     result_a.azimuth *= r2d;
     result_a.reverse_azimuth *= r2d;
     check_inverse("andoyer", results, result_a, results.andoyer, results.reference, 0.001);
+
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    result_k = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
+    check_inverse("karney", results, result_k, results.vincenty, results.reference, 0.0000001);
 }
 
 int test_main(int, char*[])
