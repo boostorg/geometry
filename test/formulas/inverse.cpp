@@ -4,6 +4,7 @@
 // Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -14,6 +15,7 @@
 
 #include "test_formula.hpp"
 #include "inverse_cases.hpp"
+#include "inverse_cases_antipodal.hpp"
 
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -22,8 +24,9 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
+template <typename Result>
 void check_inverse(std::string const& name,
-                   expected_results const& results,
+                   Result const& results,
                    bg::formula::result_inverse<double> const& result,
                    expected_result const& expected,
                    expected_result const& reference,
@@ -87,11 +90,33 @@ void test_all(expected_results const& results)
     check_inverse("karney", results, result_k, results.vincenty, results.reference, 0.0000001);
 }
 
+void test_karney_antipodal(expected_results_antipodal const& results)
+{
+    double lon1d = results.p1.lon;
+    double lat1d = results.p1.lat;
+    double lon2d = results.p2.lon;
+    double lat2d = results.p2.lat;
+
+    // WGS84
+    bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
+
+    bg::formula::result_inverse<double> result;
+
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    result = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
+    check_inverse("karney", results, result, results.karney, results.karney, 0.0000001);
+}
+
 int test_main(int, char*[])
 {
     for (size_t i = 0; i < expected_size; ++i)
     {
         test_all(expected[i]);
+    }
+
+    for (size_t i = 0; i < expected_size_antipodal; ++i)
+    {
+        test_karney_antipodal(expected_antipodal[i]);
     }
 
     return 0;
