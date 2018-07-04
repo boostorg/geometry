@@ -10,7 +10,7 @@
 
 #include <algorithm> 
 
-#ifdef BOOST_GEOMETRY_DEBUG_FRECHET_DISTANCE
+#ifdef BOOST_GEOMETRY_DEBUG_HAUSDORFF_DISTANCE
 #include <iostream>
 #endif
 
@@ -40,7 +40,7 @@ struct point_range
     template <typename Point, typename Range, typename Strategy>
     static inline typename distance_result
         <
-            typename point_type<Range>::type,
+            typename point_type<Point>::type,
             typename point_type<Range>::type,
             Strategy
         >::type apply(Point const& pnt, Range const& rng, Strategy const& strategy)
@@ -128,30 +128,28 @@ struct range_multi_range
                 typename point_type<Multi_range>::type,
                 Strategy
             >::type result_type;
-        typedef typename boost::range_size<Range>::type size_type1;
-        typedef typename boost::range_size<Multi_range>::type size_type2;
+        typedef typename boost::range_size<Multi_range>::type size_type;
         
         boost::geometry::detail::throw_on_empty_input(rng);
         boost::geometry::detail::throw_on_empty_input(mrng);
         
-        size_type1  a = boost::size(rng);
-        size_type2  b = boost::size(mrng);
+        size_type  b = boost::size(mrng);
         result_type haus_dis=0;
         //Computing the HausdorffDistance
-        for(size_type1 i=0;i<a;i++)
+        
+        result_type dis_max=0;
+        for(size_type j=0;j<b;j++)
         {
-                result_type dis_max=0;
-                for(size_type2 j=0;j<b;j++)
-                {
-                    result_type dis_min;
-                    dis_max =range_range::apply(rng,range::at(mrng,j),strategy);
-                }
-
-                if(dis_max > haus_dis)
-                {
-                    haus_dis=dis_max;
-                }    
+        	result_type dis_min;
+        	dis_max =range_range::apply(rng,range::at(mrng,j),strategy);
+		if(dis_max > haus_dis)
+        	{
+        	    	haus_dis=dis_max;
+        	}  
         }
+
+          
+        
         return haus_dis;
     }
 };
@@ -174,17 +172,14 @@ struct multi_range_multi_range
                 typename point_type<Multi_range2>::type,
                 Strategy
             >::type result_type;
-        typedef typename boost::range_size<Multi_Range1>::type size_type1;
-        typedef typename boost::range_size<Multi_range2>::type size_type2;
-        
+        typedef typename boost::range_size<Multi_Range1>::type size_type;        
         boost::geometry::detail::throw_on_empty_input(mrng1);
         boost::geometry::detail::throw_on_empty_input(mrng2);
-        size_type1  a = boost::size(mrng1);
-        size_type2  b = boost::size(mrng2);
+        size_type  a = boost::size(mrng1);
 
         result_type haus_dis=0;
         //Computing the HausdorffDistance
-        for(size_type1 i=0;i<a;i++)
+        for(size_type i=0;i<a;i++)
         {
             result_type dis_max=0;
             dis_max =range_multi_range::apply(range::at(mrng1,i),mrng2,strategy);
@@ -280,3 +275,4 @@ hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
 }
 
 }} // namespace boost::geometry
+
