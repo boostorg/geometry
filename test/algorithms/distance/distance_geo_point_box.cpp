@@ -56,21 +56,21 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, s
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::andoyer,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > andoyer_pb;
 
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::thomas,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > thomas_pb;
 
 typedef bg::strategy::distance::geographic_cross_track_point_box
         <
             bg::strategy::vincenty,
-            bg::srs::spheroid<double>,
+            stype,
             double
         > vincenty_pb;
 
@@ -436,11 +436,11 @@ void test_distance_multipoint_box(Strategy_pp const& strategy_pp,
 
     tester::apply("mpb1-1a", "MULTIPOINT(5 25,25 26)", box1,
                   pp_distance("POINT(5 25)", "POINT(10 20)", strategy_pp),
-                  strategy_pb);
+                  strategy_pb, true, false, false);
 
     tester::apply("mpb1-2e", "MULTIPOINT(110 10,110 9,110 0)", box1,
                   ps_distance("POINT(110 10)", "SEGMENT(20 10,20 20)", strategy_ps),
-                  strategy_pb);
+                  strategy_pb, true, false, false);
 }
 
 //===========================================================================

@@ -62,13 +62,13 @@ void test_distance_multipoint_point(Strategy const& strategy)
                   "MULTIPOINT(1 1,1 2,2 3)",
                   "POINT(0 0)",
                   pp_distance("POINT(0 0)","POINT(1 1)",strategy),
-                  strategy);
+                  strategy, true, false, false);
 
     tester::apply("mp-p-01",
                   "MULTIPOINT(0 0,0 2,2 0,2 2)",
                   "POINT(1.1 1.1)",
                   pp_distance("POINT(1.1 1.1)","POINT(2 2)",strategy),
-                  strategy);
+                  strategy, true, false, false);
 }
 
 //===========================================================================

@@ -110,6 +110,19 @@ struct distance
         >
 {};
 
+template <typename Linear, typename Box, typename Strategy>
+struct distance
+    <
+        Linear, Box, Strategy,
+        linear_tag, box_tag,
+        strategy_tag_distance_segment_box, false
+    >
+    : detail::distance::linear_to_areal
+        <
+            Linear, Box, Strategy
+        >
+{};
+
 
 template <typename Areal, typename Linear, typename Strategy>
 struct distance

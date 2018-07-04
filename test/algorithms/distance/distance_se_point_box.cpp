@@ -7,7 +7,7 @@
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
+#define BOOST_GEOMETRY_TEST_DEBUG
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -37,7 +37,7 @@ typedef bg::default_distance_result<point_type, point_type>::type return_type;
 typedef distance::cross_track_point_box<> point_box_strategy;
 typedef distance::cross_track_point_box
     <
-        void, distance::comparable::cross_track<>
+        void, distance::comparable::haversine<>
     > comparable_point_box_strategy;
 
 //===========================================================================
