@@ -176,7 +176,6 @@ sb_distance(std::string const& wkt1,
             std::string const& wkt2,
             Strategy const& strategy)
 {
-    Point p;
     typedef bg::model::segment<Point> segment_type;
     typedef bg::model::box<Point> box_type;
     segment_type s;
