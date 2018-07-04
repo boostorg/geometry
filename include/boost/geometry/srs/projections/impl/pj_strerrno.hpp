@@ -86,6 +86,17 @@ pj_err_list[] = {
     "point not within available datum shift grids",                    /* -48 */
     "invalid sweep axis, choose x or y",                               /* -49 */
     "malformed pipeline",                                              /* -50 */
+    "unit conversion factor must be > 0",                              /* -51 */
+    "invalid scale",                                                   /* -52 */
+    "non-convergent computation",                                      /* -53 */
+    "missing required arguments",                                      /* -54 */
+    "lat_0 = 0",                                                       /* -55 */
+    "ellipsoidal usage unsupported",                                   /* -56 */
+    "only one +init allowed for non-pipeline operations",              /* -57 */
+    "argument not numerical or out of range",                          /* -58 */
+
+    /* When adding error messages, remember to update ID defines in
+    projects.h, and transient_error array in pj_transform                  */
 };
 
 inline std::string pj_generic_strerrno(std::string const& msg, int err)

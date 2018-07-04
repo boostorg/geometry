@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
-#define BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_MERIDIAN_INVERSE_HPP
+#define BOOST_GEOMETRY_FORMULAS_MERIDIAN_INVERSE_HPP
 
 #include <boost/math/constants/constants.hpp>
 
@@ -30,7 +30,7 @@ namespace boost { namespace geometry { namespace formula
 */
 
 template <typename CT, unsigned int Order = 1>
-class elliptic_arc_length
+class meridian_inverse
 {
 
 public :
@@ -168,68 +168,9 @@ public :
                   + C6 * sin(6*lat) + C8 * sin(8*lat) + C10 * sin(10*lat));
 
     }
-
-    // Iterative method to elliptic arc length based on
-    // http://www.codeguru.com/cpp/cpp/algorithms/article.php/c5115/
-    // Geographic-Distance-and-Azimuth-Calculations.htm
-    // latitudes are assumed to be in radians and in [-pi/2,pi/2]
-    template <typename T1, typename T2, typename Spheroid>
-    CT interative_method(T1 lat1,
-                         T2 lat2,
-                         Spheroid const& spheroid)
-    {
-        CT result = 0;
-        CT const zero = 0;
-        CT const one = 1;
-        CT const c1 = 2;
-        CT const c2 = 0.5;
-        CT const c3 = 4000;
-
-        CT const a = get_radius<0>(spheroid);
-        CT const f = formula::flattening<CT>(spheroid);
-
-        // how many steps to use
-
-        CT lat1_deg = lat1 * geometry::math::r2d<CT>();
-        CT lat2_deg = lat2 * geometry::math::r2d<CT>();
-
-        int steps = c1 + (c2 + (lat2_deg > lat1_deg) ? CT(lat2_deg - lat1_deg)
-                                                     : CT(lat1_deg - lat2_deg));
-        steps = (steps > c3) ? c3 : steps;
-
-        //std::cout << "Steps=" << steps << std::endl;
-
-        CT snLat1 = sin(lat1);
-        CT snLat2 = sin(lat2);
-        CT twoF   = 2 * f - f * f;
-
-        // limits of integration
-        CT x1 = a * cos(lat1) /
-                sqrt(1 - twoF * snLat1 * snLat1);
-        CT x2 = a * cos(lat2) /
-                sqrt(1 - twoF * snLat2 * snLat2);
-
-        CT dx = (x2 - x1) / (steps - one);
-        CT x, y1, y2, dy, dydx;
-        CT adx = (dx < zero) ? -dx : dx;    // absolute value of dx
-
-        CT a2 = a * a;
-        CT oneF = 1 - f;
-
-        // now loop through each step adding up all the little
-        // hypotenuses
-        for (int i = 0; i < (steps - 1); i++){
-            x = x1 + dx * i;
-            dydx = ((a * oneF * sqrt((one - ((x+dx)*(x+dx))/a2))) -
-                    (a * oneF * sqrt((one - (x*x)/a2)))) / dx;
-            result += adx * sqrt(one + dydx*dydx);
-        }
-
-        return result;
-    }
 };
 
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_FORMULAS_ELLIPTIC_ARC_LENGTH_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_MERIDIAN_INVERSE_HPP

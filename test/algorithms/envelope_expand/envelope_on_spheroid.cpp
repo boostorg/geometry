@@ -442,7 +442,8 @@ struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReve
             <
                 MBR
             >::apply(case_id, geometry,
-                     lon_min1, lat_min1, lon_max1, lat_max1,
+                     lon_min1, lat_min1, 0,
+                     lon_max1, lat_max1, 0,
                      tolerance);
 
         std::string ccw_case_id = case_id + "-2ccw";
@@ -457,7 +458,8 @@ struct test_envelope_on_sphere_or_spheroid<Geometry, MBR, bg::ring_tag, TestReve
             <
                 MBR
             >::apply(ccw_case_id, ccw_ring,
-                     lon_min2, lat_min2, lon_max2, lat_max2,
+                     lon_min2, lat_min2, 0,
+                     lon_max2, lat_max2, 0,
                      tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -2433,10 +2435,46 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
                   -10, 25, 300, 260, 80, 700);
 }
 
+//Test spherical polygons and rings (geographic should be similar)
+BOOST_AUTO_TEST_CASE( envelope_polygon )
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::polygon<point_type> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    typedef bg::model::ring<point_type> R;
+    typedef test_envelope_on_sphere_or_spheroid<R, B> testerR;
+    R ring1;
+    bg::append(ring1, point_type(0.0, 0.0));
+    bg::append(ring1, point_type(0.0, 5.0));
+    bg::append(ring1, point_type(5.0, 5.0));
+    bg::append(ring1, point_type(5.0, 0.0));
+    bg::append(ring1, point_type(0.0, 0.0));
+
+    testerR::apply("r01",
+                  ring1,
+                  0, 0, 5, 5.0047392446083938);
+    tester::apply("p01",
+                  from_wkt<G>("POLYGON((0 0,1 0,1 1,0 1,0 0))"),
+                  0, 0, 1, 1.0000380706527705);
+    tester::apply("p02",
+                  from_wkt<G>("POLYGON((0 0,1 0,1 1,0 1,0 0),(0.5 0.5,0.7 0.5,0.7 0.7,0.5 0.5))"),
+                  0, 0, 1, 1.0000380706527705);
+    tester::apply("p03",
+                  from_wkt<G>("POLYGON((),(0.5 0.5,0.5 0.7,0.7 0.7,0.5 0.5))"),
+                  0.5, 0.5, 0.7, 0.70000106605644807);
+    tester::apply("p04",
+                  from_wkt<G>("POLYGON((),(0.5 0.5,0.5 0.7,0.7 0.7,0.5 0.5),\
+                              (0.7 0.5,0.9 0.5,0.9 0.7,0.7 0.5))"),
+                  0.5, 0.5, 0.9, 0.70000106605644807);
+}
 
 // unit test for rings de-activated for now (current implementation
 // for area on the spherical equatorial coordinate system is not complete)
 // TODO: re-activate once implementation is done
+// right now implementation does not distinguish between ccw and cw rings
 BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 {
     typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
