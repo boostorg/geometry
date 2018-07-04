@@ -66,38 +66,34 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_wag3_spheroid : public base_t_fi<base_wag3_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_wag3_spheroid
+                : public base_t_fi<base_wag3_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_wag3<CalculationType> m_proj_parm;
+                par_wag3<T> m_proj_parm;
 
                 inline base_wag3_spheroid(const Parameters& par)
-                    : base_t_fi<base_wag3_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_wag3_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+                    static const T two_thirds = detail::two_thirds<T>();
 
-                    xy_x = this->m_proj_parm.C_x * lp_lon * cos(TWOTHIRD * lp_lat);
+                    xy_x = this->m_proj_parm.C_x * lp_lon * cos(two_thirds * lp_lat);
                     xy_y = lp_lat;
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType TWOTHIRD = detail::TWOTHIRD<CalculationType>();
+                    static const T two_thirds = detail::two_thirds<T>();
 
                     lp_lat = xy_y;
-                    lp_lon = xy_x / (this->m_proj_parm.C_x * cos(TWOTHIRD * lp_lat));
+                    lp_lon = xy_x / (this->m_proj_parm.C_x * cos(two_thirds * lp_lat));
                 }
 
                 static inline std::string get_name()
@@ -113,7 +109,7 @@ namespace projections
             {
                 T ts;
 
-                ts = pj_param(par.params, "rlat_ts").f;
+                ts = pj_get_param_r(par.params, "lat_ts");
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
             }
@@ -135,10 +131,10 @@ namespace projections
         \par Example
         \image html ex_wag3.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wag3_spheroid : public detail::wag3::base_wag3_spheroid<T, Parameters>
     {
-        inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<CalculationType, Parameters>(par)
+        inline wag3_spheroid(const Parameters& par) : detail::wag3::base_wag3_spheroid<T, Parameters>(par)
         {
             detail::wag3::setup_wag3(this->m_par, this->m_proj_parm);
         }
@@ -152,20 +148,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag3, wag3_spheroid, wag3_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class wag3_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wag3_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag3_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wag3_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void wag3_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void wag3_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("wag3", new wag3_entry<CalculationType, Parameters>);
+            factory.add_to_factory("wag3", new wag3_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -73,22 +73,17 @@ namespace projections
             /* very loosely based upon DMA code by Bradford W. Drew */
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_latlong_other : public base_t_fi<base_latlong_other<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_latlong_other
+                : public base_t_fi<base_latlong_other<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_latlong_other(const Parameters& par)
-                    : base_t_fi<base_latlong_other<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_latlong_other<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     // TODO: in the original code a is not used
                     // different mechanism is probably used instead
@@ -98,7 +93,7 @@ namespace projections
 
                 // INVERSE(inverse)
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     // TODO: in the original code a is not used
                     // different mechanism is probably used instead
@@ -161,10 +156,10 @@ namespace projections
         \par Example
         \image html ex_lonlat.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lonlat_other : public detail::latlong::base_latlong_other<T, Parameters>
     {
-        inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
+        inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<T, Parameters>(par)
         {
             detail::latlong::setup_lonlat(this->m_par);
         }
@@ -179,10 +174,10 @@ namespace projections
         \par Example
         \image html ex_latlon.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct latlon_other : public detail::latlong::base_latlong_other<T, Parameters>
     {
-        inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
+        inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<T, Parameters>(par)
         {
             detail::latlong::setup_latlon(this->m_par);
         }
@@ -197,10 +192,10 @@ namespace projections
         \par Example
         \image html ex_latlong.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct latlong_other : public detail::latlong::base_latlong_other<T, Parameters>
     {
-        inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
+        inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<T, Parameters>(par)
         {
             detail::latlong::setup_latlong(this->m_par);
         }
@@ -215,10 +210,10 @@ namespace projections
         \par Example
         \image html ex_longlat.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct longlat_other : public detail::latlong::base_latlong_other<T, Parameters>
     {
-        inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
+        inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<T, Parameters>(par)
         {
             detail::latlong::setup_longlat(this->m_par);
         }
@@ -235,53 +230,53 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::longlat, longlat_other, longlat_other)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lonlat_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class lonlat_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<lonlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<lonlat_other<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class latlon_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class latlon_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<latlon_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<latlon_other<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class latlong_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class latlong_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<latlong_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<latlong_other<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class longlat_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class longlat_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<longlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<longlat_other<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void latlong_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void latlong_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("lonlat", new lonlat_entry<CalculationType, Parameters>);
-            factory.add_to_factory("latlon", new latlon_entry<CalculationType, Parameters>);
-            factory.add_to_factory("latlong", new latlong_entry<CalculationType, Parameters>);
-            factory.add_to_factory("longlat", new longlat_entry<CalculationType, Parameters>);
+            factory.add_to_factory("lonlat", new lonlat_entry<T, Parameters>);
+            factory.add_to_factory("latlon", new latlon_entry<T, Parameters>);
+            factory.add_to_factory("latlong", new latlong_entry<T, Parameters>);
+            factory.add_to_factory("longlat", new longlat_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -71,25 +71,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tpeqd_spheroid : public base_t_fi<base_tpeqd_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tpeqd_spheroid
+                : public base_t_fi<base_tpeqd_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_tpeqd<CalculationType> m_proj_parm;
+                par_tpeqd<T> m_proj_parm;
 
                 inline base_tpeqd_spheroid(const Parameters& par)
-                    : base_t_fi<base_tpeqd_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_tpeqd_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType t, z1, z2, dl1, dl2, sp, cp;
+                    T t, z1, z2, dl1, dl2, sp, cp;
 
                     sp = sin(lp_lat);
                     cp = cos(lp_lat);
@@ -107,9 +103,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType cz1, cz2, s, d, cp, sp;
+                    T cz1, cz2, s, d, cp, sp;
 
                     cz1 = cos(boost::math::hypot(xy_y, xy_x + this->m_proj_parm.hz0));
                     cz2 = cos(boost::math::hypot(xy_y, xy_x - this->m_proj_parm.hz0));
@@ -140,13 +136,13 @@ namespace projections
                 T lam_1, lam_2, phi_1, phi_2, A12, pp;
 
                 /* get control point locations */
-                phi_1 = pj_param(par.params, "rlat_1").f;
-                lam_1 = pj_param(par.params, "rlon_1").f;
-                phi_2 = pj_param(par.params, "rlat_2").f;
-                lam_2 = pj_param(par.params, "rlon_2").f;
+                phi_1 = pj_get_param_r(par.params, "lat_1");
+                lam_1 = pj_get_param_r(par.params, "lon_1");
+                phi_2 = pj_get_param_r(par.params, "lat_2");
+                lam_2 = pj_get_param_r(par.params, "lon_2");
 
                 if (phi_1 == phi_2 && lam_1 == lam_2)
-                    BOOST_THROW_EXCEPTION( projection_exception(-25) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
 
                 par.lam0 = adjlon(0.5 * (lam_1 + lam_2));
                 proj_parm.dlam2 = adjlon(lam_2 - lam_1);
@@ -195,10 +191,10 @@ namespace projections
         \par Example
         \image html ex_tpeqd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<T, Parameters>
     {
-        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>(par)
+        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<T, Parameters>(par)
         {
             detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
         }
@@ -212,20 +208,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tpeqd, tpeqd_spheroid, tpeqd_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class tpeqd_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class tpeqd_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<tpeqd_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<tpeqd_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void tpeqd_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void tpeqd_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("tpeqd", new tpeqd_entry<CalculationType, Parameters>);
+            factory.add_to_factory("tpeqd", new tpeqd_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -67,11 +67,11 @@ namespace projections
             static const double FYC = 1.3523;
             static const double C1 = 11.45915590261646417544;
             static const double RC1 = 0.08726646259971647884;
-            static const int NODES = 18;
-            static const double ONEEPS = 1.000001;
-            static const double EPS = 1e-8;
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static const int MAX_ITER = 100;
+            static const int n_nodes = 18;
+            static const double one_plus_eps = 1.000001;
+            static const double epsilon = 1e-8;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static const int max_iter = 100;
 
             /*
             note: following terms based upon 5 deg. intervals in degrees.
@@ -83,14 +83,14 @@ namespace projections
             */
 
             template <typename T>
-            struct COEFS {
+            struct coefs {
                 T c0, c1, c2, c3;
             };
 
             template <typename T>
-            inline const COEFS<T> * X()
+            inline const coefs<T> * coefs_x()
             {
-                static const COEFS<T> result[] = {
+                static const coefs<T> result[] = {
                     {1.0, 2.2199e-17, -7.15515e-05, 3.1103e-06},
                     {0.9986, -0.000482243, -2.4897e-05, -1.3309e-06},
                     {0.9954, -0.00083103, -4.48605e-05, -9.86701e-07},
@@ -115,9 +115,9 @@ namespace projections
             }
 
             template <typename T>
-            inline const COEFS<T> * Y()
+            inline const coefs<T> * coefs_y()
             {
-                static const COEFS<T> result[] = {
+                static const coefs<T> result[] = {
                     {-5.20417e-18, 0.0124, 1.21431e-18, -8.45284e-11},
                     {0.062, 0.0124, -1.26793e-09, 4.22642e-10},
                     {0.124, 0.0124, 5.07171e-09, -1.60604e-09},
@@ -142,92 +142,85 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_robin_spheroid : public base_t_fi<base_robin_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_robin_spheroid
+                : public base_t_fi<base_robin_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_robin_spheroid(const Parameters& par)
-                    : base_t_fi<base_robin_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_robin_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
-                template <typename T>
-                inline T V(COEFS<T> const& C, T const& z) const
-                { return (C.c0 + z * (C.c1 + z * (C.c2 + z * C.c3))); }
-                template <typename T>
-                inline T DV(COEFS<T> const& C, T const&  z) const
-                { return (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3)); }
+                inline T v(coefs<T> const& c, T const& z) const
+                { return (c.c0 + z * (c.c1 + z * (c.c2 + z * c.c3))); }
+                inline T dv(coefs<T> const& c, T const&  z) const
+                { return (c.c1 + z * (c.c2 + c.c2 + z * 3. * c.c3)); }
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     int i;
-                    CalculationType dphi;
+                    T dphi;
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i < 0) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    if (i >= NODES) i = NODES - 1;
-                    dphi = geometry::math::r2d<CalculationType>() * (dphi - RC1 * i);
-                    xy_x = V(X<CalculationType>()[i], dphi) * FXC * lp_lon;
-                    xy_y = V(Y<CalculationType>()[i], dphi) * FYC;
+                    if (i >= n_nodes) i = n_nodes - 1;
+                    dphi = geometry::math::r2d<T>() * (dphi - RC1 * i);
+                    xy_x = v(coefs_x<T>()[i], dphi) * FXC * lp_lon;
+                    xy_y = v(coefs_y<T>()[i], dphi) * FYC;
                     if (lp_lat < 0.) xy_y = -xy_y;
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    const COEFS<CalculationType> * X = robin::X<CalculationType>();
-                    const COEFS<CalculationType> * Y = robin::Y<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    const coefs<T> * coefs_x = robin::coefs_x<T>();
+                    const coefs<T> * coefs_y = robin::coefs_y<T>();
 
                     int i;
-                    CalculationType t, t1;
-                    COEFS<CalculationType> T;
+                    T t, t1;
+                    coefs<T> coefs_t;
                     int iters;
 
                     lp_lon = xy_x / FXC;
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */
-                        if (lp_lat > ONEEPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (lp_lat > one_plus_eps) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else {
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
-                            lp_lon /= X[NODES].c0;
+                            lp_lat = xy_y < 0. ? -half_pi : half_pi;
+                            lp_lon /= coefs_x[n_nodes].c0;
                         }
                     } else { /* general problem */
                         /* in Y space, reduce to table interval */
-                        i = int_floor(lp_lat * NODES);
-                        if( i < 0 || i >= NODES ) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        i = int_floor(lp_lat * n_nodes);
+                        if( i < 0 || i >= n_nodes ) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         for (;;) {
-                            if (Y[i].c0 > lp_lat) --i;
-                            else if (Y[i+1].c0 <= lp_lat) ++i;
+                            if (coefs_y[i].c0 > lp_lat) --i;
+                            else if (coefs_y[i+1].c0 <= lp_lat) ++i;
                             else break;
                         }
-                        T = Y[i];
+                        coefs_t = coefs_y[i];
                         /* first guess, linear interp */
-                        t = 5. * (lp_lat - T.c0)/(Y[i+1].c0 - T.c0);
+                        t = 5. * (lp_lat - coefs_t.c0)/(coefs_y[i+1].c0 - coefs_t.c0);
                         /* make into root */
-                        T.c0 = (CalculationType)(T.c0 - lp_lat);
-                        for (iters = MAX_ITER; iters ; --iters) { /* Newton-Raphson */
-                            t -= t1 = V(T,t) / DV(T,t);
-                            if (fabs(t1) < EPS)
+                        coefs_t.c0 = (T)(coefs_t.c0 - lp_lat);
+                        for (iters = max_iter; iters ; --iters) { /* Newton-Raphson */
+                            t -= t1 = v(coefs_t,t) / dv(coefs_t,t);
+                            if (fabs(t1) < epsilon)
                                 break;
                         }
                         if( iters == 0 )
-                            BOOST_THROW_EXCEPTION( projection_exception(-53) );
-                        lp_lat = (5 * i + t) * geometry::math::d2r<CalculationType>();
+                            BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
+                        lp_lat = (5 * i + t) * geometry::math::d2r<T>();
                         if (xy_y < 0.) lp_lat = -lp_lat;
-                        lp_lon /= V(X[i], t);
+                        lp_lon /= v(coefs_x[i], t);
                     }
                 }
 
@@ -260,10 +253,10 @@ namespace projections
         \par Example
         \image html ex_robin.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct robin_spheroid : public detail::robin::base_robin_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct robin_spheroid : public detail::robin::base_robin_spheroid<T, Parameters>
     {
-        inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<CalculationType, Parameters>(par)
+        inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<T, Parameters>(par)
         {
             detail::robin::setup_robin(this->m_par);
         }
@@ -277,20 +270,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::robin, robin_spheroid, robin_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class robin_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class robin_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<robin_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<robin_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void robin_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void robin_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("robin", new robin_entry<CalculationType, Parameters>);
+            factory.add_to_factory("robin", new robin_entry<T, Parameters>);
         }
 
     } // namespace detail

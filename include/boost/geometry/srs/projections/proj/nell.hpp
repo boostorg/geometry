@@ -61,37 +61,32 @@ namespace projections
     namespace detail { namespace nell
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nell_spheroid : public base_t_fi<base_nell_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nell_spheroid
+                : public base_t_fi<base_nell_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_nell_spheroid(const Parameters& par)
-                    : base_t_fi<base_nell_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_nell_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType k, V;
+                    T k, V;
                     int i;
 
                     k = 2. * sin(lp_lat);
                     V = lp_lat * lp_lat;
                     lp_lat *= 1.00371 + V * (-0.0935382 + V * -0.011412);
-                    for (i = MAX_ITER; i ; --i) {
+                    for (i = max_iter; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /
                             (1. + cos(lp_lat));
-                        if (fabs(V) < LOOP_TOL)
+                        if (fabs(V) < loop_tol)
                             break;
                     }
                     xy_x = 0.5 * lp_lon * (1. + cos(lp_lat));
@@ -100,7 +95,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lon = 2. * xy_x / (1. + cos(xy_y));
                     lp_lat = aasin(0.5 * (xy_y + sin(xy_y)));
@@ -135,10 +130,10 @@ namespace projections
         \par Example
         \image html ex_nell.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nell_spheroid : public detail::nell::base_nell_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nell_spheroid : public detail::nell::base_nell_spheroid<T, Parameters>
     {
-        inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<CalculationType, Parameters>(par)
+        inline nell_spheroid(const Parameters& par) : detail::nell::base_nell_spheroid<T, Parameters>(par)
         {
             detail::nell::setup_nell(this->m_par);
         }
@@ -152,20 +147,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nell, nell_spheroid, nell_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nell_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class nell_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<nell_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<nell_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void nell_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void nell_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("nell", new nell_entry<CalculationType, Parameters>);
+            factory.add_to_factory("nell", new nell_entry<T, Parameters>);
         }
 
     } // namespace detail

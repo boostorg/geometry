@@ -65,12 +65,12 @@ namespace projections
     namespace detail { namespace nsper
     {
 
-            static const double EPS10 = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon10 = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -88,70 +88,66 @@ namespace projections
                 T   sg;
                 T   sw;
                 T   cw;
-                enum Mode mode;
+                mode_type mode;
                 int tilt;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nsper_spheroid : public base_t_fi<base_nsper_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nsper_spheroid
+                : public base_t_fi<base_nsper_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_nsper<CalculationType> m_proj_parm;
+                par_nsper<T> m_proj_parm;
 
                 inline base_nsper_spheroid(const Parameters& par)
-                    : base_t_fi<base_nsper_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_nsper_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType  coslam, cosphi, sinphi;
+                    T  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         xy_y = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosphi * coslam;
                         break;
-                    case EQUIT:
+                    case equit:
                         xy_y = cosphi * coslam;
                         break;
-                    case S_POLE:
+                    case s_pole:
                         xy_y = - sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = sinphi;
                         break;
                     }
                     if (xy_y < this->m_proj_parm.rp) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     xy_y = this->m_proj_parm.pn1 / (this->m_proj_parm.p - xy_y);
                     xy_x = xy_y * cosphi * sin(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         xy_y *= (this->m_proj_parm.cosph0 * sinphi -
                            this->m_proj_parm.sinph0 * cosphi * coslam);
                         break;
-                    case EQUIT:
+                    case equit:
                         xy_y *= sinphi;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = - coslam;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         xy_y *= cosphi * coslam;
                         break;
                     }
                     if (this->m_proj_parm.tilt) {
-                        CalculationType yt, ba;
+                        T yt, ba;
 
                         yt = xy_y * this->m_proj_parm.cg + xy_x * this->m_proj_parm.sg;
                         ba = 1. / (yt * this->m_proj_parm.sw * this->m_proj_parm.h + this->m_proj_parm.cw);
@@ -162,12 +158,12 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType  rh, cosz, sinz;
+                    T  rh, cosz, sinz;
 
                     if (this->m_proj_parm.tilt) {
-                        CalculationType bm, bq, yt;
+                        T bm, bq, yt;
 
                         yt = 1./(this->m_proj_parm.pn1 - xy_y * this->m_proj_parm.sw);
                         bm = this->m_proj_parm.pn1 * xy_x * yt;
@@ -177,30 +173,30 @@ namespace projections
                     }
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((sinz = 1. - rh * rh * this->m_proj_parm.pfact) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     sinz = (this->m_proj_parm.p - sqrt(sinz)) / (this->m_proj_parm.pn1 / rh + rh / this->m_proj_parm.pn1);
                     cosz = sqrt(1. - sinz * sinz);
-                    if (fabs(rh) <= EPS10) {
+                    if (fabs(rh) <= epsilon10) {
                         lp_lon = 0.;
                         lp_lat = this->m_par.phi0;
                     } else {
                         switch (this->m_proj_parm.mode) {
-                        case OBLIQ:
+                        case obliq:
                             lp_lat = asin(cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
                             xy_x *= sinz * this->m_proj_parm.cosph0;
                             break;
-                        case EQUIT:
+                        case equit:
                             lp_lat = asin(xy_y * sinz / rh);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
-                        case N_POLE:
+                        case n_pole:
                             lp_lat = asin(cosz);
                             xy_y = -xy_y;
                             break;
-                        case S_POLE:
+                        case s_pole:
                             lp_lat = - asin(cosz);
                             break;
                         }
@@ -218,15 +214,15 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup(Parameters& par, par_nsper<T>& proj_parm) 
             {
-                if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-30) );
+                if ((proj_parm.height = pj_get_param_f(par.params, "h")) <= 0.)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_h_less_than_zero) );
 
-                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < EPS10)
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                else if (fabs(par.phi0) < EPS10)
-                    proj_parm.mode = EQUIT;
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<T>()) < epsilon10)
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
+                else if (fabs(par.phi0) < epsilon10)
+                    proj_parm.mode = equit;
                 else {
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
@@ -254,8 +250,8 @@ namespace projections
             {
                 T omega, gamma;
 
-                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<T>();
-                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<T>();
+                omega = pj_get_param_r(par.params, "tilt");
+                gamma = pj_get_param_r(par.params, "azi");
                 proj_parm.tilt = 1;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);
@@ -280,10 +276,10 @@ namespace projections
         \par Example
         \image html ex_nsper.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nsper_spheroid : public detail::nsper::base_nsper_spheroid<T, Parameters>
     {
-        inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)
+        inline nsper_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<T, Parameters>(par)
         {
             detail::nsper::setup_nsper(this->m_par, this->m_proj_parm);
         }
@@ -305,10 +301,10 @@ namespace projections
         \par Example
         \image html ex_tpers.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tpers_spheroid : public detail::nsper::base_nsper_spheroid<T, Parameters>
     {
-        inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<CalculationType, Parameters>(par)
+        inline tpers_spheroid(const Parameters& par) : detail::nsper::base_nsper_spheroid<T, Parameters>(par)
         {
             detail::nsper::setup_tpers(this->m_par, this->m_proj_parm);
         }
@@ -323,31 +319,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tpers, tpers_spheroid, tpers_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nsper_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class nsper_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<nsper_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<nsper_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class tpers_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class tpers_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<tpers_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<tpers_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void nsper_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void nsper_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("nsper", new nsper_entry<CalculationType, Parameters>);
-            factory.add_to_factory("tpers", new tpers_entry<CalculationType, Parameters>);
+            factory.add_to_factory("nsper", new nsper_entry<T, Parameters>);
+            factory.add_to_factory("tpers", new tpers_entry<T, Parameters>);
         }
 
     } // namespace detail

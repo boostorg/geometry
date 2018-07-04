@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,6 +15,7 @@
 
 
 #include <boost/geometry/core/exception.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 
 #include <boost/throw_exception.hpp>
@@ -60,7 +61,7 @@ struct projection_not_named_exception
     : projection_exception
 {
     projection_not_named_exception()
-        : projection_exception(-4)
+        : projection_exception(projections::detail::error_proj_not_named)
     {}
 };
 
@@ -68,21 +69,27 @@ struct projection_unknown_id_exception
     : projection_exception
 {
     projection_unknown_id_exception(std::string const& proj_name)
-        : projection_exception(-5, msg(proj_name))
+        : projection_exception(projections::detail::error_unknown_projection_id,
+                               msg(proj_name))
     {}
 
 private:
     static std::string msg(std::string const& proj_name)
     {
-        return projections::detail::pj_strerrno(-5) + " (" + proj_name + ")";
+        using namespace projections::detail;
+        return pj_strerrno(error_unknown_projection_id) + " (" + proj_name + ")";
     }
 };
 
 struct projection_not_invertible_exception
     : projection_exception
 {
+    // NOTE: There is no error code in proj4 which could be used here
+    // Proj4 sets points as invalid (HUGE_VAL) and last errno to EINVAL
+    // in pj_inv() if inverse projection is not available.
     projection_not_invertible_exception(std::string const& proj_name)
-        : projection_exception(-17, msg(proj_name))
+        : projection_exception(projections::detail::error_non_conv_inv_meri_dist,
+                               msg(proj_name))
     {}
 
 private:

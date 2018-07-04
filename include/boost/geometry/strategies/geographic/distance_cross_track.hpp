@@ -117,13 +117,14 @@ public :
     template <typename CT>
     inline CT vertical_or_meridian(CT lat1, CT lat2) const
     {
-        typedef typename formula::elliptic_arc_length
-                <
-                CT, strategy::default_order<FormulaPolicy>::value
-                > elliptic_arc_length;
+        typedef typename formula::meridian_inverse
+        <
+            CT,
+            strategy::default_order<FormulaPolicy>::value
+        > meridian_inverse;
 
-        return elliptic_arc_length::meridian_not_crossing_pole_dist(lat1, lat2,
-                                                                    m_spheroid);
+        return meridian_inverse::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                 m_spheroid);
     }
 
 private :
@@ -254,13 +255,15 @@ private :
         //but pass by the pole
         CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
-        typedef typename formula::elliptic_arc_length<CT> elliptic_arc_length;
+        typedef typename formula::meridian_inverse<CT>
+                                            meridian_inverse;
 
         bool meridian_not_crossing_pole =
-              elliptic_arc_length::meridian_not_crossing_pole(lat1, lat2, diff);
+              meridian_inverse::meridian_not_crossing_pole
+                                                            (lat1, lat2, diff);
 
         bool meridian_crossing_pole =
-              elliptic_arc_length::meridian_crossing_pole(diff);
+              meridian_inverse::meridian_crossing_pole(diff);
 
         if (math::equals(lat1, c0) && math::equals(lat2, c0) && !meridian_crossing_pole)
         {

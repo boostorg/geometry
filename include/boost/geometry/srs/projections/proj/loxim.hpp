@@ -61,7 +61,7 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace loxim
     {
-            static const double EPS = 1e-8;
+            static const double epsilon = 1e-8;
 
             template <typename T>
             struct par_loxim
@@ -72,33 +72,29 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_loxim_spheroid : public base_t_fi<base_loxim_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_loxim_spheroid
+                : public base_t_fi<base_loxim_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_loxim<CalculationType> m_proj_parm;
+                par_loxim<T> m_proj_parm;
 
                 inline base_loxim_spheroid(const Parameters& par)
-                    : base_t_fi<base_loxim_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_loxim_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     xy_y = lp_lat - this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS)
+                    if (fabs(xy_y) < epsilon)
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
-                        xy_x = FORTPI + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - HALFPI) < EPS)
+                        xy_x = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(xy_x) < epsilon || fabs(fabs(xy_x) - half_pi) < epsilon)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -107,17 +103,17 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     lp_lat = xy_y + this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS) {
+                    if (fabs(xy_y) < epsilon) {
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     } else {
-                        lp_lon = FORTPI + 0.5 * lp_lat;
-                        if (fabs(lp_lon) < EPS || fabs(fabs(lp_lon) - HALFPI) < EPS)
+                        lp_lon = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(lp_lon) < epsilon || fabs(fabs(lp_lon) - half_pi) < epsilon)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
@@ -135,14 +131,14 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
-                if (proj_parm.cosphi1 < EPS)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                if (proj_parm.cosphi1 < epsilon)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
-                proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);
+                proj_parm.tanphi1 = tan(fourth_pi + 0.5 * proj_parm.phi1);
 
                 par.es = 0.;
             }
@@ -164,10 +160,10 @@ namespace projections
         \par Example
         \image html ex_loxim.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<T, Parameters>
     {
-        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<CalculationType, Parameters>(par)
+        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<T, Parameters>(par)
         {
             detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
         }
@@ -181,20 +177,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::loxim, loxim_spheroid, loxim_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class loxim_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class loxim_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<loxim_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<loxim_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void loxim_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void loxim_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("loxim", new loxim_entry<CalculationType, Parameters>);
+            factory.add_to_factory("loxim", new loxim_entry<T, Parameters>);
         }
 
     } // namespace detail

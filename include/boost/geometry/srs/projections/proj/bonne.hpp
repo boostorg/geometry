@@ -64,7 +64,7 @@ namespace projections
     namespace detail { namespace bonne
     {
 
-            static const double EPS10 = 1e-10;
+            static const double epsilon10 = 1e-10;
 
             template <typename T>
             struct par_bonne
@@ -77,25 +77,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_bonne_ellipsoid : public base_t_fi<base_bonne_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_bonne_ellipsoid
+                : public base_t_fi<base_bonne_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_bonne<CalculationType> m_proj_parm;
+                par_bonne<T> m_proj_parm;
 
                 inline base_bonne_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_bonne_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_bonne_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType rh, E, c;
+                    T rh, E, c;
 
                     rh = this->m_proj_parm.am1 + this->m_proj_parm.m1 - pj_mlfn(lp_lat, E = sin(lp_lat), c = cos(lp_lat), this->m_proj_parm.en);
                     E = c * lp_lon / (rh * sqrt(1. - this->m_par.es * E * E));
@@ -105,22 +101,22 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType s, rh;
+                    T s, rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, this->m_par.es, this->m_proj_parm.en);
-                    if ((s = fabs(lp_lat)) < HALFPI) {
+                    if ((s = fabs(lp_lat)) < half_pi) {
                         s = sin(lp_lat);
                         lp_lon = rh * atan2(xy_x, xy_y) *
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if (fabs(s - HALFPI) <= EPS10)
+                    } else if (fabs(s - half_pi) <= epsilon10)
                         lp_lon = 0.;
                     else
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
 
                 static inline std::string get_name()
@@ -131,28 +127,24 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_bonne_spheroid : public base_t_fi<base_bonne_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_bonne_spheroid
+                : public base_t_fi<base_bonne_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_bonne<CalculationType> m_proj_parm;
+                par_bonne<T> m_proj_parm;
 
                 inline base_bonne_spheroid(const Parameters& par)
-                    : base_t_fi<base_bonne_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_bonne_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType E, rh;
+                    T E, rh;
 
                     rh = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - lp_lat;
-                    if (fabs(rh) > EPS10) {
+                    if (fabs(rh) > epsilon10) {
                         xy_x = rh * sin(E = lp_lon * cos(lp_lat) / rh);
                         xy_y = this->m_proj_parm.cphi1 - rh * cos(E);
                     } else
@@ -161,18 +153,18 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rh;
+                    T rh;
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
-                    if (fabs(lp_lat) > HALFPI) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    if (fabs(lp_lat) > half_pi) {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
+                    if (fabs(fabs(lp_lat) - half_pi) <= epsilon10)
                         lp_lon = 0.;
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
@@ -189,13 +181,13 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_bonne(Parameters& par, par_bonne<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T c;
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                if (fabs(proj_parm.phi1) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-23) );
+                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
+                if (fabs(proj_parm.phi1) < epsilon10)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat1_is_zero) );
 
                 if (par.es != 0.0) {
                     proj_parm.en = pj_enfn<T>(par.es);
@@ -203,7 +195,7 @@ namespace projections
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
                 } else {
-                    if (fabs(proj_parm.phi1) + EPS10 >= HALFPI)
+                    if (fabs(proj_parm.phi1) + epsilon10 >= half_pi)
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);
@@ -228,10 +220,10 @@ namespace projections
         \par Example
         \image html ex_bonne.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct bonne_ellipsoid : public detail::bonne::base_bonne_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct bonne_ellipsoid : public detail::bonne::base_bonne_ellipsoid<T, Parameters>
     {
-        inline bonne_ellipsoid(const Parameters& par) : detail::bonne::base_bonne_ellipsoid<CalculationType, Parameters>(par)
+        inline bonne_ellipsoid(const Parameters& par) : detail::bonne::base_bonne_ellipsoid<T, Parameters>(par)
         {
             detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
         }
@@ -252,10 +244,10 @@ namespace projections
         \par Example
         \image html ex_bonne.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct bonne_spheroid : public detail::bonne::base_bonne_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct bonne_spheroid : public detail::bonne::base_bonne_spheroid<T, Parameters>
     {
-        inline bonne_spheroid(const Parameters& par) : detail::bonne::base_bonne_spheroid<CalculationType, Parameters>(par)
+        inline bonne_spheroid(const Parameters& par) : detail::bonne::base_bonne_spheroid<T, Parameters>(par)
         {
             detail::bonne::setup_bonne(this->m_par, this->m_proj_parm);
         }
@@ -269,23 +261,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::bonne, bonne_spheroid, bonne_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class bonne_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class bonne_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<bonne_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<bonne_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<bonne_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<bonne_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void bonne_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void bonne_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("bonne", new bonne_entry<CalculationType, Parameters>);
+            factory.add_to_factory("bonne", new bonne_entry<T, Parameters>);
         }
 
     } // namespace detail

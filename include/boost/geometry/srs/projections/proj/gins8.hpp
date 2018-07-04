@@ -68,26 +68,21 @@ namespace projections
             inline T C12() { return 0.083333333333333333333333333333333333; }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_gins8_spheroid : public base_t_f<base_gins8_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_gins8_spheroid
+                : public base_t_f<base_gins8_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_gins8_spheroid(const Parameters& par)
-                    : base_t_f<base_gins8_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_gins8_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType C12 = gins8::C12<CalculationType>();
+                    static const T C12 = gins8::C12<T>();
 
-                    CalculationType t = lp_lat * lp_lat;
+                    T t = lp_lat * lp_lat;
 
                     xy_y = lp_lat * (1. + t * C12);
                     xy_x = lp_lon * (1. - Cp * t);
@@ -125,10 +120,10 @@ namespace projections
         \par Example
         \image html ex_gins8.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gins8_spheroid : public detail::gins8::base_gins8_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gins8_spheroid : public detail::gins8::base_gins8_spheroid<T, Parameters>
     {
-        inline gins8_spheroid(const Parameters& par) : detail::gins8::base_gins8_spheroid<CalculationType, Parameters>(par)
+        inline gins8_spheroid(const Parameters& par) : detail::gins8::base_gins8_spheroid<T, Parameters>(par)
         {
             detail::gins8::setup_gins8(this->m_par);
         }
@@ -142,20 +137,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gins8, gins8_spheroid, gins8_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class gins8_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gins8_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<gins8_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<gins8_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void gins8_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void gins8_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("gins8", new gins8_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gins8", new gins8_entry<T, Parameters>);
         }
 
     } // namespace detail

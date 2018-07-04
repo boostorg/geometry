@@ -41,18 +41,12 @@
 
 #include <string>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/config.hpp>
 #include <boost/static_assert.hpp>
 
-#if !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-#include <boost/lexical_cast.hpp>
-#endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-
-#include <boost/algorithm/string.hpp>
-
-#include <boost/config.hpp>
-
 #include <boost/geometry/core/cs.hpp>
-
+#include <boost/geometry/srs/projections/str_cast.hpp>
 #include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -145,11 +139,7 @@ struct dms_parser
     template <size_t I>
     static inline void assign_dms(dms_value& dms, std::string& value, bool& has_value)
     {
-#if !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-        dms.dms[I] = boost::lexical_cast<T>(value.c_str());
-#else // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-        dms.dms[I] = std::atof(value.c_str());
-#endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
+        dms.dms[I] = geometry::str_cast<T>(value);
         dms.has_dms[I] = true;
         has_value = false;
         value.clear();

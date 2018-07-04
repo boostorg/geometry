@@ -73,9 +73,9 @@ public:
             disjoint_no_vertex,
             disjoint_vertex
         };
-        disjoint_info(type t) : t_(t){}
-        operator type () const {return t_;}
-        type t_;
+        disjoint_info(type t) : m_(t){}
+        operator type () const {return m_;}
+        type m_;
     private :
         //prevent automatic conversion for any other built-in types
         template <typename T>

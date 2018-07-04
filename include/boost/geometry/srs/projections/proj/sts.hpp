@@ -71,25 +71,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_sts_spheroid : public base_t_fi<base_sts_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_sts_spheroid
+                : public base_t_fi<base_sts_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_sts<CalculationType> m_proj_parm;
+                par_sts<T> m_proj_parm;
 
                 inline base_sts_spheroid(const Parameters& par)
-                    : base_t_fi<base_sts_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_sts_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType c;
+                    T c;
 
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
                     xy_y = this->m_proj_parm.C_y;
@@ -106,9 +102,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType c;
+                    T c;
 
                     xy_y /= this->m_proj_parm.C_y;
                     c = cos(lp_lat = this->m_proj_parm.tan_mode ? atan(xy_y) : aasin(xy_y));
@@ -181,10 +177,10 @@ namespace projections
         \par Example
         \image html ex_kav5.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct kav5_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct kav5_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<T, Parameters>(par)
         {
             detail::sts::setup_kav5(this->m_par, this->m_proj_parm);
         }
@@ -202,10 +198,10 @@ namespace projections
         \par Example
         \image html ex_qua_aut.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<T, Parameters>(par)
         {
             detail::sts::setup_qua_aut(this->m_par, this->m_proj_parm);
         }
@@ -223,10 +219,10 @@ namespace projections
         \par Example
         \image html ex_mbt_s.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<T, Parameters>(par)
         {
             detail::sts::setup_mbt_s(this->m_par, this->m_proj_parm);
         }
@@ -244,10 +240,10 @@ namespace projections
         \par Example
         \image html ex_fouc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct fouc_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct fouc_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<T, Parameters>(par)
         {
             detail::sts::setup_fouc(this->m_par, this->m_proj_parm);
         }
@@ -264,53 +260,53 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::fouc, fouc_spheroid, fouc_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class kav5_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class kav5_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<kav5_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<kav5_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class qua_aut_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class qua_aut_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<qua_aut_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<qua_aut_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class mbt_s_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class mbt_s_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<mbt_s_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<mbt_s_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class fouc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class fouc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<fouc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<fouc_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void sts_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void sts_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("kav5", new kav5_entry<CalculationType, Parameters>);
-            factory.add_to_factory("qua_aut", new qua_aut_entry<CalculationType, Parameters>);
-            factory.add_to_factory("mbt_s", new mbt_s_entry<CalculationType, Parameters>);
-            factory.add_to_factory("fouc", new fouc_entry<CalculationType, Parameters>);
+            factory.add_to_factory("kav5", new kav5_entry<T, Parameters>);
+            factory.add_to_factory("qua_aut", new qua_aut_entry<T, Parameters>);
+            factory.add_to_factory("mbt_s", new mbt_s_entry<T, Parameters>);
+            factory.add_to_factory("fouc", new fouc_entry<T, Parameters>);
         }
 
     } // namespace detail

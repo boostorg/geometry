@@ -80,12 +80,12 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
     a = es = 0.;
 
     /* R takes precedence */
-    if (pj_param(parameters, "tR").i)
-        a = pj_param(parameters, "dR").f;
-    else { /* probable elliptical figure */
+    if (pj_param_f(parameters, "R", a)) {
+        /* empty */
+    } else { /* probable elliptical figure */
 
         /* check if ellps present and temporarily append its values to pl */
-        name = pj_param(parameters, "sellps").s;
+        name = pj_get_param_s(parameters, "ellps");
         if (! name.empty())
         {
             const int n = sizeof(pj_ellps) / sizeof(pj_ellps[0]);
@@ -99,59 +99,56 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
             }
 
             if (index == -1) {
-                BOOST_THROW_EXCEPTION( projection_exception(-9) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
             }
 
-            parameters.push_back(pj_mkparam<T>(pj_ellps[index].major));
-            parameters.push_back(pj_mkparam<T>(pj_ellps[index].ell));
+            pj_ellps_type const& pj_ellp = pj_ellps[index];
+            parameters.push_back(pj_mkparam<T>("a", pj_ellp.major_v));
+            parameters.push_back(pj_mkparam<T>(pj_ellp.ell_n, pj_ellp.ell_v));
         }
-        a = pj_param(parameters, "da").f;
-        if (pj_param(parameters, "tes").i) /* eccentricity squared */
-            es = pj_param(parameters, "des").f;
-        else if (pj_param(parameters, "te").i) { /* eccentricity */
-            e = pj_param(parameters, "de").f;
+        a = pj_get_param_f(parameters, "a");
+        if (pj_param_f(parameters, "es", es)) {/* eccentricity squared */
+            /* empty */
+        } else if (pj_param_f(parameters, "e", e)) { /* eccentricity */
             es = e * e;
-        } else if (pj_param(parameters, "trf").i) { /* recip flattening */
-            es = pj_param(parameters, "drf").f;
+        } else if (pj_param_f(parameters, "rf", es)) { /* recip flattening */
             if (!es) {
-                BOOST_THROW_EXCEPTION( projection_exception(-10) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_rev_flattening_is_zero) );
             }
             es = 1./ es;
             es = es * (2. - es);
-        } else if (pj_param(parameters, "tf").i) { /* flattening */
-            es = pj_param(parameters, "df").f;
+        } else if (pj_param_f(parameters, "f", es)) { /* flattening */
             es = es * (2. - es);
-        } else if (pj_param(parameters, "tb").i) { /* minor axis */
-            b = pj_param(parameters, "db").f;
+        } else if (pj_param_f(parameters, "b", b)) { /* minor axis */
             es = 1. - (b * b) / (a * a);
         }     /* else es == 0. and sphere of radius a */
         if (!b)
             b = a * sqrt(1. - es);
         /* following options turn ellipsoid into equivalent sphere */
-        if (pj_param(parameters, "bR_A").i) { /* sphere--area of ellipsoid */
+        if (pj_get_param_b(parameters, "R_A")) { /* sphere--area of ellipsoid */
             a *= 1. - es * (SIXTH<T>() + es * (RA4<T>() + es * RA6<T>()));
             es = 0.;
-        } else if (pj_param(parameters, "bR_V").i) { /* sphere--vol. of ellipsoid */
+        } else if (pj_get_param_b(parameters, "R_V")) { /* sphere--vol. of ellipsoid */
             a *= 1. - es * (SIXTH<T>() + es * (RV4<T>() + es * RV6<T>()));
             es = 0.;
-        } else if (pj_param(parameters, "bR_a").i) { /* sphere--arithmetic mean */
+        } else if (pj_get_param_b(parameters, "R_a")) { /* sphere--arithmetic mean */
             a = .5 * (a + b);
             es = 0.;
-        } else if (pj_param(parameters, "bR_g").i) { /* sphere--geometric mean */
+        } else if (pj_get_param_b(parameters, "R_g")) { /* sphere--geometric mean */
             a = sqrt(a * b);
             es = 0.;
-        } else if (pj_param(parameters, "bR_h").i) { /* sphere--harmonic mean */
+        } else if (pj_get_param_b(parameters, "R_h")) { /* sphere--harmonic mean */
             a = 2. * a * b / (a + b);
             es = 0.;
         } else {
-            int i = pj_param(parameters, "tR_lat_a").i;
+            T tmp;
+            int i = pj_param_r(parameters, "R_lat_a", tmp);
             if (i || /* sphere--arith. */
-                pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
-                T tmp;
+                pj_param_r(parameters, "R_lat_g", tmp)) { /* or geom. mean at latitude */
 
-                tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
+                tmp = sin(tmp);
                 if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-11) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ref_rad_larger_than_90) );
                 }
                 tmp = 1. - es * tmp * tmp;
                 a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
@@ -163,10 +160,10 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
 
     /* some remaining checks */
     if (es < 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_es_less_than_zero) );
     }
     if (a <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_major_axis_not_given) );
     }
 }
 
@@ -194,10 +191,10 @@ inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> c
 
     /* some remaining checks */
     if (es < 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-12) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_es_less_than_zero) );
     }
     if (a <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-13) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_major_axis_not_given) );
     }
 }
 
@@ -266,7 +263,7 @@ inline void pj_calc_ellipsoid_params(parameters<T> & p, T const& a, T const& es)
 
     p.one_es = 1. - p.es;
     if (p.one_es == 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_eccentricity_is_one) );
     }
 
     p.rone_es = 1./p.one_es;

@@ -81,25 +81,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_geos_ellipsoid : public base_t_fi<base_geos_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_geos_ellipsoid
+                : public base_t_fi<base_geos_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_geos<CalculationType> m_proj_parm;
+                par_geos<T> m_proj_parm;
 
                 inline base_geos_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_geos_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_geos_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType r, Vx, Vy, Vz, tmp;
+                    T r, Vx, Vy, Vz, tmp;
 
                     /* Calculation of geocentric latitude. */
                     lp_lat = atan (this->m_proj_parm.radius_p2 * tan (lp_lat));
@@ -113,7 +109,7 @@ namespace projections
 
                     /* Check visibility. */
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz * this->m_proj_parm.radius_p_inv2) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation based on view angles from satellite. */
@@ -130,9 +126,9 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType Vx, Vy, Vz, a, b, det, k;
+                    T Vx, Vy, Vz, a, b, det, k;
 
                     /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -150,7 +146,7 @@ namespace projections
                     a   = Vy * Vy + a * a + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
                     if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation of three components of vector from satellite to position.*/
@@ -173,25 +169,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_geos_spheroid : public base_t_fi<base_geos_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_geos_spheroid
+                : public base_t_fi<base_geos_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_geos<CalculationType> m_proj_parm;
+                par_geos<T> m_proj_parm;
 
                 inline base_geos_spheroid(const Parameters& par)
-                    : base_t_fi<base_geos_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_geos_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType Vx, Vy, Vz, tmp;
+                    T Vx, Vy, Vz, tmp;
 
                     /* Calculation of the three components of the vector from satellite to
                     ** position on earth surface (lon,lat).*/
@@ -203,7 +195,7 @@ namespace projections
                     /* Check visibility.*/
                     // TODO: in proj4 5.0.0 this check is not present
                     if (((this->m_proj_parm.radius_g - Vx) * Vx - Vy * Vy - Vz * Vz) < 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                     /* Calculation based on view angles from satellite.*/
                     tmp = this->m_proj_parm.radius_g - Vx;
@@ -219,9 +211,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType Vx, Vy, Vz, a, b, det, k;
+                    T Vx, Vy, Vz, a, b, det, k;
 
                     /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
@@ -237,7 +229,7 @@ namespace projections
                     a   = Vy * Vy + Vz * Vz + Vx * Vx;
                     b   = 2 * this->m_proj_parm.radius_g * Vx;
                     if ((det = (b * b) - 4 * a * this->m_proj_parm.C) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     /* Calculation of three components of vector from satellite to position.*/
@@ -264,18 +256,18 @@ namespace projections
             {
                 std::string sweep_axis;
 
-                if ((proj_parm.h = pj_param(par.params, "dh").f) <= 0.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-30) );
+                if ((proj_parm.h = pj_get_param_f(par.params, "h")) <= 0.)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_h_less_than_zero) );
 
                 if (par.phi0 != 0.0)
-                    BOOST_THROW_EXCEPTION( projection_exception(-46) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_unknown_prime_meridian) );
 
-                sweep_axis = pj_param(par.params, "ssweep").s;
+                sweep_axis = pj_get_param_s(par.params, "sweep");
                 if (sweep_axis.empty())
                     proj_parm.flip_axis = 0;
                 else {
                     if (sweep_axis[1] != '\0' || (sweep_axis[0] != 'x' && sweep_axis[0] != 'y'))
-                        BOOST_THROW_EXCEPTION( projection_exception(-49) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_sweep_axis) );
 
                     if (sweep_axis[0] == 'x')
                         proj_parm.flip_axis = 1;
@@ -314,10 +306,10 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct geos_ellipsoid : public detail::geos::base_geos_ellipsoid<T, Parameters>
     {
-        inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<CalculationType, Parameters>(par)
+        inline geos_ellipsoid(const Parameters& par) : detail::geos::base_geos_ellipsoid<T, Parameters>(par)
         {
             detail::geos::setup_geos(this->m_par, this->m_proj_parm);
         }
@@ -339,10 +331,10 @@ namespace projections
         \par Example
         \image html ex_geos.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct geos_spheroid : public detail::geos::base_geos_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct geos_spheroid : public detail::geos::base_geos_spheroid<T, Parameters>
     {
-        inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<CalculationType, Parameters>(par)
+        inline geos_spheroid(const Parameters& par) : detail::geos::base_geos_spheroid<T, Parameters>(par)
         {
             detail::geos::setup_geos(this->m_par, this->m_proj_parm);
         }
@@ -356,23 +348,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::geos, geos_spheroid, geos_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class geos_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class geos_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<geos_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<geos_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<geos_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<geos_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void geos_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void geos_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("geos", new geos_entry<CalculationType, Parameters>);
+            factory.add_to_factory("geos", new geos_entry<T, Parameters>);
         }
 
     } // namespace detail

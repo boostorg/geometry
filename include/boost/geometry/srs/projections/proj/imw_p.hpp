@@ -63,16 +63,16 @@ namespace projections
     namespace detail { namespace imw_p
     {
 
-            static const double TOL = 1e-10;
-            static const double EPS = 1e-10;
+            static const double tolerance = 1e-10;
+            static const double epsilon = 1e-10;
 
             template <typename T>
-            struct XY { T x, y; }; // specific for IMW_P
+            struct point_xy { T x, y; }; // specific for IMW_P
 
-            enum Mode {
-                NONE_IS_ZERO  =  0, /* phi_1 and phi_2 != 0 */
-                PHI_1_IS_ZERO =  1, /* phi_1 = 0 */
-                PHI_2_IS_ZERO = -1  /* phi_2 = 0 */
+            enum mode_type {
+                none_is_zero  =  0, /* phi_1 and phi_2 != 0 */
+                phi_1_is_zero =  1, /* phi_1 = 0 */
+                phi_2_is_zero = -1  /* phi_2 = 0 */
             };
 
             template <typename T>
@@ -81,7 +81,7 @@ namespace projections
                 T    P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2;
                 T    phi_1, phi_2, lam_1;
                 detail::en<T> en;
-                enum Mode mode;
+                mode_type mode;
             };
 
             template <typename Parameters, typename T>
@@ -90,23 +90,23 @@ namespace projections
             {
                 int err = 0;
 
-                if (!pj_param(par.params, "tlat_1").i ||
-                    !pj_param(par.params, "tlat_2").i) {
+                if (!pj_param_r(par.params, "lat_1", proj_parm.phi_1) ||
+                    !pj_param_r(par.params, "lat_2", proj_parm.phi_2)) {
                     err = -41;
                 } else {
-                    proj_parm.phi_1 = pj_param(par.params, "rlat_1").f;
-                    proj_parm.phi_2 = pj_param(par.params, "rlat_2").f;
+                    //proj_parm.phi_1 = pj_get_param_r(par.params, "lat_1"); // set above
+                    //proj_parm.phi_2 = pj_get_param_r(par.params, "lat_2"); // set above
                     *del = 0.5 * (proj_parm.phi_2 - proj_parm.phi_1);
                     *sig = 0.5 * (proj_parm.phi_2 + proj_parm.phi_1);
-                    err = (fabs(*del) < EPS || fabs(*sig) < EPS) ? -42 : 0;
+                    err = (fabs(*del) < epsilon || fabs(*sig) < epsilon) ? -42 : 0;
                 }
                 return err;
             }
             template <typename Parameters, typename T>
-            inline XY<T>
+            inline point_xy<T>
             loc_for(T const& lp_lam, T const& lp_phi, Parameters const& par, par_imw_p<T> const& proj_parm, T *yc)
             {
-                XY<T> xy;
+                point_xy<T> xy;
 
                 if (lp_phi == 0.0) {
                     xy.x = lp_lam;
@@ -122,7 +122,7 @@ namespace projections
                     C = sqrt(R * R - xa * xa);
                     if (lp_phi < 0.) C = - C;
                     C += ya - R;
-                    if (proj_parm.mode == PHI_2_IS_ZERO) {
+                    if (proj_parm.mode == phi_2_is_zero) {
                         xb = lp_lam;
                         yb = proj_parm.C2;
                     } else {
@@ -130,7 +130,7 @@ namespace projections
                         xb = proj_parm.R_2 * sin(t);
                         yb = proj_parm.C2 + proj_parm.R_2 * (1. - cos(t));
                     }
-                    if (proj_parm.mode == PHI_1_IS_ZERO) {
+                    if (proj_parm.mode == phi_1_is_zero) {
                         xc = lp_lam;
                         *yc = 0.;
                     } else {
@@ -165,37 +165,33 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_imw_p_ellipsoid : public base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_imw_p_ellipsoid
+                : public base_t_fi<base_imw_p_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_imw_p<CalculationType> m_proj_parm;
+                par_imw_p<T> m_proj_parm;
 
                 inline base_imw_p_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_imw_p_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType yc = 0;
-                    XY<CalculationType> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    T yc = 0;
+                    point_xy<T> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    XY<CalculationType> t;
-                    CalculationType yc = 0.0;
+                    point_xy<T> t;
+                    T yc = 0.0;
                     int i = 0;
-                    const int N_MAX_ITER = 1000; /* Arbitrarily choosen number... */
+                    const int n_max_iter = 1000; /* Arbitrarily choosen number... */
 
                     lp_lat = this->m_proj_parm.phi_2;
                     lp_lon = xy_x / cos(lp_lat);
@@ -204,10 +200,10 @@ namespace projections
                         lp_lat = ((lp_lat - this->m_proj_parm.phi_1) * (xy_y - yc) / (t.y - yc)) + this->m_proj_parm.phi_1;
                         lp_lon = lp_lon * xy_x / t.x;
                         i++;
-                    } while (i < N_MAX_ITER &&
-                             (fabs(t.x - xy_x) > TOL || fabs(t.y - xy_y) > TOL));
+                    } while (i < n_max_iter &&
+                             (fabs(t.x - xy_x) > tolerance || fabs(t.y - xy_y) > tolerance));
 
-                    if( i == N_MAX_ITER )
+                    if( i == n_max_iter )
                     {
                         lp_lon = lp_lat = HUGE_VAL;
                     }
@@ -235,27 +231,27 @@ namespace projections
                     proj_parm.phi_1 = proj_parm.phi_2;
                     proj_parm.phi_2 = del;
                 }
-                if (pj_param(par.params, "tlon_1").i)
-                    proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
-                else { /* use predefined based upon latitude */
+                if (pj_param_r(par.params, "lon_1", proj_parm.lam_1)) {
+                    /* empty */
+                } else { /* use predefined based upon latitude */
                     sig = fabs(sig * geometry::math::r2d<T>());
                     if (sig <= 60)      sig = 2.;
                     else if (sig <= 76) sig = 4.;
                     else                sig = 8.;
                     proj_parm.lam_1 = sig * geometry::math::d2r<T>();
                 }
-                proj_parm.mode = NONE_IS_ZERO;
+                proj_parm.mode = none_is_zero;
                 if (proj_parm.phi_1 != 0.0)
                     xy(par, proj_parm, proj_parm.phi_1, &x1, &y1, &proj_parm.sphi_1, &proj_parm.R_1);
                 else {
-                    proj_parm.mode = PHI_1_IS_ZERO;
+                    proj_parm.mode = phi_1_is_zero;
                     y1 = 0.;
                     x1 = proj_parm.lam_1;
                 }
                 if (proj_parm.phi_2 != 0.0)
                     xy(par, proj_parm, proj_parm.phi_2, &x2, &T2, &proj_parm.sphi_2, &proj_parm.R_2);
                 else {
-                    proj_parm.mode = PHI_2_IS_ZERO;
+                    proj_parm.mode = phi_2_is_zero;
                     T2 = 0.;
                     x2 = proj_parm.lam_1;
                 }
@@ -291,10 +287,10 @@ namespace projections
         \par Example
         \image html ex_imw_p.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<T, Parameters>
     {
-        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)
+        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<T, Parameters>(par)
         {
             detail::imw_p::setup_imw_p(this->m_par, this->m_proj_parm);
         }
@@ -308,20 +304,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::imw_p, imw_p_ellipsoid, imw_p_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class imw_p_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class imw_p_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<imw_p_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<imw_p_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void imw_p_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void imw_p_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("imw_p", new imw_p_entry<CalculationType, Parameters>);
+            factory.add_to_factory("imw_p", new imw_p_entry<T, Parameters>);
         }
 
     } // namespace detail

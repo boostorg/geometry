@@ -70,29 +70,25 @@ namespace projections
                 T B1, B2, B3, B4, B5, B6, B7, B8;
                 T C1, C2, C3, C4, C5, C6, C7, C8;
                 T D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11;
-                MDIST<T> en;
+                mdist<T> en;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_rouss_ellipsoid : public base_t_fi<base_rouss_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_rouss_ellipsoid
+                : public base_t_fi<base_rouss_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_rouss<CalculationType> m_proj_parm;
+                par_rouss<T> m_proj_parm;
 
                 inline base_rouss_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_rouss_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_rouss_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType s, al, cp, sp, al2, s2;
+                    T s, al, cp, sp, al2, s2;
 
                     cp = cos(lp_lat);
                     sp = sin(lp_lat);
@@ -109,9 +105,9 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;
+                    T s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;
 
                     x2 = x * x;
                     y2 = y * y;
@@ -197,10 +193,10 @@ namespace projections
         \par Example
         \image html ex_rouss.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<T, Parameters>
     {
-        inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<CalculationType, Parameters>(par)
+        inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<T, Parameters>(par)
         {
             detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
         }
@@ -214,20 +210,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rouss, rouss_ellipsoid, rouss_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class rouss_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class rouss_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<rouss_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<rouss_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void rouss_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void rouss_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("rouss", new rouss_entry<CalculationType, Parameters>);
+            factory.add_to_factory("rouss", new rouss_entry<T, Parameters>);
         }
 
     } // namespace detail

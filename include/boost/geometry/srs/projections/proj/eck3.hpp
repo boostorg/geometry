@@ -73,23 +73,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_eck3_spheroid : public base_t_fi<base_eck3_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_eck3_spheroid
+                : public base_t_fi<base_eck3_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_eck3<CalculationType> m_proj_parm;
+                par_eck3<T> m_proj_parm;
 
                 inline base_eck3_spheroid(const Parameters& par)
-                    : base_t_fi<base_eck3_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_eck3_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_y = this->m_proj_parm.C_y * lp_lat;
                     xy_x = this->m_proj_parm.C_x * lp_lon * (this->m_proj_parm.A + asqrt(1. - this->m_proj_parm.B * lp_lat * lp_lat));
@@ -97,9 +93,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType denominator;
+                    T denominator;
                     lp_lat = xy_y / this->m_proj_parm.C_y;
                     denominator = (this->m_proj_parm.C_x * (this->m_proj_parm.A + asqrt(1. - this->m_proj_parm.B * lp_lat * lp_lat)));
                     if ( denominator == 0.0) {
@@ -188,10 +184,10 @@ namespace projections
         \par Example
         \image html ex_eck3.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct eck3_spheroid : public detail::eck3::base_eck3_spheroid<T, Parameters>
     {
-        inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
+        inline eck3_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<T, Parameters>(par)
         {
             detail::eck3::setup_eck3(this->m_par, this->m_proj_parm);
         }
@@ -209,10 +205,10 @@ namespace projections
         \par Example
         \image html ex_putp1.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct putp1_spheroid : public detail::eck3::base_eck3_spheroid<T, Parameters>
     {
-        inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
+        inline putp1_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<T, Parameters>(par)
         {
             detail::eck3::setup_putp1(this->m_par, this->m_proj_parm);
         }
@@ -230,10 +226,10 @@ namespace projections
         \par Example
         \image html ex_wag6.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct wag6_spheroid : public detail::eck3::base_eck3_spheroid<T, Parameters>
     {
-        inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
+        inline wag6_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<T, Parameters>(par)
         {
             detail::eck3::setup_wag6(this->m_par, this->m_proj_parm);
         }
@@ -251,10 +247,10 @@ namespace projections
         \par Example
         \image html ex_kav7.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct kav7_spheroid : public detail::eck3::base_eck3_spheroid<T, Parameters>
     {
-        inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<CalculationType, Parameters>(par)
+        inline kav7_spheroid(const Parameters& par) : detail::eck3::base_eck3_spheroid<T, Parameters>(par)
         {
             detail::eck3::setup_kav7(this->m_par, this->m_proj_parm);
         }
@@ -271,53 +267,53 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::kav7, kav7_spheroid, kav7_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class eck3_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class eck3_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<eck3_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<eck3_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class putp1_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class putp1_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<putp1_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<putp1_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class wag6_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class wag6_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<wag6_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<wag6_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class kav7_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class kav7_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<kav7_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<kav7_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void eck3_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void eck3_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("eck3", new eck3_entry<CalculationType, Parameters>);
-            factory.add_to_factory("putp1", new putp1_entry<CalculationType, Parameters>);
-            factory.add_to_factory("wag6", new wag6_entry<CalculationType, Parameters>);
-            factory.add_to_factory("kav7", new kav7_entry<CalculationType, Parameters>);
+            factory.add_to_factory("eck3", new eck3_entry<T, Parameters>);
+            factory.add_to_factory("putp1", new putp1_entry<T, Parameters>);
+            factory.add_to_factory("wag6", new wag6_entry<T, Parameters>);
+            factory.add_to_factory("kav7", new kav7_entry<T, Parameters>);
         }
 
     } // namespace detail

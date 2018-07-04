@@ -22,7 +22,7 @@
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
-#include <boost/geometry/formulas/elliptic_arc_length.hpp>
+#include <boost/geometry/formulas/meridian_inverse.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
@@ -92,13 +92,13 @@ public :
     static inline CT apply(CT lon1, CT lat1, CT lon2, CT lat2,
                            Spheroid const& spheroid)
     {
-        typedef typename formula::elliptic_arc_length
+        typedef typename formula::meridian_inverse
                 <
                 CT, strategy::default_order<FormulaPolicy>::value
-                > elliptic_arc_length;
+                > meridian_inverse;
 
-        typename elliptic_arc_length::result res =
-                 elliptic_arc_length::apply(lon1, lat1, lon2, lat2, spheroid);
+        typename meridian_inverse::result res =
+                 meridian_inverse::apply(lon1, lat1, lon2, lat2, spheroid);
 
         if (res.meridian)
         {

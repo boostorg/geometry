@@ -170,26 +170,22 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_etmerc_ellipsoid : public base_t_fi<base_etmerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_etmerc_ellipsoid
+                : public base_t_fi<base_etmerc_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_etmerc<CalculationType> m_proj_parm;
+                par_etmerc<T> m_proj_parm;
 
                 inline base_etmerc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_etmerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_etmerc_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
-                    CalculationType Cn = lp_lat, Ce = lp_lon;
+                    T sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
+                    T Cn = lp_lat, Ce = lp_lon;
 
                     /* ell. LAT, LNG -> Gaussian LAT, LNG */
                     Cn  = gatg(this->m_proj_parm.cbg, PROJ_ETMERC_ORDER, Cn);
@@ -203,7 +199,7 @@ namespace projections
                     Ce     = atan2(sin_Ce*cos_Cn, boost::math::hypot(sin_Cn, cos_Cn*cos_Ce));
 
                     /* compl. sph. N, E -> ell. norm. N, E */
-                    Ce  = asinhy(tan(Ce));     /* Replaces: Ce  = log(tan(FORTPI + Ce*0.5)); */
+                    Ce  = asinhy(tan(Ce));     /* Replaces: Ce  = log(tan(fourth_pi + Ce*0.5)); */
                     Cn += clenS(this->m_proj_parm.gtu, PROJ_ETMERC_ORDER, 2*Cn, 2*Ce, &dCn, &dCe);
                     Ce += dCe;
                     if (fabs(Ce) <= 2.623395162778) {
@@ -215,10 +211,10 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
-                    CalculationType Cn = xy_y, Ce = xy_x;
+                    T sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
+                    T Cn = xy_y, Ce = xy_x;
 
                     /* normalize N, E */
                     Cn = (Cn - this->m_proj_parm.Zb)/this->m_proj_parm.Qn;
@@ -228,7 +224,7 @@ namespace projections
                         /* norm. N, E -> compl. sph. LAT, LNG */
                         Cn += clenS(this->m_proj_parm.utg, PROJ_ETMERC_ORDER, 2*Cn, 2*Ce, &dCn, &dCe);
                         Ce += dCe;
-                        Ce = atan(sinh(Ce)); /* Replaces: Ce = 2*(atan(exp(Ce)) - FORTPI); */
+                        Ce = atan(sinh(Ce)); /* Replaces: Ce = 2*(atan(exp(Ce)) - fourth_pi); */
                         /* compl. sph. LAT -> Gaussian LAT, LNG */
                         sin_Cn = sin(Cn);
                         cos_Cn = cos(Cn);
@@ -257,7 +253,7 @@ namespace projections
                 T f, n, np, Z;
 
                 if (par.es <= 0) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
 
                 f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */
@@ -346,34 +342,33 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_utm(Parameters& par, par_etmerc<T>& proj_parm)
             {
-                static const T ONEPI = detail::ONEPI<T>();
+                static const T pi = detail::pi<T>();
 
                 int zone;
 
                 if (par.es == 0.0) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
 
-                par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
+                par.y0 = pj_get_param_b(par.params, "south") ? 10000000. : 0.;
                 par.x0 = 500000.;
-                if (pj_param(par.params, "tzone").i) /* zone input ? */
+                if (pj_param_i(par.params, "zone", zone)) /* zone input ? */
                 {
-                    zone = pj_param(par.params, "izone").i;
                     if (zone > 0 && zone <= 60)
                         --zone;
                     else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-35) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_utm_zone) );
                     }
                 }
                 else /* nearest central meridian input */
                 {
-                    zone = int_floor((adjlon(par.lam0) + ONEPI) * 30. / ONEPI);
+                    zone = int_floor((adjlon(par.lam0) + pi) * 30. / pi);
                     if (zone < 0)
                         zone = 0;
                     else if (zone >= 60)
                         zone = 59;
                 }
-                par.lam0 = (zone + .5) * ONEPI / 30. - ONEPI;
+                par.lam0 = (zone + .5) * pi / 30. - pi;
                 par.k0 = 0.9996;
                 par.phi0 = 0.;
 
@@ -398,10 +393,10 @@ namespace projections
         \par Example
         \image html ex_etmerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<T, Parameters>
     {
-        inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>(par)
+        inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
         {
             detail::etmerc::setup_etmerc(this->m_par, this->m_proj_parm);
         }
@@ -422,10 +417,10 @@ namespace projections
         \par Example
         \image html ex_utm.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct utm_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct utm_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<T, Parameters>
     {
-        inline utm_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<CalculationType, Parameters>(par)
+        inline utm_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
         {
             detail::etmerc::setup_utm(this->m_par, this->m_proj_parm);
         }
@@ -440,31 +435,31 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::utm, utm_ellipsoid, utm_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class etmerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class etmerc_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<etmerc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<etmerc_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        class utm_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class utm_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<utm_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<utm_ellipsoid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void etmerc_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void etmerc_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("etmerc", new etmerc_entry<CalculationType, Parameters>);
-            factory.add_to_factory("utm", new utm_entry<CalculationType, Parameters>);
+            factory.add_to_factory("etmerc", new etmerc_entry<T, Parameters>);
+            factory.add_to_factory("utm", new utm_entry<T, Parameters>);
         }
 
     } // namespace detail

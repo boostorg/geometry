@@ -65,13 +65,13 @@ namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace laea
     {
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -86,80 +86,76 @@ namespace projections
                 T   dd;
                 T   rq;
                 detail::apa<T> apa;
-                Mode mode;
+                mode_type mode;
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_laea_ellipsoid : public base_t_fi<base_laea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_laea_ellipsoid
+                : public base_t_fi<base_laea_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_laea<CalculationType> m_proj_parm;
+                par_laea<T> m_proj_parm;
 
                 inline base_laea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_laea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_laea_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
+                    T coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
 
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
                     q = pj_qsfn(sinphi, this->m_par.e, this->m_par.one_es);
 
-                    if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
+                    if (this->m_proj_parm.mode == obliq || this->m_proj_parm.mode == equit) {
                         sinb = q / this->m_proj_parm.qp;
                         cosb = sqrt(1. - sinb * sinb);
                     }
 
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         b = 1. + this->m_proj_parm.sinb1 * sinb + this->m_proj_parm.cosb1 * cosb * coslam;
                         break;
-                    case EQUIT:
+                    case equit:
                         b = 1. + cosb * coslam;
                         break;
-                    case N_POLE:
-                        b = HALFPI + lp_lat;
+                    case n_pole:
+                        b = half_pi + lp_lat;
                         q = this->m_proj_parm.qp - q;
                         break;
-                    case S_POLE:
-                        b = lp_lat - HALFPI;
+                    case s_pole:
+                        b = lp_lat - half_pi;
                         q = this->m_proj_parm.qp + q;
                         break;
                     }
-                    if (fabs(b) < EPS10) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    if (fabs(b) < epsilon10) {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
 
                     switch (this->m_proj_parm.mode) {
-                    case OBLIQ:
+                    case obliq:
                         b = sqrt(2. / b);
                         xy_y = this->m_proj_parm.ymf * b * (this->m_proj_parm.cosb1 * sinb - this->m_proj_parm.sinb1 * cosb * coslam);
                         goto eqcon;
                         break;
-                    case EQUIT:
+                    case equit:
                         b = sqrt(2. / (1. + cosb * coslam));
                         xy_y = b * sinb * this->m_proj_parm.ymf;
                 eqcon:
                         xy_x = this->m_proj_parm.xmf * b * cosb * sinlam;
                         break;
-                    case N_POLE:
-                    case S_POLE:
+                    case n_pole:
+                    case s_pole:
                         if (q >= 0.) {
                             b = sqrt(q);
                             xy_x = b * sinlam;
-                            xy_y = coslam * (this->m_proj_parm.mode == S_POLE ? b : -b);
+                            xy_y = coslam * (this->m_proj_parm.mode == s_pole ? b : -b);
                         } else
                             xy_x = xy_y = 0.;
                         break;
@@ -168,17 +164,17 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType cCe, sCe, q, rho, ab=0.0;
+                    T cCe, sCe, q, rho, ab=0.0;
 
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                    case OBLIQ:
+                    case equit:
+                    case obliq:
                         xy_x /= this->m_proj_parm.dd;
                         xy_y *=  this->m_proj_parm.dd;
                         rho = boost::math::hypot(xy_x, xy_y);
-                        if (rho < EPS10) {
+                        if (rho < epsilon10) {
                             lp_lon = 0.;
                             lp_lat = this->m_par.phi0;
                             return;
@@ -187,7 +183,7 @@ namespace projections
                         cCe = cos(sCe);
                         sCe = sin(sCe);
                         xy_x *= sCe;
-                        if (this->m_proj_parm.mode == OBLIQ) {
+                        if (this->m_proj_parm.mode == obliq) {
                             ab = cCe * this->m_proj_parm.sinb1 + xy_y * sCe * this->m_proj_parm.cosb1 / rho;
                             xy_y = rho * this->m_proj_parm.cosb1 * cCe - xy_y * this->m_proj_parm.sinb1 * sCe;
                         } else {
@@ -195,10 +191,10 @@ namespace projections
                             xy_y = rho * cCe;
                         }
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = -xy_y;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
+                    case s_pole:
                         q = (xy_x * xy_x + xy_y * xy_y);
                         if (q == 0.0) {
                             lp_lon = 0.;
@@ -206,7 +202,7 @@ namespace projections
                             return;
                         }
                         ab = 1. - q / this->m_proj_parm.qp;
-                        if (this->m_proj_parm.mode == S_POLE)
+                        if (this->m_proj_parm.mode == s_pole)
                             ab = - ab;
                         break;
                     }
@@ -222,55 +218,51 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_laea_spheroid : public base_t_fi<base_laea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_laea_spheroid
+                : public base_t_fi<base_laea_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_laea<CalculationType> m_proj_parm;
+                par_laea<T> m_proj_parm;
 
                 inline base_laea_spheroid(const Parameters& par)
-                    : base_t_fi<base_laea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_laea_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
-                    CalculationType  coslam, cosphi, sinphi;
+                    T  coslam, cosphi, sinphi;
 
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
+                    case equit:
                         xy_y = 1. + cosphi * coslam;
                         goto oblcon;
-                    case OBLIQ:
+                    case obliq:
                         xy_y = 1. + this->m_proj_parm.sinb1 * sinphi + this->m_proj_parm.cosb1 * cosphi * coslam;
                 oblcon:
-                        if (xy_y <= EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (xy_y <= epsilon10) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_y = sqrt(2. / xy_y);
                         xy_x = xy_y * cosphi * sin(lp_lon);
-                        xy_y *= this->m_proj_parm.mode == EQUIT ? sinphi :
+                        xy_y *= this->m_proj_parm.mode == equit ? sinphi :
                            this->m_proj_parm.cosb1 * sinphi - this->m_proj_parm.sinb1 * cosphi * coslam;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         coslam = -coslam;
                         BOOST_FALLTHROUGH;
-                    case S_POLE:
-                        if (fabs(lp_lat + this->m_par.phi0) < EPS10) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    case s_pole:
+                        if (fabs(lp_lat + this->m_par.phi0) < epsilon10) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
-                        xy_y = FORTPI - lp_lat * .5;
-                        xy_y = 2. * (this->m_proj_parm.mode == S_POLE ? cos(xy_y) : sin(xy_y));
+                        xy_y = fourth_pi - lp_lat * .5;
+                        xy_y = 2. * (this->m_proj_parm.mode == s_pole ? cos(xy_y) : sin(xy_y));
                         xy_x = xy_y * sin(lp_lon);
                         xy_y *= coslam;
                         break;
@@ -279,42 +271,42 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  cosz=0.0, rh, sinz=0.0;
+                    T  cosz=0.0, rh, sinz=0.0;
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((lp_lat = rh * .5 ) > 1.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
                     lp_lat = 2. * asin(lp_lat);
-                    if (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT) {
+                    if (this->m_proj_parm.mode == obliq || this->m_proj_parm.mode == equit) {
                         sinz = sin(lp_lat);
                         cosz = cos(lp_lat);
                     }
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                        lp_lat = fabs(rh) <= EPS10 ? 0. : asin(xy_y * sinz / rh);
+                    case equit:
+                        lp_lat = fabs(rh) <= epsilon10 ? 0. : asin(xy_y * sinz / rh);
                         xy_x *= sinz;
                         xy_y = cosz * rh;
                         break;
-                    case OBLIQ:
-                        lp_lat = fabs(rh) <= EPS10 ? this->m_par.phi0 :
+                    case obliq:
+                        lp_lat = fabs(rh) <= epsilon10 ? this->m_par.phi0 :
                            asin(cosz * this->m_proj_parm.sinb1 + xy_y * sinz * this->m_proj_parm.cosb1 / rh);
                         xy_x *= sinz * this->m_proj_parm.cosb1;
                         xy_y = (cosz - sin(lp_lat) * this->m_proj_parm.sinb1) * rh;
                         break;
-                    case N_POLE:
+                    case n_pole:
                         xy_y = -xy_y;
-                        lp_lat = HALFPI - lp_lat;
+                        lp_lat = half_pi - lp_lat;
                         break;
-                    case S_POLE:
-                        lp_lat -= HALFPI;
+                    case s_pole:
+                        lp_lat -= half_pi;
                         break;
                     }
-                    lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == EQUIT || this->m_proj_parm.mode == OBLIQ)) ?
+                    lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == equit || this->m_proj_parm.mode == obliq)) ?
                         0. : atan2(xy_x, xy_y);
                 }
 
@@ -329,17 +321,17 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_laea(Parameters& par, par_laea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T t;
 
                 t = fabs(par.phi0);
-                if (fabs(t - HALFPI) < EPS10)
-                    proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
-                else if (fabs(t) < EPS10)
-                    proj_parm.mode = EQUIT;
+                if (fabs(t - half_pi) < epsilon10)
+                    proj_parm.mode = par.phi0 < 0. ? s_pole : n_pole;
+                else if (fabs(t) < epsilon10)
+                    proj_parm.mode = equit;
                 else
-                    proj_parm.mode = OBLIQ;
+                    proj_parm.mode = obliq;
                 if (par.es != 0.0) {
                     double sinphi;
 
@@ -348,16 +340,16 @@ namespace projections
                     proj_parm.mmf = .5 / (1. - par.es);
                     proj_parm.apa = pj_authset<T>(par.es);
                     switch (proj_parm.mode) {
-                    case N_POLE:
-                    case S_POLE:
+                    case n_pole:
+                    case s_pole:
                         proj_parm.dd = 1.;
                         break;
-                    case EQUIT:
+                    case equit:
                         proj_parm.dd = 1. / (proj_parm.rq = sqrt(.5 * proj_parm.qp));
                         proj_parm.xmf = 1.;
                         proj_parm.ymf = .5 * proj_parm.qp;
                         break;
-                    case OBLIQ:
+                    case obliq:
                         proj_parm.rq = sqrt(.5 * proj_parm.qp);
                         sinphi = sin(par.phi0);
                         proj_parm.sinb1 = pj_qsfn(sinphi, par.e, par.one_es) / proj_parm.qp;
@@ -369,7 +361,7 @@ namespace projections
                         break;
                     }
                 } else {
-                    if (proj_parm.mode == OBLIQ) {
+                    if (proj_parm.mode == obliq) {
                         proj_parm.sinb1 = sin(par.phi0);
                         proj_parm.cosb1 = cos(par.phi0);
                     }
@@ -392,10 +384,10 @@ namespace projections
         \par Example
         \image html ex_laea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<T, Parameters>
     {
-        inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<CalculationType, Parameters>(par)
+        inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<T, Parameters>(par)
         {
             detail::laea::setup_laea(this->m_par, this->m_proj_parm);
         }
@@ -414,10 +406,10 @@ namespace projections
         \par Example
         \image html ex_laea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct laea_spheroid : public detail::laea::base_laea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct laea_spheroid : public detail::laea::base_laea_spheroid<T, Parameters>
     {
-        inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<CalculationType, Parameters>(par)
+        inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<T, Parameters>(par)
         {
             detail::laea::setup_laea(this->m_par, this->m_proj_parm);
         }
@@ -431,23 +423,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::laea, laea_spheroid, laea_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class laea_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class laea_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<laea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<laea_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<laea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<laea_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void laea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void laea_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("laea", new laea_entry<CalculationType, Parameters>);
+            factory.add_to_factory("laea", new laea_entry<T, Parameters>);
         }
 
     } // namespace detail

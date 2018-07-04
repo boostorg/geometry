@@ -64,22 +64,17 @@ namespace projections
             static const double RP = .31830988618379067154;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_eck1_spheroid : public base_t_fi<base_eck1_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_eck1_spheroid
+                : public base_t_fi<base_eck1_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_eck1_spheroid(const Parameters& par)
-                    : base_t_fi<base_eck1_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_eck1_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = FC * lp_lon * (1. - RP * fabs(lp_lat));
                     xy_y = FC * lp_lat;
@@ -87,7 +82,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = xy_y / FC;
                     lp_lon = xy_x / (FC * (1. - RP * fabs(lp_lat)));
@@ -122,10 +117,10 @@ namespace projections
         \par Example
         \image html ex_eck1.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct eck1_spheroid : public detail::eck1::base_eck1_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct eck1_spheroid : public detail::eck1::base_eck1_spheroid<T, Parameters>
     {
-        inline eck1_spheroid(const Parameters& par) : detail::eck1::base_eck1_spheroid<CalculationType, Parameters>(par)
+        inline eck1_spheroid(const Parameters& par) : detail::eck1::base_eck1_spheroid<T, Parameters>(par)
         {
             detail::eck1::setup_eck1(this->m_par);
         }
@@ -139,20 +134,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::eck1, eck1_spheroid, eck1_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class eck1_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class eck1_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<eck1_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<eck1_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void eck1_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void eck1_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("eck1", new eck1_entry<CalculationType, Parameters>);
+            factory.add_to_factory("eck1", new eck1_entry<T, Parameters>);
         }
 
     } // namespace detail

@@ -67,25 +67,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_urm5_spheroid : public base_t_f<base_urm5_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_urm5_spheroid
+                : public base_t_f<base_urm5_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_urm5<CalculationType> m_proj_parm;
+                par_urm5<T> m_proj_parm;
 
                 inline base_urm5_spheroid(const Parameters& par)
-                    : base_t_f<base_urm5_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_urm5_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType t;
+                    T t;
 
                     t = lp_lat = aasin(this->m_proj_parm.n * sin(lp_lat));
                     xy_x = this->m_proj_parm.m * lp_lon * cos(lp_lat);
@@ -106,15 +102,14 @@ namespace projections
             {
                 T alpha, t;
 
-                if (pj_param(par.params, "tn").i) {
-                    proj_parm.n = pj_param(par.params, "dn").f;
+                if (pj_param_f(par.params, "n", proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 } else {
-                    BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 }
-                proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
-                alpha = pj_param(par.params, "ralpha").f;
+                proj_parm.q3 = pj_get_param_f(par.params, "q") / 3.;
+                alpha = pj_get_param_r(par.params, "alpha");
                 t = proj_parm.n * sin(alpha);
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);
@@ -142,10 +137,10 @@ namespace projections
         \par Example
         \image html ex_urm5.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<T, Parameters>
     {
-        inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<CalculationType, Parameters>(par)
+        inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<T, Parameters>(par)
         {
             detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
         }
@@ -159,20 +154,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::urm5, urm5_spheroid, urm5_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class urm5_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class urm5_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<urm5_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<urm5_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void urm5_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void urm5_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("urm5", new urm5_entry<CalculationType, Parameters>);
+            factory.add_to_factory("urm5", new urm5_entry<T, Parameters>);
         }
 
     } // namespace detail

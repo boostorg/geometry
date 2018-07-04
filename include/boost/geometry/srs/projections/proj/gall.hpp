@@ -66,22 +66,17 @@ namespace projections
             static const double RXF = 1.41421356237309504880;
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_gall_spheroid : public base_t_fi<base_gall_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_gall_spheroid
+                : public base_t_fi<base_gall_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
                 inline base_gall_spheroid(const Parameters& par)
-                    : base_t_fi<base_gall_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_gall_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = XF * lp_lon;
                     xy_y = YF * tan(.5 * lp_lat);
@@ -89,7 +84,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lon = RXF * xy_x;
                     lp_lat = 2. * atan(xy_y * RYF);
@@ -124,10 +119,10 @@ namespace projections
         \par Example
         \image html ex_gall.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct gall_spheroid : public detail::gall::base_gall_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct gall_spheroid : public detail::gall::base_gall_spheroid<T, Parameters>
     {
-        inline gall_spheroid(const Parameters& par) : detail::gall::base_gall_spheroid<CalculationType, Parameters>(par)
+        inline gall_spheroid(const Parameters& par) : detail::gall::base_gall_spheroid<T, Parameters>(par)
         {
             detail::gall::setup_gall(this->m_par);
         }
@@ -141,20 +136,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gall, gall_spheroid, gall_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class gall_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class gall_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<gall_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<gall_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void gall_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void gall_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("gall", new gall_entry<CalculationType, Parameters>);
+            factory.add_to_factory("gall", new gall_entry<T, Parameters>);
         }
 
     } // namespace detail

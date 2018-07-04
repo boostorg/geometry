@@ -44,7 +44,6 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
 
@@ -71,21 +70,21 @@ namespace detail
 template <typename BGParams, typename T>
 inline void pj_push_defaults(BGParams const& /*bg_params*/, parameters<T>& pin)
 {
-    pin.params.push_back(pj_mkparam<T>("ellps=WGS84"));
+    pin.params.push_back(pj_mkparam<T>("ellps", "WGS84"));
 
     if (pin.name == "aea")
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45.5 "));
     }
     else if (pin.name == "lcc")
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45"));
     }
     else if (pin.name == "lagrng")
     {
-        pin.params.push_back(pj_mkparam<T>("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W", "2"));
     }
 }
 
@@ -100,21 +99,21 @@ inline void pj_push_defaults(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL
         >::type proj_tag;
 
     // statically defaulting to WGS84
-    //pin.params.push_back(pj_mkparam("ellps=WGS84"));
+    //pin.params.push_back(pj_mkparam("ellps", "WGS84"));
 
     if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::aea>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=29.5"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45.5 "));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "29.5"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45.5 "));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lcc>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("lat_1=33"));
-        pin.params.push_back(pj_mkparam<T>("lat_2=45"));
+        pin.params.push_back(pj_mkparam<T>("lat_1", "33"));
+        pin.params.push_back(pj_mkparam<T>("lat_2", "45"));
     }
     else if (BOOST_GEOMETRY_CONDITION((boost::is_same<proj_tag, srs::par4::lagrng>::value)))
     {
-        pin.params.push_back(pj_mkparam<T>("W=2"));
+        pin.params.push_back(pj_mkparam<T>("W", "2"));
     }
 }
 
@@ -128,7 +127,7 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
                           T const& default_fr_meter)
 {
     std::string s;
-    std::string units = pj_param(params, sunits).s;
+    std::string units = pj_get_param_s(params, sunits);
     if (! units.empty())
     {
         const int n = sizeof(pj_units) / sizeof(pj_units[0]);
@@ -142,14 +141,14 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
         }
 
         if (index == -1) {
-            BOOST_THROW_EXCEPTION( projection_exception(-7) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknow_unit_id) );
         }
         s = pj_units[index].to_meter;
     }
 
     if (s.empty())
     {
-        s = pj_param(params, sto_meter).s;
+        s = pj_get_param_s(params, sto_meter);
     }
 
     if (! s.empty())
@@ -157,21 +156,21 @@ inline void pj_init_units(std::vector<pvalue<T> > const& params,
         std::size_t const pos = s.find('/');
         if (pos == std::string::npos)
         {
-            to_meter = lexical_cast<T>(s);
+            to_meter = geometry::str_cast<T>(s);
         }
         else
         {
-            T const numerator = lexical_cast<T>(s.substr(0, pos));
-            T const denominator = lexical_cast<T>(s.substr(pos + 1));
+            T const numerator = geometry::str_cast<T>(s.substr(0, pos));
+            T const denominator = geometry::str_cast<T>(s.substr(pos + 1));
             if (numerator == 0.0 || denominator == 0.0)
             {
-                BOOST_THROW_EXCEPTION( projection_exception(-99) );
+                BOOST_THROW_EXCEPTION( projection_exception(error_unit_factor_less_than_0) );
             }
             to_meter = numerator / denominator;
         }
         if (to_meter == 0.0)
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-99) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unit_factor_less_than_0) );
         }
         fr_meter = 1. / to_meter;
     }
@@ -200,15 +199,16 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
         pin.params.push_back(pj_mkparam<T>(*it));
     }
 
+    // maybe TODO: handle "init" parameter
     /* check if +init present */
-    if (pj_param(pin.params, "tinit").i)
-    {
-        // maybe TODO: handle "init" parameter
-        //if (!(curr = get_init(&arguments, curr, pj_param(pin.params, "sinit").s)))
-    }
+    //std::string sinit;
+    //if (pj_param_s(pin.params, "init", sinit))
+    //{
+    //    //if (!(curr = get_init(&arguments, curr, sinit)))
+    //}
 
     // find projection -> implemented in projection factory
-    pin.name = pj_param(pin.params, "sproj").s;
+    pin.name = pj_get_param_s(pin.params, "proj");
     // exception thrown in projection<>
     // TODO: consider throwing here both projection_unknown_id_exception and
     // projection_not_named_exception in order to throw before other exceptions
@@ -217,7 +217,7 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
 
     // set defaults, unless inhibited
     // GL-Addition, if use_defaults is false then defaults are ignored
-    if (use_defaults && ! pj_param(pin.params, "bno_defs").i)
+    if (use_defaults && ! pj_get_param_b(pin.params, "no_defs"))
     {
         // proj4 gets defaults from "proj_def.dat", file of 94/02/23 with a few defaults.
         // Here manually
@@ -246,61 +246,59 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
     pin.ra = 1. / pin.a;
     pin.one_es = 1. - pin.es;
     if (pin.one_es == 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-6) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_eccentricity_is_one) );
     }
     pin.rone_es = 1./pin.one_es;
 
     /* Now that we have ellipse information check for WGS84 datum */
-    if( pin.datum_type == PJD_3PARAM
+    if( pin.datum_type == datum_3param
         && pin.datum_params[0] == 0.0
         && pin.datum_params[1] == 0.0
         && pin.datum_params[2] == 0.0
         && pin.a == 6378137.0
         && geometry::math::abs(pin.es - 0.006694379990) < 0.000000000050 )/*WGS84/GRS80*/
     {
-        pin.datum_type = PJD_WGS84;
+        pin.datum_type = datum_wgs84;
     }
 
     /* set pin.geoc coordinate system */
-    pin.geoc = (pin.es && pj_param(pin.params, "bgeoc").i);
+    pin.geoc = (pin.es && pj_get_param_b(pin.params, "geoc"));
 
     /* over-ranging flag */
-    pin.over = pj_param(pin.params, "bover").i;
+    pin.over = pj_get_param_b(pin.params, "over");
 
     /* longitude center for wrapping */
-    pin.is_long_wrap_set = pj_param(pin.params, "tlon_wrap").i != 0;
-    if (pin.is_long_wrap_set)
-        pin.long_wrap_center = pj_param(pin.params, "rlon_wrap").f;
+    pin.is_long_wrap_set = pj_param_r(pin.params, "lon_wrap", pin.long_wrap_center);
 
     /* central meridian */
-    pin.lam0 = pj_param(pin.params, "rlon_0").f;
+    pin.lam0 = pj_get_param_r(pin.params, "lon_0");
 
     /* central latitude */
-    pin.phi0 = pj_param(pin.params, "rlat_0").f;
+    pin.phi0 = pj_get_param_r(pin.params, "lat_0");
 
     /* false easting and northing */
-    pin.x0 = pj_param(pin.params, "dx_0").f;
-    pin.y0 = pj_param(pin.params, "dy_0").f;
+    pin.x0 = pj_get_param_f(pin.params, "x_0");
+    pin.y0 = pj_get_param_f(pin.params, "y_0");
 
     /* general scaling factor */
-    if (pj_param(pin.params, "tk_0").i)
-        pin.k0 = pj_param(pin.params, "dk_0").f;
-    else if (pj_param(pin.params, "tk").i)
-        pin.k0 = pj_param(pin.params, "dk").f;
-    else
+    if (pj_param_f(pin.params, "k_0", pin.k0)) {
+        /* empty */
+    } else if (pj_param_f(pin.params, "k", pin.k0)) {
+        /* empty */
+    } else
         pin.k0 = 1.;
     if (pin.k0 <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(-31) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_k_less_than_zero) );
     }
 
     /* set units */
-    pj_init_units(pin.params, "sunits", "sto_meter",
+    pj_init_units(pin.params, "units", "to_meter",
                   pin.to_meter, pin.fr_meter, 1., 1.);
-    pj_init_units(pin.params, "svunits", "svto_meter",
+    pj_init_units(pin.params, "vunits", "vto_meter",
                   pin.vto_meter, pin.vfr_meter, pin.to_meter, pin.fr_meter);
 
     /* prime meridian */
-    std::string pm = pj_param(pin.params, "spm").s;
+    std::string pm = pj_get_param_s(pin.params, "pm");
     if (! pm.empty())
     {
         std::string value;
@@ -317,8 +315,8 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
 
         dms_parser<T, true> parser;
 
-        // TODO: Handle case when lexical_cast is not used consistently.
-        //       This should probably be done in dms_parser.
+        // TODO: Is this try-catch needed?
+        // In other cases the bad_str_cast exception is simply thrown
         BOOST_TRY
         {
             if (value.empty()) {
@@ -327,9 +325,9 @@ inline parameters<T> pj_init(BGParams const& bg_params, R const& arguments, bool
                 pin.from_greenwich = parser.apply(value).angle();
             }
         }
-        BOOST_CATCH(boost::bad_lexical_cast const&)
+        BOOST_CATCH(geometry::bad_str_cast const&)
         {
-            BOOST_THROW_EXCEPTION( projection_exception(-46) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknown_prime_meridian) );
         }
         BOOST_CATCH_END
     }

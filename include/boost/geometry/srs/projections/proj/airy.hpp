@@ -70,12 +70,12 @@ namespace projections
     namespace detail { namespace airy
     {
 
-            static const double EPS = 1.e-10;
-            enum Mode {
-                N_POLE = 0,
-                S_POLE = 1,
-                EQUIT  = 2,
-                OBLIQ  = 3
+            static const double epsilon = 1.e-10;
+            enum mode_type {
+                n_pole = 0,
+                s_pole = 1,
+                equit  = 2,
+                obliq  = 3
             };
 
             template <typename T>
@@ -85,69 +85,65 @@ namespace projections
                 T    sinph0;
                 T    cosph0;
                 T    Cb;
-                enum Mode mode;
+                mode_type mode;
                 int  no_cut;    /* do not cut at hemisphere limit */
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_airy_spheroid : public base_t_f<base_airy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_airy_spheroid
+                : public base_t_f<base_airy_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_airy<CalculationType> m_proj_parm;
+                par_airy<T> m_proj_parm;
 
                 inline base_airy_spheroid(const Parameters& par)
-                    : base_t_f<base_airy_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_f<base_airy_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
+                    T  sinlam, coslam, cosphi, sinphi, t, s, Krho, cosz;
 
                     sinlam = sin(lp_lon);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
-                    case EQUIT:
-                    case OBLIQ:
+                    case equit:
+                    case obliq:
                         sinphi = sin(lp_lat);
                         cosphi = cos(lp_lat);
                         cosz = cosphi * coslam;
-                        if (this->m_proj_parm.mode == OBLIQ)
+                        if (this->m_proj_parm.mode == obliq)
                             cosz = this->m_proj_parm.sinph0 * sinphi + this->m_proj_parm.cosph0 * cosz;
-                        if (!this->m_proj_parm.no_cut && cosz < -EPS) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (!this->m_proj_parm.no_cut && cosz < -epsilon) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
-                        if (fabs(s = 1. - cosz) > EPS) {
+                        if (fabs(s = 1. - cosz) > epsilon) {
                             t = 0.5 * (1. + cosz);
                             Krho = -log(t)/s - this->m_proj_parm.Cb / t;
                         } else
                             Krho = 0.5 - this->m_proj_parm.Cb;
                         xy_x = Krho * cosphi * sinlam;
-                        if (this->m_proj_parm.mode == OBLIQ)
+                        if (this->m_proj_parm.mode == obliq)
                             xy_y = Krho * (this->m_proj_parm.cosph0 * sinphi -
                                 this->m_proj_parm.sinph0 * cosphi * coslam);
                         else
                             xy_y = Krho * sinphi;
                         break;
-                    case S_POLE:
-                    case N_POLE:
+                    case s_pole:
+                    case n_pole:
                         lp_lat = fabs(this->m_proj_parm.p_halfpi - lp_lat);
-                        if (!this->m_proj_parm.no_cut && (lp_lat - EPS) > HALFPI)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
-                        if ((lp_lat *= 0.5) > EPS) {
+                        if (!this->m_proj_parm.no_cut && (lp_lat - epsilon) > half_pi)
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
+                        if ((lp_lat *= 0.5) > epsilon) {
                             t = tan(lp_lat);
                             Krho = -2.*(log(cos(lp_lat)) / t + t * this->m_proj_parm.Cb);
                             xy_x = Krho * sinlam;
                             xy_y = Krho * coslam;
-                            if (this->m_proj_parm.mode == N_POLE)
+                            if (this->m_proj_parm.mode == n_pole)
                                 xy_y = -xy_y;
                         } else
                             xy_x = xy_y = 0.;
@@ -165,32 +161,32 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_airy(Parameters& par, par_airy<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T beta;
 
-                proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
-                beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
-                if (fabs(beta) < EPS)
+                proj_parm.no_cut = pj_get_param_b(par.params, "no_cut");
+                beta = 0.5 * (half_pi - pj_get_param_r(par.params, "lat_b"));
+                if (fabs(beta) < epsilon)
                     proj_parm.Cb = -0.5;
                 else {
                     proj_parm.Cb = 1./tan(beta);
                     proj_parm.Cb *= proj_parm.Cb * log(cos(beta));
                 }
 
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS)
+                if (fabs(fabs(par.phi0) - half_pi) < epsilon)
                     if (par.phi0 < 0.) {
-                        proj_parm.p_halfpi = -HALFPI;
-                        proj_parm.mode = S_POLE;
+                        proj_parm.p_halfpi = -half_pi;
+                        proj_parm.mode = s_pole;
                     } else {
-                        proj_parm.p_halfpi =  HALFPI;
-                        proj_parm.mode = N_POLE;
+                        proj_parm.p_halfpi =  half_pi;
+                        proj_parm.mode = n_pole;
                     }
                 else {
-                    if (fabs(par.phi0) < EPS)
-                        proj_parm.mode = EQUIT;
+                    if (fabs(par.phi0) < epsilon)
+                        proj_parm.mode = equit;
                     else {
-                        proj_parm.mode = OBLIQ;
+                        proj_parm.mode = obliq;
                         proj_parm.sinph0 = sin(par.phi0);
                         proj_parm.cosph0 = cos(par.phi0);
                     }
@@ -217,10 +213,10 @@ namespace projections
         \par Example
         \image html ex_airy.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct airy_spheroid : public detail::airy::base_airy_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct airy_spheroid : public detail::airy::base_airy_spheroid<T, Parameters>
     {
-        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<CalculationType, Parameters>(par)
+        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<T, Parameters>(par)
         {
             detail::airy::setup_airy(this->m_par, this->m_proj_parm);
         }
@@ -234,20 +230,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::airy, airy_spheroid, airy_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class airy_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class airy_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<airy_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_f<airy_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void airy_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void airy_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("airy", new airy_entry<CalculationType, Parameters>);
+            factory.add_to_factory("airy", new airy_entry<T, Parameters>);
         }
 
     } // namespace detail

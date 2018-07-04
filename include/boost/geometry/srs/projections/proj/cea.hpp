@@ -64,7 +64,7 @@ namespace projections
     namespace detail { namespace cea
     {
 
-            static const double EPS = 1e-10;
+            static const double epsilon = 1e-10;
 
             template <typename T>
             struct par_cea
@@ -74,23 +74,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_cea_ellipsoid : public base_t_fi<base_cea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_cea_ellipsoid
+                : public base_t_fi<base_cea_ellipsoid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_cea<CalculationType> m_proj_parm;
+                par_cea<T> m_proj_parm;
 
                 inline base_cea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_cea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_cea_ellipsoid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(e_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = .5 * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es) / this->m_par.k0;
@@ -98,7 +94,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = pj_authlat(asin( 2. * xy_y * this->m_par.k0 / this->m_proj_parm.qp), this->m_proj_parm.apa);
                     lp_lon = xy_x / this->m_par.k0;
@@ -112,23 +108,19 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_cea_spheroid : public base_t_fi<base_cea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_cea_spheroid
+                : public base_t_fi<base_cea_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_cea<CalculationType> m_proj_parm;
+                par_cea<T> m_proj_parm;
 
                 inline base_cea_spheroid(const Parameters& par)
-                    : base_t_fi<base_cea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_cea_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = sin(lp_lat) / this->m_par.k0;
@@ -136,20 +128,20 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType t;
+                    T t;
 
-                    if ((t = fabs(xy_y *= this->m_par.k0)) - EPS <= 1.) {
+                    if ((t = fabs(xy_y *= this->m_par.k0)) - epsilon <= 1.) {
                         if (t >= 1.)
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -half_pi : half_pi;
                         else
                             lp_lat = asin(xy_y);
                         lp_lon = xy_x / this->m_par.k0;
                     } else
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                 }
 
                 static inline std::string get_name()
@@ -165,10 +157,10 @@ namespace projections
             {
                 T t = 0;
 
-                if (pj_param(par.params, "tlat_ts").i) {
-                    par.k0 = cos(t = pj_param(par.params, "rlat_ts").f);
+                if (pj_param_r(par.params, "lat_ts", t)) {
+                    par.k0 = cos(t);
                     if (par.k0 < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-24) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
                     }
                 }
                 if (par.es != 0.0) {
@@ -199,10 +191,10 @@ namespace projections
         \par Example
         \image html ex_cea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<T, Parameters>
     {
-        inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<CalculationType, Parameters>(par)
+        inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<T, Parameters>(par)
         {
             detail::cea::setup_cea(this->m_par, this->m_proj_parm);
         }
@@ -223,10 +215,10 @@ namespace projections
         \par Example
         \image html ex_cea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct cea_spheroid : public detail::cea::base_cea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct cea_spheroid : public detail::cea::base_cea_spheroid<T, Parameters>
     {
-        inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<CalculationType, Parameters>(par)
+        inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<T, Parameters>(par)
         {
             detail::cea::setup_cea(this->m_par, this->m_proj_parm);
         }
@@ -240,23 +232,23 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::cea, cea_spheroid, cea_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class cea_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class cea_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
                     if (par.es)
-                        return new base_v_fi<cea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<cea_ellipsoid<T, Parameters>, T, Parameters>(par);
                     else
-                        return new base_v_fi<cea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                        return new base_v_fi<cea_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void cea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void cea_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("cea", new cea_entry<CalculationType, Parameters>);
+            factory.add_to_factory("cea", new cea_entry<T, Parameters>);
         }
 
     } // namespace detail

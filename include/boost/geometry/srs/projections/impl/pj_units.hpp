@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -44,11 +44,19 @@
 namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
+// Originally defined in projects.h
+struct pj_units_type
+{
+    std::string id;       /* units keyword */
+    std::string to_meter; /* multiply by value to get meters */
+    std::string name;     /* comments */
+};
+
 /* Field 2 that contains the multiplier to convert named units to meters
 ** may be expressed by either a simple floating point constant or a
 ** numerator/denomenator values (e.g. 1/1000) */
 
-static const PJ_UNITS pj_units[] =
+static const pj_units_type pj_units[] =
 {
     { "km",     "1000.",    "Kilometer" },
     { "m",      "1.",       "Meter" },

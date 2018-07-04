@@ -63,8 +63,8 @@ namespace projections
     namespace detail { namespace fouc_s
     {
 
-            static const int MAX_ITER = 10;
-            static const double LOOP_TOL = 1e-7;
+            static const int max_iter = 10;
+            static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_fouc_s
@@ -73,25 +73,21 @@ namespace projections
             };
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_fouc_s_spheroid : public base_t_fi<base_fouc_s_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_fouc_s_spheroid
+                : public base_t_fi<base_fouc_s_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_fouc_s<CalculationType> m_proj_parm;
+                par_fouc_s<T> m_proj_parm;
 
                 inline base_fouc_s_spheroid(const Parameters& par)
-                    : base_t_fi<base_fouc_s_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_fouc_s_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType t;
+                    T t;
 
                     t = cos(lp_lat);
                     xy_x = lp_lon * t / (this->m_proj_parm.n + this->m_proj_parm.n1 * t);
@@ -100,23 +96,23 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static CalculationType const HALFPI = detail::HALFPI<CalculationType>();
+                    static T const half_pi = detail::half_pi<T>();
 
-                    CalculationType V;
+                    T V;
                     int i;
 
                     if (this->m_proj_parm.n != 0.0) {
                         lp_lat = xy_y;
-                        for (i = MAX_ITER; i ; --i) {
+                        for (i = max_iter; i ; --i) {
                             lp_lat -= V = (this->m_proj_parm.n * lp_lat + this->m_proj_parm.n1 * sin(lp_lat) - xy_y ) /
                                 (this->m_proj_parm.n + this->m_proj_parm.n1 * cos(lp_lat));
-                            if (fabs(V) < LOOP_TOL)
+                            if (fabs(V) < loop_tol)
                                 break;
                         }
                         if (!i)
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -half_pi : half_pi;
                     } else
                         lp_lat = aasin(xy_y);
                     V = cos(lp_lat);
@@ -134,9 +130,9 @@ namespace projections
             template <typename Parameters, typename T>
             inline void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
             {
-                proj_parm.n = pj_param(par.params, "dn").f;
+                proj_parm.n = pj_get_param_f(par.params, "n");
                 if (proj_parm.n < 0. || proj_parm.n > 1.)
-                    BOOST_THROW_EXCEPTION( projection_exception(-40) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
 
                 proj_parm.n1 = 1. - proj_parm.n;
                 par.es = 0;
@@ -159,10 +155,10 @@ namespace projections
         \par Example
         \image html ex_fouc_s.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<T, Parameters>
     {
-        inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<CalculationType, Parameters>(par)
+        inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<T, Parameters>(par)
         {
             detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
         }
@@ -176,20 +172,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::fouc_s, fouc_s_spheroid, fouc_s_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class fouc_s_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class fouc_s_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<fouc_s_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<fouc_s_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void fouc_s_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void fouc_s_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("fouc_s", new fouc_s_entry<CalculationType, Parameters>);
+            factory.add_to_factory("fouc_s", new fouc_s_entry<T, Parameters>);
         }
 
     } // namespace detail

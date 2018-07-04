@@ -66,11 +66,11 @@ namespace projections
     {
             // TODO: consider replacing dynamically created projections
             // with member objects
-            template <typename CalculationType, typename Parameters>
+            template <typename T, typename Parameters>
             struct par_igh
             {
-                boost::shared_ptr<base_v<CalculationType, Parameters> > pj[12];
-                CalculationType dy0;
+                boost::shared_ptr<base_v<T, Parameters> > pj[12];
+                T dy0;
             };
 
             /* 40d 44' 11.8" [degrees] */
@@ -102,18 +102,18 @@ namespace projections
             template <typename T>
             inline T d180() { return T(180) * geometry::math::d2r<T>(); }
 
-            static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
+            static const double epsilon = 1.e-10; // allow a little 'slack' on zone edge positions
 
             // Converted from #define SETUP(n, proj, x_0, y_0, lon_0)
-            template <template <typename, typename> class Entry, typename Parameters, typename CalculationType>
-            inline void do_setup(int n, Parameters const& par, par_igh<CalculationType, Parameters>& proj_parm,
-                                 CalculationType const& x_0, CalculationType const& y_0,
-                                 CalculationType const& lon_0)
+            template <template <typename, typename> class Entry, typename Parameters, typename T>
+            inline void do_setup(int n, Parameters const& par, par_igh<T, Parameters>& proj_parm,
+                                 T const& x_0, T const& y_0,
+                                 T const& lon_0)
             {
                 // NOTE: in the original proj4 these projections are initialized
                 // with zeroed parameters which could be done here as well instead
                 // of initializing with parent projection's parameters.
-                Entry<CalculationType, Parameters> entry;
+                Entry<T, Parameters> entry;
                 proj_parm.pj[n-1].reset(entry.create_new(par));
                 proj_parm.pj[n-1]->mutable_params().x0 = x_0;
                 proj_parm.pj[n-1]->mutable_params().y0 = y_0;
@@ -121,29 +121,25 @@ namespace projections
             }
 
             // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_igh_spheroid : public base_t_fi<base_igh_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_igh_spheroid
+                : public base_t_fi<base_igh_spheroid<T, Parameters>, T, Parameters>
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_igh<CalculationType, Parameters> m_proj_parm;
+                par_igh<T, Parameters> m_proj_parm;
 
                 inline base_igh_spheroid(const Parameters& par)
-                    : base_t_fi<base_igh_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                    : base_t_fi<base_igh_spheroid<T, Parameters>, T, Parameters>(*this, par)
+                {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType d4044118 = igh::d4044118<CalculationType>();
-                    static const CalculationType d20  =  igh::d20<CalculationType>();
-                    static const CalculationType d40  =  igh::d40<CalculationType>();
-                    static const CalculationType d80  =  igh::d80<CalculationType>();
-                    static const CalculationType d100 = igh::d100<CalculationType>();
+                    static const T d4044118 = igh::d4044118<T>();
+                    static const T d20  =  igh::d20<T>();
+                    static const T d40  =  igh::d40<T>();
+                    static const T d80  =  igh::d80<T>();
+                    static const T d100 = igh::d100<T>();
 
                         int z;
                         if (lp_lat >=  d4044118) {          // 1|2
@@ -173,26 +169,26 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType d4044118 = igh::d4044118<CalculationType>();
-                    static const CalculationType d10  =  igh::d10<CalculationType>();
-                    static const CalculationType d20  =  igh::d20<CalculationType>();
-                    static const CalculationType d40  =  igh::d40<CalculationType>();
-                    static const CalculationType d50  =  igh::d50<CalculationType>();
-                    static const CalculationType d60  =  igh::d60<CalculationType>();
-                    static const CalculationType d80  =  igh::d80<CalculationType>();
-                    static const CalculationType d90  =  igh::d90<CalculationType>();
-                    static const CalculationType d100 = igh::d100<CalculationType>();
-                    static const CalculationType d160 = igh::d160<CalculationType>();
-                    static const CalculationType d180 = igh::d180<CalculationType>();
+                    static const T d4044118 = igh::d4044118<T>();
+                    static const T d10  =  igh::d10<T>();
+                    static const T d20  =  igh::d20<T>();
+                    static const T d40  =  igh::d40<T>();
+                    static const T d50  =  igh::d50<T>();
+                    static const T d60  =  igh::d60<T>();
+                    static const T d80  =  igh::d80<T>();
+                    static const T d90  =  igh::d90<T>();
+                    static const T d100 = igh::d100<T>();
+                    static const T d160 = igh::d160<T>();
+                    static const T d180 = igh::d180<T>();
 
-                    static const CalculationType c2 = 2.0;
+                    static const T c2 = 2.0;
                     
-                    const CalculationType y90 = this->m_proj_parm.dy0 + sqrt(c2); // lt=90 corresponds to y=y0+sqrt(2.0)
+                    const T y90 = this->m_proj_parm.dy0 + sqrt(c2); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
-                        if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
+                        if (xy_y > y90+epsilon || xy_y < -y90+epsilon) // 0
                           z = 0;
                         else if (xy_y >=  d4044118)       // 1|2
                           z = (xy_x <= -d40? 1: 2);
@@ -221,24 +217,24 @@ namespace projections
                           lp_lon += this->m_proj_parm.pj[z-1]->params().lam0;
 
                           switch (z) {
-                            case  1: ok = (lp_lon >= -d180-EPSLN && lp_lon <=  -d40+EPSLN) ||
-                                         ((lp_lon >=  -d40-EPSLN && lp_lon <=  -d10+EPSLN) &&
-                                          (lp_lat >=   d60-EPSLN && lp_lat <=   d90+EPSLN)); break;
-                            case  2: ok = (lp_lon >=  -d40-EPSLN && lp_lon <=  d180+EPSLN) ||
-                                         ((lp_lon >= -d180-EPSLN && lp_lon <= -d160+EPSLN) &&
-                                          (lp_lat >=   d50-EPSLN && lp_lat <=   d90+EPSLN)) ||
-                                         ((lp_lon >=  -d50-EPSLN && lp_lon <=  -d40+EPSLN) &&
-                                          (lp_lat >=   d60-EPSLN && lp_lat <=   d90+EPSLN)); break;
-                            case  3: ok = (lp_lon >= -d180-EPSLN && lp_lon <=  -d40+EPSLN); break;
-                            case  4: ok = (lp_lon >=  -d40-EPSLN && lp_lon <=  d180+EPSLN); break;
-                            case  5: ok = (lp_lon >= -d180-EPSLN && lp_lon <= -d100+EPSLN); break;
-                            case  6: ok = (lp_lon >= -d100-EPSLN && lp_lon <=  -d20+EPSLN); break;
-                            case  7: ok = (lp_lon >=  -d20-EPSLN && lp_lon <=   d80+EPSLN); break;
-                            case  8: ok = (lp_lon >=   d80-EPSLN && lp_lon <=  d180+EPSLN); break;
-                            case  9: ok = (lp_lon >= -d180-EPSLN && lp_lon <= -d100+EPSLN); break;
-                            case 10: ok = (lp_lon >= -d100-EPSLN && lp_lon <=  -d20+EPSLN); break;
-                            case 11: ok = (lp_lon >=  -d20-EPSLN && lp_lon <=   d80+EPSLN); break;
-                            case 12: ok = (lp_lon >=   d80-EPSLN && lp_lon <=  d180+EPSLN); break;
+                            case  1: ok = (lp_lon >= -d180-epsilon && lp_lon <=  -d40+epsilon) ||
+                                         ((lp_lon >=  -d40-epsilon && lp_lon <=  -d10+epsilon) &&
+                                          (lp_lat >=   d60-epsilon && lp_lat <=   d90+epsilon)); break;
+                            case  2: ok = (lp_lon >=  -d40-epsilon && lp_lon <=  d180+epsilon) ||
+                                         ((lp_lon >= -d180-epsilon && lp_lon <= -d160+epsilon) &&
+                                          (lp_lat >=   d50-epsilon && lp_lat <=   d90+epsilon)) ||
+                                         ((lp_lon >=  -d50-epsilon && lp_lon <=  -d40+epsilon) &&
+                                          (lp_lat >=   d60-epsilon && lp_lat <=   d90+epsilon)); break;
+                            case  3: ok = (lp_lon >= -d180-epsilon && lp_lon <=  -d40+epsilon); break;
+                            case  4: ok = (lp_lon >=  -d40-epsilon && lp_lon <=  d180+epsilon); break;
+                            case  5: ok = (lp_lon >= -d180-epsilon && lp_lon <= -d100+epsilon); break;
+                            case  6: ok = (lp_lon >= -d100-epsilon && lp_lon <=  -d20+epsilon); break;
+                            case  7: ok = (lp_lon >=  -d20-epsilon && lp_lon <=   d80+epsilon); break;
+                            case  8: ok = (lp_lon >=   d80-epsilon && lp_lon <=  d180+epsilon); break;
+                            case  9: ok = (lp_lon >= -d180-epsilon && lp_lon <= -d100+epsilon); break;
+                            case 10: ok = (lp_lon >= -d100-epsilon && lp_lon <=  -d20+epsilon); break;
+                            case 11: ok = (lp_lon >=  -d20-epsilon && lp_lon <=   d80+epsilon); break;
+                            case 12: ok = (lp_lon >=   d80-epsilon && lp_lon <=  d180+epsilon); break;
                           }
 
                           z = (!ok? 0: z); // projectable?
@@ -256,17 +252,17 @@ namespace projections
             };
 
             // Interrupted Goode Homolosine
-            template <typename CalculationType, typename Parameters>
-            inline void setup_igh(Parameters& par, par_igh<CalculationType, Parameters>& proj_parm)
+            template <typename T, typename Parameters>
+            inline void setup_igh(Parameters& par, par_igh<T, Parameters>& proj_parm)
             {
-                static const CalculationType d0   =  0;
-                static const CalculationType d4044118 = igh::d4044118<CalculationType>();
-                static const CalculationType d20  =  igh::d20<CalculationType>();
-                static const CalculationType d30  =  igh::d30<CalculationType>();
-                static const CalculationType d60  =  igh::d60<CalculationType>();
-                static const CalculationType d100 = igh::d100<CalculationType>();
-                static const CalculationType d140 = igh::d140<CalculationType>();
-                static const CalculationType d160 = igh::d160<CalculationType>();
+                static const T d0   =  0;
+                static const T d4044118 = igh::d4044118<T>();
+                static const T d20  =  igh::d20<T>();
+                static const T d30  =  igh::d30<T>();
+                static const T d60  =  igh::d60<T>();
+                static const T d100 = igh::d100<T>();
+                static const T d140 = igh::d140<T>();
+                static const T d160 = igh::d160<T>();
 
             /*
               Zones:
@@ -288,9 +284,9 @@ namespace projections
                 -180    -100      -20         80          180
             */
                 
-                    CalculationType lp_lam = 0, lp_phi = d4044118;
-                    CalculationType xy1_x, xy1_y;
-                    CalculationType xy3_x, xy3_y;
+                    T lp_lam = 0, lp_phi = d4044118;
+                    T xy1_x, xy1_y;
+                    T xy3_x, xy3_y;
 
                     // IMPORTANT: Force spherical sinu projection
                     // This is required because unlike in the original proj4 here
@@ -344,10 +340,10 @@ namespace projections
         \par Example
         \image html ex_igh.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct igh_spheroid : public detail::igh::base_igh_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct igh_spheroid : public detail::igh::base_igh_spheroid<T, Parameters>
     {
-        inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<CalculationType, Parameters>(par)
+        inline igh_spheroid(const Parameters& par) : detail::igh::base_igh_spheroid<T, Parameters>(par)
         {
             detail::igh::setup_igh(this->m_par, this->m_proj_parm);
         }
@@ -361,20 +357,20 @@ namespace projections
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::igh, igh_spheroid, igh_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class igh_entry : public detail::factory_entry<CalculationType, Parameters>
+        template <typename T, typename Parameters>
+        class igh_entry : public detail::factory_entry<T, Parameters>
         {
             public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
+                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<igh_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
+                    return new base_v_fi<igh_spheroid<T, Parameters>, T, Parameters>(par);
                 }
         };
 
-        template <typename CalculationType, typename Parameters>
-        inline void igh_init(detail::base_factory<CalculationType, Parameters>& factory)
+        template <typename T, typename Parameters>
+        inline void igh_init(detail::base_factory<T, Parameters>& factory)
         {
-            factory.add_to_factory("igh", new igh_entry<CalculationType, Parameters>);
+            factory.add_to_factory("igh", new igh_entry<T, Parameters>);
         }
 
     } // namespace detail

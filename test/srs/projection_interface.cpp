@@ -70,7 +70,7 @@ int test_main(int, char*[])
         point_xy pt_xy(0, 0);
 
         // default WGS84 spheroid
-        projection<static_proj4<proj<tmerc> > > prj;
+        projection<static_proj4<boost::geometry::srs::par4::proj<tmerc> > > prj;
         //projection<static_proj4<proj<tmerc>, ellps<WGS84> > > prj;
 
         prj.forward(pt_ll, pt_xy);
@@ -100,12 +100,12 @@ int test_main(int, char*[])
 
     {
         // static_proj4 constructors
-        projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
+        projection<static_proj4<boost::geometry::srs::par4::proj<tmerc>, ellps<WGS84> > >
             prj1;
-        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
+        projection<static_proj4<boost::geometry::srs::par4::proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
             prj2;
 #ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
-        projection<static_proj4<proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
+        projection<static_proj4<boost::geometry::srs::par4::proj<tmerc>, ellps<WGS84>, datum<WGS84> > >
             prj3 = proj4("");
 #endif
     }
@@ -113,7 +113,7 @@ int test_main(int, char*[])
     {
         typedef spheroid<double> sph;
         typedef ellps<sph> ell;
-        typedef proj<tmerc> prj;
+        typedef boost::geometry::srs::par4::proj<tmerc> prj;
         projection<static_proj4<ell, prj> >
             prj1 = static_proj4<ell, prj>(ell(sph(1000, 999)));
 #ifdef BOOST_GEOMETRY_SRS_ENABLE_STATIC_PROJECTION_HYBRID_INTERFACE
@@ -130,7 +130,7 @@ int test_main(int, char*[])
         //projection<static_proj4<int> > prj1;
         //projection<int> prj2;
 
-        projection<static_proj4<proj<bacon> > > prj3;
+        projection<static_proj4<boost::geometry::srs::par4::proj<bacon> > > prj3;
         //projection<static_proj4<proj<bacon>, ellps<WGS84> > > prj3;
         //prj3.inverse(pt_xy, pt_ll);
     }
