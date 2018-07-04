@@ -502,16 +502,14 @@ private:
             // the segment lies above the box
             if (geometry::get<1>(p0) > geometry::get<1>(top_right))
             {
-                result =
-                        std::min(
-                            above_of_box
-                            <
-                                LessEqual
-                            >::apply(p0, p1, top_left, sb_strategy),
-                            above_of_box
-                            <
-                                GreaterEqual
-                            >::apply(p1, p0, top_right, sb_strategy));
+                result = (std::min)(above_of_box
+                                    <
+                                        LessEqual
+                                    >::apply(p0, p1, top_left, sb_strategy),
+                                    above_of_box
+                                    <
+                                        GreaterEqual
+                                    >::apply(p1, p0, top_right, sb_strategy));
                 return true;
             }
             return false;
