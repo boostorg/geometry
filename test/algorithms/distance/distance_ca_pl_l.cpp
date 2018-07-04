@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -11,13 +12,13 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_pointlike_linear
+#define BOOST_TEST_MODULE test_distance_cartesian_pointlike_linear
 #endif
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_common.hpp"
-
+#include "test_empty_geometry.hpp"
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::multi_point<point_type>            multi_point_type;
@@ -268,40 +269,6 @@ void test_distance_multipoint_segment(Strategy const& strategy)
                   "segment(0 0,1 1)",
                   sqrt(2.0), 2, strategy);
 }
-
-//===========================================================================
-
-template <typename Point, typename Strategy>
-void test_more_empty_input_pointlike_linear(Strategy const& strategy)
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
-    std::cout << "testing on empty inputs... " << std::flush;
-#endif
-    bg::model::linestring<Point> line_empty;
-    bg::model::multi_point<Point> multipoint_empty;
-    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
-
-    Point point = from_wkt<Point>("point(0 0)");
-    bg::model::linestring<Point> line =
-        from_wkt<bg::model::linestring<Point> >("linestring(0 0,1 1)");
-
-    // 1st geometry is empty
-    test_empty_input(multipoint_empty, line, strategy);
-
-    // 2nd geometry is empty
-    test_empty_input(point, line_empty, strategy);
-    test_empty_input(point, multiline_empty, strategy);
-
-    // both geometries are empty
-    test_empty_input(multipoint_empty, line_empty, strategy);
-    test_empty_input(multipoint_empty, multiline_empty, strategy);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "done!" << std::endl;
-#endif
-}
-
 
 //===========================================================================
 //===========================================================================

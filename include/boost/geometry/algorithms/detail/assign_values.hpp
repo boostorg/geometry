@@ -92,6 +92,7 @@ struct assign_inverse_box_or_segment
             geometry, boost::numeric::bounds<bound_type>::lowest()
         );
     }
+
 };
 
 
