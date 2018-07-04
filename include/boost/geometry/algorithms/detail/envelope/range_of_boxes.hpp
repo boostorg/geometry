@@ -272,6 +272,15 @@ struct envelope_range_of_boxes
              it != boost::end(range_of_boxes);
              ++it)
         {
+            coordinate_type high = boost::numeric::bounds<coordinate_type>::highest();
+            coordinate_type low = boost::numeric::bounds<coordinate_type>::lowest();
+
+            if (geometry::get<0, 0>(*it) == high && geometry::get<0, 1>(*it) == high
+                && geometry::get<1, 0>(*it) == low  && geometry::get<1, 1>(*it) == low)
+            {
+                continue;
+            }
+
             coordinate_type lat_min = geometry::get<min_corner, 1>(*it);
             coordinate_type lat_max = geometry::get<max_corner, 1>(*it);
             if (math::equals(lat_min, constants::max_latitude())
