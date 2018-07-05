@@ -140,12 +140,12 @@ struct range_multi_range
         result_type dis_max=0;
         for(size_type j=0;j<b;j++)
         {
-        	result_type dis_min;
-        	dis_max =range_range::apply(rng,range::at(mrng,j),strategy);
-		if(dis_max > haus_dis)
-        	{
-        	    	haus_dis=dis_max;
-        	}  
+            result_type dis_min;
+            dis_max =range_range::apply(rng,range::at(mrng,j),strategy);
+        if(dis_max > haus_dis)
+            {
+                    haus_dis=dis_max;
+            }  
         }
 
           
@@ -275,4 +275,3 @@ hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
 }
 
 }} // namespace boost::geometry
-

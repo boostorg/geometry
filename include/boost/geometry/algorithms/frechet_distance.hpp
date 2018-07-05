@@ -18,7 +18,6 @@
 #include <utility>
 #include <vector>
 #include <limits>
-#include <initializer_list>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -103,7 +102,7 @@ struct linestring_linestring
                     (std::max)(coup_matrix(i-1,j),dis);
                 else if(i>0 && j>0)
                     coup_matrix(i,j)=
-                    (std::max)((std::min)({coup_matrix(i,j-1),coup_matrix(i-1,j),coup_matrix(i-1,j-1)}),dis);
+                    (std::max)((std::min)(coup_matrix(i,j-1),(std::min)(coup_matrix(i-1,j),coup_matrix(i-1,j-1))),dis);
                 else
                     coup_matrix(i,j)=not_feasible;
             }
