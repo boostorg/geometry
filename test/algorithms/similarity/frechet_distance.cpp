@@ -12,7 +12,7 @@
 
 #define BOOST_GEOMETRY_TEST_DEBUG
 
-#include "./test_frechet_distance.hpp"
+#include <algorithms/test_frechet_distance.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -25,8 +25,6 @@ template <typename P>
 void test_all_cartesian()
 {
     typedef model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
     #ifdef BOOST_GEOMETRY_TEST_DEBUG
     typedef typename coordinate_system<P>::type CordType;
     std::cout << typeid(CordType).name() << std::endl;
@@ -42,8 +40,7 @@ template <typename P>
 void test_all_geographic()
 {
     typedef model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
+    
     #ifdef BOOST_GEOMETRY_TEST_DEBUG
     typedef typename coordinate_system<P>::type CordType;
     std::cout << typeid(CordType).name() << std::endl;
@@ -58,9 +55,7 @@ template <typename P>
 void test_all_spherical_equ()
 {
     typedef model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
-
+    
     #ifdef BOOST_GEOMETRY_TEST_DEBUG
     typedef typename coordinate_system<P>::type CordType;
     std::cout << typeid(CordType).name() << std::endl;
