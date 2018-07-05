@@ -101,7 +101,7 @@ struct ever_circling_range_iterator
         ever_circling_range_iterator<Range>,
         typename boost::range_value<Range>::type const,
         boost::random_access_traversal_tag,
-        typename boost::range_reference<Range>::type const,
+        typename boost::range_reference<Range const>::type,
         typename boost::range_difference<Range>::type
     >
 {
@@ -111,7 +111,7 @@ private:
             ever_circling_range_iterator<Range>,
             typename boost::range_value<Range>::type const,
             boost::random_access_traversal_tag,
-            typename boost::range_reference<Range>::type const,
+            typename boost::range_reference<Range const>::type,
             typename boost::range_difference<Range>::type
         > base_type;
 
