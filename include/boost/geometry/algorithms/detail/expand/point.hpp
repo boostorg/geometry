@@ -44,8 +44,6 @@
 
 #include <boost/geometry/algorithms/dispatch/expand.hpp>
 
-#include <boost/geometry/algorithms/make.hpp>
-
 namespace boost { namespace geometry
 {
 

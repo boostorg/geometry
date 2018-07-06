@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include "test_envelope_expand_on_spheroid.hpp"
