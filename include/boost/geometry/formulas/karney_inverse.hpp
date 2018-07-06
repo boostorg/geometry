@@ -102,7 +102,6 @@ public:
 
         CT tiny = std::sqrt(std::numeric_limits<CT>::min());
 
-
         CT const n = f / two_minus_f;
         CT const e2 = f * two_minus_f;
         CT const ep2 = e2 / math::sqr(one_minus_f);
@@ -293,7 +292,7 @@ public:
 
             if (sigma12 >= c0)
             {
-                // Short lines case (newton_start sets salp2, calp2, dnm)
+                // Short lines case (newton_start sets sin_alpha2, cos_alpha2, dnm)
                 s12x = sigma12 * b * dnm;
                 m12x = math::sqr(dnm) * b * sin(sigma12 / dnm);
                 if (BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
@@ -361,7 +360,7 @@ public:
                         CT cos_diff_alpha1 = cos(diff_alpha1);
 
                         CT nsin_alpha1 = sin_alpha1 * cos_diff_alpha1 +
-                                        cos_alpha1 * sin_diff_alpha1;
+                            cos_alpha1 * sin_diff_alpha1;
 
                         if (nsin_alpha1 > c0 && std::abs(diff_alpha1) < math::pi<CT>())
                         {
@@ -565,15 +564,21 @@ public:
     {
         CT const one_minus_f = c1 - f;
         CT const x_thresh = c1000 * tol2;
+
+        // Return a starting point for Newton's method in sin_alpha1
+        // and cos_alpha1 (function value is -1). If Newton's method
+        // doesn't need to be used, return also sin_alpha2 and
+        // cos_alpha2 and function value is sig12.
         CT sig12 = -c1;
 
+        // bet12 = bet2 - bet1 in [0, pi); beta12a = bet2 + bet1 in (-pi, 0]
         CT sin_beta12 = sin_beta2 * cos_beta1 - cos_beta2 * sin_beta1;
         CT cos_beta12 = cos_beta2 * cos_beta1 + sin_beta2 * sin_beta1;
 
         CT sin_beta12a = sin_beta2 * cos_beta1 + cos_beta2 * sin_beta1;
 
         bool shortline = cos_beta12 >= c0 && sin_beta12 < c0_5 &&
-                         cos_beta2 * lam12 < c0_5;
+            cos_beta2 * lam12 < c0_5;
 
         CT sin_omega12, cos_omega12;
 
@@ -609,6 +614,10 @@ public:
             cos_alpha2 = sin_beta12 - cos_beta1 * sin_beta2 *
                 (cos_omega12 >= c0 ? math::sqr(sin_omega12) /
                 (c1 + cos_omega12) : c1 - cos_omega12);
+
+            math::normalize_values<CT>(sin_alpha2, cos_alpha2);
+            // Set return value.
+            sig12 = atan2(sin_sigma12, cos_sigma12);
         }
         // Skip astroid calculation if too eccentric.
         else if (std::abs(n) > c0_1 ||
@@ -616,11 +625,11 @@ public:
                  sin_sigma12 >= c6 * std::abs(n) * math::pi<CT>() *
                  math::sqr(cos_beta1))
         {
-            // Nothing to do.
+            // Nothing to do, zeroth order spherical approximation will do.
         }
         else
         {
-            // Scale lam12 and beta2 to x, y coordinate system where antipodal
+            // Scale lam12 and bet2 to x, y coordinate system where antipodal
             // point is at origin and singular point is at y = 0, x = -1.
             CT lambda_scale, beta_scale;
 
@@ -628,18 +637,17 @@ public:
             volatile CT x;
 
             CT lam12x = atan2(-sin_lam12, -cos_lam12);
-            if (f >= 0)
+            if (f >= c0)
             {
                 CT k2 = math::sqr(sin_beta1) * ep2;
-                CT epsilon = k2 / (c2 * (c1 * sqrt(c1 + k2)) + k2);
+                CT eps = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
 
                 CT coeffs_A3[SeriesOrder];
                 series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
 
-                CT const A3 = math::horner_evaluate(epsilon, coeffs_A3, coeffs_A3 + SeriesOrder);
+                CT const A3 = math::horner_evaluate(eps, coeffs_A3, coeffs_A3 + SeriesOrder);
 
                 lambda_scale = f * cos_beta1 * A3 * math::pi<CT>();
-
                 beta_scale = lambda_scale * cos_beta1;
 
                 x = lam12x / lambda_scale;
@@ -671,12 +679,12 @@ public:
                 if (f >= c0)
                 {
                     sin_alpha1 = std::min(CT(1), -CT(x));
-                    cos_alpha1 = - std::sqrt(CT(1) - math::sqr(sin_alpha1));
+                    cos_alpha1 = - math::sqrt(c1 - math::sqr(sin_alpha1));
                 }
                 else
                 {
-                    cos_alpha1 = std::max(x > -tol1 ? c0 : -c1, CT(x));
-                    sin_alpha1 = std::sqrt(c1 - math::sqr(cos_alpha1));
+                    cos_alpha1 = std::max(CT(x > -tol1 ? c0 : -c1), CT(x));
+                    sin_alpha1 = math::sqrt(c1 - math::sqr(cos_alpha1));
                 }
             }
             else
@@ -687,8 +695,8 @@ public:
                 CT omega12a = lambda_scale * (f >= c0 ? -x * k /
                     (c1 + k) : -y * (c1 + k) / k);
 
-                CT sin_omega12 = sin(omega12a);
-                CT cos_omega12 = -cos(omega12a);
+                sin_omega12 = sin(omega12a);
+                cos_omega12 = -cos(omega12a);
 
                 // Update spherical estimate of alpha1 using omgega12 instead of lam12.
                 sin_alpha1 = cos_beta2 * sin_omega12;
@@ -697,15 +705,15 @@ public:
             }
         }
 
-        // Apply sanity check on starting guess. Backwards check allows NaN through.
+        // Sanity check on starting guess. Backwards check allows NaN through.
         if (!(sin_alpha1 <= c0))
         {
-          math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+            math::normalize_values<CT>(sin_alpha1, cos_alpha1);
         }
         else
         {
-          sin_alpha1 = c1;
-          cos_alpha1 = c0;
+            sin_alpha1 = c1;
+            cos_alpha1 = c0;
         }
 
         return sig12;
