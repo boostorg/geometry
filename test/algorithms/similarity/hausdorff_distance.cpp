@@ -24,7 +24,7 @@ using namespace boost::geometry;
 template <typename P>
 void test_all_cartesian()
 {
-    typedef model::linestring<P> linestring_2d;
+	typedef model::linestring<P> linestring_2d;
     typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
     typedef bg::model::multi_point<P> mpoint_t;
     #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -32,11 +32,11 @@ void test_all_cartesian()
     std::cout << typeid(CordType).name() << std::endl;
     #endif
     
-    test_geometry<P,mpoint_t>("POINT(3 0)","MULTIPOINT(0 0,3 4,4 3)", 3);
+    test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", sqrt(5.0));
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 3);
     test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(3 0,2 1,3 2)","MULTIPOINT(0 0,3 4,4 3)", 3);
-    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(3 0,2 1,3 2)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", sqrt(5.0));
-    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))", sqrt(5.0));
+    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(1 1,2 2,4 3)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", sqrt(5.0));
+    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))", 3);
 
 }
 
@@ -51,11 +51,11 @@ void test_all_geographic()
     std::cout << typeid(CordType).name() << std::endl;
     #endif
     
-    test_geometry<P,mpoint_t>("POINT(3 0)","MULTIPOINT(0 0,3 4,4 3)", 333961);
-    test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 333961);
-    test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(3 0,2 1,3 2)","MULTIPOINT(0 0,3 4,4 3)", 333961);
-    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(3 0,2 1,3 2)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", 333961);
-    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))", 333961);
+    test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", 247552);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 333958);
+    test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(3 0,2 1,3 2)","MULTIPOINT(0 0,3 4,4 3)", 333958);
+    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(1 1,2 2,4 3)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", 247518);
+    test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))",333958);
 
 }
 
@@ -71,10 +71,10 @@ void test_all_spherical_equ()
     std::cout << typeid(CordType).name() << std::endl;
     #endif
     
-    test_geometry<P,mpoint_t>("POINT(3 0)","MULTIPOINT(0 0,3 4,4 3)", 0.05236);
+    test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", 0.03902);
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 0.05236);
     test_geometry<mpoint_t,mpoint_t>("MULTIPOINT(3 0,2 1,3 2)","MULTIPOINT(0 0,3 4,4 3)", 0.05236);
-    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(3 0,2 1,3 2)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", 0.05236);
+    test_geometry<linestring_2d,mlinestring_t >("LINESTRING(1 1,2 2,4 3)","MULTILINESTRING((0 0,3 4,4 3),(1 1,2 2,4 3))", 0.03900);
     test_geometry<mlinestring_t,mlinestring_t >("MULTILINESTRING((3 0,2 1,3 2),(0 0,3 4,4 3))","MULTILINESTRING((0 0,3 4,4 3),(3 0,2 1,3 2))",0.05236);
 
 }

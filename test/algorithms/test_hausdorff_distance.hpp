@@ -23,13 +23,13 @@ namespace bg = boost::geometry;
 
 template <typename Geometry1,typename Geometry2>
 void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
         >::type expected_hausdorff_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
@@ -50,14 +50,14 @@ void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometr
     std::cout << out.str();
 #endif
 
-    BOOST_CHECK_CLOSE(h_distance, expected_hausdorff_distance, 0.001);
+    BOOST_CHECK_CLOSE(h_distance, expected_hausdorff_distance, 0.01);
 }
 
 
 
 template <typename Geometry1,typename Geometry2>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
@@ -75,14 +75,14 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
 
 template <typename Geometry1,typename Geometry2 ,typename Strategy>
 void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
             Strategy
         >::type expected_hausdorff_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
@@ -104,14 +104,14 @@ void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometr
     std::cout << out.str();
 #endif
 
-    BOOST_CHECK_CLOSE(h_distance, expected_hausdorff_distance, 0.001);
+    BOOST_CHECK_CLOSE(h_distance, expected_hausdorff_distance, 0.01);
 }
 
 
 
 template <typename Geometry1,typename Geometry2,typename Strategy>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
