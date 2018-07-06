@@ -126,15 +126,7 @@ struct envelope_box_on_spheroid
     {
         BoxIn box_in_normalized = box_in;
 
-        typedef typename point_type<BoxIn>::type point_type;
-        typedef typename coordinate_type<point_type>::type bound_type;
-
-        // normalize input box (except from special boxes come from make_inverse)
-        bound_type high = boost::numeric::bounds<bound_type>::highest();
-        bound_type low = boost::numeric::bounds<bound_type>::lowest();
-
-        if (geometry::get<0, 0>(box_in) != high || geometry::get<0, 1>(box_in) != high
-            || geometry::get<1, 0>(box_in) != low  || geometry::get<1, 1>(box_in) != low)
+        if (!is_inverse(box_in))
         {
             box_in_normalized = detail::return_normalized<BoxIn>(box_in);
         }

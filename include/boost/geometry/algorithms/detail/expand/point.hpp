@@ -35,6 +35,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/util/is_inverse.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
@@ -118,14 +119,7 @@ struct point_loop_on_spheroid
         box_point_type box_point;
         detail::envelope::transform_units(p_normalized, box_point);
 
-        // normalize input box (except from special boxes come from make_inverse)
-        box_coordinate_type high = boost::numeric::bounds<box_coordinate_type>::highest();
-        box_coordinate_type low = boost::numeric::bounds<box_coordinate_type>::lowest();
-
-        if (math::equals(geometry::get<0, 0>(box), high)
-         && math::equals(geometry::get<0, 1>(box), high)
-         && math::equals(geometry::get<1, 0>(box), low)
-         && math::equals(geometry::get<1, 1>(box), low))
+        if (is_inverse(box))
         {
             geometry::set_from_radian<min_corner, 0>(box, geometry::get_as_radian<0>(p_normalized));
             geometry::set_from_radian<min_corner, 1>(box, geometry::get_as_radian<1>(p_normalized));

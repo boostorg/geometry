@@ -272,11 +272,7 @@ struct envelope_range_of_boxes
              it != boost::end(range_of_boxes);
              ++it)
         {
-            coordinate_type high = boost::numeric::bounds<coordinate_type>::highest();
-            coordinate_type low = boost::numeric::bounds<coordinate_type>::lowest();
-
-            if (geometry::get<0, 0>(*it) == high && geometry::get<0, 1>(*it) == high
-                && geometry::get<1, 0>(*it) == low  && geometry::get<1, 1>(*it) == low)
+            if (is_inverse(*it))
             {
                 continue;
             }

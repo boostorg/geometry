@@ -244,11 +244,7 @@ private:
 
             //if the input box is the special one made from make_inverse
             //do not convert coordinates
-            double high = boost::numeric::bounds<double>::highest();
-            double low = boost::numeric::bounds<double>::lowest();
-
-            if (bg::get<0, 0>(box) != high || bg::get<0, 1>(box) != high
-                || bg::get<1, 0>(box) != low  || bg::get<1, 1>(box) != low)
+            if (!is_inverse(box))
             {
                 bg::detail::indexed_point_view<Box const, 0> p_min(box);
                 bg::detail::indexed_point_view<Box const, 1> p_max(box);

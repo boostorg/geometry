@@ -34,6 +34,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
+#include <boost/geometry/util/is_inverse.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
 
@@ -86,10 +87,10 @@ struct assign_inverse_box_or_segment
         typedef typename coordinate_type<point_type>::type bound_type;
 
         initialize<0, 0, dimension<BoxOrSegment>::type::value>::apply(
-            geometry, boost::numeric::bounds<bound_type>::highest()
+            geometry, geometry::bounds<bound_type>::highest()
         );
         initialize<1, 0, dimension<BoxOrSegment>::type::value>::apply(
-            geometry, boost::numeric::bounds<bound_type>::lowest()
+            geometry, geometry::bounds<bound_type>::lowest()
         );
     }
 };
