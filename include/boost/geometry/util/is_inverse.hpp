@@ -32,10 +32,10 @@ bool is_inverse(Box const& box)
     bound_type high = bounds<bound_type>::highest();
     bound_type low = bounds<bound_type>::lowest();
 
-    return math::equals(geometry::get<0, 0>(box), high) &&
-           math::equals(geometry::get<0, 1>(box), high) &&
-           math::equals(geometry::get<1, 0>(box), low) &&
-           math::equals(geometry::get<1, 1>(box), low);
+    return (geometry::get<0, 0>(box) == high) &&
+           (geometry::get<0, 1>(box) == high) &&
+           (geometry::get<1, 0>(box) == low) &&
+           (geometry::get<1, 1>(box) == low);
 }
 
 }} // namespace boost::geometry
