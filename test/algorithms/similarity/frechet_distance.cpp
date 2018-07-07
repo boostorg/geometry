@@ -32,7 +32,13 @@ void test_all_cartesian()
     
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 3);
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)",strategy::distance::pythagoras<>(), 3);
-
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(1 1, 0 1, 0 0, 1 0, 1 1)",sqrt(2.0));
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(1 1, 0 0, 1 0, 1 1)",sqrt(2.0));
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0)","LINESTRING(0 0, 1 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(4 3,3 4,0 0)",5);
+    
     
 }
 
@@ -48,7 +54,13 @@ void test_all_geographic()
     
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 333958);
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)",strategy::distance::haversine<int>(6371000), 333585);
-    
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(1 1, 0 1, 0 0, 1 0, 1 1)",156898);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(1 1, 0 0, 1 0, 1 1)",156898);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0)","LINESTRING(0 0, 1 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(4 3,3 4,0 0)",555093);
+       
 }
 
 template <typename P>
@@ -63,7 +75,13 @@ void test_all_spherical_equ()
     
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 0.0523);
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)",strategy::distance::haversine<int>(), 0.0523);
-    
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 0)","LINESTRING(1 1, 0 1, 0 0, 1 0, 1 1)",0.02468);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(0 0, 1 0, 1 1, 0 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0, 1 1, 0 0)","LINESTRING(1 1, 0 0, 1 0, 1 1)",0.02468);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0, 1 0)","LINESTRING(0 0, 1 0)",0);
+    test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(4 3,3 4,0 0)",0.08724);
+       
 }
 
 int main()
