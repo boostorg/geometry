@@ -26,7 +26,9 @@
 #include <boost/range.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/index/rtree.hpp>
 
+namespace bgi = boost::geometry::index;
 
 namespace boost { namespace geometry
 {
@@ -94,13 +96,23 @@ struct range_range
         
         boost::geometry::detail::throw_on_empty_input(r1);
         boost::geometry::detail::throw_on_empty_input(r2);
+        typedef typename point_type<Range1>::type point_t;
+        
+        boost::geometry::detail::throw_on_empty_input(r1);
+        boost::geometry::detail::throw_on_empty_input(r2);
         
         size_type  a = boost::size(r1);
-        result_type dis_max=0;
+        
+
         //Computing the HausdorffDistance
+        result_type dis_max=0;
+        typedef bgi::rtree<point_t, bgi::linear<4> > rtree_type;
+        rtree_type rtree(boost::begin(r2), boost::end(r2));
+        point_t res;
         for(size_type i=0;i<a;i++)
         {
-            result_type dis_min= point_range::apply(range::at(r1,i),r2,strategy);
+            size_type found= rtree.query(bgi::nearest(range::at(r1, i),1), &res);
+            result_type dis_min=geometry::distance(range::at(r1,i),res);
             if (dis_min > dis_max )
             {
               dis_max = dis_min;
