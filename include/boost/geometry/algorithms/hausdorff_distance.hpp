@@ -74,6 +74,7 @@ struct point_range
         return dis_min;
     }
 };
+#ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
 struct range_range
 {
     template <typename Range1, typename Range2, typename Strategy>
@@ -91,21 +92,17 @@ struct range_range
                 typename point_type<Range2>::type,
                 Strategy
             >::type result_type;
+
         typedef typename boost::range_size<Range1>::type size_type;
-        
-        
-        boost::geometry::detail::throw_on_empty_input(r1);
-        boost::geometry::detail::throw_on_empty_input(r2);
         typedef typename point_type<Range1>::type point_t;
         
         boost::geometry::detail::throw_on_empty_input(r1);
         boost::geometry::detail::throw_on_empty_input(r2);
         
         size_type  a = boost::size(r1);
-        
+        result_type dis_max=0;
 
         //Computing the HausdorffDistance
-        result_type dis_max=0;
         typedef bgi::rtree<point_t, bgi::linear<4> > rtree_type;
         rtree_type rtree(boost::begin(r2), boost::end(r2));
         point_t res;
@@ -118,11 +115,49 @@ struct range_range
               dis_max = dis_min;
             }
         }
+        return dis_max;
+    }
+};
+#else
+struct range_range
+{
+    template <typename Range1, typename Range2, typename Strategy>
+    static inline typename distance_result
+        <
+            typename point_type<Range1>::type,
+            typename point_type<Range2>::type,
+            Strategy
+        >::type apply(Range1 const& r1, Range2 const& r2, Strategy const& strategy)
+    {
         
+        typedef typename distance_result
+            <
+                typename point_type<Range1>::type,
+                typename point_type<Range2>::type,
+                Strategy
+            >::type result_type;
+
+        typedef typename boost::range_size<Range1>::type size_type;
+        
+        boost::geometry::detail::throw_on_empty_input(r1);
+        boost::geometry::detail::throw_on_empty_input(r2);
+        
+        size_type  a = boost::size(r1);
+        result_type dis_max=0;
+
+        for(size_type i=0;i<a;i++)
+        {
+            result_type dis_min=point_range::apply(range::at(r1,i),r2,strategy);
+            if (dis_min > dis_max )
+            {
+              dis_max = dis_min;
+            }
+        }
         return dis_max;
     }
 };
 
+#endif
 struct range_multi_range
 {
     template <typename Range, typename Multi_range, typename Strategy>
