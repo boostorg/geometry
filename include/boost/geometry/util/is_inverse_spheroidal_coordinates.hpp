@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_UTIL_IS_INVERSE_HPP
-#define BOOST_GEOMETRY_UTIL_IS_INVERSE_HPP
+#ifndef BOOST_GEOMETRY_UTIL_IS_INVERSE_SPHEROIDAL_COORDINATES_HPP
+#define BOOST_GEOMETRY_UTIL_IS_INVERSE_SPHEROIDAL_COORDINATES_HPP
 
 #include <boost/geometry/util/math.hpp>
 
@@ -24,7 +24,7 @@ struct bounds
 };
 
 template <typename Box>
-bool is_inverse(Box const& box)
+bool is_inverse_spheroidal_coordinates(Box const& box)
 {
     typedef typename point_type<Box>::type point_type;
     typedef typename coordinate_type<point_type>::type bound_type;
@@ -40,4 +40,4 @@ bool is_inverse(Box const& box)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_UTIL_IS_INVERSE_HPP
+#endif // BOOST_GEOMETRY_UTIL_IS_INVERSE_SPHEROIDAL_COORDINATES_HPP

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -245,7 +245,7 @@ private:
 
             //if the input box is the special one made from make_inverse
             //do not convert coordinates
-            if (!is_inverse(box))
+            if (!is_inverse_spheroidal_coordinates(box))
             {
                 bg::detail::indexed_point_view<Box const, 0> p_min(box);
                 bg::detail::indexed_point_view<Box const, 1> p_max(box);

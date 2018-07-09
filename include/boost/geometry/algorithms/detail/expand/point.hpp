@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2018.
+// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -35,7 +35,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/is_inverse.hpp>
+#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
@@ -117,7 +117,7 @@ struct point_loop_on_spheroid
         box_point_type box_point;
         detail::envelope::transform_units(p_normalized, box_point);
 
-        if (is_inverse(box))
+        if (is_inverse_spheroidal_coordinates(box))
         {
             geometry::set_from_radian<min_corner, 0>(box, geometry::get_as_radian<0>(p_normalized));
             geometry::set_from_radian<min_corner, 1>(box, geometry::get_as_radian<1>(p_normalized));

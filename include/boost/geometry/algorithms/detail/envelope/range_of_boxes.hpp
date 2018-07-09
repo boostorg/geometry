@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -272,7 +272,7 @@ struct envelope_range_of_boxes
              it != boost::end(range_of_boxes);
              ++it)
         {
-            if (is_inverse(*it))
+            if (is_inverse_spheroidal_coordinates(*it))
             {
                 continue;
             }
