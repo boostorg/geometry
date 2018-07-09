@@ -58,8 +58,8 @@ inline T pj_phi2(T const& ts, T const& e)
     i = N_ITER;
     do {
         con = e * sin (Phi);
-        dphi = geometry::math::half_pi<T>() - 2. * atan (ts * pow((1. - con) /
-           (1. + con), eccnth)) - Phi;
+        dphi = geometry::math::half_pi<T>() - 2. * atan (ts * math::pow((T(1) - con) /
+           (T(1) + con), eccnth)) - Phi;
         Phi += dphi;
     } while ( geometry::math::abs(dphi) > TOL && --i);
     if (i <= 0)

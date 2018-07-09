@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2018.
+// Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -788,14 +788,14 @@ inline void sin_cos_degrees(T const& x,
     // the argument to the range [-45, 45] before converting it to radians.
     T remainder; int quotient;
 
-    remainder = std::fmod(x, T(360));
-    quotient = int(std::floor(remainder / 90 + T(0.5)));
+    remainder = math::mod(x, T(360));
+    quotient = floor(remainder / 90 + T(0.5));
     remainder -= 90 * quotient;
 
     // Convert to radians.
     remainder *= d2r<T>();
 
-    T s = std::sin(remainder), c = std::cos(remainder);
+    T s = sin(remainder), c = cos(remainder);
 
     switch (unsigned(quotient) & 3U)
     {
@@ -841,7 +841,7 @@ inline T round_angle(T x) {
         return 0;
     }
 
-    T y = std::abs(x);
+    T y = math::abs(x);
 
     // z - (z - y) must not be simplified to y.
     y = y < z ? z - (z - y) : y;
@@ -889,19 +889,33 @@ inline NT horner_evaluate(NT x,
 /*!
 \brief Evaluate the polynomial.
 */
-template<typename CT>
-inline CT polyval(int N,
-                  const CT coeff[],
+template<typename IteratorType, typename CT>
+inline CT polyval(IteratorType first,
+                  IteratorType last,
                   const CT eps)
 {
-    CT y = N < 0 ? 0 : *coeff++;
+    int N = std::distance(first, last) - 1;
+    int index = 0;
+
+    CT y = N < 0 ? 0 : *(first + (index++));
 
     while (--N >= 0)
     {
-        y = y * eps + *coeff++;
+        y = y * eps + *(first + (index++));
     }
 
     return y;
+}
+
+/*
+\brief Short utility to calculate the power
+\ingroup utility
+*/
+template <typename T1, typename T2>
+inline T1 pow(T1 const& a, T2 const& b)
+{
+    using std::pow;
+    return pow(a, b);
 }
 
 } // namespace math

@@ -150,10 +150,8 @@ namespace projections
                     : base_t_fi<base_robin_spheroid<T, Parameters>, T, Parameters>(*this, par)
                 {}
 
-                template <typename T>
                 inline T v(coefs<T> const& c, T const& z) const
                 { return (c.c0 + z * (c.c1 + z * (c.c2 + z * c.c3))); }
-                template <typename T>
                 inline T dv(coefs<T> const& c, T const&  z) const
                 { return (c.c1 + z * (c.c2 + c.c2 + z * 3. * c.c3)); }
 

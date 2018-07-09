@@ -94,7 +94,7 @@ namespace projections
 
                 sinphi *= eccen;
                 return (tan (.5 * (half_pi + phit)) *
-                   pow((1. - sinphi) / (1. + sinphi), .5 * eccen));
+                   math::pow((T(1) - sinphi) / (T(1) + sinphi), T(0.5) * eccen));
             }
 
             // template class, using CRTP to implement forward/inverse
@@ -194,7 +194,7 @@ namespace projections
                     }
                     for (i = n_iter; i--; phi_l = lp_lat) {
                         sinphi = this->m_par.e * sin(phi_l);
-                        lp_lat = 2. * atan(tp * pow((1.+sinphi)/(1.-sinphi), halfe)) - halfpi;
+                        lp_lat = T(2) * atan(tp * math::pow((T(1)+sinphi)/(T(1)-sinphi), halfe)) - halfpi;
                         if (fabs(phi_l - lp_lat) < conv_tolerance) {
                             if (this->m_proj_parm.mode == s_pole)
                                 lp_lat = -lp_lat;
@@ -333,7 +333,7 @@ namespace projections
                     case s_pole:
                         if (fabs(proj_parm.phits - half_pi) < epsilon10)
                             proj_parm.akm1 = 2. * par.k0 /
-                               sqrt(pow(1+par.e,1+par.e)*pow(1-par.e,1-par.e));
+                               sqrt(math::pow(T(1)+par.e,T(1)+par.e)*math::pow(T(1)-par.e,T(1)-par.e));
                         else {
                             proj_parm.akm1 = cos(proj_parm.phits) /
                                pj_tsfn(proj_parm.phits, t = sin(proj_parm.phits), par.e);

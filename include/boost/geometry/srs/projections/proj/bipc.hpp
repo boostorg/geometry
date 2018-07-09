@@ -150,11 +150,11 @@ namespace projections
                     if (z < 0.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    r = F * (t = pow(tan(.5 * z), n));
+                    r = F * (t = math::pow(tan(T(0.5) * z), n));
                     if ((al = .5 * (R104 - z)) < 0.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    al = (t + pow(al, n)) / const_T;
+                    al = (t + math::pow(al, n)) / const_T;
                     if (fabs(al) > 1.) {
                         if (fabs(al) > one_plus_eps)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -199,9 +199,9 @@ namespace projections
                     rl = rp = r = boost::math::hypot(xy_x, xy_y);
                     fAz = fabs(Az = atan2(xy_x, xy_y));
                     for (i = n_iter; i ; --i) {
-                        z = 2. * atan(pow(r / F,1 / n));
-                        al = acos((pow(tan(.5 * z), n) +
-                           pow(tan(.5 * (R104 - z)), n)) / const_T);
+                        z = 2. * atan(math::pow(r / F,T(1) / n));
+                        al = acos((math::pow(tan(T(0.5) * z), n) +
+                           math::pow(tan(T(0.5) * (R104 - z)), n)) / const_T);
                         if (fAz < al)
                             r = rp * cos(al + (neg ? Az : -Az));
                         if (fabs(rl - r) < epsilon)
