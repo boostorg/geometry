@@ -24,6 +24,7 @@
 namespace boost { namespace geometry { namespace formula
 {
 
+namespace se = series_expansion;
 
 /*!
 \brief The solution of the inverse problem of geodesics on latlong coordinates,
@@ -199,7 +200,7 @@ public:
         CT m12x, s12x, M21;
 
         // Index zero element of coeffs_C1 is unused.
-        series_expansion::coeffs_C1<SeriesOrder, CT> const coeffs_C1(n);
+        se::coeffs_C1<SeriesOrder, CT> const coeffs_C1(n);
 
         bool meridian = lat1 == -90 || sin_lam12 == 0;
 
@@ -459,7 +460,7 @@ public:
         CT expansion_A1, expansion_A2;
 
         // Evaluate the coefficients for C2.
-        series_expansion::coeffs_C2<SeriesOrder, CT> coeffs_C2(epsilon);
+        se::coeffs_C2<SeriesOrder, CT> coeffs_C2(epsilon);
 
         if (BOOST_GEOMETRY_CONDITION(EnableDistance) ||
             BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
@@ -467,14 +468,14 @@ public:
         {
             // Find the coefficients for A1 by computing the
             // series expansion using Horner scehme.
-            expansion_A1 = series_expansion::evaluate_A1<SeriesOrder>(epsilon);
+            expansion_A1 = se::evaluate_A1<SeriesOrder>(epsilon);
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
                 BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
             {
                 // Find the coefficients for A2 by computing the
                 // series expansion using Horner scehme.
-                expansion_A2 = series_expansion::evaluate_A2<SeriesOrder>(epsilon);
+                expansion_A2 = se::evaluate_A2<SeriesOrder>(epsilon);
 
                 A12x = expansion_A1 - expansion_A2;
                 expansion_A2 += c1;
@@ -484,16 +485,16 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(EnableDistance))
         {
-            CT B1 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C1)
-                  - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
+            CT B1 = se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C1)
+                  - se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
 
             s12x = expansion_A1 * (sigma12 + B1);
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
                 BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
             {
-                CT B2 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
-                      - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
+                CT B2 = se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
+                      - se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
 
                 J12 = A12x * sigma12 + (expansion_A1 * B1 - expansion_A2 * B2);
             }
@@ -508,8 +509,8 @@ public:
             }
 
             J12 = A12x * sigma12 +
-                   (series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
-                  - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2));
+                   (se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
+                  - se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2));
         }
 
         if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
@@ -627,7 +628,7 @@ public:
                 CT k2 = math::sqr(sin_beta1) * ep2;
                 CT eps = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
 
-                series_expansion::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
+                se::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
 
                 CT const A3 = math::horner_evaluate(eps, coeffs_A3.begin(), coeffs_A3.end());
 
@@ -852,12 +853,12 @@ public:
 
         eps = k2 / (c2 * (c1 + std::sqrt(c1 + k2)) + k2);
 
-        series_expansion::coeffs_C3<SeriesOrder, CT> const coeffs_C3(n, eps);
+        se::coeffs_C3<SeriesOrder, CT> const coeffs_C3(n, eps);
 
-        B312 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C3)
-             - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
+        B312 = se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C3)
+             - se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
-        series_expansion::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
+        se::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
 
         CT const A3 = math::horner_evaluate(eps, coeffs_A3.begin(), coeffs_A3.end());
 
