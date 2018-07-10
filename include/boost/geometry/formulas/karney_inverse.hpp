@@ -161,14 +161,14 @@ public:
         math::sin_cos_degrees(lat1, sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
 
-        math::normalize_values<CT>(sin_beta1, cos_beta1);
+        math::normalize_unit_vector<CT>(sin_beta1, cos_beta1);
         cos_beta1 = std::max(tiny, cos_beta1);
 
         CT sin_beta2, cos_beta2;
         math::sin_cos_degrees(lat2, sin_beta2, cos_beta2);
         sin_beta2 *= one_minus_f;
 
-        math::normalize_values<CT>(sin_beta2, cos_beta2);
+        math::normalize_unit_vector<CT>(sin_beta2, cos_beta2);
         cos_beta2 = std::max(tiny, cos_beta2);
 
         // If cos_beta1 < -sin_beta1, then cos_beta2 - cos_beta1 is a
@@ -181,8 +181,7 @@ public:
         {
             if (cos_beta1 == cos_beta2)
             {
-                sin_beta2 = sin_beta2 < 0 ? sin_beta1 :
-                                            -sin_beta1;
+                sin_beta2 = sin_beta2 < 0 ? sin_beta1 : -sin_beta1;
             }
         }
         else
@@ -200,7 +199,7 @@ public:
         CT m12x, s12x, M21;
 
         // Index zero element of coeffs_C1 is unused.
-        CT coeffs_C1[SeriesOrder + 1];
+        series_expansion::coeffs_C1<SeriesOrder, CT> const coeffs_C1(n);
 
         bool meridian = lat1 == -90 || sin_lam12 == 0;
 
@@ -292,7 +291,7 @@ public:
 
             if (sigma12 >= c0)
             {
-                // Short lines case (newton_start sets sin_alpha2, cos_alpha2, dnm)
+                // Short lines case (newton_start sets sin_alpha2, cos_alpha2, dnm).
                 s12x = sigma12 * b * dnm;
                 m12x = math::sqr(dnm) * b * sin(sigma12 / dnm);
                 if (BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
@@ -366,7 +365,7 @@ public:
                         {
                             cos_alpha1 = cos_alpha1 * cos_diff_alpha1 - sin_alpha1 * sin_diff_alpha1;
                             sin_alpha1 = nsin_alpha1;
-                            math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+                            math::normalize_unit_vector<CT>(sin_alpha1, cos_alpha1);
 
                             // In some regimes we don't get quadratic convergence because
                             // slope -> 0. So use convergence conditions based on epsilon
@@ -386,7 +385,7 @@ public:
                     // WGS84 and random input: mean = 4.74, sd = 0.99
                     sin_alpha1 = (sin_alpha1a + sin_alpha1b) / c2;
                     cos_alpha1 = (cos_alpha1a + cos_alpha1b) / c2;
-                    math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+                    math::normalize_unit_vector<CT>(sin_alpha1, cos_alpha1);
                     tripn = false;
                     tripb = (std::abs(sin_alpha1a - sin_alpha1) + (cos_alpha1a - cos_alpha1) < tol_bisection ||
                              std::abs(sin_alpha1 - sin_alpha1b) + (cos_alpha1 - cos_alpha1b) < tol_bisection);
@@ -447,18 +446,20 @@ public:
         return result;
     }
 
+    template <typename CoeffsC1>
     static inline void meridian_length(CT epsilon, CT ep2, CT sigma12,
                                        CT sin_sigma1, CT cos_sigma1, CT dn1,
                                        CT sin_sigma2, CT cos_sigma2, CT dn2,
                                        CT cos_beta1, CT cos_beta2,
                                        CT& s12x, CT& m12x, CT& m0,
-                                       CT& M12, CT& M21, CT coeffs_C1[])
+                                       CT& M12, CT& M21,
+                                       CoeffsC1 coeffs_C1)
     {
         CT A12x = 0, J12 = 0;
         CT expansion_A1, expansion_A2;
 
-        // Index zero element of coeffs_C2 is unused.
-        CT coeffs_C2[SeriesOrder + 1];
+        // Evaluate the coefficients for C2.
+        series_expansion::coeffs_C2<SeriesOrder, CT> coeffs_C2(epsilon);
 
         if (BOOST_GEOMETRY_CONDITION(EnableDistance) ||
             BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
@@ -466,20 +467,14 @@ public:
         {
             // Find the coefficients for A1 by computing the
             // series expansion using Horner scehme.
-            expansion_A1 = series_expansion::evaluate_series_A1<CT, SeriesOrder>(epsilon);
-
-            // Evaluate the coefficients for C1.
-            series_expansion::evaluate_coeffs_C1<CT, SeriesOrder>(epsilon, coeffs_C1);
+            expansion_A1 = series_expansion::evaluate_A1<SeriesOrder>(epsilon);
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
                 BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
             {
                 // Find the coefficients for A2 by computing the
                 // series expansion using Horner scehme.
-                expansion_A2 = series_expansion::evaluate_series_A2<CT, SeriesOrder>(epsilon);
-
-                // Evaluate the coefficients for C2.
-                series_expansion::evaluate_coeffs_C2<CT, SeriesOrder>(epsilon, coeffs_C2);
+                expansion_A2 = series_expansion::evaluate_A2<SeriesOrder>(epsilon);
 
                 A12x = expansion_A1 - expansion_A2;
                 expansion_A2 += c1;
@@ -489,23 +484,18 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(EnableDistance))
         {
-            CT B1 = series_expansion::sin_cos_series<CT, SeriesOrder>
-                                      (sin_sigma2, cos_sigma2, coeffs_C1)
-                  - series_expansion::sin_cos_series<CT, SeriesOrder>
-                                      (sin_sigma1, cos_sigma1, coeffs_C1);
+            CT B1 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C1)
+                  - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C1);
 
             s12x = expansion_A1 * (sigma12 + B1);
 
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
                 BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
             {
-                CT B2 = series_expansion::sin_cos_series<CT, SeriesOrder>
-                                          (sin_sigma2, cos_sigma2, coeffs_C2)
-                      - series_expansion::sin_cos_series<CT, SeriesOrder>
-                                          (sin_sigma1, cos_sigma1, coeffs_C2);
+                CT B2 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
+                      - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2);
 
-                J12 = A12x * sigma12 + (expansion_A1 * B1 -
-                                        expansion_A2 * B2);
+                J12 = A12x * sigma12 + (expansion_A1 * B1 - expansion_A2 * B2);
             }
         }
         else if (BOOST_GEOMETRY_CONDITION(EnableReducedLength) ||
@@ -518,14 +508,8 @@ public:
             }
 
             J12 = A12x * sigma12 +
-                   (series_expansion::sin_cos_series<CT, SeriesOrder>
-                                      (sin_sigma2,
-                                       cos_sigma2,
-                                       coeffs_C2)
-                  - series_expansion::sin_cos_series<CT, SeriesOrder>
-                                      (sin_sigma1,
-                                       cos_sigma1,
-                                       coeffs_C2));
+                   (series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C2)
+                  - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C2));
         }
 
         if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
@@ -554,12 +538,13 @@ public:
      doesn't need to be used, return also sin_alpha2 and
      cos_alpha2 and function value is sig12.
     */
+    template <typename CoeffsC1>
     static inline CT newton_start(CT sin_beta1, CT cos_beta1, CT dn1,
                                   CT sin_beta2, CT cos_beta2, CT dn2,
                                   CT lam12, CT sin_lam12, CT cos_lam12,
                                   CT& sin_alpha1, CT& cos_alpha1,
                                   CT& sin_alpha2, CT& cos_alpha2,
-                                  CT& dnm, CT coeffs_C1[], CT ep2,
+                                  CT& dnm, CoeffsC1 coeffs_C1, CT ep2,
                                   CT tol1, CT tol2, CT etol2, CT n, CT f)
     {
         CT const one_minus_f = c1 - f;
@@ -615,7 +600,7 @@ public:
                 (cos_omega12 >= c0 ? math::sqr(sin_omega12) /
                 (c1 + cos_omega12) : c1 - cos_omega12);
 
-            math::normalize_values<CT>(sin_alpha2, cos_alpha2);
+            math::normalize_unit_vector<CT>(sin_alpha2, cos_alpha2);
             // Set return value.
             sig12 = atan2(sin_sigma12, cos_sigma12);
         }
@@ -642,10 +627,9 @@ public:
                 CT k2 = math::sqr(sin_beta1) * ep2;
                 CT eps = k2 / (c2 * (c1 + sqrt(c1 + k2)) + k2);
 
-                CT coeffs_A3[SeriesOrder];
-                series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
+                series_expansion::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
 
-                CT const A3 = math::horner_evaluate(eps, coeffs_A3, coeffs_A3 + SeriesOrder);
+                CT const A3 = math::horner_evaluate(eps, coeffs_A3.begin(), coeffs_A3.end());
 
                 lambda_scale = f * cos_beta1 * A3 * math::pi<CT>();
                 beta_scale = lambda_scale * cos_beta1;
@@ -708,7 +692,7 @@ public:
         // Sanity check on starting guess. Backwards check allows NaN through.
         if (!(sin_alpha1 <= c0))
         {
-            math::normalize_values<CT>(sin_alpha1, cos_alpha1);
+            math::normalize_unit_vector<CT>(sin_alpha1, cos_alpha1);
         }
         else
         {
@@ -791,6 +775,7 @@ public:
         return k;
     }
 
+    template <typename CoeffsC1>
     static inline CT lambda12(CT sin_beta1, CT cos_beta1, CT dn1,
                               CT sin_beta2, CT cos_beta2, CT dn2,
                               CT sin_alpha1, CT cos_alpha1,
@@ -802,7 +787,7 @@ public:
                               CT& eps, CT& diff_omega12,
                               bool diffp, CT& diff_lam12,
                               CT f, CT n, CT ep2, CT tiny,
-                              CT coeffs_C1[])
+                              CoeffsC1 coeffs_C1)
     {
         CT const one_minus_f = c1 - f;
 
@@ -826,7 +811,7 @@ public:
 
         cos_sigma1 = cos_omega1 = cos_alpha1 * cos_beta1;
 
-        math::normalize_values<CT>(sin_sigma1, cos_sigma1);
+        math::normalize_unit_vector<CT>(sin_sigma1, cos_sigma1);
 
         // Enforce symmetries in the case abs(beta2) = -beta1.
         // Otherwise, this can yield singularities in the Newton iteration.
@@ -848,7 +833,7 @@ public:
         cos_sigma2 = cos_omega2 =
             cos_alpha2 * cos_beta2;
 
-        math::normalize_values<CT>(sin_sigma2, cos_sigma2);
+        math::normalize_unit_vector<CT>(sin_sigma2, cos_sigma2);
 
         // sig12 = sig2 - sig1, limit to [0, pi].
         sigma12 = atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
@@ -867,24 +852,14 @@ public:
 
         eps = k2 / (c2 * (c1 + std::sqrt(c1 + k2)) + k2);
 
-        // Compute the size of coefficient array.
-        size_t const coeffs_C3_size = (SeriesOrder * (SeriesOrder - 1)) / 2;
-        CT coeffs_C3x[coeffs_C3_size];
-        series_expansion::evaluate_coeffs_C3x<CT, SeriesOrder>(n, coeffs_C3x);
+        series_expansion::coeffs_C3<SeriesOrder, CT> const coeffs_C3(n, eps);
 
-        // Evaluate C3 coefficients.
-        CT coeffs_C3[SeriesOrder];
-        series_expansion::evaluate_coeffs_C3<CT, SeriesOrder>(eps, coeffs_C3, coeffs_C3x);
+        B312 = series_expansion::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C3)
+             - series_expansion::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
-        B312 = series_expansion::sin_cos_series<CT, SeriesOrder>
-                   (sin_sigma2, cos_sigma2, coeffs_C3) -
-               series_expansion::sin_cos_series<CT, SeriesOrder>
-                   (sin_sigma1, cos_sigma1, coeffs_C3);
+        series_expansion::coeffs_A3<SeriesOrder, CT> const coeffs_A3(n);
 
-        CT coeffs_A3[SeriesOrder];
-        series_expansion::evaluate_coeffs_A3<double, SeriesOrder>(n, coeffs_A3);
-
-        CT const A3 = math::horner_evaluate(eps, coeffs_A3, coeffs_A3 + SeriesOrder);
+        CT const A3 = math::horner_evaluate(eps, coeffs_A3.begin(), coeffs_A3.end());
 
         diff_omega12 = -f * A3 * sin_alpha0 * (sigma12 + B312);
         lam12 = eta + diff_omega12;

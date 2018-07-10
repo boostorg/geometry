@@ -387,7 +387,7 @@ inline T difference_angle(T x, T y, T& e)
 {
     T t, d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
 
-    normalize_angle<degree, T>(d);
+    normalize_azimuth<degree, T>(d);
 
     // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and
     // abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
