@@ -407,7 +407,6 @@ void test_geographic_radian()
     typedef bg::model::point<T, 2, bg::cs::geographic<bg::radian> > point_t;
     typedef bg::model::segment<point_t> segment_t;
 
-    T const d2r = bg::math::d2r<T>();
     bg::strategy::intersection::geographic_segments<bg::strategy::vincenty> strategy;
 
     // https://github.com/boostorg/geometry/issues/470
