@@ -102,6 +102,7 @@
 #include <boost/geometry/strategies/geographic/envelope_segment.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 //#include <boost/geometry/strategies/geographic/intersection_elliptic.hpp>
+#include <boost/geometry/strategies/geographic/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/geographic/side_andoyer.hpp>

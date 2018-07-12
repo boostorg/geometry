@@ -13,23 +13,10 @@
 
 #include <iterator>
 
-#include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/fold.hpp>
-#include <boost/mpl/greater.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/insert.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/set.hpp>
-#include <boost/mpl/size.hpp>
-#include <boost/mpl/transform.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -38,14 +25,8 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/detail/calculate_null.hpp>
-#include <boost/geometry/algorithms/detail/multi_sum.hpp>
-// #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/default_length_result.hpp>
-
+#include <boost/geometry/strategies/line_interpolate_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -70,7 +51,7 @@ struct segment
         point_type p1, p2;
         geometry::detail::assign_point_from_index<0>(segment, p1);
         geometry::detail::assign_point_from_index<1>(segment, p2);
-        point = p1;
+        strategy.apply(p1, p2, fraction, point);
     }
 };
 
@@ -83,33 +64,13 @@ struct segment
 template<typename Range, closure_selector Closure>
 struct range
 {
-    typedef typename default_length_result<Range>::type return_type;
-
     template <typename Point, typename Strategy>
     static inline void apply(Range const& range,
                              double const fraction,
                              Point & point,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(strategy);
-        typedef typename closeable_view<Range const, Closure>::type view_type;
-        typedef typename boost::range_iterator
-            <
-                view_type const
-            >::type iterator_type;
-
-        return_type sum = return_type();
-        view_type view(range);
-        iterator_type it = boost::begin(view), end = boost::end(view);
-        if(it != end)
-        {
-            for(iterator_type previous = it++;
-                    it != end;
-                    ++previous, ++it)
-            {
-                point = *it;
-            }
-        }
+        // implement range interpolation
     }
 };
 
@@ -181,10 +142,10 @@ struct line_interpolate_point
                              Point & point,
                              Strategy const& strategy)
     {
-        return dispatch::line_interpolate_point<Geometry>::apply(geometry,
-                                                                 fraction,
-                                                                 point,
-                                                                 strategy);
+        dispatch::line_interpolate_point<Geometry>::apply(geometry,
+                                                          fraction,
+                                                          point,
+                                                          strategy);
     }
 
     template <typename Geometry, typename Point>
@@ -192,16 +153,16 @@ struct line_interpolate_point
                              double const fraction,
                              Point & point,
                              default_strategy)
-    {
-        typedef typename strategy::distance::services::default_strategy
+    {        
+        typedef typename strategy::line_interpolate_point::services::default_strategy
             <
-                point_tag, point_tag, typename point_type<Geometry>::type
+                typename cs_tag<Geometry>::type
             >::type strategy_type;
 
-        return dispatch::line_interpolate_point<Geometry>::apply(geometry,
-                                                                 fraction,
-                                                                 point,
-                                                                 strategy_type());
+        dispatch::line_interpolate_point<Geometry>::apply(geometry,
+                                                          fraction,
+                                                          point,
+                                                          strategy_type());
     }
 };
 
