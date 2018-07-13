@@ -196,7 +196,7 @@ public:
         CT const dn1 = sqrt(c1 + ep2 * math::sqr(sin_beta1));
         CT const dn2 = sqrt(c1 + ep2 * math::sqr(sin_beta2));
 
-        CT a12, sigma12;
+        CT sigma12;
         CT m12x, s12x, M21;
 
         // Index zero element of coeffs_C1 is unused.
@@ -244,7 +244,6 @@ public:
 
                 m12x *= b;
                 s12x *= b;
-                a12 = sigma12 / math::d2r<CT>();
             }
             else
             {
@@ -270,7 +269,6 @@ public:
             {
                 result.geodesic_scale = cos(sigma12);
             }
-            a12 = lon12 / one_minus_f;
         }
         else if (!meridian)
         {
@@ -299,7 +297,6 @@ public:
                 }
 
                 // Convert to radians.
-                a12 = sigma12 / math::d2r<CT>();
                 omega12 = lam12 / (one_minus_f * dnm);
             }
             else
@@ -403,7 +400,6 @@ public:
 
                 m12x *= b;
                 s12x *= b;
-                a12 = sigma12 / math::d2r<CT>();
             }
         }
 
