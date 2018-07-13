@@ -235,7 +235,6 @@ public:
                                              m12x, dummy, result.geodesic_scale,
                                              M21, coeffs_C1);
 
-
             if (sigma12 < c1 || m12x >= c0)
             {
                 if (sigma12 < c3 * tiny)
@@ -254,7 +253,7 @@ public:
             }
         }
 
-        CT omega12, sin_omega12, cos_omega12;
+        CT omega12;
 
         if (!meridian && sin_beta1 == c0 &&
             (f <= c0 || lon12_error >= f * c180))
@@ -273,7 +272,6 @@ public:
             }
             a12 = lon12 / one_minus_f;
         }
-
         else if (!meridian)
         {
             // If point1 and point2 belong within a hemisphere bounded by a
@@ -352,6 +350,7 @@ public:
                         sin_alpha1a = sin_alpha1;
                         cos_alpha1a = cos_alpha1;
                     }
+
                     if (iteration < max_iterations && dv > c0)
                     {
                         CT diff_alpha1 = -v / dv;
@@ -390,17 +389,17 @@ public:
                     tripn = false;
                     tripb = (std::abs(sin_alpha1a - sin_alpha1) + (cos_alpha1a - cos_alpha1) < tol_bisection ||
                              std::abs(sin_alpha1 - sin_alpha1b) + (cos_alpha1 - cos_alpha1b) < tol_bisection);
-
                 }
 
                 CT dummy;
+                se::coeffs_C1<SeriesOrder, CT> const coeffs_C1_eps(eps);
                 // Ensure that the reduced length and geodesic scale are computed in
                 // a "canonical" way, with the I2 integral.
-                meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
-                                                 sin_sigma2, cos_sigma2, dn2,
-                                                 cos_beta1, cos_beta2, s12x,
-                                                 m12x, dummy, result.geodesic_scale,
-                                                 M21, coeffs_C1);
+                meridian_length(eps, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
+                                                   sin_sigma2, cos_sigma2, dn2,
+                                                   cos_beta1, cos_beta2, s12x,
+                                                   m12x, dummy, result.geodesic_scale,
+                                                   M21, coeffs_C1_eps);
 
                 m12x *= b;
                 s12x *= b;
@@ -874,11 +873,11 @@ public:
             else
             {
                 CT dummy;
-                meridian_length(n, eps, sigma12, sin_sigma1, cos_sigma1, dn1,
-                                                 sin_sigma2, cos_sigma2, dn2,
-                                                 cos_beta1, cos_beta2, dummy,
-                                                 diff_lam12, dummy, dummy,
-                                                 dummy, coeffs_C1);
+                meridian_length(eps, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
+                                                   sin_sigma2, cos_sigma2, dn2,
+                                                   cos_beta1, cos_beta2, dummy,
+                                                   diff_lam12, dummy, dummy,
+                                                   dummy, coeffs_C1);
 
                 diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
             }
