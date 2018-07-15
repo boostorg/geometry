@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include "test_envelope_expand_on_spheroid.hpp"
@@ -241,20 +242,32 @@ private:
                       tolerance);
 
             other_mbr_type other_box;
-            bg::detail::indexed_point_view<Box const, 0> p_min(box);
-            bg::detail::indexed_point_view<Box const, 1> p_max(box);
-            bg::detail::indexed_point_view
-                <
-                    other_mbr_type, 0
-                > other_min(other_box);
 
-            bg::detail::indexed_point_view
-                <
-                    other_mbr_type, 1
-                > other_max(other_box);
+            //if the input box is the special one made from make_inverse
+            //do not convert coordinates
+            if (!is_inverse_spheroidal_coordinates(box))
+            {
+                bg::detail::indexed_point_view<Box const, 0> p_min(box);
+                bg::detail::indexed_point_view<Box const, 1> p_max(box);
 
-            bg::transform(p_min, other_min);
-            bg::transform(p_max, other_max);
+                bg::detail::indexed_point_view
+                    <
+                        other_mbr_type, 0
+                    > other_min(other_box);
+
+                bg::detail::indexed_point_view
+                    <
+                        other_mbr_type, 1
+                    > other_max(other_box);
+
+                bg::transform(p_min, other_min);
+                bg::transform(p_max, other_max);
+            } else {
+                bg::set<bg::min_corner, 0>(other_box, bg::get<0, 0>(box));
+                bg::set<bg::min_corner, 1>(other_box, bg::get<0, 1>(box));
+                bg::set<bg::max_corner, 0>(other_box, bg::get<1, 0>(box));
+                bg::set<bg::max_corner, 1>(other_box, bg::get<1, 1>(box));
+            }
 
             base_test(case_id, other_box, geometry,
                       other::convert(lon_min1),
@@ -1043,6 +1056,39 @@ BOOST_AUTO_TEST_CASE( expand_box )
     test_expand_box<bg::cs::geographic<bg::degree> >();
 }
 
+template <typename CoordinateSystem>
+void test_expand_make_inverse()
+{
+    typedef bg::model::point<double, 2, CoordinateSystem> point_type;
+    typedef bg::model::box<point_type> box_type;
+    typedef bg::model::segment<point_type> segment_type;
+    typedef test_expand_on_spheroid tester;
+
+    box_type box = boost::geometry::make_inverse<box_type>();
+
+    tester::apply("bi01",
+                  box,
+                  from_wkt<box_type>("BOX(10 10,20 20)"),
+                  10, 10, 20, 20);
+    tester::apply("bi02",
+                  box,
+                  from_wkt<point_type>("POINT(0 0)"),
+                  0, 0, 0, 0);
+    tester::apply("bi03",
+                  box,
+                  from_wkt<point_type>("POINT(5 0)"),
+                  5, 0, 5, 0);
+    tester::apply("bi04",
+                  box,
+                  from_wkt<segment_type>("SEGMENT(5 0,0 5)"),
+                  0, 0, 5, 5);
+}
+
+BOOST_AUTO_TEST_CASE( expand_make_inverse )
+{
+    test_expand_make_inverse<bg::cs::spherical_equatorial<bg::degree> >();
+    test_expand_make_inverse<bg::cs::geographic<bg::degree> >();
+}
 
 template <typename CoordinateSystem>
 void test_expand_box_with_height()
