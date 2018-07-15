@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2018.
+// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -124,7 +124,12 @@ struct envelope_box_on_spheroid
                              BoxOut& mbr,
                              Strategy const&)
     {
-        BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
+        BoxIn box_in_normalized = box_in;
+
+        if (!is_inverse_spheroidal_coordinates(box_in))
+        {
+            box_in_normalized = detail::return_normalized<BoxIn>(box_in);
+        }
 
         envelope_indexed_box_on_spheroid
             <
