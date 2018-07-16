@@ -209,12 +209,12 @@ struct pj_consts
         , x0(0), y0(0)/*, z0(0), t0(0)*/
         , k0(0) , to_meter(0), fr_meter(0), vto_meter(0), vfr_meter(0)
         , datum_type(datum_unknown)
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && (!defined(_MSC_VER) || (_MSC_VER >= 1900)) // workaround for VC++ 12 (aka 2013)
         , datum_params{0, 0, 0, 0, 0, 0, 0}
 #endif
         , from_greenwich(0), long_wrap_center(0), is_long_wrap_set(false)
     {
-#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+#if defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) || (defined(_MSC_VER) && (_MSC_VER < 1900)) // workaround for VC++ 12 (aka 2013)
         std::fill(datum_params, datum_params + 7, T(0));
 #endif
     }
