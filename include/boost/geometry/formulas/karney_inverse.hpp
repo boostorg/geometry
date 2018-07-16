@@ -1,10 +1,25 @@
 // Boost.Geometry
 
-// Contributed and/or modified by Adeel Ahmad.
+// Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
+
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// This file is converted from GeographicLib, https://geographiclib.sourceforge.io
+// GeographicLib is originally written by Charles Karney.
+
+// Author: Charles Karney (2008-2017)
+
+// Last updated version of GeographicLib: 1.49
+
+// Original copyright notice:
+
+// Copyright (c) Charles Karney (2008-2017) <charles@karney.com> and licensed
+// under the MIT/X11 License. For more information, see
+// https://geographiclib.sourceforge.io
 
 #ifndef BOOST_GEOMETRY_FORMULAS_KARNEY_INVERSE_HPP
 #define BOOST_GEOMETRY_FORMULAS_KARNEY_INVERSE_HPP
