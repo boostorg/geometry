@@ -84,6 +84,7 @@
 #include <boost/geometry/strategies/spherical/compare.hpp>
 #include <boost/geometry/strategies/spherical/envelope_segment.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
+#include <boost/geometry/strategies/spherical/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
