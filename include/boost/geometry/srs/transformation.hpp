@@ -317,7 +317,7 @@ struct transform_range
         {
             res = pj_transform(proj1, par1, proj2, par2, wrapper.get(), grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
@@ -421,7 +421,7 @@ struct transform<Point, CT, point_tag>
         {
             res = pj_transform(proj1, par1, proj2, par2, range, grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
@@ -478,7 +478,7 @@ struct transform<Segment, CT, segment_tag>
         {
             res = pj_transform(proj1, par1, proj2, par2, range, grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
