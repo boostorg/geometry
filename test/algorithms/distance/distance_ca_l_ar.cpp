@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -11,13 +12,12 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_linear_areal
+#define BOOST_TEST_MODULE test_distance_cartesian_linear_areal
 #endif
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_common.hpp"
-
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::point<int,2,bg::cs::cartesian>     int_point_type;
@@ -38,6 +38,7 @@ typedef bg::default_distance_result<point_type>::type return_type;
 
 typedef bg::strategy::distance::pythagoras<> point_point_strategy;
 typedef bg::strategy::distance::projected_point<> point_segment_strategy;
+typedef bg::strategy::distance::cartesian_segment_box<> segment_box_strategy;
 
 //===========================================================================
 
@@ -952,7 +953,7 @@ BOOST_AUTO_TEST_CASE( test_all_multilinestring_ring )
 
 BOOST_AUTO_TEST_CASE( test_all_segment_box )
 {
-    test_distance_segment_box(point_segment_strategy());
+    test_distance_segment_box(segment_box_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linestring_box )

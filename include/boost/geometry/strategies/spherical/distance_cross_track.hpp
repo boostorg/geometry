@@ -352,12 +352,6 @@ public :
         : m_strategy(s)
     {}
 
-    //TODO: apply a more general strategy getter
-    inline Strategy get_distance_strategy() const
-    {
-        return m_strategy;
-    }
-
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -473,6 +467,12 @@ public :
         }
     }
 
+    template <typename T1, typename T2>
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    {
+        return m_strategy.radius() * (lat1 - lat2);
+    }
+
     inline typename Strategy::radius_type radius() const
     { return m_strategy.radius(); }
 
@@ -531,12 +531,6 @@ public :
         : m_strategy(s)
     {}
 
-    //TODO: apply a more general strategy getter
-    inline Strategy get_distance_strategy() const
-    {
-        return m_strategy;
-    }
-
     // It might be useful in the future
     // to overload constructor with strategy info.
     // crosstrack(...) {}
@@ -567,6 +561,12 @@ public :
         return_type const a = cstrategy.apply(p, sp1, sp2);
         return_type const c = return_type(2.0) * asin(math::sqrt(a));
         return c * radius();
+    }
+
+    template <typename T1, typename T2>
+    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    {
+        return m_strategy.radius() * (lat1 - lat2);
     }
 
     inline typename Strategy::radius_type radius() const

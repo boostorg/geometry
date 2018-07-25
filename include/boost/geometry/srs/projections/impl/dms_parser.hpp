@@ -123,16 +123,16 @@ struct dms_parser
         bool has_dms[3];
 
         dms_value()
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && (!defined(_MSC_VER) || (_MSC_VER >= 1900)) // workaround for VC++ 12 (aka 2013)
             : dms{0, 0, 0}
             , has_dms{false, false, false}
-#endif
+        {}
+#else
         {
-#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
             std::fill(dms, dms + 3, T(0));
             std::fill(has_dms, has_dms + 3, false);
-#endif
         }
+#endif
     };
 
 
