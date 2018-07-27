@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
@@ -12,7 +13,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_relate.hpp"
-#include "../nan_cases.hpp"
+#include "nan_cases.hpp"
 
 //TEST
 //#include <to_svg.hpp>
