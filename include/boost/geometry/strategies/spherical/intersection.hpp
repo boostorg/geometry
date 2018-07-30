@@ -541,7 +541,7 @@ private:
 
     template <typename Point1, typename Point2, typename Vec3d, typename Plane, typename CalcT>
     static inline bool calculate_collinear_data(Point1 const& a1, Point1 const& a2, // in
-                                                Point2 const& b1, Point2 const& b2, // in
+                                                Point2 const& b1, Point2 const& /*b2*/, // in
                                                 Vec3d const& a1v,                   // in
                                                 Vec3d const& a2v,                   // in
                                                 Plane const& plane1,                // in
