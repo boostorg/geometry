@@ -35,6 +35,7 @@
 * [@https://github.com/boostorg/geometry/issues/470 470] Assertion failure with short spherical and geographic segments.
 * [@https://github.com/boostorg/geometry/issues/471 471] Invalid envelope of spherical polygon
 * [@https://github.com/boostorg/geometry/issues/498 498] Unexpected results with expand() and make_inverse() for spherical and geographic CS
+* [@https://github.com/boostorg/geometry/issues/504 504] Unused parameter warnings.
 
 [*Bugfixes]
 
