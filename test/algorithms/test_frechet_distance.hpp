@@ -14,7 +14,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 
-#include <boost/geometry/algorithms/frechet_distance.hpp>
+#include <boost/geometry/algorithms/discrete_frechet_distance.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/variant/variant.hpp>

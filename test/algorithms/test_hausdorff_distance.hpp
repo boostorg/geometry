@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_TEST_HAUSDORFF_DISTANCE_HPP
 
 #include <geometry_test_common.hpp>
-#include <boost/geometry/algorithms/hausdorff_distance.hpp>
+#include <boost/geometry/algorithms/discrete_hausdorff_distance.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/variant/variant.hpp>
