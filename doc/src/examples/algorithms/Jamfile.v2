@@ -85,6 +85,8 @@ exe relation : relation.cpp ;
 
 exe reverse : reverse.cpp ;
 
+exe similarity_discrete_frechet_distance : similarity_frechet_distance.cpp ;
+exe similarity_hausdorff_frechet_distance : similarity_hausdorff_distance.cpp ;
 exe simplify : length.cpp ;
 exe sym_difference : sym_difference.cpp ;
 

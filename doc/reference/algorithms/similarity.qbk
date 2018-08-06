@@ -9,11 +9,10 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[def __this_function__ discrete_hausdorff_distance]
-
+[def __this_function__ similarity]
 
 [heading Behavior]
-The algorithm calculate discrete hausdorff distance between two geometries.
+The algorithm calculate discrete frechet distance between two geometries.
 
 [note The units of the distance depends on strategy. In order to change the
 default behavior a user has to create a strategy and pass it explicitly into
