@@ -153,19 +153,35 @@ inline typename distance_result
             typename point_type<Geometry2>::type,
             Strategy
         >::type
-frechet_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
 {
-    return dispatch::frechet_distance<Geometry1, Geometry2>::apply(g1, g2, strategy);
+    return dispatch::frechet_distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
 }
 
 // Algorithm overload using default Pt-Pt distance strategy
+/*!
+\brief calculate discrete frechet distance between two geometries
+\ingroup discrete_frechet_distance
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 Input geometry
+\param geometry2 Input geometry
+
+\qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
+ 
+\qbk{
+[/heading Example]
+[/discrete_frechet_distance]
+[/discrete_frechet_distance_output]
+}
+*/
 template <typename Geometry1, typename Geometry2>
 inline typename distance_result
         <
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type
-frechet_distance(Geometry1 const& g1, Geometry2 const& g2)
+frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef typename strategy::distance::services::default_strategy
               <
@@ -174,7 +190,7 @@ frechet_distance(Geometry1 const& g1, Geometry2 const& g2)
                   typename point_type<Geometry2>::type
               >::type strategy_type;
     
-    return frechet_distance(g1, g2, strategy_type());
+    return frechet_distance(geometry1, geometry2, strategy_type());
 }
 
 }} // namespace boost::geometry

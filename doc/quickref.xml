@@ -397,6 +397,14 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.densify">densify</link></member>
     </simplelist>
+    <bridgehead renderas="sect3">Discrete_frechet_distance</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.discrete_frechet_distance">discrete_frechet_distance</link></member>
+    </simplelist>
+    <bridgehead renderas="sect3">Discrete_hausdorff_distance</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.discrete_hausdorff_distance">discrete_hausdorff_distance</link></member>
+    </simplelist>
     <bridgehead renderas="sect3">Distance</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.distance">distance</link></member>
@@ -449,10 +457,6 @@
     <bridgehead renderas="sect3">Reverse</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.reverse">reverse</link></member>
-    </simplelist>
-    <bridgehead renderas="sect3">Similarity</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.similarity">similarity</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Simplify</bridgehead>
     <simplelist type="vert" columns="1">

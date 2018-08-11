@@ -9,7 +9,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[def __this_function__ similarity]
+[def __this_function__ discrete_frechet_distance]
 
 [heading Behavior]
 The algorithm calculate discrete frechet distance between two geometries.
