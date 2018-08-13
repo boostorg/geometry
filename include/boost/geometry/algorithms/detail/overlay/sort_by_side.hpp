@@ -521,7 +521,7 @@ private :
         {
             rp& ranked = m_ranked_points[index];
 
-            if (ranked.rank != previous_rank && ! in_polygon)
+            if (previous_rank > 0 && ranked.rank != previous_rank && ! in_polygon)
             {
                 assign_ranks(last_from_rank, previous_rank - 1, 1);
                 assign_ranks(last_from_rank + 1, previous_rank, 2);
