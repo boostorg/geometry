@@ -145,7 +145,26 @@ struct frechet_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-// Algorithm overload using explicitly passed Pt-Pt distance strategy
+
+/*!
+\brief calculate discrete frechet distance between two geometries using specified strategy
+\ingroup discrete_frechet_distance
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Strategy A type fulfilling a DistanceStrategy concept
+\param geometry1 Input geometry
+\param geometry2 Input geometry
+\param strategy Distance strategy to be used to calculate Pt-Pt distance
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
+ 
+\qbk{
+[/heading Example]
+[/discrete_frechet_distance_strategy]
+[/discrete_frechet_distance_strategy_output]
+}
+*/
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename distance_result
         <
@@ -159,6 +178,7 @@ frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strateg
 }
 
 // Algorithm overload using default Pt-Pt distance strategy
+
 /*!
 \brief calculate discrete frechet distance between two geometries
 \ingroup discrete_frechet_distance

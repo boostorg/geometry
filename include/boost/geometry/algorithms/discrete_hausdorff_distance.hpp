@@ -255,6 +255,26 @@ struct hausdorff_distance<multi_linestring1,multi_linestring2,multi_linestring_t
 #endif // DOXYGEN_NO_DISPATCH
 
 // Algorithm overload using explicitly passed Pt-Pt distance strategy
+
+/*!
+\brief calculate discrete hasudorff distance between two geometries using specified strategy
+\ingroup discrete_hausdorff_distance
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Strategy A type fulfilling a DistanceStrategy concept
+\param geometry1 Input geometry
+\param geometry2 Input geometry
+\param strategy Distance strategy to be used to calculate Pt-Pt distance
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
+ 
+\qbk{
+[/heading Example]
+[/discrete_hausdorff_distance_strategy]
+[/discrete_hausdorff_distance_strategy_output]
+}
+*/
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename distance_result
         <
@@ -262,12 +282,11 @@ inline typename distance_result
             typename point_type<Geometry2>::type,
             Strategy
         >::type
-hausdorff_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
 {
-    return dispatch::hausdorff_distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    return dispatch::hausdorff_distance<Geometry1, Geometry2>::apply(g1, g2, strategy);
 }
 
-// Algorithm overload using default Pt-Pt distance strategy
 /*!
 \brief calculate discrete hausdorff distance between two geometries
 \ingroup discrete_hausdorff_distance
@@ -290,7 +309,7 @@ inline typename distance_result
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type
-hausdorff_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
+hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
 {
     typedef typename strategy::distance::services::default_strategy
               <
@@ -299,7 +318,7 @@ hausdorff_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
                   typename point_type<Geometry2>::type
               >::type strategy_type;
     
-    return hausdorff_distance(geometry1, geometry2, strategy_type());
+    return hausdorff_distance(g1, g2, strategy_type());
 }
 
 }} // namespace boost::geometry
