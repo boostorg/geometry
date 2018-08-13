@@ -25,19 +25,19 @@ namespace bg = boost::geometry;
 
 template <typename Geometry1,typename Geometry2>
 void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
         >::type expected_frechet_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type result_type;
-    result_type h_distance = bg::frechet_distance(geometry1,geometry2);
+    result_type h_distance = bg::discrete_frechet_distance(geometry1,geometry2);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -47,7 +47,7 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
         << std::endl
         << typeid(h_distance).name()
         << std::endl
-        << "frechet_distance : " << bg::frechet_distance(geometry1,geometry2)
+        << "frechet_distance : " << bg::discrete_frechet_distance(geometry1,geometry2)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -59,7 +59,7 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
 
 template <typename Geometry1,typename Geometry2>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
@@ -71,27 +71,27 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
     bg::read_wkt(wkt2, geometry2);
     test_frechet_distance(geometry1,geometry2,expected_frechet_distance);
 #if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
+    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
 #endif
 }
 
 template <typename Geometry1,typename Geometry2 ,typename Strategy>
 void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
             Strategy
         >::type expected_frechet_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type,
             Strategy
         >::type result_type;
-    result_type h_distance = bg::frechet_distance(geometry1,geometry2,strategy);
+    result_type h_distance = bg::discrete_frechet_distance(geometry1,geometry2,strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -101,7 +101,7 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
         << std::endl
         << typeid(h_distance).name()
         << std::endl
-        << "frechet_distance : " << bg::frechet_distance(geometry1,geometry2,strategy)
+        << "frechet_distance : " << bg::discrete_frechet_distance(geometry1,geometry2,strategy)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -113,7 +113,7 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
 
 template <typename Geometry1,typename Geometry2,typename Strategy>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
@@ -136,7 +136,7 @@ void test_empty_input(Geometry1 const& geometry1,Geometry2 const& geometry2)
 {
     try
     {
-        bg::frechet_distance(geometry1,geometry2);
+        bg::discrete_frechet_distance(geometry1,geometry2);
     }
     catch(bg::empty_input_exception const& )
     {
