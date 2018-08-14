@@ -198,7 +198,7 @@ class_to_quickbook2("de9im_1_1mask", "de9im_mask")
 class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 
 os.chdir("index")
-exec(open("make_qbk.py").read())
+execfile("make_qbk.py")
 os.chdir("..")
 
 # Clean up generated intermediate files
