@@ -32,7 +32,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace frechet_distance
+namespace detail { namespace discrete_frechet_distance
 {
 
 template <typename size_type1 , typename size_type2,typename result_type>
@@ -135,11 +135,11 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct frechet_distance : not_implemented<Tag1, Tag2>
+struct discrete_frechet_distance : not_implemented<Tag1, Tag2>
 {};
 template <typename Linestring1, typename Linestring2>
-struct frechet_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
-    : detail::frechet_distance::linestring_linestring
+struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
+    : detail::discrete_frechet_distance::linestring_linestring
 {};
 
 } // namespace dispatch
@@ -160,6 +160,10 @@ struct frechet_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
 \qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
  
 \qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
+\* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
+
 [/heading Example]
 [/discrete_frechet_distance_strategy]
 [/discrete_frechet_distance_strategy_output]
@@ -172,9 +176,9 @@ inline typename distance_result
             typename point_type<Geometry2>::type,
             Strategy
         >::type
-frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
 {
-    return dispatch::frechet_distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    return dispatch::discrete_frechet_distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
 }
 
 // Algorithm overload using default Pt-Pt distance strategy
@@ -201,7 +205,7 @@ inline typename distance_result
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type
-frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
+discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     typedef typename strategy::distance::services::default_strategy
               <
@@ -210,7 +214,8 @@ frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
                   typename point_type<Geometry2>::type
               >::type strategy_type;
     
-    return frechet_distance(geometry1, geometry2, strategy_type());
+    return discrete_frechet_distance(geometry1, geometry2, strategy_type());
 }
 
 }} // namespace boost::geometry
+

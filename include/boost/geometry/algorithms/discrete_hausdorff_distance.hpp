@@ -34,7 +34,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace hausdorff_distance
+namespace detail { namespace discrete_hausdorff_distance
 {
 
 struct point_range
@@ -218,37 +218,37 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct hausdorff_distance : not_implemented<Tag1, Tag2>
+struct discrete_hausdorff_distance : not_implemented<Tag1, Tag2>
 {};
 
 // Specialization for point and multi_point 
 template <typename Point, typename MultiPoint>
-struct hausdorff_distance<Point,MultiPoint,point_tag,multi_point_tag>
-    : detail::hausdorff_distance::point_range
+struct discrete_hausdorff_distance<Point,MultiPoint,point_tag,multi_point_tag>
+    : detail::discrete_hausdorff_distance::point_range
 {};
 
 // Specialization for linestrings 
 template <typename Linestring1, typename Linestring2>
-struct hausdorff_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
-    : detail::hausdorff_distance::range_range
+struct discrete_hausdorff_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
+    : detail::discrete_hausdorff_distance::range_range
 {};
 
 // Specialization for multi_point-multi_point 
 template <typename MultiPoint1, typename MultiPoint2>
-struct hausdorff_distance<MultiPoint1,MultiPoint2,multi_point_tag,multi_point_tag>
-    : detail::hausdorff_distance::range_range
+struct discrete_hausdorff_distance<MultiPoint1,MultiPoint2,multi_point_tag,multi_point_tag>
+    : detail::discrete_hausdorff_distance::range_range
 {};
 
 // Specialization for linestring and multi_linestring 
 template <typename linestring, typename multi_linestring>
-struct hausdorff_distance<linestring,multi_linestring,linestring_tag,multi_linestring_tag>
-    : detail::hausdorff_distance::range_multi_range
+struct discrete_hausdorff_distance<linestring,multi_linestring,linestring_tag,multi_linestring_tag>
+    : detail::discrete_hausdorff_distance::range_multi_range
 {};
 
 // Specialization for multi_linestring and multi_linestring 
 template <typename multi_linestring1, typename multi_linestring2>
-struct hausdorff_distance<multi_linestring1,multi_linestring2,multi_linestring_tag,multi_linestring_tag>
-    : detail::hausdorff_distance::multi_range_multi_range
+struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_linestring_tag,multi_linestring_tag>
+    : detail::discrete_hausdorff_distance::multi_range_multi_range
 {};
 
 } // namespace dispatch
@@ -270,6 +270,10 @@ struct hausdorff_distance<multi_linestring1,multi_linestring2,multi_linestring_t
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
  
 \qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
+\* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
+
 [/heading Example]
 [/discrete_hausdorff_distance_strategy]
 [/discrete_hausdorff_distance_strategy_output]
@@ -282,9 +286,9 @@ inline typename distance_result
             typename point_type<Geometry2>::type,
             Strategy
         >::type
-hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
 {
-    return dispatch::hausdorff_distance<Geometry1, Geometry2>::apply(g1, g2, strategy);
+    return dispatch::discrete_hausdorff_distance<Geometry1, Geometry2>::apply(g1, g2, strategy);
 }
 
 /*!
@@ -309,7 +313,7 @@ inline typename distance_result
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type
-hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
+discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
 {
     typedef typename strategy::distance::services::default_strategy
               <
@@ -318,7 +322,7 @@ hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
                   typename point_type<Geometry2>::type
               >::type strategy_type;
     
-    return hausdorff_distance(g1, g2, strategy_type());
+    return discrete_hausdorff_distance(g1, g2, strategy_type());
 }
 
 }} // namespace boost::geometry
