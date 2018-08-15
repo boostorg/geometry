@@ -16,20 +16,16 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/variant/variant.hpp>
-#include <boost/test/test_tools.hpp>
-
-namespace bg = boost::geometry;
-
 
 template <typename Geometry1,typename Geometry2>
 void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
         >::type expected_hausdorff_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
@@ -57,7 +53,7 @@ void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometr
 
 template <typename Geometry1,typename Geometry2>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type
@@ -68,21 +64,21 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
     test_hausdorff_distance(geometry1,geometry2,expected_hausdorff_distance);
-#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
+#if defined(BOOST_GEOMETRY_TEST_DEBUG)
     test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
 #endif
 }
 
 template <typename Geometry1,typename Geometry2 ,typename Strategy>
 void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
             Strategy
         >::type expected_hausdorff_distance )
 {
-    using namespace bg;
+	using namespace bg;
     typedef typename distance_result
         <
             typename point_type<Geometry1>::type,
@@ -111,7 +107,7 @@ void test_hausdorff_distance(Geometry1 const& geometry1,Geometry2 const& geometr
 
 template <typename Geometry1,typename Geometry2,typename Strategy>
 void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy strategy,
-    typename bg::distance_result
+	typename bg::distance_result
         <
             typename bg::point_type<Geometry1>::type,
             typename bg::point_type<Geometry2>::type,
@@ -123,7 +119,7 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy stra
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
     test_hausdorff_distance(geometry1,geometry2,strategy,expected_hausdorff_distance);
-#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
+#if defined(BOOST_GEOMETRY_TEST_DEBUG)
     test_hausdorff_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2),strategy, expected_hausdorff_distance);
 #endif
 }

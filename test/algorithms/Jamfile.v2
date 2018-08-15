@@ -62,7 +62,6 @@ test-suite boost-geometry-algorithms
     [ run unique_multi.cpp             : : : : algorithms_unique_multi ]
     ;
 
-build-project similarity;
 build-project area ;
 build-project buffer ;
 build-project detail ;
@@ -73,3 +72,4 @@ build-project overlay ;
 build-project perimeter ;
 build-project relational_operations ;
 build-project set_operations ;
+build-project similarity;

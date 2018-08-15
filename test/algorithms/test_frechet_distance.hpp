@@ -8,20 +8,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_TEST_frechet_DISTANCE_HPP
-#define BOOST_GEOMETRY_TEST_frechet_DISTANCE_HPP
+#ifndef BOOST_GEOMETRY_TEST_FRECHET_DISTANCE_HPP
+#define BOOST_GEOMETRY_TEST_FRECHET_DISTANCE_HPP
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-
-
+#include <geometry_test_common.hpp>
 #include <boost/geometry/algorithms/discrete_frechet_distance.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/variant/variant.hpp>
-#include <boost/test/test_tools.hpp>
-
-namespace bg = boost::geometry;
-
 
 template <typename Geometry1,typename Geometry2>
 void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2,
@@ -70,8 +64,8 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
     test_frechet_distance(geometry1,geometry2,expected_frechet_distance);
-#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_hausdorff_distance);
+#if defined(BOOST_GEOMETRY_TEST_DEBUG)
+    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2), expected_frechet_distance);
 #endif
 }
 
@@ -125,8 +119,8 @@ void test_geometry(std::string const& wkt1,std::string const& wkt2,Strategy stra
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
     test_frechet_distance(geometry1,geometry2,strategy,expected_frechet_distance);
-#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2),strategy, expected_hausdorff_distance);
+#if defined(BOOST_GEOMETRY_TEST_DEBUG)
+    test_frechet_distance(boost::variant<Geometry1>(geometry1),boost::variant<Geometry2>(geometry2),strategy, expected_frechet_distance);
 #endif
 }
 
@@ -147,3 +141,4 @@ void test_empty_input(Geometry1 const& geometry1,Geometry2 const& geometry2)
 
 
 #endif
+
