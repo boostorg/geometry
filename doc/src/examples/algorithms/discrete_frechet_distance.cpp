@@ -19,7 +19,7 @@ int main()
     linestring_type linestring1,linestring2;
     boost::geometry::read_wkt("LINESTRING(0 0,1 1,1 2,2 1,2 2)", linestring1);
     boost::geometry::read_wkt("LINESTRING(1 0,0 1,1 1,2 1,3 1)", linestring2);    
-    typename distance_result<typename point_type<point_type>::type,typename point_type<linestring_type>::type>::type res;
+ 	double res;
     res = boost::geometry::frechet_distance(linestring1,linestrign2);
     std::cout << "Discrete Frechet Distance: " << res << std::endl;
     return 0;
