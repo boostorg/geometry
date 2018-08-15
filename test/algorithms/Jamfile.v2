@@ -79,7 +79,6 @@ build-project overlay ;
 build-project perimeter ;
 build-project relate ;
 build-project set_operations ;
-build-project similarity;
+build-project similarity ;
 build-project touches ;
 build-project within ;
-
