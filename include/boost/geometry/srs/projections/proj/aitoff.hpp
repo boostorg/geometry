@@ -156,7 +156,7 @@ namespace projections
                             sp = sin(lp_lat); cp = cos(lp_lat);
                             D = cp * cl;
                             C = 1. - D * D;
-                            D = acos(D) / pow(C, 1.5);
+                            D = acos(D) / math::pow(C, T(1.5));
                             f1 = 2. * D * C * cp * sl;
                             f2 = D * C * sp;
                             f1p = 2.* (sl * cl * sp * cp / C - D * sp * sl);

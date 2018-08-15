@@ -44,13 +44,161 @@
 
 namespace bg = ::boost::geometry;
 
+typedef bg::srs::spheroid<double> stype;
+
+// Spherical strategy  for point-point distance
+
+typedef bg::strategy::distance::haversine<double> spherical_pp;
+
+// Geo strategies for point-point distance
+
+typedef bg::strategy::distance::andoyer<stype> andoyer_pp;
+typedef bg::strategy::distance::thomas<stype> thomas_pp;
+typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
+
+// Spherical strategy  for point-segment distance
+
+typedef bg::strategy::distance::cross_track<> spherical_ps;
+
+// Geo strategies for point-segment distance
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, stype, double>
+        andoyer_ps;
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, stype, double>
+        thomas_ps;
+
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
+        vincenty_ps;
+
+// Spherical strategy  for point-box distance
+
+typedef bg::strategy::distance::cross_track_point_box<> spherical_pb;
+
+// Geo strategies for point-box distance
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::andoyer,
+    stype,
+    double
+> andoyer_pb;
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::thomas,
+    stype,
+    double
+> thomas_pb;
+
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::vincenty,
+    stype,
+    double
+> vincenty_pb;
+
+// Spherical strategy  for segment-box distance
+
+typedef bg::strategy::distance::spherical_segment_box<> spherical_sb;
+
+// Geo strategies for segment-box distance
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::andoyer, stype, double>
+        andoyer_sb;
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::thomas, stype, double>
+        thomas_sb;
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::vincenty, stype, double>
+        vincenty_sb;
+
+// Strategies for box-box distance
+
+typedef bg::strategy::distance::cross_track_box_box<> spherical_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::andoyer,
+            stype,
+            double
+        > andoyer_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::thomas,
+            stype,
+            double
+        > thomas_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::vincenty,
+            stype,
+            double
+        > vincenty_bb;
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+pp_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    Point p1, p2;
+    bg::read_wkt(wkt1, p1);
+    bg::read_wkt(wkt2, p2);
+    return bg::distance(p1, p2, strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+ps_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    Point p;
+    typedef bg::model::segment<Point> segment_type;
+    segment_type s;
+    bg::read_wkt(wkt1, p);
+    bg::read_wkt(wkt2, s);
+    return bg::distance(p, s, strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+inline typename bg::default_distance_result<Point>::type
+sb_distance(std::string const& wkt1,
+            std::string const& wkt2,
+            Strategy const& strategy)
+{
+    typedef bg::model::segment<Point> segment_type;
+    typedef bg::model::box<Point> box_type;
+    segment_type s;
+    box_type b;
+    bg::read_wkt(wkt1, s);
+    bg::read_wkt(wkt2, b);
+    return bg::distance(s, b, strategy);
+}
+
 //===================================================================
-//tag dispatching for swaping arguments in segments
 
 template <typename Tag> struct dispatch
 {
+    //tag dispatching for swaping arguments in segments
     template <typename T>
     static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    // mirror geometry w.r.t. equator
+    template <typename T>
+    static inline T mirror(T const& t)
     {
         return t;
     }
@@ -70,6 +218,64 @@ template <> struct dispatch<boost::geometry::segment_tag>
         bg::set<1, 1>(s_swaped, bg::get<0, 1>(s));
 
         return s_swaped;
+    }
+
+    template <typename Segment>
+    static inline Segment mirror(Segment const& s)
+    {
+        Segment s_mirror;
+
+        bg::set<0, 0>(s_mirror, bg::get<0, 0>(s));
+        bg::set<0, 1>(s_mirror, bg::get<0, 1>(s) * -1);
+        bg::set<1, 0>(s_mirror, bg::get<1, 0>(s));
+        bg::set<1, 1>(s_mirror, bg::get<1, 1>(s) * -1);
+
+        return s_mirror;
+    }
+};
+
+// Specialization for boxes
+template <> struct dispatch<boost::geometry::box_tag>
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    template <typename Box>
+    static inline Box mirror(Box const& b)
+    {
+        Box b_mirror;
+
+        bg::set<0, 0>(b_mirror, bg::get<bg::min_corner, 0>(b));
+        bg::set<0, 1>(b_mirror, bg::get<bg::max_corner, 1>(b) * -1);
+        bg::set<1, 0>(b_mirror, bg::get<bg::max_corner, 0>(b));
+        bg::set<1, 1>(b_mirror, bg::get<bg::min_corner, 1>(b) * -1);
+
+        return b_mirror;
+    }
+};
+
+
+// Specialization for points
+template <> struct dispatch<boost::geometry::point_tag>
+{
+    template <typename T>
+    static inline T swap(T const& t)
+    {
+        return t;
+    }
+
+    template <typename Point>
+    static inline Point mirror(Point const& p)
+    {
+        Point p_mirror;
+
+        bg::set<0>(p_mirror, bg::get<0>(p));
+        bg::set<1>(p_mirror, bg::get<1>(p) * -1);
+
+        return p_mirror;
     }
 };
 
@@ -133,14 +339,16 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                DistanceType const& expected_distance,
                Strategy const& strategy,
                bool test_reversed = true,
-               bool swap_geometry_args = false)
+               bool swap_geometry_args = false,
+               bool mirror_geometry = true)
     {
         Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
         apply(case_id, geometry1, geometry2,
               expected_distance,
-              strategy, test_reversed, swap_geometry_args);
+              strategy, test_reversed, swap_geometry_args,
+              mirror_geometry);
     }
 
 
@@ -156,7 +364,8 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                DistanceType const& expected_distance,
                Strategy const& strategy,
                bool test_reversed = true,
-               bool swap_geometry_args = false)
+               bool swap_geometry_args = false,
+               bool mirror_geometry = true)
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "case ID: " << case_id << "; "
@@ -272,7 +481,35 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                       << std::endl;
             std::cout << std::endl;
 #endif
-         }
+        }
+        if (mirror_geometry)
+        {
+            Geometry1 g1 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry1>::type
+                >::mirror(geometry1);
+
+            Geometry2 g2 = dispatch
+                <
+                    typename boost::geometry::tag<Geometry2>::type
+                >::mirror(geometry2);
+
+            // check distance with given strategy
+            dist = bg::distance(g1, g2, strategy);
+
+            check_equal
+                <
+                    default_distance_result
+                >::apply(case_id, "mirror", g1, g2,
+                         dist, expected_distance);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "distance[mirror geometries] = "
+                      << dist
+                      << std::endl;
+            std::cout << std::endl;
+#endif
+        }
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << std::endl;
 #endif

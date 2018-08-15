@@ -799,7 +799,7 @@ namespace projections
                 hex        h;
 
                 /* This is the number of hexes from apex to base of a triangle */
-                sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
+                sidelength = (math::pow(T(2), g->resolution) + T(1)) / T(2);
 
                 /* apex to base is cos(30deg) */
                 hexwidth = cos(pi / 6.0) / sidelength;
@@ -879,7 +879,7 @@ namespace projections
                 }
                 /* todo might want to do this as an iterated loop */
                 if (g->aperture >0) {
-                    sidelength = (int) (pow(T(g->aperture), T(g->resolution / 2.0)) + 0.5);
+                    sidelength = (int) (math::pow(T(g->aperture), T(g->resolution / T(2))) + T(0.5));
                 } else {
                     sidelength = g->resolution;
                 }
@@ -965,19 +965,19 @@ namespace projections
                     return g->serial;
                 }
                 /* hexes in a quad */
-                hexes = (int) (pow(T(g->aperture), T(g->resolution)) + 0.5);
+                hexes = (int) (math::pow(T(g->aperture), T(g->resolution)) + T(0.5));
                 if (quad == 11) {
                     g->serial = 1 + 10 * hexes + 1;
                     return g->serial;
                 }
                 if (g->aperture == 3 && g->resolution % 2 == 1) {
-                    height = (int) (pow(T(g->aperture), T((g->resolution - 1) / 2.0)));
+                    height = (int) (math::pow(T(g->aperture), T((g->resolution - 1) / T(2))));
                     sn = ((int) di->x) * height;
                     sn += ((int) di->y) / height;
                     sn += (quad - 1) * hexes;
                     sn += 2;
                 } else {
-                    sidelength = (int) (pow(T(g->aperture), T(g->resolution / 2.0)) + 0.5);
+                    sidelength = (int) (math::pow(T(g->aperture), T(g->resolution / T(2))) + T(0.5));
                     sn = (int) ((quad - 1) * hexes + sidelength * di->x + di->y + 2);
                 }
 

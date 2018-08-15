@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015-2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2018.
+// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <utility>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/core/assert.hpp>
@@ -35,13 +36,12 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
+#include <boost/geometry/formulas/meridian_segment.hpp>
 #include <boost/geometry/formulas/vertex_latitude.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
-
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -164,21 +164,22 @@ private:
     {
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
+        boost::ignore_unused(lon1, lon2);
 
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
+
+        if (math::equals(a1, a2))
+        {
+            // the segment must lie on the equator or is very short or is meridian
+            return;
+        }
 
         if (lat1 > lat2)
         {
             std::swap(lat1, lat2);
             std::swap(lat1_rad, lat2_rad);
             std::swap(a1, a2);
-        }
-
-        if (math::equals(a1, a2))
-        {
-            // the segment must lie on the equator or is very short
-            return;
         }
 
         if (contains_pi_half(a1, a2))
@@ -354,8 +355,7 @@ private:
         CalculationType lon2_rad = math::as_radian<Units>(lon2);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
         CalculationType alp2;
-        strategy.apply(lon2_rad, lat2_rad, lon1_rad, lat1_rad, alp2);
-        alp2 += math::pi<CalculationType>();
+        strategy.apply_reverse(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp2);
 
         compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
     }

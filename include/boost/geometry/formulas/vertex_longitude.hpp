@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -329,6 +329,23 @@ public :
         }
 
         return vertex_lon;
+    }
+};
+
+template <typename CT>
+class vertex_longitude<CT, cartesian_tag>
+{
+public :
+    template <typename Strategy>
+    static inline CT apply(CT& /*lon1*/,
+                           CT& /*lat1*/,
+                           CT& lon2,
+                           CT& /*lat2*/,
+                           CT const& /*vertex_lat*/,
+                           CT& /*alp1*/,
+                           Strategy const& /*azimuth_strategy*/)
+    {
+        return lon2;
     }
 };
 

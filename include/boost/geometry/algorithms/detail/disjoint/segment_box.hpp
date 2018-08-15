@@ -33,6 +33,7 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
@@ -64,10 +65,38 @@ private:
 
 public:
 
+    struct disjoint_info
+    {
+        enum type
+        {
+            intersect,
+            disjoint_no_vertex,
+            disjoint_vertex
+        };
+        disjoint_info(type t) : m_(t){}
+        operator type () const {return m_;}
+        type m_;
+    private :
+        //prevent automatic conversion for any other built-in types
+        template <typename T>
+        operator T () const;
+    };
+
     template <typename Segment, typename Box, typename Strategy>
     static inline bool apply(Segment const& segment,
                              Box const& box,
                              Strategy const& azimuth_strategy)
+    {
+        typedef typename point_type<Segment>::type segment_point;
+        segment_point vertex;
+        return (apply(segment, box, azimuth_strategy, vertex) != disjoint_info::intersect);
+    }
+
+    template <typename Segment, typename Box, typename Strategy, typename P>
+    static inline disjoint_info apply(Segment const& segment,
+                                      Box const& box,
+                                      Strategy const& azimuth_strategy,
+                                      P& vertex)
     {
         assert_dimension_equal<Segment, Box>();
 
@@ -78,12 +107,15 @@ public:
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
+        //vertex not computed here
+        disjoint_info disjoint_return_value = disjoint_info::disjoint_no_vertex;
+
         // Simplest cases first
 
         // Case 1: if box contains one of segment's endpoints then they are not disjoint
         if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
         {
-            return false;
+            return disjoint_info::intersect;
         }
 
         // Case 2: disjoint if bounding boxes are disjoint
@@ -119,9 +151,10 @@ public:
                                                    box_seg,
                                                    azimuth_strategy,
                                                    alp1);
+
         if (disjoint_box_box(box, box_seg))
         {
-            return true;
+            return disjoint_return_value;
         }
 
         // Case 3: test intersection by comparing angles
@@ -138,16 +171,14 @@ public:
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_max, a_b3);
 
-        bool b0 = alp1 > a_b0;
-        bool b1 = alp1 > a_b1;
-        bool b2 = alp1 > a_b2;
-        bool b3 = alp1 > a_b3;
+        bool b0 = formula::azimuth_side_value(alp1, a_b0) > 0;
+        bool b1 = formula::azimuth_side_value(alp1, a_b1) > 0;
+        bool b2 = formula::azimuth_side_value(alp1, a_b2) > 0;
+        bool b3 = formula::azimuth_side_value(alp1, a_b3) > 0;
 
-        // if not all box points on the same side of the segment then
-        // there is an intersection
         if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
         {
-            return false;
+            return disjoint_info::intersect;
         }
 
         // Case 4: The only intersection case not covered above is when all four
@@ -157,8 +188,8 @@ public:
         CT vertex_lat;
         CT lat_sum = lat1 + lat2;
 
-        if ((b0 && b1 && b2 && b3 && lat_sum > CT(0))
-                || (!(b0 && b1 && b2 && b3) && lat_sum < CT(0)))
+        if ((lat1 < b_lat_min && lat_sum > CT(0))
+                || (lat1 > b_lat_max && lat_sum < CT(0)))
         {
             CT b_lat_below; //latitude of box closest to equator
 
@@ -180,6 +211,10 @@ public:
                                             alp1,
                                             azimuth_strategy);
 
+            geometry::set_from_radian<0>(vertex, vertex_lon);
+            geometry::set_from_radian<1>(vertex, vertex_lat);
+            disjoint_return_value = disjoint_info::disjoint_vertex; //vertex_computed
+
             // Check if the vertex point is within the band defined by the
             // minimum and maximum longitude of the box; if yes, then return
             // false if the point is above the min latitude of the box; return
@@ -187,11 +222,11 @@ public:
             if (vertex_lon >= b_lon_min && vertex_lon <= b_lon_max
                     && std::abs(vertex_lat) > std::abs(b_lat_below))
             {
-                return false;
+                return disjoint_info::intersect;
             }
         }
 
-        return true;
+        return disjoint_return_value;
     }
 };
 

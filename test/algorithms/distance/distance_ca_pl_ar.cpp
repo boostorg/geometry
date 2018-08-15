@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -11,7 +12,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_pointlike_areal
+#define BOOST_TEST_MODULE test_distance_cartesian_pointlike_areal
 #endif
 
 #include <boost/test/included/unit_test.hpp>
@@ -603,7 +604,7 @@ void test_more_empty_input_pointlike_areal(Strategy const& strategy)
 
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_polygon )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_polygon )
 {
     test_distance_point_polygon(point_point_strategy()); // back-compatibility
     test_distance_point_polygon(point_segment_strategy());

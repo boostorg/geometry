@@ -134,8 +134,8 @@ namespace projections
                     >::type o_proj_tag;
 
                 /* avoid endless recursion */
-                static const bool is_o_proj_ob_tran = boost::is_same<o_proj_tag, srs::par4::ob_tran>::value;
-                BOOST_MPL_ASSERT_MSG((! is_o_proj_ob_tran), INVALID_O_PROJ_PARAMETER, (StaticParameters));
+                static const bool is_o_proj_not_ob_tran = ! boost::is_same<o_proj_tag, srs::par4::ob_tran>::value;
+                BOOST_MPL_ASSERT_MSG((is_o_proj_not_ob_tran), INVALID_O_PROJ_PARAMETER, (StaticParameters));
 
                 typedef typename projections::detail::static_projection_type
                     <

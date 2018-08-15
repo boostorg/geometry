@@ -123,16 +123,16 @@ namespace projections
                 {
                     T gfi, u, deltav, s, d, eps, rho;
 
-                    gfi = pow ( (1. + this->m_par.e * sin(lp_lat)) / (1. - this->m_par.e * sin(lp_lat)), this->m_proj_parm.alpha * this->m_par.e / 2.);
+                    gfi = math::pow( (T(1) + this->m_par.e * sin(lp_lat)) / (T(1) - this->m_par.e * sin(lp_lat)), this->m_proj_parm.alpha * this->m_par.e / T(2));
 
-                    u = 2. * (atan(this->m_proj_parm.k * pow( tan(lp_lat / 2. + S45), this->m_proj_parm.alpha) / gfi)-S45);
+                    u = 2. * (atan(this->m_proj_parm.k * math::pow( tan(lp_lat / T(2) + S45), this->m_proj_parm.alpha) / gfi)-S45);
                     deltav = -lp_lon * this->m_proj_parm.alpha;
 
                     s = asin(cos(this->m_proj_parm.ad) * sin(u) + sin(this->m_proj_parm.ad) * cos(u) * cos(deltav));
                     d = asin(cos(u) * sin(deltav) / cos(s));
 
                     eps = this->m_proj_parm.n * d;
-                    rho = this->m_proj_parm.rho0 * pow(tan(S0 / 2. + S45) , this->m_proj_parm.n) / pow(tan(s / 2. + S45) , this->m_proj_parm.n);
+                    rho = this->m_proj_parm.rho0 * math::pow(tan(S0 / T(2) + S45) , this->m_proj_parm.n) / math::pow(tan(s / T(2) + S45) , this->m_proj_parm.n);
 
                     xy_y = rho * cos(eps);
                     xy_x = rho * sin(eps);
@@ -160,7 +160,7 @@ namespace projections
                     eps = atan2(xy_y, xy_x);
 
                     d = eps / sin(S0);
-                    s = 2. * (atan(  pow(this->m_proj_parm.rho0 / rho, 1. / this->m_proj_parm.n) * tan(S0 / 2. + S45)) - S45);
+                    s = T(2) * (atan(math::pow(this->m_proj_parm.rho0 / rho, T(1) / this->m_proj_parm.n) * tan(S0 / T(2) + S45)) - S45);
 
                     u = asin(cos(this->m_proj_parm.ad) * sin(s) - sin(this->m_proj_parm.ad) * cos(s) * cos(d));
                     deltav = asin(cos(s) * sin(d) / cos(u));
@@ -171,9 +171,9 @@ namespace projections
                     fi1 = u;
 
                     for (i = max_iter; i ; --i) {
-                        lp_lat = 2. * ( atan( pow( this->m_proj_parm.k, -1. / this->m_proj_parm.alpha)  *
-                                              pow( tan(u / 2. + S45) , 1. / this->m_proj_parm.alpha)  *
-                                              pow( (1. + this->m_par.e * sin(fi1)) / (1. - this->m_par.e * sin(fi1)) , this->m_par.e / 2.)
+                        lp_lat = T(2) * ( atan( math::pow( this->m_proj_parm.k, T(-1) / this->m_proj_parm.alpha)  *
+                                              math::pow( tan(u / T(2) + S45) , T(1) / this->m_proj_parm.alpha)  *
+                                              math::pow( (T(1) + this->m_par.e * sin(fi1)) / (T(1) - this->m_par.e * sin(fi1)) , this->m_par.e / T(2))
                                             )  - S45);
 
                         if (fabs(fi1 - lp_lat) < epsilon)
@@ -222,11 +222,11 @@ namespace projections
                     proj_parm.czech = -1;
 
                 /* Set up shared parameters between forward and inverse */
-                proj_parm.alpha = sqrt(1. + (par.es * pow(cos(par.phi0), 4)) / (1. - par.es));
+                proj_parm.alpha = sqrt(T(1) + (par.es * math::pow(cos(par.phi0), 4)) / (T(1) - par.es));
                 u0 = asin(sin(par.phi0) / proj_parm.alpha);
-                g = pow( (1. + par.e * sin(par.phi0)) / (1. - par.e * sin(par.phi0)) , proj_parm.alpha * par.e / 2. );
-                proj_parm.k = tan( u0 / 2. + S45) / pow  (tan(par.phi0 / 2. + S45) , proj_parm.alpha) * g;
-                n0 = sqrt(1. - par.es) / (1. - par.es * pow(sin(par.phi0), 2));
+                g = math::pow( (T(1) + par.e * sin(par.phi0)) / (T(1) - par.e * sin(par.phi0)) , proj_parm.alpha * par.e / T(2) );
+                proj_parm.k = tan( u0 / 2. + S45) / math::pow(tan(par.phi0 / T(2) + S45) , proj_parm.alpha) * g;
+                n0 = sqrt(T(1) - par.es) / (T(1) - par.es * math::pow(sin(par.phi0), 2));
                 proj_parm.n = sin(S0);
                 proj_parm.rho0 = par.k0 * n0 / tan(S0);
                 proj_parm.ad = S90 - UQ;
