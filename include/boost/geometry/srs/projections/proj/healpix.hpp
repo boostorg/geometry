@@ -347,7 +347,7 @@ namespace projections
              * @param ret holds a + b.
              **/
             template <typename T>
-            inline void vector_add(T a[2], T b[2], T *ret)
+            inline void vector_add(const T a[2], const T b[2], T ret[2])
             {
                 int i;
                 for(i = 0; i < 2; i++) {
@@ -359,7 +359,7 @@ namespace projections
              * @param ret holds a - b.
              **/
             template <typename T>
-            inline void vector_sub(T a[2], T b[2], T*ret)
+            inline void vector_sub(const T a[2], const T b[2], T ret[2])
             {
                 int i;
                 for(i = 0; i < 2; i++) {
@@ -372,7 +372,7 @@ namespace projections
              * @param ret holds a*b.
              **/
             template <typename T1, typename T2>
-            inline void dot_product(T1 a[2][2], T2 b[2], T2 *ret)
+            inline void dot_product(const T1 a[2][2], const T2 b[2], T2 ret[2])
             {
                 int i, j;
                 int length = 2;
