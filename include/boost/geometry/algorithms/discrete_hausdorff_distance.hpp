@@ -8,7 +8,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <algorithm> 
+#include <algorithm>
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAUSDORFF_DISTANCE
 #include <iostream>
@@ -47,7 +47,7 @@ struct point_range
             Strategy
         >::type apply(Point const& pnt, Range const& rng, Strategy const& strategy)
     {
-        
+
         typedef typename distance_result
             <
                 typename point_type<Point>::type,
@@ -55,7 +55,7 @@ struct point_range
                 Strategy
             >::type result_type;
         typedef typename boost::range_size<Range>:: type size_type;
-        
+
         size_type  b = boost::size(rng);
         result_type dis_min;
         bool is_dis_min_set = false;
@@ -63,7 +63,7 @@ struct point_range
         {
             result_type dis_temp = geometry::distance(pnt, range::at(rng, i), strategy);
                 if(!is_dis_min_set || dis_temp < dis_min)
-                {    
+                {
                     dis_min=dis_temp;
                     is_dis_min_set = true;
                 }
@@ -82,7 +82,7 @@ struct range_range
             Strategy
         >::type apply(Range1 const& r1, Range2 const& r2, Strategy const& strategy)
     {
-        
+
         typedef typename distance_result
             <
                 typename point_type<Range1>::type,
@@ -91,10 +91,10 @@ struct range_range
             >::type result_type;
 
         typedef typename boost::range_size<Range1>::type size_type;
-        
+
         boost::geometry::detail::throw_on_empty_input(r1);
         boost::geometry::detail::throw_on_empty_input(r2);
-        
+
         size_type  a = boost::size(r1);
         result_type dis_max=0;
 
@@ -106,7 +106,7 @@ struct range_range
         #endif
 
         for(size_type i=0;i<a;i++)
-        {   
+        {
             #ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
             size_type found= rtree.query(bgi::nearest(range::at(r1, i),1), &res);
             result_type dis_min=geometry::distance(range::at(r1,i),res);
@@ -133,7 +133,7 @@ struct range_multi_range
             Strategy
         >::type apply(Range const& rng, Multi_range const& mrng, Strategy const& strategy)
     {
-        
+
         typedef typename distance_result
             <
                 typename point_type<Range>::type,
@@ -141,14 +141,14 @@ struct range_multi_range
                 Strategy
             >::type result_type;
         typedef typename boost::range_size<Multi_range>::type size_type;
-        
+
         boost::geometry::detail::throw_on_empty_input(rng);
         boost::geometry::detail::throw_on_empty_input(mrng);
-        
+
         size_type  b = boost::size(mrng);
         result_type haus_dis=0;
         //Computing the HausdorffDistance
-        
+
         result_type dis_max=0;
         for(size_type j=0;j<b;j++)
         {
@@ -157,11 +157,11 @@ struct range_multi_range
         if(dis_max > haus_dis)
             {
                     haus_dis=dis_max;
-            }  
+            }
         }
 
-          
-        
+
+
         return haus_dis;
     }
 };
@@ -177,14 +177,14 @@ struct multi_range_multi_range
             Strategy
         >::type apply(Multi_Range1 const& mrng1, Multi_range2 const& mrng2, Strategy const& strategy)
     {
-        
+
         typedef typename distance_result
             <
                 typename point_type<Multi_Range1>::type,
                 typename point_type<Multi_range2>::type,
                 Strategy
             >::type result_type;
-        typedef typename boost::range_size<Multi_Range1>::type size_type;        
+        typedef typename boost::range_size<Multi_Range1>::type size_type;
         boost::geometry::detail::throw_on_empty_input(mrng1);
         boost::geometry::detail::throw_on_empty_input(mrng2);
         size_type  a = boost::size(mrng1);
@@ -199,7 +199,7 @@ struct multi_range_multi_range
             if(dis_max > haus_dis)
             {
                 haus_dis=dis_max;
-            }    
+            }
         }
         return haus_dis;
     }
@@ -221,31 +221,31 @@ template
 struct discrete_hausdorff_distance : not_implemented<Tag1, Tag2>
 {};
 
-// Specialization for point and multi_point 
+// Specialization for point and multi_point
 template <typename Point, typename MultiPoint>
 struct discrete_hausdorff_distance<Point,MultiPoint,point_tag,multi_point_tag>
     : detail::discrete_hausdorff_distance::point_range
 {};
 
-// Specialization for linestrings 
+// Specialization for linestrings
 template <typename Linestring1, typename Linestring2>
 struct discrete_hausdorff_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
     : detail::discrete_hausdorff_distance::range_range
 {};
 
-// Specialization for multi_point-multi_point 
+// Specialization for multi_point-multi_point
 template <typename MultiPoint1, typename MultiPoint2>
 struct discrete_hausdorff_distance<MultiPoint1,MultiPoint2,multi_point_tag,multi_point_tag>
     : detail::discrete_hausdorff_distance::range_range
 {};
 
-// Specialization for linestring and multi_linestring 
+// Specialization for linestring and multi_linestring
 template <typename linestring, typename multi_linestring>
 struct discrete_hausdorff_distance<linestring,multi_linestring,linestring_tag,multi_linestring_tag>
     : detail::discrete_hausdorff_distance::range_multi_range
 {};
 
-// Specialization for multi_linestring and multi_linestring 
+// Specialization for multi_linestring and multi_linestring
 template <typename multi_linestring1, typename multi_linestring2>
 struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_linestring_tag,multi_linestring_tag>
     : detail::discrete_hausdorff_distance::multi_range_multi_range
@@ -257,7 +257,7 @@ struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_lin
 // Algorithm overload using explicitly passed Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete hasudorff distance between two geometries using specified strategy
+\brief calculate discrete hausdorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString ) using specified strategy
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -268,7 +268,7 @@ struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_lin
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
- 
+
 \qbk{
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
@@ -292,7 +292,7 @@ discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy c
 }
 
 /*!
-\brief calculate discrete hausdorff distance between two geometries
+\brief calculate discrete hausdorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString )
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -300,7 +300,7 @@ discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy c
 \param geometry2 Input geometry
 
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
- 
+
 \qbk{
 [/heading Example]
 [/discrete_hausdorff_distance]
@@ -321,7 +321,7 @@ discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
                   typename point_type<Geometry1>::type,
                   typename point_type<Geometry2>::type
               >::type strategy_type;
-    
+
     return discrete_hausdorff_distance(g1, g2, strategy_type());
 }
 

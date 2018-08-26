@@ -8,7 +8,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <algorithm> 
+#include <algorithm>
 
 #ifdef BOOST_GEOMETRY_DEBUG_FRECHET_DISTANCE
 #include <iostream>
@@ -64,7 +64,7 @@ struct linestring_linestring
             typename point_type<Linestring2>::type,
             Strategy
         >::type apply(Linestring1 const& ls1, Linestring2 const& ls2, Strategy const& strategy)
-    {   
+    {
         typedef typename distance_result
             <
                 typename point_type<Linestring1>::type,
@@ -73,7 +73,7 @@ struct linestring_linestring
             >::type result_type;
         typedef typename boost::range_size<Linestring1>::type size_type1;
         typedef typename boost::range_size<Linestring2>::type size_type2;
-        
+
 
         boost::geometry::detail::throw_on_empty_input(ls1);
         boost::geometry::detail::throw_on_empty_input(ls2);
@@ -117,7 +117,7 @@ struct linestring_linestring
             std::cout << std::endl;
         }
         #endif
-            
+
         return coup_matrix(a-1,b-1);
     }
 };
@@ -147,7 +147,7 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 
 
 /*!
-\brief calculate discrete frechet distance between two geometries using specified strategy
+\brief calculate discrete frechet distance between two geometries ( currently work for linestrings-linestrings) using specified strategy
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -158,7 +158,7 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
- 
+
 \qbk{
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
@@ -184,7 +184,7 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 // Algorithm overload using default Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete frechet distance between two geometries
+\brief calculate discrete frechet distance between two geometries ( currently work for linestrings-linestrings) 
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -192,7 +192,7 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 \param geometry2 Input geometry
 
 \qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
- 
+
 \qbk{
 [/heading Example]
 [/discrete_frechet_distance]
@@ -213,9 +213,8 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
                   typename point_type<Geometry1>::type,
                   typename point_type<Geometry2>::type
               >::type strategy_type;
-    
+
     return discrete_frechet_distance(geometry1, geometry2, strategy_type());
 }
 
 }} // namespace boost::geometry
-
