@@ -52,6 +52,9 @@ expected_results expected[] =
         { -0.0000055778585615, -0.0000000000000000 },
         { -0.0000000000000000, -0.0000000000000000 }
     },{
+        // TODO: Newton method in Sjoberg formula is not used in this case
+        //    due to f1 - f2 == 0. The other method is used instead.
+        //    Hence different results. Look into this.
         { 1, 1 },{ -1, -1 },
         { -1, 1 },{ 1, -1 },
         { 0.0000000000000000, 0.0000000000000000 },
@@ -61,6 +64,9 @@ expected_results expected[] =
         { -0.0000000000000001, -0.0000055787431353 },
         { -0.0000000000000000, 0.0000000000000000 }
     },{
+        // TODO: Newton method in Sjoberg formula is not used in this case
+        //    due to f1 - f2 == 0. The other method is used instead.
+        //    Hence different results. Look into this.
         { -1, -1 },{ 1, 1 },
         { 1, -1 },{ -1, 1 },
         { 0.0000000000000000, 0.0000000000000000 },
