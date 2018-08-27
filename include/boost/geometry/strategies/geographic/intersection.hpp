@@ -233,7 +233,16 @@ struct geographic_segments
     {
         bool is_a_reversed = get<1>(a1) > get<1>(a2);
         bool is_b_reversed = get<1>(b1) > get<1>(b2);
-                           
+        /*
+        typename coordinate_type<Point1>::type
+            const a1_lon = get<0>(a1),
+            const a2_lon = get<0>(a2);
+        typename coordinate_type<Point2>::type
+            const b1_lon = get<0>(b1),
+            const b2_lon = get<0>(b2);
+        bool is_a_reversed = a1_lon > a2_lon || a1_lon == a2_lon && get<1>(a1) > get<1>(a2);
+        bool is_b_reversed = b1_lon > b2_lon || b1_lon == b2_lon && get<1>(b1) > get<1>(b2);
+        */                 
         if (is_a_reversed)
         {
             std::swap(a1, a2);
