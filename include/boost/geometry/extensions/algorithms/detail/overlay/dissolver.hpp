@@ -178,6 +178,39 @@ class plusmin_policy
         return true;
     }
 
+    template
+    <
+        typename Geometry1,
+        typename Geometry2,
+        typename AreaType,
+        typename RescalePolicy,
+        typename OutputCollection,
+        typename Strategy
+    >
+    static inline bool check(Geometry1 const& a, Geometry2 const& b,
+                    AreaType const& area_a, AreaType const& area_b,
+                    RescalePolicy const& rescale_policy,
+                    OutputCollection& output_collection,
+                    Strategy const& strategy)
+    {
+        AreaType const zero = AreaType();
+        if (area_a > zero && area_b > zero)
+        {
+            geometry::union_(a, b, output_collection, strategy);
+            return true;
+        }
+        else if (area_a > zero && area_b < zero)
+        {
+            return check_negative(a, b, rescale_policy, output_collection, strategy);
+        }
+        else if (area_a < zero && area_b > zero)
+        {
+            return check_negative(b, a, rescale_policy, output_collection, strategy);
+        }
+        return false;
+    }
+
+
 
 public :
 
@@ -194,10 +227,6 @@ public :
                     OutputCollection& output_collection,
                     Strategy const& strategy)
     {
-        typedef typename geometry::coordinate_type<Geometry2>::type coordinate_type;
-        coordinate_type area_a = geometry::area(a, strategy.template get_area_strategy<Geometry1>());
-        coordinate_type area_b = geometry::area(b, strategy.template get_area_strategy<Geometry2>());
-
         // DEBUG
         /*
         int n = boost::size(output_collection);
@@ -207,27 +236,8 @@ public :
             << " { " << geometry::wkt(geometry::return_centroid<point_type>(a))
             << geometry::wkt(geometry::return_centroid<point_type>(b)) << " }"
              << std::endl;
-        */
-        // END DEBUG
 
-        coordinate_type zero = coordinate_type();
-        if (area_a > zero && area_b > zero)
-        {
-            geometry::union_(a, b, output_collection, strategy);
-            return true;
-        }
-        else if (area_a > zero && area_b < zero)
-        {
-            return check_negative(a, b, rescale_policy, output_collection, strategy);
-        }
-        else if (area_a < zero && area_b > zero)
-        {
-            return check_negative(b, a, rescale_policy, output_collection, strategy);
-        }
-
-        // both negative (?) TODO
-        // DEBUG
-        /*
+        // for both negative (?) TODO
         for (int i = n; i < boost::size(output_collection); i++)
         {
             typedef typename geometry::point_type<Geometry2>::type point_type;
@@ -238,8 +248,9 @@ public :
         }
         */
         // END DEBUG
-        return false;
 
+        return check(a, b, geometry::area(a), geometry::area(b),
+            rescale_policy, output_collection, strategy);
     }
 
 };
