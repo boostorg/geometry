@@ -192,8 +192,7 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 \param geometry1 Input geometry
 \param geometry2 Input geometry
 
-\qbk{[inc\* more (currently extensions): Vincenty\, Andoyer (geographic)
-lude reference/algorithms/discrete_frechet_distance.qbk]}
+\qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
 
 \qbk{
 [/heading Example]
