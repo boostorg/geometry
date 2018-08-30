@@ -147,7 +147,7 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 
 
 /*!
-\brief calculate discrete frechet distance between two geometries ( currently work for linestrings-linestrings) using specified strategy
+\brief calculate discrete frechet distance between two geometries ( currently work for LineString-LineString) using specified strategy
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -163,6 +163,7 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
+\* more (currently extensions): Vincenty\, Andoyer (geographic)
 
 [/heading Example]
 [/discrete_frechet_distance_strategy]
@@ -184,14 +185,15 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 // Algorithm overload using default Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete frechet distance between two geometries ( currently work for linestrings-linestrings) 
+\brief calculate discrete frechet distance between two geometries ( currently work for LineString-LineString)
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 Input geometry
 \param geometry2 Input geometry
 
-\qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
+\qbk{[inc\* more (currently extensions): Vincenty\, Andoyer (geographic)
+lude reference/algorithms/discrete_frechet_distance.qbk]}
 
 \qbk{
 [/heading Example]

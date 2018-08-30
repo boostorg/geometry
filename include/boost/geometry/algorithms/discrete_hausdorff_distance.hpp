@@ -257,7 +257,7 @@ struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_lin
 // Algorithm overload using explicitly passed Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete hausdorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString ) using specified strategy
+\brief calculate discrete hasudorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString ) using specified strategy
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -269,10 +269,11 @@ struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_lin
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
 
-\qbk{
+ \qbk{
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
+\* more (currently extensions): Vincenty\, Andoyer (geographic)
 
 [/heading Example]
 [/discrete_hausdorff_distance_strategy]
