@@ -325,7 +325,11 @@ struct dissolver_generic
     >
     static inline bool call_policy(
             Element const& , Element const& ,
-            Geometry1 const& geometry1, Geometry2 const& geometry2,
+            // Both geometry1 and geometry2 are copied,
+            // because they are elements of the output collection which is changed,
+            // which might change the collection itself and the address/contents of geometry1/geometry2
+            Geometry1 geometry1,
+            Geometry2 geometry2,
             RescalePolicy const& rescale_policy,
             OutputCollection& output_collection,
             Strategy const& strategy)
