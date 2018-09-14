@@ -273,11 +273,11 @@ struct discrete_hausdorff_distance<multi_linestring1,multi_linestring2,multi_lin
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
-\* more (currently extensions): Vincenty\, Andoyer (geographic)
+[/ \* more (currently extensions): Vincenty\, Andoyer (geographic) ]
 
-[/heading Example]
-[/discrete_hausdorff_distance_strategy]
-[/discrete_hausdorff_distance_strategy_output]
+[heading Example]
+[discrete_hausdorff_distance_strategy]
+[discrete_hausdorff_distance_strategy_output]
 }
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
@@ -303,9 +303,9 @@ discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy c
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
 
 \qbk{
-[/heading Example]
-[/discrete_hausdorff_distance]
-[/discrete_hausdorff_distance_output]
+[heading Example]
+[discrete_hausdorff_distance]
+[discrete_hausdorff_distance_output]
 }
 */
 template <typename Geometry1, typename Geometry2>

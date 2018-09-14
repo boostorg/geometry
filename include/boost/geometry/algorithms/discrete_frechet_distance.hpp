@@ -163,11 +163,11 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
-\* more (currently extensions): Vincenty\, Andoyer (geographic)
+[/ \* more (currently extensions): Vincenty\, Andoyer (geographic) ]
 
-[/heading Example]
-[/discrete_frechet_distance_strategy]
-[/discrete_frechet_distance_strategy_output]
+[heading Example]
+[discrete_frechet_distance_strategy]
+[discrete_frechet_distance_strategy_output]
 }
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
@@ -195,9 +195,9 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 \qbk{[include reference/algorithms/discrete_frechet_distance.qbk]}
 
 \qbk{
-[/heading Example]
-[/discrete_frechet_distance]
-[/discrete_frechet_distance_output]
+[heading Example]
+[discrete_frechet_distance]
+[discrete_frechet_distance_output]
 }
 */
 template <typename Geometry1, typename Geometry2>
