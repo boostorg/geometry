@@ -51,12 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct rouss {}; // Roussilhe Stereographic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -86,7 +80,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T s, al, cp, sp, al2, s2;
 
@@ -105,7 +99,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;
 
@@ -196,7 +190,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct rouss_ellipsoid : public detail::rouss::base_rouss_ellipsoid<T, Parameters>
     {
-        inline rouss_ellipsoid(const Parameters& par) : detail::rouss::base_rouss_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline rouss_ellipsoid(Params const& , Parameters const& par)
+            : detail::rouss::base_rouss_ellipsoid<T, Parameters>(par)
         {
             detail::rouss::setup_rouss(this->m_par, this->m_proj_parm);
         }
@@ -207,23 +203,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rouss, rouss_ellipsoid, rouss_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_rouss, rouss_ellipsoid, rouss_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class rouss_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<rouss_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(rouss_entry, rouss_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void rouss_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(rouss_init)
         {
-            factory.add_to_factory("rouss", new rouss_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(rouss, rouss_entry)
         }
 
     } // namespace detail

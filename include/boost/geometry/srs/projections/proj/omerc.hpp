@@ -54,12 +54,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct omerc {}; // Oblique Mercator
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -89,7 +83,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -128,7 +122,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -167,8 +161,8 @@ namespace projections
             };
 
             // Oblique Mercator
-            template <typename Parameters, typename T>
-            inline void setup_omerc(Parameters& par, par_omerc<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_omerc(Params const& params, Parameters& par, par_omerc<T>& proj_parm)
             {
                 static const T fourth_pi = detail::fourth_pi<T>();
                 static const T half_pi = detail::half_pi<T>();
@@ -179,11 +173,11 @@ namespace projections
                   gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c=0;
                 int alp, gam, no_off = 0;
 
-                proj_parm.no_rot = pj_get_param_b(par.params, "no_rot");
-                alp = pj_param_r(par.params, "alpha", alpha_c);
-                gam = pj_param_r(par.params, "gamma", gamma);
+                proj_parm.no_rot = pj_get_param_b<srs::spar::no_rot>(params, "no_rot", srs::dpar::no_rot);
+                alp = pj_param_r<srs::spar::alpha>(params, "alpha", srs::dpar::alpha, alpha_c);
+                gam = pj_param_r<srs::spar::gamma>(params, "gamma", srs::dpar::gamma, gamma);
                 if (alp || gam) {
-                    lamc = pj_get_param_r(par.params, "lonc");
+                    lamc = pj_get_param_r<T, srs::spar::lonc>(params, "lonc", srs::dpar::lonc);
                     // NOTE: This is not needed in Boost.Geometry
                     //no_off =
                     //            /* For libproj4 compatability */
@@ -197,10 +191,10 @@ namespace projections
                     //    pj_get_param_s(par.params, "no_off");
                     //}
                 } else {
-                    lam1 = pj_get_param_r(par.params, "lon_1");
-                    phi1 = pj_get_param_r(par.params, "lat_1");
-                    lam2 = pj_get_param_r(par.params, "lon_2");
-                    phi2 = pj_get_param_r(par.params, "lat_2");
+                    lam1 = pj_get_param_r<T, srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1);
+                    phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                    lam2 = pj_get_param_r<T, srs::spar::lon_2>(params, "lon_2", srs::dpar::lon_2);
+                    phi2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
                     if (fabs(phi1 - phi2) <= tolerance ||
                         (con = fabs(phi1)) <= tolerance ||
                         fabs(con - half_pi) <= tolerance ||
@@ -305,9 +299,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct omerc_ellipsoid : public detail::omerc::base_omerc_ellipsoid<T, Parameters>
     {
-        inline omerc_ellipsoid(const Parameters& par) : detail::omerc::base_omerc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline omerc_ellipsoid(Params const& params, Parameters const& par)
+            : detail::omerc::base_omerc_ellipsoid<T, Parameters>(par)
         {
-            detail::omerc::setup_omerc(this->m_par, this->m_proj_parm);
+            detail::omerc::setup_omerc(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -316,23 +312,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::omerc, omerc_ellipsoid, omerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_omerc, omerc_ellipsoid, omerc_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class omerc_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<omerc_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(omerc_entry, omerc_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void omerc_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(omerc_init)
         {
-            factory.add_to_factory("omerc", new omerc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(omerc, omerc_entry)
         }
 
     } // namespace detail

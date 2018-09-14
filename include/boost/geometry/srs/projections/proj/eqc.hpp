@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct eqc {}; // Equidistant Cylindrical (Plate Caree)
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -78,7 +72,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = this->m_proj_parm.rc * lp_lon;
                     xy_y = lp_lat - this->m_par.phi0;
@@ -86,7 +80,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lon = xy_x / this->m_proj_parm.rc;
                     lp_lat = xy_y + this->m_par.phi0;
@@ -100,10 +94,11 @@ namespace projections
             };
 
             // Equidistant Cylindrical (Plate Caree)
-            template <typename Parameters, typename T>
-            inline void setup_eqc(Parameters& par, par_eqc<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_eqc(Params const& params, Parameters& par, par_eqc<T>& proj_parm)
             {
-                if ((proj_parm.rc = cos(pj_get_param_r(par.params, "lat_ts"))) <= 0.)
+                proj_parm.rc = cos(pj_get_param_r<T, srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts));
+                if (proj_parm.rc <= 0.)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
                 par.es = 0.;
             }
@@ -129,9 +124,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct eqc_spheroid : public detail::eqc::base_eqc_spheroid<T, Parameters>
     {
-        inline eqc_spheroid(const Parameters& par) : detail::eqc::base_eqc_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline eqc_spheroid(Params const& params, Parameters const& par)
+            : detail::eqc::base_eqc_spheroid<T, Parameters>(par)
         {
-            detail::eqc::setup_eqc(this->m_par, this->m_proj_parm);
+            detail::eqc::setup_eqc(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -140,23 +137,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::eqc, eqc_spheroid, eqc_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_eqc, eqc_spheroid, eqc_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class eqc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(eqc_entry, eqc_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(eqc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<eqc_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void eqc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("eqc", new eqc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(eqc, eqc_entry);
         }
 
     } // namespace detail

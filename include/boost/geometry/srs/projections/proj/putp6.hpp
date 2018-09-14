@@ -49,13 +49,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct putp6 {}; // Putnins P6
-    struct putp6p {}; // Putnins P6'
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -85,7 +78,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     T p, r, V;
                     int i;
@@ -107,7 +100,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T r;
 
@@ -169,7 +162,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct putp6_spheroid : public detail::putp6::base_putp6_spheroid<T, Parameters>
     {
-        inline putp6_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline putp6_spheroid(Params const& , Parameters const& par)
+            : detail::putp6::base_putp6_spheroid<T, Parameters>(par)
         {
             detail::putp6::setup_putp6(this->m_par, this->m_proj_parm);
         }
@@ -190,7 +185,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct putp6p_spheroid : public detail::putp6::base_putp6_spheroid<T, Parameters>
     {
-        inline putp6p_spheroid(const Parameters& par) : detail::putp6::base_putp6_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline putp6p_spheroid(Params const& , Parameters const& par)
+            : detail::putp6::base_putp6_spheroid<T, Parameters>(par)
         {
             detail::putp6::setup_putp6p(this->m_par, this->m_proj_parm);
         }
@@ -201,35 +198,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::putp6, putp6_spheroid, putp6_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::putp6p, putp6p_spheroid, putp6p_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_putp6, putp6_spheroid, putp6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_putp6p, putp6p_spheroid, putp6p_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class putp6_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<putp6_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(putp6_entry, putp6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(putp6p_entry, putp6p_spheroid)
 
-        template <typename T, typename Parameters>
-        class putp6p_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(putp6_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<putp6p_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void putp6_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("putp6", new putp6_entry<T, Parameters>);
-            factory.add_to_factory("putp6p", new putp6p_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(putp6, putp6_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(putp6p, putp6p_entry)
         }
 
     } // namespace detail

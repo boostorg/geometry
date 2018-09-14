@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct poly {}; // Polyconic (American)
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -88,7 +82,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T  ms, sp, cp;
 
@@ -105,7 +99,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     xy_y += this->m_proj_parm.ml0;
                     if (fabs(xy_y) <= tolerance) {
@@ -161,7 +155,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T  cot, E;
 
@@ -177,7 +171,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T B, dphi, tp;
                     int i;
@@ -240,7 +234,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct poly_ellipsoid : public detail::poly::base_poly_ellipsoid<T, Parameters>
     {
-        inline poly_ellipsoid(const Parameters& par) : detail::poly::base_poly_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline poly_ellipsoid(Params const& , Parameters const& par)
+            : detail::poly::base_poly_ellipsoid<T, Parameters>(par)
         {
             detail::poly::setup_poly(this->m_par, this->m_proj_parm);
         }
@@ -262,7 +258,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct poly_spheroid : public detail::poly::base_poly_spheroid<T, Parameters>
     {
-        inline poly_spheroid(const Parameters& par) : detail::poly::base_poly_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline poly_spheroid(Params const& , Parameters const& par)
+            : detail::poly::base_poly_spheroid<T, Parameters>(par)
         {
             detail::poly::setup_poly(this->m_par, this->m_proj_parm);
         }
@@ -273,26 +271,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::poly, poly_spheroid, poly_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_poly, poly_spheroid, poly_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class poly_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<poly_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<poly_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(poly_entry, poly_spheroid, poly_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void poly_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(poly_init)
         {
-            factory.add_to_factory("poly", new poly_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(poly, poly_entry)
         }
 
     } // namespace detail

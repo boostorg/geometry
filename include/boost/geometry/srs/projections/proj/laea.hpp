@@ -54,12 +54,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct laea {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -102,7 +96,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -164,7 +158,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T cCe, sCe, q, rho, ab=0.0;
 
@@ -230,7 +224,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
 
@@ -271,7 +265,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -387,7 +381,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct laea_ellipsoid : public detail::laea::base_laea_ellipsoid<T, Parameters>
     {
-        inline laea_ellipsoid(const Parameters& par) : detail::laea::base_laea_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline laea_ellipsoid(Params const& , Parameters const& par)
+            : detail::laea::base_laea_ellipsoid<T, Parameters>(par)
         {
             detail::laea::setup_laea(this->m_par, this->m_proj_parm);
         }
@@ -409,7 +405,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct laea_spheroid : public detail::laea::base_laea_spheroid<T, Parameters>
     {
-        inline laea_spheroid(const Parameters& par) : detail::laea::base_laea_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline laea_spheroid(Params const& , Parameters const& par)
+            : detail::laea::base_laea_spheroid<T, Parameters>(par)
         {
             detail::laea::setup_laea(this->m_par, this->m_proj_parm);
         }
@@ -420,26 +418,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::laea, laea_spheroid, laea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_laea, laea_spheroid, laea_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class laea_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(laea_entry, laea_spheroid, laea_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(laea_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<laea_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<laea_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void laea_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("laea", new laea_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(laea, laea_entry)
         }
 
     } // namespace detail

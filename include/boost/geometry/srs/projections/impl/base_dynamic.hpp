@@ -71,10 +71,10 @@ public :
     }
 
     /// Forward projection using lon / lat and x / y separately
-    virtual void fwd(CT& lp_lon, CT& lp_lat, CT& xy_x, CT& xy_y) const = 0;
+    virtual void fwd(CT const& lp_lon, CT const& lp_lat, CT& xy_x, CT& xy_y) const = 0;
 
     /// Inverse projection using x / y and lon / lat
-    virtual void inv(CT& xy_x, CT& xy_y, CT& lp_lon, CT& lp_lat) const = 0;
+    virtual void inv(CT const& xy_x, CT const& xy_y, CT& lp_lon, CT& lp_lat) const = 0;
 
     /// Returns name of projection
     virtual std::string name() const = 0;
@@ -93,23 +93,28 @@ template <typename Prj, typename CT, typename P>
 class base_v_f : public base_v<CT, P>
 {
 public:
-    base_v_f(P const& params)
-        : m_proj(params)
+    explicit base_v_f(P const& p)
+        : m_proj(p)
     {}
 
-    template <typename ProjP>
-    base_v_f(P const& params, ProjP const& proj_params)
-        : m_proj(params, proj_params)
+    template <typename P1, typename P2>
+    base_v_f(P1 const& p1, P2 const& p2)
+        : m_proj(p1, p2)
     {}
 
-    virtual void fwd(CT& lp_lon, CT& lp_lat, CT& xy_x, CT& xy_y) const
+    template <typename P1, typename P2, typename P3>
+    base_v_f(P1 const& p1, P2 const& p2, P3 const& p3)
+        : m_proj(p1, p2, p3)
+    {}
+
+    virtual void fwd(CT const& lp_lon, CT const& lp_lat, CT& xy_x, CT& xy_y) const
     {
         m_proj.fwd(lp_lon, lp_lat, xy_x, xy_y);
     }
 
-    virtual void inv(CT& , CT& , CT& , CT& ) const
+    virtual void inv(CT const& , CT const& , CT& , CT& ) const
     {
-        BOOST_THROW_EXCEPTION(projection_not_invertible_exception(params().name));
+        BOOST_THROW_EXCEPTION(projection_not_invertible_exception(params().id.name));
     }
 
     virtual std::string name() const { return m_proj.name(); }
@@ -129,16 +134,21 @@ class base_v_fi : public base_v_f<Prj, CT, P>
     typedef base_v_f<Prj, CT, P> base_t;
 
 public:
-    base_v_fi(P const& params)
-        : base_t(params)
+    explicit base_v_fi(P const& p)
+        : base_t(p)
     {}
 
-    template <typename ProjP>
-    base_v_fi(P const& params, ProjP const& proj_params)
-        : base_t(params, proj_params)
+    template <typename P1, typename P2>
+    base_v_fi(P1 const& p1, P2 const& p2)
+        : base_t(p1, p2)
     {}
 
-    virtual void inv(CT& xy_x, CT& xy_y, CT& lp_lon, CT& lp_lat) const
+    template <typename P1, typename P2, typename P3>
+    base_v_fi(P1 const& p1, P2 const& p2, P3 const& p3)
+        : base_t(p1, p2, p3)
+    {}
+
+    virtual void inv(CT const& xy_x, CT const& xy_y, CT& lp_lon, CT& lp_lat) const
     {
         this->m_proj.inv(xy_x, xy_y, lp_lon, lp_lat);
     }

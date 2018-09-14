@@ -52,15 +52,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct gn_sinu {}; // General Sinusoidal Series
-    struct sinu {};    // Sinusoidal (Sanson-Flamsteed)
-    struct eck6 {};    // Eckert VI
-    struct mbtfps {};  // McBryde-Thomas Flat-Polar Sinusoidal
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -93,7 +84,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T s, c;
 
@@ -103,7 +94,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -139,7 +130,7 @@ namespace projections
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     if (this->m_proj_parm.m == 0.0)
                         lp_lat = this->m_proj_parm.n != 1. ? aasin(this->m_proj_parm.n * sin(lp_lat)): lp_lat;
@@ -164,7 +155,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     xy_y /= this->m_proj_parm.C_y;
                     lp_lat = (this->m_proj_parm.m != 0.0) ? aasin((this->m_proj_parm.m * xy_y + sin(xy_y)) / this->m_proj_parm.n) :
@@ -189,11 +180,11 @@ namespace projections
 
 
             // General Sinusoidal Series
-            template <typename Parameters, typename T>
-            inline void setup_gn_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_gn_sinu(Params const& params, Parameters& par, par_gn_sinu<T>& proj_parm)
             {
-                if (pj_param_f(par.params, "n", proj_parm.n)
-                 && pj_param_f(par.params, "m", proj_parm.m)) {
+                if (pj_param_f<srs::spar::n>(params, "n", srs::dpar::n, proj_parm.n)
+                 && pj_param_f<srs::spar::m>(params, "m", srs::dpar::m, proj_parm.m)) {
                     if (proj_parm.n <= 0 || proj_parm.m < 0)
                         BOOST_THROW_EXCEPTION( projection_exception(error_invalid_m_or_n) );
                 } else
@@ -256,9 +247,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>
     {
-        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline gn_sinu_spheroid(Params const& params, Parameters const& par)
+            : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
         {
-            detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
+            detail::gn_sinu::setup_gn_sinu(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -278,7 +271,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct sinu_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<T, Parameters>
     {
-        inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline sinu_ellipsoid(Params const& , Parameters const& par)
+            : detail::gn_sinu::base_gn_sinu_ellipsoid<T, Parameters>(par)
         {
             detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
         }
@@ -300,7 +295,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>
     {
-        inline sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline sinu_spheroid(Params const& , Parameters const& par)
+            : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
         {
             detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
         }
@@ -321,7 +318,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct eck6_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>
     {
-        inline eck6_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline eck6_spheroid(Params const& , Parameters const& par)
+            : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
         {
             detail::gn_sinu::setup_eck6(this->m_par, this->m_proj_parm);
         }
@@ -342,7 +341,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct mbtfps_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>
     {
-        inline mbtfps_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline mbtfps_spheroid(Params const& , Parameters const& par)
+            : detail::gn_sinu::base_gn_sinu_spheroid<T, Parameters>(par)
         {
             detail::gn_sinu::setup_mbtfps(this->m_par, this->m_proj_parm);
         }
@@ -353,62 +354,23 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::gn_sinu, gn_sinu_spheroid, gn_sinu_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::sinu, sinu_spheroid, sinu_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::eck6, eck6_spheroid, eck6_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::mbtfps, mbtfps_spheroid, mbtfps_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_gn_sinu, gn_sinu_spheroid, gn_sinu_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_sinu, sinu_spheroid, sinu_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_eck6, eck6_spheroid, eck6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_mbtfps, mbtfps_spheroid, mbtfps_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class gn_sinu_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(gn_sinu_entry, gn_sinu_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(sinu_entry, sinu_spheroid, sinu_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(eck6_entry, eck6_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(mbtfps_entry, mbtfps_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(gn_sinu_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<gn_sinu_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class sinu_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<sinu_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<sinu_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class eck6_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<eck6_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class mbtfps_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<mbtfps_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void gn_sinu_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("gn_sinu", new gn_sinu_entry<T, Parameters>);
-            factory.add_to_factory("sinu", new sinu_entry<T, Parameters>);
-            factory.add_to_factory("eck6", new eck6_entry<T, Parameters>);
-            factory.add_to_factory("mbtfps", new mbtfps_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(gn_sinu, gn_sinu_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(sinu, sinu_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(eck6, eck6_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(mbtfps, mbtfps_entry);
         }
 
     } // namespace detail
