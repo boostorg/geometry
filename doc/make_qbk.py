@@ -8,7 +8,6 @@
 #
 #  Copyright (c) 2018, Oracle and/or its affiliates.
 #  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-# 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 #  http://www.boost.org/LICENSE_1_0.txt)
@@ -97,12 +96,12 @@ call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "crosses", "densify", "difference", "disjoint", "distance" 
+    , "convex_hull", "crosses", "densify", "difference", "discrete_frechet_distance","discrete_hausdorff_distance","disjoint", "distance" 
     , "envelope", "equals", "expand", "for_each", "is_empty"
     , "is_simple", "is_valid", "intersection", "intersects", "length"
     , "num_geometries", "num_interior_rings", "num_points"
     , "num_segments", "overlaps", "perimeter", "relate", "relation"
-    , "reverse", "simplify", "sym_difference", "touches"
+    , "reverse","simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
