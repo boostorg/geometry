@@ -44,7 +44,9 @@ exe correct : correct.cpp ;
 exe densify : densify.cpp ;
 exe densify_strategy : densify_strategy.cpp ;
 exe discrete_frechet_distance : discrete_frechet_distance.cpp ;
+exe discrete_frechet_distance_strategy : discrete_frechet_distance_strategy.cpp ;
 exe discrete_hausdorff_distance : discrete_hausdorff_distance.cpp ;
+exe discrete_hausdorff_distance_strategy : discrete_hausdorff_distance_strategy.cpp ;
 exe difference : difference.cpp ;
 exe distance : distance.cpp ;
 
