@@ -8,6 +8,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DISCRETE_FRECHET_DISTANCE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DISCRETE_FRECHET_DISTANCE_HPP
+
 #include <algorithm>
 
 #ifdef BOOST_GEOMETRY_DEBUG_FRECHET_DISTANCE
@@ -219,3 +222,5 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 }
 
 }} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DISCRETE_FRECHET_DISTANCE_HPP
