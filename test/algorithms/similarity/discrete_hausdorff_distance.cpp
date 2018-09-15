@@ -10,13 +10,11 @@
 
 #include <vector>
 
-
-#include <algorithms/test_hausdorff_distance.hpp>
-
-#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+
+#include "test_hausdorff_distance.hpp"
 
     template <typename P>
 void test_all_cartesian()
