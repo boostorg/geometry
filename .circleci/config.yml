@@ -219,6 +219,15 @@ jobs:
           root: ~/project
           paths:
             - shared-coverage/algorithms_set
+  algorithms_similarity:
+    <<: *config
+    steps:
+      - *attach_workspace
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_similarity test/algorithms/similarity
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - shared-coverage/algorithms_similarity
   algorithms_touches:
     <<: *config
     steps:
@@ -458,6 +467,7 @@ requires_3: &requires_3
     - algorithms_perimeter
     - algorithms_relate
     - algorithms_set
+    - algorithms_similarity
     - algorithms_touches
     - algorithms_within
     - srs
@@ -576,6 +586,9 @@ workflows:
           <<: *requires_2
           <<: *only_master_develop
       - algorithms_set:
+          <<: *requires_2
+          <<: *only_master_develop
+      - algorithms_similarity:
           <<: *requires_2
           <<: *only_master_develop
       - algorithms_touches:
