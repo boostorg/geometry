@@ -266,7 +266,7 @@ inline void line_interpolate_point(Geometry const& geometry,
 \qbk{[line_interpolate_point_with_strategy] [line_interpolate_point_with_strategy_output]}
  */
 template<typename Geometry, typename Point, typename Strategy>
-inline Point line_interpolate_point(Geometry const& geometry,
+inline void line_interpolate_point(Geometry const& geometry,
                                     double const fraction,
                                     Point & point,
                                     Strategy const& strategy)

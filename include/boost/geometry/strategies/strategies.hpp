@@ -66,6 +66,7 @@
 #include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
+#include <boost/geometry/strategies/cartesian/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
