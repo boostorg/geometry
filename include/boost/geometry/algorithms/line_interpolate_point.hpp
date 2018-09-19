@@ -74,6 +74,12 @@ struct range
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
+        typedef typename select_most_precise
+            <
+                typename default_length_result<Range>::type,
+                double
+            >::type calc_t;
+
         iterator_t it = boost::begin(range);
         iterator_t end = boost::end(range);
 
@@ -82,16 +88,16 @@ struct range
             return;
         }
             
-        double tot_len = geometry::length(range);
-        double prev_fraction = 0;
-        double cur_fraction = 0;
+        calc_t tot_len = geometry::length(range);
+        calc_t prev_fraction = 0;
+        calc_t cur_fraction = 0;
 
         iterator_t prev = it++;
         do {
             point_t const& p0 = *prev;
             point_t const& p1 = *it;
 
-            double seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
+            calc_t seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
                                 / tot_len;
             cur_fraction = prev_fraction + seg_fraction;
 
