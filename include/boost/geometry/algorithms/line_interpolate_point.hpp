@@ -82,28 +82,27 @@ struct range
             return;
         }
             
-        //push_back_policy<MutRng> policy(rng_out);
-
         double tot_len = geometry::length(range);
         double prev_fraction = 0;
+        double cur_fraction = 0;
 
-        iterator_t prev = it;
-        for ( ++it ; it != end; prev = it++)
-        {
+        iterator_t prev = it++;
+        do {
             point_t const& p0 = *prev;
             point_t const& p1 = *it;
 
-            double seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1) / tot_len;
-            double cur_fraction = prev_fraction + seg_fraction;
-            if (cur_fraction >= fraction)
-            {
-                double new_fraction = (fraction - prev_fraction) / seg_fraction;
-                strategy.apply(p0, p1, new_fraction, point);
-                break;
+            double seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
+                                / tot_len;
+            cur_fraction = prev_fraction + seg_fraction;
 
-            }
+            strategy.apply(p0, p1,
+                           (fraction - prev_fraction) / seg_fraction,
+                           point);
+
             prev_fraction = cur_fraction;
-        }
+            prev = it++;
+
+        } while (cur_fraction < fraction && it != end);
     }
 };
 
