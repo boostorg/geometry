@@ -14,6 +14,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
@@ -31,11 +32,23 @@ namespace strategy { namespace line_interpolate_point
 */
 template
 <
-    typename CalculationType = void
+    typename CalculationType = void,
+    typename Strategy = distance::pythagoras<CalculationType>
 >
 class cartesian
 {
 public:
+
+    // point-point strategy getters
+    struct distance_pp_strategy
+    {
+        typedef Strategy type;
+    };
+
+    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
+    {
+        return typename distance_pp_strategy::type();
+    }
 
     template <typename Point, typename T>
     inline void apply(Point const& p0,

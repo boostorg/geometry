@@ -16,6 +16,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
@@ -33,11 +34,23 @@ namespace strategy { namespace line_interpolate_point
  */
 template
 <
-    typename CalculationType = void
+    typename CalculationType = void,
+    typename Strategy = distance::haversine<double, CalculationType>
 >
 class spherical
 {
 public:
+
+    // point-point strategy getters
+    struct distance_pp_strategy
+    {
+        typedef Strategy type;
+    };
+
+    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
+    {
+        return typename distance_pp_strategy::type();
+    }
 
     template <typename Point, typename T>
     inline void apply(Point const& p0,

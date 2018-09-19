@@ -56,6 +56,18 @@ public:
         : m_spheroid(spheroid)
     {}
 
+    // point-point strategy getters
+    struct distance_pp_strategy
+    {
+        typedef distance::geographic<FormulaPolicy, Spheroid, CalculationType> type;
+    };
+
+    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
+    {
+        typedef typename distance_pp_strategy::type distance_type;
+        return distance_type(m_spheroid);
+    }
+
     template <typename Point, typename T>
     inline void apply(Point const& p0,
                       Point const& p1,

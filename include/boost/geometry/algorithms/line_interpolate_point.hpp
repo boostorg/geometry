@@ -25,6 +25,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
 
@@ -70,7 +71,39 @@ struct range
                              Point & point,
                              Strategy const& strategy)
     {
-        // implement range interpolation
+        typedef typename boost::range_iterator<Range const>::type iterator_t;
+        typedef typename boost::range_value<Range const>::type point_t;
+
+        iterator_t it = boost::begin(range);
+        iterator_t end = boost::end(range);
+
+        if (it == end) // empty(range)
+        {
+            return;
+        }
+            
+        //push_back_policy<MutRng> policy(rng_out);
+
+        double tot_len = geometry::length(range);
+        double prev_fraction = 0;
+
+        iterator_t prev = it;
+        for ( ++it ; it != end ; prev = it++)
+        {
+            point_t const& p0 = *prev;
+            point_t const& p1 = *it;
+
+            double seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1) / tot_len;
+            double cur_fraction = prev_fraction + seg_fraction;
+            if (cur_fraction > fraction)
+            {
+                double new_fraction = (fraction - prev_fraction) / seg_fraction;
+                strategy.apply(p0, p1, new_fraction, point);
+                break;
+
+            }
+            prev_fraction = cur_fraction;
+        }
     }
 };
 
