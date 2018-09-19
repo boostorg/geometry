@@ -88,14 +88,14 @@ struct range
         double prev_fraction = 0;
 
         iterator_t prev = it;
-        for ( ++it ; it != end ; prev = it++)
+        for ( ++it ; it != end; prev = it++)
         {
             point_t const& p0 = *prev;
             point_t const& p1 = *it;
 
             double seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1) / tot_len;
             double cur_fraction = prev_fraction + seg_fraction;
-            if (cur_fraction > fraction)
+            if (cur_fraction >= fraction)
             {
                 double new_fraction = (fraction - prev_fraction) / seg_fraction;
                 strategy.apply(p0, p1, new_fraction, point);
