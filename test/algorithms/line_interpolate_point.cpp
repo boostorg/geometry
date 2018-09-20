@@ -19,12 +19,7 @@
 
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
-#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/strategies/cartesian/line_interpolate_point.hpp>
-#include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/line_interpolate_point.hpp>
-#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -34,19 +29,20 @@ void check_points(P const& p0, P const& p1)
     double p00 = bg::get<0>(p0);
     double p10 = bg::get<0>(p1);
 
-    BOOST_CHECK_CLOSE(p00, p10, 0.0000001);
+    BOOST_CHECK_CLOSE(p00, p10, 0.001);
 
     double p01 = bg::get<1>(p0);
     double p11 = bg::get<1>(p1);
 
-    BOOST_CHECK_CLOSE(p01, p11, 0.0000001);
+    BOOST_CHECK_CLOSE(p01, p11, 0.001);
 }
 
 
-template <typename P, typename G>
+template <typename P, typename G, typename S>
 inline void test(std::string const& wkt1,
                  double fraction,
-                 std::string const& wkt2)
+                 std::string const& wkt2,
+                 S str)
 {
     G g;
     bg::read_wkt(wkt1, g);
@@ -57,33 +53,105 @@ inline void test(std::string const& wkt1,
     P p;
     bg::line_interpolate_point(g, fraction, p);
     check_points(p, o);
+
+    bg::line_interpolate_point(g, fraction, p, str);
+    check_points(p, o);
 }
 
-template <typename P>
-void test_all()
+template <typename P, typename G>
+inline void test(std::string const& wkt1,
+                 double fraction,
+                 std::string const& wkt2)
 {
+    test<P,G>(wkt1, fraction, wkt2, bg::default_strategy());
+}
+
+void test_car()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::segment<P> s_t;
     typedef bg::model::linestring<P> ls_t;
 
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0,   "POINT(0 0)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.1, "POINT(0.4 0)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.2, "POINT(0.8 0)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.3, "POINT(1 0.2)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.4, "POINT(1 0.6)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.5, "POINT(1 1)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.6, "POINT(0.6 1)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.7, "POINT(0.2 1)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.8, "POINT(0 1.2)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 0.9, "POINT(0 1.6)");
-    test<P,ls_t>("LINESTRING(0 0, 1 0, 1 1, 0 1, 0 2)", 1,   "POINT(0 2)");
+    std::string const s = "SEGMENT(1 1, 2 2)";
+    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+
+    test<P,s_t>(s, 0,   "POINT(1 1)");
+    test<P,s_t>(s, 0.5, "POINT(1.5 1.5)");
+    test<P,s_t>(s, 1,   "POINT(2 2)");
+
+    test<P,ls_t>(l, 0,   "POINT(1 1)");
+    test<P,ls_t>(l, 0.1, "POINT(1.4 1)");
+    test<P,ls_t>(l, 0.2, "POINT(1.8 1)");
+    test<P,ls_t>(l, 0.3, "POINT(2 1.2)");
+    test<P,ls_t>(l, 0.4, "POINT(2 1.6)");
+    test<P,ls_t>(l, 0.5, "POINT(2 2)");
+    test<P,ls_t>(l, 0.6, "POINT(1.6 2)");
+    test<P,ls_t>(l, 0.7, "POINT(1.2 2)");
+    test<P,ls_t>(l, 0.8, "POINT(1 2.2)");
+    test<P,ls_t>(l, 0.9, "POINT(1 2.6)");
+    test<P,ls_t>(l, 1,   "POINT(1 3)");
+}
+
+void test_sph()
+{
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > P;
+    typedef bg::model::segment<P> s_t;
+    typedef bg::model::linestring<P> ls_t;
+
+    std::string const s = "SEGMENT(1 1, 2 2)";
+    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+
+    test<P,s_t>(s, 0,   "POINT(1 1)");
+    test<P,s_t>(s, 0.5, "POINT(1.4998857365615981 1.5000570914791198)");
+    test<P,s_t>(s, 1,   "POINT(2 2)");
+
+    test<P,ls_t>(l, 0,   "POINT(1 1)");
+    test<P,ls_t>(l, 0.1, "POINT(1.39998476912905323 1.0000365473536286)");
+    test<P,ls_t>(l, 0.2, "POINT(1.79996953825810646 1.0000243679448551)");
+    test<P,ls_t>(l, 0.3, "POINT(2 1.1999238595669637)");
+    test<P,ls_t>(l, 0.4, "POINT(2 1.5998477098527744)");
+    test<P,ls_t>(l, 0.5, "POINT(2 1.9997715601385837)");
+    test<P,ls_t>(l, 0.6, "POINT(1.6000609543036084 2.0000730473928678)");
+    test<P,ls_t>(l, 0.7, "POINT(1.1998933176222553 2.0000486811516014)");
+    test<P,ls_t>(l, 0.8, "POINT(1 2.2001522994279883)");
+    test<P,ls_t>(l, 0.9, "POINT(1 2.6000761497139444)");
+    test<P,ls_t>(l, 1,   "POINT(1 3)");
+}
+
+template <typename S>
+void test_geo(S str)
+{
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > P;
+    typedef bg::model::segment<P> s_t;
+    typedef bg::model::linestring<P> ls_t;
+
+    std::string const s = "SEGMENT(1 1, 2 2)";
+    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+
+    test<P,s_t>(s, 0,   "POINT(1 1)", str);
+    test<P,s_t>(s, 0.5, "POINT(1.4998780900539985 1.5000558288006378)", str);
+    test<P,s_t>(s, 1,   "POINT(2 2)", str);
+
+    test<P,ls_t>(l, 0,   "POINT(1 1)", str);
+    test<P,ls_t>(l, 0.1, "POINT(1.3986445638301882 1.0000367522730751)", str);
+    test<P,ls_t>(l, 0.2, "POINT(1.79728912766037641 1.0000247772611039)", str);
+    test<P,ls_t>(l, 0.3, "POINT(2 1.1972285554368427)", str);
+    test<P,ls_t>(l, 0.4, "POINT(2 1.598498298996567)", str);
+    test<P,ls_t>(l, 0.5, "POINT(2 1.9997664696834965)", str);
+    test<P,ls_t>(l, 0.6, "POINT(1.6013936980010324 2.0000734568388099)", str);
+    test<P,ls_t>(l, 0.7, "POINT(1.2025664628960846 2.0000494983098767)", str);
+    test<P,ls_t>(l, 0.8, "POINT(1 2.1974612279909937)", str);
+    test<P,ls_t>(l, 0.9, "POINT(1 2.5987263175375022)", str);
+    test<P,ls_t>(l, 1,   "POINT(1 3)", str);
 }
 
 int test_main(int, char* [])
 {
-    test_all< bg::model::point<double, 2, bg::cs::cartesian> >();
-    //test_all< bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-    //test_all< bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
-
+    test_car();
+    test_sph();
+    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
+    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
+    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
     return 0;
 }
 

@@ -52,6 +52,17 @@ struct segment
         point_type p1, p2;
         geometry::detail::assign_point_from_index<0>(segment, p1);
         geometry::detail::assign_point_from_index<1>(segment, p2);
+        if (fraction == 0)
+        {
+            geometry::detail::conversion::convert_point_to_point(p1, point);
+            return;
+        }
+        if (fraction == 1)
+        {
+            geometry::detail::conversion::convert_point_to_point(p2, point);
+            return;
+        }
+
         strategy.apply(p1, p2, fraction, point);
     }
 };
@@ -85,6 +96,16 @@ struct range
 
         if (it == end) // empty(range)
         {
+            return;
+        }
+        if (fraction == 0)
+        {
+            geometry::detail::conversion::convert_point_to_point(*it, point);
+            return;
+        }
+        if (fraction == 1)
+        {
+            geometry::detail::conversion::convert_point_to_point(*(end-1), point);
             return;
         }
             
