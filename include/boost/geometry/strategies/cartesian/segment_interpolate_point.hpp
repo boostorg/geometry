@@ -7,13 +7,13 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_LINE_INTERPOLATE_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_LINE_INTERPOLATE_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SEGMENT_INTERPOLATE_POINT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SEGMENT_INTERPOLATE_POINT_HPP
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/segment_interpolate_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -21,7 +21,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace line_interpolate_point
+namespace strategy { namespace segment_interpolate_point
 {
 
 
@@ -92,7 +92,7 @@ namespace services
 template <>
 struct default_strategy<cartesian_tag>
 {
-    typedef strategy::line_interpolate_point::cartesian<> type;
+    typedef strategy::segment_interpolate_point::cartesian<> type;
 };
 
 
@@ -100,9 +100,9 @@ struct default_strategy<cartesian_tag>
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
-}} // namespace strategy::line_interpolate_point
+}} // namespace strategy::segment_interpolate_point
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_LINE_INTERPOLATE_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SEGMENT_INTERPOLATE_POINT_HPP

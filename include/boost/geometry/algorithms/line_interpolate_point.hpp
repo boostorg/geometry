@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/segment_interpolate_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -213,7 +213,7 @@ struct line_interpolate_point
                              Point & point,
                              default_strategy)
     {        
-        typedef typename strategy::line_interpolate_point::services::default_strategy
+        typedef typename strategy::segment_interpolate_point::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             >::type strategy_type;

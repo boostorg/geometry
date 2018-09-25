@@ -149,9 +149,9 @@ int test_main(int, char* [])
 {
     test_car();
     test_sph();
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
+    test_geo(bg::strategy::segment_interpolate_point::geographic<bg::strategy::andoyer>());
+    test_geo(bg::strategy::segment_interpolate_point::geographic<bg::strategy::thomas>());
+    test_geo(bg::strategy::segment_interpolate_point::geographic<bg::strategy::vincenty>());
     return 0;
 }
 
