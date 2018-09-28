@@ -37,33 +37,51 @@ namespace boost { namespace geometry
 namespace detail { namespace interpolate_point
 {
 
+template <typename Range, typename Point>
+inline void convert_and_push_back(Range & range, Point const& p)
+{
+    typename boost::range_value<Range>::type p2;
+    geometry::detail::conversion::convert_point_to_point(p, p2);
+    range::push_back(range, p2);
+}
 
-template<typename Segment>
+template <bool repeat>
 struct segment
 {
-    template <typename Point, typename Strategy>
+    template <typename Segment, typename PointType, typename Strategy>
     static inline void apply(Segment const& segment,
                              double const fraction,
-                             Point & point,
+                             PointType & point,
                              Strategy const& strategy)
     {
         boost::ignore_unused(strategy);
         typedef typename point_type<Segment>::type point_type;
-        point_type p1, p2;
-        geometry::detail::assign_point_from_index<0>(segment, p1);
-        geometry::detail::assign_point_from_index<1>(segment, p2);
+        point_type p0, p1;
+        geometry::detail::assign_point_from_index<0>(segment, p0);
+        geometry::detail::assign_point_from_index<1>(segment, p1);
         if (fraction == 0)
         {
-            geometry::detail::conversion::convert_point_to_point(p1, point);
+            geometry::detail::conversion::convert_point_to_point(p0, point);
             return;
         }
         if (fraction == 1)
         {
-            geometry::detail::conversion::convert_point_to_point(p2, point);
+            geometry::detail::conversion::convert_point_to_point(p1, point);
             return;
         }
+/*
+        while (cur_fraction >= frac)
+        {
+            strategy.apply(p0, p1,
+                           (frac - prev_fraction) / seg_fraction,
+                           point);
 
-        strategy.apply(p1, p2, fraction, point);
+            std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
+            if (!repeat) break;
+            frac += fraction;
+        }
+*/
+        strategy.apply(p0, p1, fraction, point);
     }
 };
 
@@ -73,13 +91,13 @@ struct segment
 \note for_each could be used here, now that point_type is changed by boost
     range iterator
 */
-template<typename Range, closure_selector Closure>
+template <bool repeat>
 struct range
 {
-    template <typename Point, typename Strategy>
+    template <typename Range, typename PointType, typename Strategy>
     static inline void apply(Range const& range,
                              double const fraction,
-                             Point & point,
+                             PointType & point,
                              Strategy const& strategy)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_t;
@@ -109,9 +127,12 @@ struct range
             return;
         }
             
+        calc_t frac = fraction;
         calc_t tot_len = geometry::length(range);
         calc_t prev_fraction = 0;
         calc_t cur_fraction = 0;
+
+        int num_of_points = 0;
 
         iterator_t prev = it++;
         do {
@@ -121,15 +142,35 @@ struct range
             calc_t seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
                                 / tot_len;
             cur_fraction = prev_fraction + seg_fraction;
-
+/*
             strategy.apply(p0, p1,
                            (fraction - prev_fraction) / seg_fraction,
                            point);
 
             prev_fraction = cur_fraction;
             prev = it++;
+ */
+            while (cur_fraction >= frac)
+            {
+                num_of_points++;
+                strategy.apply(p0, p1,
+                               (frac - prev_fraction) / seg_fraction,
+                               point);
 
-        } while (cur_fraction < fraction && it != end);
+                std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
+                //if (!repeat) break;
+                frac += fraction;
+            }
+            //if (!repeat) break;
+            std::cout << "[]";
+            prev_fraction = cur_fraction;
+            prev = it++;
+        //} while (cur_fraction < fraction && it != end);
+        } while (it != end);
+        if (fraction * (num_of_points + 1) == 1.0)
+        {
+            std::cout << "(" << get<0>(*(end-1)) << "," << get<1>(*(end-1)) << ")";
+        }
     }
 };
 
@@ -143,7 +184,13 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template
+<
+    typename Geometry,
+    typename PointType,
+    typename Tag1 = typename tag<Geometry>::type,
+    typename Tag2 = typename tag<PointType>::type
+>
 struct line_interpolate_point
 {
     BOOST_MPL_ASSERT_MSG
@@ -154,15 +201,27 @@ struct line_interpolate_point
 };
 
 
-template <typename Geometry>
-struct line_interpolate_point<Geometry, linestring_tag>
-    : detail::interpolate_point::range<Geometry, closed>
+template <typename Geometry, typename PointType>
+struct line_interpolate_point<Geometry, PointType, linestring_tag, point_tag>
+    : detail::interpolate_point::range<false>
 {};
 
 
-template <typename Geometry>
-struct line_interpolate_point<Geometry, segment_tag>
-    : detail::interpolate_point::segment<Geometry>
+template <typename Geometry, typename PointType>
+struct line_interpolate_point<Geometry, PointType, linestring_tag, multi_point_tag>
+    : detail::interpolate_point::range<true>
+{};
+
+
+template <typename Geometry, typename PointType>
+struct line_interpolate_point<Geometry, PointType, segment_tag, point_tag>
+    : detail::interpolate_point::segment<false>
+{};
+
+
+template <typename Geometry, typename PointType>
+struct line_interpolate_point<Geometry, PointType, segment_tag, multi_point_tag>
+    : detail::interpolate_point::segment<true>
 {};
 
 /*
@@ -195,22 +254,22 @@ namespace resolve_strategy {
 
 struct line_interpolate_point
 {
-    template <typename Geometry, typename Point, typename Strategy>
+    template <typename Geometry, typename PointType, typename Strategy>
     static inline void apply(Geometry const& geometry,
                              double const fraction,
-                             Point & point,
+                             PointType & mp,
                              Strategy const& strategy)
     {
-        dispatch::line_interpolate_point<Geometry>::apply(geometry,
-                                                          fraction,
-                                                          point,
-                                                          strategy);
+        dispatch::line_interpolate_point<Geometry, PointType>::apply(geometry,
+                                                                     fraction,
+                                                                     mp,
+                                                                     strategy);
     }
 
-    template <typename Geometry, typename Point>
+    template <typename Geometry, typename PointType>
     static inline void apply(Geometry const& geometry,
                              double const fraction,
-                             Point & point,
+                             PointType & mp,
                              default_strategy)
     {        
         typedef typename strategy::segment_interpolate_point::services::default_strategy
@@ -218,10 +277,10 @@ struct line_interpolate_point
                 typename cs_tag<Geometry>::type
             >::type strategy_type;
 
-        dispatch::line_interpolate_point<Geometry>::apply(geometry,
-                                                          fraction,
-                                                          point,
-                                                          strategy_type());
+        dispatch::line_interpolate_point<Geometry, PointType>::apply(geometry,
+                                                                    fraction,
+                                                                    mp,
+                                                                    strategy_type());
     }
 };
 
@@ -233,15 +292,15 @@ namespace resolve_variant {
 template <typename Geometry>
 struct line_interpolate_point
 {
-    template <typename Point, typename Strategy>
+    template <typename PointType, typename Strategy>
     static inline void apply(Geometry const& geometry,
                              double const fraction,
-                             Point & point,
+                             PointType & mp,
                              Strategy const& strategy)
     {
         return resolve_strategy::line_interpolate_point::apply(geometry,
                                                                fraction,
-                                                               point,
+                                                               mp,
                                                                strategy);
     }
 };
@@ -294,17 +353,17 @@ struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]}
 \qbk{[line_interpolate_point] [line_interpolate_point_output]}
  */
-template<typename Geometry, typename Point>
+template<typename Geometry, typename PointType>
 inline void line_interpolate_point(Geometry const& geometry,
                                    double const fraction,
-                                   Point & point)
+                                   PointType & mp)
 {
     concepts::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
 
     return resolve_variant::line_interpolate_point<Geometry>
-                          ::apply(geometry, fraction, point, default_strategy());
+                          ::apply(geometry, fraction, mp, default_strategy());
 }
 
 
@@ -324,18 +383,18 @@ inline void line_interpolate_point(Geometry const& geometry,
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]}
 \qbk{[line_interpolate_point_with_strategy] [line_interpolate_point_with_strategy_output]}
  */
-template<typename Geometry, typename Point, typename Strategy>
+template<typename Geometry, typename PointType, typename Strategy>
 inline void line_interpolate_point(Geometry const& geometry,
-                                    double const fraction,
-                                    Point & point,
-                                    Strategy const& strategy)
+                                   double const fraction,
+                                   PointType & mp,
+                                   Strategy const& strategy)
 {
     concepts::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
 
     return resolve_variant::line_interpolate_point<Geometry>
-                          ::apply(geometry, fraction, point, strategy);
+                          ::apply(geometry, fraction, mp, strategy);
 }
 
 
