@@ -37,15 +37,28 @@ namespace boost { namespace geometry
 namespace detail { namespace interpolate_point
 {
 
-template <typename Range, typename Point>
-inline void convert_and_push_back(Range & range, Point const& p)
+struct convert_and_push_back
 {
-    typename boost::range_value<Range>::type p2;
-    geometry::detail::conversion::convert_point_to_point(p, p2);
-    range::push_back(range, p2);
-}
+    template <typename Range, typename Point>
+    inline void apply(Point const& p, Range& range)
+    {
+        typename boost::range_value<Range>::type p2;
+        geometry::detail::conversion::convert_point_to_point(p, p2);
+        range::push_back(range, p2);
+    }
+};
 
-template <bool repeat>
+struct convert_and_assign
+{
+    template <typename Point1, typename Point2>
+    inline void apply(Point1& p1, Point2& p2)
+    {
+        geometry::detail::conversion::convert_point_to_point(p1, p2);
+    }
+
+};
+
+template <typename Policy>
 struct segment
 {
     template <typename Segment, typename PointType, typename Strategy>
@@ -54,6 +67,8 @@ struct segment
                              PointType & point,
                              Strategy const& strategy)
     {
+        Policy policy;
+
         boost::ignore_unused(strategy);
         typedef typename point_type<Segment>::type point_type;
         point_type p0, p1;
@@ -61,12 +76,12 @@ struct segment
         geometry::detail::assign_point_from_index<1>(segment, p1);
         if (fraction == 0)
         {
-            geometry::detail::conversion::convert_point_to_point(p0, point);
+            policy.apply(p0, point);
             return;
         }
         if (fraction == 1)
         {
-            geometry::detail::conversion::convert_point_to_point(p1, point);
+            policy.apply(p1, point);
             return;
         }
 /*
@@ -81,7 +96,9 @@ struct segment
             frac += fraction;
         }
 */
-        strategy.apply(p0, p1, fraction, point);
+        point_type p;
+        strategy.apply(p0, p1, fraction, p);
+        policy.apply(p, point);
     }
 };
 
@@ -91,7 +108,7 @@ struct segment
 \note for_each could be used here, now that point_type is changed by boost
     range iterator
 */
-template <bool repeat>
+template <typename Policy>
 struct range
 {
     template <typename Range, typename PointType, typename Strategy>
@@ -100,6 +117,8 @@ struct range
                              PointType & point,
                              Strategy const& strategy)
     {
+        Policy policy;
+
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
@@ -118,12 +137,12 @@ struct range
         }
         if (fraction == 0)
         {
-            geometry::detail::conversion::convert_point_to_point(*it, point);
+            policy.apply(*it, point);
             return;
         }
         if (fraction == 1)
         {
-            geometry::detail::conversion::convert_point_to_point(*(end-1), point);
+            policy.apply(*(end-1), point);
             return;
         }
             
@@ -135,6 +154,7 @@ struct range
         int num_of_points = 0;
 
         iterator_t prev = it++;
+        bool first_point = false;
         do {
             point_t const& p0 = *prev;
             point_t const& p1 = *it;
@@ -150,14 +170,18 @@ struct range
             prev_fraction = cur_fraction;
             prev = it++;
  */
-            while (cur_fraction >= frac)
+            while (cur_fraction >= frac && !first_point)
             {
                 num_of_points++;
+                point_t p;
+
                 strategy.apply(p0, p1,
                                (frac - prev_fraction) / seg_fraction,
-                               point);
+                               p);
+                first_point = boost::is_same<Policy, convert_and_assign>::value;
+                policy.apply(p, point);
 
-                std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
+                //std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
                 //if (!repeat) break;
                 frac += fraction;
             }
@@ -166,11 +190,11 @@ struct range
             prev_fraction = cur_fraction;
             prev = it++;
         //} while (cur_fraction < fraction && it != end);
-        } while (it != end);
-        if (fraction * (num_of_points + 1) == 1.0)
-        {
-            std::cout << "(" << get<0>(*(end-1)) << "," << get<1>(*(end-1)) << ")";
-        }
+        } while (it != end && !first_point);
+        //if (fraction * (num_of_points + 1) == 1.0)
+        //{
+        //    std::cout << "(" << get<0>(*(end-1)) << "," << get<1>(*(end-1)) << ")";
+        //}
     }
 };
 
@@ -203,25 +227,34 @@ struct line_interpolate_point
 
 template <typename Geometry, typename PointType>
 struct line_interpolate_point<Geometry, PointType, linestring_tag, point_tag>
-    : detail::interpolate_point::range<false>
+    : detail::interpolate_point::range
+        <
+            detail::interpolate_point::convert_and_assign
+        >
 {};
-
 
 template <typename Geometry, typename PointType>
 struct line_interpolate_point<Geometry, PointType, linestring_tag, multi_point_tag>
-    : detail::interpolate_point::range<true>
+    : detail::interpolate_point::range
+        <
+            detail::interpolate_point::convert_and_push_back
+        >
 {};
-
 
 template <typename Geometry, typename PointType>
 struct line_interpolate_point<Geometry, PointType, segment_tag, point_tag>
-    : detail::interpolate_point::segment<false>
+    : detail::interpolate_point::segment
+        <
+            detail::interpolate_point::convert_and_assign
+        >
 {};
-
 
 template <typename Geometry, typename PointType>
 struct line_interpolate_point<Geometry, PointType, segment_tag, multi_point_tag>
-    : detail::interpolate_point::segment<true>
+    : detail::interpolate_point::segment
+        <
+            detail::interpolate_point::convert_and_push_back
+        >
 {};
 
 /*
