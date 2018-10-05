@@ -58,49 +58,7 @@ struct convert_and_assign
 
 };
 
-template <typename Policy>
-struct segment
-{
-    template <typename Segment, typename PointType, typename Strategy>
-    static inline void apply(Segment const& segment,
-                             double const fraction,
-                             PointType & point,
-                             Strategy const& strategy)
-    {
-        Policy policy;
 
-        boost::ignore_unused(strategy);
-        typedef typename point_type<Segment>::type point_type;
-        point_type p0, p1;
-        geometry::detail::assign_point_from_index<0>(segment, p0);
-        geometry::detail::assign_point_from_index<1>(segment, p1);
-        if (fraction == 0)
-        {
-            policy.apply(p0, point);
-            return;
-        }
-        if (fraction == 1)
-        {
-            policy.apply(p1, point);
-            return;
-        }
-/*
-        while (cur_fraction >= frac)
-        {
-            strategy.apply(p0, p1,
-                           (frac - prev_fraction) / seg_fraction,
-                           point);
-
-            std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
-            if (!repeat) break;
-            frac += fraction;
-        }
-*/
-        point_type p;
-        strategy.apply(p0, p1, fraction, p);
-        policy.apply(p, point);
-    }
-};
 
 /*!
 \brief Internal, calculates interpolation point of a linestring using iterator pairs and
@@ -113,7 +71,7 @@ struct range
 {
     template <typename Range, typename PointType, typename Strategy>
     static inline void apply(Range const& range,
-                             double const fraction,
+                             double const& fraction,
                              PointType & point,
                              Strategy const& strategy)
     {
@@ -146,7 +104,7 @@ struct range
             return;
         }
             
-        calc_t frac = fraction;
+        calc_t repeated_fraction = fraction;
         calc_t tot_len = geometry::length(range);
         calc_t prev_fraction = 0;
         calc_t cur_fraction = 0;
@@ -155,6 +113,7 @@ struct range
 
         iterator_t prev = it++;
         bool first_point = false;
+        int i=1;
         do {
             point_t const& p0 = *prev;
             point_t const& p1 = *it;
@@ -170,23 +129,20 @@ struct range
             prev_fraction = cur_fraction;
             prev = it++;
  */
-            while (cur_fraction >= frac && !first_point)
+            while (cur_fraction >= repeated_fraction && !first_point)
             {
                 num_of_points++;
                 point_t p;
 
                 strategy.apply(p0, p1,
-                               (frac - prev_fraction) / seg_fraction,
+                               (repeated_fraction - prev_fraction) / seg_fraction,
                                p);
                 first_point = boost::is_same<Policy, convert_and_assign>::value;
                 policy.apply(p, point);
 
                 //std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
-                //if (!repeat) break;
-                frac += fraction;
+                repeated_fraction = ++i * fraction;
             }
-            //if (!repeat) break;
-            std::cout << "[]";
             prev_fraction = cur_fraction;
             prev = it++;
         //} while (cur_fraction < fraction && it != end);
@@ -198,6 +154,19 @@ struct range
     }
 };
 
+template <typename Policy>
+struct segment
+{
+    template <typename Segment, typename PointType, typename Strategy>
+    static inline void apply(Segment const& segment,
+                             double const& fraction,
+                             PointType & point,
+                             Strategy const& strategy)
+    {
+        range<Policy>().apply(segment_view<Segment>(segment),
+                              fraction, point, strategy);
+    }
+};
 
 }} // namespace detail::length
 #endif // DOXYGEN_NO_DETAIL
@@ -289,7 +258,7 @@ struct line_interpolate_point
 {
     template <typename Geometry, typename PointType, typename Strategy>
     static inline void apply(Geometry const& geometry,
-                             double const fraction,
+                             double const& fraction,
                              PointType & mp,
                              Strategy const& strategy)
     {
@@ -301,7 +270,7 @@ struct line_interpolate_point
 
     template <typename Geometry, typename PointType>
     static inline void apply(Geometry const& geometry,
-                             double const fraction,
+                             double const& fraction,
                              PointType & mp,
                              default_strategy)
     {        
@@ -327,7 +296,7 @@ struct line_interpolate_point
 {
     template <typename PointType, typename Strategy>
     static inline void apply(Geometry const& geometry,
-                             double const fraction,
+                             double const& fraction,
                              PointType & mp,
                              Strategy const& strategy)
     {
@@ -388,7 +357,7 @@ struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
  */
 template<typename Geometry, typename PointType>
 inline void line_interpolate_point(Geometry const& geometry,
-                                   double const fraction,
+                                   double const& fraction,
                                    PointType & mp)
 {
     concepts::check<Geometry const>();
@@ -418,7 +387,7 @@ inline void line_interpolate_point(Geometry const& geometry,
  */
 template<typename Geometry, typename PointType, typename Strategy>
 inline void line_interpolate_point(Geometry const& geometry,
-                                   double const fraction,
+                                   double const& fraction,
                                    PointType & mp,
                                    Strategy const& strategy)
 {
