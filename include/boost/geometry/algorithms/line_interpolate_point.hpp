@@ -120,7 +120,13 @@ struct range
 
             calc_t seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
                                 / tot_len;
-            cur_fraction = prev_fraction + seg_fraction;
+
+            if (it + 1 == end) // ensure that the last sum will be 1
+            {
+                cur_fraction = 1;
+            } else {
+                cur_fraction = prev_fraction + seg_fraction;
+            }
 /*
             strategy.apply(p0, p1,
                            (fraction - prev_fraction) / seg_fraction,
