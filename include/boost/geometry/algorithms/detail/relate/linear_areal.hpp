@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -262,13 +262,22 @@ struct linear_areal
 
         typedef typename IntersectionStrategy::template point_in_geometry_strategy<Geometry1, Geometry2>::type within_strategy_type;
         within_strategy_type const within_strategy = intersection_strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>();
-        boundary_checker<Geometry1> boundary_checker1(geometry1);
+
+        typedef typename within_strategy_type::equals_point_point_strategy_type eq_pp_strategy_type;
+        
+        typedef boundary_checker
+            <
+                Geometry1,
+                eq_pp_strategy_type
+            > boundary_checker1_type;
+        boundary_checker1_type boundary_checker1(geometry1);
+
         no_turns_la_linestring_pred
             <
                 Geometry2,
                 Result,
                 within_strategy_type,
-                boundary_checker<Geometry1>,
+                boundary_checker1_type,
                 TransposeResult
             > pred1(geometry2,
                     result,
@@ -393,12 +402,14 @@ struct linear_areal
                     typedef turns::less<1, turns::less_op_areal_linear<1> > less;
                     std::sort(it, next, less());
 
+                    eq_pp_strategy_type const eq_pp_strategy = within_strategy.get_equals_point_point_strategy();
+
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;
                     for ( turn_iterator rit = it ; rit != next ; ++rit )
                     {
                         // if the analyser requests, break the search
-                        if ( !analyser.apply(it, rit, next) )
+                        if ( !analyser.apply(it, rit, next, eq_pp_strategy) )
                             break;
                     }
 
@@ -670,7 +681,8 @@ struct linear_areal
             {
                 // real exit point - may be multiple
                 // we know that we entered and now we exit
-                if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
+                                                  side_strategy.get_equals_point_point_strategy()) )
                 {
                     m_exit_watcher.reset_detected_exit();
                     
@@ -712,7 +724,8 @@ struct linear_areal
 
                 if ( ( op == overlay::operation_intersection
                     || op == overlay::operation_continue )
-                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
+                                                side_strategy.get_equals_point_point_strategy()) )
                 {
                     fake_enter_detected = true;
                 }
@@ -732,7 +745,8 @@ struct linear_areal
                     && ( op != overlay::operation_blocked // operation different than block
                         || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index ) ) // or the next single-geometry
                   || ( m_previous_operation == overlay::operation_union
-                    && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                    && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it,
+                                                    side_strategy.get_equals_point_point_strategy()) )
                    )
                 {
                     update<interior, exterior, '1', TransposeResult>(res);
@@ -764,7 +778,8 @@ struct linear_areal
                 BOOST_GEOMETRY_ASSERT_MSG(m_previous_turn_ptr, "non-NULL ptr expected");
 
                 // real interior overlap
-                if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it,
+                                                  side_strategy.get_equals_point_point_strategy()) )
                 {
                     update<interior, interior, '1', TransposeResult>(res);
                     m_interior_detected = false;
@@ -1203,7 +1218,7 @@ struct linear_areal
             point2_type const& qj = range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
-            bool const is_ip_qj = equals::equals_point_point(turn.point, qj);
+            bool const is_ip_qj = equals::equals_point_point(turn.point, qj, side_strategy.get_equals_point_point_strategy());
 // TODO: test this!
 //            BOOST_GEOMETRY_ASSERT(!equals::equals_point_point(turn.point, pi));
 //            BOOST_GEOMETRY_ASSERT(!equals::equals_point_point(turn.point, qi));
@@ -1217,7 +1232,8 @@ struct linear_areal
 // It would be good to replace it with some O(1) mechanism
                 range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
                                                                  range::pos(range2, q_seg_jk),
-                                                                 boost::end(range2));
+                                                                 boost::end(range2),
+                                                                 side_strategy.get_equals_point_point_strategy());
 
                 // Will this sequence of points be always correct?
                 overlay::side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
@@ -1237,8 +1253,9 @@ struct linear_areal
             }
         }
 
-        template <typename It>
-        static inline It find_next_non_duplicated(It first, It current, It last)
+        template <typename It, typename EqPPStrategy>
+        static inline It find_next_non_duplicated(It first, It current, It last,
+                                                  EqPPStrategy const& strategy)
         {
             BOOST_GEOMETRY_ASSERT( current != last );
 
@@ -1246,14 +1263,14 @@ struct linear_areal
 
             for ( ++it ; it != last ; ++it )
             {
-                if ( !equals::equals_point_point(*current, *it) )
+                if ( !equals::equals_point_point(*current, *it, strategy) )
                     return it;
             }
 
             // if not found start from the beginning
             for ( it = first ; it != current ; ++it )
             {
-                if ( !equals::equals_point_point(*current, *it) )
+                if ( !equals::equals_point_point(*current, *it, strategy) )
                     return it;
             }
 
@@ -1396,8 +1413,9 @@ struct linear_areal
             , m_previous_turn_ptr(NULL)
         {}
 
-        template <typename TurnIt>
-        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last)
+        template <typename TurnIt, typename EqPPStrategy>
+        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last,
+                   EqPPStrategy const& strategy)
         {
             overlay::operation_type op = it->operations[1].operation;
 
@@ -1412,7 +1430,7 @@ struct linear_areal
                 if ( is_union_detected )
                 {
                     BOOST_GEOMETRY_ASSERT(m_previous_turn_ptr != NULL);
-                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point, strategy) )
                     {
                         // break
                         return false;

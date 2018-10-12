@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2017.
-// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2018.
+// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -50,21 +50,6 @@ namespace detail { namespace disjoint
 template <typename CS_Tag>
 struct disjoint_segment_box_sphere_or_spheroid
 {
-private:
-
-    template <typename CT>
-    static inline void swap(CT& lon1,
-                            CT& lat1,
-                            CT& lon2,
-                            CT& lat2)
-    {
-        std::swap(lon1, lon2);
-        std::swap(lat1, lat2);
-    }
-
-
-public:
-
     struct disjoint_info
     {
         enum type
@@ -82,21 +67,24 @@ public:
         operator T () const;
     };
 
-    template <typename Segment, typename Box, typename Strategy>
+    template <typename Segment, typename Box, typename AzimuthStrategy, typename NormalizeStrategy>
     static inline bool apply(Segment const& segment,
                              Box const& box,
-                             Strategy const& azimuth_strategy)
+                             AzimuthStrategy const& azimuth_strategy,
+                             NormalizeStrategy const& normalize_strategy)
     {
         typedef typename point_type<Segment>::type segment_point;
         segment_point vertex;
-        return (apply(segment, box, azimuth_strategy, vertex) != disjoint_info::intersect);
+        return apply(segment, box, vertex, azimuth_strategy, normalize_strategy)
+                != disjoint_info::intersect;
     }
 
-    template <typename Segment, typename Box, typename Strategy, typename P>
+    template <typename Segment, typename Box, typename AzimuthStrategy, typename NormalizeStrategy, typename P>
     static inline disjoint_info apply(Segment const& segment,
                                       Box const& box,
-                                      Strategy const& azimuth_strategy,
-                                      P& vertex)
+                                      P& vertex,
+                                      AzimuthStrategy const& azimuth_strategy,
+                                      NormalizeStrategy const& )
     {
         assert_dimension_equal<Segment, Box>();
 
@@ -122,10 +110,10 @@ public:
 
         typedef typename coordinate_type<segment_point_type>::type CT;
 
-        segment_point_type p0_normalized =
-                geometry::detail::return_normalized<segment_point_type>(p0);
-        segment_point_type p1_normalized =
-                geometry::detail::return_normalized<segment_point_type>(p1);
+        segment_point_type p0_normalized;
+        NormalizeStrategy::apply(p0, p0_normalized);
+        segment_point_type p1_normalized;
+        NormalizeStrategy::apply(p1, p1_normalized);
 
         CT lon1 = geometry::get_as_radian<0>(p0_normalized);
         CT lat1 = geometry::get_as_radian<1>(p0_normalized);
@@ -134,7 +122,8 @@ public:
 
         if (lon1 > lon2)
         {
-            swap(lon1, lat1, lon2, lat2);
+            std::swap(lon1, lon2);
+            std::swap(lat1, lat2);
         }
 
         //Compute alp1 outside envelope and pass it to envelope_segment_impl

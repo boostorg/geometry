@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -233,7 +233,7 @@ public :
         {
             ever_circling_iterator<range1_iterator> nd_next1(
                     begin_range_1, end_range_1, next1, true);
-            advance_to_non_duplicate_next(nd_next1, it1, sec1, robust_policy);
+            advance_to_non_duplicate_next(nd_next1, it1, sec1, intersection_strategy, robust_policy);
 
             signed_size_type index2 = sec2.begin_index;
             signed_size_type ndi2 = sec2.non_duplicate_index;
@@ -282,7 +282,7 @@ public :
                     // Move to the "non duplicate next"
                     ever_circling_iterator<range2_iterator> nd_next2(
                             begin_range_2, end_range_2, next2, true);
-                    advance_to_non_duplicate_next(nd_next2, it2, sec2, robust_policy);
+                    advance_to_non_duplicate_next(nd_next2, it2, sec2, intersection_strategy, robust_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
 
@@ -328,10 +328,19 @@ private :
     typedef typename model::referring_segment<point1_type const> segment1_type;
     typedef typename model::referring_segment<point2_type const> segment2_type;
 
-    template <typename Iterator, typename RangeIterator, typename Section, typename RobustPolicy>
+    template
+    <
+        typename Iterator, typename RangeIterator,
+        typename Section,
+        typename IntersectionStrategy, typename RobustPolicy
+    >
     static inline void advance_to_non_duplicate_next(Iterator& next,
-            RangeIterator const& it, Section const& section, RobustPolicy const& robust_policy)
+            RangeIterator const& it,
+            Section const& section,
+            IntersectionStrategy const& ,
+            RobustPolicy const& robust_policy)
     {
+        typedef typename IntersectionStrategy::point_in_point_strategy_type disjoint_strategy_type;
         typedef typename robust_point_type<point1_type, RobustPolicy>::type robust_point_type;
         robust_point_type robust_point_from_it;
         robust_point_type robust_point_from_next;
@@ -348,10 +357,9 @@ private :
         // So advance to the "non duplicate next"
         // (the check is defensive, to avoid endless loops)
         std::size_t check = 0;
-        while(! detail::disjoint::disjoint_point_point
-                (
-                    robust_point_from_it, robust_point_from_next
-                )
+        while(! detail::disjoint::disjoint_point_point(robust_point_from_it,
+                                                       robust_point_from_next,
+                                                       disjoint_strategy_type() )
             && check++ < section.range_count)
         {
             next++;
@@ -483,11 +491,13 @@ public:
 
         typename IntersectionStrategy::envelope_strategy_type const
             envelope_strategy = intersection_strategy.get_envelope_strategy();
+        typename IntersectionStrategy::expand_strategy_type const
+            expand_strategy = intersection_strategy.get_expand_strategy();
 
         geometry::sectionalize<Reverse1, dimensions>(geometry1, robust_policy,
-                sec1, envelope_strategy, 0);
+                sec1, envelope_strategy, expand_strategy, 0);
         geometry::sectionalize<Reverse2, dimensions>(geometry2, robust_policy,
-                sec2, envelope_strategy, 1);
+                sec2, envelope_strategy, expand_strategy, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor

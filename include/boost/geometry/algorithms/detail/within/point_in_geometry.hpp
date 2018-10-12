@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
+// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -45,6 +45,11 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
 
+template <typename Point1, typename Point2, typename Strategy>
+inline bool equals_point_point(Point1 const& p1, Point2 const& p2, Strategy const& strategy)
+{
+    return equals::equals_point_point(p1, p2, strategy.get_equals_point_point_strategy());
+}
 
 // TODO: is this needed?
 inline int check_result_type(int result)
@@ -139,8 +144,8 @@ struct point_in_geometry<Segment, segment_tag>
             return -1; // exterior
 
         // if the point is equal to the one of the terminal points
-        if ( detail::equals::equals_point_point(point, p0)
-          || detail::equals::equals_point_point(point, p1) )
+        if ( detail::within::equals_point_point(point, p0, strategy)
+          || detail::within::equals_point_point(point, p1, strategy) )
             return 0; // boundary
         else
             return 1; // interior
@@ -161,11 +166,11 @@ struct point_in_geometry<Linestring, linestring_tag>
                 return -1; // exterior
 
             // if the linestring doesn't have a boundary
-            if (detail::equals::equals_point_point(range::front(linestring), range::back(linestring)))
+            if (detail::within::equals_point_point(range::front(linestring), range::back(linestring), strategy))
                 return 1; // interior
             // else if the point is equal to the one of the terminal points
-            else if (detail::equals::equals_point_point(point, range::front(linestring))
-                || detail::equals::equals_point_point(point, range::back(linestring)))
+            else if (detail::within::equals_point_point(point, range::front(linestring), strategy)
+                || detail::within::equals_point_point(point, range::back(linestring), strategy))
                 return 0; // boundary
             else
                 return 1; // interior
@@ -304,12 +309,12 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
             point_type const& back = range::back(*it);
 
             // is closed_ring - no boundary
-            if ( detail::equals::equals_point_point(front, back) )
+            if ( detail::within::equals_point_point(front, back, strategy) )
                 continue;
 
             // is point on boundary
-            if ( detail::equals::equals_point_point(point, front)
-              || detail::equals::equals_point_point(point, back) )
+            if ( detail::within::equals_point_point(point, front, strategy)
+              || detail::within::equals_point_point(point, back, strategy) )
             {
                 ++boundaries;
             }

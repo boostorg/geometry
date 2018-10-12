@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -137,11 +137,11 @@ private:
     template <typename RangeOut, typename Point, typename SideStrategy, typename RobustPolicy>
     static inline void append_to_output(RangeOut& current_output,
                                         Point const& point,
-                                        SideStrategy const&,
+                                        SideStrategy const& strategy,
                                         RobustPolicy const&,
                                         boost::false_type const&)
     {
-        detail::overlay::append_no_duplicates(current_output, point);
+        detail::overlay::append_no_duplicates(current_output, point, strategy.get_equals_point_point_strategy());
     }
 
 public:

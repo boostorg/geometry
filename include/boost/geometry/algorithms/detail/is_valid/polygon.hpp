@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -221,12 +221,11 @@ protected:
         inline bool is_within(Item const& first, Item const& second)
         {
             typename point_type<Polygon>::type point;
-            typedef detail::point_on_border::point_on_range<true> pob;
 
             // TODO: this should check for a point on the interior, instead
             // of on border. Or it should check using the overlap function.
 
-            return pob::apply(point, points_begin(first), points_end(first))
+            return geometry::point_on_border(point, first)
                     && geometry::within(point, second, m_strategy);
         }
 

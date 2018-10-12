@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -77,7 +77,8 @@ struct get_turn_info_linear_linear
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
                     ::apply(pi, pj, pk, qi, qj, qk,
                             is_p_first, is_p_last, is_q_first, is_q_last,
-                            tp_model, inters, method_none, out);
+                            tp_model, inters, method_none, out,
+                            strategy.get_point_in_point_strategy());
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -88,7 +89,8 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_touch_interior, out) )
+                                tp_model, inters, method_touch_interior, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -159,7 +161,8 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_touch, out) )
+                                tp_model, inters, method_touch, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -294,7 +297,8 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_equal, out) )
+                                tp_model, inters, method_equal, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -352,7 +356,8 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_collinear, out) )
+                                tp_model, inters, method_collinear, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -440,26 +445,29 @@ struct get_turn_info_linear_linear
                 // degenerate points
                 if ( BOOST_GEOMETRY_CONDITION(AssignPolicy::include_degenerate) )
                 {
+                    typedef typename IntersectionStrategy::point_in_point_strategy_type
+                        equals_strategy_type;
+
                     only_convert::apply(tp, inters.i_info());
 
                     // if any, only one of those should be true
                     if ( is_p_first
-                      && equals::equals_point_point(pi, tp.point) )
+                      && equals::equals_point_point(pi, tp.point, equals_strategy_type()) )
                     {
                         tp.operations[0].position = position_front;
                     }
                     else if ( is_p_last
-                           && equals::equals_point_point(pj, tp.point) )
+                           && equals::equals_point_point(pj, tp.point, equals_strategy_type()) )
                     {
                         tp.operations[0].position = position_back;
                     }
                     else if ( is_q_first
-                           && equals::equals_point_point(qi, tp.point) )
+                           && equals::equals_point_point(qi, tp.point, equals_strategy_type()) )
                     {
                         tp.operations[1].position = position_front;
                     }
                     else if ( is_q_last
-                           && equals::equals_point_point(qj, tp.point) )
+                           && equals::equals_point_point(qj, tp.point, equals_strategy_type()) )
                     {
                         tp.operations[1].position = position_back;
                     }
