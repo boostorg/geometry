@@ -62,7 +62,7 @@ static void test_segment_intersection(std::string const& case_id,
                 int expected_x2 = -99, int expected_y2 = -99)
 
 {
-    boost::ignore_unused_variable_warning(case_id);
+    boost::ignore_unused(case_id);
 
     typedef bg::model::referring_segment<const P> segment_type;
 
@@ -125,7 +125,7 @@ static void test_segment_ratio(std::string const& case_id,
                 std::size_t expected_count = 2)
 
 {
-    boost::ignore_unused_variable_warning(case_id);
+    boost::ignore_unused(case_id);
 
     typedef bg::model::referring_segment<const P> segment_type;
 

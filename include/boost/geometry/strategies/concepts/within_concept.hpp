@@ -17,6 +17,7 @@
 
 
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/function_types/result_type.hpp>
 
 #include <boost/geometry/util/parameter_type_of.hpp>
@@ -93,9 +94,7 @@ class WithinStrategyPolygonal
             bool b = str->apply(*p, *sp, *sp, *st);
             int r = str->result(*st);
 
-            boost::ignore_unused_variable_warning(r);
-            boost::ignore_unused_variable_warning(b);
-            boost::ignore_unused_variable_warning(str);
+            boost::ignore_unused(r, b, str);
         }
     };
 
@@ -158,8 +157,7 @@ class WithinStrategyPointBox
 
             bool b = str->apply(*p, *bx);
 
-            boost::ignore_unused_variable_warning(b);
-            boost::ignore_unused_variable_warning(str);
+            boost::ignore_unused(b, str);
         }
     };
 
@@ -222,8 +220,7 @@ class WithinStrategyBoxBox
 
             bool b = str->apply(*b1, *b2);
 
-            boost::ignore_unused_variable_warning(b);
-            boost::ignore_unused_variable_warning(str);
+            boost::ignore_unused(b, str);
         }
     };
 
@@ -281,7 +278,7 @@ template <typename FirstTag, typename SecondTag, typename CastedTag, typename St
 inline void check()
 {
     dispatch::check_within<FirstTag, SecondTag, CastedTag, Strategy> c;
-    boost::ignore_unused_variable_warning(c);
+    boost::ignore_unused(c);
 }
 
 
