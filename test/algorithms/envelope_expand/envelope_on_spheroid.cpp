@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -65,14 +65,29 @@ struct test_envelope<FormulaPolicy, bg::geographic_tag>
     static inline void apply(Geometry& geometry,
                              Box& detected)
     {
-        bg::strategy::envelope::geographic_segment
-                <
-                    FormulaPolicy,
-                    bg::srs::spheroid<double>,
-                    double                                        
-                > envelope_geographic_segment_strategy;
+        typedef bg::strategy::envelope::spherical_point point_strategy_t;
+        typedef bg::strategy::envelope::spherical_multipoint multi_point_strategy_t;
+        typedef bg::strategy::envelope::spherical_box box_strategy_t;
+        typedef bg::strategy::envelope::geographic<FormulaPolicy, bg::srs::spheroid<double>, double> strategy_t;
 
-        bg::envelope(geometry, detected, envelope_geographic_segment_strategy);
+        typename boost::mpl::if_c
+            <
+                boost::is_same<typename bg::tag<Geometry>::type, bg::point_tag>::value,
+                point_strategy_t,
+                typename boost::mpl::if_c
+                    <
+                        boost::is_same<typename bg::tag<Geometry>::type, bg::multi_point_tag>::value,
+                        multi_point_strategy_t,
+                        typename boost::mpl::if_c
+                            <
+                                boost::is_same<typename bg::tag<Geometry>::type, bg::box_tag>::value,
+                                box_strategy_t,
+                                strategy_t
+                            >::type
+                    >::type
+            >::type strategy;
+
+        bg::envelope(geometry, detected, strategy);
     }
 };
 
