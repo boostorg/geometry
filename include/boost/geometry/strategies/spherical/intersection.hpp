@@ -42,7 +42,8 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategies/spherical/envelope.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -149,12 +150,34 @@ struct ecef_segments
         return strategy_type();
     }
 
-    typedef envelope::spherical_segment<CalculationType>
+    typedef envelope::spherical<CalculationType>
         envelope_strategy_type;
 
     static inline envelope_strategy_type get_envelope_strategy()
     {
         return envelope_strategy_type();
+    }
+
+    typedef expand::spherical_segment<CalculationType>
+        expand_strategy_type;
+
+    static inline expand_strategy_type get_expand_strategy()
+    {
+        return expand_strategy_type();
+    }
+
+    typedef within::spherical_point_point point_in_point_strategy_type;
+
+    static inline point_in_point_strategy_type get_point_in_point_strategy()
+    {
+        return point_in_point_strategy_type();
+    }
+
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
@@ -252,7 +275,6 @@ struct ecef_segments
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
 
         // TODO: check only 2 first coordinates here?
-        using geometry::detail::equals::equals_point_point;
         bool a_is_point = equals_point_point(a1, a2);
         bool b_is_point = equals_point_point(b1, b2);
 
@@ -645,7 +667,6 @@ private:
         }
 
         // reassign the IP if some endpoints overlap
-        using geometry::detail::equals::equals_point_point;
         if (is_near_a1)
         {
             if (is_near_b1 && equals_point_point(a1, b1))
@@ -822,7 +843,6 @@ private:
                                          P1 const& ai, P2 const& b1)
     {
         static CalcT const c0 = 0;
-        using geometry::detail::equals::equals_point_point;
         return is_near(dist) && (math::equals(dist, c0) || equals_point_point(ai, b1));
     }
 
@@ -849,6 +869,13 @@ private:
               : ( ca1 > cb1 ? 0
                 : ca1 < cb2 ? 4
                 : 2 );
+    }
+
+    template <typename Point1, typename Point2>
+    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
+    {
+        return detail::equals::equals_point_point(point1, point2,
+                                                  point_in_point_strategy_type());
     }
 };
 
@@ -921,7 +948,7 @@ struct spherical_segments_calc_policy
         multiply_value(ip2, coord_t(-1));
 
         return true;
-    }
+    }    
 };
 
 

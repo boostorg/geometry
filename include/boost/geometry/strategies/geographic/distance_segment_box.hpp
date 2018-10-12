@@ -10,7 +10,17 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_SEGMENT_BOX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_SEGMENT_BOX_HPP
 
+#include <boost/geometry/srs/spheroid.hpp>
+
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -107,7 +117,8 @@ struct geographic_segment_box
                     ReturnType
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
                  geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>(),
-                 az_strategy, es_strategy);
+                 az_strategy, es_strategy,
+                 normalize::spherical_point());
     }
 
     template <typename SPoint, typename BPoint>

@@ -28,6 +28,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
@@ -84,6 +85,8 @@ template
 class geographic_cross_track
 {
 public :
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point
@@ -105,7 +108,7 @@ public :
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        typedef typename coordinate_system<Point>::type::units units_type;
+        typedef typename geometry::detail::cs_angular_units<Point>::type units_type;
 
         return (apply<units_type>(get<0>(sp1), get<1>(sp1),
                                   get<0>(sp2), get<1>(sp2),

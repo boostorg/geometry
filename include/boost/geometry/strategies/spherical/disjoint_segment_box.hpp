@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -67,7 +67,11 @@ struct segment_box_spherical
         geometry::strategy::azimuth::spherical<CT> azimuth_strategy;
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <spherical_equatorial_tag>::apply(segment, box, azimuth_strategy);
+                <
+                    spherical_equatorial_tag
+                >::apply(segment, box,
+                         azimuth_strategy,
+                         strategy::normalize::spherical_point());
     }
 };
 

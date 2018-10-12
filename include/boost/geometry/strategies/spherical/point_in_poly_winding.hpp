@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -138,6 +138,12 @@ public:
     inline disjoint_strategy_type get_disjoint_strategy() const
     {
         return m_side_strategy.get_disjoint_strategy();
+    }
+
+    typedef typename SideStrategy::equals_point_point_strategy_type equals_point_point_strategy_type;
+    inline equals_point_point_strategy_type get_equals_point_point_strategy() const
+    {
+        return m_side_strategy.get_equals_point_point_strategy();
     }
 
     spherical_winding_base()

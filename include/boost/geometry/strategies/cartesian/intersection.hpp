@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017.
-// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -35,7 +35,9 @@
 
 #include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategies/cartesian/envelope.hpp>
+#include <boost/geometry/strategies/cartesian/expand_segment.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
@@ -132,12 +134,32 @@ struct cartesian_segments
         return strategy_type();
     }
 
-    typedef envelope::cartesian_segment<CalculationType>
-        envelope_strategy_type;
+    typedef envelope::cartesian<CalculationType> envelope_strategy_type;
 
     static inline envelope_strategy_type get_envelope_strategy()
     {
         return envelope_strategy_type();
+    }
+
+    typedef expand::cartesian_segment expand_strategy_type;
+
+    static inline expand_strategy_type get_expand_strategy()
+    {
+        return expand_strategy_type();
+    }
+
+    typedef within::cartesian_point_point point_in_point_strategy_type;
+
+    static inline point_in_point_strategy_type get_point_in_point_strategy()
+    {
+        return point_in_point_strategy_type();
+    }
+
+    typedef within::cartesian_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
     }
 
     template <typename CoordinateType, typename SegmentRatio>
@@ -314,12 +336,12 @@ struct cartesian_segments
         BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
 
         using geometry::detail::equals::equals_point_point;
-        bool const a_is_point = equals_point_point(robust_a1, robust_a2);
-        bool const b_is_point = equals_point_point(robust_b1, robust_b2);
+        bool const a_is_point = equals_point_point(robust_a1, robust_a2, point_in_point_strategy_type());
+        bool const b_is_point = equals_point_point(robust_b1, robust_b2, point_in_point_strategy_type());
 
         if(a_is_point && b_is_point)
         {
-            return equals_point_point(robust_a1, robust_b2)
+            return equals_point_point(robust_a1, robust_b2, point_in_point_strategy_type())
                 ? Policy::degenerate(a, true)
                 : Policy::disjoint()
                 ;
