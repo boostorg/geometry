@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_GET_PIECE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_GET_PIECE_TURNS_HPP
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
@@ -281,7 +282,7 @@ public:
     inline bool apply(Section const& section1, Section const& section2,
                     bool first = true)
     {
-        boost::ignore_unused_variable_warning(first);
+        boost::ignore_unused(first);
 
         typedef typename boost::range_value<Pieces const>::type piece_type;
         piece_type const& piece1 = m_pieces[section1.ring_id.source_index];
