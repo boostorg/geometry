@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,11 +11,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
-#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/strategies/envelope.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -30,11 +31,9 @@ template
 >
 class cartesian_segment
 {
-public :
-
+public:
     template <typename Point1, typename Point2, typename Box>
-    inline void
-    apply(Point1 const& point1, Point2 const& point2, Box& box) const
+    static inline void apply(Point1 const& point1, Point2 const& point2, Box& box)
     {
         geometry::detail::envelope::envelope_one_segment
                 <
@@ -43,8 +42,7 @@ public :
                 >
                 ::apply(point1,
                         point2,
-                        box,
-                        strategy::envelope::cartesian_segment<CalculationType>());
+                        box);
     }
 
 };
@@ -55,7 +53,7 @@ namespace services
 {
 
 template <typename CalculationType>
-struct default_strategy<cartesian_tag, CalculationType>
+struct default_strategy<segment_tag, cartesian_tag, CalculationType>
 {
     typedef strategy::envelope::cartesian_segment<CalculationType> type;
 };

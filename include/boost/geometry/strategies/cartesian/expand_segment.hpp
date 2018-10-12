@@ -16,52 +16,56 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_BOX_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_EXPAND_SEGMENT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_EXPAND_SEGMENT_HPP
 
-
-#include <boost/geometry/algorithms/dispatch/expand.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 
-// For backward compatibility
-#include <boost/geometry/strategies/cartesian/expand_box.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
+#include <boost/geometry/algorithms/detail/expand/indexed.hpp>
+
+#include <boost/geometry/strategies/expand.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
+namespace strategy { namespace expand
 {
 
-
-// Box + box -> new box containing two input boxes
-template
-<
-    typename BoxOut, typename BoxIn
->
-struct expand
-    <
-        BoxOut, BoxIn,
-        box_tag, box_tag
-    >
+class cartesian_segment
 {
-    template <typename BoxOut, typename BoxIn, typename Strategy>
-    static inline void apply(BoxOut& box_out,
-                             BoxIn const& box_in,
-                             Strategy const& )
+public:
+    template <typename Box, typename Segment>
+    static void apply(Box & box, Segment const& segment)
     {
-        Strategy::apply(box_out, box_in);
+        geometry::detail::expand::expand_indexed
+            <
+                0, dimension<Segment>::value
+            >::apply(box, segment);
     }
 };
 
 
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
+namespace services
+{
+
+template <typename CalculationType>
+struct default_strategy<segment_tag, cartesian_tag, CalculationType>
+{
+    typedef cartesian_segment type;
+};
+
+
+} // namespace services
+
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+}} // namespace strategy::expand
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_INDEXED_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_EXPAND_SEGMENT_HPP

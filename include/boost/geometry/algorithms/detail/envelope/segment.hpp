@@ -46,6 +46,11 @@
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
+// For backward compatibility
+#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -416,18 +421,17 @@ public:
 template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_one_segment
 {
-    template<typename Point, typename Box, typename Strategy>
+    template<typename Point, typename Box>
     static inline void apply(Point const& p1,
                              Point const& p2,
-                             Box& mbr,
-                             Strategy const& strategy)
+                             Box& mbr)
     {
-        envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr, strategy);
-        detail::expand::point_loop
+        envelope_one_point<Dimension, DimensionCount>::apply(p1, mbr);
+        strategy::expand::detail::point_loop
             <
                 Dimension,
                 DimensionCount
-            >::apply(mbr, p2, strategy);
+            >::apply(mbr, p2);
     }
 };
 
@@ -446,7 +450,7 @@ struct envelope_segment
 
         // now compute the envelope range for coordinates of
         // dimension 2 and higher
-        envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr, strategy);
+        envelope_one_segment<2, DimensionCount>::apply(p1, p2, mbr);
     }
 
     template <typename Segment, typename Box, typename Strategy>

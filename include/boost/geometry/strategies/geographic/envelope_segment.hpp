@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -20,7 +20,7 @@
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
-
+#include <boost/geometry/strategies/spherical/expand_box.hpp>
 
 namespace boost { namespace geometry
 {
@@ -47,11 +47,19 @@ public:
         : m_spheroid(spheroid)
     {}
 
+    typedef strategy::expand::spherical_box box_expand_strategy_type;
+    static inline box_expand_strategy_type get_box_expand_strategy()
+    {
+        return box_expand_strategy_type();
+    }
+
     template <typename Point1, typename Point2, typename Box>
     inline void apply(Point1 const& point1, Point2 const& point2, Box& box) const
     {
-        Point1 p1_normalized = detail::return_normalized<Point1>(point1);
-        Point2 p2_normalized = detail::return_normalized<Point2>(point2);
+        Point1 p1_normalized;
+        strategy::normalize::spherical_point::apply(point1, p1_normalized);
+        Point2 p2_normalized;
+        strategy::normalize::spherical_point::apply(point2, p2_normalized);
 
         geometry::strategy::azimuth::geographic
             <
@@ -60,7 +68,10 @@ public:
                 CalculationType
             > azimuth_geographic(m_spheroid);
 
-        typedef typename coordinate_system<Point1>::type::units units_type;
+        typedef typename geometry::detail::cs_angular_units
+            <
+                Point1
+            >::type units_type;
 
         detail::envelope::envelope_segment_impl
             <
@@ -84,7 +95,7 @@ namespace services
 {
 
 template <typename CalculationType>
-struct default_strategy<geographic_tag, CalculationType>
+struct default_strategy<segment_tag, geographic_tag, CalculationType>
 {
     typedef strategy::envelope::geographic_segment
         <
