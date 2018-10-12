@@ -16,7 +16,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_ROTATION_MATRIX_CONCEPT_HPP
 
 #include <boost/concept_check.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
 
@@ -96,7 +96,7 @@ class ConstRotationMatrix
         {
             const G* g = 0;
             ctype coord(geometry::get<I, J>(*g));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker_row<G, I, J+1, N>::apply();
         }
     };

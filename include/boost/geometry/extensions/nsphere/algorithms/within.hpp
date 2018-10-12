@@ -15,6 +15,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_WITHIN_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_WITHIN_HPP
 
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/make.hpp>
@@ -153,7 +154,7 @@ struct within<P, Circle, point_tag, nsphere_tag>
     template <typename Strategy>
     static inline bool apply(P const& p, Circle const& c, Strategy const& strategy)
     {
-        ::boost::ignore_unused_variable_warning(strategy);
+        ::boost::ignore_unused(strategy);
         return strategy.apply(p, c);
         //return detail::within::point_in_circle(p, c);
     }
@@ -218,7 +219,7 @@ struct within<NSphere, Box, nsphere_tag, box_tag>
     static inline bool apply(NSphere const& nsphere, Box const& box, Strategy const& strategy)
     {
         assert_dimension_equal<NSphere, Box>();
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
         return strategy.apply(nsphere, box);
     }
 };

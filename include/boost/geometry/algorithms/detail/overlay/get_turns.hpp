@@ -21,6 +21,7 @@
 
 #include <boost/array.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
@@ -155,9 +156,7 @@ class get_turns_in_sections
         // It checks if it is areal (box, ring, (multi)polygon)
         signed_size_type const n = static_cast<signed_size_type>(section.range_count);
 
-        boost::ignore_unused_variable_warning(n);
-        boost::ignore_unused_variable_warning(index1);
-        boost::ignore_unused_variable_warning(index2);
+        boost::ignore_unused(n, index1, index2);
 
         return boost::is_same
                     <
@@ -186,7 +185,7 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        boost::ignore_unused_variable_warning(interrupt_policy);
+        boost::ignore_unused(interrupt_policy);
 
         if ((sec1.duplicate && (sec1.count + 1) < sec1.range_count)
            || (sec2.duplicate && (sec2.count + 1) < sec2.range_count))
@@ -667,7 +666,7 @@ private:
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        boost::ignore_unused_variable_warning(interrupt_policy);
+        boost::ignore_unused(interrupt_policy);
 
         // Depending on code some relations can be left out
 

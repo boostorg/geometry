@@ -12,6 +12,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_DISTANCE_INFO_HPP
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_DISTANCE_INFO_HPP
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -103,7 +104,7 @@ public :
     apply_point_point(Point1 const& p1, Point2 const& p2) const
     {
         Strategy point_point_strategy;
-        boost::ignore_unused_variable_warning(point_point_strategy);
+        boost::ignore_unused(point_point_strategy);
         return point_point_strategy.apply(p1, p2);
     }
 
@@ -146,7 +147,7 @@ public :
         result.on_segment = c1 >= zero && c1 <= c2;
 
         Strategy point_point_strategy;
-        boost::ignore_unused_variable_warning(point_point_strategy);
+        boost::ignore_unused(point_point_strategy);
 
         if (geometry::math::equals(c2, zero))
         {
