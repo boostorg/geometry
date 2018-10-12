@@ -52,17 +52,8 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 
-#include <boost/geometry/srs/projections/par4.hpp> // airy tag
-
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    // already defined in par4.hpp as ellps name
-    //struct airy {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -102,7 +93,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -158,15 +149,15 @@ namespace projections
             };
 
             // Airy
-            template <typename Parameters, typename T>
-            inline void setup_airy(Parameters& par, par_airy<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_airy(Params const& params, Parameters& par, par_airy<T>& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
                 T beta;
 
-                proj_parm.no_cut = pj_get_param_b(par.params, "no_cut");
-                beta = 0.5 * (half_pi - pj_get_param_r(par.params, "lat_b"));
+                proj_parm.no_cut = pj_get_param_b<srs::spar::no_cut>(params, "no_cut", srs::dpar::no_cut);
+                beta = 0.5 * (half_pi - pj_get_param_r<T, srs::spar::lat_b>(params, "lat_b", srs::dpar::lat_b));
                 if (fabs(beta) < epsilon)
                     proj_parm.Cb = -0.5;
                 else {
@@ -216,9 +207,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct airy_spheroid : public detail::airy::base_airy_spheroid<T, Parameters>
     {
-        inline airy_spheroid(const Parameters& par) : detail::airy::base_airy_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline airy_spheroid(Params const& params, Parameters const& par)
+            : detail::airy::base_airy_spheroid<T, Parameters>(par)
         {
-            detail::airy::setup_airy(this->m_par, this->m_proj_parm);
+            detail::airy::setup_airy(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -227,23 +220,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::airy, airy_spheroid, airy_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_airy, airy_spheroid, airy_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class airy_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(airy_entry, airy_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(airy_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<airy_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void airy_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("airy", new airy_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(airy, airy_entry)
         }
 
     } // namespace detail

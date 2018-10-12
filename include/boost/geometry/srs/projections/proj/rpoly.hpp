@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct rpoly {}; // Rectangular Polyconic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -84,7 +78,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T fa;
 
@@ -110,10 +104,12 @@ namespace projections
             };
 
             // Rectangular Polyconic
-            template <typename Parameters, typename T>
-            inline void setup_rpoly(Parameters& par, par_rpoly<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_rpoly(Params const& params, Parameters& par, par_rpoly<T>& proj_parm)
             {
-                if ((proj_parm.mode = (proj_parm.phi1 = fabs(pj_get_param_r(par.params, "lat_ts"))) > epsilon)) {
+                proj_parm.phi1 = fabs(pj_get_param_r<T, srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts));
+                if ((proj_parm.mode = (proj_parm.phi1 > epsilon)))
+                {
                     proj_parm.fxb = 0.5 * sin(proj_parm.phi1);
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }
@@ -141,9 +137,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct rpoly_spheroid : public detail::rpoly::base_rpoly_spheroid<T, Parameters>
     {
-        inline rpoly_spheroid(const Parameters& par) : detail::rpoly::base_rpoly_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline rpoly_spheroid(Params const& params, Parameters const& par)
+            : detail::rpoly::base_rpoly_spheroid<T, Parameters>(par)
         {
-            detail::rpoly::setup_rpoly(this->m_par, this->m_proj_parm);
+            detail::rpoly::setup_rpoly(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -152,23 +150,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rpoly, rpoly_spheroid, rpoly_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_rpoly, rpoly_spheroid, rpoly_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class rpoly_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<rpoly_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(rpoly_entry, rpoly_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void rpoly_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(rpoly_init)
         {
-            factory.add_to_factory("rpoly", new rpoly_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(rpoly, rpoly_entry)
         }
 
     } // namespace detail

@@ -52,12 +52,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct cea {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -86,7 +80,7 @@ namespace projections
 
                 // FORWARD(e_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = .5 * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es) / this->m_par.k0;
@@ -94,7 +88,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = pj_authlat(asin( 2. * xy_y * this->m_par.k0 / this->m_proj_parm.qp), this->m_proj_parm.apa);
                     lp_lon = xy_x / this->m_par.k0;
@@ -120,7 +114,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = sin(lp_lat) / this->m_par.k0;
@@ -128,7 +122,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -152,12 +146,12 @@ namespace projections
             };
 
             // Equal Area Cylindrical
-            template <typename Parameters, typename T>
-            inline void setup_cea(Parameters& par, par_cea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_cea(Params const& params, Parameters& par, par_cea<T>& proj_parm)
             {
                 T t = 0;
 
-                if (pj_param_r(par.params, "lat_ts", t)) {
+                if (pj_param_r<srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts, t)) {
                     par.k0 = cos(t);
                     if (par.k0 < 0.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
@@ -194,9 +188,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct cea_ellipsoid : public detail::cea::base_cea_ellipsoid<T, Parameters>
     {
-        inline cea_ellipsoid(const Parameters& par) : detail::cea::base_cea_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline cea_ellipsoid(Params const& params, Parameters const& par)
+            : detail::cea::base_cea_ellipsoid<T, Parameters>(par)
         {
-            detail::cea::setup_cea(this->m_par, this->m_proj_parm);
+            detail::cea::setup_cea(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -218,9 +214,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct cea_spheroid : public detail::cea::base_cea_spheroid<T, Parameters>
     {
-        inline cea_spheroid(const Parameters& par) : detail::cea::base_cea_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline cea_spheroid(Params const& params, Parameters const& par)
+            : detail::cea::base_cea_spheroid<T, Parameters>(par)
         {
-            detail::cea::setup_cea(this->m_par, this->m_proj_parm);
+            detail::cea::setup_cea(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -229,26 +227,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::cea, cea_spheroid, cea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_cea, cea_spheroid, cea_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class cea_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(cea_entry, cea_spheroid, cea_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(cea_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<cea_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<cea_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void cea_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("cea", new cea_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(cea, cea_entry);
         }
 
     } // namespace detail

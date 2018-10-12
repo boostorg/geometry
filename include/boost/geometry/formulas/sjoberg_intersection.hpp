@@ -864,6 +864,8 @@ private:
             //      In this case sin_beta/sqrt_1_Cj_sqr and t/t0j is not in [-1, 1]
             //   3. f1-f2 may be 0 which means that the intermediate point is on the vertex
             //      In this case it's not possible to check if this is the correct result
+            //   4. f1-f2 may also be 0 in other cases, e.g.
+            //      geodesics are symetrical wrt equator and longitude directions are different
 
             CT const dbeta_denom = f1 - f2;
             //CT const dbeta_denom = math::abs(f1) + math::abs(f2);
@@ -1172,6 +1174,7 @@ private:
                                geodesic_type const& geod1, geodesic_type const& geod2,
                                CT & t1, CT& t2)
     {
+        CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
 
@@ -1196,8 +1199,8 @@ private:
             CT const K_t01_t02 = K * geod1.t0j * geod2.t0j;
             CT const D1 = math::sqrt(A + B);
             CT const D2 = math::sqrt(A - B);
-            CT const t_new1 = K_t01_t02 / D1;
-            CT const t_new2 = K_t01_t02 / D2;
+            CT const t_new1 = math::equals(D1, c0) ? c0 : K_t01_t02 / D1;
+            CT const t_new2 = math::equals(D2, c0) ? c0 : K_t01_t02 / D2;
             CT const t_new3 = -t_new1;
             CT const t_new4 = -t_new2;
 

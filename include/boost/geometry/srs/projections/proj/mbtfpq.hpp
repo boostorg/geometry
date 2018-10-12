@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct mbtfpq {}; // McBryde-Thomas Flat-Polar Quartic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -83,7 +77,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     T th1, c;
                     int i;
@@ -100,7 +94,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T pi = detail::pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -161,7 +155,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<T, Parameters>
     {
-        inline mbtfpq_spheroid(const Parameters& par) : detail::mbtfpq::base_mbtfpq_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline mbtfpq_spheroid(Params const& , Parameters const& par)
+            : detail::mbtfpq::base_mbtfpq_spheroid<T, Parameters>(par)
         {
             detail::mbtfpq::setup_mbtfpq(this->m_par);
         }
@@ -172,23 +168,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::mbtfpq, mbtfpq_spheroid, mbtfpq_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_mbtfpq, mbtfpq_spheroid, mbtfpq_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class mbtfpq_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(mbtfpq_entry, mbtfpq_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(mbtfpq_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<mbtfpq_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void mbtfpq_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("mbtfpq", new mbtfpq_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(mbtfpq, mbtfpq_entry)
         }
 
     } // namespace detail

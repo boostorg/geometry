@@ -65,13 +65,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct etmerc {};
-    struct utm {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -182,7 +175,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
                     T Cn = lp_lat, Ce = lp_lon;
@@ -211,7 +204,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T sin_Cn, cos_Cn, cos_Ce, sin_Ce, dCn, dCe;
                     T Cn = xy_y, Ce = xy_x;
@@ -339,8 +332,8 @@ namespace projections
             }
 
             // Universal Transverse Mercator (UTM)
-            template <typename Parameters, typename T>
-            inline void setup_utm(Parameters& par, par_etmerc<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_utm(Params const& params, Parameters& par, par_etmerc<T>& proj_parm)
             {
                 static const T pi = detail::pi<T>();
 
@@ -350,9 +343,9 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
 
-                par.y0 = pj_get_param_b(par.params, "south") ? 10000000. : 0.;
+                par.y0 = pj_get_param_b<srs::spar::south>(params, "south", srs::dpar::south) ? 10000000. : 0.;
                 par.x0 = 500000.;
-                if (pj_param_i(par.params, "zone", zone)) /* zone input ? */
+                if (pj_param_i<srs::spar::zone>(params, "zone", srs::dpar::zone, zone)) /* zone input ? */
                 {
                     if (zone > 0 && zone <= 60)
                         --zone;
@@ -396,7 +389,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct etmerc_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<T, Parameters>
     {
-        inline etmerc_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline etmerc_ellipsoid(Params const& , Parameters const& par)
+            : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
         {
             detail::etmerc::setup_etmerc(this->m_par, this->m_proj_parm);
         }
@@ -420,9 +415,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct utm_ellipsoid : public detail::etmerc::base_etmerc_ellipsoid<T, Parameters>
     {
-        inline utm_ellipsoid(const Parameters& par) : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline utm_ellipsoid(Params const& params, Parameters const& par)
+            : detail::etmerc::base_etmerc_ellipsoid<T, Parameters>(par)
         {
-            detail::etmerc::setup_utm(this->m_par, this->m_proj_parm);
+            detail::etmerc::setup_utm(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -431,35 +428,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::etmerc, etmerc_ellipsoid, etmerc_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::utm, utm_ellipsoid, utm_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_etmerc, etmerc_ellipsoid, etmerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_utm, utm_ellipsoid, utm_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class etmerc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(etmerc_entry, etmerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(utm_entry, utm_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(etmerc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<etmerc_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class utm_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<utm_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void etmerc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("etmerc", new etmerc_entry<T, Parameters>);
-            factory.add_to_factory("utm", new utm_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(etmerc, etmerc_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(utm, utm_entry);
         }
 
     } // namespace detail

@@ -49,12 +49,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct urm5 {}; // Urmaev V
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -79,7 +73,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     T t;
 
@@ -97,19 +91,19 @@ namespace projections
             };
 
             // Urmaev V
-            template <typename Parameters, typename T>
-            inline void setup_urm5(Parameters& par, par_urm5<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_urm5(Params const& params, Parameters& par, par_urm5<T>& proj_parm)
             {
                 T alpha, t;
 
-                if (pj_param_f(par.params, "n", proj_parm.n)) {
+                if (pj_param_f<srs::spar::n>(params, "n", srs::dpar::n, proj_parm.n)) {
                     if (proj_parm.n <= 0. || proj_parm.n > 1.)
                         BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 } else {
                     BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
                 }
-                proj_parm.q3 = pj_get_param_f(par.params, "q") / 3.;
-                alpha = pj_get_param_r(par.params, "alpha");
+                proj_parm.q3 = pj_get_param_f<T, srs::spar::q>(params, "q", srs::dpar::q) / 3.;
+                alpha = pj_get_param_r<T, srs::spar::alpha>(params, "alpha", srs::dpar::alpha);
                 t = proj_parm.n * sin(alpha);
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);
@@ -140,9 +134,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct urm5_spheroid : public detail::urm5::base_urm5_spheroid<T, Parameters>
     {
-        inline urm5_spheroid(const Parameters& par) : detail::urm5::base_urm5_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline urm5_spheroid(Params const& params, Parameters const& par)
+            : detail::urm5::base_urm5_spheroid<T, Parameters>(par)
         {
-            detail::urm5::setup_urm5(this->m_par, this->m_proj_parm);
+            detail::urm5::setup_urm5(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -151,23 +147,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::urm5, urm5_spheroid, urm5_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_urm5, urm5_spheroid, urm5_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class urm5_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(urm5_entry, urm5_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(urm5_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<urm5_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void urm5_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("urm5", new urm5_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(urm5, urm5_entry)
         }
 
     } // namespace detail

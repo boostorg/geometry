@@ -53,12 +53,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct krovak {}; // Krovak
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -119,7 +113,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T gfi, u, deltav, s, d, eps, rho;
 
@@ -143,7 +137,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T u, deltav, s, d, eps, rho, fi1, xy0;
                     int i;
@@ -194,31 +188,32 @@ namespace projections
             };
 
             // Krovak
-            template <typename Parameters, typename T>
-            inline void setup_krovak(Parameters& par, par_krovak<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_krovak(Params const& params, Parameters& par, par_krovak<T>& proj_parm)
             {
                 T u0, n0, g;
 
                 /* we want Bessel as fixed ellipsoid */
                 par.a = 6377397.155;
-                par.e = sqrt(par.es = 0.006674372230614);
+                par.es = 0.006674372230614;
+                par.e = sqrt(par.es);
 
                 /* if latitude of projection center is not set, use 49d30'N */
-                if (!pj_param_exists(par.params, "lat_0"))
+                if (!pj_param_exists<srs::spar::lat_0>(params, "lat_0", srs::dpar::lat_0))
                     par.phi0 = 0.863937979737193;
 
                 /* if center long is not set use 42d30'E of Ferro - 17d40' for Ferro */
                 /* that will correspond to using longitudes relative to greenwich    */
                 /* as input and output, instead of lat/long relative to Ferro */
-                if (!pj_param_exists(par.params, "lon_0"))
+                if (!pj_param_exists<srs::spar::lon_0>(params, "lon_0", srs::dpar::lon_0))
                     par.lam0 = 0.7417649320975901 - 0.308341501185665;
 
                 /* if scale not set default to 0.9999 */
-                if (!pj_param_exists(par.params, "k"))
+                if (!pj_param_exists<srs::spar::k>(params, "k", srs::dpar::k))
                     par.k0 = 0.9999;
 
                 proj_parm.czech = 1;
-                if( !pj_param_exists(par.params, "czech") )
+                if( !pj_param_exists<srs::spar::czech>(params, "czech", srs::dpar::czech) )
                     proj_parm.czech = -1;
 
                 /* Set up shared parameters between forward and inverse */
@@ -255,9 +250,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct krovak_ellipsoid : public detail::krovak::base_krovak_ellipsoid<T, Parameters>
     {
-        inline krovak_ellipsoid(const Parameters& par) : detail::krovak::base_krovak_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline krovak_ellipsoid(Params const& params, Parameters const& par)
+            : detail::krovak::base_krovak_ellipsoid<T, Parameters>(par)
         {
-            detail::krovak::setup_krovak(this->m_par, this->m_proj_parm);
+            detail::krovak::setup_krovak(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -266,23 +263,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::krovak, krovak_ellipsoid, krovak_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_krovak, krovak_ellipsoid, krovak_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class krovak_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(krovak_entry, krovak_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(krovak_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<krovak_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void krovak_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("krovak", new krovak_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(krovak, krovak_entry)
         }
 
     } // namespace detail

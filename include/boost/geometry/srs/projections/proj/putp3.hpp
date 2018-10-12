@@ -48,13 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct putp3 {}; // Putnins P3
-    struct putp3p {}; // Putnins P3'
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -83,7 +76,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = C * lp_lon * (1. - this->m_proj_parm.A * lp_lat * lp_lat);
                     xy_y = C * lp_lat;
@@ -91,7 +84,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = xy_y / C;
                     lp_lon = xy_x / (C * (1. - this->m_proj_parm.A * lp_lat * lp_lat));
@@ -141,7 +134,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct putp3_spheroid : public detail::putp3::base_putp3_spheroid<T, Parameters>
     {
-        inline putp3_spheroid(const Parameters& par) : detail::putp3::base_putp3_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline putp3_spheroid(Params const& , Parameters const& par)
+            : detail::putp3::base_putp3_spheroid<T, Parameters>(par)
         {
             detail::putp3::setup_putp3(this->m_par, this->m_proj_parm);
         }
@@ -162,7 +157,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct putp3p_spheroid : public detail::putp3::base_putp3_spheroid<T, Parameters>
     {
-        inline putp3p_spheroid(const Parameters& par) : detail::putp3::base_putp3_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline putp3p_spheroid(Params const& , Parameters const& par)
+            : detail::putp3::base_putp3_spheroid<T, Parameters>(par)
         {
             detail::putp3::setup_putp3p(this->m_par, this->m_proj_parm);
         }
@@ -173,35 +170,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::putp3, putp3_spheroid, putp3_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::putp3p, putp3p_spheroid, putp3p_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_putp3, putp3_spheroid, putp3_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_putp3p, putp3p_spheroid, putp3p_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class putp3_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<putp3_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(putp3_entry, putp3_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(putp3p_entry, putp3p_spheroid)
 
-        template <typename T, typename Parameters>
-        class putp3p_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(putp3_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<putp3p_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void putp3_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("putp3", new putp3_entry<T, Parameters>);
-            factory.add_to_factory("putp3p", new putp3p_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(putp3, putp3_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(putp3p, putp3p_entry)
         }
 
     } // namespace detail

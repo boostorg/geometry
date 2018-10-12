@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct goode {}; // Goode Homolosine
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -72,12 +66,15 @@ namespace projections
                 sinu_spheroid<T, Par>    sinu;
                 moll_spheroid<T, Par>    moll;
                 
-                par_goode(Par const& par) : sinu(par), moll(par) {}
+                template <typename Params>
+                par_goode(Params const& params, Par const& par)
+                    : sinu(params, par), moll(params, par)
+                {}
             };
 
             template <typename T, typename Par>
-            inline void s_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y,
-                                  Par const& par, par_goode<T, Par> const& proj_par)
+            inline void s_forward(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y,
+                                  par_goode<T, Par> const& proj_par)
             {
                 if (fabs(lp_lat) <= PHI_LIM)
                     proj_par.sinu.fwd(lp_lon, lp_lat, xy_x, xy_y);
@@ -88,8 +85,8 @@ namespace projections
             }
 
             template <typename T, typename Par>
-            inline void s_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat,
-                                  Par const& par, par_goode<T, Par> const& proj_par)
+            inline void s_inverse(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat,
+                                  par_goode<T, Par> const& proj_par)
             {
                 if (fabs(xy_y) <= PHI_LIM)
                     proj_par.sinu.inv(xy_x, xy_y, lp_lon, lp_lat);
@@ -133,23 +130,24 @@ namespace projections
     {
         detail::goode::par_goode<T, Parameters> m_proj_parm;
 
-        inline goode_spheroid(const Parameters& par)
+        template <typename Params>
+        inline goode_spheroid(Params const& params, Parameters const& par)
             : detail::base_t_fi<goode_spheroid<T, Parameters>, T, Parameters>(*this, par)
-            , m_proj_parm(setup(this->m_par))
+            , m_proj_parm(params, setup(this->m_par))
         {}
 
         // FORWARD(s_forward)  spheroid
         // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-        inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+        inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
         {
-            detail::goode::s_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_par, this->m_proj_parm);
+            detail::goode::s_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_proj_parm);
         }
 
         // INVERSE(s_inverse)  spheroid
         // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-        inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+        inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
         {
-            detail::goode::s_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_par, this->m_proj_parm);
+            detail::goode::s_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_proj_parm);
         }
 
         static inline std::string get_name()
@@ -171,23 +169,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::goode, goode_spheroid, goode_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_goode, goode_spheroid, goode_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class goode_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(goode_entry, goode_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(goode_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<goode_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void goode_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("goode", new goode_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(goode, goode_entry);
         }
 
     } // namespace detail

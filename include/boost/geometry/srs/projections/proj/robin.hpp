@@ -51,12 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct robin {}; // Robinson
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -157,7 +151,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     int i;
                     T dphi;
@@ -175,7 +169,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     const coefs<T> * coefs_x = robin::coefs_x<T>();
@@ -256,7 +250,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct robin_spheroid : public detail::robin::base_robin_spheroid<T, Parameters>
     {
-        inline robin_spheroid(const Parameters& par) : detail::robin::base_robin_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline robin_spheroid(Params const& , Parameters const& par)
+            : detail::robin::base_robin_spheroid<T, Parameters>(par)
         {
             detail::robin::setup_robin(this->m_par);
         }
@@ -267,23 +263,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::robin, robin_spheroid, robin_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_robin, robin_spheroid, robin_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class robin_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<robin_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(robin_entry, robin_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void robin_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(robin_init)
         {
-            factory.add_to_factory("robin", new robin_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(robin, robin_entry)
         }
 
     } // namespace detail
