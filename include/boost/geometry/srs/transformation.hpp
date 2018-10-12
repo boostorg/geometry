@@ -59,15 +59,11 @@ template
 <
     typename PtIn,
     typename PtOut,
-    bool SameUnits = geometry::is_radian
+    bool SameUnits = boost::is_same
                         <
-                            typename geometry::coordinate_system<PtIn>::type
-                        >::type::value
-                     ==
-                     geometry::is_radian
-                        <
-                            typename geometry::coordinate_system<PtOut>::type
-                        >::type::value
+                            typename geometry::detail::cs_angular_units<PtIn>::type,
+                            typename geometry::detail::cs_angular_units<PtOut>::type
+                        >::value
 >
 struct transform_geometry_point_coordinates
 {
