@@ -128,7 +128,7 @@ private:
             = strategy.get_envelope_strategy();
 
         // call partition to check if polygons are disjoint from each other
-        typename base::template item_visitor_type<within_strategy_type> item_visitor(within_strategy);
+        typename base::template item_visitor_type<Strategy> item_visitor(strategy);
 
         geometry::partition
             <

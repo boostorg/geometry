@@ -217,25 +217,19 @@ protected:
             , m_strategy(strategy)
         {}
 
-        template <typename Item>
-        inline bool is_within(Item const& first, Item const& second)
-        {
-            typename point_type<Polygon>::type point;
-
-            // TODO: this should check for a point on the interior, instead
-            // of on border. Or it should check using the overlap function.
-
-            return geometry::point_on_border(point, first)
-                    && geometry::within(point, second, m_strategy);
-        }
-
         template <typename Iterator, typename Box>
         inline bool apply(partition_item<Iterator, Box> const& item1,
                           partition_item<Iterator, Box> const& item2)
         {
-            if (! items_overlap
-                && (is_within(*item1.get(), *item2.get())
-                  || is_within(*item2.get(), *item1.get())))
+            typedef boost::mpl::vector
+                <
+                    geometry::de9im::static_mask<'T'>,
+                    geometry::de9im::static_mask<'*', 'T'>,
+                    geometry::de9im::static_mask<'*', '*', '*', 'T'>
+                > relate_mask_t;
+
+            if ( ! items_overlap
+              && geometry::relate(*item1.get(), *item2.get(), relate_mask_t(), m_strategy) )
             {
                 items_overlap = true;
                 return false; // interrupt
@@ -337,7 +331,7 @@ protected:
 
         // call partition to check if interior rings are disjoint from
         // each other
-        item_visitor_type<in_interior_strategy_type> item_visitor(in_interior_strategy);
+        item_visitor_type<Strategy> item_visitor(strategy);
 
         geometry::partition
             <
