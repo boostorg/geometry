@@ -11,19 +11,45 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_SEGMENT_HPP
 
+#include <cstddef>
+
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/detail/envelope/segment.hpp>
-
+#include <boost/geometry/strategies/cartesian/envelope_point.hpp>
+#include <boost/geometry/strategies/cartesian/expand_point.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
 
-
-namespace boost { namespace geometry
+namespace boost { namespace geometry { namespace strategy { namespace envelope
 {
 
-namespace strategy { namespace envelope
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
 {
+
+template <std::size_t Dimension, std::size_t DimensionCount>
+struct envelope_one_segment
+{
+    template<typename Point, typename Box>
+    static inline void apply(Point const& p1,
+                             Point const& p2,
+                             Box& mbr)
+    {
+        geometry::detail::envelope::envelope_one_point
+            <
+                Dimension, DimensionCount
+            >::apply(p1, mbr);
+
+        strategy::expand::detail::point_loop
+            <
+                Dimension, DimensionCount
+            >::apply(mbr, p2);
+    }
+};
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
 
 template
 <
@@ -32,17 +58,14 @@ template
 class cartesian_segment
 {
 public:
-    template <typename Point1, typename Point2, typename Box>
-    static inline void apply(Point1 const& point1, Point2 const& point2, Box& box)
+    template <typename Point, typename Box>
+    static inline void apply(Point const& point1, Point const& point2, Box& box)
     {
-        geometry::detail::envelope::envelope_one_segment
-                <
-                    0,
-                    dimension<Point1>::value
-                >
-                ::apply(point1,
-                        point2,
-                        box);
+        strategy::envelope::detail::envelope_one_segment
+            <
+                0,
+                dimension<Point>::value
+            >::apply(point1, point2, box);        
     }
 
 };
