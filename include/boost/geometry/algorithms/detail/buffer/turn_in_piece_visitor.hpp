@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016, 2018.
+// Modifications copyright (c) 2016-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -58,6 +58,7 @@ struct piece_get_box
     }
 };
 
+template <typename DisjointBoxBoxStrategy>
 struct piece_ovelaps_box
 {
     template <typename Box, typename Piece>
@@ -73,7 +74,8 @@ struct piece_ovelaps_box
             return false;
         }
 
-        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_envelope);
+        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_envelope,
+                                                              DisjointBoxBoxStrategy());
     }
 };
 

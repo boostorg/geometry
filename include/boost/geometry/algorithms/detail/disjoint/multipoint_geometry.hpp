@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -320,13 +320,15 @@ private:
         }
     };
 
+    template <typename DisjointBoxBoxStrategy>
     struct overlaps_box_box_pair
     {
         template <typename Box, typename BoxPair>
         inline bool apply(Box const& box, BoxPair const& box_pair) const
         {
             // The default strategy is enough for Box/Box
-            return ! detail::disjoint::disjoint_box_box(box_pair.first, box);
+            return ! detail::disjoint::disjoint_box_box(box_pair.first, box,
+                                                        DisjointBoxBoxStrategy());
         }
     };
 
@@ -390,6 +392,11 @@ public:
 
         item_visitor_type<Strategy> visitor(multi_geometry, strategy);
 
+        typedef overlaps_box_box_pair
+            <
+                typename Strategy::disjoint_box_box_strategy_type
+            > overlaps_box_box_pair_type;
+
         geometry::partition
             <
                 box1_type
@@ -397,7 +404,7 @@ public:
                      expand_box_point(),
                      overlaps_box_point(),
                      expand_box_box_pair(),
-                     overlaps_box_box_pair());
+                     overlaps_box_box_pair_type());
 
         return ! visitor.intersection_found();
     }

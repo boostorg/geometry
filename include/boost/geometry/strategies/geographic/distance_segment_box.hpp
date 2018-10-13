@@ -2,6 +2,7 @@
 
 // Copyright (c) 2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,6 +19,9 @@
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
 
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -118,7 +122,8 @@ struct geographic_segment_box
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
                  geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>(),
                  az_strategy, es_strategy,
-                 normalize::spherical_point());
+                 normalize::spherical_point(),
+                 disjoint::spherical_box_box());
     }
 
     template <typename SPoint, typename BPoint>

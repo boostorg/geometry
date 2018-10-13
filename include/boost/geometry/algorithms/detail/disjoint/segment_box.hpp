@@ -67,24 +67,41 @@ struct disjoint_segment_box_sphere_or_spheroid
         operator T () const;
     };
 
-    template <typename Segment, typename Box, typename AzimuthStrategy, typename NormalizeStrategy>
+    template
+    <
+        typename Segment, typename Box,
+        typename AzimuthStrategy,
+        typename NormalizeStrategy,
+        typename DisjointBoxBoxStrategy
+    >
     static inline bool apply(Segment const& segment,
                              Box const& box,
                              AzimuthStrategy const& azimuth_strategy,
-                             NormalizeStrategy const& normalize_strategy)
+                             NormalizeStrategy const& normalize_strategy,
+                             DisjointBoxBoxStrategy const& disjoint_box_box_strategy)
     {
         typedef typename point_type<Segment>::type segment_point;
         segment_point vertex;
-        return apply(segment, box, vertex, azimuth_strategy, normalize_strategy)
-                != disjoint_info::intersect;
+        return apply(segment, box, vertex,
+                     azimuth_strategy,
+                     normalize_strategy,
+                     disjoint_box_box_strategy) != disjoint_info::intersect;
     }
 
-    template <typename Segment, typename Box, typename AzimuthStrategy, typename NormalizeStrategy, typename P>
+    template
+    <
+        typename Segment, typename Box,
+        typename P,
+        typename AzimuthStrategy,
+        typename NormalizeStrategy,
+        typename DisjointBoxBoxStrategy
+    >
     static inline disjoint_info apply(Segment const& segment,
                                       Box const& box,
                                       P& vertex,
                                       AzimuthStrategy const& azimuth_strategy,
-                                      NormalizeStrategy const& )
+                                      NormalizeStrategy const& ,
+                                      DisjointBoxBoxStrategy const& disjoint_box_box_strategy)
     {
         assert_dimension_equal<Segment, Box>();
 
@@ -141,7 +158,7 @@ struct disjoint_segment_box_sphere_or_spheroid
                                                    azimuth_strategy,
                                                    alp1);
 
-        if (disjoint_box_box(box, box_seg))
+        if (disjoint_box_box(box, box_seg, disjoint_box_box_strategy))
         {
             return disjoint_return_value;
         }

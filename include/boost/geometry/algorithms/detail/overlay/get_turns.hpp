@@ -431,7 +431,9 @@ struct section_visitor
     template <typename Section>
     inline bool apply(Section const& sec1, Section const& sec2)
     {
-        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box))
+        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
+                                                 sec2.bounding_box,
+                                                 m_intersection_strategy.get_disjoint_box_box_strategy()))
         {
             // false if interrupted
             return get_turns_in_sections
@@ -510,12 +512,17 @@ public:
                       intersection_strategy, robust_policy,
                       turns, interrupt_policy);
 
+        typedef detail::section::overlaps_section_box
+            <
+                typename IntersectionStrategy::disjoint_box_box_strategy_type
+            > overlaps_section_box_type;
+
         geometry::partition
             <
                 box_type
             >::apply(sec1, sec2, visitor,
                      detail::section::get_section_box(),
-                     detail::section::overlaps_section_box());
+                     overlaps_section_box_type());
     }
 };
 

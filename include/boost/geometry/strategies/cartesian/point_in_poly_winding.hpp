@@ -23,6 +23,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -107,6 +108,12 @@ public:
     static inline equals_point_point_strategy_type get_equals_point_point_strategy()
     {
         return side_strategy_type::get_equals_point_point_strategy();
+    }
+
+    typedef disjoint::cartesian_box_box disjoint_box_box_strategy_type;
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
     }
 
     // Typedefs and static methods to fulfill the concept

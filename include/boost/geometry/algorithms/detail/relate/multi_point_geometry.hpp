@@ -283,13 +283,15 @@ class multi_point_multi_geometry_ii_ib
         }
     };
 
+    template <typename DisjointBoxBoxStrategy>
     struct overlaps_box_box_pair
     {
         template <typename Box, typename BoxPair>
         static inline bool apply(Box const& box, BoxPair const& box_pair)
         {
             // The default strategy is enough for Box/Box
-            return ! detail::disjoint::disjoint_box_box(box_pair.first, box);
+            return ! detail::disjoint::disjoint_box_box(box_pair.first, box,
+                                                        DisjointBoxBoxStrategy());
         }
     };
 
@@ -377,6 +379,11 @@ public:
     {
         item_visitor_type<Result, Strategy> visitor(multi_geometry, tc, result, strategy);
 
+        typedef overlaps_box_box_pair
+            <
+                Strategy::disjoint_box_box_strategy_type
+            > overlaps_box_box_pair_type;
+
         geometry::partition
             <
                 box1_type
@@ -384,7 +391,7 @@ public:
                      expand_box_point(),
                      overlaps_box_point(),
                      expand_box_box_pair(),
-                     overlaps_box_box_pair());
+                     overlaps_box_box_pair_type());
     }
 
 };

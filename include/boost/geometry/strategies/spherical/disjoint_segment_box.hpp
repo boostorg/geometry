@@ -29,8 +29,11 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
-#include <boost/geometry/strategies/spherical/azimuth.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/azimuth.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
 {
@@ -71,7 +74,8 @@ struct segment_box_spherical
                     spherical_equatorial_tag
                 >::apply(segment, box,
                          azimuth_strategy,
-                         strategy::normalize::spherical_point());
+                         strategy::normalize::spherical_point(),
+                         strategy::disjoint::spherical_box_box());
     }
 };
 

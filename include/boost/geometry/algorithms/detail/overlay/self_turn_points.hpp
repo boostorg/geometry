@@ -99,7 +99,9 @@ struct self_section_visitor
     template <typename Section>
     inline bool apply(Section const& sec1, Section const& sec2)
     {
-        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box)
+        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
+                                                 sec2.bounding_box,
+                                                 m_intersection_strategy.get_disjoint_box_box_strategy())
                 && ! sec1.duplicate
                 && ! sec2.duplicate)
         {
@@ -163,13 +165,18 @@ struct get_turns
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
             > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index, skip_adjacent);
 
+        typedef detail::section::overlaps_section_box
+            <
+                typename IntersectionStrategy::disjoint_box_box_strategy_type
+            > overlaps_section_box_type;
+
         // false if interrupted
         geometry::partition
             <
                 box_type
             >::apply(sec, visitor,
                      detail::section::get_section_box(),
-                     detail::section::overlaps_section_box());
+                     overlaps_section_box_type());
 
         return ! interrupt_policy.has_intersections;
     }

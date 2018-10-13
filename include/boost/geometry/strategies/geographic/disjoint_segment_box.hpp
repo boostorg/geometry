@@ -34,6 +34,8 @@
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
@@ -95,7 +97,8 @@ public:
                     geographic_tag
                 >::apply(segment, box,
                          azimuth_geographic,
-                         strategy::normalize::spherical_point());
+                         strategy::normalize::spherical_point(),
+                         strategy::disjoint::spherical_box_box());
     }
 
 private:

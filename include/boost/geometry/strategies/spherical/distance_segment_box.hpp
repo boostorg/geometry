@@ -13,6 +13,10 @@
 
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -31,7 +35,8 @@ struct generic_segment_box
             typename SegmentBoxStrategy,
             typename AzimuthStrategy,
             typename EnvelopeSegmentStrategy,
-            typename NormalizePointStrategy
+            typename NormalizePointStrategy,
+            typename DisjointBoxBoxStrategy
     >
     static inline ReturnType segment_below_of_box(
             SegmentPoint const& p0,
@@ -43,7 +48,8 @@ struct generic_segment_box
             SegmentBoxStrategy const& sb_strategy,
             AzimuthStrategy const& az_strategy,
             EnvelopeSegmentStrategy const& es_strategy,
-            NormalizePointStrategy const& np_strategy)
+            NormalizePointStrategy const& np_strategy,
+            DisjointBoxBoxStrategy const& dbb_strategy)
     {
         ReturnType result;
         typename LessEqual::other less_equal;
@@ -69,7 +75,7 @@ struct generic_segment_box
         SegmentPoint p_max;
 
         disjoint_info_type disjoint_result = disjoint_sb::
-                apply(seg, input_box, p_max, az_strategy, np_strategy);
+                apply(seg, input_box, p_max, az_strategy, np_strategy, dbb_strategy);
 
         if (disjoint_result == disjoint_info_type::intersect) //intersect
         {
@@ -226,7 +232,8 @@ struct spherical_segment_box
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
                  spherical_segment_box<CalculationType>(),
                  az_strategy, es_strategy,
-                 normalize::spherical_point());
+                 normalize::spherical_point(),
+                 disjoint::spherical_box_box());
     }
 
     template <typename SPoint, typename BPoint>

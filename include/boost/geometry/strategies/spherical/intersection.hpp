@@ -41,6 +41,7 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/envelope.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
@@ -178,6 +179,13 @@ struct ecef_segments
     static inline equals_point_point_strategy_type get_equals_point_point_strategy()
     {
         return equals_point_point_strategy_type();
+    }
+
+    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
+
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
     }
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
