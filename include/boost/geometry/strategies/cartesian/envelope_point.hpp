@@ -77,12 +77,10 @@ struct cartesian_point
     template <typename Point, typename Box>
     static inline void apply(Point const& point, Box& mbr)
     {
-        typedef geometry::detail::envelope::envelope_one_point
+        geometry::detail::envelope::envelope_one_point
             <
                 0, dimension<Point>::value
-            > per_corner;
-        per_corner::apply<min_corner>(point, mbr);
-        per_corner::apply<max_corner>(point, mbr);
+            >::apply(point, mbr);
     }
 };
 
