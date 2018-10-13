@@ -116,7 +116,7 @@ struct simplify_range
     static inline void apply(RangeIn const& range, RangeOut& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        typedef Strategy::distance_strategy_type::equals_point_point_strategy_type
+        typedef typename Strategy::distance_strategy_type::equals_point_point_strategy_type
             equals_strategy_type;
 
         // For a RING:

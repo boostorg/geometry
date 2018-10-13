@@ -381,7 +381,7 @@ public:
 
         typedef overlaps_box_box_pair
             <
-                Strategy::disjoint_box_box_strategy_type
+                typename Strategy::disjoint_box_box_strategy_type
             > overlaps_box_box_pair_type;
 
         geometry::partition
