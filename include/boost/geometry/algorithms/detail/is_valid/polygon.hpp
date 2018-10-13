@@ -319,12 +319,6 @@ protected:
         }
 
         // prepare strategies
-        typedef typename Strategy::template point_in_geometry_strategy
-            <
-                inter_ring_type, inter_ring_type
-            >::type in_interior_strategy_type;
-        in_interior_strategy_type const in_interior_strategy
-            = strategy.template get_point_in_geometry_strategy<inter_ring_type, inter_ring_type>();
         typedef typename Strategy::envelope_strategy_type envelope_strategy_type;
         envelope_strategy_type const envelope_strategy
             = strategy.get_envelope_strategy();
