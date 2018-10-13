@@ -48,7 +48,7 @@ struct expand
         box_tag, box_tag
     >
 {
-    template <typename BoxOut, typename BoxIn, typename Strategy>
+    template <typename Strategy>
     static inline void apply(BoxOut& box_out,
                              BoxIn const& box_in,
                              Strategy const& )

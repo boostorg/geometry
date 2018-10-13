@@ -102,7 +102,7 @@ struct envelope_multi_range
                              Box& mbr,
                              Strategy const& strategy)
     {
-        Strategy::template multi_state<Box> state;
+        typename Strategy::template multi_state<Box> state;
         for (; it != last; ++it)
         {
             if (! geometry::is_empty(*it))

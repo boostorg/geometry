@@ -33,7 +33,7 @@ namespace dispatch
 template <typename MultiPoint>
 struct envelope<MultiPoint, multi_point_tag>
 {
-    template <typename MultiPoint, typename Box, typename Strategy>
+    template <typename Box, typename Strategy>
     static inline void apply(MultiPoint const& multipoint, Box& mbr, Strategy const& )
     {
         Strategy::apply(multipoint, mbr);

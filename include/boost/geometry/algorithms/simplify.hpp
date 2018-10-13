@@ -73,7 +73,7 @@ struct simplify_range_insert
     static inline void apply(Range const& range, OutputIterator out,
                              Distance const& max_distance, Strategy const& strategy)
     {
-        typedef Strategy::distance_strategy_type::equals_point_point_strategy_type
+        typedef typename Strategy::distance_strategy_type::equals_point_point_strategy_type
             equals_strategy_type;
 
         boost::ignore_unused(strategy);

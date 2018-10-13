@@ -13,6 +13,8 @@
 
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
 #include <boost/geometry/strategies/spherical/expand_box.hpp>

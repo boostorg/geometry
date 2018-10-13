@@ -66,7 +66,7 @@ namespace dispatch
 template <typename Point1, typename Point2, std::size_t DimensionCount>
 struct disjoint<Point1, Point2, DimensionCount, point_tag, point_tag, false>
 {
-    template <typename Point1, typename Point2, typename Strategy>
+    template <typename Strategy>
     static inline bool apply(Point1 const& point1, Point2 const& point2,
                              Strategy const& )
     {

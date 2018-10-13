@@ -49,7 +49,7 @@ struct expand
         box_tag, segment_tag
     >
 {
-    template <typename Box, typename Segment, typename Strategy>
+    template <typename Strategy>
     static inline void apply(Box& box,
                              Segment const& segment,
                              Strategy const& strategy)
