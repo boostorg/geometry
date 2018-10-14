@@ -23,6 +23,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
@@ -115,6 +116,8 @@ public:
     {
         return disjoint_box_box_strategy_type();
     }
+
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
 
     // Typedefs and static methods to fulfill the concept
     typedef Point point_type;

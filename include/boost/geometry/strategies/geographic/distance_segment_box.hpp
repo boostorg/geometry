@@ -123,6 +123,7 @@ struct geographic_segment_box
                  geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>(),
                  az_strategy, es_strategy,
                  normalize::spherical_point(),
+                 covered_by::spherical_point_box(),
                  disjoint::spherical_box_box());
     }
 

@@ -44,6 +44,7 @@
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/envelope.hpp>
+#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
@@ -187,6 +188,9 @@ struct ecef_segments
     {
         return disjoint_box_box_strategy_type();
     }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 

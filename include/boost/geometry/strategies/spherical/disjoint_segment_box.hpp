@@ -75,6 +75,7 @@ struct segment_box_spherical
                 >::apply(segment, box,
                          azimuth_strategy,
                          strategy::normalize::spherical_point(),
+                         strategy::covered_by::spherical_point_box(),
                          strategy::disjoint::spherical_box_box());
     }
 };

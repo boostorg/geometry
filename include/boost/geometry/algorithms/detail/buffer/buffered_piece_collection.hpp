@@ -635,6 +635,10 @@ struct buffered_piece_collection
     {
         // Check if a turn is inside any of the originals
 
+        typedef turn_in_original_ovelaps_box
+            <
+                typename IntersectionStrategy::disjoint_point_box_strategy_type
+            > turn_in_original_ovelaps_box_type;
         typedef original_ovelaps_box
             <
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
@@ -647,7 +651,7 @@ struct buffered_piece_collection
                 include_turn_policy,
                 detail::partition::include_all_policy
             >::apply(m_turns, robust_originals, visitor,
-                     turn_get_box(), turn_in_original_ovelaps_box(),
+                     turn_get_box(), turn_in_original_ovelaps_box_type(),
                      original_get_box(), original_ovelaps_box_type());
 
         bool const deflate = distance_strategy.negative();
@@ -911,6 +915,10 @@ struct buffered_piece_collection
                 > visitor(m_pieces, offsetted_rings, m_turns,
                           m_intersection_strategy, m_robust_policy);
 
+            typedef detail::section::get_section_box
+                <
+                    typename IntersectionStrategy::expand_box_strategy_type
+                > get_section_box_type;
             typedef detail::section::overlaps_section_box
                 <
                     typename IntersectionStrategy::disjoint_box_box_strategy_type
@@ -920,7 +928,7 @@ struct buffered_piece_collection
                 <
                     robust_box_type
                 >::apply(monotonic_sections, visitor,
-                         detail::section::get_section_box(),
+                         get_section_box_type(),
                          overlaps_section_box_type());
         }
 
@@ -939,6 +947,10 @@ struct buffered_piece_collection
                     turn_vector_type, piece_vector_type
                 > visitor(m_turns, m_pieces);
 
+            typedef turn_ovelaps_box
+                <
+                    typename IntersectionStrategy::disjoint_point_box_strategy_type
+                > turn_ovelaps_box_type;
             typedef piece_ovelaps_box
                 <
                     typename IntersectionStrategy::disjoint_box_box_strategy_type
@@ -948,7 +960,7 @@ struct buffered_piece_collection
                 <
                     robust_box_type
                 >::apply(m_turns, m_pieces, visitor,
-                         turn_get_box(), turn_ovelaps_box(),
+                         turn_get_box(), turn_ovelaps_box_type(),
                          piece_get_box(), piece_ovelaps_box_type());
 
         }
@@ -1415,6 +1427,8 @@ struct buffered_piece_collection
 
     inline bool point_coveredby_original(point_type const& point)
     {
+        typedef typename IntersectionStrategy::disjoint_point_box_strategy_type d_pb_strategy_type;
+
         robust_point_type any_point;
         geometry::recalculate(any_point, point, m_robust_policy);
 
@@ -1431,7 +1445,8 @@ struct buffered_piece_collection
         {
             robust_original const& original = *it;
             if (detail::disjoint::disjoint_point_box(any_point,
-                    original.m_box))
+                                                     original.m_box,
+                                                     d_pb_strategy_type()))
             {
                 continue;
             }

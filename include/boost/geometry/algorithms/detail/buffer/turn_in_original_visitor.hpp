@@ -58,6 +58,7 @@ struct include_turn_policy
     }
 };
 
+template <typename DisjointPointBoxStrategy>
 struct turn_in_original_ovelaps_box
 {
     template <typename Box, typename Turn>
@@ -70,7 +71,7 @@ struct turn_in_original_ovelaps_box
         }
 
         return ! geometry::detail::disjoint::disjoint_point_box(
-                    turn.robust_point, box);
+                    turn.robust_point, box, DisjointPointBoxStrategy());
     }
 };
 

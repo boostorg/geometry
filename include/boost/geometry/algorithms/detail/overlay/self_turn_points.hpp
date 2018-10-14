@@ -165,6 +165,10 @@ struct get_turns
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
             > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index, skip_adjacent);
 
+        typedef detail::section::get_section_box
+            <
+                typename IntersectionStrategy::expand_box_strategy_type
+            > get_section_box_type;
         typedef detail::section::overlaps_section_box
             <
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
@@ -175,7 +179,7 @@ struct get_turns
             <
                 box_type
             >::apply(sec, visitor,
-                     detail::section::get_section_box(),
+                     get_section_box_type(),
                      overlaps_section_box_type());
 
         return ! interrupt_policy.has_intersections;

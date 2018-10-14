@@ -75,12 +75,14 @@ struct disjoint_segment_box_sphere_or_spheroid
         typename Segment, typename Box,
         typename AzimuthStrategy,
         typename NormalizeStrategy,
+        typename DisjointPointBoxStrategy,
         typename DisjointBoxBoxStrategy
     >
     static inline bool apply(Segment const& segment,
                              Box const& box,
                              AzimuthStrategy const& azimuth_strategy,
                              NormalizeStrategy const& normalize_strategy,
+                             DisjointPointBoxStrategy const& disjoint_point_box_strategy,
                              DisjointBoxBoxStrategy const& disjoint_box_box_strategy)
     {
         typedef typename point_type<Segment>::type segment_point;
@@ -88,6 +90,7 @@ struct disjoint_segment_box_sphere_or_spheroid
         return apply(segment, box, vertex,
                      azimuth_strategy,
                      normalize_strategy,
+                     disjoint_point_box_strategy,
                      disjoint_box_box_strategy) != disjoint_info::intersect;
     }
 
@@ -97,6 +100,7 @@ struct disjoint_segment_box_sphere_or_spheroid
         typename P,
         typename AzimuthStrategy,
         typename NormalizeStrategy,
+        typename DisjointPointBoxStrategy,
         typename DisjointBoxBoxStrategy
     >
     static inline disjoint_info apply(Segment const& segment,
@@ -104,6 +108,7 @@ struct disjoint_segment_box_sphere_or_spheroid
                                       P& vertex,
                                       AzimuthStrategy const& azimuth_strategy,
                                       NormalizeStrategy const& ,
+                                      DisjointPointBoxStrategy const& disjoint_point_box_strategy,
                                       DisjointBoxBoxStrategy const& disjoint_box_box_strategy)
     {
         assert_dimension_equal<Segment, Box>();
@@ -121,7 +126,8 @@ struct disjoint_segment_box_sphere_or_spheroid
         // Simplest cases first
 
         // Case 1: if box contains one of segment's endpoints then they are not disjoint
-        if (! disjoint_point_box(p0, box) || ! disjoint_point_box(p1, box))
+        if ( ! disjoint_point_box(p0, box, disjoint_point_box_strategy)
+          || ! disjoint_point_box(p1, box, disjoint_point_box_strategy) )
         {
             return disjoint_info::intersect;
         }

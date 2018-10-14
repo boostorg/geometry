@@ -37,6 +37,7 @@
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/envelope.hpp>
+#include <boost/geometry/strategies/cartesian/expand_box.hpp>
 #include <boost/geometry/strategies/cartesian/expand_segment.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
@@ -169,6 +170,9 @@ struct cartesian_segments
     {
         return disjoint_box_box_strategy_type();
     }
+
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    typedef expand::cartesian_box expand_box_strategy_type;
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info

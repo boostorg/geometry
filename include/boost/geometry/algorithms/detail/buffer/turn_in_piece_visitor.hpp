@@ -88,12 +88,14 @@ struct turn_get_box
     }
 };
 
+template <typename DisjointPointBoxStrategy>
 struct turn_ovelaps_box
 {
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)
     {
-        return ! geometry::detail::disjoint::disjoint_point_box(turn.robust_point, box);
+        return ! geometry::detail::disjoint::disjoint_point_box(turn.robust_point, box,
+                                                                DisjointPointBoxStrategy());
     }
 };
 

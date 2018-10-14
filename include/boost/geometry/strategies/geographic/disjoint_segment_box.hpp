@@ -35,6 +35,7 @@
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
 
@@ -98,6 +99,7 @@ public:
                 >::apply(segment, box,
                          azimuth_geographic,
                          strategy::normalize::spherical_point(),
+                         strategy::covered_by::spherical_point_box(),
                          strategy::disjoint::spherical_box_box());
     }
 

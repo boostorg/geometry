@@ -25,12 +25,14 @@ namespace boost { namespace geometry
 namespace detail { namespace section
 {
 
+template <typename ExpandBoxStrategy>
 struct get_section_box
 {
     template <typename Box, typename Section>
     static inline void apply(Box& total, Section const& section)
     {
-        geometry::expand(total, section.bounding_box);
+        geometry::expand(total, section.bounding_box,
+                         ExpandBoxStrategy());
     }
 };
 

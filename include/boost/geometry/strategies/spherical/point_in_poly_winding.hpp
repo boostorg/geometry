@@ -27,6 +27,7 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
@@ -152,6 +153,8 @@ public:
     {
         return disjoint_box_box_strategy_type();
     }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
 
     spherical_winding_base()
     {}

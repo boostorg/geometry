@@ -100,11 +100,10 @@ private:
         std::size_t count = boost::size(m_ls);
         m_has_interior = count > 0;
         // NOTE: Linestring with all points equal is treated as 1d linear ring
-        using detail::equals::equals_point_point;
         m_has_boundary = count > 1
-                && ! equals_point_point(range::front(m_ls),
-                                        range::back(m_ls),
-                                        EqPPStrategy());
+            && ! detail::equals::equals_point_point(range::front(m_ls),
+                                                    range::back(m_ls),
+                                                    EqPPStrategy());
 
         m_is_initialized = true;
     }

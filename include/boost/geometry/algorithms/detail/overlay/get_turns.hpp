@@ -512,6 +512,10 @@ public:
                       intersection_strategy, robust_policy,
                       turns, interrupt_policy);
 
+        typedef detail::section::get_section_box
+            <
+                typename IntersectionStrategy::expand_box_strategy_type
+            > get_section_box_type;
         typedef detail::section::overlaps_section_box
             <
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
@@ -521,7 +525,7 @@ public:
             <
                 box_type
             >::apply(sec1, sec2, visitor,
-                     detail::section::get_section_box(),
+                     get_section_box_type(),
                      overlaps_section_box_type());
     }
 };

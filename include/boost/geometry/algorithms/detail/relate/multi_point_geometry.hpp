@@ -170,6 +170,7 @@ struct multi_point_single_geometry
         typedef typename point_type<SingleGeometry>::type point2_type;
         typedef model::box<point2_type> box2_type;
         typedef typename Strategy::equals_point_point_strategy_type eq_pp_strategy_type;
+        typedef typename Strategy::disjoint_point_box_strategy_type d_pb_strategy_type;
         
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy.get_envelope_strategy());
@@ -186,7 +187,7 @@ struct multi_point_single_geometry
             }
 
             // The default strategy is enough for Point/Box
-            if (detail::disjoint::disjoint_point_box(*it, box2))
+            if (detail::disjoint::disjoint_point_box(*it, box2, d_pb_strategy_type()))
             {
                 relate::set<interior, exterior, '0', Transpose>(result);
             }
@@ -273,13 +274,15 @@ class multi_point_multi_geometry_ii_ib
         }
     };
 
+    template <typename DisjointPointBoxStrategy>
     struct overlaps_box_point
     {
         template <typename Box, typename Point>
         static inline bool apply(Box const& box, Point const& point)
         {
             // The default strategy is enough for Point/Box
-            return ! detail::disjoint::disjoint_point_box(point, box);
+            return ! detail::disjoint::disjoint_point_box(point, box,
+                                                          DisjointPointBoxStrategy());
         }
     };
 
@@ -299,6 +302,7 @@ class multi_point_multi_geometry_ii_ib
     class item_visitor_type
     {
         typedef typename PtSegStrategy::equals_point_point_strategy_type pp_strategy_type;
+        typedef typename PtSegStrategy::disjoint_point_box_strategy_type d_pp_strategy_type;
         typedef detail::relate::topology_check<MultiGeometry, pp_strategy_type> topology_check_type;
 
     public:
@@ -316,7 +320,7 @@ class multi_point_multi_geometry_ii_ib
         inline bool apply(Point const& point, BoxPair const& box_pair)
         {
             // The default strategy is enough for Point/Box
-            if (! detail::disjoint::disjoint_point_box(point, box_pair.first))
+            if (! detail::disjoint::disjoint_point_box(point, box_pair.first, d_pp_strategy_type()))
             {
                 typename boost::range_value<MultiGeometry>::type const&
                     single = range::at(m_multi_geometry, box_pair.second);
@@ -379,6 +383,10 @@ public:
     {
         item_visitor_type<Result, Strategy> visitor(multi_geometry, tc, result, strategy);
 
+        typedef overlaps_box_point
+            <
+                typename Strategy::disjoint_point_box_strategy_type
+            > overlaps_box_point_type;
         typedef overlaps_box_box_pair
             <
                 typename Strategy::disjoint_box_box_strategy_type
@@ -389,7 +397,7 @@ public:
                 box1_type
             >::apply(multi_point, boxes, visitor,
                      expand_box_point(),
-                     overlaps_box_point(),
+                     overlaps_box_point_type(),
                      expand_box_box_pair(),
                      overlaps_box_box_pair_type());
     }
