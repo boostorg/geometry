@@ -13,6 +13,7 @@
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
@@ -98,7 +99,7 @@ static inline PointSph cart3d_to_sph(Point3d const& point_3d)
 
     math::normalize_spheroidal_coordinates
         <
-            typename coordinate_system<PointSph>::type::units,
+            typename detail::cs_angular_units<PointSph>::type,
             coord_t
         >(lon, lat);
 
