@@ -49,11 +49,13 @@ class geographic
 {
 public:
     geographic()
-        : m_spheroid()
+        : m_spheroid(),
+          distance_set(false)
     {}
 
     explicit geographic(Spheroid const& spheroid)
-        : m_spheroid(spheroid)
+        : m_spheroid(spheroid),
+          distance_set(false)
     {}
 
     // point-point strategy getters
@@ -89,7 +91,6 @@ public:
             inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
                                      get_as_radian<0>(p1), get_as_radian<1>(p1),
                                      m_spheroid);
-
         typename direct_t::result_type
         dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
                                 inv_r.distance * fraction, inv_r.azimuth,
@@ -101,6 +102,7 @@ public:
 
 private:
     Spheroid m_spheroid;
+    bool distance_set;
 };
 
 

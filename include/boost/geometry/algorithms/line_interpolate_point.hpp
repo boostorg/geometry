@@ -86,6 +86,9 @@ struct range
                 double
             >::type calc_t;
 
+        typedef boost::container::vector<calc_t> vector_t;
+        typedef typename boost::range_iterator<vector_t const>::type viterator_t;
+
         iterator_t it = boost::begin(range);
         iterator_t end = boost::end(range);
 
@@ -104,59 +107,49 @@ struct range
             return;
         }
             
+        // compute lengths of segments and their sum
+        calc_t tot_len = 0;
+        vector_t lengths;
+        iterator_t prev = it++;
+        do {
+            calc_t len = strategy.get_distance_pp_strategy().apply(*prev, *it);
+            lengths.push_back(len);
+            tot_len += len;
+            prev = it++;
+        } while (it != end);
+
+        //compute interpolation point(s)
         calc_t repeated_fraction = fraction;
-        calc_t tot_len = geometry::length(range);
         calc_t prev_fraction = 0;
         calc_t cur_fraction = 0;
+        unsigned int i=1;
+        viterator_t vit = boost::begin(lengths);
+        it = boost::begin(range);
+        prev = it++;
+        bool single_point = false;
 
-        int num_of_points = 0;
-
-        iterator_t prev = it++;
-        bool first_point = false;
-        int i=1;
         do {
-            point_t const& p0 = *prev;
-            point_t const& p1 = *it;
+            calc_t seg_fraction = *vit++ / tot_len;
 
-            calc_t seg_fraction = strategy.get_distance_pp_strategy().apply(p0, p1)
-                                / tot_len;
+            cur_fraction = (it + 1 == end) ? 1 : prev_fraction + seg_fraction;
 
-            if (it + 1 == end) // ensure that the last sum will be 1
+            while (cur_fraction >= repeated_fraction && !single_point)
             {
-                cur_fraction = 1;
-            } else {
-                cur_fraction = prev_fraction + seg_fraction;
-            }
-/*
-            strategy.apply(p0, p1,
-                           (fraction - prev_fraction) / seg_fraction,
-                           point);
-
-            prev_fraction = cur_fraction;
-            prev = it++;
- */
-            while (cur_fraction >= repeated_fraction && !first_point)
-            {
-                num_of_points++;
                 point_t p;
 
-                strategy.apply(p0, p1,
+                strategy.apply(*prev, *it,
                                (repeated_fraction - prev_fraction) / seg_fraction,
                                p);
-                first_point = boost::is_same<Policy, convert_and_assign>::value;
+                single_point = boost::is_same<Policy, convert_and_assign>::value;
                 policy.apply(p, point);
 
-                //std::cout << "(" << get<0>(point) << "," << get<1>(point) << ")";
                 repeated_fraction = ++i * fraction;
             }
+
             prev_fraction = cur_fraction;
             prev = it++;
-        //} while (cur_fraction < fraction && it != end);
-        } while (it != end && !first_point);
-        //if (fraction * (num_of_points + 1) == 1.0)
-        //{
-        //    std::cout << "(" << get<0>(*(end-1)) << "," << get<1>(*(end-1)) << ")";
-        //}
+
+        } while (it != end && !single_point);
     }
 };
 
