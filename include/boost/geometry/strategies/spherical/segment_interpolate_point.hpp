@@ -52,11 +52,43 @@ public:
         return typename distance_pp_strategy::type();
     }
 
-    template <typename Point, typename T>
+    //result type
+    template <typename Point>
+    struct result_type
+    {
+        typedef typename select_most_precise
+            <
+                typename coordinate_type<Point>::type,
+                CalculationType
+            >::type calc_t;
+
+        result_type() :
+            distance(0),
+            azimuth(0)
+        {}
+
+        result_type(calc_t d) :
+            distance(d),
+            azimuth(0)
+        {}
+
+        calc_t distance;
+        calc_t azimuth;
+    };
+
+    template <typename Point>
+    inline result_type<Point> compute(Point const& p0,
+                                      Point const& p1) const
+    {
+        return result_type<Point>(Strategy().apply(p0,p1));
+    }
+
+    template <typename Point, typename T1, typename T2>
     inline void apply(Point const& p0,
                       Point const& p1,
-                      T const& fraction,
-                      Point & p) const
+                      T1 const& fraction,
+                      Point & p,
+                      T2 const& distance) const
     {
         typedef typename select_most_precise
             <

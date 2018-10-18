@@ -86,7 +86,10 @@ struct range
                 double
             >::type calc_t;
 
-        typedef boost::container::vector<calc_t> vector_t;
+        typedef typename Strategy::template result_type<point_t> result_type;
+        //typedef typename compute_type::type result_type;
+
+        typedef boost::container::vector<result_type> vector_t;
         typedef typename boost::range_iterator<vector_t const>::type viterator_t;
 
         iterator_t it = boost::begin(range);
@@ -112,9 +115,9 @@ struct range
         vector_t lengths;
         iterator_t prev = it++;
         do {
-            calc_t len = strategy.get_distance_pp_strategy().apply(*prev, *it);
+            result_type len = strategy.compute(*prev, *it);
             lengths.push_back(len);
-            tot_len += len;
+            tot_len += len.distance;
             prev = it++;
         } while (it != end);
 
@@ -129,7 +132,7 @@ struct range
         bool single_point = false;
 
         do {
-            calc_t seg_fraction = *vit++ / tot_len;
+            calc_t seg_fraction = vit->distance / tot_len;
 
             cur_fraction = (it + 1 == end) ? 1 : prev_fraction + seg_fraction;
 
@@ -139,7 +142,7 @@ struct range
 
                 strategy.apply(*prev, *it,
                                (repeated_fraction - prev_fraction) / seg_fraction,
-                               p);
+                               p, *vit);
                 single_point = boost::is_same<Policy, convert_and_assign>::value;
                 policy.apply(p, point);
 
@@ -148,6 +151,7 @@ struct range
 
             prev_fraction = cur_fraction;
             prev = it++;
+            vit++;
 
         } while (it != end && !single_point);
     }

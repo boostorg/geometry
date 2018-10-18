@@ -49,13 +49,11 @@ class geographic
 {
 public:
     geographic()
-        : m_spheroid(),
-          distance_set(false)
+        : m_spheroid()
     {}
 
     explicit geographic(Spheroid const& spheroid)
-        : m_spheroid(spheroid),
-          distance_set(false)
+        : m_spheroid(spheroid)
     {}
 
     // point-point strategy getters
@@ -70,11 +68,53 @@ public:
         return distance_type(m_spheroid);
     }
 
-    template <typename Point, typename T>
+    //result type
+    template <typename Point>
+    struct result_type
+    {
+        typedef typename select_most_precise
+            <
+                typename coordinate_type<Point>::type,
+                CalculationType
+            >::type calc_t;
+
+        result_type() :
+            distance(0),
+            azimuth(0)
+        {}
+
+        result_type(calc_t d, calc_t a) :
+            distance(d),
+            azimuth(a)
+        {}
+
+        calc_t distance;
+        calc_t azimuth;
+    };
+
+    template <typename Point>
+    inline result_type<Point> compute(Point const& p0,
+                                      Point const& p1) const
+    {
+        typedef typename result_type<Point>::calc_t calc_t;
+
+        typedef typename FormulaPolicy::template inverse
+                <calc_t, true, true, false, false, false> inverse_t;
+
+        typename inverse_t::result_type
+            inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
+                                     get_as_radian<0>(p1), get_as_radian<1>(p1),
+                                     m_spheroid);
+
+        return result_type<Point>(inv_r.distance, inv_r.azimuth);
+    }
+
+    template <typename Point, typename T1, typename T2>
     inline void apply(Point const& p0,
                       Point const& p1,
-                      T const& fraction,
-                      Point & p) const
+                      T1 const& fraction,
+                      Point & p,
+                      T2 const& inv_r) const
     {
         typedef typename select_most_precise
             <
@@ -84,13 +124,13 @@ public:
 
         typedef typename FormulaPolicy::template direct
                 <calc_t, true, false, false, false> direct_t;
-        typedef typename FormulaPolicy::template inverse
-                <calc_t, true, true, false, false, false> inverse_t;
+        //typedef typename FormulaPolicy::template inverse
+        //        <calc_t, true, true, false, false, false> inverse_t;
 
-        typename inverse_t::result_type
-            inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                     get_as_radian<0>(p1), get_as_radian<1>(p1),
-                                     m_spheroid);
+        //typename inverse_t::result_type
+        //    inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
+        //                             get_as_radian<0>(p1), get_as_radian<1>(p1),
+        //                             m_spheroid);
         typename direct_t::result_type
         dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
                                 inv_r.distance * fraction, inv_r.azimuth,
@@ -102,7 +142,6 @@ public:
 
 private:
     Spheroid m_spheroid;
-    bool distance_set;
 };
 
 
