@@ -87,8 +87,6 @@ struct range
             >::type calc_t;
 
         typedef typename Strategy::template result_type<point_t> result_type;
-        //typedef typename compute_type::type result_type;
-
         typedef boost::container::vector<result_type> vector_t;
         typedef typename boost::range_iterator<vector_t const>::type viterator_t;
 

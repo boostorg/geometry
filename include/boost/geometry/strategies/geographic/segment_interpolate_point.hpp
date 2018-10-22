@@ -56,18 +56,6 @@ public:
         : m_spheroid(spheroid)
     {}
 
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef distance::geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        typedef typename distance_pp_strategy::type distance_type;
-        return distance_type(m_spheroid);
-    }
-
     //result type
     template <typename Point>
     struct result_type
@@ -111,10 +99,10 @@ public:
 
     template <typename Point, typename T1, typename T2>
     inline void apply(Point const& p0,
-                      Point const& p1,
+                      Point const&,
                       T1 const& fraction,
                       Point & p,
-                      T2 const& inv_r) const
+                      T2 const& dist_az) const
     {
         typedef typename select_most_precise
             <
@@ -124,16 +112,10 @@ public:
 
         typedef typename FormulaPolicy::template direct
                 <calc_t, true, false, false, false> direct_t;
-        //typedef typename FormulaPolicy::template inverse
-        //        <calc_t, true, true, false, false, false> inverse_t;
 
-        //typename inverse_t::result_type
-        //    inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-        //                             get_as_radian<0>(p1), get_as_radian<1>(p1),
-        //                             m_spheroid);
         typename direct_t::result_type
         dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                inv_r.distance * fraction, inv_r.azimuth,
+                                dist_az.distance * fraction, dist_az.azimuth,
                                 m_spheroid);
 
         set_from_radian<0>(p, dir_r.lon2);

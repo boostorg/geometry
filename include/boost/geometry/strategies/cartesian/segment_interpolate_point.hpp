@@ -33,22 +33,11 @@ namespace strategy { namespace segment_interpolate_point
 template
 <
     typename CalculationType = void,
-    typename Strategy = distance::pythagoras<CalculationType>
+    typename DistanceStrategy = distance::pythagoras<CalculationType>
 >
 class cartesian
 {
 public:
-
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef Strategy type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        return typename distance_pp_strategy::type();
-    }
 
     //result type
     template <typename Point>
@@ -75,7 +64,7 @@ public:
     inline result_type<Point> compute(Point const& p0,
                                       Point const& p1) const
     {
-        return result_type<Point>(Strategy().apply(p0,p1));
+        return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }
 
     template <typename Point, typename T1, typename T2>
@@ -83,7 +72,7 @@ public:
                       Point const& p1,
                       T1 const& fraction,
                       Point & p,
-                      T2 const& distance) const
+                      T2 const&) const
     {
         typedef typename select_most_precise
             <

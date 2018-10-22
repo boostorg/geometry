@@ -35,22 +35,11 @@ namespace strategy { namespace segment_interpolate_point
 template
 <
     typename CalculationType = void,
-    typename Strategy = distance::haversine<double, CalculationType>
+    typename DistanceStrategy = distance::haversine<double, CalculationType>
 >
 class spherical
 {
 public:
-
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef Strategy type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        return typename distance_pp_strategy::type();
-    }
 
     //result type
     template <typename Point>
@@ -62,25 +51,18 @@ public:
                 CalculationType
             >::type calc_t;
 
-        result_type() :
-            distance(0),
-            azimuth(0)
-        {}
-
         result_type(calc_t d) :
-            distance(d),
-            azimuth(0)
+            distance(d)
         {}
 
         calc_t distance;
-        calc_t azimuth;
     };
 
     template <typename Point>
     inline result_type<Point> compute(Point const& p0,
                                       Point const& p1) const
-    {
-        return result_type<Point>(Strategy().apply(p0,p1));
+    {        
+        return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }
 
     template <typename Point, typename T1, typename T2>
@@ -88,15 +70,13 @@ public:
                       Point const& p1,
                       T1 const& fraction,
                       Point & p,
-                      T2 const& distance) const
+                      T2 const& dist_az) const
     {
         typedef typename select_most_precise
             <
                 typename coordinate_type<Point>::type,
                 CalculationType
             >::type calc_t;
-
-        //TODO: create direct formula for spherical
 
         calc_t const c0 = 0;
         calc_t const c1 = 1;
@@ -105,8 +85,9 @@ public:
         typedef model::point<calc_t, 3, cs::cartesian> point3d_t;
         point3d_t const xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
         point3d_t const xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
-        calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
-        calc_t const angle01 = acos(dot01);
+        //calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
+        //calc_t const angle01 = acos(dot01);
+        calc_t const angle01 = dist_az.distance;
 
         point3d_t axis;
         if (! math::equals(angle01, pi))
