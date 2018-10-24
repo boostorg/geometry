@@ -63,8 +63,6 @@ struct convert_and_assign
 /*!
 \brief Internal, calculates interpolation point of a linestring using iterator pairs and
     specified strategy
-\note for_each could be used here, now that point_type is changed by boost
-    range iterator
 */
 template <typename Policy>
 struct range
@@ -72,7 +70,7 @@ struct range
     template <typename Range, typename PointType, typename Strategy>
     static inline void apply(Range const& range,
                              double const& fraction,
-                             PointType & point,
+                             PointType & p_or_mp,
                              Strategy const& strategy)
     {
         Policy policy;
@@ -99,12 +97,12 @@ struct range
         }
         if (fraction == 0)
         {
-            policy.apply(*it, point);
+            policy.apply(*it, p_or_mp);
             return;
         }
         if (fraction == 1)
         {
-            policy.apply(*(end-1), point);
+            policy.apply(*(end-1), p_or_mp);
             return;
         }
             
@@ -123,7 +121,7 @@ struct range
         calc_t repeated_fraction = fraction;
         calc_t prev_fraction = 0;
         calc_t cur_fraction = 0;
-        unsigned int i=1;
+        unsigned int i = 1;
         viterator_t vit = boost::begin(lengths);
         it = boost::begin(range);
         prev = it++;
@@ -142,7 +140,7 @@ struct range
                                (repeated_fraction - prev_fraction) / seg_fraction,
                                p, *vit);
                 single_point = boost::is_same<Policy, convert_and_assign>::value;
-                policy.apply(p, point);
+                policy.apply(p, p_or_mp);
 
                 repeated_fraction = ++i * fraction;
             }
@@ -349,9 +347,11 @@ struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \details \details_calc{line_interpolate_point, line_interpolate_point (Returns a
          point interpolated along a line)}. \details_default_strategy
 \tparam Geometry \tparam_geometry
-\param geometry \param_geometry
-\param fraction \param_fraction
-\return \return_calc{line_interpolate_point}
+\tparam double
+\tparam PointType Type of output point (Point or Multipoint)
+\param geometry Input geometry
+\param fraction Fraction
+\param mp Point or multipoint for output
 
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]}
 \qbk{[line_interpolate_point] [line_interpolate_point_output]}
@@ -376,11 +376,12 @@ inline void line_interpolate_point(Geometry const& geometry,
 \details \details_calc{line_interpolate_point, line_interpolate_point (Returns a
          point interpolated along a line)} \brief_strategy. \details_strategy_reasons
 \tparam Geometry \tparam_geometry
+\tparam double
 \tparam Strategy \tparam_strategy{distance}
-\param geometry \param_geometry
-\param fraction \param_fraction
+\param geometry Input geometry
+\param fraction Fraction
+\param mp Point or multipoint for output
 \param strategy \param_strategy{distance}
-\return \return_calc{line_interpolate_point}
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]}

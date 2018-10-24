@@ -97,18 +97,14 @@ public:
         return result_type<Point>(inv_r.distance, inv_r.azimuth);
     }
 
-    template <typename Point, typename T1, typename T2>
+    template <typename Point, typename T1>
     inline void apply(Point const& p0,
                       Point const&,
                       T1 const& fraction,
                       Point & p,
-                      T2 const& dist_az) const
+                      result_type<Point> const& dist_az) const
     {
-        typedef typename select_most_precise
-            <
-                typename coordinate_type<Point>::type,
-                CalculationType
-            >::type calc_t;
+        typedef typename result_type<Point>::calc_t calc_t;
 
         typedef typename FormulaPolicy::template direct
                 <calc_t, true, false, false, false> direct_t;

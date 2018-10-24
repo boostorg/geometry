@@ -29,8 +29,9 @@ namespace strategy { namespace segment_interpolate_point
 
 /*!
 \brief Interpolate point on a spherical segment.
-\ingroup strategies.
+\ingroup strategies
 \tparam CalculationType \tparam_calculation
+\tparam DistanceStrategy \tparam_calculation
  */
 template
 <
