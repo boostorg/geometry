@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_GEOMETRIES_CONCEPTS_NSPHERE_CONCEPT_HPP
 
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -44,7 +45,7 @@ class ConstNsphere
             typedef typename coordinate_type<Geometry>::type coordinate_type;
             const Geometry* s = 0;
             coordinate_type coord(geometry::get<Dimension>(*s));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<Dimension + 1, DimensionCount>::apply();
         }
     };
@@ -66,7 +67,7 @@ public :
         // Check radius access
         Geometry const* s = 0;
         radius_type coord(geometry::get_radius<0>(*s));
-        boost::ignore_unused_variable_warning(coord);
+        boost::ignore_unused(coord);
     }
 };
 

@@ -126,7 +126,7 @@ void test_transformed_geometry(std::string const& wkt)
 }
 
 
-BOOST_GEOMETRY_REGISTER_LINESTRING(typename transformed_geometry_type< bg::model::linestring< bg::model::d2::point_xy<double> > >::type)
+BOOST_GEOMETRY_REGISTER_LINESTRING(transformed_geometry_type< bg::model::linestring< bg::model::d2::point_xy<double> > >::type)
 
 template <typename P>
 void test_all()

@@ -23,10 +23,24 @@
 [heading Boost 1.68]
 [/=================]
 
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/469 469] Horizontal grid shift (nadgrids) in SRS transformations (undocumented for now due to potential interface changes).
+* [@https://github.com/boostorg/geometry/pull/478 478] Box-Segment distance for spherical and geographic coordinate systems.
+* [@https://github.com/boostorg/geometry/pull/487 487] Missing combinations of geometries in distance for spherical and geographic cs
+* [@https://github.com/boostorg/geometry/pull/489 489] Additional direct geodesic problem formulas for internal use 
+
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/470 470] Assertion failure with short spherical and geographic segments.
 * [@https://github.com/boostorg/geometry/issues/471 471] Invalid envelope of spherical polygon
+* [@https://github.com/boostorg/geometry/issues/498 498] Unexpected results with expand() and make_inverse() for spherical and geographic CS
+* [@https://github.com/boostorg/geometry/issues/504 504] Unused parameter warnings.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/488 488] Handle non-true-references in closing_iterator and ever_circling_range_iterator
+* [@https://github.com/boostorg/geometry/pull/495 495] VxWorks 7 cross-compilation issue.
 
 [/=================]
 [heading Boost 1.67]

@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
@@ -420,7 +421,7 @@ struct sectionalize_part
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-        boost::ignore_unused_variable_warning(robust_policy);
+        boost::ignore_unused(robust_policy);
 
         typedef typename boost::range_value<Sections>::type section_type;
         BOOST_STATIC_ASSERT

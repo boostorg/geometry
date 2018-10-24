@@ -49,12 +49,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct wag2 {}; // Wagner II
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -77,7 +71,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     lp_lat = aasin(C_p1 * sin(C_p2 * lp_lat));
                     xy_x = C_x * lp_lon * cos(lp_lat);
@@ -86,7 +80,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     lp_lat = xy_y / C_y;
                     lp_lon = xy_x / (C_x * cos(lp_lat));
@@ -125,7 +119,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct wag2_spheroid : public detail::wag2::base_wag2_spheroid<T, Parameters>
     {
-        inline wag2_spheroid(const Parameters& par) : detail::wag2::base_wag2_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline wag2_spheroid(Params const& , Parameters const& par)
+            : detail::wag2::base_wag2_spheroid<T, Parameters>(par)
         {
             detail::wag2::setup_wag2(this->m_par);
         }
@@ -136,23 +132,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag2, wag2_spheroid, wag2_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_wag2, wag2_spheroid, wag2_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class wag2_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(wag2_entry, wag2_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(wag2_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<wag2_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void wag2_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("wag2", new wag2_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(wag2, wag2_entry)
         }
 
     } // namespace detail

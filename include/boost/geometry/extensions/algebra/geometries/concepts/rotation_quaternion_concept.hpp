@@ -16,7 +16,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_ROTATION_QUATERNION_CONCEPT_HPP
 
 #include <boost/concept_check.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
 
@@ -79,7 +79,7 @@ class ConstRotationQuaternion
         {
             const G* g = 0;
             ctype coord(geometry::get<I>(*g));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<G, I+1, N>::apply();
         }
     };

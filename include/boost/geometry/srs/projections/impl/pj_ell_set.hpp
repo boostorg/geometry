@@ -47,9 +47,12 @@
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/srs/projections/dpar.hpp>
+#include <boost/geometry/srs/projections/impl/pj_datum_set.hpp>
 #include <boost/geometry/srs/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/proj4.hpp>
+#include <boost/geometry/srs/projections/spar.hpp>
 
 
 namespace boost { namespace geometry { namespace projections {
@@ -68,83 +71,271 @@ inline T RV4() { return .06944444444444444444; } /* 5/72 */
 template <typename T>
 inline T RV6() { return .04243827160493827160; } /* 55/1296 */
 
-/* initialize geographic shape parameters */
-template <typename BGParams, typename T>
-inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& parameters, T &a, T &es)
+template <typename T>
+inline T pj_ell_b_to_es(T const& a, T const& b)
 {
-    T b = 0.0;
-    T e = 0.0;
-    std::string name;
+    return 1. - (b * b) / (a * a);
+}
 
+/************************************************************************/
+/*                          pj_ell_init_ellps()                         */
+/************************************************************************/
+
+// Originally a part of pj_ell_set()
+template <typename T>
+inline bool pj_ell_init_ellps(srs::detail::proj4_parameters const& params, T &a, T &b)
+{
+    /* check if ellps present and temporarily append its values to pl */
+    std::string name = pj_get_param_s(params, "ellps");
+    if (! name.empty())
+    {
+        const pj_ellps_type<T>* pj_ellps = pj_get_ellps<T>().first;
+        const int n = pj_get_ellps<T>().second;
+        int index = -1;
+        for (int i = 0; i < n && index == -1; i++)
+        {
+            if(pj_ellps[i].id == name)
+            {
+                index = i;
+            }
+        }
+
+        if (index == -1) {
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
+        }
+
+        pj_ellps_type<T> const& pj_ellp = pj_ellps[index];
+        a = pj_ellp.a;
+        b = pj_ellp.b;
+
+        return true;
+    }
+
+    return false;
+}
+
+template <typename T>
+inline bool pj_ell_init_ellps(srs::dpar::parameters<T> const& params, T &a, T &b)
+{
+    /* check if ellps present and temporarily append its values to pl */
+    typename srs::dpar::parameters<T>::const_iterator
+        it = pj_param_find(params, srs::dpar::ellps);
+    if (it != params.end())
+    {
+        if (it->template is_value_set<int>())
+        {
+            const pj_ellps_type<T>* pj_ellps = pj_get_ellps<T>().first;
+            const int n = pj_get_ellps<T>().second;
+            int i = it->template get_value<int>();
+        
+            if (i < 0 || i >= n) {
+                BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
+            }
+
+            pj_ellps_type<T> const& pj_ellp = pj_ellps[i];
+            a = pj_ellp.a;
+            b = pj_ellp.b;
+        }
+        else if (it->template is_value_set<T>())
+        {
+            a = it->template get_value<T>();
+            b = a;
+        }
+        else if (it->template is_value_set<srs::spheroid<T> >())
+        {
+            srs::spheroid<T> const& s = it->template get_value<srs::spheroid<T> >();
+            a = geometry::get_radius<0>(s);
+            b = geometry::get_radius<2>(s);
+        }
+        else
+        {
+            BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+template
+<
+    typename Params,
+    int I = srs::spar::detail::tuples_find_index_if
+        <
+            Params,
+            srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
+        >::value,
+    int N = boost::tuples::length<Params>::value
+>
+struct pj_ell_init_ellps_static
+{
+    template <typename T>
+    static bool apply(Params const& params, T &a, T &b)
+    {
+        typedef typename boost::tuples::element<I, Params>::type param_type;
+        typedef srs::spar::detail::ellps_traits<param_type> traits_type;
+        typedef typename traits_type::template model_type<T>::type model_type;
+
+        param_type const& param = boost::tuples::get<I>(params);
+        model_type const& model = traits_type::template model<T>(param);
+
+        a = geometry::get_radius<0>(model);
+        b = geometry::get_radius<2>(model);
+
+        return true;
+    }
+};
+template <typename Params, int N>
+struct pj_ell_init_ellps_static<Params, N, N>
+{
+    template <typename T>
+    static bool apply(Params const& , T & , T & )
+    {
+        return false;
+    }
+};
+
+template <typename T, BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX>
+inline bool pj_ell_init_ellps(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& params,
+                              T &a, T &b)
+{
+    return pj_ell_init_ellps_static
+        <
+            srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+        >::apply(params, a, b);
+}
+
+/************************************************************************/
+/*                             pj_ell_init()                            */
+/************************************************************************/
+
+/* initialize geographic shape parameters */
+// This function works differently than the original pj_ell_set().
+// It doesn't push parameters defined in ellps into params list.
+// Instead it tries to use size (a, R) and shape (es, e, rf, f, b) parameters
+// and then if needed falls back to ellps, then to datum and then to the default WGS84
+template <typename Params, typename T>
+inline void pj_ell_init(Params const& params, T &a, T &es)
+{
     /* check for varying forms of ellipsoid input */
     a = es = 0.;
 
     /* R takes precedence */
-    if (pj_param_f(parameters, "R", a)) {
+    if (pj_param_f<srs::spar::r>(params, "R", srs::dpar::r, a)) {
         /* empty */
     } else { /* probable elliptical figure */
 
-        /* check if ellps present and temporarily append its values to pl */
-        name = pj_get_param_s(parameters, "ellps");
-        if (! name.empty())
-        {
-            const int n = sizeof(pj_ellps) / sizeof(pj_ellps[0]);
-            int index = -1;
-            for (int i = 0; i < n && index == -1; i++)
-            {
-                if(pj_ellps[i].id == name)
-                {
-                    index = i;
-                }
-            }
+        // Set ellipsoid's size parameter
+        a = pj_get_param_f<T, srs::spar::a>(params, "a", srs::dpar::a);
+        bool is_a_set = a != 0.0;
 
-            if (index == -1) {
-                BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
-            }
-
-            pj_ellps_type const& pj_ellp = pj_ellps[index];
-            parameters.push_back(pj_mkparam<T>("a", pj_ellp.major_v));
-            parameters.push_back(pj_mkparam<T>(pj_ellp.ell_n, pj_ellp.ell_v));
-        }
-        a = pj_get_param_f(parameters, "a");
-        if (pj_param_f(parameters, "es", es)) {/* eccentricity squared */
+        // Set ellipsoid's shape parameter
+        T b = 0.0;
+        bool is_ell_set = false;
+        if (pj_param_f<srs::spar::es>(params, "es", srs::dpar::es, es)) {/* eccentricity squared */
             /* empty */
-        } else if (pj_param_f(parameters, "e", e)) { /* eccentricity */
-            es = e * e;
-        } else if (pj_param_f(parameters, "rf", es)) { /* recip flattening */
-            if (!es) {
+            is_ell_set = true;
+        } else if (pj_param_f<srs::spar::e>(params, "e", srs::dpar::e, es)) { /* eccentricity */
+            es = es * es;
+            is_ell_set = true;
+        } else if (pj_param_f<srs::spar::rf>(params, "rf", srs::dpar::rf, es)) { /* recip flattening */
+            if (es == 0.0) {
                 BOOST_THROW_EXCEPTION( projection_exception(error_rev_flattening_is_zero) );
-            }
+            }    
             es = 1./ es;
             es = es * (2. - es);
-        } else if (pj_param_f(parameters, "f", es)) { /* flattening */
+            is_ell_set = true;
+        } else if (pj_param_f<srs::spar::f>(params, "f", srs::dpar::f, es)) { /* flattening */
             es = es * (2. - es);
-        } else if (pj_param_f(parameters, "b", b)) { /* minor axis */
-            es = 1. - (b * b) / (a * a);
-        }     /* else es == 0. and sphere of radius a */
-        if (!b)
+            is_ell_set = true;
+        } else if (pj_param_f<srs::spar::b>(params, "b", srs::dpar::b, b)) { /* minor axis */
+            es = pj_ell_b_to_es(a, b);
+            is_ell_set = true;
+        } /* else es == 0. and sphere of radius a */
+
+        // NOTE: Below when ellps is used to initialize a and es
+        // b is not set because it only has sense together with a
+        // but a could have been set separately before, e.g. consider passing:
+        // a=1 ellps=airy (a=6377563.396 b=6356256.910)
+        // after setting size parameter a and shape parameter from ellps
+        // b has to be recalculated
+
+        // If ellipsoid's parameters are not set directly
+        //   use ellps parameter
+        if (! is_a_set || ! is_ell_set) {
+            T ellps_a = 0, ellps_b = 0;
+            if (pj_ell_init_ellps(params, ellps_a, ellps_b)) {
+                if (! is_a_set) {
+                    a = ellps_a;
+                    is_a_set = true;
+                }
+                if (! is_ell_set) {
+                    es = pj_ell_b_to_es(ellps_a, ellps_b);
+                    is_ell_set = true;
+                }
+            }
+        }
+
+        // If ellipsoid's parameters are not set
+        //   use ellps defined by datum parameter
+        if (! is_a_set || ! is_ell_set)
+        {
+            const pj_datums_type<T>* datum = pj_datum_find_datum<T>(params);
+            if (datum != NULL)
+            {
+                pj_ellps_type<T> const& pj_ellp = pj_get_ellps<T>().first[datum->ellps];
+                if (! is_a_set) {
+                    a = pj_ellp.a;
+                    is_a_set = true;
+                }
+                if (! is_ell_set) {
+                    es = pj_ell_b_to_es(pj_ellp.a, pj_ellp.b);
+                    is_ell_set = true;
+                }
+            }
+        }
+
+        // If ellipsoid's parameters are still not set
+        //   use default WGS84
+        if ((! is_a_set || ! is_ell_set)
+         && ! pj_get_param_b<srs::spar::no_defs>(params, "no_defs", srs::dpar::no_defs))
+        {
+            pj_ellps_type<T> const& pj_ellp = pj_get_ellps<T>().first[srs::dpar::ellps_wgs84];
+            if (! is_a_set) {
+                a = pj_ellp.a;
+                is_a_set = true;
+            }
+            if (! is_ell_set) {
+                es = pj_ell_b_to_es(pj_ellp.a, pj_ellp.b);
+                is_ell_set = true;
+            }
+        }
+
+        if (b == 0.0)
             b = a * sqrt(1. - es);
+
         /* following options turn ellipsoid into equivalent sphere */
-        if (pj_get_param_b(parameters, "R_A")) { /* sphere--area of ellipsoid */
+        if (pj_get_param_b<srs::spar::r_au>(params, "R_A", srs::dpar::r_au)) { /* sphere--area of ellipsoid */
             a *= 1. - es * (SIXTH<T>() + es * (RA4<T>() + es * RA6<T>()));
             es = 0.;
-        } else if (pj_get_param_b(parameters, "R_V")) { /* sphere--vol. of ellipsoid */
+        } else if (pj_get_param_b<srs::spar::r_v>(params, "R_V", srs::dpar::r_v)) { /* sphere--vol. of ellipsoid */
             a *= 1. - es * (SIXTH<T>() + es * (RV4<T>() + es * RV6<T>()));
             es = 0.;
-        } else if (pj_get_param_b(parameters, "R_a")) { /* sphere--arithmetic mean */
+        } else if (pj_get_param_b<srs::spar::r_a>(params, "R_a", srs::dpar::r_a)) { /* sphere--arithmetic mean */
             a = .5 * (a + b);
             es = 0.;
-        } else if (pj_get_param_b(parameters, "R_g")) { /* sphere--geometric mean */
+        } else if (pj_get_param_b<srs::spar::r_g>(params, "R_g", srs::dpar::r_g)) { /* sphere--geometric mean */
             a = sqrt(a * b);
             es = 0.;
-        } else if (pj_get_param_b(parameters, "R_h")) { /* sphere--harmonic mean */
+        } else if (pj_get_param_b<srs::spar::r_h>(params, "R_h", srs::dpar::r_h)) { /* sphere--harmonic mean */
             a = 2. * a * b / (a + b);
             es = 0.;
         } else {
             T tmp;
-            int i = pj_param_r(parameters, "R_lat_a", tmp);
+            bool i = pj_param_r<srs::spar::r_lat_a>(params, "R_lat_a", srs::dpar::r_lat_a, tmp);
             if (i || /* sphere--arith. */
-                pj_param_r(parameters, "R_lat_g", tmp)) { /* or geom. mean at latitude */
+                pj_param_r<srs::spar::r_lat_g>(params, "R_lat_g", srs::dpar::r_lat_g, tmp)) { /* or geom. mean at latitude */
 
                 tmp = sin(tmp);
                 if (geometry::math::abs(tmp) > geometry::math::half_pi<T>()) {
@@ -167,36 +358,166 @@ inline void pj_ell_set(BGParams const& /*bg_params*/, std::vector<pvalue<T> >& p
     }
 }
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename T>
-inline void pj_ell_set(srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& bg_params,
-                       std::vector<pvalue<T> >& /*parameters*/, T &a, T &es)
+template <typename Params>
+struct static_srs_tag_check_nonexpanded
 {
-    typedef srs::static_proj4<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> static_parameters_type;
-    typedef typename srs::par4::detail::pick_ellps
+    typedef typename boost::mpl::if_c
         <
-            static_parameters_type
-        > pick_ellps;
+            srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param_t<srs::spar::r>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::r_au>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::r_v>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::r_a>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::r_g>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::r_h>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param_t<srs::spar::r_lat_a>::pred
+                >::value
+         || srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param_t<srs::spar::r_lat_g>::pred
+                >::value,
+            srs_sphere_tag,
+            // NOTE: The assumption here is that if the user defines either one of:
+            // b, es, e, f, rf parameters then he wants to define spheroid, not sphere
+            typename boost::mpl::if_c
+                <
+                    srs::spar::detail::tuples_exists_if
+                        <
+                            Params, srs::spar::detail::is_param_t<srs::spar::b>::pred
+                        >::value
+                 || srs::spar::detail::tuples_exists_if
+                        <
+                            Params, srs::spar::detail::is_param_t<srs::spar::es>::pred
+                        >::value
+                 || srs::spar::detail::tuples_exists_if
+                        <
+                            Params, srs::spar::detail::is_param_t<srs::spar::e>::pred
+                        >::value
+                 || srs::spar::detail::tuples_exists_if
+                        <
+                            Params, srs::spar::detail::is_param_t<srs::spar::rf>::pred
+                        >::value
+                 || srs::spar::detail::tuples_exists_if
+                        <
+                            Params, srs::spar::detail::is_param_t<srs::spar::f>::pred
+                        >::value,
+                    srs_spheroid_tag,
+                    void
+                >::type
+        >::type type;
+};
 
-    typename pick_ellps::model_type model = pick_ellps::model(bg_params);
+template <typename Params>
+struct static_srs_tag_check_ellps
+{
+    typedef typename geometry::tag
+        <
+            typename srs::spar::detail::ellps_traits
+                <
+                    typename srs::spar::detail::tuples_find_if
+                        <
+                            Params,
+                            srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
+                        >::type
+                >::template model_type<double>::type // dummy type
+        >::type type;
+};
 
-    a = geometry::get_radius<0>(model);
-    T b = geometry::get_radius<2>(model);
-    es = 0.;
-    if (a != b)
-    {
-        es = formula::eccentricity_sqr<T>(model);
+template <typename Params>
+struct static_srs_tag_check_datum
+{
+    typedef typename geometry::tag
+        <
+            typename srs::spar::detail::ellps_traits
+                <
+                    typename srs::spar::detail::datum_traits
+                        <
+                            typename srs::spar::detail::tuples_find_if
+                                <
+                                    Params,
+                                    srs::spar::detail::is_param_tr<srs::spar::detail::datum_traits>::pred
+                                >::type
+                        >::ellps_type
+                >::template model_type<double>::type // dummy type
+        >::type type;
+};
 
-        // Ignore all other parameters passed in string, at least for now
-    }
+template
+<
+    typename Params,
+    typename NonExpandedTag = typename static_srs_tag_check_nonexpanded
+                                <
+                                    Params
+                                >::type,
+    typename EllpsTag = typename static_srs_tag_check_ellps
+                            <
+                                Params
+                            >::type,
+    typename DatumTag = typename static_srs_tag_check_datum
+                            <
+                                Params
+                            >::type
+>
+struct static_srs_tag
+{
+    // User passed one of the non-ellps, non-datum parameters
+    typedef NonExpandedTag type;
+};
 
-    /* some remaining checks */
-    if (es < 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(error_es_less_than_zero) );
-    }
-    if (a <= 0.) {
-        BOOST_THROW_EXCEPTION( projection_exception(error_major_axis_not_given) );
-    }
-}
+template <typename Params, typename EllpsTag, typename DatumTag>
+struct static_srs_tag<Params, void, EllpsTag, DatumTag>
+{
+    // User didn't pass neither one of the non-ellps, non-datum parameters
+    // but passed ellps
+    typedef EllpsTag type;
+};
+
+template <typename Params, typename DatumTag>
+struct static_srs_tag<Params, void, void, DatumTag>
+{
+    // User didn't pass neither one of the non-ellps, non-datum parameters
+    // nor ellps parameter but passed datum parameter
+    typedef DatumTag type;
+};
+
+template <typename Params>
+struct static_srs_tag<Params, void, void, void>
+{
+    // User didn't pass any parameter defining model
+    // so use default or generate error
+    typedef typename boost::mpl::if_c
+        <
+            srs::spar::detail::tuples_exists_if
+                <
+                    Params, srs::spar::detail::is_param<srs::spar::no_defs>::pred
+                >::value,
+            void,
+            srs_spheroid_tag // WGS84
+        >::type type;
+
+    static const bool is_found = ! boost::is_same<type, void>::value;
+    BOOST_MPL_ASSERT_MSG((is_found), UNKNOWN_ELLP_PARAM, (Params));
+};
+
 
 template <typename T>
 inline void pj_calc_ellipsoid_params(parameters<T> & p, T const& a, T const& es) {

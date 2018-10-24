@@ -16,7 +16,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_VECTOR_CONCEPT_HPP
 
 #include <boost/concept_check.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
 
@@ -82,7 +82,7 @@ class ConstVector
         {
             const V* v = 0;
             ctype coord(geometry::get<Dimension>(*v));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<V, Dimension+1, DimensionCount>::apply();
         }
     };

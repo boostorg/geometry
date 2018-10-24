@@ -53,13 +53,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct stere {}; // Stereographic
-    struct ups {}; // Universal Polar Stereographic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -110,7 +103,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -159,7 +152,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -225,7 +218,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -266,7 +259,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T  c, rh, sinc, cosc;
 
@@ -372,25 +365,25 @@ namespace projections
 
 
             // Stereographic
-            template <typename Parameters, typename T>
-            inline void setup_stere(Parameters& par, par_stere<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_stere(Params const& params, Parameters& par, par_stere<T>& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
-                if (! pj_param_r(par.params, "lat_ts", proj_parm.phits))
+                if (! pj_param_r<srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts, proj_parm.phits))
                     proj_parm.phits = half_pi;
 
                 setup(par, proj_parm);
             }
 
             // Universal Polar Stereographic
-            template <typename Parameters, typename T>
-            inline void setup_ups(Parameters& par, par_stere<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_ups(Params const& params, Parameters& par, par_stere<T>& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
                 /* International Ellipsoid */
-                par.phi0 = pj_get_param_b(par.params, "south") ? -half_pi: half_pi;
+                par.phi0 = pj_get_param_b<srs::spar::south>(params, "south", srs::dpar::south) ? -half_pi: half_pi;
                 if (par.es == 0.0) {
                     BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                 }
@@ -424,9 +417,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<T, Parameters>
     {
-        inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline stere_ellipsoid(Params const& params, const Parameters& par)
+            : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
         {
-            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+            detail::stere::setup_stere(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -448,9 +443,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct stere_spheroid : public detail::stere::base_stere_spheroid<T, Parameters>
     {
-        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline stere_spheroid(Params const& params, const Parameters& par)
+            : detail::stere::base_stere_spheroid<T, Parameters>(par)
         {
-            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+            detail::stere::setup_stere(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -472,9 +469,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<T, Parameters>
     {
-        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline ups_ellipsoid(Params const& params, const Parameters& par)
+            : detail::stere::base_stere_ellipsoid<T, Parameters>(par)
         {
-            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+            detail::stere::setup_ups(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -496,9 +495,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct ups_spheroid : public detail::stere::base_stere_spheroid<T, Parameters>
     {
-        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline ups_spheroid(Params const& params, const Parameters& par)
+            : detail::stere::base_stere_spheroid<T, Parameters>(par)
         {
-            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+            detail::stere::setup_ups(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -507,41 +508,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::stere, stere_spheroid, stere_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ups, ups_spheroid, ups_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_stere, stere_spheroid, stere_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_ups, ups_spheroid, ups_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class stere_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(stere_entry, stere_spheroid, stere_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(ups_entry, ups_spheroid, ups_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(stere_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<stere_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<stere_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class ups_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<ups_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<ups_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void stere_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("stere", new stere_entry<T, Parameters>);
-            factory.add_to_factory("ups", new ups_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(stere, stere_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ups, ups_entry)
         }
 
     } // namespace detail

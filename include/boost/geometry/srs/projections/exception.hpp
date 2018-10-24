@@ -15,7 +15,6 @@
 
 
 #include <boost/geometry/core/exception.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 
 #include <boost/throw_exception.hpp>
@@ -68,12 +67,22 @@ struct projection_not_named_exception
 struct projection_unknown_id_exception
     : projection_exception
 {
+    projection_unknown_id_exception()
+        : projection_exception(projections::detail::error_unknown_projection_id,
+                               msg())
+    {}
+
     projection_unknown_id_exception(std::string const& proj_name)
         : projection_exception(projections::detail::error_unknown_projection_id,
                                msg(proj_name))
     {}
 
 private:
+    static std::string msg()
+    {
+        using namespace projections::detail;
+        return pj_strerrno(error_unknown_projection_id);
+    }
     static std::string msg(std::string const& proj_name)
     {
         using namespace projections::detail;

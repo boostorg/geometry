@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct nell_h {}; // Nell-Hammer
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -76,7 +70,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = 0.5 * lp_lon * (1. + cos(lp_lat));
                     xy_y = 2.0 * (lp_lat - tan(0.5 *lp_lat));
@@ -84,7 +78,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -137,7 +131,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<T, Parameters>
     {
-        inline nell_h_spheroid(const Parameters& par) : detail::nell_h::base_nell_h_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline nell_h_spheroid(Params const& , Parameters const& par)
+            : detail::nell_h::base_nell_h_spheroid<T, Parameters>(par)
         {
             detail::nell_h::setup_nell_h(this->m_par);
         }
@@ -148,23 +144,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nell_h, nell_h_spheroid, nell_h_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_nell_h, nell_h_spheroid, nell_h_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class nell_h_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<nell_h_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(nell_h_entry, nell_h_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void nell_h_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(nell_h_init)
         {
-            factory.add_to_factory("nell_h", new nell_h_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(nell_h, nell_h_entry)
         }
 
     } // namespace detail

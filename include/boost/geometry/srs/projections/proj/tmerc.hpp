@@ -53,12 +53,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct tmerc {}; // Transverse Mercator
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -105,7 +99,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipse
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T FC1 = tmerc::FC1<T>();
@@ -157,7 +151,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T FC1 = tmerc::FC1<T>();
@@ -218,7 +212,7 @@ namespace projections
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -262,7 +256,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T h, g;
 
@@ -316,7 +310,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<T, Parameters>
     {
-        inline tmerc_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline tmerc_ellipsoid(Params const&, Parameters const& par)
+            : detail::tmerc::base_tmerc_ellipsoid<T, Parameters>(par)
         {
             detail::tmerc::setup(this->m_par, this->m_proj_parm);
         }
@@ -338,7 +334,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<T, Parameters>
     {
-        inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline tmerc_spheroid(Params const&, Parameters const& par)
+            : detail::tmerc::base_tmerc_spheroid<T, Parameters>(par)
         {
             detail::tmerc::setup(this->m_par, this->m_proj_parm);
         }
@@ -349,26 +347,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tmerc, tmerc_spheroid, tmerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_tmerc, tmerc_spheroid, tmerc_ellipsoid)
         
         // Factory entry(s) - dynamic projection
-        template <typename T, typename Parameters>
-        class tmerc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(tmerc_entry, tmerc_spheroid, tmerc_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(tmerc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<tmerc_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<tmerc_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void tmerc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("tmerc", new tmerc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(tmerc, tmerc_entry)
         }
 
     } // namespace detail

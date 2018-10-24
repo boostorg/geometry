@@ -57,18 +57,12 @@
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
 #include <boost/geometry/srs/projections/impl/pj_msfn.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/pj_qsfn.hpp>
 
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct aea {};
-    struct leac {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -134,7 +128,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid & spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
                                                                     ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es)
@@ -148,7 +142,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -186,7 +180,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            inline void setup(Parameters& par, par_aea<T>& proj_parm) 
+            inline void setup(Parameters const& par, par_aea<T>& proj_parm) 
             {
                 T cosphi, sinphi;
                 int secant;
@@ -231,22 +225,36 @@ namespace projections
 
 
             // Albers Equal Area
-            template <typename Parameters, typename T>
-            inline void setup_aea(Parameters& par, par_aea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_aea(Params const& params, Parameters const& par, par_aea<T>& proj_parm)
             {
-                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
-                proj_parm.phi2 = pj_get_param_r(par.params, "lat_2");
+                proj_parm.phi1 = 0.0;
+                proj_parm.phi2 = 0.0;
+                bool is_phi1_set = pj_param_r<srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1, proj_parm.phi1);
+                bool is_phi2_set = pj_param_r<srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2, proj_parm.phi2);
+
+                // Boost.Geometry specific, set default parameters manually
+                if (! is_phi1_set || ! is_phi2_set) {
+                    bool const use_defaults = ! pj_get_param_b<srs::spar::no_defs>(params, "no_defs", srs::dpar::no_defs);
+                    if (use_defaults) {
+                        if (!is_phi1_set)
+                            proj_parm.phi1 = 29.5;
+                        if (!is_phi2_set)
+                            proj_parm.phi2 = 45.5;
+                    }
+                }
+
                 setup(par, proj_parm);
             }
 
             // Lambert Equal Area Conic
-            template <typename Parameters, typename T>
-            inline void setup_leac(Parameters& par, par_aea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_leac(Params const& params, Parameters const& par, par_aea<T>& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
-                proj_parm.phi2 = pj_get_param_r(par.params, "lat_1");
-                proj_parm.phi1 = pj_get_param_b(par.params, "south") ? -half_pi : half_pi;
+                proj_parm.phi2 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                proj_parm.phi1 = pj_get_param_b<srs::spar::south>(params, "south", srs::dpar::south) ? -half_pi : half_pi;
                 setup(par, proj_parm);
             }
 
@@ -272,9 +280,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline aea_ellipsoid(Params const& params, Parameters const& par)
+            : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
         {
-            detail::aea::setup_aea(this->m_par, this->m_proj_parm);
+            detail::aea::setup_aea(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -297,9 +307,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline leac_ellipsoid(Params const& params, Parameters const& par)
+            : detail::aea::base_aea_ellipsoid<T, Parameters>(par)
         {
-            detail::aea::setup_leac(this->m_par, this->m_proj_parm);
+            detail::aea::setup_leac(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -308,35 +320,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aea, aea_ellipsoid, aea_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::leac, leac_ellipsoid, leac_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_aea, aea_ellipsoid, aea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_leac, leac_ellipsoid, leac_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class aea_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<aea_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(aea_entry, aea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(leac_entry, leac_ellipsoid)
 
-        template <typename T, typename Parameters>
-        class leac_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(aea_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<leac_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void aea_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("aea", new aea_entry<T, Parameters>);
-            factory.add_to_factory("leac", new leac_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(aea, aea_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(leac, leac_entry)
         }
 
     } // namespace detail
