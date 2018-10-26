@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/segment_interpolate_point.hpp>
+#include <boost/geometry/strategies/line_interpolate_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -273,7 +273,7 @@ struct line_interpolate_point
                              PointType & mp,
                              default_strategy)
     {        
-        typedef typename strategy::segment_interpolate_point::services::default_strategy
+        typedef typename strategy::line_interpolate_point::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             >::type strategy_type;
@@ -340,52 +340,34 @@ struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 */
 } // namespace resolve_variant
 
-
 /*!
-\brief \brief_calc{line_interpolate_point}
+\brief 	Returns one or more points interpolated along a LineString \brief_strategy
 \ingroup line_interpolate_point
-\details \details_calc{line_interpolate_point, line_interpolate_point (Returns a
-         point interpolated along a line)}. \details_default_strategy
-\tparam Geometry \tparam_geometry
-\tparam double
-\tparam PointType Type of output point (Point or Multipoint)
+\tparam Geometry Any type fulfilling a LineString concept
+\tparam PointType Any type fulfilling Point or Multipoint concept
+\tparam Strategy A type fulfilling a LineInterpolatePointStrategy concept
 \param geometry Input geometry
-\param fraction Fraction
-\param mp Point or multipoint for output
+\param fraction Number between 0 and 1 representing the spacing between the
+points as a fraction of total LineString length
+\param mp Output: either a Point (exactly one point will be constructed) or
+a MultiPoint (depending on the fraction one or more points will be constructed)
+\param strategy Line_interpolate_point strategy to be used for interpolation of
+points
 
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]}
-\qbk{[line_interpolate_point] [line_interpolate_point_output]}
- */
-template<typename Geometry, typename PointType>
-inline void line_interpolate_point(Geometry const& geometry,
-                                   double const& fraction,
-                                   PointType & mp)
-{
-    concepts::check<Geometry const>();
-
-    // detail::throw_on_empty_input(geometry);
-
-    return resolve_variant::line_interpolate_point<Geometry>
-                          ::apply(geometry, fraction, mp, default_strategy());
-}
-
-
-/*!
-\brief \brief_calc{line_interpolate_point} \brief_strategy
-\ingroup line_interpolate_point
-\details \details_calc{line_interpolate_point, line_interpolate_point (Returns a
-         point interpolated along a line)} \brief_strategy. \details_strategy_reasons
-\tparam Geometry \tparam_geometry
-\tparam double
-\tparam Strategy \tparam_strategy{distance}
-\param geometry Input geometry
-\param fraction Fraction
-\param mp Point or multipoint for output
-\param strategy \param_strategy{distance}
 
 \qbk{distinguish,with strategy}
-\qbk{[include reference/algorithms/line_interpolate_point.qbk]}
-\qbk{[line_interpolate_point_with_strategy] [line_interpolate_point_with_strategy_output]}
+
+\qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_line_interpolate_point_cartesian Cartesian]
+\* [link geometry.reference.strategies.strategy_line_interpolate_point_spherical Spherical]
+\* [link geometry.reference.strategies.strategy_line_interpolate_point_geographic Geographic]
+
+[heading Example]
+[line_interpolate_point_strategy]
+[line_interpolate_point_strategy_output]
+}
  */
 template<typename Geometry, typename PointType, typename Strategy>
 inline void line_interpolate_point(Geometry const& geometry,
@@ -401,6 +383,37 @@ inline void line_interpolate_point(Geometry const& geometry,
                           ::apply(geometry, fraction, mp, strategy);
 }
 
+
+/*!
+\brief 	Returns one or more points interpolated along a LineString.
+\ingroup line_interpolate_point
+\tparam Geometry Any type fulfilling a LineString concept
+\tparam PointType Any type fulfilling Point or Multipoint concept
+\param geometry Input geometry
+\param fraction Number between 0 and 1 representing the spacing between the
+points as a fraction of total LineString length
+\param mp Output: either a Point (exactly one point will be constructed) or
+a MultiPoint (depending on the fraction one or more points will be constructed)
+
+\qbk{[include reference/algorithms/line_interpolate_point.qbk]
+
+[heading Example]
+[line_interpolate_point]
+[line_interpolate_point_output]
+}
+ */
+template<typename Geometry, typename PointType>
+inline void line_interpolate_point(Geometry const& geometry,
+                                   double const& fraction,
+                                   PointType & mp)
+{
+    concepts::check<Geometry const>();
+
+    // detail::throw_on_empty_input(geometry);
+
+    return resolve_variant::line_interpolate_point<Geometry>
+                          ::apply(geometry, fraction, mp, default_strategy());
+}
 
 }} // namespace boost::geometry
 

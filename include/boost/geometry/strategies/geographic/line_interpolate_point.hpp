@@ -7,15 +7,15 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SEGMENT_INTERPOLATE_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SEGMENT_INTERPOLATE_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_LINE_INTERPOLATE_POINT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_LINE_INTERPOLATE_POINT_HPP
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
-#include <boost/geometry/strategies/segment_interpolate_point.hpp>
+#include <boost/geometry/strategies/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -23,7 +23,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace segment_interpolate_point
+namespace strategy { namespace line_interpolate_point
 {
 
 
@@ -36,6 +36,7 @@ namespace strategy { namespace segment_interpolate_point
 
 \qbk{
 [heading See also]
+\* [link geometry.reference.algorithms.line_interpolate_point.line_interpolate_point_4_with_strategy line_interpolate_point (with strategy)]
 \* [link geometry.reference.srs.srs_spheroid srs::spheroid]
 }
  */
@@ -130,7 +131,7 @@ namespace services
 template <>
 struct default_strategy<geographic_tag>
 {
-    typedef strategy::segment_interpolate_point::geographic<> type;
+    typedef strategy::line_interpolate_point::geographic<> type;
 };
 
 
@@ -138,9 +139,9 @@ struct default_strategy<geographic_tag>
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
-}} // namespace strategy::segment_interpolate_point
+}} // namespace strategy::line_interpolate_point
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_SEGMENT_INTERPOLATE_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_LINE_INTERPOLATE_POINT_HPP

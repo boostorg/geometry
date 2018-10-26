@@ -4,6 +4,7 @@
 
 // This file was modified by Oracle on 2018.
 // Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 
@@ -53,6 +54,7 @@
 \defgroup is_valid is_valid: detect if a geometry is valid
 \defgroup iterators iterators: iterators
 \defgroup length length: calculate length of a linear geometry
+\defgroup line_interpolate_point line_interpolate_point: interpolates points on a linestring
 \defgroup make make: construct geometries
 \defgroup num_geometries number of geometries: calculate the number of geometries in a multi-geometry
 \defgroup num_interior_rings number of interior rings: calculate the number of interior rings

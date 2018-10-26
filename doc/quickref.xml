@@ -12,6 +12,7 @@
 
   This file was modified by Oracle on 2014, 2015, 2017, 2018.
   Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -427,7 +428,11 @@
     <bridgehead renderas="sect3">Length</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.length">length</link></member>
-    </simplelist>    
+    </simplelist>
+    <bridgehead renderas="sect3">Line_interpolate_points</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.line_interpolate_point">line_interpolate_point</link></member>
+    </simplelist>
     <bridgehead renderas="sect3">Num_ (counting)</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.num_interior_rings">num_interior_rings</link></member>
@@ -586,6 +591,14 @@
    </entry>
   </row>
   <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Line interpolate point</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_cartesian">strategy::line_interpolate_point::cartesian</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_geographic">strategy::line_interpolate_point::geographic</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_spherical">strategy::line_interpolate_point::spherical</link></member>
+    </simplelist>
+   </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">Side</bridgehead>
     <simplelist type="vert" columns="1">
