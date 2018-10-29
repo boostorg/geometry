@@ -59,7 +59,6 @@ struct convert_and_assign
 };
 
 
-
 /*!
 \brief Internal, calculates interpolation point of a linestring using iterator pairs and
     specified strategy
@@ -225,28 +224,6 @@ struct line_interpolate_point<Geometry, PointType, segment_tag, multi_point_tag>
         >
 {};
 
-/*
-template <typename MultiLinestring>
-struct length<MultiLinestring, multi_linestring_tag> : detail::multi_sum
-{
-    template <typename Strategy>
-    static inline typename default_length_result<MultiLinestring>::type
-    apply(MultiLinestring const& multi, Strategy const& strategy)
-    {
-        return multi_sum::apply
-               <
-                   typename default_length_result<MultiLinestring>::type,
-                   detail::length::range_length
-                   <
-                       typename boost::range_value<MultiLinestring>::type,
-                       closed // no need to close it explicitly
-                   >
-               >(multi, strategy);
-
-    }
-};
-*/
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -306,38 +283,43 @@ struct line_interpolate_point
     }
 };
 
-/*
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename Strategy>
-    struct visitor
-        : static_visitor<result_type>
+    template <typename PointType, typename Strategy>
+    struct visitor: boost::static_visitor<void>
     {
+        PointType const& m_mp;
         Strategy const& m_strategy;
 
-        visitor(Strategy const& strategy)
-            : m_strategy(strategy)
+        visitor(PointType const& mp, Strategy const& strategy)
+            : m_mp(mp)
+            , m_strategy(strategy)
         {}
 
         template <typename Geometry>
-        inline typename default_length_result<Geometry>::type
-        operator()(Geometry const& geometry) const
+        void operator()(Geometry const& geometry, double const& fraction) const
         {
-            return length<Geometry>::apply(geometry, m_strategy);
+            line_interpolate_point<Geometry>::apply(geometry, fraction,
+                                                    m_mp, m_strategy);
         }
     };
 
-    template <typename Strategy>
-    static inline result_type apply(
-        variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-        Strategy const& strategy
-    )
+    template <typename PointType, typename Strategy>
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          double const& fraction,
+          PointType & mp,
+          Strategy const& strategy)
     {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
+        boost::apply_visitor(
+            visitor<PointType, Strategy>(mp, strategy),
+            geometry,
+            fraction
+        );
     }
 };
-*/
+
 } // namespace resolve_variant
 
 /*!
