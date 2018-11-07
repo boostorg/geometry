@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -38,18 +38,16 @@
 
 
 namespace srs = bg::srs;
-namespace par = bg::srs::par4;
 
-template <typename Prj, typename Model, typename P1, typename P2>
+template <typename P1, typename P2, typename Params>
 void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y,
-              std::string const& parameters)
+              Params const& params)
 {
     // hybrid interface disabled by default
     // static_proj4 default ctor, dynamic parameters passed
-    srs::projection<srs::static_proj4<par::proj<Prj>, par::ellps<Model> > >
-        prj = srs::proj4(parameters);
+    srs::projection<Params> prj(params);
 
     P1 ll;
     bg::set<0>(ll, lon);
@@ -68,10 +66,13 @@ void test_all()
     typedef typename bg::coordinate_type<P>::type coord_type;
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > point_type;
 
+    using namespace srs::spar;
+
     // aea
-    test_one<par::aea, par::WGS84, point_type, P>
+    test_one<point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
-         "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
+         parameters<proj_aea, ellps_wgs84, units_m, lat_1<>, lat_2<> >(
+             proj_aea(), ellps_wgs84(), units_m(), lat_1<>(55), lat_2<>(65)));
 }
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(bg::cs::cartesian)

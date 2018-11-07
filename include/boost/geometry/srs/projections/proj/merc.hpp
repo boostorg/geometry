@@ -53,12 +53,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct merc {}; // Mercator
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -78,7 +72,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -91,7 +85,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
@@ -117,7 +111,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T fourth_pi = detail::fourth_pi<T>();
@@ -131,7 +125,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -147,8 +141,8 @@ namespace projections
             };
 
             // Mercator
-            template <typename Parameters>
-            inline void setup_merc(Parameters& par)
+            template <typename Params, typename Parameters>
+            inline void setup_merc(Params const& params, Parameters& par)
             {
                 typedef typename Parameters::type calc_t;
                 static const calc_t half_pi = detail::half_pi<calc_t>();
@@ -156,7 +150,7 @@ namespace projections
                 calc_t phits=0.0;
                 int is_phits;
 
-                if( (is_phits = pj_param_r(par.params, "lat_ts", phits)) ) {
+                if( (is_phits = pj_param_r<srs::spar::lat_ts>(params, "lat_ts", srs::dpar::lat_ts, phits)) ) {
                     phits = fabs(phits);
                     if (phits >= half_pi)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_ts_larger_than_90) );
@@ -191,9 +185,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct merc_ellipsoid : public detail::merc::base_merc_ellipsoid<T, Parameters>
     {
-        inline merc_ellipsoid(const Parameters& par) : detail::merc::base_merc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline merc_ellipsoid(Params const& params, Parameters const& par)
+            : detail::merc::base_merc_ellipsoid<T, Parameters>(par)
         {
-            detail::merc::setup_merc(this->m_par);
+            detail::merc::setup_merc(params, this->m_par);
         }
     };
 
@@ -215,9 +211,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct merc_spheroid : public detail::merc::base_merc_spheroid<T, Parameters>
     {
-        inline merc_spheroid(const Parameters& par) : detail::merc::base_merc_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline merc_spheroid(Params const& params, Parameters const& par)
+            : detail::merc::base_merc_spheroid<T, Parameters>(par)
         {
-            detail::merc::setup_merc(this->m_par);
+            detail::merc::setup_merc(params, this->m_par);
         }
     };
 
@@ -226,26 +224,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::merc, merc_spheroid, merc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_merc, merc_spheroid, merc_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class merc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(merc_entry, merc_spheroid, merc_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(merc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<merc_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<merc_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void merc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("merc", new merc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(merc, merc_entry)
         }
 
     } // namespace detail

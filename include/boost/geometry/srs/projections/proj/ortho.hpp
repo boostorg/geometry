@@ -52,12 +52,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct ortho {}; // Orthographic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -94,7 +88,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -131,7 +125,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -218,7 +212,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct ortho_spheroid : public detail::ortho::base_ortho_spheroid<T, Parameters>
     {
-        inline ortho_spheroid(const Parameters& par) : detail::ortho::base_ortho_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline ortho_spheroid(Params const& , Parameters const& par)
+            : detail::ortho::base_ortho_spheroid<T, Parameters>(par)
         {
             detail::ortho::setup_ortho(this->m_par, this->m_proj_parm);
         }
@@ -229,23 +225,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ortho, ortho_spheroid, ortho_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_ortho, ortho_spheroid, ortho_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class ortho_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<ortho_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(ortho_entry, ortho_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void ortho_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(ortho_init)
         {
-            factory.add_to_factory("ortho", new ortho_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ortho, ortho_entry)
         }
 
     } // namespace detail

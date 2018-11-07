@@ -51,12 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct lsat {}; // Space oblique for LANDSAT
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -111,7 +105,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -180,7 +174,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -233,8 +227,8 @@ namespace projections
             };
 
             // Space oblique for LANDSAT
-            template <typename Parameters, typename T>
-            inline void setup_lsat(Parameters& par, par_lsat<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_lsat(Params const& params, Parameters& par, par_lsat<T>& proj_parm)
             {
                 static T const d2r = geometry::math::d2r<T>();
                 static T const pi = detail::pi<T>();
@@ -243,11 +237,11 @@ namespace projections
                 int land, path;
                 T lam, alf, esc, ess;
 
-                land = pj_get_param_i(par.params, "lsat");
+                land = pj_get_param_i<srs::spar::lsat>(params, "lsat", srs::dpar::lsat);
                 if (land <= 0 || land > 5)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lsat_not_in_range) );
 
-                path = pj_get_param_i(par.params, "path");
+                path = pj_get_param_i<srs::spar::path>(params, "path", srs::dpar::path);
                 if (path <= 0 || path > (land <= 3 ? 251 : 233))
                     BOOST_THROW_EXCEPTION( projection_exception(error_path_not_in_range) );
 
@@ -311,9 +305,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<T, Parameters>
     {
-        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline lsat_ellipsoid(Params const& params, Parameters const& par)
+            : detail::lsat::base_lsat_ellipsoid<T, Parameters>(par)
         {
-            detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
+            detail::lsat::setup_lsat(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -322,23 +318,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lsat, lsat_ellipsoid, lsat_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_lsat, lsat_ellipsoid, lsat_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class lsat_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(lsat_entry, lsat_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(lsat_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<lsat_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void lsat_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("lsat", new lsat_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lsat, lsat_entry)
         }
 
     } // namespace detail

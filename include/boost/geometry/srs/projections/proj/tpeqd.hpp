@@ -52,12 +52,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct tpeqd {}; // Two Point Equidistant
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -83,7 +77,7 @@ namespace projections
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T t, z1, z2, dl1, dl2, sp, cp;
 
@@ -103,7 +97,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T cz1, cz2, s, d, cp, sp;
 
@@ -130,16 +124,16 @@ namespace projections
             };
 
             // Two Point Equidistant
-            template <typename Parameters, typename T>
-            inline void setup_tpeqd(Parameters& par, par_tpeqd<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_tpeqd(Params const& params, Parameters& par, par_tpeqd<T>& proj_parm)
             {
                 T lam_1, lam_2, phi_1, phi_2, A12, pp;
 
                 /* get control point locations */
-                phi_1 = pj_get_param_r(par.params, "lat_1");
-                lam_1 = pj_get_param_r(par.params, "lon_1");
-                phi_2 = pj_get_param_r(par.params, "lat_2");
-                lam_2 = pj_get_param_r(par.params, "lon_2");
+                phi_1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                lam_1 = pj_get_param_r<T, srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1);
+                phi_2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
+                lam_2 = pj_get_param_r<T, srs::spar::lon_2>(params, "lon_2", srs::dpar::lon_2);
 
                 if (phi_1 == phi_2 && lam_1 == lam_2)
                     BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
@@ -194,9 +188,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<T, Parameters>
     {
-        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline tpeqd_spheroid(Params const& params, Parameters const& par)
+            : detail::tpeqd::base_tpeqd_spheroid<T, Parameters>(par)
         {
-            detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
+            detail::tpeqd::setup_tpeqd(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -205,23 +201,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tpeqd, tpeqd_spheroid, tpeqd_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_tpeqd, tpeqd_spheroid, tpeqd_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class tpeqd_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(tpeqd_entry, tpeqd_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(tpeqd_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<tpeqd_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void tpeqd_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("tpeqd", new tpeqd_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(tpeqd, tpeqd_entry)
         }
 
     } // namespace detail

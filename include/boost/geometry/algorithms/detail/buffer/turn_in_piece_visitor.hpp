@@ -706,7 +706,7 @@ public:
     template <typename Turn, typename Piece>
     inline bool apply(Turn const& turn, Piece const& piece, bool first = true)
     {
-        boost::ignore_unused_variable_warning(first);
+        boost::ignore_unused(first);
 
         if (turn.count_within > 0)
         {

@@ -52,12 +52,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct chamb {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -129,7 +123,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T third = detail::third<T>();
 
@@ -180,20 +174,43 @@ namespace projections
 
             };
 
+            template <typename T>
+            inline T chamb_init_lat(srs::detail::proj4_parameters const& params, int i)
+            {
+                static const std::string lat[3] = {"lat_1", "lat_2", "lat_3"};
+                return _pj_get_param_r<T>(params, lat[i]);
+            }
+            template <typename T>
+            inline T chamb_init_lat(srs::dpar::parameters<T> const& params, int i)
+            {
+                static const srs::dpar::name_r lat[3] = {srs::dpar::lat_1, srs::dpar::lat_2, srs::dpar::lat_3};
+                return _pj_get_param_r<T>(params, lat[i]);
+            }
+
+            template <typename T>
+            inline T chamb_init_lon(srs::detail::proj4_parameters const& params, int i)
+            {
+                static const std::string lon[3] = {"lon_1", "lon_2", "lon_3"};
+                return _pj_get_param_r<T>(params, lon[i]);
+            }
+            template <typename T>
+            inline T chamb_init_lon(srs::dpar::parameters<T> const& params, int i)
+            {
+                static const srs::dpar::name_r lon[3] = {srs::dpar::lon_1, srs::dpar::lon_2, srs::dpar::lon_3};
+                return _pj_get_param_r<T>(params, lon[i]);
+            }
+
             // Chamberlin Trimetric
-            template <typename Parameters, typename T>
-            inline void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_chamb(Params const& params, Parameters& par, par_chamb<T>& proj_parm)
             {
                 static const T pi = detail::pi<T>();
-
-                static const std::string lat[3] = {"lat_1", "lat_2", "lat_3"};
-                static const std::string lon[3] = {"lon_1", "lon_2", "lon_3"};
 
                 int i, j;
 
                 for (i = 0; i < 3; ++i) { /* get control point locations */
-                    proj_parm.c[i].phi = pj_get_param_r(par.params, lat[i]);
-                    proj_parm.c[i].lam = pj_get_param_r(par.params, lon[i]);
+                    proj_parm.c[i].phi = chamb_init_lat<T>(params, i);
+                    proj_parm.c[i].lam = chamb_init_lon<T>(params, i);
                     proj_parm.c[i].lam = adjlon(proj_parm.c[i].lam - par.lam0);
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);
@@ -243,9 +260,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<T, Parameters>
     {
-        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline chamb_spheroid(Params const& params, Parameters const& par)
+            : detail::chamb::base_chamb_spheroid<T, Parameters>(par)
         {
-            detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
+            detail::chamb::setup_chamb(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -254,23 +273,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::chamb, chamb_spheroid, chamb_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_chamb, chamb_spheroid, chamb_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class chamb_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(chamb_entry, chamb_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(chamb_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<chamb_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void chamb_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("chamb", new chamb_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(chamb, chamb_entry);
         }
 
     } // namespace detail

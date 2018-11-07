@@ -88,12 +88,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct qsc {}; // Quadrilateralized Spherical Cube
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -193,7 +187,7 @@ namespace projections
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -314,7 +308,7 @@ namespace projections
 
                 // INVERSE(e_inverse)
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T pi = detail::pi<T>();
@@ -509,7 +503,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct qsc_ellipsoid : public detail::qsc::base_qsc_ellipsoid<T, Parameters>
     {
-        inline qsc_ellipsoid(const Parameters& par) : detail::qsc::base_qsc_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline qsc_ellipsoid(Params const& , Parameters const& par)
+            : detail::qsc::base_qsc_ellipsoid<T, Parameters>(par)
         {
             detail::qsc::setup_qsc(this->m_par, this->m_proj_parm);
         }
@@ -520,23 +516,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::qsc, qsc_ellipsoid, qsc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_qsc, qsc_ellipsoid, qsc_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class qsc_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<qsc_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(qsc_entry, qsc_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void qsc_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(qsc_init)
         {
-            factory.add_to_factory("qsc", new qsc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(qsc, qsc_entry)
         }
 
     } // namespace detail

@@ -180,6 +180,26 @@ inline bool point_is_collinear(Point1 const& last_point,
     return side_rob == 0;
 }
 
+
+//! Version with intuitive order (A, B, C). The original order was
+//! unclear (C, A, B). It was used in a different way in has_spikes.
+//! On longer term the C,A,B version can be deprecated
+template
+<
+    typename Point1,
+    typename Point2,
+    typename Point3,
+    typename SideStrategy
+>
+inline bool is_spike_or_equal(Point1 const& a,
+            Point2 const& b,
+            Point3 const& c,
+            SideStrategy const& strategy)
+{
+    return point_is_spike_or_equal(c, a, b, strategy);
+}
+
+
 } // namespace detail
 #endif
 

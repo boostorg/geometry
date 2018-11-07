@@ -51,12 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct bipc {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -101,7 +95,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T pi = detail::pi<T>();
@@ -175,7 +169,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T t, r, rp, rl, al, z, fAz, Az, s, c, Av;
                     int neg, i;
@@ -227,10 +221,10 @@ namespace projections
             };
 
             // Bipolar conic of western hemisphere
-            template <typename Parameters>
-            inline void setup_bipc(Parameters& par, par_bipc& proj_parm)
+            template <typename Params, typename Parameters>
+            inline void setup_bipc(Params const& params, Parameters& par, par_bipc& proj_parm)
             {
-                proj_parm.noskew = pj_get_param_b(par.params, "ns");
+                proj_parm.noskew = pj_get_param_b<srs::spar::ns>(params, "ns", srs::dpar::ns);
                 par.es = 0.;
             }
 
@@ -254,9 +248,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<T, Parameters>
     {
-        inline bipc_spheroid(const Parameters& par) : detail::bipc::base_bipc_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline bipc_spheroid(Params const& params, Parameters const& par)
+            : detail::bipc::base_bipc_spheroid<T, Parameters>(par)
         {
-            detail::bipc::setup_bipc(this->m_par, this->m_proj_parm);
+            detail::bipc::setup_bipc(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -265,23 +261,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::bipc, bipc_spheroid, bipc_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_bipc, bipc_spheroid, bipc_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class bipc_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(bipc_entry, bipc_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(bipc_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<bipc_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void bipc_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("bipc", new bipc_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(bipc, bipc_entry)
         }
 
     } // namespace detail

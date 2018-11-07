@@ -49,12 +49,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct eck4 {}; // Eckert IV
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -80,7 +74,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     T p, V, s, c;
                     int i;
@@ -107,7 +101,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T c;
 
@@ -148,7 +142,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct eck4_spheroid : public detail::eck4::base_eck4_spheroid<T, Parameters>
     {
-        inline eck4_spheroid(const Parameters& par) : detail::eck4::base_eck4_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline eck4_spheroid(Params const& , Parameters const& par)
+            : detail::eck4::base_eck4_spheroid<T, Parameters>(par)
         {
             detail::eck4::setup_eck4(this->m_par);
         }
@@ -159,23 +155,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::eck4, eck4_spheroid, eck4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_eck4, eck4_spheroid, eck4_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class eck4_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(eck4_entry, eck4_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(eck4_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<eck4_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void eck4_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("eck4", new eck4_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(eck4, eck4_entry);
         }
 
     } // namespace detail

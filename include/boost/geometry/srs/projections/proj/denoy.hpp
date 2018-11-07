@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct denoy {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -82,7 +76,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T C1 = denoy::C1<T>();
                     static const T C3 = denoy::C3<T>();
@@ -127,7 +121,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct denoy_spheroid : public detail::denoy::base_denoy_spheroid<T, Parameters>
     {
-        inline denoy_spheroid(const Parameters& par) : detail::denoy::base_denoy_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline denoy_spheroid(Params const& , Parameters const& par)
+            : detail::denoy::base_denoy_spheroid<T, Parameters>(par)
         {
             detail::denoy::setup_denoy(this->m_par);
         }
@@ -138,23 +134,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::denoy, denoy_spheroid, denoy_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_denoy, denoy_spheroid, denoy_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class denoy_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(denoy_entry, denoy_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(denoy_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<denoy_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void denoy_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("denoy", new denoy_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(denoy, denoy_entry);
         }
 
     } // namespace detail

@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct labrd {}; // Laborde
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -81,7 +75,7 @@ namespace projections
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
 
@@ -115,7 +109,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
 
@@ -174,15 +168,15 @@ namespace projections
             };
 
             // Laborde
-            template <typename Parameters, typename T>
-            inline void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_labrd(Params const& params, Parameters& par, par_labrd<T>& proj_parm)
             {
                 static const T fourth_pi = detail::fourth_pi<T>();
 
                 T Az, sinp, R, N, t;
 
-                proj_parm.rot    = pj_get_param_b(par.params, "no_rot");
-                Az = pj_get_param_r(par.params, "azi");
+                proj_parm.rot = pj_get_param_b<srs::spar::no_rot>(params, "no_rot", srs::dpar::no_rot);
+                Az = pj_get_param_r<T, srs::spar::azi>(params, "azi", srs::dpar::azi);
                 sinp = sin(par.phi0);
                 t = 1. - par.es * sinp * sinp;
                 N = 1. / sqrt(t);
@@ -223,9 +217,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<T, Parameters>
     {
-        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline labrd_ellipsoid(Params const& params, Parameters const& par)
+            : detail::labrd::base_labrd_ellipsoid<T, Parameters>(par)
         {
-            detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
+            detail::labrd::setup_labrd(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -234,23 +230,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::labrd, labrd_ellipsoid, labrd_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_labrd, labrd_ellipsoid, labrd_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class labrd_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(labrd_entry, labrd_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(labrd_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<labrd_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void labrd_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("labrd", new labrd_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(labrd, labrd_entry)
         }
 
     } // namespace detail

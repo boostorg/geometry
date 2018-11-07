@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct cass {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -100,7 +94,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T C1 = cass::C1<T>();
                     static const T C2 = cass::C2<T>();
@@ -123,7 +117,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T C3 = cass::C3<T>();
                     static const T C4 = cass::C4<T>();
@@ -165,7 +159,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = asin(cos(lp_lat) * sin(lp_lon));
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon)) - this->m_par.phi0;
@@ -173,7 +167,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     T dd = xy_y + this->m_par.phi0;
                     lp_lat = asin(sin(dd) * cos(xy_x));
@@ -217,7 +211,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct cass_ellipsoid : public detail::cass::base_cass_ellipsoid<T, Parameters>
     {
-        inline cass_ellipsoid(const Parameters& par) : detail::cass::base_cass_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline cass_ellipsoid(Params const& , Parameters const& par)
+            : detail::cass::base_cass_ellipsoid<T, Parameters>(par)
         {
             detail::cass::setup_cass(this->m_par, this->m_proj_parm);
         }
@@ -239,7 +235,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct cass_spheroid : public detail::cass::base_cass_spheroid<T, Parameters>
     {
-        inline cass_spheroid(const Parameters& par) : detail::cass::base_cass_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline cass_spheroid(Params const& , Parameters const& par)
+            : detail::cass::base_cass_spheroid<T, Parameters>(par)
         {
             detail::cass::setup_cass(this->m_par, this->m_proj_parm);
         }
@@ -250,26 +248,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::cass, cass_spheroid, cass_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_cass, cass_spheroid, cass_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class cass_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<cass_ellipsoid<T, Parameters>, T, Parameters>(par);
-                    else
-                        return new base_v_fi<cass_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(cass_entry, cass_spheroid, cass_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void cass_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(cass_init)
         {
-            factory.add_to_factory("cass", new cass_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(cass, cass_entry);
         }
 
     } // namespace detail

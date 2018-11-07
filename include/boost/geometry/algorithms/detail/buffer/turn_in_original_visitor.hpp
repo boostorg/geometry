@@ -214,7 +214,7 @@ public:
     template <typename Turn, typename Original>
     inline bool apply(Turn const& turn, Original const& original, bool first = true)
     {
-        boost::ignore_unused_variable_warning(first);
+        boost::ignore_unused(first);
 
         if (turn.location != location_ok || turn.within_original)
         {

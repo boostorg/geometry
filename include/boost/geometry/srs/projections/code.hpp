@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,7 +12,8 @@
 
 
 #include <algorithm>
-#include <string>
+
+#include <boost/geometry/srs/projections/dpar.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -26,7 +27,7 @@ namespace detail
     struct code_element
     {
         int code;
-        std::string proj4_str;
+        srs::dpar::parameters<> parameters;
     };
 
     struct code_element_less
@@ -43,7 +44,7 @@ namespace detail
         code_element_less comp;
         code_element value;
         value.code = code;
-        first = std::lower_bound(first, last, value, code_element_less());
+        first = std::lower_bound(first, last, value, comp);
         return first != last && !comp(value, *first) ? first : last;
     }
 

@@ -50,22 +50,22 @@ void test_geographic()
     test_strategies<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(-45 45, 45 -45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(45 -45, -45 45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(45 45, -45 -45)", "SEGMENT(-45 45, 45 -45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(45 45, -45 -45)", "SEGMENT(45 -45, -45 45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
 
     // crossing   X

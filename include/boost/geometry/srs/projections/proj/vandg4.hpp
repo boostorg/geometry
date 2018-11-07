@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct vandg4 {}; // van der Grinten IV
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -75,7 +69,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T two_div_pi = detail::two_div_pi<T>();
@@ -146,7 +140,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<T, Parameters>
     {
-        inline vandg4_spheroid(const Parameters& par) : detail::vandg4::base_vandg4_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline vandg4_spheroid(Params const& , Parameters const& par)
+            : detail::vandg4::base_vandg4_spheroid<T, Parameters>(par)
         {
             detail::vandg4::setup_vandg4(this->m_par);
         }
@@ -157,23 +153,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::vandg4, vandg4_spheroid, vandg4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_vandg4, vandg4_spheroid, vandg4_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class vandg4_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(vandg4_entry, vandg4_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(vandg4_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<vandg4_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void vandg4_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("vandg4", new vandg4_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(vandg4, vandg4_entry)
         }
 
     } // namespace detail

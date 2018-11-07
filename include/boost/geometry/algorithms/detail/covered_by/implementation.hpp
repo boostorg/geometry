@@ -19,9 +19,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_COVERED_BY_IMPLEMENTATION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_COVERED_BY_IMPLEMENTATION_HPP
 
-
 #include <cstddef>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 #include <boost/geometry/algorithms/detail/within/implementation.hpp>
 
@@ -67,7 +66,7 @@ struct covered_by<Point, Box, point_tag, box_tag>
     template <typename Strategy>
     static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
     {
-        ::boost::ignore_unused_variable_warning(strategy);
+        ::boost::ignore_unused(strategy);
         return strategy.apply(point, box);
     }
 };
@@ -79,7 +78,7 @@ struct covered_by<Box1, Box2, box_tag, box_tag>
     static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
     {
         assert_dimension_equal<Box1, Box2>();
-        ::boost::ignore_unused_variable_warning(strategy);
+        ::boost::ignore_unused(strategy);
         return strategy.apply(box1, box2);
     }
 };
