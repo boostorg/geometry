@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_FOR_ENDPOINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_FOR_ENDPOINT_HPP
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
@@ -402,10 +403,7 @@ struct get_turn_info_for_endpoint
     {
         typedef typename cs_tag<typename TurnInfo::point_type>::type cs_tag;
 
-        boost::ignore_unused_variable_warning(i2);
-        boost::ignore_unused_variable_warning(j2);
-        boost::ignore_unused_variable_warning(ip_index);
-        boost::ignore_unused_variable_warning(tp_model);
+        boost::ignore_unused(i2, j2, ip_index, tp_model);
 
         if ( !first2 && !last2 )
         {

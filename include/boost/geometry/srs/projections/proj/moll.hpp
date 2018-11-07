@@ -51,14 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct moll {}; // Mollweide
-    struct wag4 {}; // Wagner IV
-    struct wag5 {}; // Wagner V
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -87,7 +79,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
 
@@ -111,7 +103,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T pi = detail::pi<T>();
 
@@ -189,7 +181,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct moll_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline moll_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline moll_spheroid(Params const& , Parameters const& par)
+            : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_moll(this->m_par, this->m_proj_parm);
         }
@@ -210,7 +204,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct wag4_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline wag4_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline wag4_spheroid(Params const& , Parameters const& par)
+            : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_wag4(this->m_par, this->m_proj_parm);
         }
@@ -231,7 +227,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct wag5_spheroid : public detail::moll::base_moll_spheroid<T, Parameters>
     {
-        inline wag5_spheroid(const Parameters& par) : detail::moll::base_moll_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline wag5_spheroid(Params const& , Parameters const& par)
+            : detail::moll::base_moll_spheroid<T, Parameters>(par)
         {
             detail::moll::setup_wag5(this->m_par, this->m_proj_parm);
         }
@@ -242,47 +240,20 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::moll, moll_spheroid, moll_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag4, wag4_spheroid, wag4_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::wag5, wag5_spheroid, wag5_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_moll, moll_spheroid, moll_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_wag4, wag4_spheroid, wag4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_wag5, wag5_spheroid, wag5_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class moll_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(moll_entry, moll_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(wag4_entry, wag4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(wag5_entry, wag5_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(moll_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<moll_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class wag4_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<wag4_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class wag5_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<wag5_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void moll_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("moll", new moll_entry<T, Parameters>);
-            factory.add_to_factory("wag4", new wag4_entry<T, Parameters>);
-            factory.add_to_factory("wag5", new wag5_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(moll, moll_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(wag4, wag4_entry);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(wag5, wag5_entry);
         }
 
     } // namespace detail

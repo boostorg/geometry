@@ -50,14 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct apian {};
-    struct ortel {};
-    struct bacon {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -86,7 +78,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T half_pi = detail::half_pi<T>();
                     static const T half_pi_sqr = detail::half_pi_sqr<T>();
@@ -158,7 +150,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct apian_spheroid : public detail::bacon::base_bacon_spheroid<T, Parameters>
     {
-        inline apian_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline apian_spheroid(Params const& , Parameters const& par)
+            : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
         {
             detail::bacon::setup_apian(this->m_par, this->m_proj_parm);
         }
@@ -180,7 +174,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct ortel_spheroid : public detail::bacon::base_bacon_spheroid<T, Parameters>
     {
-        inline ortel_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline ortel_spheroid(Params const& , Parameters const& par)
+            : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
         {
             detail::bacon::setup_ortel(this->m_par, this->m_proj_parm);
         }
@@ -202,7 +198,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct bacon_spheroid : public detail::bacon::base_bacon_spheroid<T, Parameters>
     {
-        inline bacon_spheroid(const Parameters& par) : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline bacon_spheroid(Params const& , Parameters const& par)
+            : detail::bacon::base_bacon_spheroid<T, Parameters>(par)
         {
             detail::bacon::setup_bacon(this->m_par, this->m_proj_parm);
         }
@@ -213,47 +211,20 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::apian, apian_spheroid, apian_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::bacon, bacon_spheroid, bacon_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ortel, ortel_spheroid, ortel_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_apian, apian_spheroid, apian_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_bacon, bacon_spheroid, bacon_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_ortel, ortel_spheroid, ortel_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class apian_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<apian_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(apian_entry, apian_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(ortel_entry, ortel_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(bacon_entry, bacon_spheroid)
 
-        template <typename T, typename Parameters>
-        class ortel_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(bacon_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<ortel_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        class bacon_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<bacon_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void bacon_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("apian", new apian_entry<T, Parameters>);
-            factory.add_to_factory("ortel", new ortel_entry<T, Parameters>);
-            factory.add_to_factory("bacon", new bacon_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(apian, apian_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ortel, ortel_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(bacon, bacon_entry)
         }
 
     } // namespace detail

@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct loxim {}; // Loximuthal
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -84,7 +78,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -103,7 +97,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T fourth_pi = detail::fourth_pi<T>();
                     static const T half_pi = detail::half_pi<T>();
@@ -128,12 +122,12 @@ namespace projections
             };
 
             // Loximuthal
-            template <typename Parameters, typename T>
-            inline void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_loxim(Params const& params, Parameters& par, par_loxim<T>& proj_parm)
             {
                 static const T fourth_pi = detail::fourth_pi<T>();
 
-                proj_parm.phi1 = pj_get_param_r(par.params, "lat_1");
+                proj_parm.phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
                 if (proj_parm.cosphi1 < epsilon)
                     BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
@@ -163,9 +157,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<T, Parameters>
     {
-        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline loxim_spheroid(Params const& params, Parameters const& par)
+            : detail::loxim::base_loxim_spheroid<T, Parameters>(par)
         {
-            detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
+            detail::loxim::setup_loxim(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -174,23 +170,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::loxim, loxim_spheroid, loxim_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_loxim, loxim_spheroid, loxim_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class loxim_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(loxim_entry, loxim_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(loxim_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<loxim_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void loxim_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("loxim", new loxim_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(loxim, loxim_entry)
         }
 
     } // namespace detail

@@ -15,6 +15,9 @@
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
+  Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
+  Contributed and/or modified by Yaghyavardhan Singh Khangarot, as part of Google Summer of Code 2018 program.
+
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
   http://www.boost.org/LICENSE_1_0.txt)
@@ -446,6 +449,11 @@
     <bridgehead renderas="sect3">Reverse</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.reverse">reverse</link></member>
+    </simplelist>
+    <bridgehead renderas="sect3">Similarity</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.discrete_frechet_distance">discrete_frechet_distance</link></member>
+     <member><link linkend="geometry.reference.algorithms.discrete_hausdorff_distance">discrete_hausdorff_distance</link></member>     
     </simplelist>
     <bridgehead renderas="sect3">Simplify</bridgehead>
     <simplelist type="vert" columns="1">

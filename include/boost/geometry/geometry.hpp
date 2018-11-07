@@ -62,6 +62,8 @@
 #include <boost/geometry/algorithms/crosses.hpp>
 #include <boost/geometry/algorithms/densify.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
+#include <boost/geometry/algorithms/discrete_frechet_distance.hpp>
+#include <boost/geometry/algorithms/discrete_hausdorff_distance.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>

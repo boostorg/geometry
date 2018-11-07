@@ -126,8 +126,8 @@ struct has_spikes
 
         while (next != boost::end(view))
         {
-            if ( geometry::detail::point_is_spike_or_equal(*prev, *next, *cur,
-                                                           strategy) )
+            if ( geometry::detail::is_spike_or_equal(*prev, *cur, *next,
+                                                     strategy) )
             {
                 return
                     ! visitor.template apply<failure_spikes>(is_linear, *cur);
@@ -147,7 +147,7 @@ struct has_spikes
                                                          boost::rend(view));
 
             iterator next = find_different_from_first(cur, boost::end(view));
-            if (detail::point_is_spike_or_equal(*prev, *next, *cur, strategy))
+            if (detail::is_spike_or_equal(*prev, *cur, *next, strategy))
             {
                 return
                     ! visitor.template apply<failure_spikes>(is_linear, *cur);

@@ -29,44 +29,61 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
+#include "proj4.hpp"
 
 namespace srs = bg::srs;
-namespace par = bg::srs::par4;
 
-template <typename StaticProj, typename GeoPoint>
-void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
-        std::string const& parameters, int deviation = 1)
+template <typename P>
+bool check_expected(P const& p1, P const& p2)
 {
-    typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
-    typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
-    typedef srs::projection<StaticProj> projection_type;
+    return bg::math::abs(bg::get<0>(p1) - bg::get<0>(p2)) <= 1.0
+        && bg::math::abs(bg::get<1>(p1) - bg::get<1>(p2)) <= 1.0;
+}
 
+template <typename StaticParams, typename GeoPoint, typename CartPoint>
+void test_forward(std::string const& id, GeoPoint const& geo_point, CartPoint const& cart_point,
+                  StaticParams const& params, std::string const& proj4 = "")
+{
     try
     {
-        // hybrid interface disabled by default
-        // static_proj4 default ctor, dynamic parameters passed
-        projection_type prj = srs::proj4(parameters);
+        srs::projection<StaticParams> prj = params;
 
-        cartesian_point_type xy1, xy2;
-        prj.forward(geo_point1, xy1);
-        prj.forward(geo_point2, xy2);
+        CartPoint xy;
+        prj.forward(geo_point, xy);
+        
+        bool ok = check_expected(xy, cart_point);
 
-        // Calculate distances in KM
-        int const distance_expected = static_cast<int>(bg::distance(geo_point1, geo_point2) / 1000.0);
-        int const distance_found = static_cast<int>(bg::distance(xy1, xy2) / 1000.0);
-
-        int const difference = std::abs(distance_expected - distance_found);
-        BOOST_CHECK_MESSAGE(difference <= 1 || difference == deviation,
+        BOOST_CHECK_MESSAGE(ok,
                 " id: " << id
-                << " distance found: " << distance_found
-                << " expected: " << distance_expected);
+                << " point: " << bg::wkt(xy)
+                << " different than expected: " << bg::wkt(cart_point));
 
-// For debug:
-//        std::cout << projection_type::get_name() << " " << distance_expected
-//            << " " << distance_found
-//            << " " << (difference > 1 && difference != deviation ? " *** WRONG ***" : "")
-//            << " " << difference
-//            << std::endl;
+        if (! proj4.empty())
+        {
+            srs::projection<> prj2 = srs::proj4(proj4);
+
+            CartPoint xy2;
+            prj2.forward(geo_point, xy2);
+
+            bool eq2 = bg::equals(xy, xy2);
+
+            BOOST_CHECK_MESSAGE(eq2,
+                " id: " << id << " result of static: "
+                << bg::wkt(xy) << " different than dynamic: " << bg::wkt(xy2));
+
+#ifdef TEST_WITH_PROJ4
+            pj_projection prj3(proj4);
+
+            CartPoint xy3;
+            prj3.forward(geo_point, xy3);
+
+            bool eq3 = bg::equals(xy, xy3);
+
+            BOOST_CHECK_MESSAGE(eq3,
+                " id: " << id << " result: "
+                << bg::wkt(xy) << " different than proj4: " << bg::wkt(xy3));
+#endif // TEST_WITH_PROJ4
+        }
     }
     catch(bg::projection_exception const& e)
     {
@@ -78,28 +95,18 @@ void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint co
     }
 }
 
-template <typename Proj, typename Model, typename GeoPoint>
-void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
-        std::string const& parameters, int deviation = 1)
+template <typename StaticParams, typename GeoPoint, typename CartPoint>
+void test_forward(std::string const& id, GeoPoint const& geo_point, CartPoint const& cart_point,
+                  std::string const& proj4 = "")
 {
-    typedef srs::static_proj4<par::proj<Proj>, par::ellps<Model> > static_proj4;
-
-    test_forward<static_proj4>(id, geo_point1, geo_point2, parameters, deviation);
-}
-
-template <typename Proj, typename Model, typename OProj, typename GeoPoint>
-void test_forward(std::string const& id, GeoPoint const& geo_point1, GeoPoint const& geo_point2,
-        std::string const& parameters, int deviation = 1)
-{
-    typedef srs::static_proj4<par::proj<Proj>, par::ellps<Model>, par::o_proj<OProj> > static_proj4;
-
-    test_forward<static_proj4>(id, geo_point1, geo_point2, parameters, deviation);
+    test_forward(id, geo_point, cart_point, StaticParams(), proj4);
 }
 
 template <typename T>
 void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::geographic<bg::degree> > geo_point_type;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> cart;
 
     geo_point_type amsterdam = bg::make<geo_point_type>(4.8925, 52.3731);
     geo_point_type utrecht   = bg::make<geo_point_type>(5.1213, 52.0907);
@@ -113,32 +120,45 @@ void test_all()
     geo_point_type aspen  = bg::make<geo_point_type>(-106.84, 39.19);
     geo_point_type denver = bg::make<geo_point_type>(-104.88, 39.76);
 
+    using namespace srs::spar;
+
     // IGH (internally using moll/sinu)
-    test_forward<par::igh, par::sphere>("igh-au", amsterdam, utrecht, "+ellps=sphere +units=m", 5);
-    test_forward<par::igh, par::sphere>("igh-ad", aspen, denver, "+ellps=sphere +units=m", 3);
-    test_forward<par::igh, par::sphere>("igh-aw", auckland, wellington, "+ellps=sphere +units=m", 152);
-    test_forward<par::igh, par::sphere>("igh-aj", anchorage, juneau, "+ellps=sphere +units=m", 28);
+    {
+        typedef parameters<proj_igh, ellps_sphere, units_m> params_t;
+        std::string sparams = "+proj=igh +ellps=sphere +units=m";
+        test_forward<params_t>("igh-am", amsterdam, cart(1489299.1509520211, 5776413.4260336142), sparams);
+        test_forward<params_t>("igh-ut", utrecht, cart(1498750.6627020084, 5747394.3313896423), sparams);
+        test_forward<params_t>("igh-as", aspen, cart(-11708973.126426676, 4357727.1232166551), sparams);
+        test_forward<params_t>("igh-de", denver, cart(-11536624.264589204, 4421108.2015589233), sparams);
+        test_forward<params_t>("igh-au", auckland, cart(18658819.353676274, -4096419.1686476548), sparams);
+        test_forward<params_t>("igh-we", wellington, cart(18733710.557981707, -4591140.1631184481), sparams);
+        test_forward<params_t>("igh-an", anchorage, cart(-14275110.630537530, 6648284.9393376000), sparams);
+        test_forward<params_t>("igh-ju", juneau, cart(-13421076.123140398, 6368936.3597440729), sparams);
+    }
 
     // Using moll
-    //test_forward<par::ob_tran_oblique, par::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    //test_forward<par::ob_tran, par::WGS84, par::moll>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    test_forward<par::ob_tran, par::WGS84, par::moll>("obt-au", amsterdam, utrecht, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    //test_forward<par::ob_tran_oblique, par::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    //test_forward<par::ob_tran, par::WGS84, par::moll>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=moll +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
-    test_forward<par::ob_tran, par::WGS84, par::moll>("obt-ad", aspen, denver, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 19);
+    {
+        typedef parameters<proj_ob_tran, ellps_wgs84, o_proj<proj_moll>, units_m, o_lat_p<>, o_lon_p<> > params_t;
+        params_t params = params_t(proj_ob_tran(), ellps_wgs84(), o_proj<proj_moll>(), units_m(), o_lat_p<>(10), o_lon_p<>(90));
+        std::string sparams = "+proj=ob_tran +ellps=WGS84 +o_proj=moll +units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50";
+        test_forward<params_t>("obt-m-am", amsterdam, cart(8688778.3518596273, -3348126.4518623645), params, sparams);
+        test_forward<params_t>("obt-m-ut", utrecht, cart(8693109.5205437448, -3379708.1134765535), params, sparams);
+        test_forward<params_t>("obt-m-as", aspen, cart(3691751.3259231807, 2371456.9674431868), params, sparams);
+        test_forward<params_t>("obt-m-de", denver, cart(3764685.2104777521, 2185616.0182080171), params, sparams);
+    }
 
     // Using sinu
-    //test_forward<par::ob_tran_oblique, par::WGS84>("obto-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 4);
-    //test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-au", amsterdam, utrecht, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-au", amsterdam, utrecht, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 5);
-    //test_forward<par::ob_tran_oblique, par::WGS84>("obto-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
-    //test_forward<par::ob_tran_transverse, par::WGS84>("obtt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 6);
-    //test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-ad", aspen, denver, "+ellps=WGS84 +units=m +o_proj=sinu +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
-    test_forward<par::ob_tran, par::WGS84, par::sinu>("obt-ad", aspen, denver, "+units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50", 14);
-
+    {
+        // In Proj4 >= 5.0.0 ob_tran projection doesn't overwrite the ellipsoid's parameters to make sphere in underlying projection
+        // So in order to use spherical sinu projection WGS84-compatible sphere has to be set manually.
+        typedef parameters<proj_ob_tran, a<>, es<>, o_proj<proj_sinu>, units_m, o_lat_p<>, o_lon_p<> > params_t;
+        params_t params = params_t(proj_ob_tran(), a<>(6378137), es<>(0), o_proj<proj_sinu>(), units_m(), o_lat_p<>(10), o_lon_p<>(90));
+        std::string sparams = "+proj=ob_tran +a=6378137 +es=0 +o_proj=sinu +units=m +o_lat_p=10 +o_lon_p=90 +o_lon_o=11.50";
+        test_forward<params_t>("obt-s-am", amsterdam, cart(9220221.4221933037, -3059652.3579233172), params, sparams);
+        test_forward<params_t>("obt-s-ut", utrecht, cart(9216281.0977674071, -3089427.4415689218), params, sparams);
+        test_forward<params_t>("obt-s-as", aspen, cart(4010672.3356677019, 2150730.9484995930), params, sparams);
+        test_forward<params_t>("obt-s-de", denver, cart(4103945.8062708224, 1979964.9315176210), params, sparams);
+    }
 }
 
 int test_main(int, char* [])

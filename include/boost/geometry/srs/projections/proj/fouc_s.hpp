@@ -51,12 +51,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct fouc_s {}; // Foucaut Sinusoidal
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -85,7 +79,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T t;
 
@@ -96,7 +90,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static T const half_pi = detail::half_pi<T>();
 
@@ -127,10 +121,10 @@ namespace projections
             };
 
             // Foucaut Sinusoidal
-            template <typename Parameters, typename T>
-            inline void setup_fouc_s(Parameters& par, par_fouc_s<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_fouc_s(Params const& params, Parameters& par, par_fouc_s<T>& proj_parm)
             {
-                proj_parm.n = pj_get_param_f(par.params, "n");
+                proj_parm.n = pj_get_param_f<T, srs::spar::n>(params, "n", srs::dpar::n);
                 if (proj_parm.n < 0. || proj_parm.n > 1.)
                     BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
 
@@ -158,9 +152,11 @@ namespace projections
     template <typename T, typename Parameters>
     struct fouc_s_spheroid : public detail::fouc_s::base_fouc_s_spheroid<T, Parameters>
     {
-        inline fouc_s_spheroid(const Parameters& par) : detail::fouc_s::base_fouc_s_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline fouc_s_spheroid(Params const& params, Parameters const& par)
+            : detail::fouc_s::base_fouc_s_spheroid<T, Parameters>(par)
         {
-            detail::fouc_s::setup_fouc_s(this->m_par, this->m_proj_parm);
+            detail::fouc_s::setup_fouc_s(params, this->m_par, this->m_proj_parm);
         }
     };
 
@@ -169,23 +165,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::fouc_s, fouc_s_spheroid, fouc_s_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_fouc_s, fouc_s_spheroid, fouc_s_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class fouc_s_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(fouc_s_entry, fouc_s_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(fouc_s_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<fouc_s_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void fouc_s_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("fouc_s", new fouc_s_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(fouc_s, fouc_s_entry);
         }
 
     } // namespace detail

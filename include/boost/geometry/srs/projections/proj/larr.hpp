@@ -48,12 +48,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct larr {}; // Larrivee
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -71,7 +65,7 @@ namespace projections
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T sixth = detail::sixth<T>();
 
@@ -112,7 +106,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct larr_spheroid : public detail::larr::base_larr_spheroid<T, Parameters>
     {
-        inline larr_spheroid(const Parameters& par) : detail::larr::base_larr_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline larr_spheroid(Params const& , Parameters const& par)
+            : detail::larr::base_larr_spheroid<T, Parameters>(par)
         {
             detail::larr::setup_larr(this->m_par);
         }
@@ -123,23 +119,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::larr, larr_spheroid, larr_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_larr, larr_spheroid, larr_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class larr_entry : public detail::factory_entry<T, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(larr_entry, larr_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(larr_init)
         {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<larr_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
-
-        template <typename T, typename Parameters>
-        inline void larr_init(detail::base_factory<T, Parameters>& factory)
-        {
-            factory.add_to_factory("larr", new larr_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(larr, larr_entry);
         }
 
     } // namespace detail

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,7 +37,7 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
-template <typename Prj, typename CSTag, typename BGP, typename CT, typename P>
+template <typename Prj, typename CSTag, typename SP, typename CT, typename P>
 struct static_projection_type
 {
     BOOST_MPL_ASSERT_MSG((false),
@@ -46,13 +46,13 @@ struct static_projection_type
 };
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(PROJ, P_SPHERE, P_SPHEROID) \
-template <typename BGP, typename CT, typename P> \
-struct static_projection_type<PROJ, srs_sphere_tag, BGP, CT, P> \
+template <typename SP, typename CT, typename P> \
+struct static_projection_type<PROJ, srs_sphere_tag, SP, CT, P> \
 { \
     typedef P_SPHERE<CT, P> type; \
 }; \
-template <typename BGP, typename CT, typename P> \
-struct static_projection_type<PROJ, srs_spheroid_tag, BGP, CT, P> \
+template <typename SP, typename CT, typename P> \
+struct static_projection_type<PROJ, srs_spheroid_tag, SP, CT, P> \
 { \
     typedef P_SPHEROID<CT, P> type; \
 }; \
@@ -96,7 +96,7 @@ public:
 
     inline std::string name() const
     {
-        return this->m_par.name;
+        return this->m_par.id.name;
     }
 
 protected:

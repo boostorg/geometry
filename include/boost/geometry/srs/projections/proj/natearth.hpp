@@ -61,12 +61,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct natearth {}; // Natural Earth
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -107,7 +101,7 @@ namespace projections
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     T phi2, phi4;
 
@@ -119,7 +113,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T max_y = natearth::max_y<T>();
 
@@ -186,7 +180,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<T, Parameters>
     {
-        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<T, Parameters>(par)
+        template <typename Params>
+        inline natearth_spheroid(Params const& , Parameters const& par)
+            : detail::natearth::base_natearth_spheroid<T, Parameters>(par)
         {
             detail::natearth::setup_natearth(this->m_par);
         }
@@ -197,23 +193,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::natearth, natearth_spheroid, natearth_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_natearth, natearth_spheroid, natearth_spheroid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class natearth_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<natearth_spheroid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(natearth_entry, natearth_spheroid)
 
-        template <typename T, typename Parameters>
-        inline void natearth_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(natearth_init)
         {
-            factory.add_to_factory("natearth", new natearth_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(natearth, natearth_entry)
         }
 
     } // namespace detail

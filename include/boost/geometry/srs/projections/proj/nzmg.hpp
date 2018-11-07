@@ -56,12 +56,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct nzmg {}; // New Zealand Map Grid
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -119,7 +113,7 @@ namespace projections
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
                     static const T rad_to_sec5 = nzmg::rad_to_sec5<T>();
 
@@ -139,7 +133,7 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T sec5_to_rad = nzmg::sec5_to_rad<T>();
 
@@ -184,7 +178,8 @@ namespace projections
                 static const calc_t d2r = geometry::math::d2r<calc_t>();
 
                 /* force to International major axis */
-                par.ra = 1. / (par.a = 6378388.0);
+                par.a = 6378388.0;
+                par.ra = 1. / par.a;
                 par.lam0 = 173. * d2r;
                 par.phi0 = -41. * d2r;
                 par.x0 = 2510000.;
@@ -208,7 +203,9 @@ namespace projections
     template <typename T, typename Parameters>
     struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<T, Parameters>
     {
-        inline nzmg_ellipsoid(const Parameters& par) : detail::nzmg::base_nzmg_ellipsoid<T, Parameters>(par)
+        template <typename Params>
+        inline nzmg_ellipsoid(Params const& , Parameters const& par)
+            : detail::nzmg::base_nzmg_ellipsoid<T, Parameters>(par)
         {
             detail::nzmg::setup_nzmg(this->m_par);
         }
@@ -219,23 +216,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nzmg, nzmg_ellipsoid, nzmg_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_nzmg, nzmg_ellipsoid, nzmg_ellipsoid)
 
         // Factory entry(s)
-        template <typename T, typename Parameters>
-        class nzmg_entry : public detail::factory_entry<T, Parameters>
-        {
-            public :
-                virtual base_v<T, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<nzmg_ellipsoid<T, Parameters>, T, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(nzmg_entry, nzmg_ellipsoid)
 
-        template <typename T, typename Parameters>
-        inline void nzmg_init(detail::base_factory<T, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(nzmg_init)
         {
-            factory.add_to_factory("nzmg", new nzmg_entry<T, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(nzmg, nzmg_entry)
         }
 
     } // namespace detail

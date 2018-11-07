@@ -34,6 +34,9 @@ namespace detail { namespace overlay { namespace sort_by_side
 
 enum direction_type { dir_unknown = -1, dir_from = 0, dir_to = 1 };
 
+typedef signed_size_type rank_type;
+
+
 // Point-wrapper, adding some properties
 template <typename Point>
 struct ranked_point
@@ -64,7 +67,7 @@ struct ranked_point
     {}
 
     Point point;
-    std::size_t rank;
+    rank_type rank;
     signed_size_type zone; // index of closed zone, in uu turn there would be 2 zones
     signed_size_type turn_index;
     int operation_index; // 0,1
@@ -445,7 +448,7 @@ private :
     inline std::size_t open_count(Include const& include_functor) const
     {
         std::size_t result = 0;
-        std::size_t last_rank = 0;
+        rank_type last_rank = 0;
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
             rp const& ranked_point = m_ranked_points[i];
@@ -479,7 +482,7 @@ private :
         return result;
     }
 
-    void assign_ranks(std::size_t min_rank, std::size_t max_rank, int side_index)
+    void assign_ranks(rank_type min_rank, rank_type max_rank, int side_index)
     {
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
@@ -512,8 +515,8 @@ private :
     {
         bool in_polygon = true; // Because start_index is "from", arrives at the turn
         rp const& start_rp = m_ranked_points[start_index];
-        std::size_t last_from_rank = start_rp.rank;
-        std::size_t previous_rank = start_rp.rank;
+        rank_type last_from_rank = start_rp.rank;
+        rank_type previous_rank = start_rp.rank;
 
         for (std::size_t index = move<Member>(the_index, start_index);
              ;
@@ -552,9 +555,9 @@ private :
     {
         // Find a starting point (the first rank after an outgoing rank
         // with no polygons on the left side)
-        std::size_t start_rank = m_ranked_points.size() + 1;
+        rank_type start_rank = m_ranked_points.size() + 1;
         std::size_t start_index = 0;
-        std::size_t max_rank = 0;
+        rank_type max_rank = 0;
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
             rp const& ranked_point = m_ranked_points[i];
@@ -574,10 +577,10 @@ private :
         }
 
         // Assign the zones
-        std::size_t const undefined_rank = max_rank + 1;
+        rank_type const undefined_rank = max_rank + 1;
         std::size_t zone_id = 0;
-        std::size_t last_rank = 0;
-        std::size_t rank_at_next_zone = undefined_rank;
+        rank_type last_rank = 0;
+        rank_type rank_at_next_zone = undefined_rank;
         std::size_t index = start_index;
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {

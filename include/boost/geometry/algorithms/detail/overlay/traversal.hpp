@@ -557,7 +557,7 @@ struct traversal
         return m_turns[rp.turn_index].operations[rp.operation_index];
     }
 
-    inline int select_turn_in_cluster_union(std::size_t selected_rank,
+    inline int select_turn_in_cluster_union(sort_by_side::rank_type selected_rank,
             typename sbs_type::rp const& ranked_point,
             signed_size_type start_turn_index, int start_op_index) const
     {
@@ -594,7 +594,7 @@ struct traversal
             ;
     }
 
-    inline signed_size_type select_rank(sbs_type const& sbs,
+    inline sort_by_side::rank_type select_rank(sbs_type const& sbs,
                                         bool skip_isolated) const
     {
         // Take the first outgoing rank corresponding to incoming region,
@@ -632,7 +632,7 @@ struct traversal
         int& op_index, sbs_type const& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
-        std::size_t const selected_rank = select_rank(sbs, false);
+        sort_by_side::rank_type const selected_rank = select_rank(sbs, false);
 
         int best_code = 0;
         bool result = false;
@@ -665,7 +665,7 @@ struct traversal
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
-        std::size_t const selected_rank = select_rank(sbs, true);
+        sort_by_side::rank_type const selected_rank = select_rank(sbs, true);
 
         if (selected_rank > 0)
         {

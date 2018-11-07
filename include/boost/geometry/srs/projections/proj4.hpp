@@ -1,6 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,11 +14,15 @@
 
 
 #include <string>
+#include <vector>
 
-#include <boost/tuple/tuple.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 
-namespace boost { namespace geometry { namespace srs
+namespace boost { namespace geometry
+{
+    
+namespace srs
 {
 
 
@@ -26,98 +32,98 @@ struct dynamic {};
 struct proj4
 {
     explicit proj4(const char* s)
-        : str(s)
+        : m_str(s)
     {}
 
     explicit proj4(std::string const& s)
-        : str(s)
+        : m_str(s)
     {}
 
-    std::string str;
+    std::string const& str() const
+    {
+        return m_str;
+    }
+
+private:
+    std::string m_str;
 };
 
 
-template
-<
-    // null_type -> void?
-    typename P0 = boost::tuples::null_type,
-    typename P1 = boost::tuples::null_type,
-    typename P2 = boost::tuples::null_type,
-    typename P3 = boost::tuples::null_type,
-    typename P4 = boost::tuples::null_type,
-    typename P5 = boost::tuples::null_type,
-    typename P6 = boost::tuples::null_type,
-    typename P7 = boost::tuples::null_type,
-    typename P8 = boost::tuples::null_type,
-    typename P9 = boost::tuples::null_type
->
-struct static_proj4
-    : boost::tuple<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9>
+namespace detail
 {
-    typedef boost::tuple<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9> base_type;
 
-    static_proj4()
-    {}
-
-    explicit static_proj4(P0 const& p0)
-        : base_type(p0)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1)
-        : base_type(p0, p1)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2)
-        : base_type(p0, p1, p2)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3)
-        : base_type(p0, p1, p2, p3)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4)
-        : base_type(p0, p1, p2, p3, p4)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5)
-        : base_type(p0, p1, p2, p3, p4, p5)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6)
-        : base_type(p0, p1, p2, p3, p4, p5, p6)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7, p8)
-    {}
-
-    static_proj4(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
-    {}
+struct proj4_parameter
+{
+    proj4_parameter() {}
+    proj4_parameter(std::string const& n, std::string const& v) : name(n), value(v) {}
+    std::string name;
+    std::string value;
 };
 
-#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX \
-typename P0, typename P1, typename P2, typename P3, typename P4, \
-typename P5, typename P6, typename P7, typename P8, typename P9
-
-#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX \
-P0, P1, P2, P3, P4, P5, P6, P7, P8, P9
-
-
-}}} // namespace boost::geometry::srs
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace boost { namespace geometry { namespace projections { namespace detail
+struct proj4_parameters
+    : std::vector<proj4_parameter>
 {
+    // Initially implemented as part of pj_init_plus() and pj_init()
+    proj4_parameters(std::string const& proj4_str)
+    {
+        const char* sep = " +";
 
-template<typename R> struct function_argument_type;
-template<typename R, typename A> struct function_argument_type<R(A)> { typedef A type; };
+        /* split into arguments based on '+' and trim white space */
 
-}}}} // namespace boost::geometry::projections::detail
-#endif // DOXYGEN_NO_DETAIL
+        // boost::split splits on one character, here it should be on " +", so implementation below
+        // todo: put in different routine or sort out
+        std::string def = boost::trim_copy(proj4_str);
+        boost::trim_left_if(def, boost::is_any_of(sep));
+
+        std::string::size_type loc = def.find(sep);
+        while (loc != std::string::npos)
+        {
+            std::string par = def.substr(0, loc);
+            boost::trim(par);
+            if (! par.empty())
+            {
+                this->add(par);
+            }
+
+            def.erase(0, loc);
+            boost::trim_left_if(def, boost::is_any_of(sep));
+            loc = def.find(sep);
+        }
+
+        if (! def.empty())
+        {
+            this->add(def);
+        }
+    }
+
+    void add(std::string const& str)
+    {
+        std::string name = str;
+        std::string value;
+        boost::trim_left_if(name, boost::is_any_of("+"));
+        std::string::size_type loc = name.find("=");
+        if (loc != std::string::npos)
+        {
+            value = name.substr(loc + 1);
+            name.erase(loc);
+        }
+
+        this->add(name, value);
+    }
+
+    void add(std::string const& name, std::string const& value)
+    {
+        this->push_back(proj4_parameter(name, value));
+    }
+};
+
+}
+
+
+} // namespace srs
+
+
+}} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_SRS_PROJECTIONS_PROJ4_HPP

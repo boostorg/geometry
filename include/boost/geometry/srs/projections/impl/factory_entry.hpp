@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include <boost/geometry/srs/projections/factory_key.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -24,26 +25,60 @@ namespace detail
 {
 
 // forward declaration needed by some projections
-template <typename CT, typename Parameters>
+template <typename Params, typename CT, typename Parameters>
 class factory;
 
-template <typename CT, typename P>
-class factory_entry
+template <typename Params, typename CT, typename Parameters>
+struct factory_entry
 {
-public:
-
     virtual ~factory_entry() {}
-    virtual base_v<CT, P>* create_new(P const& par) const = 0;
+    virtual base_v<CT, Parameters>* create_new(Params const& , Parameters const& ) const = 0;
 };
 
-template <typename CT, typename P>
-class base_factory
-{
-public:
+// Macros for entries definition
 
-    virtual ~base_factory() {}
-    virtual void add_to_factory(std::string const& name, factory_entry<CT, P>* sub) = 0;
-};
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
+template <typename Params, typename T, typename Parameters> \
+struct ENTRY : projections::detail::factory_entry<Params, T, Parameters> \
+{ \
+    projections::detail::base_v<T, Parameters>* create_new(Params const& params, \
+                                                           Parameters const& parameters) const
+
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END };
+
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(ENTRY, PROJ) \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
+{ \
+    return new projections::detail::base_v_f<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
+} \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
+
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(ENTRY, PROJ) \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
+{ \
+    return new projections::detail::base_v_fi<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
+} \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
+
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(ENTRY, PROJ_S, PROJ_E) \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
+{ \
+    if (parameters.es != 0.0) \
+        return new projections::detail::base_v_fi<PROJ_E<T, Parameters>, T, Parameters>(params, parameters); \
+    else \
+        return new projections::detail::base_v_fi<PROJ_S<T, Parameters>, T, Parameters>(params, parameters); \
+} \
+BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
+
+// Macros for factory initialization
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(FUN_NAME) \
+template <typename Params, typename T, typename Parameters> \
+inline void FUN_NAME(projections::detail::factory<Params, T, Parameters>& factory)
+
+#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(PROJ_NAME, ENTRY) \
+    factory.add_to_factory(projections::detail::factory_key(#PROJ_NAME, \
+                                                            srs::dpar::proj_##PROJ_NAME), \
+                           new ENTRY<Params, T, Parameters>);
 
 } // namespace detail
 }}} // namespace boost::geometry::projections
