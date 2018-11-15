@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 # Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-# Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+# Copyright (c) 2009-2018 Mateusz Loskot, London, UK.
 #
 # This file was modified by Oracle on 2017, 2018.
 # Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
@@ -27,6 +27,13 @@ project boost-geometry-test
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
         <define>BOOST_NO_AUTO_PTR # disable the deprecated std::auto_ptr support in SmartPtr and Core
     ;
+
+# Rest self-contained headers on-demand only to avoid build timeouts on CI services.
+# The CI environment is common for Travis CI, AppVeyor, CircleCI, etc.
+if ! [ os.environ CI ] || [ os.environ TEST_HEADERS ]
+{
+    build-project self_contained_headers ;
+}
 
 # Run minimal testset
 test-suite boost-geometry-minimal
@@ -53,3 +60,4 @@ build-project util ;
 build-project views ;
 
 }
+
