@@ -101,6 +101,44 @@ struct no_interrupt_policy
     }
 };
 
+template <typename Section0, typename Section1>
+struct retrieve_from_sections
+{
+    retrieve_from_sections(Section0 const& section0, Section1 const& section1,
+                           signed_size_type index0, signed_size_type index1)
+      : m_section0(section0)
+      , m_section1(section1)
+      , m_index0(index0)
+      , m_index1(index1)
+    {}
+
+    inline bool is_first(int source_index) const
+    {
+        return source_index == 0 ? is_first(m_section0, m_index0) : is_first(m_section1, m_index1);
+    }
+    inline bool is_last(int source_index) const
+    {
+        return source_index == 0 ? is_last(m_section0, m_index0) : is_last(m_section1, m_index1);
+    }
+
+    template <typename Section>
+    inline bool is_first(Section const& section, signed_size_type index) const
+    {
+        return section.is_non_duplicate_first && index == section.begin_index;
+    }
+
+    template <typename Section>
+    inline bool is_last(Section const& section, signed_size_type index) const
+    {
+        return section.is_non_duplicate_last && index + 1 >= section.end_index;
+    }
+
+    Section0 const& m_section0;
+    Section1 const& m_section1;
+    signed_size_type m_index0;
+    signed_size_type m_index1;
+};
+
 
 template
 <
@@ -295,14 +333,10 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    bool const is_1_first = sec1.is_non_duplicate_first && index1 == sec1.begin_index;
-                    bool const is_1_last = sec1.is_non_duplicate_last && index1+1 >= sec1.end_index;
-                    bool const is_2_first = sec2.is_non_duplicate_first && index2 == sec2.begin_index;
-                    bool const is_2_last = sec2.is_non_duplicate_last && index2+1 >= sec2.end_index;
+                    retrieve_from_sections<Section1, Section2> retrieve_policy(sec1, sec2, index1, index2);
 
                     TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
-                                      is_1_first, is_1_last, is_2_first, is_2_last,
-                                      ti, intersection_strategy, robust_policy,
+                                      ti, intersection_strategy, retrieve_policy, robust_policy,
                                       std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -562,9 +596,6 @@ struct get_turns_cs
         cview_type cview(range);
         view_type view(cview);
 
-        typedef typename boost::range_size<view_type>::type size_type;
-        size_type segments_count1 = boost::size(view) - 1;
-
         iterator_type it = boost::begin(view);
 
         ever_circling_iterator<iterator_type> next(
@@ -613,9 +644,6 @@ struct get_turns_cs
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
-                        // NOTE: some dummy values could be passed below since this would be called only for Polygons and Boxes
-                        index == 0,
-                        size_type(index) == segments_count1,
                         intersection_strategy,
                         robust_policy,
                         turns,
@@ -658,8 +686,6 @@ private:
             box_point_type const& bp1,
             box_point_type const& bp2,
             box_point_type const& bp3,
-            bool const is_range_first,
-            bool const is_range_last,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
             // Output
@@ -672,35 +698,29 @@ private:
 
         typedef typename boost::range_value<Turns>::type turn_info;
 
+        overlay::retrieve_null_policy retrieve_policy;
+
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                          is_range_first, is_range_last,
-                          true, false,
-                          ti, intersection_strategy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                          is_range_first, is_range_last,
-                          false, false,
-                          ti, intersection_strategy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                          is_range_first, is_range_last,
-                          false, false,
-                          ti, intersection_strategy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                          is_range_first, is_range_last,
-                          false, true,
-                          ti, intersection_strategy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)

@@ -921,6 +921,18 @@ struct assign_null_policy
 
 
 /*!
+\brief Retrieve Policy doing nothing
+\details get_turn_info receives a policy indicating if a segment is first or last.
+   By default, all this information is false.
+ */
+struct retrieve_null_policy
+{
+    static inline bool is_first(int) { return false; }
+    static inline bool is_last(int) { return false; }
+};
+
+
+/*!
     \brief Turn information: intersection point, method, and turn information
     \details Information necessary for traversal phase (a phase
         of the overlay process). The information is gathered during the
@@ -946,16 +958,16 @@ struct get_turn_info
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
+        typename RetrievePolicy,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                bool /*is_p_first*/, bool /*is_p_last*/,
-                bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
+                RetrievePolicy const& ,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

@@ -40,16 +40,16 @@ struct get_turn_info_linear_linear
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
+        typename RetrievePolicy,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                bool is_p_first, bool is_p_last,
-                bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& strategy,
+                RetrievePolicy const& retrieve_policy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -64,6 +64,11 @@ struct get_turn_info_linear_linear
         inters_info inters(pi, pj, pk, qi, qj, qk, strategy, robust_policy);
 
         char const method = inters.d_info().how;
+
+        bool const is_p_first = retrieve_policy.is_first(0);
+        bool const is_p_last = retrieve_policy.is_last(0);
+        bool const is_q_first = retrieve_policy.is_first(1);
+        bool const is_q_last = retrieve_policy.is_last(1);
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;

@@ -44,14 +44,13 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename Strategy, typename RobustPolicy, typename OutputIterator>
+    template <typename Strategy, typename RetrievePolicy, typename RobustPolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& /*pk*/,
                 Point2 const& qi, Point2 const& qj, Point2 const& /*qk*/,
-                bool /*is_p_first*/, bool /*is_p_last*/,
-                bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& ,
                 Strategy const& strategy,
+                RetrievePolicy const& ,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
