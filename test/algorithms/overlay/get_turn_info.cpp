@@ -65,12 +65,12 @@ void test_with_point(std::string const& caseid,
     tp_vector info;
     strategy_type strategy;
     rescale_policy_type rescale_policy;
+    bg::detail::overlay::retrieve_null_policy retrieve_policy;
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
         >::apply(pi, pj, pk, qi, qj, qk,
-                 false, false, false, false, // dummy parameters
-        model, strategy, rescale_policy, std::back_inserter(info));
+        model, strategy, retrieve_policy, retrieve_policy, rescale_policy, std::back_inserter(info));
 
 
     if (info.size() == 0)
