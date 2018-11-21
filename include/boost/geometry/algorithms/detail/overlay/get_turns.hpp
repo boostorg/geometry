@@ -101,42 +101,26 @@ struct no_interrupt_policy
     }
 };
 
-template <typename Section0, typename Section1>
+template <typename Section>
 struct retrieve_from_sections
 {
-    retrieve_from_sections(Section0 const& section0, Section1 const& section1,
-                           signed_size_type index0, signed_size_type index1)
-      : m_section0(section0)
-      , m_section1(section1)
-      , m_index0(index0)
-      , m_index1(index1)
+    retrieve_from_sections(Section const& section, signed_size_type index)
+      : m_section(section)
+      , m_index(index)
     {}
 
-    inline bool is_first(int source_index) const
+    inline bool is_first() const
     {
-        return source_index == 0 ? is_first(m_section0, m_index0) : is_first(m_section1, m_index1);
-    }
-    inline bool is_last(int source_index) const
-    {
-        return source_index == 0 ? is_last(m_section0, m_index0) : is_last(m_section1, m_index1);
+        return m_section.is_non_duplicate_first && m_index == m_section.begin_index;
     }
 
-    template <typename Section>
-    inline bool is_first(Section const& section, signed_size_type index) const
+    inline bool is_last() const
     {
-        return section.is_non_duplicate_first && index == section.begin_index;
+        return m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index;
     }
 
-    template <typename Section>
-    inline bool is_last(Section const& section, signed_size_type index) const
-    {
-        return section.is_non_duplicate_last && index + 1 >= section.end_index;
-    }
-
-    Section0 const& m_section0;
-    Section1 const& m_section1;
-    signed_size_type m_index0;
-    signed_size_type m_index1;
+    Section const& m_section;
+    signed_size_type m_index;
 };
 
 
@@ -333,10 +317,11 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    retrieve_from_sections<Section1, Section2> retrieve_policy(sec1, sec2, index1, index2);
+                    retrieve_from_sections<Section1> retrieve_policy1(sec1, index1);
+                    retrieve_from_sections<Section1> retrieve_policy2(sec2, index2);
 
                     TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
-                                      ti, intersection_strategy, retrieve_policy, robust_policy,
+                                      ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
                                       std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -705,22 +690,22 @@ private:
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                          ti, intersection_strategy, retrieve_policy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                          ti, intersection_strategy, retrieve_policy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                          ti, intersection_strategy, retrieve_policy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                          ti, intersection_strategy, retrieve_policy, robust_policy,
+                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
                           std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)

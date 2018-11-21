@@ -927,8 +927,8 @@ struct assign_null_policy
  */
 struct retrieve_null_policy
 {
-    static inline bool is_first(int) { return false; }
-    static inline bool is_last(int) { return false; }
+    static inline bool is_first() { return false; }
+    static inline bool is_last() { return false; }
 };
 
 
@@ -958,7 +958,8 @@ struct get_turn_info
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrievePolicy,
+        typename RetrievePolicy1,
+        typename RetrievePolicy2,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -967,7 +968,8 @@ struct get_turn_info
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
-                RetrievePolicy const& ,
+                RetrievePolicy1 const& ,
+                RetrievePolicy2 const& ,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

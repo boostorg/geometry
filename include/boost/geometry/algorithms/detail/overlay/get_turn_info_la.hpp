@@ -45,7 +45,8 @@ struct get_turn_info_linear_areal
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrievePolicy,
+        typename RetrievePolicy1,
+        typename RetrievePolicy2,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -54,7 +55,8 @@ struct get_turn_info_linear_areal
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
-                RetrievePolicy const& retrieve_policy,
+                RetrievePolicy1 const& retrieve_policy_p,
+                RetrievePolicy2 const& retrieve_policy_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -70,9 +72,9 @@ struct get_turn_info_linear_areal
 
         char const method = inters.d_info().how;
 
-        bool const is_p_first = retrieve_policy.is_first(0);
-        bool const is_p_last = retrieve_policy.is_last(0);
-        bool const is_q_last = retrieve_policy.is_last(1);
+        bool const is_p_first = retrieve_policy_p.is_first();
+        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_q_last = retrieve_policy_q.is_last();
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -85,7 +87,7 @@ struct get_turn_info_linear_areal
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<true, true>(
                     pi, pj, pk, qi, qj, qk,
-                    tp_model, inters, retrieve_policy, method_none, out);
+                    tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -95,7 +97,7 @@ struct get_turn_info_linear_areal
             {
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy, method_touch_interior, out) )
+                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -165,7 +167,7 @@ struct get_turn_info_linear_areal
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy, method_touch, out) )
+                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -256,7 +258,7 @@ struct get_turn_info_linear_areal
             {
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy, method_equal, out) )
+                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -302,7 +304,7 @@ struct get_turn_info_linear_areal
                 // Collinear
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy, method_collinear, out) )
+                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -709,22 +711,24 @@ struct get_turn_info_linear_areal
               typename Point2,
               typename TurnInfo,
               typename IntersectionInfo,
-              typename RetrievePolicy,
+              typename RetrievePolicy1,
+              typename RetrievePolicy2,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
                             Point1 const& pi, Point1 const& /*pj*/, Point1 const& /*pk*/,
                             Point2 const& qi, Point2 const& /*qj*/, Point2 const& /*qk*/,
                             TurnInfo const& tp_model,
                             IntersectionInfo const& inters,
-                            RetrievePolicy const& retrieve_policy,
+                            RetrievePolicy1 const& retrieve_policy_p,
+                            RetrievePolicy2 const& retrieve_policy_q,
                             method_type /*method*/,
                             OutputIterator out)
     {
         namespace ov = overlay;
         typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
 
-        bool const is_p_first = retrieve_policy.is_first(0);
-        bool const is_p_last = retrieve_policy.is_last(0);
+        bool const is_p_first = retrieve_policy_p.is_first();
+        bool const is_p_last = retrieve_policy_p.is_last();
 
         const std::size_t ip_count = inters.i_info().count;
         // no intersection points
@@ -738,7 +742,7 @@ struct get_turn_info_linear_areal
             return false;
         }
 
-        bool const is_q_last = retrieve_policy.is_last(1);
+        bool const is_q_last = retrieve_policy_q.is_last();
 
         linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();

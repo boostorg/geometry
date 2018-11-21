@@ -231,14 +231,16 @@ struct get_turn_info_for_endpoint
              typename Point2,
              typename TurnInfo,
              typename IntersectionInfo,
-             typename RetrievePolicy,
+             typename RetrievePolicy1,
+             typename RetrievePolicy2,
              typename OutputIterator
     >
     static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                              Point2 const& qi, Point2 const& qj, Point2 const& qk,
                              TurnInfo const& tp_model,
                              IntersectionInfo const& inters,
-                             RetrievePolicy const& retrieve_policy,
+                             RetrievePolicy1 const& retrieve_policy_p,
+                             RetrievePolicy2 const& retrieve_policy_q,
                              method_type /*method*/,
                              OutputIterator out)
     {
@@ -249,10 +251,10 @@ struct get_turn_info_for_endpoint
             return false;
         }
 
-        bool const is_p_first = retrieve_policy.is_first(0);
-        bool const is_p_last = retrieve_policy.is_last(0);
-        bool const is_q_first = retrieve_policy.is_first(1);
-        bool const is_q_last = retrieve_policy.is_last(1);
+        bool const is_p_first = retrieve_policy_p.is_first();
+        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_q_first = retrieve_policy_q.is_first();
+        bool const is_q_last = retrieve_policy_q.is_last();
 
         if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
         {
