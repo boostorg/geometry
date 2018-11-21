@@ -28,13 +28,6 @@ project boost-geometry-test
         <define>BOOST_NO_AUTO_PTR # disable the deprecated std::auto_ptr support in SmartPtr and Core
     ;
 
-# Rest self-contained headers on-demand only to avoid build timeouts on CI services.
-# The CI environment is common for Travis CI, AppVeyor, CircleCI, etc.
-if ! [ os.environ CI ] || [ os.environ TEST_HEADERS ]
-{
-    build-project self_contained_headers ;
-}
-
 # Run minimal testset
 test-suite boost-geometry-minimal
     :
