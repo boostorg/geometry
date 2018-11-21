@@ -81,8 +81,7 @@ struct get_turn_info_linear_linear
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
                     ::apply(pi, pj, pk, qi, qj, qk,
-                            is_p_first, is_p_last, is_q_first, is_q_last,
-                            tp_model, inters, method_none, out);
+                            tp_model, inters, retrieve_policy, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -92,8 +91,7 @@ struct get_turn_info_linear_linear
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
-                                is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_touch_interior, out) )
+                                tp_model, inters, retrieve_policy, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -163,8 +161,7 @@ struct get_turn_info_linear_linear
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
-                                is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_touch, out) )
+                                tp_model, inters, retrieve_policy, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -298,8 +295,7 @@ struct get_turn_info_linear_linear
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
-                                is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_equal, out) )
+                                tp_model, inters, retrieve_policy, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -356,8 +352,7 @@ struct get_turn_info_linear_linear
                 // Collinear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
-                                is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, inters, method_collinear, out) )
+                                tp_model, inters, retrieve_policy, method_collinear, out) )
                 {
                     // do nothing
                 }

@@ -231,24 +231,33 @@ struct get_turn_info_for_endpoint
              typename Point2,
              typename TurnInfo,
              typename IntersectionInfo,
+             typename RetrievePolicy,
              typename OutputIterator
     >
     static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                              Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                             bool is_p_first, bool is_p_last,
-                             bool is_q_first, bool is_q_last,
                              TurnInfo const& tp_model,
                              IntersectionInfo const& inters,
+                             RetrievePolicy const& retrieve_policy,
                              method_type /*method*/,
                              OutputIterator out)
     {
         std::size_t ip_count = inters.i_info().count;
         // no intersection points
-        if ( ip_count == 0 )
+        if (ip_count == 0)
+        {
             return false;
+        }
 
-        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
+        bool const is_p_first = retrieve_policy.is_first(0);
+        bool const is_p_last = retrieve_policy.is_last(0);
+        bool const is_q_first = retrieve_policy.is_first(1);
+        bool const is_q_last = retrieve_policy.is_last(1);
+
+        if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
+        {
             return false;
+        }
 
         linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
 
