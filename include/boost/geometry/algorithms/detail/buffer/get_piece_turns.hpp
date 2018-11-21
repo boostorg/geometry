@@ -253,11 +253,13 @@ class piece_turn_visitor
 #endif
                     > turn_policy;
 
+                overlay::retrieve_null_policy retrieve_policy;
+
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
-                                    false, false, false, false,
                                     the_model,
                                     m_intersection_strategy,
+                                    retrieve_policy, retrieve_policy,
                                     m_robust_policy,
                                     std::back_inserter(m_turns));
             }
