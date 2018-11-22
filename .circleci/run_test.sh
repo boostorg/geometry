@@ -15,6 +15,8 @@ cd $BOOST_DIR
 
 ./b2 -j2 cxxflags="--coverage" linkflags="--coverage" libs/geometry/$TEST_DIR
 
+EXIT_STATUS=$?
+
 cd ..
 
 mkdir $COVERAGE_DIR/$TEST_NAME
@@ -32,3 +34,4 @@ for file in $files; do
   mv $dirn/$filen.gcno $COVERAGE_DIR/$TEST_NAME/$dstfilen.gcno
 done
 
+exit $EXIT_STATUS
