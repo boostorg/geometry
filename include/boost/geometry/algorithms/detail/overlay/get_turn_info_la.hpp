@@ -51,8 +51,8 @@ struct get_turn_info_linear_areal
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& pi, Point1 const& pj,
+                Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
                 RetrievePolicy1 const& retrieve_policy_p,
@@ -67,6 +67,9 @@ struct get_turn_info_linear_areal
                 IntersectionStrategy,
                 RobustPolicy
             > inters_info;
+
+        Point1 const& pk = retrieve_policy_p.get();
+        Point2 const& qk = retrieve_policy_q.get();
 
         inters_info inters(pi, pj, pk, qi, qj, qk, intersection_strategy, robust_policy);
 

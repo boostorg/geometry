@@ -170,6 +170,7 @@ class piece_turn_visitor
         typedef typename boost::range_value<Rings const>::type ring_type;
         typedef typename boost::range_value<Turns const>::type turn_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator;
+        typedef typename point_type<ring_type const>::type point_type;
 
         signed_size_type const piece1_first_index = piece1.first_seg_id.segment_index;
         signed_size_type const piece2_first_index = piece2.first_seg_id.segment_index;
@@ -230,7 +231,9 @@ class piece_turn_visitor
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
 
+            // TODO: next_point can be moved inside a specified retrieve policy for piece points
             iterator next1 = next_point(ring1, it1);
+            overlay::retrieve_null_policy<point_type> retrieve_policy1(*next1);
 
             iterator it2 = it2_first;
             for (iterator prev2 = it2++;
@@ -238,6 +241,7 @@ class piece_turn_visitor
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 iterator next2 = next_point(ring2, it2);
+                overlay::retrieve_null_policy<point_type> retrieve_policy2(*next2);
 
                 // TODO: internally get_turn_info calculates robust points.
                 // But they are already calculated.
@@ -253,13 +257,12 @@ class piece_turn_visitor
 #endif
                     > turn_policy;
 
-                overlay::retrieve_null_policy retrieve_policy;
 
-                turn_policy::apply(*prev1, *it1, *next1,
-                                    *prev2, *it2, *next2,
+                turn_policy::apply(*prev1, *it1,
+                                    *prev2, *it2,
                                     the_model,
                                     m_intersection_strategy,
-                                    retrieve_policy, retrieve_policy,
+                                    retrieve_policy1, retrieve_policy2,
                                     m_robust_policy,
                                     std::back_inserter(m_turns));
             }

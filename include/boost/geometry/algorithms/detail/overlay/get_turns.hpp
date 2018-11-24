@@ -101,13 +101,27 @@ struct no_interrupt_policy
     }
 };
 
-template <typename Section>
-struct retrieve_from_sections
+template
+<
+    typename Section,
+    typename Point,
+    typename CircularIterator,
+    typename RobustPolicy
+>
+struct retrieve_from_section
 {
-    retrieve_from_sections(Section const& section, signed_size_type index)
+    retrieve_from_section(Section const& section, signed_size_type index,
+                          CircularIterator circular_iterator,
+                          Point const& current,
+                          RobustPolicy const& robust_policy)
       : m_section(section)
       , m_index(index)
-    {}
+      , m_current_point(current)
+      , m_circular_iterator(circular_iterator)
+      , m_point_retrieved(false)
+      , m_robust_policy(robust_policy)
+    {
+    }
 
     inline bool is_first() const
     {
@@ -119,8 +133,54 @@ struct retrieve_from_sections
         return m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index;
     }
 
+    inline Point const& get() const
+    {
+        if (! m_point_retrieved)
+        {
+            advance_to_non_duplicate_next(m_current_point, m_circular_iterator);
+            m_point = *m_circular_iterator;
+            m_point_retrieved = true;
+        }
+        return m_point;
+    }
+
+private :
+    inline void advance_to_non_duplicate_next(Point const& current, CircularIterator& circular_iterator) const
+    {
+        typedef typename robust_point_type<Point, RobustPolicy>::type robust_point_type;
+        robust_point_type current_robust_point;
+        robust_point_type next_robust_point;
+        geometry::recalculate(current_robust_point, current, m_robust_policy);
+        geometry::recalculate(next_robust_point, *circular_iterator, m_robust_policy);
+
+        // To see where the next segments bend to, in case of touch/intersections
+        // on end points, we need (in case of degenerate/duplicate points) an extra
+        // iterator which moves to the REAL next point, so non duplicate.
+        // This needs an extra comparison (disjoint).
+        // (Note that within sections, non duplicate points are already asserted,
+        //   by the sectionalize process).
+
+        // So advance to the "non duplicate next"
+        // (the check is defensive, to avoid endless loops)
+        std::size_t check = 0;
+        while(! detail::disjoint::disjoint_point_point
+                (
+                    current_robust_point, next_robust_point
+                )
+            && check++ < m_section.range_count)
+        {
+            circular_iterator++;
+            geometry::recalculate(next_robust_point, *circular_iterator, m_robust_policy);
+        }
+    }
+
     Section const& m_section;
     signed_size_type m_index;
+    Point const& m_current_point;
+    mutable CircularIterator m_circular_iterator;
+    mutable Point m_point;
+    mutable bool m_point_retrieved;
+    RobustPolicy m_robust_policy;
 };
 
 
@@ -165,6 +225,8 @@ class get_turns_in_sections
             view_type2 const
         >::type range2_iterator;
 
+    typedef ever_circling_iterator<range1_iterator> circular1_iterator;
+    typedef ever_circling_iterator<range2_iterator> circular2_iterator;
 
     template <typename Geometry, typename Section>
     static inline bool adjacent(Section const& section,
@@ -252,9 +314,8 @@ public :
             it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec1.bounding_box, sec2.bounding_box, robust_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
-            ever_circling_iterator<range1_iterator> nd_next1(
-                    begin_range_1, end_range_1, next1, true);
-            advance_to_non_duplicate_next(nd_next1, it1, sec1, robust_policy);
+            retrieve_from_section<Section1, point1_type, circular1_iterator, RobustPolicy> retrieve_policy1(sec1, index1,
+                circular1_iterator(begin_range_1, end_range_1, next1, true), *it1, robust_policy);
 
             signed_size_type index2 = sec2.begin_index;
             signed_size_type ndi2 = sec2.non_duplicate_index;
@@ -300,10 +361,8 @@ public :
 
                 if (! skip)
                 {
-                    // Move to the "non duplicate next"
-                    ever_circling_iterator<range2_iterator> nd_next2(
-                            begin_range_2, end_range_2, next2, true);
-                    advance_to_non_duplicate_next(nd_next2, it2, sec2, robust_policy);
+                    retrieve_from_section<Section2, point2_type, circular2_iterator, RobustPolicy> retrieve_policy2(sec2, index2,
+                        circular2_iterator(begin_range_2, end_range_2, next2), *it2, robust_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
 
@@ -317,10 +376,7 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    retrieve_from_sections<Section1> retrieve_policy1(sec1, index1);
-                    retrieve_from_sections<Section1> retrieve_policy2(sec2, index2);
-
-                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
+                    TurnPolicy::apply(*prev1, *it1, *prev2, *it2,
                                       ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
                                       std::back_inserter(turns));
 
@@ -345,37 +401,6 @@ private :
     typedef typename geometry::point_type<Geometry2>::type point2_type;
     typedef typename model::referring_segment<point1_type const> segment1_type;
     typedef typename model::referring_segment<point2_type const> segment2_type;
-
-    template <typename Iterator, typename RangeIterator, typename Section, typename RobustPolicy>
-    static inline void advance_to_non_duplicate_next(Iterator& next,
-            RangeIterator const& it, Section const& section, RobustPolicy const& robust_policy)
-    {
-        typedef typename robust_point_type<point1_type, RobustPolicy>::type robust_point_type;
-        robust_point_type robust_point_from_it;
-        robust_point_type robust_point_from_next;
-        geometry::recalculate(robust_point_from_it, *it, robust_policy);
-        geometry::recalculate(robust_point_from_next, *next, robust_policy);
-
-        // To see where the next segments bend to, in case of touch/intersections
-        // on end points, we need (in case of degenerate/duplicate points) an extra
-        // iterator which moves to the REAL next point, so non duplicate.
-        // This needs an extra comparison (disjoint).
-        // (Note that within sections, non duplicate points are already asserted,
-        //   by the sectionalize process).
-
-        // So advance to the "non duplicate next"
-        // (the check is defensive, to avoid endless loops)
-        std::size_t check = 0;
-        while(! detail::disjoint::disjoint_point_point
-                (
-                    robust_point_from_it, robust_point_from_next
-                )
-            && check++ < section.range_count)
-        {
-            next++;
-            geometry::recalculate(robust_point_from_next, *next, robust_policy);
-        }
-    }
 
     // It is NOT possible to have section-iterators here
     // because of the logistics of "index" (the section-iterator automatically
@@ -683,30 +708,42 @@ private:
 
         typedef typename boost::range_value<Turns>::type turn_info;
 
-        overlay::retrieve_null_policy retrieve_policy;
+        overlay::retrieve_null_policy<point_type> retrieve_policy1(rp2);
 
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
-        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-        TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
-                          std::back_inserter(turns));
+        {
+            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp2);
+            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
+            TurnPolicy::apply(rp0, rp1, bp0, bp1,
+                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
+                              std::back_inserter(turns));
+        }
 
-        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
-        TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
-                          std::back_inserter(turns));
+        {
+            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp3);
+            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
+            TurnPolicy::apply(rp0, rp1, bp1, bp2,
+                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
+                              std::back_inserter(turns));
+        }
 
-        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
-        TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
-                          std::back_inserter(turns));
+        {
+            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp0);
+            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
+            TurnPolicy::apply(rp0, rp1, bp2, bp3,
+                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
+                              std::back_inserter(turns));
+        }
 
-        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
-        TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                          ti, intersection_strategy, retrieve_policy, retrieve_policy, robust_policy,
-                          std::back_inserter(turns));
+        {
+            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp1);
+            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
+            TurnPolicy::apply(rp0, rp1, bp3, bp0,
+                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
+                              std::back_inserter(turns));
+        }
 
         if (InterruptPolicy::enabled)
         {

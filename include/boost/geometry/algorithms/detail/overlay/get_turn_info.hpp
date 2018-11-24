@@ -925,10 +925,20 @@ struct assign_null_policy
 \details get_turn_info receives a policy indicating if a segment is first or last.
    By default, all this information is false.
  */
+template <typename Point>
 struct retrieve_null_policy
 {
+    retrieve_null_policy(Point const& point)
+      : m_point(point)
+    {}
+
     static inline bool is_first() { return false; }
     static inline bool is_last() { return false; }
+    inline Point const& get() const
+    {
+        return m_point;
+    }
+    Point m_point;
 };
 
 
@@ -964,12 +974,12 @@ struct get_turn_info
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& pi, Point1 const& pj,
+                Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
-                RetrievePolicy1 const& ,
-                RetrievePolicy2 const& ,
+                RetrievePolicy1 const& retrieve_policy_p,
+                RetrievePolicy2 const& retrieve_policy_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -980,6 +990,9 @@ struct get_turn_info
                 IntersectionStrategy,
                 RobustPolicy
             > inters_info;
+
+        Point1 const& pk = retrieve_policy_p.get();
+        Point2 const& qk = retrieve_policy_q.get();
 
         inters_info inters(pi, pj, pk, qi, qj, qk, intersection_strategy, robust_policy);
 
