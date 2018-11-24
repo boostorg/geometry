@@ -60,7 +60,21 @@ BOOST_AUTO_TEST_CASE( test_is_simple_geo_linestring )
     bg::strategy::intersection::geographic_segments<> s_4053(sph_4053);
     bg::strategy::intersection::geographic_segments<> s_near_4053(sph_near_4053);
 
+    // Two cases which in Cartesian would be a spike, but in Geographic
+    // they go over the equator (first segment) and then over the pole
+    // (second segment)
     test_simple_s(from_wkt<G>("LINESTRING(0 0, -90 0, 90 0)"), s, true);
+    test_simple_s(from_wkt<G>("LINESTRING(0 0, 90 0, -90 0)"), s, true);
+
+    // Two similar cases, but these do not go over the pole back, but
+    // over the equator, and therefore make a spike
+    test_simple_s(from_wkt<G>("LINESTRING(0 0, -80 0, 80 0)"), s, false);
+    test_simple_s(from_wkt<G>("LINESTRING(0 0, 80 0, -80 0)"), s, false);
+
+    // Going over the equator in a normal way, eastwards and westwards
+    test_simple_s(from_wkt<G>("LINESTRING(-90 0, 0 0, 90 0)"), s, true);
+    test_simple_s(from_wkt<G>("LINESTRING(90 0, 0 0, -90 0)"), s, true);
+
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 0, 90 0)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 50, 90 0)"), s, false);
     test_simple_s(from_wkt<G>("LINESTRING(0 90, -90 -50, 90 0)"), s, true);
