@@ -612,7 +612,26 @@ struct get_turns_cs
         int m_index;
     };
 
+    struct retrieve_from_view_policy
+    {
+        retrieve_from_view_policy(view_type const& view, iterator_type it)
+          : m_view(view)
+          , m_circular_iterator(boost::begin(view), boost::end(view), it, true)
+        {
+            ++m_circular_iterator;
+        }
 
+        static inline bool is_first() { return false; }
+        static inline bool is_last() { return false; }
+
+        inline point_type const& get() const
+        {
+            return *m_circular_iterator;
+        }
+
+        view_type const& m_view;
+        ever_circling_iterator<iterator_type> m_circular_iterator;
+    };
 
     template <typename IntersectionStrategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
@@ -636,12 +655,9 @@ struct get_turns_cs
         cview_type cview(range);
         view_type view(cview);
 
+        // TODO: in this code, possible duplicate points are not yet taken
+        // into account (not in the iterator, nor in the retrieve policy)
         iterator_type it = boost::begin(view);
-
-        ever_circling_iterator<iterator_type> next(
-                boost::begin(view), boost::end(view), it, true);
-        next++;
-        next++;
 
         //bool first = true;
 
@@ -651,12 +667,12 @@ struct get_turns_cs
 
         for (iterator_type prev = it++;
             it != boost::end(view);
-            prev = it++, next++, index++)
+            prev = it++, index++)
         {
             segment_identifier seg_id(source_id1,
                         multi_index, ring_index, index);
 
-            overlay::retrieve_null_policy<point_type> retrieve_policy1(*next);
+            retrieve_from_view_policy view_retrieve_policy(view, it);
 
             /*if (first)
             {
@@ -684,7 +700,7 @@ struct get_turns_cs
             if (true)
             {
                 get_turns_with_box(seg_id, source_id2,
-                        *prev, *it, retrieve_policy1,
+                        *prev, *it, view_retrieve_policy,
                         box_points,
                         intersection_strategy,
                         robust_policy,
@@ -720,7 +736,6 @@ private:
     template
     <
         typename IntersectionStrategy,
-        typename RangeRetrievePolicy,
         typename Turns,
         typename InterruptPolicy,
         typename RobustPolicy
@@ -728,7 +743,7 @@ private:
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
             point_type const& range_point_0,
             point_type const& range_point_1,
-            RangeRetrievePolicy const& range_retrieve_policy,
+            retrieve_from_view_policy const& range_retrieve_policy,
             box_array const& box,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,

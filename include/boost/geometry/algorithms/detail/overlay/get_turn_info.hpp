@@ -919,29 +919,6 @@ struct assign_null_policy
 
 };
 
-
-/*!
-\brief Retrieve Policy doing nothing
-\details get_turn_info receives a policy indicating if a segment is first or last.
-   By default, all this information is false.
- */
-template <typename Point>
-struct retrieve_null_policy
-{
-    retrieve_null_policy(Point const& point)
-      : m_point(point)
-    {}
-
-    static inline bool is_first() { return false; }
-    static inline bool is_last() { return false; }
-    inline Point const& get() const
-    {
-        return m_point;
-    }
-    Point m_point;
-};
-
-
 /*!
     \brief Turn information: intersection point, method, and turn information
     \details Information necessary for traversal phase (a phase
