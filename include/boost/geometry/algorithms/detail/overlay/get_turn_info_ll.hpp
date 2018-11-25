@@ -110,7 +110,7 @@ struct get_turn_info_linear_linear
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1)
                     {
-                        policy::template apply<0>(pi, pj, pk, qi, qj, qk,
+                        policy::template apply<0>(pi, pj, qi, qj,
                                                   tp, inters.i_info(), inters.d_info(),
                                                   inters.sides());
                     }
@@ -127,7 +127,7 @@ struct get_turn_info_linear_linear
                                                 inters.rpi(), inters.rpj(), inters.rpk(),
                                                 inters.get_side_strategy());
 
-                        policy::template apply<1>(qi, qj, qk, pi, pj, pk,
+                        policy::template apply<1>(qi, qj, pi, pj,
                                                   tp, inters.i_info(), inters.d_info(),
                                                   swapped_side_calc);
                     }
@@ -152,7 +152,7 @@ struct get_turn_info_linear_linear
             break;
             case 'i' :
             {
-                crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                crosses<TurnInfo>::apply(pi, pj, qi, qj,
                                          tp, inters.i_info(), inters.d_info());
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
@@ -172,7 +172,7 @@ struct get_turn_info_linear_linear
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    touch<TurnInfo>::apply(pi, pj, qi, qj,
                                            tp, inters.i_info(), inters.d_info(), inters.sides());
 
                     // workarounds for touch<> not taking spikes into account starts here
@@ -313,7 +313,7 @@ struct get_turn_info_linear_linear
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        equal<TurnInfo>::apply(pi, pj, qi, qj,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
                         operation_type spike_op
@@ -375,7 +375,7 @@ struct get_turn_info_linear_linear
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                            equal<TurnInfo>::apply(pi, pj, qi, qj,
                                     tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             method_replace = method_touch;
@@ -387,7 +387,8 @@ struct get_turn_info_linear_linear
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                            collinear<TurnInfo>::apply(pi, pj, qi, qj,
+                                    retrieve_policy_p, retrieve_policy_q,
                                     tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             //method_replace = method_touch_interior;
@@ -433,7 +434,8 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(pi, pj, pk, qi, qj, qk,
+                            >::apply(pi, pj, qi, qj,
+                                retrieve_policy_p, retrieve_policy_q,
                                 tp, out, inters, inters.sides(),
                                 transformer, !is_p_last, !is_q_last);
                     }

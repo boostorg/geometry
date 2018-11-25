@@ -150,8 +150,8 @@ struct touch_interior : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& , Point1 const& , Point1 const& ,
-                Point2 const& , Point2 const& , Point2 const& ,
+                Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -273,8 +273,8 @@ struct touch : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& , Point1 const& , Point1 const& ,
-                Point2 const& , Point2 const& , Point2 const& ,
+                Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -473,8 +473,8 @@ struct equal : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& , Point1 const& , Point1 const& ,
-                Point2 const& , Point2 const& , Point2 const& ,
+                Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const&  ,
@@ -595,13 +595,17 @@ struct collinear : public base_turn_handler
     <
         typename Point1,
         typename Point2,
+        typename RetrievePolicy1,
+        typename RetrievePolicy2,
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& , Point1 const& pj, Point1 const& pk,
-                Point2 const& , Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& pj,
+                Point2 const& , Point2 const& qj,
+                RetrievePolicy1 const& retrieve_policy_p,
+                RetrievePolicy2 const& retrieve_policy_q,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const& dir_info,
@@ -638,6 +642,9 @@ struct collinear : public base_turn_handler
         {
             ui_else_iu(product == 1, ti);
         }
+
+        Point1 const& pk = retrieve_policy_p.get();
+        Point2 const& qk = retrieve_policy_q.get();
 
         // Calculate remaining distance. If it continues collinearly it is
         // measured until the end of the next segment
@@ -759,13 +766,17 @@ public:
     <
         typename Point1,
         typename Point2,
+        typename RetrievePolicy1,
+        typename RetrievePolicy2,
         typename OutputIterator,
         typename IntersectionInfo,
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& pi, Point1 const& pj,
+                Point2 const& qi, Point2 const& qj,
+                RetrievePolicy1 const& retrieve_policy_p,
+                RetrievePolicy2 const& retrieve_policy_q,
 
                 // Opposite collinear can deliver 2 intersection points,
                 TurnInfo const& tp_model,
@@ -774,7 +785,8 @@ public:
                 IntersectionInfo const& intersection_info,
                 SidePolicy const& side)
     {
-        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, side, empty_transformer);
+        apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+              tp_model, out, intersection_info, side, empty_transformer);
     }
 
 public:
@@ -782,14 +794,18 @@ public:
     <
         typename Point1,
         typename Point2,
+        typename RetrievePolicy1,
+        typename RetrievePolicy2,
         typename OutputIterator,
         typename IntersectionInfo,
         typename SidePolicy,
         typename TurnTransformer
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& pi, Point1 const& pj,
+                Point2 const& qi, Point2 const& qj,
+                RetrievePolicy1 const& retrieve_policy_p,
+                RetrievePolicy2 const& retrieve_policy_q,
 
                 // Opposite collinear can deliver 2 intersection points,
                 TurnInfo const& tp_model,
@@ -804,6 +820,9 @@ public:
 
         int const p_arrival = info.d_info().arrival[0];
         int const q_arrival = info.d_info().arrival[1];
+
+        Point1 const& pk = retrieve_policy_p.get();
+        Point2 const& qk = retrieve_policy_q.get();
 
         // If P arrives within Q, there is a turn dependent on P
         if ( p_arrival == 1
@@ -864,8 +883,8 @@ struct crosses : public base_turn_handler
         typename DirInfo
     >
     static inline void apply(
-                Point1 const& , Point1 const& , Point1 const& ,
-                Point2 const& , Point2 const& , Point2 const& ,
+                Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
@@ -1006,7 +1025,7 @@ struct get_turn_info
                 // If Q (1) arrives (1)
                 if ( inters.d_info().arrival[1] == 1 )
                 {
-                    policy::template apply<0>(pi, pj, pk, qi, qj, qk,
+                    policy::template apply<0>(pi, pj, qi, qj,
                                 tp, inters.i_info(), inters.d_info(),
                                 inters.sides());
                 }
@@ -1023,7 +1042,7 @@ struct get_turn_info
                                             inters.rpi(), inters.rpj(), inters.rpk(),
                                             inters.get_side_strategy());
 
-                    policy::template apply<1>(qi, qj, qk, pi, pj, pk,
+                    policy::template apply<1>(qi, qj, pi, pj,
                                 tp, inters.i_info(), inters.d_info(),
                                 swapped_side_calc);
                 }
@@ -1033,7 +1052,7 @@ struct get_turn_info
             break;
             case 'i' :
             {
-                crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                crosses<TurnInfo>::apply(pi, pj, qi, qj,
                     tp, inters.i_info(), inters.d_info());
                 AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
@@ -1042,7 +1061,7 @@ struct get_turn_info
             case 't' :
             {
                 // Both touch (both arrive there)
-                touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                touch<TurnInfo>::apply(pi, pj, qi, qj,
                     tp, inters.i_info(), inters.d_info(), inters.sides());
                 AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
@@ -1054,7 +1073,7 @@ struct get_turn_info
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
-                    equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    equal<TurnInfo>::apply(pi, pj, qi, qj,
                         tp, inters.i_info(), inters.d_info(), inters.sides());
                     AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
@@ -1079,7 +1098,7 @@ struct get_turn_info
                     if ( inters.d_info().arrival[0] == 0 )
                     {
                         // Collinear, but similar thus handled as equal
-                        equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        equal<TurnInfo>::apply(pi, pj, qi, qj,
                                 tp, inters.i_info(), inters.d_info(), inters.sides());
 
                         // override assigned method
@@ -1087,7 +1106,8 @@ struct get_turn_info
                     }
                     else
                     {
-                        collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        collinear<TurnInfo>::apply(pi, pj, qi, qj,
+                                retrieve_policy_p, retrieve_policy_q,
                                 tp, inters.i_info(), inters.d_info(), inters.sides());
                     }
 
@@ -1100,7 +1120,8 @@ struct get_turn_info
                         <
                             TurnInfo,
                             AssignPolicy
-                        >::apply(pi, pj, pk, qi, qj, qk,
+                        >::apply(pi, pj, qi, qj,
+                            retrieve_policy_p, retrieve_policy_q,
                             tp, out, inters, inters.sides());
                 }
             }
