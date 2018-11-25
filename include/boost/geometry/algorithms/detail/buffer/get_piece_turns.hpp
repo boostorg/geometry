@@ -205,7 +205,6 @@ class piece_turn_visitor
         typedef typename boost::range_value<Rings const>::type ring_type;
         typedef typename boost::range_value<Turns const>::type turn_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator;
-        typedef typename point_type<ring_type const>::type point_type;
 
         signed_size_type const piece1_first_index = piece1.first_seg_id.segment_index;
         signed_size_type const piece2_first_index = piece2.first_seg_id.segment_index;

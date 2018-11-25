@@ -565,6 +565,7 @@ struct get_turns_cs
 {
     typedef typename geometry::point_type<Range>::type point_type;
     typedef typename geometry::point_type<Box>::type box_point_type;
+    typedef boost::array<box_point_type, 4> box_array;
 
     typedef typename closeable_view
         <
@@ -583,6 +584,35 @@ struct get_turns_cs
             view_type const
         >::type iterator_type;
 
+    struct retrieve_from_box_policy
+    {
+        retrieve_from_box_policy(box_array const& box, int index)
+          : m_box(box)
+          , m_index(index)
+        {}
+
+        static inline bool is_first() { return false; }
+        static inline bool is_last() { return false; }
+
+        inline box_point_type const& get() const
+        {
+            return m_box[m_index];
+        }
+
+        inline void next()
+        {
+            ++m_index;
+            if (m_index >= 4)
+            {
+                m_index = 0;
+            }
+        }
+
+        box_array const& m_box;
+        int m_index;
+    };
+
+
 
     template <typename IntersectionStrategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
@@ -600,8 +630,8 @@ struct get_turns_cs
             return;
         }
 
-        boost::array<box_point_type,4> bp;
-        assign_box_corners_oriented<ReverseBox>(box, bp);
+        box_array box_points;
+        assign_box_corners_oriented<ReverseBox>(box, box_points);
 
         cview_type cview(range);
         view_type view(cview);
@@ -625,6 +655,8 @@ struct get_turns_cs
         {
             segment_identifier seg_id(source_id1,
                         multi_index, ring_index, index);
+
+            overlay::retrieve_null_policy<point_type> retrieve_policy1(*next);
 
             /*if (first)
             {
@@ -652,8 +684,8 @@ struct get_turns_cs
             if (true)
             {
                 get_turns_with_box(seg_id, source_id2,
-                        *prev, *it, *next,
-                        bp[0], bp[1], bp[2], bp[3],
+                        *prev, *it, retrieve_policy1,
+                        box_points,
                         intersection_strategy,
                         robust_policy,
                         turns,
@@ -685,17 +717,19 @@ private:
         else return 0;
     }
 
-    template <typename IntersectionStrategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
+    template
+    <
+        typename IntersectionStrategy,
+        typename RangeRetrievePolicy,
+        typename Turns,
+        typename InterruptPolicy,
+        typename RobustPolicy
+    >
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
-            // Points from a range:
-            point_type const& rp0,
-            point_type const& rp1,
-            point_type const& rp2,
-            // Points from the box
-            box_point_type const& bp0,
-            box_point_type const& bp1,
-            box_point_type const& bp2,
-            box_point_type const& bp3,
+            point_type const& range_point_0,
+            point_type const& range_point_1,
+            RangeRetrievePolicy const& range_retrieve_policy,
+            box_array const& box,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
             // Output
@@ -708,42 +742,32 @@ private:
 
         typedef typename boost::range_value<Turns>::type turn_info;
 
-        overlay::retrieve_null_policy<point_type> retrieve_policy1(rp2);
-
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
-        {
-            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp2);
-            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-            TurnPolicy::apply(rp0, rp1, bp0, bp1,
-                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
-                              std::back_inserter(turns));
-        }
+        retrieve_from_box_policy box_retrieve_policy(box, 2);
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
+        TurnPolicy::apply(range_point_0, range_point_1, box[0], box[1],
+                          ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+                          std::back_inserter(turns));
 
-        {
-            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp3);
-            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
-            TurnPolicy::apply(rp0, rp1, bp1, bp2,
-                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
-                              std::back_inserter(turns));
-        }
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
+        box_retrieve_policy.next();
+        TurnPolicy::apply(range_point_0, range_point_1, box[1], box[2],
+                          ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+                          std::back_inserter(turns));
 
-        {
-            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp0);
-            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
-            TurnPolicy::apply(rp0, rp1, bp2, bp3,
-                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
-                              std::back_inserter(turns));
-        }
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
+        box_retrieve_policy.next();
+        TurnPolicy::apply(range_point_0, range_point_1, box[2], box[3],
+                          ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+                          std::back_inserter(turns));
 
-        {
-            overlay::retrieve_null_policy<point_type> retrieve_policy2(bp1);
-            ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
-            TurnPolicy::apply(rp0, rp1, bp3, bp0,
-                              ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
-                              std::back_inserter(turns));
-        }
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
+        box_retrieve_policy.next();
+        TurnPolicy::apply(range_point_0, range_point_1, box[3], box[0],
+                          ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+                          std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)
         {
