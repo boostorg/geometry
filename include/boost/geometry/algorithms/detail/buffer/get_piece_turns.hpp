@@ -63,6 +63,64 @@ struct buffer_assign_turn
 };
 #endif
 
+template <typename Ring>
+struct retrieve_from_piece
+{
+    typedef typename boost::range_iterator<Ring const>::type iterator_type;
+    typedef typename geometry::point_type<Ring const>::type point_type;
+
+    retrieve_from_piece(Ring const& ring, iterator_type start_iterator)
+        : m_ring(ring)
+        , m_start_iterator(start_iterator)
+        , m_point_retrieved(false)
+    {}
+
+    static inline bool is_first() { return false; }
+
+    static inline bool is_last() { return false; }
+
+    inline point_type const& get() const
+    {
+        if (! m_point_retrieved)
+        {
+            m_point = *next_point(m_start_iterator);
+            m_point_retrieved = true;
+        }
+        return m_point;
+    }
+
+private :
+
+    inline void circular_move_along_ring(iterator_type& next) const
+    {
+        ++next;
+        if (next == boost::end(m_ring))
+        {
+            next = boost::begin(m_ring) + 1;
+        }
+    }
+
+    inline iterator_type next_point(iterator_type it) const
+    {
+        iterator_type result = it;
+        circular_move_along_ring(result);
+
+        // TODO: we could also use piece-boundaries
+        // to check if the point equals the last one
+        while (geometry::equals(*it, *result))
+        {
+            circular_move_along_ring(result);
+        }
+        return result;
+    }
+
+    Ring const& m_ring;
+    iterator_type m_start_iterator;
+
+    mutable point_type m_point;
+    mutable bool m_point_retrieved;
+};
+
 template
 <
     typename Pieces,
@@ -102,29 +160,6 @@ class piece_turn_visitor
         return ! m_rings[piece1.first_seg_id.multi_index].has_concave;
     }
 
-    template <typename Range, typename Iterator>
-    inline void move_to_next_point(Range const& range, Iterator& next) const
-    {
-        ++next;
-        if (next == boost::end(range))
-        {
-            next = boost::begin(range) + 1;
-        }
-    }
-
-    template <typename Range, typename Iterator>
-    inline Iterator next_point(Range const& range, Iterator it) const
-    {
-        Iterator result = it;
-        move_to_next_point(range, result);
-        // TODO: we could use either piece-boundaries, or comparison with
-        // robust points, to check if the point equals the last one
-        while(geometry::equals(*it, *result))
-        {
-            move_to_next_point(range, result);
-        }
-        return result;
-    }
 
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_begin_iterator(Iterator& it_begin, Iterator it_beyond,
@@ -231,17 +266,14 @@ class piece_turn_visitor
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
 
-            // TODO: next_point can be moved inside a specified retrieve policy for piece points
-            iterator next1 = next_point(ring1, it1);
-            overlay::retrieve_null_policy<point_type> retrieve_policy1(*next1);
+            retrieve_from_piece<ring_type> retrieve_policy1(ring1, it1);
 
             iterator it2 = it2_first;
             for (iterator prev2 = it2++;
                     it2 != it2_beyond;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                iterator next2 = next_point(ring2, it2);
-                overlay::retrieve_null_policy<point_type> retrieve_policy2(*next2);
+                retrieve_from_piece<ring_type> retrieve_policy2(ring2, it2);
 
                 // TODO: internally get_turn_info calculates robust points.
                 // But they are already calculated.
