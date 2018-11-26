@@ -322,7 +322,8 @@ jobs:
     <<: *config
     steps:
       - *attach_workspace
-      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh srs test/srs
+      # 1 test at a time to decrease memory consumption causing gcc internal error
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh srs test/srs 1
       - persist_to_workspace:
           root: ~/project
           paths:

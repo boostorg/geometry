@@ -7,6 +7,7 @@
 #  Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland
 #
 #  Copyright (c) 2018, Oracle and/or its affiliates.
+#  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 #  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -198,7 +199,7 @@ class_to_quickbook2("de9im_1_1mask", "de9im_mask")
 class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 
 os.chdir("index")
-execfile("make_qbk.py")
+exec(compile(open("make_qbk.py", "rb").read(), "make_qbk.py", 'exec'))
 os.chdir("..")
 
 # Clean up generated intermediate files
