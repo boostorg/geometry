@@ -229,18 +229,18 @@ struct get_turn_info_for_endpoint
 
     template<typename Point1,
              typename Point2,
-             typename TurnInfo,
-             typename IntersectionInfo,
              typename RetrievePolicy1,
              typename RetrievePolicy2,
+             typename TurnInfo,
+             typename IntersectionInfo,
              typename OutputIterator
     >
-    static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                             Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                             TurnInfo const& tp_model,
-                             IntersectionInfo const& inters,
+    static inline bool apply(Point1 const& pi, Point1 const& pj,
+                             Point2 const& qi, Point2 const& qj,
                              RetrievePolicy1 const& retrieve_policy_p,
                              RetrievePolicy2 const& retrieve_policy_q,
+                             TurnInfo const& tp_model,
+                             IntersectionInfo const& inters,
                              method_type /*method*/,
                              OutputIterator out)
     {
@@ -264,8 +264,7 @@ struct get_turn_info_for_endpoint
         linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
 
         bool append0_last
-            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            is_p_first, is_p_last, is_q_first, is_q_last,
+            = analyse_segment_and_assign_ip(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
                                             intersections.template get<0>(),
                                             tp_model, inters, 0, out);
 
@@ -279,8 +278,7 @@ struct get_turn_info_for_endpoint
             return result_ignore_ip0;
         
         bool append1_last
-            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            is_p_first, is_p_last, is_q_first, is_q_last,
+            = analyse_segment_and_assign_ip(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
                                             intersections.template get<1>(),
                                             tp_model, inters, 1, out);
 
@@ -292,14 +290,16 @@ struct get_turn_info_for_endpoint
 
     template <typename Point1,
               typename Point2,
+              typename RetrievePolicy1,
+              typename RetrievePolicy2,
               typename TurnInfo,
               typename IntersectionInfo,
               typename OutputIterator>
     static inline
-    bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                       Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                       bool is_p_first, bool is_p_last,
-                                       bool is_q_first, bool is_q_last,
+    bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj,
+                                       Point2 const& qi, Point2 const& qj,
+                                       RetrievePolicy1 const& retrieve_policy_p,
+                                       RetrievePolicy2 const& retrieve_policy_q,
                                        linear_intersections::ip_info const& ip_info,
                                        TurnInfo const& tp_model,
                                        IntersectionInfo const& inters,
@@ -317,6 +317,11 @@ struct get_turn_info_for_endpoint
 #endif
 
         // TODO - calculate first/last only if needed
+        bool const is_p_first = retrieve_policy_p.is_first();
+        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_q_first = retrieve_policy_q.is_first();
+        bool const is_q_last = retrieve_policy_q.is_last();
+
         bool is_p_first_ip = is_p_first && ip_info.is_pi;
         bool is_p_last_ip = is_p_last && ip_info.is_pj;
         bool is_q_first_ip = is_q_first && ip_info.is_qi;
@@ -329,7 +334,8 @@ struct get_turn_info_for_endpoint
 
         if ( append_first || append_last )
         {
-            bool handled = handle_internal<0>(pi, pj, pk, qi, qj, qk,
+            bool handled = handle_internal<0>(pi, pj, qi, qj,
+                                              retrieve_policy_p, retrieve_policy_q,
                                               inters.rpi(), inters.rpj(), inters.rpk(),
                                               inters.rqi(), inters.rqj(), inters.rqk(),
                                               is_p_first_ip, is_p_last_ip,
@@ -339,7 +345,8 @@ struct get_turn_info_for_endpoint
                                               p_operation, q_operation);
             if ( !handled )
             {
-                handle_internal<1>(qi, qj, qk, pi, pj, pk,
+                handle_internal<1>(qi, qj, pi, pj,
+                                   retrieve_policy_q, retrieve_policy_p,
                                    inters.rqi(), inters.rqj(), inters.rqk(),
                                    inters.rpi(), inters.rpj(), inters.rpk(),
                                    is_q_first_ip, is_q_last_ip,
@@ -400,11 +407,13 @@ struct get_turn_info_for_endpoint
              typename Point2,
              typename RobustPoint1,
              typename RobustPoint2,
+             typename RetrievePolicyP, typename RetrievePolicyQ,
              typename TurnInfo,
              typename IntersectionInfo
     >
-    static inline bool handle_internal(Point1 const& /*i1*/, Point1 const& /*j1*/, Point1 const& /*k1*/,
-                                       Point2 const& i2, Point2 const& j2, Point2 const& /*k2*/,
+    static inline bool handle_internal(Point1 const& /*i1*/, Point1 const& /*j1*/,
+                                       Point2 const& i2, Point2 const& j2,
+                                       RetrievePolicyP const& retp, RetrievePolicyQ const& retq,
                                        RobustPoint1 const& ri1, RobustPoint1 const& rj1, RobustPoint1 const& /*rk1*/,
                                        RobustPoint2 const& ri2, RobustPoint2 const& rj2, RobustPoint2 const& rk2,
                                        bool first1, bool last1, bool first2, bool last2,

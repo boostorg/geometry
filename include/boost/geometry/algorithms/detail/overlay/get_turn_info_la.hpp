@@ -89,8 +89,9 @@ struct get_turn_info_linear_areal
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<true, true>(
-                    pi, pj, pk, qi, qj, qk,
-                    tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_none, out);
+                    pi, pj, qi, qj,
+                    retrieve_policy_p, retrieve_policy_q,
+                    tp_model, inters, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -99,8 +100,9 @@ struct get_turn_info_linear_areal
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_touch_interior, out) )
+                        pi, pj, qi, qj,
+                        retrieve_policy_p, retrieve_policy_q,
+                        tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -169,8 +171,9 @@ struct get_turn_info_linear_areal
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_touch, out) )
+                        pi, pj, qi, qj,
+                        retrieve_policy_p, retrieve_policy_q,
+                        tp_model, inters, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -260,8 +263,9 @@ struct get_turn_info_linear_areal
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_equal, out) )
+                        pi, pj, qi, qj,
+                        retrieve_policy_p, retrieve_policy_q,
+                        tp_model, inters, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -306,8 +310,9 @@ struct get_turn_info_linear_areal
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, pk, qi, qj, qk,
-                        tp_model, inters, retrieve_policy_p, retrieve_policy_q, method_collinear, out) )
+                        pi, pj, qi, qj,
+                        retrieve_policy_p, retrieve_policy_q,
+                        tp_model, inters, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -720,12 +725,12 @@ struct get_turn_info_linear_areal
               typename RetrievePolicy2,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
-                            Point1 const& pi, Point1 const& /*pj*/, Point1 const& /*pk*/,
-                            Point2 const& qi, Point2 const& /*qj*/, Point2 const& /*qk*/,
-                            TurnInfo const& tp_model,
-                            IntersectionInfo const& inters,
+                            Point1 const& pi, Point1 const& /*pj*/,
+                            Point2 const& qi, Point2 const& /*qj*/,
                             RetrievePolicy1 const& retrieve_policy_p,
                             RetrievePolicy2 const& retrieve_policy_q,
+                            TurnInfo const& tp_model,
+                            IntersectionInfo const& inters,
                             method_type /*method*/,
                             OutputIterator out)
     {
