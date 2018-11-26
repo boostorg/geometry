@@ -125,7 +125,7 @@ namespace projections
             inline void setup_fouc_s(Params const& params, Parameters& par, par_fouc_s<T>& proj_parm)
             {
                 proj_parm.n = pj_get_param_f<T, srs::spar::n>(params, "n", srs::dpar::n);
-                if (proj_parm.n < 0. || proj_parm.n > 1.)
+                if ((proj_parm.n < 0.) || (proj_parm.n > 1.))
                     BOOST_THROW_EXCEPTION( projection_exception(error_n_out_of_range) );
 
                 proj_parm.n1 = 1. - proj_parm.n;

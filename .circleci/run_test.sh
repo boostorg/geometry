@@ -2,7 +2,7 @@
 
 if [ "$#" -lt 2 ]; then
 	echo 'Intended usage'
-    echo '    run_test TEST_NAME TEST_DIR'
+    echo '    run_test TEST_NAME TEST_DIR [NPARALLEL]'
     echo ''
     echo '$BOOST_DIR and $COVERAGE_DIR must be defined.'
     exit
@@ -11,9 +11,16 @@ fi
 TEST_NAME=$1
 TEST_DIR=$2
 
+TEST_NPARALLEL=2
+if [ "$#" -ge 3 ]; then
+	TEST_NPARALLEL=$3
+fi
+
 cd $BOOST_DIR
 
-./b2 -j2 cxxflags="--coverage" linkflags="--coverage" libs/geometry/$TEST_DIR
+./b2 -j$TEST_NPARALLEL cxxflags="--coverage" linkflags="--coverage" libs/geometry/$TEST_DIR
+
+EXIT_STATUS=$?
 
 cd ..
 
@@ -32,3 +39,4 @@ for file in $files; do
   mv $dirn/$filen.gcno $COVERAGE_DIR/$TEST_NAME/$dstfilen.gcno
 done
 
+exit $EXIT_STATUS
