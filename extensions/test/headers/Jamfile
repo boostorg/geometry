@@ -44,18 +44,7 @@ rule generate_self_contained_headers ( headers_subpath )
 
 # TODO: Review sorting to get as close as possible from general to specific
 
-# Core
-alias core : [ generate_self_contained_headers core ] ;
-alias util : [ generate_self_contained_headers util ] ;
-alias policies : [ generate_self_contained_headers policies ] ;
-alias geometries : [ generate_self_contained_headers geometries ] ;
-alias concepts : [ generate_self_contained_headers concepts ] ;
-alias arithmetic : [ generate_self_contained_headers arithmetic ] ;
-alias formulas : [ generate_self_contained_headers formulas ] ;
-alias iterators : [ generate_self_contained_headers iterators ] ;
-alias strategies : [ generate_self_contained_headers strategies ] ;
-alias srs : [ generate_self_contained_headers srs ] ;
-alias algorithms : [ generate_self_contained_headers algorithms ] ;
-alias views : [ generate_self_contained_headers views ] ;
-# Even though index is a separate submodule test headers here
-alias index : [ generate_self_contained_headers index ] ;
+alias ext_algebra : [ generate_self_contained_headers extensions/algebra ] ;
+alias ext_algorithms : [ generate_self_contained_headers extensions/algorithms ] ;
+alias ext_index : [ generate_self_contained_headers extensions/index ] ;
+alias ext_gis : [ generate_self_contained_headers extensions/gis ] ;
