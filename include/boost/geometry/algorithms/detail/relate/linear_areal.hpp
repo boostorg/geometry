@@ -621,6 +621,37 @@ struct linear_areal
         static const std::size_t op_id = 0;
         static const std::size_t other_op_id = 1;
 
+        template <typename TurnPointCSTag, typename PointP, typename PointQ,
+                  typename SideStrategy,
+                  typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
+                  typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
+        >
+        struct la_side_calculator
+        {
+            inline la_side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
+                                   Qi const& qi, Qj const& qj, Qk const& qk,
+                                   SideStrategy const& side_strategy)
+                : m_pi(pi), m_pj(pj), m_pk(pk)
+                , m_qi(qi), m_qj(qj), m_qk(qk)
+                , m_side_strategy(side_strategy)
+            {}
+
+            inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_pk); }
+            inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_qk); }
+            inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, m_qk, m_pk); }
+
+         private :
+            Pi const& m_pi;
+            Pj const& m_pj;
+            Pk const& m_pk;
+            Qi const& m_qi;
+            Qj const& m_qj;
+            Qk const& m_qk;
+
+            SideStrategy m_side_strategy;
+        };
+
+
     public:
         turns_analyser()
             : m_previous_turn_ptr(NULL)
@@ -1220,7 +1251,7 @@ struct linear_areal
                                                                  boost::end(range2));
 
                 // Will this sequence of points be always correct?
-                overlay::side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
+                la_side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
                     side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it, side_strategy);
 
                 return calculate_from_inside_sides(side_calc);
@@ -1230,7 +1261,7 @@ struct linear_areal
                 point2_type new_qj;
                 geometry::convert(turn.point, new_qj);
 
-                overlay::side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
+                la_side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
                     side_calc(qi_conv, new_pj, pi, qi, new_qj, qj, side_strategy);
 
                 return calculate_from_inside_sides(side_calc);
