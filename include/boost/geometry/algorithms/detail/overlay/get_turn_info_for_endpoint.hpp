@@ -222,6 +222,40 @@ private:
     ip_info ips[2];
 };
 
+template <typename TurnPointCSTag, typename PointP, typename PointQ,
+          typename SideStrategy,
+          typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
+          typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
+>
+struct side_calculator_for_endpoint
+{
+    inline side_calculator_for_endpoint(Pi const& pi, Pj const& pj, Pk const& pk,
+                           Qi const& qi, Qj const& qj, Qk const& qk,
+                           SideStrategy const& side_strategy)
+        : m_pi(pi), m_pj(pj), m_pk(pk)
+        , m_qi(qi), m_qj(qj), m_qk(qk)
+        , m_side_strategy(side_strategy)
+    {}
+
+    inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_pk); }
+    inline int pk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, m_pk); }
+    inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_qk); }
+    inline int qk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, m_qk); }
+
+    inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, m_qk, m_pk); }
+    inline int qk_wrt_p2() const { return m_side_strategy.apply(m_pj, m_pk, m_qk); }
+
+    Pi const& m_pi;
+    Pj const& m_pj;
+    Pk const& m_pk;
+    Qi const& m_qi;
+    Qj const& m_qj;
+    Qk const& m_qk;
+
+    SideStrategy m_side_strategy;
+};
+
+
 template <typename AssignPolicy, bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
@@ -445,7 +479,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<cs_tag,
+                    side_calculator_for_endpoint<cs_tag,
                                     RobustPoint1, RobustPoint2,
                                     typename IntersectionInfo::side_strategy_type,
                                     RobustPoint2>
@@ -499,7 +533,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<cs_tag, RobustPoint1, RobustPoint2,
+                    side_calculator_for_endpoint<cs_tag, RobustPoint1, RobustPoint2,
                                     typename IntersectionInfo::side_strategy_type,
                                     RobustPoint2>
                         side_calc(ri2, rj1, ri1, ri2, rj2, rk2, inters.get_side_strategy());

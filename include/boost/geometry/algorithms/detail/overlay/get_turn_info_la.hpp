@@ -777,7 +777,7 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
-                    side_calculator
+                    ov::side_calculator_for_endpoint
                         <
                             typename IntersectionInfo::cs_tag,
                             rp1_type, rp2_type,
@@ -797,7 +797,7 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    side_calculator
+                    ov::side_calculator_for_endpoint
                         <
                             typename IntersectionInfo::cs_tag,
                             rp1_type, rp2_type,
@@ -851,7 +851,7 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                side_calculator
+                ov::side_calculator_for_endpoint
                     <
                         typename IntersectionInfo::cs_tag,
                         typename IntersectionInfo::robust_point1_type,
