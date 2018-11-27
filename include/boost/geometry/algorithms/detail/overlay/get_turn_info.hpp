@@ -1032,19 +1032,9 @@ struct get_turn_info
                 else
                 {
                     // Swap p/q
-                    side_calculator
-                        <
-                            typename inters_info::cs_tag,
-                            typename inters_info::robust_point2_type,
-                            typename inters_info::robust_point1_type,
-                            typename inters_info::side_strategy_type
-                        > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
-                                            inters.rpi(), inters.rpj(), inters.rpk(),
-                                            inters.get_side_strategy());
-
                     policy::template apply<1>(qi, qj, pi, pj,
                                 tp, inters.i_info(), inters.d_info(),
-                                swapped_side_calc);
+                                inters.get_swapped_sides());
                 }
                 AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;

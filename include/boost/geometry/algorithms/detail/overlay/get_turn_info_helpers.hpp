@@ -113,7 +113,13 @@ public:
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
     typedef side_calculator<cs_tag, robust_point1_type, robust_point2_type, side_strategy_type> side_calculator_type;
-    
+
+    typedef side_calculator
+        <
+            cs_tag, robust_point2_type, robust_point1_type,
+            side_strategy_type
+        > robust_swapped_side_calculator_type;
+
     intersection_info_base(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
                            IntersectionStrategy const& intersection_strategy,
@@ -144,6 +150,13 @@ public:
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
     
+    robust_swapped_side_calculator_type get_swapped_sides() const
+    {
+        robust_swapped_side_calculator_type result(base::m_rqi, base::m_rqj, base::m_rqk,
+                            base::m_rpi, base::m_rpj, base::m_rpk, m_side_calc.m_side_strategy);
+        return result;
+    }
+
 private:
     side_calculator_type m_side_calc;
 
@@ -169,6 +182,12 @@ public:
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
     typedef side_calculator<cs_tag, Point1, Point2, side_strategy_type> side_calculator_type;
+
+    typedef side_calculator
+        <
+            cs_tag, robust_point2_type, robust_point1_type,
+            side_strategy_type
+        > robust_swapped_side_calculator_type;
     
     intersection_info_base(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
@@ -195,7 +214,16 @@ public:
     inline Point2 const& rqk() const { return qk(); }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
-    
+
+    robust_swapped_side_calculator_type get_swapped_sides() const
+    {
+        robust_swapped_side_calculator_type result(m_side_calc.m_qi,
+            m_side_calc.m_qj, m_side_calc.m_qk,
+            m_side_calc.m_pi, m_side_calc.m_pj, m_side_calc.m_pk,
+            m_side_calc.m_side_strategy);
+        return result;
+    }
+
 private:
     side_calculator_type m_side_calc;
 };
