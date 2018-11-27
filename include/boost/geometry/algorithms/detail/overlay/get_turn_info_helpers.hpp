@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/algorithms/detail/direction_code.hpp>
 
 namespace boost { namespace geometry {
 
@@ -293,11 +294,6 @@ public:
     inline i_info_type const& i_info() const { return m_result.template get<0>(); }
     inline d_info_type const& d_info() const { return m_result.template get<1>(); }
 
-    inline intersection_strategy_type const& get_intersection_strategy() const
-    {
-        return m_intersection_strategy;
-    }
-
     inline side_strategy_type get_side_strategy() const
     {
         return m_intersection_strategy.get_side_strategy();
@@ -308,6 +304,9 @@ public:
     {
         if (base::sides().pk_wrt_p1() == 0)
         {
+            // p:  pi--------pj--------pk
+            // or: pi----pk==pj
+
             if (! is_ip_j<0>())
             {
                 return false;
@@ -315,15 +314,18 @@ public:
 
             int const qk_p1 = base::sides().qk_wrt_p1();
             int const qk_p2 = base::sides().qk_wrt_p2();
-                
+
             if (qk_p1 == -qk_p2)
             {
                 if (qk_p1 == 0)
                 {
-                    return is_spike_of_collinear(base::pi(), base::pj(),
-                                                 base::pk());
+                    // qk is collinear with both p1 and p2,
+                    // verify if pk goes backwards w.r.t. pi/pj
+                    return direction_code(base::pi(), base::pj(), base::pk()) == -1;
                 }
-                        
+
+                // qk is at opposite side of p1/p2, therefore
+                // p1/p2 (collinear) are opposite and form a spike
                 return true;
             }
         }
@@ -331,9 +333,9 @@ public:
         return false;
     }
 
-    // TODO: it's more like is_spike_ip_q
     inline bool is_spike_q() const
     {
+        // See comments at is_spike_p
         if (base::sides().qk_wrt_q1() == 0)
         {
             if (! is_ip_j<1>())
@@ -348,8 +350,7 @@ public:
             {
                 if (pk_q1 == 0)
                 {
-                    return is_spike_of_collinear(base::qi(), base::qj(),
-                                                 base::qk());
+                    return direction_code(base::qi(), base::qj(), base::qk()) == -1;
                 }
                         
                 return true;
@@ -360,26 +361,6 @@ public:
     }
 
 private:
-    template <typename Point>
-    inline bool is_spike_of_collinear(Point const& i, Point const& j,
-                                      Point const& k) const
-    {
-        typedef model::referring_segment<Point const> seg;
-
-        // no need to calcualte direction info
-        typedef policies::relate::segments_intersection_points
-                <
-                    intersection_point_type
-                > policy_type;
-
-        typename policy_type::return_type const result
-            = m_intersection_strategy.apply(seg(i, j), seg(j, k),
-                                            policy_type(),
-                                            m_robust_policy);
-        
-        return result.count == 2;
-    }
-
     template <std::size_t OpId>
     bool is_ip_j() const
     {
