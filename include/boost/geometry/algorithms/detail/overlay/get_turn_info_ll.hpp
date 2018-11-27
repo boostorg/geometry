@@ -57,7 +57,7 @@ struct get_turn_info_linear_linear
     {
         typedef intersection_info
             <
-                Point1, Point2,
+                Point1, Point2, RetrievePolicy1, RetrievePolicy2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy

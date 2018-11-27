@@ -37,10 +37,13 @@ struct turn_operation_linear
     bool is_collinear; // valid only for Linear geometry
 };
 
-template <typename TurnPointCSTag, typename PointP, typename PointQ,
-          typename SideStrategy,
-          typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
-          typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
+template
+<
+    typename TurnPointCSTag, typename PointP, typename PointQ,
+    typename RetrievePolicy1, typename RetrievePolicy2,
+    typename SideStrategy,
+    typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
+    typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
 >
 struct side_calculator
 {
@@ -70,7 +73,12 @@ struct side_calculator
     SideStrategy m_side_strategy;
 };
 
-template <typename Point1, typename Point2, typename RobustPolicy>
+template
+<
+    typename Point1, typename Point2,
+    typename RetrievePolicy1, typename RetrievePolicy2,
+    typename RobustPolicy
+>
 struct robust_points
 {
     typedef typename geometry::robust_point_type
@@ -97,11 +105,15 @@ struct robust_points
     robust_point2_type m_rqi, m_rqj, m_rqk;
 };
 
-template <typename Point1, typename Point2, typename TurnPoint, typename IntersectionStrategy, typename RobustPolicy>
+template
+<
+    typename Point1, typename Point2,
+    typename RetrievePolicy1, typename RetrievePolicy2,
+    typename TurnPoint, typename IntersectionStrategy, typename RobustPolicy>
 class intersection_info_base
-    : private robust_points<Point1, Point2, RobustPolicy>
+    : private robust_points<Point1, Point2, RetrievePolicy1, RetrievePolicy2, RobustPolicy>
 {
-    typedef robust_points<Point1, Point2, RobustPolicy> base;
+    typedef robust_points<Point1, Point2, RetrievePolicy1, RetrievePolicy2, RobustPolicy> base;
 
 public:
     typedef Point1 point1_type;
@@ -113,11 +125,13 @@ public:
     typedef typename cs_tag<TurnPoint>::type cs_tag;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
-    typedef side_calculator<cs_tag, robust_point1_type, robust_point2_type, side_strategy_type> side_calculator_type;
+    typedef side_calculator<cs_tag, robust_point1_type, robust_point2_type,
+        RetrievePolicy1, RetrievePolicy2, side_strategy_type> side_calculator_type;
 
     typedef side_calculator
         <
             cs_tag, robust_point2_type, robust_point1_type,
+            RetrievePolicy2, RetrievePolicy1,
             side_strategy_type
         > robust_swapped_side_calculator_type;
 
@@ -169,8 +183,14 @@ private:
     point2_type const& m_qk;
 };
 
-template <typename Point1, typename Point2, typename TurnPoint, typename IntersectionStrategy>
-class intersection_info_base<Point1, Point2, TurnPoint, IntersectionStrategy, detail::no_rescale_policy>
+template
+<
+    typename Point1, typename Point2,
+    typename RetrievePolicy1, typename RetrievePolicy2,
+    typename TurnPoint, typename IntersectionStrategy
+>
+class intersection_info_base<Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+        TurnPoint, IntersectionStrategy, detail::no_rescale_policy>
 {
 public:
     typedef Point1 point1_type;
@@ -182,11 +202,13 @@ public:
     typedef typename cs_tag<TurnPoint>::type cs_tag;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
-    typedef side_calculator<cs_tag, Point1, Point2, side_strategy_type> side_calculator_type;
+    typedef side_calculator<cs_tag, Point1, Point2,
+        RetrievePolicy1, RetrievePolicy2, side_strategy_type> side_calculator_type;
 
     typedef side_calculator
         <
             cs_tag, robust_point2_type, robust_point1_type,
+            RetrievePolicy2, RetrievePolicy1,
             side_strategy_type
         > robust_swapped_side_calculator_type;
     
@@ -232,16 +254,18 @@ private:
 
 template
 <
-    typename Point1,
-    typename Point2,
+    typename Point1, typename Point2,
+    typename RetrievePolicy1, typename RetrievePolicy2,
     typename TurnPoint,
     typename IntersectionStrategy,
     typename RobustPolicy
 >
 class intersection_info
-    : public intersection_info_base<Point1, Point2, TurnPoint, IntersectionStrategy, RobustPolicy>
+    : public intersection_info_base<Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+        TurnPoint, IntersectionStrategy, RobustPolicy>
 {
-    typedef intersection_info_base<Point1, Point2, TurnPoint, IntersectionStrategy, RobustPolicy> base;
+    typedef intersection_info_base<Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+        TurnPoint, IntersectionStrategy, RobustPolicy> base;
 
 public:
     typedef segment_intersection_points
