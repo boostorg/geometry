@@ -30,9 +30,10 @@ rule generate_self_contained_headers ( headers_subpath )
     for local file in [ path.glob-tree $(top_headers_path)/$(headers_subpath) : *.hpp ]
     {
         local rel_file = [ path.relative-to $(top_headers_path) $(file) ] ;
-        local target_name = [ regex.replace self-contained/$(rel_file) "/" "-" ] ;
+        local target_name = [ regex.replace h/$(rel_file) "/" "-" ] ;
+        local target_name = [ regex.replace $(target_name) "\.hpp" "" ] ;
         targets += [
-            compile $(BOOST_ROOT)/libs/geometry/test/self_contained_headers/main.cpp
+            compile $(BOOST_ROOT)/libs/geometry/test/headers/main.cpp
             : <define>"BOOST_GEOMETRY_TEST_HEADER=$(rel_file)" <dependency>$(file)
             : $(target_name)
         ] ;
