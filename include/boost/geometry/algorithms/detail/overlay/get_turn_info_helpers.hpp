@@ -111,7 +111,6 @@ struct robust_points
             Point1, RobustPolicy
         >::type robust_point1_type;
 
-    // TODO: define robust_point2_type using Point2?
     typedef robust_point1_type robust_point2_type;
 
     inline robust_points(Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -177,17 +176,11 @@ public:
                       base::m_rqi, base::m_rqj,
                       m_robust_retrieve_policy_p, m_robust_retrieve_policy_q,
                       intersection_strategy.get_side_strategy())
-        , m_pi(pi), m_pj(pj), m_pk(retrieve_policy_p.get())
-        , m_qi(qi), m_qj(qj), m_qk(retrieve_policy_q.get())
+        , m_pi(pi), m_qi(qi)
     {}
 
     inline Point1 const& pi() const { return m_pi; }
-    inline Point1 const& pj() const { return m_pj; }
-    inline Point1 const& pk() const { return m_pk; }
-
     inline Point2 const& qi() const { return m_qi; }
-    inline Point2 const& qj() const { return m_qj; }
-    inline Point2 const& qk() const { return m_qk; }
 
     inline robust_point1_type const& rpi() const { return base::m_rpi; }
     inline robust_point1_type const& rpj() const { return base::m_rpj; }
@@ -201,8 +194,7 @@ public:
     
     robust_swapped_side_calculator_type get_swapped_sides() const
     {
-        robust_swapped_side_calculator_type result(base::m_rqi, base::m_rqj,
-                            base::m_rpi, base::m_rpj,
+        robust_swapped_side_calculator_type result(rqi(), rqj(), rpi(), rpj(),
                             m_robust_retrieve_policy_q, m_robust_retrieve_policy_p,
                             m_side_calc.m_side_strategy);
         return result;
@@ -214,11 +206,7 @@ private:
     side_calculator_type m_side_calc;
 
     point1_type const& m_pi;
-    point1_type const& m_pj;
-    point1_type const& m_pk;
     point2_type const& m_qi;
-    point2_type const& m_qj;
-    point2_type const& m_qk;
 };
 
 template
@@ -264,20 +252,15 @@ public:
     {}
 
     inline Point1 const& pi() const { return m_side_calc.m_pi; }
-    inline Point1 const& pj() const { return m_side_calc.m_pj; }
-    inline Point1 const& pk() const { return m_side_calc.m_pk; }
-
     inline Point2 const& qi() const { return m_side_calc.m_qi; }
-    inline Point2 const& qj() const { return m_side_calc.m_qj; }
-    inline Point2 const& qk() const { return m_side_calc.m_qk; }
 
-    inline Point1 const& rpi() const { return pi(); }
-    inline Point1 const& rpj() const { return pj(); }
-    inline Point1 const& rpk() const { return pk(); }
+    inline Point1 const& rpi() const { return m_side_calc.m_pi; }
+    inline Point1 const& rpj() const { return m_side_calc.m_pj; }
+    inline Point1 const& rpk() const { return m_side_calc.m_pk; }
 
-    inline Point2 const& rqi() const { return qi(); }
-    inline Point2 const& rqj() const { return qj(); }
-    inline Point2 const& rqk() const { return qk(); }
+    inline Point2 const& rqi() const { return m_side_calc.m_qi; }
+    inline Point2 const& rqj() const { return m_side_calc.m_qj; }
+    inline Point2 const& rqk() const { return m_side_calc.m_qk; }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
 
@@ -394,7 +377,7 @@ public:
                 {
                     // qk is collinear with both p1 and p2,
                     // verify if pk goes backwards w.r.t. pi/pj
-                    return direction_code(base::pi(), base::pj(), base::pk()) == -1;
+                    return direction_code(base::rpi(), base::rpj(), base::rpk()) == -1;
                 }
 
                 // qk is at opposite side of p1/p2, therefore
@@ -423,7 +406,7 @@ public:
             {
                 if (pk_q1 == 0)
                 {
-                    return direction_code(base::qi(), base::qj(), base::qk()) == -1;
+                    return direction_code(base::rqi(), base::rqj(), base::rqk()) == -1;
                 }
                         
                 return true;

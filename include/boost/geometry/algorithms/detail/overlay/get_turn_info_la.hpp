@@ -588,6 +588,8 @@ struct get_turn_info_linear_areal
                     BOOST_GEOMETRY_ASSERT(inters.i_info().count > 1);
                     base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 1);
 
+                    // The only place where pi() and qi() are accessed
+                    // Consider using the intersection point.
                     AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
                 }
 
