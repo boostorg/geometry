@@ -57,13 +57,16 @@ struct side_calculator
         , m_retrieve_policy_q(retrieve_policy_q)
     {}
 
-    inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_pk); }
-    inline int pk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, m_pk); }
-    inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_qk); }
-    inline int qk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, m_qk); }
+    inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, get_pk()); }
+    inline int pk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, get_pk()); }
+    inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, get_qk()); }
+    inline int qk_wrt_q1() const { return m_side_strategy.apply(m_qi, m_qj, get_qk()); }
 
-    inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, m_qk, m_pk); }
-    inline int qk_wrt_p2() const { return m_side_strategy.apply(m_pj, m_pk, m_qk); }
+    inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, get_qk(), get_pk()); }
+    inline int qk_wrt_p2() const { return m_side_strategy.apply(m_pj, get_pk(), get_qk()); }
+
+    inline PointP get_pk() const { return m_retrieve_policy_p.get(); }
+    inline PointQ get_qk() const { return m_retrieve_policy_q.get(); }
 
     PointP const& m_pi;
     PointP const& m_pj;
@@ -233,10 +236,10 @@ public:
 
     typedef side_calculator
         <
-            cs_tag, robust_point2_type, robust_point1_type,
+            cs_tag, point2_type, point1_type,
             RetrievePolicy2, RetrievePolicy1,
             side_strategy_type
-        > robust_swapped_side_calculator_type;
+        > swapped_side_calculator_type;
     
     intersection_info_base(Point1 const& pi, Point1 const& pj,
                            Point2 const& qi, Point2 const& qj,
@@ -256,17 +259,17 @@ public:
 
     inline Point1 const& rpi() const { return m_side_calc.m_pi; }
     inline Point1 const& rpj() const { return m_side_calc.m_pj; }
-    inline Point1 const& rpk() const { return m_side_calc.m_pk; }
+    inline Point1 rpk() const { return m_side_calc.get_pk(); }
 
     inline Point2 const& rqi() const { return m_side_calc.m_qi; }
     inline Point2 const& rqj() const { return m_side_calc.m_qj; }
-    inline Point2 const& rqk() const { return m_side_calc.m_qk; }
+    inline Point2 rqk() const { return m_side_calc.get_qk(); }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
 
-    robust_swapped_side_calculator_type get_swapped_sides() const
+    swapped_side_calculator_type get_swapped_sides() const
     {
-        robust_swapped_side_calculator_type result(m_side_calc.m_qi, m_side_calc.m_qj,
+        swapped_side_calculator_type result(m_side_calc.m_qi, m_side_calc.m_qj,
             m_side_calc.m_pi, m_side_calc.m_pj,
             m_retrieve_policy_q, m_retrieve_policy_p,
             m_side_calc.m_side_strategy);
