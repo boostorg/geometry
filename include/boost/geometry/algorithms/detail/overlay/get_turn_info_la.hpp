@@ -68,10 +68,9 @@ struct get_turn_info_linear_areal
                 RobustPolicy
             > inters_info;
 
-        Point1 const& pk = retrieve_policy_p.get();
-        Point2 const& qk = retrieve_policy_q.get();
-
-        inters_info inters(pi, pj, pk, qi, qj, qk, intersection_strategy, robust_policy);
+        inters_info inters(pi, pj, qi, qj,
+                           retrieve_policy_p, retrieve_policy_q,
+                           intersection_strategy, robust_policy);
 
         char const method = inters.d_info().how;
 
