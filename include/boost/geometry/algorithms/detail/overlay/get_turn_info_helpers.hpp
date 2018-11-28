@@ -50,8 +50,8 @@ struct side_calculator
                            RetrievePolicy1 const& retrieve_policy_p,
                            RetrievePolicy2 const& retrieve_policy_q,
                            SideStrategy const& side_strategy)
-        : m_pi(pi), m_pj(pj), m_pk(retrieve_policy_p.get())
-        , m_qi(qi), m_qj(qj), m_qk(retrieve_policy_q.get())
+        : m_pi(pi), m_pj(pj)
+        , m_qi(qi), m_qj(qj)
         , m_side_strategy(side_strategy)
         , m_retrieve_policy_p(retrieve_policy_p)
         , m_retrieve_policy_q(retrieve_policy_q)
@@ -65,17 +65,15 @@ struct side_calculator
     inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, get_qk(), get_pk()); }
     inline int qk_wrt_p2() const { return m_side_strategy.apply(m_pj, get_pk(), get_qk()); }
 
-    inline PointP get_pk() const { return m_retrieve_policy_p.get(); }
-    inline PointQ get_qk() const { return m_retrieve_policy_q.get(); }
+    inline PointP const& get_pk() const { return m_retrieve_policy_p.get(); }
+    inline PointQ const& get_qk() const { return m_retrieve_policy_q.get(); }
 
     PointP const& m_pi;
     PointP const& m_pj;
-    PointP m_pk;
     PointQ const& m_qi;
     PointQ const& m_qj;
-    PointQ m_qk;
 
-    SideStrategy m_side_strategy;
+    SideStrategy const& m_side_strategy;
     RetrievePolicy1 const& m_retrieve_policy_p;
     RetrievePolicy2 const& m_retrieve_policy_q;
 };
@@ -88,17 +86,23 @@ struct robust_retriever
 
         : m_retrieve_policy(retrieve_policy)
         , m_robust_policy(robust_policy)
+        , m_retrieved(false)
     {}
 
-    Point get() const
+    Point const& get() const
     {
-        Point result;
-        geometry::recalculate(result, m_retrieve_policy.get(), m_robust_policy);
-        return result;
+        if (! m_retrieved)
+        {
+            geometry::recalculate(m_result, m_retrieve_policy.get(), m_robust_policy);
+            m_retrieved = true;
+        }
+        return m_result;
     }
 
     RetrievePolicy const& m_retrieve_policy;
     RobustPolicy const& m_robust_policy;
+    mutable Point m_result;
+    mutable bool m_retrieved;
 };
 
 template
@@ -259,11 +263,11 @@ public:
 
     inline Point1 const& rpi() const { return m_side_calc.m_pi; }
     inline Point1 const& rpj() const { return m_side_calc.m_pj; }
-    inline Point1 rpk() const { return m_side_calc.get_pk(); }
+    inline Point1 const& rpk() const { return m_side_calc.get_pk(); }
 
     inline Point2 const& rqi() const { return m_side_calc.m_qi; }
     inline Point2 const& rqj() const { return m_side_calc.m_qj; }
-    inline Point2 rqk() const { return m_side_calc.get_qk(); }
+    inline Point2 const& rqk() const { return m_side_calc.get_qk(); }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
 
