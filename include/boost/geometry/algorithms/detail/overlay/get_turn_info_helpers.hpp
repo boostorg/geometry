@@ -73,7 +73,7 @@ struct side_calculator
     PointQ const& m_qi;
     PointQ const& m_qj;
 
-    SideStrategy const& m_side_strategy;
+    SideStrategy m_side_strategy; // NOTE: cannot be const&
     RetrievePolicy1 const& m_retrieve_policy_p;
     RetrievePolicy2 const& m_retrieve_policy_q;
 };
