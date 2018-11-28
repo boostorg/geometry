@@ -776,6 +776,14 @@ struct get_turn_info_linear_areal
 
                 method_type replaced_method = method_touch_interior;
 
+                // The code below should avoid using a side_calculator.
+                // Mainly because it is constructed with the wrong points.
+                // It should never be constructed other than pi,pj,pk / qi,qj,qk
+                // That side calculator might not be necessary here.
+                // Relevant sides can be passed to the method operations_and_equal
+                // (and that method can assign the operations, no need to return
+                //  a pair, that is not done anywhere in all turns/operations)
+
                 if ( ip0.is_qj )
                 {
                     ov::side_calculator_for_endpoint
@@ -784,7 +792,7 @@ struct get_turn_info_linear_areal
                             rp1_type, rp2_type,
                             typename IntersectionInfo::side_strategy_type,
                             rp2_type
-                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(), // TODO: wrong! q should not be substituted for p, and i/j should be j/k
                                     inters.rqi(), inters.rqj(), inters.rqk(),
                                     inters.get_side_strategy());
 
@@ -805,7 +813,7 @@ struct get_turn_info_linear_areal
                             typename IntersectionInfo::side_strategy_type,
                             rp2_type, rp1_type, rp1_type,
                             rp2_type, rp1_type, rp2_type
-                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(), // TODO: wrong! q should not be substituted for p
                                     inters.rqi(), inters.rpi(), inters.rqj(),
                                     inters.get_side_strategy());
 
@@ -859,7 +867,7 @@ struct get_turn_info_linear_areal
                         typename IntersectionInfo::robust_point2_type,
                         typename IntersectionInfo::side_strategy_type,
                         typename IntersectionInfo::robust_point2_type
-                    > side_calc(inters.rqi(), inters.rpj(), inters.rpi(),
+                    > side_calc(inters.rqi(), inters.rpj(), inters.rpi(), // TODO: wrong! q should not be substituted for p; j/i should be j/k
                                 inters.rqi(), inters.rqj(), inters.rqk(),
                                 inters.get_side_strategy());
 
