@@ -73,12 +73,15 @@ void test_all()
                           "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
                           expected("tuu==")("ecc==")("mii++")("muu==")("mii++")("muu==")("mii++"));
 
-    test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
-                          "LINESTRING(4 5,3 2,1 0,0 0)",
-                          "mix+=", "txi=+", "ecc==");
-    test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)",
-                          "LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
-                          "mxi=+", "tix+=", "ecc==");
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)))
+    {
+        test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
+                              "LINESTRING(4 5,3 2,1 0,0 0)",
+                              "mix+=", "txi=+", "ecc==");
+        test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)",
+                              "LINESTRING(-1 0,1 0,2 1.0004570537241201524198894179384922,3 2)",
+                              "mxi=+", "tix+=", "ecc==");
+    }
     
     test_geometry<ls, ls>("LINESTRING(30 0,20 0,1 1,-1 -1)", "LINESTRING(0 -1,0 0,1 -1,20 0,25 0)", "mix+=", "tui=+", "muu++");
     test_geometry<ls, ls>("LINESTRING(0 -1,0 0,1 -1,20 0,25 0)", "LINESTRING(30 0,20 0,1 1,-1 -1)", "mxi=+", "tiu+=", "muu++");

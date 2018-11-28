@@ -20,6 +20,26 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.69]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/486 486] Karney's solution of direct geodesic problem for internal use (thanks to Adeel Ahmad).
+* [@https://github.com/boostorg/geometry/pull/490 490] Discrete Frechet and Hausdorff distance algorithms (thanks to Yaghyavardhan Singh Khangarot).
+* [@https://github.com/boostorg/geometry/pull/496 496] New run-time and upgraded compile-time SRS transformation interfaces.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/524 524] Fixed 'enumeration values not handled in switch' warnings.
+* [@https://github.com/boostorg/geometry/issues/527 527] Workaround for VS 2017 (msvc-15).
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/505 505] Fixed overflow in overlay algorithms (thanks to Dane Springmeyer).
+* [@https://github.com/boostorg/geometry/pull/518 518] Fixed passing of temporaries in append() (thanks to xventura81).
+
+[/=================]
 [heading Boost 1.68]
 [/=================]
 

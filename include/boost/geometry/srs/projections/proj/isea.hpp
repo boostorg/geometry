@@ -46,6 +46,8 @@
 #include <sstream>
 
 #include <boost/core/ignore_unused.hpp>
+
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
@@ -196,8 +198,8 @@ namespace projections
             //enum isea_poly { isea_none = 0, isea_icosahedron = 20 };
             //enum isea_topology { isea_hexagon=6, isea_triangle=3, isea_diamond=4 };
             enum isea_address_form {
-                isea_addr_geo, isea_addr_q2di, isea_addr_seqnum,
-                isea_addr_interleave, isea_addr_plane, isea_addr_q2dd,
+                /*isea_addr_geo,*/ isea_addr_q2di, isea_addr_seqnum,
+                /*isea_addr_interleave,*/ isea_addr_plane, isea_addr_q2dd,
                 isea_addr_projtri, isea_addr_vertex2dd, isea_addr_hex
             };
 
@@ -1068,30 +1070,34 @@ namespace projections
                 out.y += 2.0 * .14433756729740644112;
 
                 switch (g->output) {
-                case isea_addr_projtri:
-                    /* nothing to do, already in projected triangle */
-                    break;
-                case isea_addr_vertex2dd:
-                    g->quad = isea_ptdd(tri, &out);
-                    break;
-                case isea_addr_q2dd:
-                    /* Same as above, we just don't print as much */
-                    g->quad = isea_ptdd(tri, &out);
-                    break;
-                case isea_addr_q2di:
-                    g->quad = isea_ptdi(g, tri, &out, &coord);
-                    return coord;
-                    break;
-                case isea_addr_seqnum:
-                    isea_ptdi(g, tri, &out, &coord);
-                    /* disn will set g->serial */
-                    isea_disn(g, g->quad, &coord);
-                    return coord;
-                    break;
-                case isea_addr_hex:
-                    isea_hex(g, tri, &out, &coord);
-                    return coord;
-                    break;
+                    case isea_addr_projtri:
+                        /* nothing to do, already in projected triangle */
+                        break;
+                    case isea_addr_vertex2dd:
+                        g->quad = isea_ptdd(tri, &out);
+                        break;
+                    case isea_addr_q2dd:
+                        /* Same as above, we just don't print as much */
+                        g->quad = isea_ptdd(tri, &out);
+                        break;
+                    case isea_addr_q2di:
+                        g->quad = isea_ptdi(g, tri, &out, &coord);
+                        return coord;
+                        break;
+                    case isea_addr_seqnum:
+                        isea_ptdi(g, tri, &out, &coord);
+                        /* disn will set g->serial */
+                        isea_disn(g, g->quad, &coord);
+                        return coord;
+                        break;
+                    case isea_addr_hex:
+                        isea_hex(g, tri, &out, &coord);
+                        return coord;
+                        break;
+                    default:
+                        // isea_addr_plane handled above
+                        BOOST_GEOMETRY_ASSERT(false);
+                        break;
                 }
 
                 return out;
