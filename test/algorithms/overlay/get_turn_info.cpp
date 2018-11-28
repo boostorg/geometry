@@ -30,6 +30,25 @@
 #endif
 
 
+// For test purposes, returns the point specified in the constructor
+template <typename Point>
+struct retrieve_from_point_policy
+{
+    retrieve_from_point_policy(Point const& point)
+      : m_point(point)
+    {}
+
+    static inline bool is_first() { return false; }
+    static inline bool is_last() { return false; }
+
+    inline Point const& get() const
+    {
+        return m_point;
+    }
+
+private :
+    Point const& m_point;
+};
 
 template <typename P, typename T>
 void test_with_point(std::string const& caseid,
@@ -65,13 +84,13 @@ void test_with_point(std::string const& caseid,
     tp_vector info;
     strategy_type strategy;
     rescale_policy_type rescale_policy;
-    bg::detail::overlay::retrieve_null_policy retrieve_policy;
+    retrieve_from_point_policy<P> retrieve_policy_p(pk);
+    retrieve_from_point_policy<P> retrieve_policy_q(qk);
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
-        >::apply(pi, pj, pk, qi, qj, qk,
-        model, strategy, retrieve_policy, retrieve_policy, rescale_policy, std::back_inserter(info));
-
+        >::apply(pi, pj, qi, qj,
+        model, strategy, retrieve_policy_p, retrieve_policy_q, rescale_policy, std::back_inserter(info));
 
     if (info.size() == 0)
     {
