@@ -120,20 +120,58 @@ struct robust_points
 
     typedef robust_point1_type robust_point2_type;
 
-    inline robust_points(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                         Point2 const& qi, Point2 const& qj, Point2 const& qk,
+    inline robust_points(Point1 const& pi, Point1 const& pj,
+                         Point2 const& qi, Point2 const& qj,
+                         RetrievePolicy1 const& retrieve_policy_p,
+                         RetrievePolicy2 const& retrieve_policy_q,
                          RobustPolicy const& robust_policy)
+        : m_robust_policy(robust_policy)
+        , m_retrieve_policy_p(retrieve_policy_p)
+        , m_retrieve_policy_q(retrieve_policy_q)
+        , m_pk_retrieved(false)
+        , m_qk_retrieved(false)
     {
+        // Calculate pi,pj and qi,qj which are almost always necessary
+        // But don't calculate pk/qk yet, which is retrieved (taking
+        // more time) and not always necessary.
         geometry::recalculate(m_rpi, pi, robust_policy);
         geometry::recalculate(m_rpj, pj, robust_policy);
-        geometry::recalculate(m_rpk, pk, robust_policy);
         geometry::recalculate(m_rqi, qi, robust_policy);
         geometry::recalculate(m_rqj, qj, robust_policy);
-        geometry::recalculate(m_rqk, qk, robust_policy);
     }
 
-    robust_point1_type m_rpi, m_rpj, m_rpk;
-    robust_point2_type m_rqi, m_rqj, m_rqk;
+    inline robust_point1_type const& get_rpk() const
+    {
+        if (! m_pk_retrieved)
+        {
+            geometry::recalculate(m_rpk, m_retrieve_policy_p.get(), m_robust_policy);
+            m_pk_retrieved = true;
+        }
+        return m_rpk;
+    }
+    inline robust_point2_type const& get_rqk() const
+    {
+        if (! m_qk_retrieved)
+        {
+            geometry::recalculate(m_rqk, m_retrieve_policy_q.get(), m_robust_policy);
+            m_qk_retrieved = true;
+        }
+        return m_rqk;
+    }
+
+    robust_point1_type m_rpi, m_rpj;
+    robust_point2_type m_rqi, m_rqj;
+
+private :
+    RobustPolicy const& m_robust_policy;
+    RetrievePolicy1 const& m_retrieve_policy_p;
+    RetrievePolicy2 const& m_retrieve_policy_q;
+
+    // On retrieval
+    mutable robust_point1_type m_rpk;
+    mutable robust_point2_type m_rqk;
+    mutable bool m_pk_retrieved;
+    mutable bool m_qk_retrieved;
 };
 
 template
@@ -175,8 +213,8 @@ public:
                            RetrievePolicy2 const& retrieve_policy_q,
                            IntersectionStrategy const& intersection_strategy,
                            RobustPolicy const& robust_policy)
-        : base(pi, pj, retrieve_policy_p.get(),
-               qi, qj, retrieve_policy_q.get(), robust_policy)
+        : base(pi, pj, qi, qj,
+               retrieve_policy_p, retrieve_policy_q, robust_policy)
         , m_robust_retrieve_policy_p(retrieve_policy_p, robust_policy)
         , m_robust_retrieve_policy_q(retrieve_policy_q, robust_policy)
         , m_side_calc(base::m_rpi, base::m_rpj,
@@ -191,11 +229,11 @@ public:
 
     inline robust_point1_type const& rpi() const { return base::m_rpi; }
     inline robust_point1_type const& rpj() const { return base::m_rpj; }
-    inline robust_point1_type const& rpk() const { return base::m_rpk; }
+    inline robust_point1_type const& rpk() const { return base::get_rpk(); }
 
     inline robust_point2_type const& rqi() const { return base::m_rqi; }
     inline robust_point2_type const& rqj() const { return base::m_rqj; }
-    inline robust_point2_type const& rqk() const { return base::m_rqk; }
+    inline robust_point2_type const& rqk() const { return base::get_rqk(); }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
     
