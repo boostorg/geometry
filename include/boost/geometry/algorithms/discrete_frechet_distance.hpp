@@ -150,7 +150,8 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 
 
 /*!
-\brief calculate discrete frechet distance between two geometries ( currently work for LineString-LineString) using specified strategy
+\brief Calculate discrete Frechet distance between two geometries (currently
+    works for LineString-LineString) using specified strategy.
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -188,7 +189,8 @@ discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2
 // Algorithm overload using default Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete frechet distance between two geometries ( currently work for LineString-LineString)
+\brief Calculate discrete Frechet distance between two geometries (currently
+    work for LineString-LineString).
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
