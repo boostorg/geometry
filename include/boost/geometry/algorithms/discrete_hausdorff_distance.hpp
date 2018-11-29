@@ -264,7 +264,9 @@ struct discrete_hausdorff_distance<multi_linestring1, multi_linestring2, multi_l
 // Algorithm overload using explicitly passed Pt-Pt distance strategy
 
 /*!
-\brief calculate discrete hausdorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString ) using specified strategy
+\brief Calculate discrete Hausdorff distance between two geometries (currently
+    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
+    MultiLineString-MultiLineString) using specified strategy.
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -295,13 +297,20 @@ typename distance_result
         typename point_type<Geometry2>::type,
         Strategy
     >::type
-discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+discrete_hausdorff_distance(Geometry1 const& geometry1,
+                            Geometry2 const& geometry2,
+                            Strategy const& strategy)
 {
-    return dispatch::discrete_hausdorff_distance<Geometry1, Geometry2>::apply(g1, g2, strategy);
+    return dispatch::discrete_hausdorff_distance
+        <
+            Geometry1, Geometry2
+        >::apply(geometry1, geometry2, strategy);
 }
 
 /*!
-\brief calculate discrete hausdorff distance between two geometries ( currently works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint, MultiLineString-MultiLineString )
+\brief Calculate discrete Hausdorff distance between two geometries (currently
+    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
+    MultiLineString-MultiLineString).
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -323,7 +332,8 @@ typename distance_result
         typename point_type<Geometry1>::type,
         typename point_type<Geometry2>::type
     >::type
-discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
+discrete_hausdorff_distance(Geometry1 const& geometry1,
+                            Geometry2 const& geometry2)
 {
     typedef typename strategy::distance::services::default_strategy
         <
@@ -332,7 +342,7 @@ discrete_hausdorff_distance(Geometry1 const& g1, Geometry2 const& g2)
             typename point_type<Geometry2>::type
         >::type strategy_type;
 
-    return discrete_hausdorff_distance(g1, g2, strategy_type());
+    return discrete_hausdorff_distance(geometry1, geometry2, strategy_type());
 }
 
 }} // namespace boost::geometry
