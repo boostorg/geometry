@@ -264,7 +264,7 @@ struct discrete_hausdorff_distance<multi_linestring1, multi_linestring2, multi_l
 // Algorithm overload using explicitly passed Pt-Pt distance strategy
 
 /*!
-\brief Calculate discrete hausdorff distance between two geometries (currently
+\brief Calculate discrete Hausdorff distance between two geometries (currently
     works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
     MultiLineString-MultiLineString) using specified strategy.
 \ingroup discrete_hausdorff_distance
@@ -308,7 +308,7 @@ discrete_hausdorff_distance(Geometry1 const& geometry1,
 }
 
 /*!
-\brief Calculate discrete hausdorff distance between two geometries (currently
+\brief Calculate discrete Hausdorff distance between two geometries (currently
     works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
     MultiLineString-MultiLineString).
 \ingroup discrete_hausdorff_distance
