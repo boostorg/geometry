@@ -40,6 +40,7 @@
 
 * [@https://github.com/boostorg/geometry/pull/505 505] Fixed overflow in overlay algorithms (thanks to Dane Springmeyer).
 * [@https://github.com/boostorg/geometry/pull/518 518] Fixed passing of temporaries in append() (thanks to xventura81).
+* [@https://github.com/boostorg/geometry/pull/522 522] Support python3 in building documentation.
 
 [/=================]
 [heading Boost 1.68]
