@@ -117,7 +117,7 @@ Boost.Geometry contains contributions by:
 * Matt Amos (fixes for point_on_surface)
 * Samuel Debionne (variant support for distance, assign, crosses, intersection, ...)
 * Adeel Ahmad (Karney's solution of direct and inverse geodesic problems)
-* Yaghyavardhan Singh Khangarot (discrete frechet and hausdorff distance)
+* Yaghyavardhan Singh Khangarot (discrete Frechet and Hausdorff distance)
 
 [include imports.qbk]
 
