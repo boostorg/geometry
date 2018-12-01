@@ -103,6 +103,7 @@ struct no_interrupt_policy
 
 template
 <
+    bool IsAreal,
     typename Section,
     typename Point,
     typename CircularIterator,
@@ -125,12 +126,12 @@ struct retrieve_additional_info_from_section
 
     inline bool is_first() const
     {
-        return m_section.is_non_duplicate_first && m_index == m_section.begin_index;
+        return !IsAreal && m_section.is_non_duplicate_first && m_index == m_section.begin_index;
     }
 
     inline bool has_k() const
     {
-        return m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index;
+        return IsAreal || ! (m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index);
     }
 
     inline Point const& get_point_k() const
@@ -271,6 +272,18 @@ public :
     {
         boost::ignore_unused(interrupt_policy);
 
+        static bool const areal1 = boost::is_same
+            <
+                typename tag_cast<typename tag<Geometry1>::type, areal_tag>::type,
+                areal_tag
+            >::type::value;
+        static bool const areal2 = boost::is_same
+            <
+                typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+                areal_tag
+            >::type::value;
+
+
         if ((sec1.duplicate && (sec1.count + 1) < sec1.range_count)
            || (sec2.duplicate && (sec2.count + 1) < sec2.range_count))
         {
@@ -314,7 +327,7 @@ public :
             it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec1.bounding_box, sec2.bounding_box, robust_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
-            retrieve_from_section<Section1, point1_type, circular1_iterator, RobustPolicy> retrieve_policy1(sec1, index1,
+            retrieve_additional_info_from_section<areal1, Section1, point1_type, circular1_iterator, RobustPolicy> retrieve_policy1(sec1, index1,
                 circular1_iterator(begin_range_1, end_range_1, next1, true), *it1, robust_policy);
 
             signed_size_type index2 = sec2.begin_index;
@@ -361,7 +374,7 @@ public :
 
                 if (! skip)
                 {
-                    retrieve_from_section<Section2, point2_type, circular2_iterator, RobustPolicy> retrieve_policy2(sec2, index2,
+                    retrieve_additional_info_from_section<areal2, Section2, point2_type, circular2_iterator, RobustPolicy> retrieve_policy2(sec2, index2,
                         circular2_iterator(begin_range_2, end_range_2, next2), *it2, robust_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
