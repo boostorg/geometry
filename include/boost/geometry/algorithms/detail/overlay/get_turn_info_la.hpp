@@ -45,8 +45,8 @@ struct get_turn_info_linear_areal
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -55,14 +55,14 @@ struct get_turn_info_linear_areal
                 Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
-                Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+                Point1, Point2, RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy
@@ -75,8 +75,8 @@ struct get_turn_info_linear_areal
         char const method = inters.d_info().how;
 
         bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = retrieve_policy_p.is_last();
-        bool const is_q_last = retrieve_policy_q.is_last();
+        bool const is_p_last = ! retrieve_policy_p.has_k();
+        bool const is_q_last = ! retrieve_policy_q.has_k();
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -372,8 +372,7 @@ struct get_turn_info_linear_areal
                             >::apply(pi, pj, qi, qj,
                                 retrieve_policy_p, retrieve_policy_q,
                                 tp, out, inters,
-                                inters.sides(), transformer,
-                                !is_p_last, true); // qk is always valid
+                                inters.sides(), transformer);
                     }
                 }
             }
@@ -713,14 +712,14 @@ struct get_turn_info_linear_areal
               typename Point2,
               typename TurnInfo,
               typename IntersectionInfo,
-              typename RetrievePolicy1,
-              typename RetrievePolicy2,
+              typename RetrieveAdditionalInfoPolicy1,
+              typename RetrieveAdditionalInfoPolicy2,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
                             Point1 const& pi, Point1 const& /*pj*/,
                             Point2 const& qi, Point2 const& /*qj*/,
-                            RetrievePolicy1 const& retrieve_policy_p,
-                            RetrievePolicy2 const& retrieve_policy_q,
+                            RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                            RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                             TurnInfo const& tp_model,
                             IntersectionInfo const& inters,
                             method_type /*method*/,
@@ -730,7 +729,7 @@ struct get_turn_info_linear_areal
         typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
 
         bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_p_last = ! retrieve_policy_p.has_k();
 
         const std::size_t ip_count = inters.i_info().count;
         // no intersection points
@@ -744,7 +743,7 @@ struct get_turn_info_linear_areal
             return false;
         }
 
-        bool const is_q_last = retrieve_policy_q.is_last();
+        bool const is_q_last = ! retrieve_policy_q.has_k();
 
         linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();

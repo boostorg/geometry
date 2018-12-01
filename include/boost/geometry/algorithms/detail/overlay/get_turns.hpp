@@ -108,9 +108,9 @@ template
     typename CircularIterator,
     typename RobustPolicy
 >
-struct retrieve_from_section
+struct retrieve_additional_info_from_section
 {
-    retrieve_from_section(Section const& section, signed_size_type index,
+    retrieve_additional_info_from_section(Section const& section, signed_size_type index,
                           CircularIterator circular_iterator,
                           Point const& current,
                           RobustPolicy const& robust_policy)
@@ -128,12 +128,12 @@ struct retrieve_from_section
         return m_section.is_non_duplicate_first && m_index == m_section.begin_index;
     }
 
-    inline bool is_last() const
+    inline bool has_k() const
     {
         return m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index;
     }
 
-    inline Point const& get() const
+    inline Point const& get_point_k() const
     {
         if (! m_point_retrieved)
         {
@@ -584,17 +584,17 @@ struct get_turns_cs
             view_type const
         >::type iterator_type;
 
-    struct retrieve_from_box_policy
+    struct retrieve_additional_info_from_box_policy
     {
-        retrieve_from_box_policy(box_array const& box, int index)
+        retrieve_additional_info_from_box_policy(box_array const& box, int index)
           : m_box(box)
           , m_index(index)
         {}
 
         static inline bool is_first() { return false; }
-        static inline bool is_last() { return false; }
+        static inline bool has_k() { return true; }
 
-        inline box_point_type const& get() const
+        inline box_point_type const& get_point_k() const
         {
             return m_box[m_index];
         }
@@ -612,9 +612,9 @@ struct get_turns_cs
         int m_index;
     };
 
-    struct retrieve_from_view_policy
+    struct retrieve_additional_info_from_view_policy
     {
-        retrieve_from_view_policy(view_type const& view, iterator_type it)
+        retrieve_additional_info_from_view_policy(view_type const& view, iterator_type it)
           : m_view(view)
           , m_circular_iterator(boost::begin(view), boost::end(view), it, true)
         {
@@ -622,9 +622,9 @@ struct get_turns_cs
         }
 
         static inline bool is_first() { return false; }
-        static inline bool is_last() { return false; }
+        static inline bool has_k() { return true; }
 
-        inline point_type const& get() const
+        inline point_type const& get_point_k() const
         {
             return *m_circular_iterator;
         }
@@ -672,7 +672,7 @@ struct get_turns_cs
             segment_identifier seg_id(source_id1,
                         multi_index, ring_index, index);
 
-            retrieve_from_view_policy view_retrieve_policy(view, it);
+            retrieve_additional_info_from_view_policy view_retrieve_policy(view, it);
 
             /*if (first)
             {
@@ -743,7 +743,7 @@ private:
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
             point_type const& range_point_0,
             point_type const& range_point_1,
-            retrieve_from_view_policy const& range_retrieve_policy,
+            retrieve_additional_info_from_view_policy const& range_retrieve_policy,
             box_array const& box,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
@@ -760,7 +760,7 @@ private:
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
-        retrieve_from_box_policy box_retrieve_policy(box, 2);
+        retrieve_additional_info_from_box_policy box_retrieve_policy(box, 2);
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(range_point_0, range_point_1, box[0], box[1],
                           ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,

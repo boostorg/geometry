@@ -595,8 +595,8 @@ struct collinear : public base_turn_handler
     <
         typename Point1,
         typename Point2,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy
@@ -604,8 +604,8 @@ struct collinear : public base_turn_handler
     static inline void apply(
                 Point1 const& , Point1 const& pj,
                 Point2 const& , Point2 const& qj,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const& dir_info,
@@ -643,8 +643,8 @@ struct collinear : public base_turn_handler
             ui_else_iu(product == 1, ti);
         }
 
-        Point1 const& pk = retrieve_policy_p.get();
-        Point2 const& qk = retrieve_policy_q.get();
+        Point1 const& pk = retrieve_policy_p.get_point_k();
+        Point2 const& qk = retrieve_policy_q.get_point_k();
 
         // Calculate remaining distance. If it continues collinearly it is
         // measured until the end of the next segment
@@ -766,8 +766,8 @@ public:
     <
         typename Point1,
         typename Point2,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename OutputIterator,
         typename IntersectionInfo,
         typename SidePolicy
@@ -775,8 +775,8 @@ public:
     static inline void apply(
                 Point1 const& pi, Point1 const& pj,
                 Point2 const& qi, Point2 const& qj,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
 
                 // Opposite collinear can deliver 2 intersection points,
                 TurnInfo const& tp_model,
@@ -794,8 +794,8 @@ public:
     <
         typename Point1,
         typename Point2,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename OutputIterator,
         typename IntersectionInfo,
         typename SidePolicy,
@@ -804,8 +804,8 @@ public:
     static inline void apply(
                 Point1 const& pi, Point1 const& pj,
                 Point2 const& qi, Point2 const& qj,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
 
                 // Opposite collinear can deliver 2 intersection points,
                 TurnInfo const& tp_model,
@@ -813,21 +813,18 @@ public:
 
                 IntersectionInfo const& info,
                 SidePolicy const& side,
-                TurnTransformer turn_transformer,
-                bool const is_pk_valid = true, bool const is_qk_valid = true)
+                TurnTransformer turn_transformer)
     {
         TurnInfo tp = tp_model;
 
         int const p_arrival = info.d_info().arrival[0];
         int const q_arrival = info.d_info().arrival[1];
 
-        Point1 const& pk = retrieve_policy_p.get();
-        Point2 const& qk = retrieve_policy_q.get();
-
         // If P arrives within Q, there is a turn dependent on P
         if ( p_arrival == 1
-          && is_pk_valid
-          && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, info.i_info()) )
+          && retrieve_policy_p.has_k()
+          && set_tp<0>(pi, pj, retrieve_policy_p.get_point_k(),
+                       side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
@@ -837,8 +834,9 @@ public:
 
         // If Q arrives within P, there is a turn dependent on Q
         if ( q_arrival == 1
-          && is_qk_valid
-          && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, info.i_info()) )
+          && retrieve_policy_q.has_k()
+          && set_tp<1>(qi, qj, retrieve_policy_q.get_point_k(),
+                       side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
@@ -964,8 +962,8 @@ struct get_turn_info
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -974,14 +972,14 @@ struct get_turn_info
                 Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
-                Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+                Point1, Point2, RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy

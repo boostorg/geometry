@@ -39,9 +39,9 @@ struct retrieve_from_point_policy
     {}
 
     static inline bool is_first() { return false; }
-    static inline bool is_last() { return false; }
+    static inline bool has_k() { return true; }
 
-    inline Point const& get() const
+    inline Point const& get_point_k() const
     {
         return m_point;
     }

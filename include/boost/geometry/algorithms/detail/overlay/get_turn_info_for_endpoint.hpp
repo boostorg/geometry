@@ -198,23 +198,23 @@ public:
 private:
 
     // only if collinear (same_dirs)
-    static inline operation_type union_or_blocked_same_dirs(int arrival, bool is_last)
+    static inline operation_type union_or_blocked_same_dirs(int arrival, bool has_k)
     {
         if ( arrival == 1 )
             return operation_blocked;
         else if ( arrival == -1 )
             return operation_union;
         else
-            return is_last ? operation_blocked : operation_union;
+            return has_k ? operation_blocked : operation_union;
             //return operation_blocked;
     }
 
     // only if not collinear (!same_dirs)
-    static inline operation_type union_or_blocked_different_dirs(int arrival, bool is_last)
+    static inline operation_type union_or_blocked_different_dirs(int arrival, bool has_k)
     {
         if ( arrival == 1 )
             //return operation_blocked;
-            return is_last ? operation_blocked : operation_union;
+            return has_k ? operation_blocked : operation_union;
         else
             return operation_union;
     }
@@ -259,16 +259,16 @@ struct get_turn_info_for_endpoint
 
     template<typename Point1,
              typename Point2,
-             typename RetrievePolicy1,
-             typename RetrievePolicy2,
+             typename RetrieveAdditionalInfoPolicy1,
+             typename RetrieveAdditionalInfoPolicy2,
              typename TurnInfo,
              typename IntersectionInfo,
              typename OutputIterator
     >
     static inline bool apply(Point1 const& pi, Point1 const& pj,
                              Point2 const& qi, Point2 const& qj,
-                             RetrievePolicy1 const& retrieve_policy_p,
-                             RetrievePolicy2 const& retrieve_policy_q,
+                             RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                             RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                              TurnInfo const& tp_model,
                              IntersectionInfo const& inters,
                              method_type /*method*/,
@@ -282,9 +282,9 @@ struct get_turn_info_for_endpoint
         }
 
         bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_p_last = ! retrieve_policy_p.has_k();
         bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = retrieve_policy_q.is_last();
+        bool const is_q_last = ! retrieve_policy_q.has_k();
 
         if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
         {
@@ -320,16 +320,16 @@ struct get_turn_info_for_endpoint
 
     template <typename Point1,
               typename Point2,
-              typename RetrievePolicy1,
-              typename RetrievePolicy2,
+              typename RetrieveAdditionalInfoPolicy1,
+              typename RetrieveAdditionalInfoPolicy2,
               typename TurnInfo,
               typename IntersectionInfo,
               typename OutputIterator>
     static inline
     bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj,
                                        Point2 const& qi, Point2 const& qj,
-                                       RetrievePolicy1 const& retrieve_policy_p,
-                                       RetrievePolicy2 const& retrieve_policy_q,
+                                       RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                                       RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                                        linear_intersections::ip_info const& ip_info,
                                        TurnInfo const& tp_model,
                                        IntersectionInfo const& inters,
@@ -348,9 +348,9 @@ struct get_turn_info_for_endpoint
 
         // TODO - calculate first/last only if needed
         bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_p_last = ! retrieve_policy_p.has_k();
         bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = retrieve_policy_q.is_last();
+        bool const is_q_last = ! retrieve_policy_q.has_k();
 
         bool is_p_first_ip = is_p_first && ip_info.is_pi;
         bool is_p_last_ip = is_p_last && ip_info.is_pj;

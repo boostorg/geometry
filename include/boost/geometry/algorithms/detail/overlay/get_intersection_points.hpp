@@ -44,14 +44,14 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename Strategy, typename RetrievePolicy1, typename RetrievePolicy2, typename RobustPolicy, typename OutputIterator>
+    template <typename Strategy, typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2, typename RobustPolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj,
                 Point2 const& qi, Point2 const& qj,
                 TurnInfo const& ,
                 Strategy const& strategy,
-                RetrievePolicy1 const& ,
-                RetrievePolicy2 const& ,
+                RetrieveAdditionalInfoPolicy1 const& ,
+                RetrieveAdditionalInfoPolicy2 const& ,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

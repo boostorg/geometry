@@ -40,8 +40,8 @@ struct get_turn_info_linear_linear
         typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrievePolicy1,
-        typename RetrievePolicy2,
+        typename RetrieveAdditionalInfoPolicy1,
+        typename RetrieveAdditionalInfoPolicy2,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -50,14 +50,14 @@ struct get_turn_info_linear_linear
                 Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& strategy,
-                RetrievePolicy1 const& retrieve_policy_p,
-                RetrievePolicy2 const& retrieve_policy_q,
+                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
+                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
-                Point1, Point2, RetrievePolicy1, RetrievePolicy2,
+                Point1, Point2, RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy
@@ -70,9 +70,9 @@ struct get_turn_info_linear_linear
         char const method = inters.d_info().how;
 
         bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = retrieve_policy_p.is_last();
+        bool const is_p_last = ! retrieve_policy_p.has_k();
         bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = retrieve_policy_q.is_last();
+        bool const is_q_last = ! retrieve_policy_q.has_k();
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -426,7 +426,7 @@ struct get_turn_info_linear_linear
                             >::apply(pi, pj, qi, qj,
                                 retrieve_policy_p, retrieve_policy_q,
                                 tp, out, inters, inters.sides(),
-                                transformer, !is_p_last, !is_q_last);
+                                transformer);
                     }
                 }
             }
