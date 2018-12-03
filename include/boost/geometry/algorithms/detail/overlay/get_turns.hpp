@@ -109,11 +109,11 @@ template
     typename CircularIterator,
     typename RobustPolicy
 >
-struct retrieve_additional_info_from_section
+struct unique_sub_range_from_section
 {
     typedef Point point_type;
 
-    retrieve_additional_info_from_section(Section const& section, signed_size_type index,
+    unique_sub_range_from_section(Section const& section, signed_size_type index,
                           CircularIterator circular_iterator,
                           Point const& previous, Point const& current,
                           RobustPolicy const& robust_policy)
@@ -334,7 +334,7 @@ public :
             it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec1.bounding_box, sec2.bounding_box, robust_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
-            retrieve_additional_info_from_section<areal1, Section1, point1_type, circular1_iterator, RobustPolicy> retrieve_policy1(sec1, index1,
+            unique_sub_range_from_section<areal1, Section1, point1_type, circular1_iterator, RobustPolicy> unique_sub_range1(sec1, index1,
                 circular1_iterator(begin_range_1, end_range_1, next1, true), *prev1, *it1, robust_policy);
 
             signed_size_type index2 = sec2.begin_index;
@@ -381,7 +381,7 @@ public :
 
                 if (! skip)
                 {
-                    retrieve_additional_info_from_section<areal2, Section2, point2_type, circular2_iterator, RobustPolicy> retrieve_policy2(sec2, index2,
+                    unique_sub_range_from_section<areal2, Section2, point2_type, circular2_iterator, RobustPolicy> unique_sub_range2(sec2, index2,
                         circular2_iterator(begin_range_2, end_range_2, next2), *prev2, *it2, robust_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
@@ -396,7 +396,7 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(ti, intersection_strategy, retrieve_policy1, retrieve_policy2, robust_policy,
+                    TurnPolicy::apply(ti, intersection_strategy, unique_sub_range1, unique_sub_range2, robust_policy,
                                       std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -603,11 +603,11 @@ struct get_turns_cs
             view_type const
         >::type iterator_type;
 
-    struct retrieve_additional_info_from_box_policy
+    struct unique_sub_range_from_box_policy
     {
         typedef box_point_type point_type;
 
-        retrieve_additional_info_from_box_policy(box_array const& box, int index)
+        unique_sub_range_from_box_policy(box_array const& box, int index)
           : m_box(box)
           , m_index(index)
         {}
@@ -632,11 +632,11 @@ struct get_turns_cs
         int m_index;
     };
 
-    struct retrieve_additional_info_from_view_policy
+    struct unique_sub_range_from_view_policy
     {
         typedef range_point_type point_type;
 
-        retrieve_additional_info_from_view_policy(view_type const& view, point_type const& pi, point_type const& pj, iterator_type it)
+        unique_sub_range_from_view_policy(view_type const& view, point_type const& pi, point_type const& pj, iterator_type it)
           : m_view(view)
           , m_pi(pi)
           , m_pj(pj)
@@ -701,7 +701,7 @@ struct get_turns_cs
             segment_identifier seg_id(source_id1,
                         multi_index, ring_index, index);
 
-            retrieve_additional_info_from_view_policy view_retrieve_policy(view, *prev, *it, it);
+            unique_sub_range_from_view_policy view_unique_sub_range(view, *prev, *it, it);
 
             /*if (first)
             {
@@ -729,7 +729,7 @@ struct get_turns_cs
             if (true)
             {
                 get_turns_with_box(seg_id, source_id2,
-                        view_retrieve_policy,
+                        view_unique_sub_range,
                         box_points,
                         intersection_strategy,
                         robust_policy,
@@ -770,7 +770,7 @@ private:
         typename RobustPolicy
     >
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
-            retrieve_additional_info_from_view_policy const& range_retrieve_policy,
+            unique_sub_range_from_view_policy const& range_unique_sub_range,
             box_array const& box,
             IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy,
@@ -787,24 +787,24 @@ private:
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
-        retrieve_additional_info_from_box_policy box_retrieve_policy(box, 0);
+        unique_sub_range_from_box_policy box_unique_sub_range(box, 0);
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-        TurnPolicy::apply(ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
-        box_retrieve_policy.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+        box_unique_sub_range.next();
+        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
-        box_retrieve_policy.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+        box_unique_sub_range.next();
+        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
-        box_retrieve_policy.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_retrieve_policy, box_retrieve_policy, robust_policy,
+        box_unique_sub_range.next();
+        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
                           std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)

@@ -44,12 +44,12 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename Strategy, typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2, typename RobustPolicy, typename OutputIterator>
+    template <typename Strategy, typename UniqueSubRange1, typename UniqueSubRange2, typename RobustPolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 TurnInfo const& ,
                 Strategy const& strategy,
-                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+                UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -69,10 +69,10 @@ struct get_turn_without_info
 
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
-        Point1 const& pi = retrieve_policy_p.get_point_i();
-        Point1 const& pj = retrieve_policy_p.get_point_j();
-        Point2 const& qi = retrieve_policy_q.get_point_i();
-        Point2 const& qj = retrieve_policy_q.get_point_j();
+        Point1 const& pi = range_p.get_point_i();
+        Point1 const& pj = range_p.get_point_j();
+        Point2 const& qi = range_q.get_point_i();
+        Point2 const& qj = range_q.get_point_j();
         segment_type1 p1(pi, pj);
         segment_type2 q1(qi, qj);
 

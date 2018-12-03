@@ -38,43 +38,43 @@ struct get_turn_info_linear_linear
     <
         typename TurnInfo,
         typename IntersectionStrategy,
-        typename RetrieveAdditionalInfoPolicy1,
-        typename RetrieveAdditionalInfoPolicy2,
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& strategy,
-                RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+                UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
-                RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
+                UniqueSubRange1, UniqueSubRange2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy
             > inters_info;
 
-        typedef typename RetrieveAdditionalInfoPolicy1::point_type Point1;
-        typedef typename RetrieveAdditionalInfoPolicy2::point_type Point2;
-        Point1 const& pi = retrieve_policy_p.get_point_i();
-        Point1 const& pj = retrieve_policy_p.get_point_j();
-        Point2 const& qi = retrieve_policy_q.get_point_i();
-        Point2 const& qj = retrieve_policy_q.get_point_j();
+        typedef typename UniqueSubRange1::point_type Point1;
+        typedef typename UniqueSubRange2::point_type Point2;
+        Point1 const& pi = range_p.get_point_i();
+        Point1 const& pj = range_p.get_point_j();
+        Point2 const& qi = range_q.get_point_i();
+        Point2 const& qj = range_q.get_point_j();
 
-        inters_info inters(retrieve_policy_p, retrieve_policy_q,
+        inters_info inters(range_p, range_q,
                            strategy, robust_policy);
 
         char const method = inters.d_info().how;
 
-        bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = ! retrieve_policy_p.has_k();
-        bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = ! retrieve_policy_q.has_k();
+        bool const is_p_first = range_p.is_first();
+        bool const is_p_last = ! range_p.has_k();
+        bool const is_q_first = range_q.is_first();
+        bool const is_q_last = ! range_q.has_k();
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -86,7 +86,7 @@ struct get_turn_info_linear_linear
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
-                    ::apply(retrieve_policy_p, retrieve_policy_q,
+                    ::apply(range_p, range_q,
                             tp_model, inters, method_none, out);
                 break;
 
@@ -96,7 +96,7 @@ struct get_turn_info_linear_linear
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(retrieve_policy_p, retrieve_policy_q,
+                        ::apply(range_p, range_q,
                                 tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
@@ -153,7 +153,7 @@ struct get_turn_info_linear_linear
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(retrieve_policy_p, retrieve_policy_q,
+                        ::apply(range_p, range_q,
                                 tp_model, inters, method_touch, out) )
                 {
                     // do nothing
@@ -286,7 +286,7 @@ struct get_turn_info_linear_linear
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(retrieve_policy_p, retrieve_policy_q,
+                        ::apply(range_p, range_q,
                                 tp_model, inters, method_equal, out) )
                 {
                     // do nothing
@@ -333,7 +333,7 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(retrieve_policy_p, retrieve_policy_q, tp, out, inters);
+                            >::apply(range_p, range_q, tp, out, inters);
                     }
                 }
             }
@@ -342,7 +342,7 @@ struct get_turn_info_linear_linear
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(retrieve_policy_p, retrieve_policy_q,
+                        ::apply(range_p, range_q,
                                 tp_model, inters,  method_collinear, out) )
                 {
                     // do nothing
@@ -372,7 +372,7 @@ struct get_turn_info_linear_linear
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(retrieve_policy_p, retrieve_policy_q,
+                            collinear<TurnInfo>::apply(range_p, range_q,
                                     tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             //method_replace = method_touch_interior;
@@ -418,7 +418,7 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(retrieve_policy_p, retrieve_policy_q,
+                            >::apply(range_p, range_q,
                                 tp, out, inters, inters.sides(),
                                 transformer);
                     }

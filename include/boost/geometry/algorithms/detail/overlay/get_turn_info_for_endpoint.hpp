@@ -257,14 +257,14 @@ struct get_turn_info_for_endpoint
 {
     BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
 
-    template<typename RetrieveAdditionalInfoPolicy1,
-             typename RetrieveAdditionalInfoPolicy2,
+    template<typename UniqueSubRange1,
+             typename UniqueSubRange2,
              typename TurnInfo,
              typename IntersectionInfo,
              typename OutputIterator
     >
-    static inline bool apply(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                             RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    static inline bool apply(UniqueSubRange1 const& range_p,
+                             UniqueSubRange2 const& range_q,
                              TurnInfo const& tp_model,
                              IntersectionInfo const& inters,
                              method_type /*method*/,
@@ -277,22 +277,22 @@ struct get_turn_info_for_endpoint
             return false;
         }
 
-        bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = ! retrieve_policy_p.has_k();
-        bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = ! retrieve_policy_q.has_k();
+        bool const is_p_first = range_p.is_first();
+        bool const is_p_last = ! range_p.has_k();
+        bool const is_q_first = range_q.is_first();
+        bool const is_q_last = ! range_q.has_k();
 
         if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
         {
             return false;
         }
 
-        linear_intersections intersections(retrieve_policy_p.get_point_i(),
-                                           retrieve_policy_q.get_point_i(),
+        linear_intersections intersections(range_p.get_point_i(),
+                                           range_q.get_point_i(),
                                            inters.result(), is_p_last, is_q_last);
 
         bool append0_last
-            = analyse_segment_and_assign_ip(retrieve_policy_p, retrieve_policy_q,
+            = analyse_segment_and_assign_ip(range_p, range_q,
                                             intersections.template get<0>(),
                                             tp_model, inters, 0, out);
 
@@ -306,7 +306,7 @@ struct get_turn_info_for_endpoint
             return result_ignore_ip0;
         
         bool append1_last
-            = analyse_segment_and_assign_ip(retrieve_policy_p, retrieve_policy_q,
+            = analyse_segment_and_assign_ip(range_p, range_q,
                                             intersections.template get<1>(),
                                             tp_model, inters, 1, out);
 
@@ -316,14 +316,14 @@ struct get_turn_info_for_endpoint
         return result_ignore_ip0 || result_ignore_ip1;
     }
 
-    template <typename RetrieveAdditionalInfoPolicy1,
-              typename RetrieveAdditionalInfoPolicy2,
+    template <typename UniqueSubRange1,
+              typename UniqueSubRange2,
               typename TurnInfo,
               typename IntersectionInfo,
               typename OutputIterator>
     static inline
-    bool analyse_segment_and_assign_ip(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                                       RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    bool analyse_segment_and_assign_ip(UniqueSubRange1 const& range_p,
+                                       UniqueSubRange2 const& range_q,
                                        linear_intersections::ip_info const& ip_info,
                                        TurnInfo const& tp_model,
                                        IntersectionInfo const& inters,
@@ -331,10 +331,10 @@ struct get_turn_info_for_endpoint
                                        OutputIterator out)
     {
         // TODO - calculate first/last only if needed
-        bool const is_p_first = retrieve_policy_p.is_first();
-        bool const is_p_last = ! retrieve_policy_p.has_k();
-        bool const is_q_first = retrieve_policy_q.is_first();
-        bool const is_q_last = ! retrieve_policy_q.has_k();
+        bool const is_p_first = range_p.is_first();
+        bool const is_p_last = ! range_p.has_k();
+        bool const is_q_first = range_q.is_first();
+        bool const is_q_last = ! range_q.has_k();
 
         bool is_p_first_ip = is_p_first && ip_info.is_pi;
         bool is_p_last_ip = is_p_last && ip_info.is_pj;
@@ -381,10 +381,10 @@ struct get_turn_info_for_endpoint
                   && inters.i_info().count == 2
                   && inters.is_spike_p() )
                 {
-                    assign(retrieve_policy_q, retrieve_policy_q,
+                    assign(range_q, range_q,
                            inters.result(), ip_index, method, operation_blocked, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
-                    assign(retrieve_policy_q, retrieve_policy_q,
+                    assign(range_q, range_q,
                            inters.result(), ip_index, method, operation_intersection, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
                 }
@@ -394,17 +394,17 @@ struct get_turn_info_for_endpoint
                        && inters.i_info().count == 2
                        && inters.is_spike_q() )
                 {
-                    assign(retrieve_policy_q, retrieve_policy_q,
+                    assign(range_q, range_q,
                            inters.result(), ip_index, method, p_operation, operation_blocked,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
-                    assign(retrieve_policy_q, retrieve_policy_q,
+                    assign(range_q, range_q,
                            inters.result(), ip_index, method, p_operation, operation_intersection,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
                 }
                 // no spikes
                 else
                 {
-                    assign(retrieve_policy_q, retrieve_policy_q,
+                    assign(range_q, range_q,
                            inters.result(), ip_index, method, p_operation, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, false, tp_model, out);
                 }
@@ -563,13 +563,13 @@ struct get_turn_info_for_endpoint
                ( is_ip_last_j ? position_back : position_middle );
     }
 
-    template <typename RetrieveAdditionalInfoPolicy1,
-              typename RetrieveAdditionalInfoPolicy2,
+    template <typename UniqueSubRange1,
+              typename UniqueSubRange2,
               typename IntersectionResult,
               typename TurnInfo,
               typename OutputIterator>
-    static inline void assign(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                              RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    static inline void assign(UniqueSubRange1 const& range_p,
+                              UniqueSubRange2 const& range_q,
                               IntersectionResult const& result,
                               unsigned int ip_index,
                               method_type method,
@@ -623,7 +623,7 @@ struct get_turn_info_for_endpoint
 
         // TODO: this should get an intersection_info, which is unavailable here
         // Because the assign_null policy accepts any structure, we pass the result instead for now
-        AssignPolicy::apply(tp, retrieve_policy_p.get_point_i(), retrieve_policy_q.get_point_i(), result);
+        AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), result);
         *out++ = tp;
     }
 

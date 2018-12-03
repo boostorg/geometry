@@ -40,20 +40,20 @@ struct turn_operation_linear
 template
 <
     typename TurnPointCSTag,
-    typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2,
+    typename UniqueSubRange1, typename UniqueSubRange2,
     typename SideStrategy
 >
 struct side_calculator
 {
-    typedef typename RetrieveAdditionalInfoPolicy1::point_type PointP;
-    typedef typename RetrieveAdditionalInfoPolicy2::point_type PointQ;
+    typedef typename UniqueSubRange1::point_type PointP;
+    typedef typename UniqueSubRange2::point_type PointQ;
 
-    inline side_calculator(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                           RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    inline side_calculator(UniqueSubRange1 const& range_p,
+                           UniqueSubRange2 const& range_q,
                            SideStrategy const& side_strategy)
         : m_side_strategy(side_strategy)
-        , m_retrieve_policy_p(retrieve_policy_p)
-        , m_retrieve_policy_q(retrieve_policy_q)
+        , m_range_p(range_p)
+        , m_range_q(range_q)
     {}
 
     inline int pk_wrt_p1() const { return m_side_strategy.apply(get_pi(), get_pj(), get_pk()); }
@@ -64,29 +64,29 @@ struct side_calculator
     inline int pk_wrt_q2() const { return m_side_strategy.apply(get_qj(), get_qk(), get_pk()); }
     inline int qk_wrt_p2() const { return m_side_strategy.apply(get_pj(), get_pk(), get_qk()); }
 
-    inline PointP const& get_pi() const { return m_retrieve_policy_p.get_point_i(); }
-    inline PointP const& get_pj() const { return m_retrieve_policy_p.get_point_j(); }
-    inline PointP const& get_pk() const { return m_retrieve_policy_p.get_point_k(); }
+    inline PointP const& get_pi() const { return m_range_p.get_point_i(); }
+    inline PointP const& get_pj() const { return m_range_p.get_point_j(); }
+    inline PointP const& get_pk() const { return m_range_p.get_point_k(); }
 
-    inline PointQ const& get_qi() const { return m_retrieve_policy_q.get_point_i(); }
-    inline PointQ const& get_qj() const { return m_retrieve_policy_q.get_point_j(); }
-    inline PointQ const& get_qk() const { return m_retrieve_policy_q.get_point_k(); }
+    inline PointQ const& get_qi() const { return m_range_q.get_point_i(); }
+    inline PointQ const& get_qj() const { return m_range_q.get_point_j(); }
+    inline PointQ const& get_qk() const { return m_range_q.get_point_k(); }
 
     SideStrategy m_side_strategy; // NOTE: cannot be const&
-    RetrieveAdditionalInfoPolicy1 const& m_retrieve_policy_p;
-    RetrieveAdditionalInfoPolicy2 const& m_retrieve_policy_q;
+    UniqueSubRange1 const& m_range_p;
+    UniqueSubRange2 const& m_range_q;
 };
 
-template<typename Point, typename RetrieveAdditionalInfoPolicy, typename RobustPolicy>
-struct robust_retriever
+template<typename Point, typename UniqueSubRange, typename RobustPolicy>
+struct robust_subrange_adapter
 {
     typedef Point point_type;
 
-    robust_retriever(RetrieveAdditionalInfoPolicy const& retrieve_policy,
+    robust_subrange_adapter(UniqueSubRange const& unique_sub_range,
                      Point const& robust_point_i, Point const& robust_point_j,
                      RobustPolicy const& robust_policy)
 
-        : m_retrieve_policy(retrieve_policy)
+        : m_unique_sub_range(unique_sub_range)
         , m_robust_policy(robust_policy)
         , m_robust_point_i(robust_point_i)
         , m_robust_point_j(robust_point_j)
@@ -103,13 +103,13 @@ struct robust_retriever
     {
         if (! m_k_retrieved)
         {
-            geometry::recalculate(m_robust_point_k, m_retrieve_policy.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_robust_point_k, m_unique_sub_range.get_point_k(), m_robust_policy);
             m_k_retrieved = true;
         }
         return m_robust_point_k;
     }
 
-    RetrieveAdditionalInfoPolicy const& m_retrieve_policy;
+    UniqueSubRange const& m_unique_sub_range;
     RobustPolicy const& m_robust_policy;
 
     Point const& m_robust_point_i;
@@ -121,41 +121,41 @@ struct robust_retriever
 
 template
 <
-    typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2,
+    typename UniqueSubRange1, typename UniqueSubRange2,
     typename RobustPolicy
 >
 struct robust_points
 {
     typedef typename geometry::robust_point_type
         <
-            typename RetrieveAdditionalInfoPolicy1::point_type, RobustPolicy
+            typename UniqueSubRange1::point_type, RobustPolicy
         >::type robust_point1_type;
 
     typedef robust_point1_type robust_point2_type;
 
-    inline robust_points(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                         RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    inline robust_points(UniqueSubRange1 const& range_p,
+                         UniqueSubRange2 const& range_q,
                          RobustPolicy const& robust_policy)
         : m_robust_policy(robust_policy)
-        , m_retrieve_policy_p(retrieve_policy_p)
-        , m_retrieve_policy_q(retrieve_policy_q)
+        , m_range_p(range_p)
+        , m_range_q(range_q)
         , m_pk_retrieved(false)
         , m_qk_retrieved(false)
     {
         // Calculate pi,pj and qi,qj which are almost always necessary
         // But don't calculate pk/qk yet, which is retrieved (taking
         // more time) and not always necessary.
-        geometry::recalculate(m_rpi, retrieve_policy_p.get_point_i(), robust_policy);
-        geometry::recalculate(m_rpj, retrieve_policy_p.get_point_j(), robust_policy);
-        geometry::recalculate(m_rqi, retrieve_policy_q.get_point_i(), robust_policy);
-        geometry::recalculate(m_rqj, retrieve_policy_q.get_point_j(), robust_policy);
+        geometry::recalculate(m_rpi, range_p.get_point_i(), robust_policy);
+        geometry::recalculate(m_rpj, range_p.get_point_j(), robust_policy);
+        geometry::recalculate(m_rqi, range_q.get_point_i(), robust_policy);
+        geometry::recalculate(m_rqj, range_q.get_point_j(), robust_policy);
     }
 
     inline robust_point1_type const& get_rpk() const
     {
         if (! m_pk_retrieved)
         {
-            geometry::recalculate(m_rpk, m_retrieve_policy_p.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_rpk, m_range_p.get_point_k(), m_robust_policy);
             m_pk_retrieved = true;
         }
         return m_rpk;
@@ -164,7 +164,7 @@ struct robust_points
     {
         if (! m_qk_retrieved)
         {
-            geometry::recalculate(m_rqk, m_retrieve_policy_q.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_rqk, m_range_q.get_point_k(), m_robust_policy);
             m_qk_retrieved = true;
         }
         return m_rqk;
@@ -175,8 +175,8 @@ struct robust_points
 
 private :
     RobustPolicy const& m_robust_policy;
-    RetrieveAdditionalInfoPolicy1 const& m_retrieve_policy_p;
-    RetrieveAdditionalInfoPolicy2 const& m_retrieve_policy_q;
+    UniqueSubRange1 const& m_range_p;
+    UniqueSubRange2 const& m_range_q;
 
     // On retrieval
     mutable robust_point1_type m_rpk;
@@ -187,47 +187,47 @@ private :
 
 template
 <
-    typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2,
+    typename UniqueSubRange1, typename UniqueSubRange2,
     typename TurnPoint, typename IntersectionStrategy, typename RobustPolicy>
 class intersection_info_base
-    : private robust_points<RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2, RobustPolicy>
+    : private robust_points<UniqueSubRange1, UniqueSubRange2, RobustPolicy>
 {
-    typedef robust_points<RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2, RobustPolicy> base;
+    typedef robust_points<UniqueSubRange1, UniqueSubRange2, RobustPolicy> base;
 
 public:
     typedef typename base::robust_point1_type robust_point1_type;
     typedef typename base::robust_point2_type robust_point2_type;
 
-    typedef robust_retriever<robust_point1_type, RetrieveAdditionalInfoPolicy1, RobustPolicy> robust_retriever_type1;
-    typedef robust_retriever<robust_point2_type, RetrieveAdditionalInfoPolicy2, RobustPolicy> robust_retriever_type2;
+    typedef robust_subrange_adapter<robust_point1_type, UniqueSubRange1, RobustPolicy> robust_subrange1;
+    typedef robust_subrange_adapter<robust_point2_type, UniqueSubRange2, RobustPolicy> robust_subrange2;
 
     typedef typename cs_tag<TurnPoint>::type cs_tag;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
-    typedef side_calculator<cs_tag, robust_retriever_type1, robust_retriever_type2,
+    typedef side_calculator<cs_tag, robust_subrange1, robust_subrange2,
              side_strategy_type> side_calculator_type;
 
     typedef side_calculator
         <
-            cs_tag, robust_retriever_type2, robust_retriever_type1,
+            cs_tag, robust_subrange2, robust_subrange1,
             side_strategy_type
         > robust_swapped_side_calculator_type;
 
-    intersection_info_base(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                           RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    intersection_info_base(UniqueSubRange1 const& range_p,
+                           UniqueSubRange2 const& range_q,
                            IntersectionStrategy const& intersection_strategy,
                            RobustPolicy const& robust_policy)
-        : base(retrieve_policy_p, retrieve_policy_q, robust_policy)
-        , m_retrieve_policy_p(retrieve_policy_p)
-        , m_retrieve_policy_q(retrieve_policy_q)
-        , m_robust_retrieve_policy_p(retrieve_policy_p, base::m_rpi, base::m_rpj, robust_policy)
-        , m_robust_retrieve_policy_q(retrieve_policy_q, base::m_rqi, base::m_rqj, robust_policy)
-        , m_side_calc(m_robust_retrieve_policy_p, m_robust_retrieve_policy_q,
+        : base(range_p, range_q, robust_policy)
+        , m_range_p(range_p)
+        , m_range_q(range_q)
+        , m_robust_range_p(range_p, base::m_rpi, base::m_rpj, robust_policy)
+        , m_robust_range_q(range_q, base::m_rqi, base::m_rqj, robust_policy)
+        , m_side_calc(m_robust_range_p, m_robust_range_q,
                       intersection_strategy.get_side_strategy())
     {}
 
-    inline typename RetrieveAdditionalInfoPolicy1::point_type const& pi() const { return m_retrieve_policy_p.get_point_i(); }
-    inline typename RetrieveAdditionalInfoPolicy2::point_type const& qi() const { return m_retrieve_policy_q.get_point_i(); }
+    inline typename UniqueSubRange1::point_type const& pi() const { return m_range_p.get_point_i(); }
+    inline typename UniqueSubRange2::point_type const& qi() const { return m_range_q.get_point_i(); }
 
     inline robust_point1_type const& rpi() const { return base::m_rpi; }
     inline robust_point1_type const& rpj() const { return base::m_rpj; }
@@ -242,52 +242,52 @@ public:
     robust_swapped_side_calculator_type get_swapped_sides() const
     {
         robust_swapped_side_calculator_type result(
-                            m_robust_retrieve_policy_q, m_robust_retrieve_policy_p,
+                            m_robust_range_q, m_robust_range_p,
                             m_side_calc.m_side_strategy);
         return result;
     }
 
 private:
-    RetrieveAdditionalInfoPolicy1 const& m_retrieve_policy_p;
-    RetrieveAdditionalInfoPolicy2 const& m_retrieve_policy_q;
-    robust_retriever_type1 m_robust_retrieve_policy_p;
-    robust_retriever_type2 m_robust_retrieve_policy_q;
+    UniqueSubRange1 const& m_range_p;
+    UniqueSubRange2 const& m_range_q;
+    robust_subrange1 m_robust_range_p;
+    robust_subrange2 m_robust_range_q;
     side_calculator_type m_side_calc;
 };
 
 template
 <
-    typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2,
+    typename UniqueSubRange1, typename UniqueSubRange2,
     typename TurnPoint, typename IntersectionStrategy
 >
-class intersection_info_base<RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
+class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, IntersectionStrategy, detail::no_rescale_policy>
 {
 public:
-    typedef typename RetrieveAdditionalInfoPolicy1::point_type point1_type;
-    typedef typename RetrieveAdditionalInfoPolicy2::point_type point2_type;
+    typedef typename UniqueSubRange1::point_type point1_type;
+    typedef typename UniqueSubRange2::point_type point2_type;
 
-    typedef typename RetrieveAdditionalInfoPolicy1::point_type robust_point1_type;
-    typedef typename RetrieveAdditionalInfoPolicy2::point_type robust_point2_type;
+    typedef typename UniqueSubRange1::point_type robust_point1_type;
+    typedef typename UniqueSubRange2::point_type robust_point2_type;
 
     typedef typename cs_tag<TurnPoint>::type cs_tag;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
-    typedef side_calculator<cs_tag, RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2, side_strategy_type> side_calculator_type;
+    typedef side_calculator<cs_tag, UniqueSubRange1, UniqueSubRange2, side_strategy_type> side_calculator_type;
 
     typedef side_calculator
         <
-            cs_tag, RetrieveAdditionalInfoPolicy2, RetrieveAdditionalInfoPolicy1,
+            cs_tag, UniqueSubRange2, UniqueSubRange1,
             side_strategy_type
         > swapped_side_calculator_type;
     
-    intersection_info_base(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                           RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    intersection_info_base(UniqueSubRange1 const& range_p,
+                           UniqueSubRange2 const& range_q,
                            IntersectionStrategy const& intersection_strategy,
                            no_rescale_policy const& /*robust_policy*/)
-        : m_retrieve_policy_p(retrieve_policy_p)
-        , m_retrieve_policy_q(retrieve_policy_q)
-        , m_side_calc(retrieve_policy_p, retrieve_policy_q,
+        : m_range_p(range_p)
+        , m_range_q(range_q)
+        , m_side_calc(range_p, range_q,
                       intersection_strategy.get_side_strategy())
     {}
 
@@ -307,30 +307,30 @@ public:
     swapped_side_calculator_type get_swapped_sides() const
     {
         swapped_side_calculator_type result(
-            m_retrieve_policy_q, m_retrieve_policy_p,
+            m_range_q, m_range_p,
             m_side_calc.m_side_strategy);
         return result;
     }
 
 private:
-    RetrieveAdditionalInfoPolicy1 const& m_retrieve_policy_p;
-    RetrieveAdditionalInfoPolicy2 const& m_retrieve_policy_q;
+    UniqueSubRange1 const& m_range_p;
+    UniqueSubRange2 const& m_range_q;
     side_calculator_type m_side_calc;
 };
 
 
 template
 <
-    typename RetrieveAdditionalInfoPolicy1, typename RetrieveAdditionalInfoPolicy2,
+    typename UniqueSubRange1, typename UniqueSubRange2,
     typename TurnPoint,
     typename IntersectionStrategy,
     typename RobustPolicy
 >
 class intersection_info
-    : public intersection_info_base<RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
+    : public intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, IntersectionStrategy, RobustPolicy>
 {
-    typedef intersection_info_base<RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
+    typedef intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, IntersectionStrategy, RobustPolicy> base;
 
 public:
@@ -343,8 +343,8 @@ public:
             >::type
     > intersection_point_type;
 
-    typedef typename RetrieveAdditionalInfoPolicy1::point_type point1_type;
-    typedef typename RetrieveAdditionalInfoPolicy2::point_type point2_type;
+    typedef typename UniqueSubRange1::point_type point1_type;
+    typedef typename UniqueSubRange2::point_type point2_type;
 
     // NOTE: formerly defined in intersection_strategies
     typedef policies::relate::segments_tupled
@@ -367,15 +367,15 @@ public:
     typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
     typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
 
-    intersection_info(RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
-                      RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
+    intersection_info(UniqueSubRange1 const& range_p,
+                      UniqueSubRange2 const& range_q,
                       IntersectionStrategy const& intersection_strategy,
                       RobustPolicy const& robust_policy)
-        : base(retrieve_policy_p, retrieve_policy_q,
+        : base(range_p, range_q,
                intersection_strategy, robust_policy)
         , m_result(intersection_strategy.apply(
-                        segment_type1(retrieve_policy_p.get_point_i(), retrieve_policy_p.get_point_j()),
-                        segment_type2(retrieve_policy_q.get_point_i(), retrieve_policy_q.get_point_j()),
+                        segment_type1(range_p.get_point_i(), range_p.get_point_j()),
+                        segment_type2(range_q.get_point_i(), range_q.get_point_j()),
                         intersection_policy_type(),
                         robust_policy,
                         base::rpi(), base::rpj(),
