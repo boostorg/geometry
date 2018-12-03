@@ -143,8 +143,7 @@ struct get_turn_info_linear_linear
             break;
             case 'i' :
             {
-                crosses<TurnInfo>::apply(pi, pj, qi, qj,
-                                         tp, inters.i_info(), inters.d_info());
+                crosses<TurnInfo>::apply(tp, inters.i_info(), inters.d_info());
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
 

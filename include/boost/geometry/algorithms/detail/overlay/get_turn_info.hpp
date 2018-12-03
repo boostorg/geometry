@@ -873,23 +873,14 @@ template
 >
 struct crosses : public base_turn_handler
 {
-    template
-    <
-        typename Point1,
-        typename Point2,
-        typename IntersectionInfo,
-        typename DirInfo
-    >
-    static inline void apply(
-                Point1 const& , Point1 const& ,
-                Point2 const& , Point2 const& ,
-                TurnInfo& ti,
+    template <typename IntersectionInfo, typename DirInfo>
+    static inline void apply(TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
     {
         assign_point(ti, method_crosses, intersection_info, 0);
 
-        // In all casees:
+        // In all cases:
         // If Q crosses P from left to right
         // Union: take P
         // Intersection: take Q
@@ -1039,8 +1030,7 @@ struct get_turn_info
             break;
             case 'i' :
             {
-                crosses<TurnInfo>::apply(pi, pj, qi, qj,
-                    tp, inters.i_info(), inters.d_info());
+                crosses<TurnInfo>::apply(tp, inters.i_info(), inters.d_info());
                 AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
