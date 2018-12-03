@@ -111,15 +111,13 @@ struct get_turn_info_linear_linear
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1)
                     {
-                        policy::template apply<0>(pi, pj, qi, qj,
-                                                  tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<0>(tp, inters.i_info(), inters.d_info(),
                                                   inters.sides());
                     }
                     else
                     {
                         // Swap p/q
-                        policy::template apply<1>(qi, qj, pi, pj,
-                                                  tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<1>(tp, inters.i_info(), inters.d_info(),
                                                   inters.get_swapped_sides());
                     }
                     
@@ -162,8 +160,7 @@ struct get_turn_info_linear_linear
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(pi, pj, qi, qj,
-                                           tp, inters.i_info(), inters.d_info(), inters.sides());
+                    touch<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
 
                     // workarounds for touch<> not taking spikes into account starts here
                     // those was discovered empirically
@@ -303,8 +300,7 @@ struct get_turn_info_linear_linear
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(pi, pj, qi, qj,
-                            tp, inters.i_info(), inters.d_info(), inters.sides());
+                        equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
 
                         operation_type spike_op
                             = ( tp.operations[0].operation != operation_continue
@@ -337,7 +333,7 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(pi, qi, tp, out, inters);
+                            >::apply(retrieve_policy_p, retrieve_policy_q, tp, out, inters);
                     }
                 }
             }
@@ -365,8 +361,7 @@ struct get_turn_info_linear_linear
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(pi, pj, qi, qj,
-                                    tp, inters.i_info(), inters.d_info(), inters.sides());
+                            equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             method_replace = method_touch;
                             if ( tp.operations[0].operation != operation_continue
@@ -377,8 +372,7 @@ struct get_turn_info_linear_linear
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(pi, pj, qi, qj,
-                                    retrieve_policy_p, retrieve_policy_q,
+                            collinear<TurnInfo>::apply(retrieve_policy_p, retrieve_policy_q,
                                     tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             //method_replace = method_touch_interior;
@@ -424,8 +418,7 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(pi, pj, qi, qj,
-                                retrieve_policy_p, retrieve_policy_q,
+                            >::apply(retrieve_policy_p, retrieve_policy_q,
                                 tp, out, inters, inters.sides(),
                                 transformer);
                     }
