@@ -86,7 +86,7 @@ struct get_turn_info_linear_linear
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
-                    ::apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+                    ::apply(retrieve_policy_p, retrieve_policy_q,
                             tp_model, inters, method_none, out);
                 break;
 
@@ -96,7 +96,7 @@ struct get_turn_info_linear_linear
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+                        ::apply(retrieve_policy_p, retrieve_policy_q,
                                 tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
@@ -155,7 +155,7 @@ struct get_turn_info_linear_linear
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+                        ::apply(retrieve_policy_p, retrieve_policy_q,
                                 tp_model, inters, method_touch, out) )
                 {
                     // do nothing
@@ -289,7 +289,7 @@ struct get_turn_info_linear_linear
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+                        ::apply(retrieve_policy_p, retrieve_policy_q,
                                 tp_model, inters, method_equal, out) )
                 {
                     // do nothing
@@ -346,7 +346,7 @@ struct get_turn_info_linear_linear
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, qi, qj, retrieve_policy_p, retrieve_policy_q,
+                        ::apply(retrieve_policy_p, retrieve_policy_q,
                                 tp_model, inters,  method_collinear, out) )
                 {
                     // do nothing

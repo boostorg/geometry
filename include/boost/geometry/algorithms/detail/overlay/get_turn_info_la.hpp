@@ -90,7 +90,6 @@ struct get_turn_info_linear_areal
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<true, true>(
-                    pi, pj, qi, qj,
                     retrieve_policy_p, retrieve_policy_q,
                     tp_model, inters, method_none, out);
                 break;
@@ -101,7 +100,6 @@ struct get_turn_info_linear_areal
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, qi, qj,
                         retrieve_policy_p, retrieve_policy_q,
                         tp_model, inters, method_touch_interior, out) )
                 {
@@ -162,7 +160,6 @@ struct get_turn_info_linear_areal
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, qi, qj,
                         retrieve_policy_p, retrieve_policy_q,
                         tp_model, inters, method_touch, out) )
                 {
@@ -254,7 +251,6 @@ struct get_turn_info_linear_areal
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, qi, qj,
                         retrieve_policy_p, retrieve_policy_q,
                         tp_model, inters, method_equal, out) )
                 {
@@ -301,7 +297,6 @@ struct get_turn_info_linear_areal
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, qi, qj,
                         retrieve_policy_p, retrieve_policy_q,
                         tp_model, inters, method_collinear, out) )
                 {
@@ -709,16 +704,12 @@ struct get_turn_info_linear_areal
     
     template <bool EnableFirst,
               bool EnableLast,
-              typename Point1,
-              typename Point2,
               typename TurnInfo,
               typename IntersectionInfo,
               typename RetrieveAdditionalInfoPolicy1,
               typename RetrieveAdditionalInfoPolicy2,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
-                            Point1 const& pi, Point1 const& /*pj*/,
-                            Point2 const& qi, Point2 const& /*qj*/,
                             RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
                             RetrieveAdditionalInfoPolicy2 const& retrieve_policy_q,
                             TurnInfo const& tp_model,
@@ -746,7 +737,9 @@ struct get_turn_info_linear_areal
 
         bool const is_q_last = ! retrieve_policy_q.has_k();
 
-        linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
+        linear_intersections intersections(retrieve_policy_p.get_point_i(),
+                                           retrieve_policy_q.get_point_i(),
+                                           inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();
         linear_intersections::ip_info const& ip1 = intersections.template get<1>();
 
@@ -837,7 +830,7 @@ struct get_turn_info_linear_areal
             // here is_p_first_ip == true
             tp.operations[0].is_collinear = false;
 
-            AssignPolicy::apply(tp, pi, qi, inters);
+            AssignPolicy::apply(tp, retrieve_policy_p.get_point_i(), retrieve_policy_q.get_point_i(), inters);
             *out++ = tp;
 
             was_first_point_handled = true;
@@ -893,7 +886,7 @@ struct get_turn_info_linear_areal
             unsigned int ip_index = ip_count > 1 ? 1 : 0;
             base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
-            AssignPolicy::apply(tp, pi, qi, inters);
+            AssignPolicy::apply(tp, retrieve_policy_p.get_point_i(), retrieve_policy_q.get_point_i(), inters);
             *out++ = tp;
 
             // don't ignore the first IP if the segment is opposite
