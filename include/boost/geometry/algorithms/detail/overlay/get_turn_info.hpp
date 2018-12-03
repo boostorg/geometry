@@ -941,9 +941,6 @@ struct assign_null_policy
     \details Information necessary for traversal phase (a phase
         of the overlay process). The information is gathered during the
         get_turns (segment intersection) phase.
-    \tparam Point1 point type of first segment
-    \tparam Point2 point type of second segment
-    \tparam TurnInfo type of class getting intersection and turn info
     \tparam AssignPolicy policy to assign extra info,
         e.g. to calculate distance from segment's first points
         to intersection points.
@@ -958,8 +955,6 @@ struct get_turn_info
     // about the turn (turn left/right)
     template
     <
-        typename Point1,
-        typename Point2,
         typename TurnInfo,
         typename IntersectionStrategy,
         typename RetrieveAdditionalInfoPolicy1,
@@ -968,8 +963,6 @@ struct get_turn_info
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                Point1 const& pi, Point1 const& pj,
-                Point2 const& qi, Point2 const& qj,
                 TurnInfo const& tp_model,
                 IntersectionStrategy const& intersection_strategy,
                 RetrieveAdditionalInfoPolicy1 const& retrieve_policy_p,
@@ -979,14 +972,21 @@ struct get_turn_info
     {
         typedef intersection_info
             <
-                Point1, Point2, RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
+                RetrieveAdditionalInfoPolicy1, RetrieveAdditionalInfoPolicy2,
                 typename TurnInfo::point_type,
                 IntersectionStrategy,
                 RobustPolicy
             > inters_info;
 
-        inters_info inters(pi, pj, qi, qj,
-                           retrieve_policy_p, retrieve_policy_q,
+        typedef typename RetrieveAdditionalInfoPolicy1::point_type Point1;
+        typedef typename RetrieveAdditionalInfoPolicy2::point_type Point2;
+
+        Point1 const& pi = retrieve_policy_p.get_point_i();
+        Point1 const& pj = retrieve_policy_p.get_point_j();
+        Point2 const& qi = retrieve_policy_q.get_point_i();
+        Point2 const& qj = retrieve_policy_q.get_point_j();
+
+        inters_info inters(retrieve_policy_p, retrieve_policy_q,
                            intersection_strategy, robust_policy);
 
         char const method = inters.d_info().how;
