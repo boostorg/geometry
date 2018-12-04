@@ -64,26 +64,41 @@ struct buffer_assign_turn
 #endif
 
 template <typename Ring>
-struct retrieve_from_piece
+struct unique_sub_range_from_piece
 {
     typedef typename boost::range_iterator<Ring const>::type iterator_type;
     typedef typename geometry::point_type<Ring const>::type point_type;
 
-    retrieve_from_piece(Ring const& ring, iterator_type start_iterator)
+    unique_sub_range_from_piece(Ring const& ring, iterator_type it0, iterator_type it1)
         : m_ring(ring)
-        , m_start_iterator(start_iterator)
+        , m_point_i(*it0)
+        , m_point_j(*it1)
+        , m_iterator(it1)
         , m_point_retrieved(false)
     {}
 
     static inline bool is_first() { return false; }
 
-    static inline bool is_last() { return false; }
+    static inline std::size_t size() { return 3u; }
 
-    inline point_type const& get() const
+    inline point_type const& at(std::size_t index) const
+    {
+        switch (index)
+        {
+            case 0 : return m_point_i;
+            case 1 : return m_point_j;
+            case 2 : return get_next_point();
+            default : return m_point_i;
+        }
+    }
+
+private :
+
+    inline point_type const& get_next_point() const
     {
         if (! m_point_retrieved)
         {
-            m_point = *next_point(m_start_iterator);
+            m_point = *next_point(m_iterator);
             m_point_retrieved = true;
         }
         return m_point;
@@ -115,7 +130,9 @@ private :
     }
 
     Ring const& m_ring;
-    iterator_type m_start_iterator;
+    point_type m_point_i;
+    point_type m_point_j;
+    iterator_type m_iterator;
 
     mutable point_type m_point;
     mutable bool m_point_retrieved;
@@ -265,14 +282,14 @@ class piece_turn_visitor
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
 
-            retrieve_from_piece<ring_type> retrieve_policy1(ring1, it1);
+            unique_sub_range_from_piece<ring_type> unique_sub_range1(ring1, prev1, it1);
 
             iterator it2 = it2_first;
             for (iterator prev2 = it2++;
                     it2 != it2_beyond;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                retrieve_from_piece<ring_type> retrieve_policy2(ring2, it2);
+                unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
 
                 // TODO: internally get_turn_info calculates robust points.
                 // But they are already calculated.
@@ -289,13 +306,11 @@ class piece_turn_visitor
                     > turn_policy;
 
 
-                turn_policy::apply(*prev1, *it1,
-                                    *prev2, *it2,
-                                    the_model,
-                                    m_intersection_strategy,
-                                    retrieve_policy1, retrieve_policy2,
-                                    m_robust_policy,
-                                    std::back_inserter(m_turns));
+                turn_policy::apply(the_model,
+                                   m_intersection_strategy,
+                                   unique_sub_range1, unique_sub_range2,
+                                   m_robust_policy,
+                                   std::back_inserter(m_turns));
             }
         }
     }
