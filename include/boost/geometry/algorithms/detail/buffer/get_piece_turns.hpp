@@ -34,35 +34,6 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-struct buffer_assign_turn
-{
-    static bool const include_no_turn = false;
-    static bool const include_degenerate = false;
-    static bool const include_opposite = false;
-
-    template
-    <
-        typename Info,
-        typename Point1,
-        typename Point2,
-        typename IntersectionInfo
-    >
-    static inline void apply(Info& info,
-                             Point1 const& /*p1*/,
-                             Point2 const& /*p2*/,
-                             IntersectionInfo const& iinfo)
-    {
-        info.rob_pi = iinfo.rpi();
-        info.rob_pj = iinfo.rpj();
-        info.rob_qi = iinfo.rqi();
-        info.rob_qj = iinfo.rqj();
-    }
-
-};
-#endif
-
 template <typename Ring>
 struct unique_sub_range_from_piece
 {
@@ -281,6 +252,10 @@ class piece_turn_visitor
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+            geometry::recalculate(the_model.rob_pi, *prev1, m_robust_policy);
+            geometry::recalculate(the_model.rob_pj, *it1, m_robust_policy);
+#endif
 
             unique_sub_range_from_piece<ring_type> unique_sub_range1(ring1, prev1, it1);
 
@@ -290,6 +265,10 @@ class piece_turn_visitor
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+                geometry::recalculate(the_model.rob_qi, *prev2, m_robust_policy);
+                geometry::recalculate(the_model.rob_qj, *it2, m_robust_policy);
+#endif
 
                 // TODO: internally get_turn_info calculates robust points.
                 // But they are already calculated.
@@ -298,13 +277,8 @@ class piece_turn_visitor
                 // and iterating in sync with them...
                 typedef detail::overlay::get_turn_info
                     <
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-                        buffer_assign_turn
-#else
                         detail::overlay::assign_null_policy
-#endif
                     > turn_policy;
-
 
                 turn_policy::apply(the_model,
                                    m_intersection_strategy,
