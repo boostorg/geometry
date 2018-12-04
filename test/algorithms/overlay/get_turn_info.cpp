@@ -32,18 +32,20 @@
 
 // For test purposes, returns the point specified in the constructor
 template <typename Point>
-struct retrieve_from_point_policy
+struct sub_range_from_points
 {
-    retrieve_from_point_policy(Point const& i, Point const& j, Point const& k)
+    typedef Point point_type;
+
+    sub_range_from_points(Point const& i, Point const& j, Point const& k)
     {
         m_points[0] = i;
         m_points[1] = j;
         m_points[2] = k;
     }
 
-    static inline bool is_first() const { return false; }
+    static inline bool is_first() { return false; }
 
-    static inline std::size_t size() const { return 3; }
+    static inline std::size_t size() { return 3; }
 
     inline Point const& at(std::size_t index) const
     {
@@ -88,12 +90,12 @@ void test_with_point(std::string const& caseid,
     tp_vector info;
     strategy_type strategy;
     rescale_policy_type rescale_policy;
-    retrieve_from_point_policy<P> retrieve_policy_p(pi, pj, pk);
-    retrieve_from_point_policy<P> retrieve_policy_q(qi, qj, qk);
+    sub_range_from_points<P> sub_range_p(pi, pj, pk);
+    sub_range_from_points<P> sub_range_q(qi, qj, qk);
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
-        >::apply(model, strategy, retrieve_policy_p, retrieve_policy_q, rescale_policy, std::back_inserter(info));
+        >::apply(model, strategy, sub_range_p, sub_range_q, rescale_policy, std::back_inserter(info));
 
     if (info.size() == 0)
     {
