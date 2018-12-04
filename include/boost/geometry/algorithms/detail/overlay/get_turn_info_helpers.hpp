@@ -93,6 +93,8 @@ struct robust_subrange_adapter
         , m_k_retrieved(false)
     {}
 
+    std::size_t size() const { return m_unique_sub_range.size(); }
+
     //! Get precalculated point
     Point const& at(std::size_t index) const
     {
@@ -254,9 +256,9 @@ public:
         return result;
     }
 
-private:
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
+private :
     robust_subrange1 m_robust_range_p;
     robust_subrange2 m_robust_range_q;
     side_calculator_type m_side_calc;
@@ -319,9 +321,10 @@ public:
         return result;
     }
 
-private:
+protected :
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
+private :
     side_calculator_type m_side_calc;
 };
 
@@ -403,6 +406,10 @@ public:
     // TODO: it's more like is_spike_ip_p
     inline bool is_spike_p() const
     {
+        if (base::m_range_p.size() == 2u)
+        {
+            return false;
+        }
         if (base::sides().pk_wrt_p1() == 0)
         {
             // p:  pi--------pj--------pk
@@ -436,6 +443,11 @@ public:
 
     inline bool is_spike_q() const
     {
+        if (base::m_range_q.size() == 2u)
+        {
+            return false;
+        }
+
         // See comments at is_spike_p
         if (base::sides().qk_wrt_q1() == 0)
         {

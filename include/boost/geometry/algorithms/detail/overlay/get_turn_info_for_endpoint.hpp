@@ -277,19 +277,20 @@ struct get_turn_info_for_endpoint
             return false;
         }
 
-        bool const is_p_first = range_p.is_first();
-        bool const is_p_last = range_p.size() == 2u;
-        bool const is_q_first = range_q.is_first();
-        bool const is_q_last = range_q.size() == 2u;
-
-        if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
+        if (! range_p.is_first()
+            && ! range_q.is_first()
+            && range_p.size() > 2u
+            && range_q.size() > 2u)
         {
+            // Not an end-point from segment p or q
             return false;
         }
 
         linear_intersections intersections(range_p.at(0),
                                            range_q.at(0),
-                                           inters.result(), is_p_last, is_q_last);
+                                           inters.result(),
+                                           range_p.size() == 2u,
+                                           range_q.size() == 2u);
 
         bool append0_last
             = analyse_segment_and_assign_ip(range_p, range_q,
@@ -331,15 +332,10 @@ struct get_turn_info_for_endpoint
                                        OutputIterator out)
     {
         // TODO - calculate first/last only if needed
-        bool const is_p_first = range_p.is_first();
-        bool const is_p_last = range_p.size() == 2u;
-        bool const is_q_first = range_q.is_first();
-        bool const is_q_last = range_q.size() == 2u;
-
-        bool is_p_first_ip = is_p_first && ip_info.is_pi;
-        bool is_p_last_ip = is_p_last && ip_info.is_pj;
-        bool is_q_first_ip = is_q_first && ip_info.is_qi;
-        bool is_q_last_ip = is_q_last && ip_info.is_qj;
+        bool is_p_first_ip = range_p.is_first() && ip_info.is_pi;
+        bool is_p_last_ip = range_p.size() == 2u && ip_info.is_pj;
+        bool is_q_first_ip = range_q.is_first() && ip_info.is_qi;
+        bool is_q_last_ip = range_q.size() == 2u && ip_info.is_qj;
         bool append_first = EnableFirst && (is_p_first_ip || is_q_first_ip);
         bool append_last = EnableLast && (is_p_last_ip || is_q_last_ip);
 
@@ -376,8 +372,7 @@ struct get_turn_info_for_endpoint
                 // handle spikes
 
                 // P is spike and should be handled
-                if ( !is_p_last
-                  && ip_info.is_pj // this check is redundant (also in is_spike_p) but faster
+                if (ip_info.is_pj // this check is redundant (also in is_spike_p) but faster
                   && inters.i_info().count == 2
                   && inters.is_spike_p() )
                 {
@@ -389,8 +384,7 @@ struct get_turn_info_for_endpoint
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
                 }
                 // Q is spike and should be handled
-                else if ( !is_q_last
-                       && ip_info.is_qj // this check is redundant (also in is_spike_q) but faster
+                else if (ip_info.is_qj // this check is redundant (also in is_spike_q) but faster
                        && inters.i_info().count == 2
                        && inters.is_spike_q() )
                 {

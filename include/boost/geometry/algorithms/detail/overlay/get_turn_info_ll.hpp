@@ -71,11 +71,6 @@ struct get_turn_info_linear_linear
 
         char const method = inters.d_info().how;
 
-        bool const is_p_first = range_p.is_first();
-        bool const is_p_last = range_p.size() == 2u;
-        bool const is_q_first = range_q.is_first();
-        bool const is_q_last = range_q.size() == 2u;
-
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
 
@@ -274,9 +269,7 @@ struct get_turn_info_linear_linear
                     AssignPolicy::apply(tp, pi, qi, inters);
 
                     if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
-                      || ! append_opposite_spikes<append_touches>(tp, inters,
-                                                                  is_p_last, is_q_last,
-                                                                  out) )
+                      || ! append_opposite_spikes<append_touches>(tp, inters, out) )
                     {
                         *out++ = tp;
                     }
@@ -318,7 +311,6 @@ struct get_turn_info_linear_linear
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
-                                                       is_p_last, is_q_last,
                                                        method_touch, spike_op,
                                                        out) )
                         {
@@ -389,7 +381,6 @@ struct get_turn_info_linear_linear
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
-                                                       is_p_last, is_q_last,
                                                        method_replace, spike_op,
                                                        out) )
                         {
@@ -405,9 +396,7 @@ struct get_turn_info_linear_linear
                         // conditionally handle spikes
                         if ( BOOST_GEOMETRY_CONDITION(handle_spikes) )
                         {
-                            append_opposite_spikes<append_collinear_opposite>(tp, inters,
-                                                                              is_p_last, is_q_last,
-                                                                              out);
+                            append_opposite_spikes<append_collinear_opposite>(tp, inters, out);
                         }
 
                         // TODO: ignore for spikes?
@@ -433,22 +422,22 @@ struct get_turn_info_linear_linear
                     only_convert::apply(tp, inters.i_info());
 
                     // if any, only one of those should be true
-                    if ( is_p_first
+                    if ( range_p.is_first()
                       && equals::equals_point_point(pi, tp.point) )
                     {
                         tp.operations[0].position = position_front;
                     }
-                    else if ( is_p_last
+                    else if ( range_p.size() == 2u
                            && equals::equals_point_point(pj, tp.point) )
                     {
                         tp.operations[0].position = position_back;
                     }
-                    else if ( is_q_first
+                    else if ( range_q.is_first()
                            && equals::equals_point_point(qi, tp.point) )
                     {
                         tp.operations[1].position = position_front;
                     }
-                    else if ( is_q_last
+                    else if ( range_q.size() == 2u
                            && equals::equals_point_point(qj, tp.point) )
                     {
                         tp.operations[1].position = position_back;
@@ -479,7 +468,6 @@ struct get_turn_info_linear_linear
               typename OutIt>
     static inline bool append_collinear_spikes(TurnInfo & tp,
                                                IntersectionInfo const& inters_info,
-                                               bool is_p_last, bool is_q_last,
                                                method_type method, operation_type spike_op,
                                                OutIt out)
     {
@@ -487,10 +475,8 @@ struct get_turn_info_linear_linear
         // both position == middle
 
         bool is_p_spike = tp.operations[0].operation == spike_op
-                       && ! is_p_last
                        && inters_info.is_spike_p();
         bool is_q_spike = tp.operations[1].operation == spike_op
-                       && ! is_q_last
                        && inters_info.is_spike_q();
 
         if ( is_p_spike && is_q_spike )
@@ -549,7 +535,6 @@ struct get_turn_info_linear_linear
               typename OutIt>
     static inline bool append_opposite_spikes(TurnInfo & tp,
                                               IntersectionInfo const& inters,
-                                              bool is_p_last, bool is_q_last,
                                               OutIt out)
     {
         static const bool is_version_touches = (Version == append_touches);
@@ -558,13 +543,11 @@ struct get_turn_info_linear_linear
                             ( tp.operations[0].operation == operation_continue
                            || tp.operations[0].operation == operation_intersection ) :
                             true )
-                       && ! is_p_last
                        && inters.is_spike_p();
         bool is_q_spike = ( is_version_touches ?
                             ( tp.operations[1].operation == operation_continue
                            || tp.operations[1].operation == operation_intersection ) :
                             true )
-                       && ! is_q_last
                        && inters.is_spike_q();
 
         bool res = false;
