@@ -61,10 +61,10 @@ struct get_turn_info_linear_linear
 
         typedef typename UniqueSubRange1::point_type Point1;
         typedef typename UniqueSubRange2::point_type Point2;
-        Point1 const& pi = range_p.get_point_i();
-        Point1 const& pj = range_p.get_point_j();
-        Point2 const& qi = range_q.get_point_i();
-        Point2 const& qj = range_q.get_point_j();
+        Point1 const& pi = range_p.at(0);
+        Point1 const& pj = range_p.at(1);
+        Point2 const& qi = range_q.at(0);
+        Point2 const& qj = range_q.at(1);
 
         inters_info inters(range_p, range_q,
                            strategy, robust_policy);
@@ -72,9 +72,9 @@ struct get_turn_info_linear_linear
         char const method = inters.d_info().how;
 
         bool const is_p_first = range_p.is_first();
-        bool const is_p_last = ! range_p.has_k();
+        bool const is_p_last = range_p.size() == 2u;
         bool const is_q_first = range_q.is_first();
-        bool const is_q_last = ! range_q.has_k();
+        bool const is_q_last = range_q.size() == 2u;
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;

@@ -69,10 +69,10 @@ struct get_turn_without_info
 
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
-        Point1 const& pi = range_p.get_point_i();
-        Point1 const& pj = range_p.get_point_j();
-        Point2 const& qi = range_q.get_point_i();
-        Point2 const& qj = range_q.get_point_j();
+        Point1 const& pi = range_p.at(0);
+        Point1 const& pj = range_p.at(1);
+        Point2 const& qi = range_q.at(0);
+        Point2 const& qj = range_q.at(1);
         segment_type1 p1(pi, pj);
         segment_type2 q1(qi, qj);
 

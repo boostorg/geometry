@@ -132,15 +132,25 @@ struct unique_sub_range_from_section
         return !IsAreal && m_section.is_non_duplicate_first && m_index == m_section.begin_index;
     }
 
-    inline bool has_k() const
+    inline std::size_t size() const
     {
-        return IsAreal || ! (m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index);
+        return IsAreal ? 3
+            : m_section.is_non_duplicate_last && m_index + 1 >= m_section.end_index ? 2 : 3;
     }
 
-    inline Point const& get_point_i() const { return m_previous_point; }
-    inline Point const& get_point_j() const { return m_current_point; }
+    inline Point const& at(std::size_t index) const
+    {
+        switch (index)
+        {
+            case 0 : return m_previous_point;
+            case 1 : return m_current_point;
+            case 2 : return get_next_point();
+            default : return m_previous_point;
+        }
+    }
 
-    inline Point const& get_point_k() const
+private :
+    inline Point const& get_next_point() const
     {
         if (! m_point_retrieved)
         {
@@ -151,7 +161,6 @@ struct unique_sub_range_from_section
         return m_point;
     }
 
-private :
     inline void advance_to_non_duplicate_next(Point const& current, CircularIterator& circular_iterator) const
     {
         typedef typename robust_point_type<Point, RobustPolicy>::type robust_point_type;
@@ -607,20 +616,17 @@ struct get_turns_cs
     {
         typedef box_point_type point_type;
 
-        unique_sub_range_from_box_policy(box_array const& box, int index)
+        unique_sub_range_from_box_policy(box_array const& box)
           : m_box(box)
-          , m_index(index)
+          , m_index(0)
         {}
 
         static inline bool is_first() { return false; }
-        static inline bool has_k() { return true; }
+        static inline std::size_t size() { return 4; }
 
-        inline box_point_type const& get_point_i() const { return m_box[m_index % 4]; }
-        inline box_point_type const& get_point_j() const { return m_box[(m_index + 1) % 4]; }
-
-        inline box_point_type const& get_point_k() const
+        inline box_point_type const& at(std::size_t index) const
         {
-            return m_box[(m_index + 2) % 4];
+            return m_box[(m_index + index) % 4];
         }
 
         inline void next()
@@ -628,8 +634,9 @@ struct get_turns_cs
             m_index++;
         }
 
+    private :
         box_array const& m_box;
-        int m_index;
+        std::size_t m_index;
     };
 
     struct unique_sub_range_from_view_policy
@@ -646,16 +653,20 @@ struct get_turns_cs
         }
 
         static inline bool is_first() { return false; }
-        static inline bool has_k() { return true; }
+        static inline std::size_t size() { return 3; }
 
-        inline point_type const& get_point_i() const { return m_pi; }
-        inline point_type const& get_point_j() const { return m_pj; }
-
-        inline point_type const& get_point_k() const
+        inline box_point_type const& at(std::size_t index) const
         {
-            return *m_circular_iterator;
+            switch (index)
+            {
+                case 0 : return m_pi;
+                case 1 : return m_pj;
+                case 2 : return *m_circular_iterator;
+                default : return m_pi;
+            }
         }
 
+    private :
         view_type const& m_view;
         point_type const& m_pi;
         point_type const& m_pj;
@@ -787,7 +798,7 @@ private:
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
 
-        unique_sub_range_from_box_policy box_unique_sub_range(box, 0);
+        unique_sub_range_from_box_policy box_unique_sub_range(box);
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
                           std::back_inserter(turns));

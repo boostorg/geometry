@@ -64,13 +64,13 @@ struct side_calculator
     inline int pk_wrt_q2() const { return m_side_strategy.apply(get_qj(), get_qk(), get_pk()); }
     inline int qk_wrt_p2() const { return m_side_strategy.apply(get_pj(), get_pk(), get_qk()); }
 
-    inline PointP const& get_pi() const { return m_range_p.get_point_i(); }
-    inline PointP const& get_pj() const { return m_range_p.get_point_j(); }
-    inline PointP const& get_pk() const { return m_range_p.get_point_k(); }
+    inline PointP const& get_pi() const { return m_range_p.at(0); }
+    inline PointP const& get_pj() const { return m_range_p.at(1); }
+    inline PointP const& get_pk() const { return m_range_p.at(2); }
 
-    inline PointQ const& get_qi() const { return m_range_q.get_point_i(); }
-    inline PointQ const& get_qj() const { return m_range_q.get_point_j(); }
-    inline PointQ const& get_qk() const { return m_range_q.get_point_k(); }
+    inline PointQ const& get_qi() const { return m_range_q.at(0); }
+    inline PointQ const& get_qj() const { return m_range_q.at(1); }
+    inline PointQ const& get_qk() const { return m_range_q.at(2); }
 
     SideStrategy m_side_strategy; // NOTE: cannot be const&
     UniqueSubRange1 const& m_range_p;
@@ -93,17 +93,24 @@ struct robust_subrange_adapter
         , m_k_retrieved(false)
     {}
 
-    //! Get precalculated point i
-    Point const& get_point_i() const { return m_robust_point_i; }
+    //! Get precalculated point
+    Point const& at(std::size_t index) const
+    {
+        switch (index)
+        {
+            case 0 : return m_robust_point_i;
+            case 1 : return m_robust_point_j;
+            case 2 : return get_point_k();
+            default : return m_robust_point_i;
+        }
+    }
 
-    //! Get precalculated point j
-    Point const& get_point_j() const { return m_robust_point_j; }
-
+private :
     Point const& get_point_k() const
     {
         if (! m_k_retrieved)
         {
-            geometry::recalculate(m_robust_point_k, m_unique_sub_range.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_robust_point_k, m_unique_sub_range.at(2), m_robust_policy);
             m_k_retrieved = true;
         }
         return m_robust_point_k;
@@ -145,17 +152,17 @@ struct robust_points
         // Calculate pi,pj and qi,qj which are almost always necessary
         // But don't calculate pk/qk yet, which is retrieved (taking
         // more time) and not always necessary.
-        geometry::recalculate(m_rpi, range_p.get_point_i(), robust_policy);
-        geometry::recalculate(m_rpj, range_p.get_point_j(), robust_policy);
-        geometry::recalculate(m_rqi, range_q.get_point_i(), robust_policy);
-        geometry::recalculate(m_rqj, range_q.get_point_j(), robust_policy);
+        geometry::recalculate(m_rpi, range_p.at(0), robust_policy);
+        geometry::recalculate(m_rpj, range_p.at(1), robust_policy);
+        geometry::recalculate(m_rqi, range_q.at(0), robust_policy);
+        geometry::recalculate(m_rqj, range_q.at(1), robust_policy);
     }
 
     inline robust_point1_type const& get_rpk() const
     {
         if (! m_pk_retrieved)
         {
-            geometry::recalculate(m_rpk, m_range_p.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_rpk, m_range_p.at(2), m_robust_policy);
             m_pk_retrieved = true;
         }
         return m_rpk;
@@ -164,7 +171,7 @@ struct robust_points
     {
         if (! m_qk_retrieved)
         {
-            geometry::recalculate(m_rqk, m_range_q.get_point_k(), m_robust_policy);
+            geometry::recalculate(m_rqk, m_range_q.at(2), m_robust_policy);
             m_qk_retrieved = true;
         }
         return m_rqk;
@@ -226,8 +233,8 @@ public:
                       intersection_strategy.get_side_strategy())
     {}
 
-    inline typename UniqueSubRange1::point_type const& pi() const { return m_range_p.get_point_i(); }
-    inline typename UniqueSubRange2::point_type const& qi() const { return m_range_q.get_point_i(); }
+    inline typename UniqueSubRange1::point_type const& pi() const { return m_range_p.at(0); }
+    inline typename UniqueSubRange2::point_type const& qi() const { return m_range_q.at(0); }
 
     inline robust_point1_type const& rpi() const { return base::m_rpi; }
     inline robust_point1_type const& rpj() const { return base::m_rpj; }
@@ -374,8 +381,8 @@ public:
         : base(range_p, range_q,
                intersection_strategy, robust_policy)
         , m_result(intersection_strategy.apply(
-                        segment_type1(range_p.get_point_i(), range_p.get_point_j()),
-                        segment_type2(range_q.get_point_i(), range_q.get_point_j()),
+                        segment_type1(range_p.at(0), range_p.at(1)),
+                        segment_type2(range_q.at(0), range_q.at(1)),
                         intersection_policy_type(),
                         robust_policy,
                         base::rpi(), base::rpj(),

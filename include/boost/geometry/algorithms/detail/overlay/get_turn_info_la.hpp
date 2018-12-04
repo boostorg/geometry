@@ -66,9 +66,9 @@ struct get_turn_info_linear_areal
 
         typedef typename UniqueSubRange1::point_type Point1;
         typedef typename UniqueSubRange2::point_type Point2;
-        Point1 const& pi = range_p.get_point_i();
-        Point1 const& pj = range_p.get_point_j();
-        Point2 const& qi = range_q.get_point_i();
+        Point1 const& pi = range_p.at(0);
+        Point1 const& pj = range_p.at(1);
+        Point2 const& qi = range_q.at(0);
 
         inters_info inters(range_p, range_q,
                            intersection_strategy, robust_policy);
@@ -76,8 +76,8 @@ struct get_turn_info_linear_areal
         char const method = inters.d_info().how;
 
         bool const is_p_first = range_p.is_first();
-        bool const is_p_last = ! range_p.has_k();
-        bool const is_q_last = ! range_q.has_k();
+        bool const is_p_last = range_p.size() == 2u;
+        bool const is_q_last = range_q.size() == 2u;
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -713,7 +713,7 @@ struct get_turn_info_linear_areal
         typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
 
         bool const is_p_first = range_p.is_first();
-        bool const is_p_last = ! range_p.has_k();
+        bool const is_p_last = range_p.size() == 2u;
 
         const std::size_t ip_count = inters.i_info().count;
         // no intersection points
@@ -727,10 +727,10 @@ struct get_turn_info_linear_areal
             return false;
         }
 
-        bool const is_q_last = ! range_q.has_k();
+        bool const is_q_last = range_q.size() == 2u;
 
-        linear_intersections intersections(range_p.get_point_i(),
-                                           range_q.get_point_i(),
+        linear_intersections intersections(range_p.at(0),
+                                           range_q.at(0),
                                            inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();
         linear_intersections::ip_info const& ip1 = intersections.template get<1>();
@@ -822,7 +822,7 @@ struct get_turn_info_linear_areal
             // here is_p_first_ip == true
             tp.operations[0].is_collinear = false;
 
-            AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), inters);
+            AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), inters);
             *out++ = tp;
 
             was_first_point_handled = true;
@@ -878,7 +878,7 @@ struct get_turn_info_linear_areal
             unsigned int ip_index = ip_count > 1 ? 1 : 0;
             base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
-            AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), inters);
+            AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), inters);
             *out++ = tp;
 
             // don't ignore the first IP if the segment is opposite

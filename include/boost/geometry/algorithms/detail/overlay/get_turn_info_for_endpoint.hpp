@@ -278,17 +278,17 @@ struct get_turn_info_for_endpoint
         }
 
         bool const is_p_first = range_p.is_first();
-        bool const is_p_last = ! range_p.has_k();
+        bool const is_p_last = range_p.size() == 2u;
         bool const is_q_first = range_q.is_first();
-        bool const is_q_last = ! range_q.has_k();
+        bool const is_q_last = range_q.size() == 2u;
 
         if (!is_p_first && !is_p_last && !is_q_first && !is_q_last)
         {
             return false;
         }
 
-        linear_intersections intersections(range_p.get_point_i(),
-                                           range_q.get_point_i(),
+        linear_intersections intersections(range_p.at(0),
+                                           range_q.at(0),
                                            inters.result(), is_p_last, is_q_last);
 
         bool append0_last
@@ -332,9 +332,9 @@ struct get_turn_info_for_endpoint
     {
         // TODO - calculate first/last only if needed
         bool const is_p_first = range_p.is_first();
-        bool const is_p_last = ! range_p.has_k();
+        bool const is_p_last = range_p.size() == 2u;
         bool const is_q_first = range_q.is_first();
-        bool const is_q_last = ! range_q.has_k();
+        bool const is_q_last = range_q.size() == 2u;
 
         bool is_p_first_ip = is_p_first && ip_info.is_pi;
         bool is_p_last_ip = is_p_last && ip_info.is_pj;
@@ -623,7 +623,7 @@ struct get_turn_info_for_endpoint
 
         // TODO: this should get an intersection_info, which is unavailable here
         // Because the assign_null policy accepts any structure, we pass the result instead for now
-        AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), result);
+        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), result);
         *out++ = tp;
     }
 

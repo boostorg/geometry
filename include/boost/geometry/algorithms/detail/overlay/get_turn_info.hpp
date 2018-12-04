@@ -534,7 +534,7 @@ struct equal_opposite : public base_turn_handler
             for (unsigned int i = 0; i < intersection_info.i_info().count; i++)
             {
                 assign_point(tp, method_none, intersection_info.i_info(), i);
-                AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), intersection_info);
+                AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), intersection_info);
                 *out++ = tp;
             }
         }
@@ -631,12 +631,12 @@ struct collinear : public base_turn_handler
         // measured until the end of the next segment
         ti.operations[0].remaining_distance
                 = side_p == 0
-                ? distance_measure(ti.point, range_p.get_point_k())
-                : distance_measure(ti.point, range_p.get_point_j());
+                ? distance_measure(ti.point, range_p.at(2))
+                : distance_measure(ti.point, range_p.at(1));
         ti.operations[1].remaining_distance
                 = side_q == 0
-                ? distance_measure(ti.point, range_q.get_point_k())
-                : distance_measure(ti.point, range_q.get_point_j());
+                ? distance_measure(ti.point, range_q.at(2))
+                : distance_measure(ti.point, range_q.at(1));
     }
 
     template <typename Point1, typename Point2>
@@ -775,7 +775,7 @@ public:
                 UniqueSubRange2 const& range_q,
                 IntersectionInfo const& info)
     {
-        AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), info);
+        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), info);
     }
 
     template
@@ -806,7 +806,7 @@ public:
 
         // If P arrives within Q, there is a turn dependent on P
         if ( p_arrival == 1
-          && range_p.has_k()
+          && range_p.size() > 2u
           && set_tp<0>(side.pk_wrt_p1(), true, side.pk_wrt_q1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
@@ -817,7 +817,7 @@ public:
 
         // If Q arrives within P, there is a turn dependent on Q
         if ( q_arrival == 1
-          && range_q.has_k()
+          && range_q.size() > 2u
           && set_tp<1>(side.qk_wrt_q1(), false, side.qk_wrt_p1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
@@ -935,7 +935,7 @@ struct get_turn_info
                 UniqueSubRange2 const& range_q,
                 IntersectionInfo const& info)
     {
-        AssignPolicy::apply(tp, range_p.get_point_i(), range_q.get_point_i(), info);
+        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), info);
     }
 
     // Intersect pi-pj with qi-qj
