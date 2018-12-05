@@ -198,23 +198,23 @@ public:
 private:
 
     // only if collinear (same_dirs)
-    static inline operation_type union_or_blocked_same_dirs(int arrival, bool has_k)
+    static inline operation_type union_or_blocked_same_dirs(int arrival, bool is_last)
     {
         if ( arrival == 1 )
             return operation_blocked;
         else if ( arrival == -1 )
             return operation_union;
         else
-            return has_k ? operation_blocked : operation_union;
+            return is_last ? operation_blocked : operation_union;
             //return operation_blocked;
     }
 
     // only if not collinear (!same_dirs)
-    static inline operation_type union_or_blocked_different_dirs(int arrival, bool has_k)
+    static inline operation_type union_or_blocked_different_dirs(int arrival, bool is_last)
     {
         if ( arrival == 1 )
             //return operation_blocked;
-            return has_k ? operation_blocked : operation_union;
+            return is_last ? operation_blocked : operation_union;
         else
             return operation_union;
     }
