@@ -130,8 +130,6 @@ struct get_turn_info_linear_areal
                     calculate_spike_operation(tp.operations[0].operation,
                                               inters);
                     
-                    AssignPolicy::apply(tp, pi, qi, inters);
-
                     *out++ = tp;
                 }
             }
@@ -142,7 +140,6 @@ struct get_turn_info_linear_areal
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
 
-                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
@@ -224,9 +221,6 @@ struct get_turn_info_linear_areal
                         = calculate_spike_operation(tp.operations[0].operation,
                                                     inters);
 
-// TODO: move this into the append_xxx and call for each turn?
-                    AssignPolicy::apply(tp, pi, qi, inters);
-
                     if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                       || ignore_spike
                       || ! append_opposite_spikes<append_touches>( // for 'i' or 'c' i???
@@ -257,10 +251,7 @@ struct get_turn_info_linear_areal
 
                         turn_transformer_ec<false> transformer(method_touch);
                         transformer(tp);
-                    
-// TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters);
-                        
+
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
@@ -319,9 +310,6 @@ struct get_turn_info_linear_areal
                         turn_transformer_ec<false> transformer(method_replace);
                         transformer(tp);
 
-// TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters);
-                        
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
@@ -377,7 +365,6 @@ struct get_turn_info_linear_areal
                     }
                     // tp.operations[1].position = position_middle;
 
-                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }
@@ -561,10 +548,6 @@ struct get_turn_info_linear_areal
 
                     BOOST_GEOMETRY_ASSERT(inters.i_info().count > 1);
                     base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 1);
-
-                    // The only place where pi() and qi() are accessed
-                    // Consider using the intersection point.
-                    AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
                 }
 
                 tp.operations[0].operation = operation_blocked;
@@ -697,7 +680,7 @@ struct get_turn_info_linear_areal
                             OutputIterator out)
     {
         namespace ov = overlay;
-        typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
+        typedef ov::get_turn_info_for_endpoint<EnableFirst, EnableLast> get_info_e;
 
         const std::size_t ip_count = inters.i_info().count;
         // no intersection points
@@ -807,7 +790,6 @@ struct get_turn_info_linear_areal
             // here is_p_first_ip == true
             tp.operations[0].is_collinear = false;
 
-            AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), inters);
             *out++ = tp;
 
             was_first_point_handled = true;
@@ -863,7 +845,6 @@ struct get_turn_info_linear_areal
             unsigned int ip_index = ip_count > 1 ? 1 : 0;
             base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
-            AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), inters);
             *out++ = tp;
 
             // don't ignore the first IP if the segment is opposite

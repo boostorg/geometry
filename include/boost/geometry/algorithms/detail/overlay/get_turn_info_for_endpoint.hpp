@@ -252,7 +252,7 @@ struct side_calculator_for_endpoint
 };
 
 
-template <typename AssignPolicy, bool EnableFirst, bool EnableLast>
+template <bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
     BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
@@ -376,11 +376,9 @@ struct get_turn_info_for_endpoint
                   && inters.i_info().count == 2
                   && inters.is_spike_p() )
                 {
-                    assign(range_q, range_q,
-                           inters.result(), ip_index, method, operation_blocked, q_operation,
+                    assign(inters.result(), ip_index, method, operation_blocked, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
-                    assign(range_q, range_q,
-                           inters.result(), ip_index, method, operation_intersection, q_operation,
+                    assign(inters.result(), ip_index, method, operation_intersection, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
                 }
                 // Q is spike and should be handled
@@ -388,18 +386,15 @@ struct get_turn_info_for_endpoint
                        && inters.i_info().count == 2
                        && inters.is_spike_q() )
                 {
-                    assign(range_q, range_q,
-                           inters.result(), ip_index, method, p_operation, operation_blocked,
+                    assign(inters.result(), ip_index, method, p_operation, operation_blocked,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
-                    assign(range_q, range_q,
-                           inters.result(), ip_index, method, p_operation, operation_intersection,
+                    assign(inters.result(), ip_index, method, p_operation, operation_intersection,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
                 }
                 // no spikes
                 else
                 {
-                    assign(range_q, range_q,
-                           inters.result(), ip_index, method, p_operation, q_operation,
+                    assign(inters.result(), ip_index, method, p_operation, q_operation,
                            p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, false, tp_model, out);
                 }
             }
@@ -557,14 +552,10 @@ struct get_turn_info_for_endpoint
                ( is_ip_last_j ? position_back : position_middle );
     }
 
-    template <typename UniqueSubRange1,
-              typename UniqueSubRange2,
-              typename IntersectionResult,
+    template <typename IntersectionResult,
               typename TurnInfo,
               typename OutputIterator>
-    static inline void assign(UniqueSubRange1 const& range_p,
-                              UniqueSubRange2 const& range_q,
-                              IntersectionResult const& result,
+    static inline void assign(IntersectionResult const& result,
                               unsigned int ip_index,
                               method_type method,
                               operation_type op0, operation_type op1,
@@ -615,9 +606,6 @@ struct get_turn_info_for_endpoint
             }
         }
 
-        // TODO: this should get an intersection_info, which is unavailable here
-        // Because the assign_null policy accepts any structure, we pass the result instead for now
-        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), result);
         *out++ = tp;
     }
 

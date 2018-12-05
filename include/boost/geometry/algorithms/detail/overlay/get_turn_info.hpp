@@ -534,7 +534,6 @@ struct equal_opposite : public base_turn_handler
             for (unsigned int i = 0; i < intersection_info.i_info().count; i++)
             {
                 assign_point(tp, method_none, intersection_info.i_info(), i);
-                AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), intersection_info);
                 *out++ = tp;
             }
         }
@@ -764,19 +763,6 @@ public:
     }
 
 public:
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename IntersectionInfo
-    >
-    static inline void assign(TurnInfo const& tp,
-                UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
-                IntersectionInfo const& info)
-    {
-        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), info);
-    }
 
     template
     <
@@ -811,7 +797,6 @@ public:
         {
             turn_transformer(tp);
 
-            assign(tp, range_p, range_q, info);
             *out++ = tp;
         }
 
@@ -822,7 +807,6 @@ public:
         {
             turn_transformer(tp);
 
-            assign(tp, range_p, range_q, info);
             *out++ = tp;
         }
 
@@ -839,7 +823,6 @@ public:
                 for (unsigned int i = 0; i < info.i_info().count; i++)
                 {
                     assign_point(tp, method_collinear, info.i_info(), i);
-                    assign(tp, range_p, range_q, info);
                     *out++ = tp;
                 }
             }
@@ -887,26 +870,14 @@ struct only_convert : public base_turn_handler
 
 /*!
 \brief Policy doing nothing
-\details get_turn_info can have an optional policy to get/assign some
-    extra information. By default it does not, and this class
-    is that default.
+\details get_turn_info can have an optional policy include extra
+    truns. By default it does not, and this class is that default.
  */
 struct assign_null_policy
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
     static bool const include_opposite = false;
-
-    template
-    <
-        typename Info,
-        typename Point1,
-        typename Point2,
-        typename IntersectionInfo
-    >
-    static inline void apply(Info& , Point1 const& , Point2 const&, IntersectionInfo const&)
-    {}
-
 };
 
 /*!
@@ -923,21 +894,6 @@ struct assign_null_policy
 template<typename AssignPolicy>
 struct get_turn_info
 {
-    template
-    <
-        typename TurnInfo,
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename IntersectionInfo
-    >
-    static inline void assign(TurnInfo const& tp,
-                UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
-                IntersectionInfo const& info)
-    {
-        AssignPolicy::apply(tp, range_p.at(0), range_q.at(0), info);
-    }
-
     // Intersect pi-pj with qi-qj
     // The points pk and qk are used do determine more information
     // about the turn (turn left/right)
@@ -984,7 +940,6 @@ struct get_turn_info
                     && inters.i_info().count > 0)
                 {
                     only_convert::apply(tp, inters.i_info());
-                    assign(tp, range_p, range_q, inters);
                     *out++ = tp;
                 }
                 break;
@@ -1011,14 +966,12 @@ struct get_turn_info
                     policy::template apply<1>(tp, inters.i_info(), inters.d_info(),
                                 inters.get_swapped_sides());
                 }
-                assign(tp, range_p, range_q, inters);
                 *out++ = tp;
             }
             break;
             case 'i' :
             {
                 crosses<TurnInfo>::apply(tp, inters.i_info(), inters.d_info());
-                assign(tp, range_p, range_q, inters);
                 *out++ = tp;
             }
             break;
@@ -1026,7 +979,6 @@ struct get_turn_info
             {
                 // Both touch (both arrive there)
                 touch<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
-                assign(tp, range_p, range_q, inters);
                 *out++ = tp;
             }
             break;
@@ -1037,7 +989,6 @@ struct get_turn_info
                     // Both equal
                     // or collinear-and-ending at intersection point
                     equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
-                    assign(tp, range_p, range_q, inters);
                     *out++ = tp;
                 }
                 else
@@ -1071,7 +1022,6 @@ struct get_turn_info
                                 tp, inters.i_info(), inters.d_info(), inters.sides());
                     }
 
-                    assign(tp, range_p, range_q, inters);
                     *out++ = tp;
                 }
                 else
@@ -1091,7 +1041,6 @@ struct get_turn_info
                 if (AssignPolicy::include_degenerate)
                 {
                     only_convert::apply(tp, inters.i_info());
-                    assign(tp, range_p, range_q, inters);
                     *out++ = tp;
                 }
             }

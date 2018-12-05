@@ -301,9 +301,6 @@ public:
                       intersection_strategy.get_side_strategy())
     {}
 
-    inline point1_type const& pi() const { return m_side_calc.get_pi(); }
-    inline point2_type const& qi() const { return m_side_calc.get_qi(); }
-
     inline point1_type const& rpi() const { return m_side_calc.get_pi(); }
     inline point1_type const& rpj() const { return m_side_calc.get_pj(); }
     inline point1_type const& rpk() const { return m_side_calc.get_pk(); }

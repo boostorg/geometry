@@ -76,7 +76,7 @@ struct get_turn_info_linear_linear
             case 'a' : // collinear, "at"
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
-                get_turn_info_for_endpoint<AssignPolicy, true, true>
+                get_turn_info_for_endpoint<true, true>
                     ::apply(range_p, range_q,
                             tp_model, inters, method_none, out);
                 break;
@@ -86,7 +86,7 @@ struct get_turn_info_linear_linear
 
             case 'm' :
             {
-                if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
+                if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_touch_interior, out) )
                 {
@@ -125,7 +125,6 @@ struct get_turn_info_linear_linear
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
                     
-                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }
@@ -136,14 +135,13 @@ struct get_turn_info_linear_linear
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
 
-                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
             case 't' :
             {
                 // Both touch (both arrive there)
-                if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
+                if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_touch, out) )
                 {
@@ -261,9 +259,6 @@ struct get_turn_info_linear_linear
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
 
-// TODO: move this into the append_xxx and call for each turn?
-                    AssignPolicy::apply(tp, pi, qi, inters);
-
                     if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                       || ! append_opposite_spikes<append_touches>(tp, inters, out) )
                     {
@@ -274,7 +269,7 @@ struct get_turn_info_linear_linear
             break;
             case 'e':
             {
-                if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
+                if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_equal, out) )
                 {
@@ -301,9 +296,6 @@ struct get_turn_info_linear_linear
                         turn_transformer_ec transformer(method_touch);
                         transformer(tp);
 
-// TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters);
-
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
@@ -329,7 +321,7 @@ struct get_turn_info_linear_linear
             case 'c' :
             {
                 // Collinear
-                if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
+                if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters,  method_collinear, out) )
                 {
@@ -371,9 +363,6 @@ struct get_turn_info_linear_linear
                         turn_transformer_ec transformer(method_replace);
                         transformer(tp);
                         
-// TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters);
-
                         // conditionally handle spikes
                         if ( ! BOOST_GEOMETRY_CONDITION(handle_spikes)
                           || ! append_collinear_spikes(tp, inters,
@@ -439,7 +428,6 @@ struct get_turn_info_linear_linear
                         tp.operations[1].position = position_back;
                     }
 
-                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }
@@ -567,8 +555,6 @@ struct get_turn_info_linear_linear
                 
                 base_turn_handler::assign_point(tp, method_touch_interior,
                                                 inters.i_info(), 1);
-
-                AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
             }
 
             tp.operations[0].operation = operation_blocked;
@@ -599,8 +585,6 @@ struct get_turn_info_linear_linear
                 BOOST_GEOMETRY_ASSERT(inters.i_info().count > 0);
 
                 base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 0);
-
-                AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
             }
 
             tp.operations[0].operation = operation_intersection;
