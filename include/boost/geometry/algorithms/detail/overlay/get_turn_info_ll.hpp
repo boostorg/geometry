@@ -59,11 +59,7 @@ struct get_turn_info_linear_linear
                 RobustPolicy
             > inters_info;
 
-        typename UniqueSubRange1::point_type const& pi = range_p.at(0);
-        typename UniqueSubRange2::point_type const& qi = range_q.at(0);
-
-        inters_info inters(range_p, range_q,
-                           strategy, robust_policy);
+        inters_info inters(range_p, range_q, strategy, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -408,7 +404,7 @@ struct get_turn_info_linear_linear
 
                     // if any, only one of those should be true
                     if ( range_p.is_first()
-                      && equals::equals_point_point(pi, tp.point) )
+                      && equals::equals_point_point(range_p.at(0), tp.point) )
                     {
                         tp.operations[0].position = position_front;
                     }
@@ -418,7 +414,7 @@ struct get_turn_info_linear_linear
                         tp.operations[0].position = position_back;
                     }
                     else if ( range_q.is_first()
-                           && equals::equals_point_point(qi, tp.point) )
+                           && equals::equals_point_point(range_q.at(0), tp.point) )
                     {
                         tp.operations[1].position = position_front;
                     }

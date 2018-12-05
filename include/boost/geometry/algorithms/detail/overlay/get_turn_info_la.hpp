@@ -64,9 +64,6 @@ struct get_turn_info_linear_areal
                 RobustPolicy
             > inters_info;
 
-        typename UniqueSubRange1::point_type const& pi = range_p.at(0);
-        typename UniqueSubRange2::point_type const& qi = range_q.at(0);
-
         inters_info inters(range_p, range_q,
                            intersection_strategy, robust_policy);
 
@@ -354,7 +351,7 @@ struct get_turn_info_linear_areal
                     only_convert::apply(tp, inters.i_info());
 
                     if ( range_p.is_first()
-                      && equals::equals_point_point(pi, tp.point) )
+                      && equals::equals_point_point(range_p.at(0), tp.point) )
                     {
                         tp.operations[0].position = position_front;
                     }
