@@ -40,13 +40,14 @@ struct turn_operation_linear
 template
 <
     typename TurnPointCSTag,
-    typename UniqueSubRange1, typename UniqueSubRange2,
+    typename UniqueSubRange1,
+    typename UniqueSubRange2,
     typename SideStrategy
 >
 struct side_calculator
 {
-    typedef typename UniqueSubRange1::point_type PointP;
-    typedef typename UniqueSubRange2::point_type PointQ;
+    typedef typename UniqueSubRange1::point_type point1_type;
+    typedef typename UniqueSubRange2::point_type point2_type;
 
     inline side_calculator(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
@@ -64,13 +65,13 @@ struct side_calculator
     inline int pk_wrt_q2() const { return m_side_strategy.apply(get_qj(), get_qk(), get_pk()); }
     inline int qk_wrt_p2() const { return m_side_strategy.apply(get_pj(), get_pk(), get_qk()); }
 
-    inline PointP const& get_pi() const { return m_range_p.at(0); }
-    inline PointP const& get_pj() const { return m_range_p.at(1); }
-    inline PointP const& get_pk() const { return m_range_p.at(2); }
+    inline point1_type const& get_pi() const { return m_range_p.at(0); }
+    inline point1_type const& get_pj() const { return m_range_p.at(1); }
+    inline point1_type const& get_pk() const { return m_range_p.at(2); }
 
-    inline PointQ const& get_qi() const { return m_range_q.at(0); }
-    inline PointQ const& get_qj() const { return m_range_q.at(1); }
-    inline PointQ const& get_qk() const { return m_range_q.at(2); }
+    inline point2_type const& get_qi() const { return m_range_q.at(0); }
+    inline point2_type const& get_qj() const { return m_range_q.at(1); }
+    inline point2_type const& get_qk() const { return m_range_q.at(2); }
 
     SideStrategy m_side_strategy; // NOTE: cannot be const&
     UniqueSubRange1 const& m_range_p;
