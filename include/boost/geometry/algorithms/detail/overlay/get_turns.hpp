@@ -655,7 +655,7 @@ struct get_turns_cs
         static inline bool is_first() { return false; }
         static inline std::size_t size() { return 3; }
 
-        inline box_point_type const& at(std::size_t index) const
+        inline point_type const& at(std::size_t index) const
         {
             switch (index)
             {
