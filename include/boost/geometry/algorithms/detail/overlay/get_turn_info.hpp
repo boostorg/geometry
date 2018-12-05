@@ -997,8 +997,7 @@ struct get_turn_info
                         <
                             TurnInfo,
                             AssignPolicy
-                        >::apply(range_p, range_q,
-                            tp, out, inters);
+                        >::apply(range_p, range_q, tp, out, inters);
                 }
             }
             break;
