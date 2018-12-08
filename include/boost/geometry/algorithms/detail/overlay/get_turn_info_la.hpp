@@ -102,13 +102,15 @@ struct get_turn_info_linear_areal
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1 )
                     {
-                        policy::template apply<0>(tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<0>(range_p, range_q, tp,
+                                    inters.i_info(), inters.d_info(),
                                     inters.sides());
                     }
                     else
                     {
                         // Swap p/q
-                        policy::template apply<1>(tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<1>(range_q, range_p,
+                                    tp, inters.i_info(), inters.d_info(),
                                     inters.get_swapped_sides());
                     }
 
@@ -148,7 +150,8 @@ struct get_turn_info_linear_areal
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                    touch<TurnInfo>::apply(range_p, range_q, tp,
+                        inters.i_info(), inters.d_info(), inters.sides());
 
                     if ( tp.operations[1].operation == operation_blocked )
                     {
@@ -240,7 +243,8 @@ struct get_turn_info_linear_areal
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                        equal<TurnInfo>::apply(range_p, range_q, tp,
+                            inters.i_info(), inters.d_info(), inters.sides());
 
                         turn_transformer_ec<false> transformer(method_touch);
                         transformer(tp);
@@ -286,15 +290,16 @@ struct get_turn_info_linear_areal
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                            equal<TurnInfo>::apply(range_p, range_q, tp,
+                                inters.i_info(), inters.d_info(), inters.sides());
 
                             method_replace = method_touch;
                             version = append_equal;
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(range_p, range_q,
-                                    tp, inters.i_info(), inters.d_info(), inters.sides());
+                            collinear<TurnInfo>::apply(range_p, range_q, tp,
+                                inters.i_info(), inters.d_info(), inters.sides());
 
                             //method_replace = method_touch_interior;
                             //version = append_collinear;
