@@ -36,18 +36,18 @@ struct get_turn_info_linear_linear
 
     template
     <
-        typename TurnInfo,
-        typename IntersectionStrategy,
         typename UniqueSubRange1,
         typename UniqueSubRange2,
+        typename TurnInfo,
+        typename IntersectionStrategy,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                TurnInfo const& tp_model,
-                IntersectionStrategy const& strategy,
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
+                TurnInfo const& tp_model,
+                IntersectionStrategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

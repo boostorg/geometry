@@ -73,7 +73,11 @@ struct side_calculator
     inline point2_type const& get_qj() const { return m_range_q.at(1); }
     inline point2_type const& get_qk() const { return m_range_q.at(2); }
 
-    SideStrategy m_side_strategy; // NOTE: cannot be const&
+    // Used side-strategy, owned by thie calculator,
+    // created from .get_side_strategy()
+    SideStrategy m_side_strategy;
+
+    // Used ranges - owned by get_turns or (for robust points) by intersection_info_base
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
 };
@@ -257,9 +261,11 @@ public:
         return result;
     }
 
+    // Owned by get_turns
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
 private :
+    // Owned by this class
     robust_subrange1 m_robust_range_p;
     robust_subrange2 m_robust_range_q;
     side_calculator_type m_side_calc;
@@ -320,9 +326,11 @@ public:
     }
 
 protected :
+    // Owned by get_turns
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
 private :
+    // Owned here, passed by .get_side_strategy()
     side_calculator_type m_side_calc;
 };
 

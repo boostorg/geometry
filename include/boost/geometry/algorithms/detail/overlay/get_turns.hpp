@@ -405,7 +405,8 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(ti, intersection_strategy, unique_sub_range1, unique_sub_range2, robust_policy,
+                    TurnPolicy::apply(unique_sub_range1, unique_sub_range2,
+                                      ti, intersection_strategy, robust_policy,
                                       std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -800,22 +801,26 @@ private:
 
         unique_sub_range_from_box_policy box_unique_sub_range(box);
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
+        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                          ti, intersection_strategy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         box_unique_sub_range.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
+        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                          ti, intersection_strategy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         box_unique_sub_range.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
+        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                          ti, intersection_strategy, robust_policy,
                           std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         box_unique_sub_range.next();
-        TurnPolicy::apply(ti, intersection_strategy, range_unique_sub_range, box_unique_sub_range, robust_policy,
+        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                          ti, intersection_strategy, robust_policy,
                           std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)

@@ -41,18 +41,18 @@ struct get_turn_info_linear_areal
 
     template
     <
-        typename TurnInfo,
-        typename IntersectionStrategy,
         typename UniqueSubRange1,
         typename UniqueSubRange2,
+        typename TurnInfo,
+        typename IntersectionStrategy,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                TurnInfo const& tp_model,
-                IntersectionStrategy const& intersection_strategy,
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
+                TurnInfo const& tp_model,
+                IntersectionStrategy const& intersection_strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -78,8 +78,7 @@ struct get_turn_info_linear_areal
             case 'a' : // collinear, "at"
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
-                get_turn_info_for_endpoint<true, true>(
-                    range_p, range_q,
+                get_turn_info_for_endpoint<true, true>(range_p, range_q,
                     tp_model, inters, method_none, out);
                 break;
 
@@ -88,8 +87,7 @@ struct get_turn_info_linear_areal
 
             case 'm' :
             {
-                if ( get_turn_info_for_endpoint<false, true>(
-                        range_p, range_q,
+                if ( get_turn_info_for_endpoint<false, true>(range_p, range_q,
                         tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
@@ -143,8 +141,7 @@ struct get_turn_info_linear_areal
             case 't' :
             {
                 // Both touch (both arrive there)
-                if ( get_turn_info_for_endpoint<false, true>(
-                        range_p, range_q,
+                if ( get_turn_info_for_endpoint<false, true>(range_p, range_q,
                         tp_model, inters, method_touch, out) )
                 {
                     // do nothing
@@ -230,8 +227,7 @@ struct get_turn_info_linear_areal
             break;
             case 'e':
             {
-                if ( get_turn_info_for_endpoint<true, true>(
-                        range_p, range_q,
+                if ( get_turn_info_for_endpoint<true, true>(range_p, range_q,
                         tp_model, inters, method_equal, out) )
                 {
                     // do nothing

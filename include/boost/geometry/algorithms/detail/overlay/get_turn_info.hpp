@@ -894,23 +894,23 @@ struct assign_null_policy
 template<typename AssignPolicy>
 struct get_turn_info
 {
-    // Intersect pi-pj with qi-qj
-    // The points pk and qk are used do determine more information
-    // about the turn (turn left/right)
+    // Intersect a segment p with a segment q
+    // Both p and q are modelled as sub_ranges to provide more points
+    // to be able to give more information about the turn (left/right)
     template
     <
-        typename TurnInfo,
-        typename IntersectionStrategy,
         typename UniqueSubRange1,
         typename UniqueSubRange2,
+        typename TurnInfo,
+        typename IntersectionStrategy,
         typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
-                TurnInfo const& tp_model,
-                IntersectionStrategy const& intersection_strategy,
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
+                TurnInfo const& tp_model,
+                IntersectionStrategy const& intersection_strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

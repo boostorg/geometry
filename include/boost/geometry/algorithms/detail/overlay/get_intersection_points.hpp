@@ -44,12 +44,18 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename Strategy, typename UniqueSubRange1, typename UniqueSubRange2, typename RobustPolicy, typename OutputIterator>
-    static inline OutputIterator apply(
+    template
+    <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Strategy,
+        typename RobustPolicy,
+        typename OutputIterator
+    >
+    static inline OutputIterator apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
                 TurnInfo const& ,
                 Strategy const& strategy,
-                UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {

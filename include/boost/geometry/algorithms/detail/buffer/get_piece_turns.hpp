@@ -34,17 +34,20 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
+// Implements a unique_sub_range for a buffered piece,
+// the range can return subsequent points
+// known as "i", "j" and "k" (and further),  indexed as 0,1,2,3
 template <typename Ring>
 struct unique_sub_range_from_piece
 {
     typedef typename boost::range_iterator<Ring const>::type iterator_type;
     typedef typename geometry::point_type<Ring const>::type point_type;
 
-    unique_sub_range_from_piece(Ring const& ring, iterator_type it0, iterator_type it1)
+    unique_sub_range_from_piece(Ring const& ring,
+                                iterator_type iterator_at_i, iterator_type iterator_at_j)
         : m_ring(ring)
-        , m_point_i(*it0)
-        , m_point_j(*it1)
-        , m_iterator(it1)
+        , m_iterator_at_i(iterator_at_i)
+        , m_iterator_at_j(iterator_at_j)
         , m_point_retrieved(false)
     {}
 
@@ -56,28 +59,26 @@ struct unique_sub_range_from_piece
     {
         switch (index)
         {
-            case 0 : return m_point_i;
-            case 1 : return m_point_j;
-            case 2 : return get_next_point();
-            default : return m_point_i;
+            case 0 : return *m_iterator_at_i;
+            case 1 : return *m_iterator_at_j;
+            case 2 : return get_point_k();
+            default : return *m_iterator_at_i;
         }
     }
 
 private :
 
-    inline point_type const& get_next_point() const
+    inline point_type const& get_point_k() const
     {
         if (! m_point_retrieved)
         {
-            m_point = *next_point(m_iterator);
+            m_iterator_at_k = advance_one(m_iterator_at_j);
             m_point_retrieved = true;
         }
-        return m_point;
+        return *m_iterator_at_k;
     }
 
-private :
-
-    inline void circular_move_along_ring(iterator_type& next) const
+    inline void circular_advance_one(iterator_type& next) const
     {
         ++next;
         if (next == boost::end(m_ring))
@@ -86,26 +87,24 @@ private :
         }
     }
 
-    inline iterator_type next_point(iterator_type it) const
+    inline iterator_type advance_one(iterator_type it) const
     {
         iterator_type result = it;
-        circular_move_along_ring(result);
+        circular_advance_one(result);
 
         // TODO: we could also use piece-boundaries
         // to check if the point equals the last one
         while (geometry::equals(*it, *result))
         {
-            circular_move_along_ring(result);
+            circular_advance_one(result);
         }
         return result;
     }
 
     Ring const& m_ring;
-    point_type m_point_i;
-    point_type m_point_j;
-    iterator_type m_iterator;
-
-    mutable point_type m_point;
+    iterator_type m_iterator_at_i;
+    iterator_type m_iterator_at_j;
+    mutable iterator_type m_iterator_at_k;
     mutable bool m_point_retrieved;
 };
 
@@ -280,9 +279,9 @@ class piece_turn_visitor
                         detail::overlay::assign_null_policy
                     > turn_policy;
 
-                turn_policy::apply(the_model,
+                turn_policy::apply(unique_sub_range1, unique_sub_range2,
+                                   the_model,
                                    m_intersection_strategy,
-                                   unique_sub_range1, unique_sub_range2,
                                    m_robust_policy,
                                    std::back_inserter(m_turns));
             }
