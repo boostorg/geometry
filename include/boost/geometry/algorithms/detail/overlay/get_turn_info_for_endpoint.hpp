@@ -247,10 +247,10 @@ struct get_turn_info_for_endpoint
             return false;
         }
 
-        if (! range_p.is_first()
-            && ! range_q.is_first()
-            && range_p.size() > 2u
-            && range_q.size() > 2u)
+        if (! range_p.is_first_segment()
+            && ! range_q.is_first_segment()
+            && ! range_p.is_last_segment()
+            && ! range_q.is_last_segment())
         {
             // Not an end-point from segment p or q
             return false;
@@ -259,8 +259,8 @@ struct get_turn_info_for_endpoint
         linear_intersections intersections(range_p.at(0),
                                            range_q.at(0),
                                            inters.result(),
-                                           range_p.size() == 2u,
-                                           range_q.size() == 2u);
+                                           range_p.is_last_segment(),
+                                           range_q.is_last_segment());
 
         bool append0_last
             = analyse_segment_and_assign_ip(range_p, range_q,
@@ -302,10 +302,10 @@ struct get_turn_info_for_endpoint
                                        OutputIterator out)
     {
         // TODO - calculate first/last only if needed
-        bool is_p_first_ip = range_p.is_first() && ip_info.is_pi;
-        bool is_p_last_ip = range_p.size() == 2u && ip_info.is_pj;
-        bool is_q_first_ip = range_q.is_first() && ip_info.is_qi;
-        bool is_q_last_ip = range_q.size() == 2u && ip_info.is_qj;
+        bool is_p_first_ip = range_p.is_first_segment() && ip_info.is_pi;
+        bool is_p_last_ip = range_p.is_last_segment() && ip_info.is_pj;
+        bool is_q_first_ip = range_q.is_first_segment() && ip_info.is_qi;
+        bool is_q_last_ip = range_q.is_last_segment() && ip_info.is_qj;
         bool append_first = EnableFirst && (is_p_first_ip || is_q_first_ip);
         bool append_last = EnableLast && (is_p_last_ip || is_q_last_ip);
 

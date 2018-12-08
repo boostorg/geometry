@@ -128,9 +128,13 @@ struct unique_sub_range_from_section
     {
     }
 
-    inline bool is_first() const
+    inline bool is_first_segment() const
     {
         return !IsAreal && m_section.is_non_duplicate_first && m_index == m_section.begin_index;
+    }
+    inline bool is_last_segment() const
+    {
+        return size() == 2u;
     }
 
     inline std::size_t size() const
@@ -624,7 +628,8 @@ struct get_turns_cs
           , m_index(0)
         {}
 
-        static inline bool is_first() { return false; }
+        static inline bool is_first_segment() { return false; }
+        static inline bool is_last_segment() { return false; }
         static inline std::size_t size() { return 4; }
 
         inline box_point_type const& at(std::size_t index) const
@@ -656,7 +661,8 @@ struct get_turns_cs
             ++m_circular_iterator;
         }
 
-        static inline bool is_first() { return false; }
+        static inline bool is_first_segment() { return false; }
+        static inline bool is_last_segment() { return false; }
         static inline std::size_t size() { return 3; }
 
         inline point_type const& at(std::size_t index) const

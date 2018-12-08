@@ -601,8 +601,8 @@ struct collinear : public base_turn_handler
         // Should not be 0, this is checked before
         BOOST_GEOMETRY_ASSERT(arrival != 0);
 
-        bool const has_pk = range_p.size() != 2u;
-        bool const has_qk = range_q.size() != 2u;
+        bool const has_pk = ! range_p.is_last_segment();
+        bool const has_qk = ! range_q.is_last_segment();
         int const side_p = has_pk ? side.pk_wrt_p1() : 0;
         int const side_q = has_qk ? side.qk_wrt_q1() : 0;
 
@@ -794,7 +794,7 @@ public:
 
         // If P arrives within Q, there is a turn dependent on P
         if ( p_arrival == 1
-          && range_p.size() > 2u
+          && ! range_p.is_last_segment()
           && set_tp<0>(side.pk_wrt_p1(), true, side.pk_wrt_q1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
@@ -804,7 +804,7 @@ public:
 
         // If Q arrives within P, there is a turn dependent on Q
         if ( q_arrival == 1
-          && range_q.size() > 2u
+          && ! range_q.is_last_segment()
           && set_tp<1>(side.qk_wrt_q1(), false, side.qk_wrt_p1(), tp, info.i_info()) )
         {
             turn_transformer(tp);

@@ -52,7 +52,8 @@ struct unique_sub_range_from_piece
         , m_point_retrieved(false)
     {}
 
-    static inline bool is_first() { return false; }
+    static inline bool is_first_segment() { return false; }
+    static inline bool is_last_segment() { return false; }
 
     static inline std::size_t size() { return 3u; }
 

@@ -346,12 +346,12 @@ struct get_turn_info_linear_areal
                 {
                     only_convert::apply(tp, inters.i_info());
 
-                    if ( range_p.is_first()
+                    if ( range_p.is_first_segment()
                       && equals::equals_point_point(range_p.at(0), tp.point) )
                     {
                         tp.operations[0].position = position_front;
                     }
-                    else if ( range_p.size() == 2u
+                    else if ( range_p.is_last_segment()
                            && equals::equals_point_point(range_p.at(1), tp.point) )
                     {
                         tp.operations[0].position = position_back;
@@ -682,7 +682,7 @@ struct get_turn_info_linear_areal
             return false;
         }
 
-        if (! range_p.is_first() && range_p.size() > 2u)
+        if (! range_p.is_first_segment() && ! range_p.is_last_segment())
         {
             // P sub-range has no end-points
             return false;
@@ -694,8 +694,8 @@ struct get_turn_info_linear_areal
         linear_intersections intersections(range_p.at(0),
                                            range_q.at(0),
                                            inters.result(),
-                                           range_p.size() == 2u,
-                                           range_q.size() == 2u);
+                                           range_p.is_last_segment(),
+                                           range_q.is_last_segment());
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();
         linear_intersections::ip_info const& ip1 = intersections.template get<1>();
 
@@ -706,7 +706,7 @@ struct get_turn_info_linear_areal
         // IP on the first point of Linear Geometry
         bool was_first_point_handled = false;
         if ( BOOST_GEOMETRY_CONDITION(EnableFirst)
-          && range_p.is_first() && ip0.is_pi && !ip0.is_qi ) // !q0i prevents duplication
+          && range_p.is_first_segment() && ip0.is_pi && !ip0.is_qi ) // !q0i prevents duplication
         {
             TurnInfo tp = tp_model;
             tp.operations[0].position = position_front;
@@ -779,7 +779,7 @@ struct get_turn_info_linear_areal
 
         // IP on the last point of Linear Geometry
         if ( BOOST_GEOMETRY_CONDITION(EnableLast)
-          && range_p.size() == 2u
+          && range_p.is_last_segment()
           && ( ip_count > 1 ? (ip1.is_pj && !ip1.is_qi) : (ip0.is_pj && !ip0.is_qi) ) ) // prevents duplication
         {
             TurnInfo tp = tp_model;

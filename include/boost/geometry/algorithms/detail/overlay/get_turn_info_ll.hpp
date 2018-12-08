@@ -403,22 +403,22 @@ struct get_turn_info_linear_linear
                     only_convert::apply(tp, inters.i_info());
 
                     // if any, only one of those should be true
-                    if ( range_p.is_first()
+                    if ( range_p.is_first_segment()
                       && equals::equals_point_point(range_p.at(0), tp.point) )
                     {
                         tp.operations[0].position = position_front;
                     }
-                    else if ( range_p.size() == 2u
+                    else if ( range_p.is_last_segment()
                            && equals::equals_point_point(range_p.at(1), tp.point) )
                     {
                         tp.operations[0].position = position_back;
                     }
-                    else if ( range_q.is_first()
+                    else if ( range_q.is_first_segment()
                            && equals::equals_point_point(range_q.at(0), tp.point) )
                     {
                         tp.operations[1].position = position_front;
                     }
-                    else if ( range_q.size() == 2u
+                    else if ( range_q.is_last_segment()
                            && equals::equals_point_point(range_q.at(1), tp.point) )
                     {
                         tp.operations[1].position = position_back;

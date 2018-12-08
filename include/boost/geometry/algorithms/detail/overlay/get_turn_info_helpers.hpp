@@ -74,7 +74,7 @@ struct side_calculator
     inline point2_type const& get_qj() const { return m_range_q.at(1); }
     inline point2_type const& get_qk() const { return m_range_q.at(2); }
 
-    // Used side-strategy, owned by thie calculator,
+    // Used side-strategy, owned by the calculator,
     // created from .get_side_strategy()
     SideStrategy m_side_strategy;
 
@@ -414,7 +414,7 @@ public:
     // TODO: it's more like is_spike_ip_p
     inline bool is_spike_p() const
     {
-        if (base::m_range_p.size() == 2u)
+        if (base::m_range_p.is_last_segment())
         {
             return false;
         }
@@ -429,7 +429,7 @@ public:
             }
 
             // TODO: why is q used to determine spike property in p?
-            bool const has_qk = base::m_range_q.size() != 2u;
+            bool const has_qk = ! base::m_range_q.is_last_segment();
             int const qk_p1 = has_qk ? base::sides().qk_wrt_p1() : 0;
             int const qk_p2 = has_qk ? base::sides().qk_wrt_p2() : 0;
 
@@ -453,7 +453,7 @@ public:
 
     inline bool is_spike_q() const
     {
-        if (base::m_range_q.size() == 2u)
+        if (base::m_range_q.is_last_segment())
         {
             return false;
         }
@@ -467,7 +467,7 @@ public:
             }
 
             // TODO: why is p used to determine spike property in q?
-            bool const has_pk = base::m_range_p.size() != 2u;
+            bool const has_pk = ! base::m_range_p.is_last_segment();
             int const pk_q1 = has_pk ? base::sides().pk_wrt_q1() : 0;
             int const pk_q2 = has_pk ? base::sides().pk_wrt_q2() : 0;
                 
