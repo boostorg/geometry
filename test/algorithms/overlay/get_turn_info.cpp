@@ -95,7 +95,7 @@ void test_with_point(std::string const& caseid,
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
-        >::apply(model, strategy, sub_range_p, sub_range_q, rescale_policy, std::back_inserter(info));
+        >::apply(sub_range_p, sub_range_q, model, strategy, rescale_policy, std::back_inserter(info));
 
     if (info.size() == 0)
     {
