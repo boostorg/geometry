@@ -222,36 +222,6 @@ private:
     ip_info ips[2];
 };
 
-template <typename TurnPointCSTag, typename PointP, typename PointQ,
-          typename SideStrategy,
-          typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
-          typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
->
-struct side_calculator_for_endpoint
-{
-    inline side_calculator_for_endpoint(Pi const& pi, Pj const& pj, Pk const& pk,
-                           Qi const& /*qi*/, Qj const& qj, Qk const& qk,
-                           SideStrategy const& side_strategy)
-        : m_pi(pi), m_pj(pj), m_pk(pk)
-        ,           m_qj(qj), m_qk(qk)
-        , m_side_strategy(side_strategy)
-    {}
-
-    inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_pk); }
-    inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_qk); }
-    inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, m_qk, m_pk); }
-
-    Pi const& m_pi;
-    Pj const& m_pj;
-    Pk const& m_pk;
-    // Qi is omitted because it is not used
-    Qj const& m_qj;
-    Qk const& m_qk;
-
-    SideStrategy m_side_strategy;
-};
-
-
 template <bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
@@ -344,8 +314,7 @@ struct get_turn_info_for_endpoint
 
         if ( append_first || append_last )
         {
-            bool handled = handle_internal<0>(inters.rpi(), inters.rpj(), inters.rpk(),
-                                              inters.rqi(), inters.rqj(), inters.rqk(),
+            bool handled = handle_internal<0>(range_p, range_q,
                                               is_p_first_ip, is_p_last_ip,
                                               is_q_first_ip, is_q_last_ip,
                                               ip_info.is_qi, ip_info.is_qj,
@@ -353,8 +322,8 @@ struct get_turn_info_for_endpoint
                                               p_operation, q_operation);
             if ( !handled )
             {
-                handle_internal<1>(inters.rqi(), inters.rqj(), inters.rqk(),
-                                   inters.rpi(), inters.rpj(), inters.rpk(),
+                // Reverse p/q
+                handle_internal<1>(range_q, range_p,
                                    is_q_first_ip, is_q_last_ip,
                                    is_p_first_ip, is_p_last_ip,
                                    ip_info.is_pi, ip_info.is_pj,
@@ -407,20 +376,18 @@ struct get_turn_info_for_endpoint
     //       however now it's lazily calculated and then it would be always calculated
 
     template<std::size_t G1Index,
-             typename RobustPoint1,
-             typename RobustPoint2,
+             typename UniqueRange1,
+             typename UniqueRange2,
              typename TurnInfo,
              typename IntersectionInfo
     >
-    static inline bool handle_internal(RobustPoint1 const& ri1, RobustPoint1 const& rj1, RobustPoint1 const& /*rk1*/,
-                                       RobustPoint2 const& ri2, RobustPoint2 const& rj2, RobustPoint2 const& rk2,
+    static inline bool handle_internal(UniqueRange1 const& range1,
+                                       UniqueRange2 const& range2,
                                        bool first1, bool last1, bool first2, bool last2,
                                        bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
                                        IntersectionInfo const& inters, unsigned int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
-        typedef typename cs_tag<typename TurnInfo::point_type>::type cs_tag;
-
         boost::ignore_unused(ip_index, tp_model);
 
         if ( !first2 && !last2 )
@@ -443,14 +410,8 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator_for_endpoint<cs_tag,
-                                    RobustPoint1, RobustPoint2,
-                                    typename IntersectionInfo::side_strategy_type,
-                                    RobustPoint2>
-                        side_calc(ri2, ri1, rj1, ri2, rj2, rk2, inters.get_side_strategy()); // TODO: wrong, ri2/ri1/rj2
-
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_calc);
+                        operations = operations_of_equal<0, 1>(range1, range2, inters.get_side_strategy());
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -497,13 +458,8 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator_for_endpoint<cs_tag, RobustPoint1, RobustPoint2,
-                                    typename IntersectionInfo::side_strategy_type,
-                                    RobustPoint2>
-                        side_calc(ri2, rj1, ri1, ri2, rj2, rk2, inters.get_side_strategy()); // TODO: wrong, ri2/ri1/rj2
-                    
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_calc);
+                        operations = operations_of_equal<1, 0>(range1, range2, inters.get_side_strategy());
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -609,12 +565,29 @@ struct get_turn_info_for_endpoint
         *out++ = tp;
     }
 
-    template <typename SidePolicy>
-    static inline std::pair<operation_type, operation_type> operations_of_equal(SidePolicy const& side)
+    template
+    <
+        std::size_t Index1,
+        std::size_t Index2,
+        typename UniqueRange1,
+        typename UniqueRange2,
+        typename SideStrategy
+    >
+    static inline std::pair<operation_type, operation_type>
+    operations_of_equal(UniqueRange1 const& range1,
+                        UniqueRange2 const& range2,
+                        SideStrategy const& side)
     {
-        int const side_pk_q2 = side.pk_wrt_q2();
-        int const side_pk_p = side.pk_wrt_p1();
-        int const side_qk_p = side.qk_wrt_p1();
+        BOOST_STATIC_ASSERT(Index1 <= 1);
+        BOOST_STATIC_ASSERT(Index2 <= 1);
+        BOOST_STATIC_ASSERT(Index1 + Index2 == 1);
+
+        // This code assumes that range 2 (aka "q") has at least 3 points
+        BOOST_GEOMETRY_ASSERT(range2.size() >= 3);
+
+        int const side_pk_q2 = side.apply(range2.at(1), range2.at(2), range1.at(Index2));
+        int const side_pk_p = side.apply(range2.at(0), range1.at(Index1), range1.at(Index2));
+        int const side_qk_p = side.apply(range2.at(0), range1.at(Index1), range2.at(2));
 
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear

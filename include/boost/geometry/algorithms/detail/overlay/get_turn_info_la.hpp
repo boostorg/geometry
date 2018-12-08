@@ -717,9 +717,6 @@ struct get_turn_info_linear_areal
             }
             else
             {
-                typedef typename IntersectionInfo::robust_point1_type rp1_type;
-                typedef typename IntersectionInfo::robust_point2_type rp2_type;
-
                 method_type replaced_method = method_touch_interior;
 
                 // The code below should avoid using a side_calculator.
@@ -732,20 +729,9 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
-                    // TODO: wrong! q should never be substituted for p.
-                    // In the end point there is no point "k", that should be fixed in another way
-                    ov::side_calculator_for_endpoint
-                        <
-                            typename IntersectionInfo::cs_tag,
-                            rp1_type, rp2_type,
-                            typename IntersectionInfo::side_strategy_type,
-                            rp2_type
-                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
-                                    inters.rqi(), inters.rqj(), inters.rqk(),
-                                    inters.get_side_strategy());
-
-                    std::pair<operation_type, operation_type>
-                        operations = get_info_e::operations_of_equal(side_calc);
+                    std::pair<operation_type, operation_type> operations
+                        = get_info_e::template operations_of_equal<0, 1>(
+                            range_p, range_q, inters.get_side_strategy());
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -754,19 +740,9 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    ov::side_calculator_for_endpoint
-                        <
-                            typename IntersectionInfo::cs_tag,
-                            rp1_type, rp2_type,
-                            typename IntersectionInfo::side_strategy_type,
-                            rp2_type, rp1_type, rp1_type,
-                            rp2_type, rp1_type, rp2_type
-                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(), // TODO: wrong! q should not be substituted for p
-                                    inters.rqi(), inters.rpi(), inters.rqj(), // TODO: wrong! p should not be substituted for q
-                                    inters.get_side_strategy());
-
-                    std::pair<operation_type, operation_type>
-                        operations = get_info_e::operations_of_equal(side_calc);
+                    std::pair<operation_type, operation_type> operations
+                        = get_info_e::template operations_of_equal<0, 1>(
+                            range_p, range_q, inters.get_side_strategy());
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -807,19 +783,9 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                ov::side_calculator_for_endpoint
-                    <
-                        typename IntersectionInfo::cs_tag,
-                        typename IntersectionInfo::robust_point1_type,
-                        typename IntersectionInfo::robust_point2_type,
-                        typename IntersectionInfo::side_strategy_type,
-                        typename IntersectionInfo::robust_point2_type
-                    > side_calc(inters.rqi(), inters.rpj(), inters.rpi(), // TODO: wrong! q should not be substituted for p
-                                inters.rqi(), inters.rqj(), inters.rqk(),
-                                inters.get_side_strategy());
-
-                std::pair<operation_type, operation_type>
-                    operations = get_info_e::operations_of_equal(side_calc);
+                std::pair<operation_type, operation_type> operations
+                    = get_info_e::template operations_of_equal<1, 0>(
+                        range_p, range_q, inters.get_side_strategy());
 
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;
