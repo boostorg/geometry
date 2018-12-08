@@ -413,12 +413,14 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    int const side_pk_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(1));
-                    int const side_pk_p = sides.apply(range2.at(0), range1.at(0), range1.at(1));
-                    int const side_qk_p = sides.apply(range2.at(0), range1.at(0), range2.at(2));
+                    // TODO: find out why side is used with respect to non-segments
+                    // (that is: range2.at(0) to range1.at(0), denoted as x)
+                    int const side_pj_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(1));
+                    int const side_pj_x = sides.apply(range2.at(0), range1.at(0), range1.at(1));
+                    int const side_qk_x = sides.apply(range2.at(0), range1.at(0), range2.at(2));
 
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
+                        operations = operations_of_equal(side_pj_q2, side_pj_x, side_qk_x);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -465,12 +467,12 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    int const side_pk_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(0));
-                    int const side_pk_p = sides.apply(range2.at(0), range1.at(1), range1.at(0));
-                    int const side_qk_p = sides.apply(range2.at(0), range1.at(1), range2.at(2));
+                    int const side_pi_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(0));
+                    int const side_pi_x = sides.apply(range2.at(0), range1.at(1), range1.at(0));
+                    int const side_qk_x = sides.apply(range2.at(0), range1.at(1), range2.at(2));
 
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
+                        operations = operations_of_equal(side_pi_q2, side_pi_x, side_qk_x);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?

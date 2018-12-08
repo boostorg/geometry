@@ -732,12 +732,12 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
-                    int const side_pk_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(1));
-                    int const side_pk_p = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
-                    int const side_qk_p = sides.apply(range_q.at(0), range_p.at(0), range_q.at(2));
+                    int const side_pj_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(1));
+                    int const side_pj_x = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
+                    int const side_qk_x = sides.apply(range_q.at(0), range_p.at(0), range_q.at(2));
 
                     std::pair<operation_type, operation_type> operations
-                        = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
+                        = get_info_e::operations_of_equal(side_pj_q2, side_pj_x, side_qk_x);
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -746,12 +746,12 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    int const side_pk_q2 = sides.apply(range_p.at(0), range_q.at(1), range_p.at(1));
-                    int const side_pk_p = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
-                    int const side_qk_p = sides.apply(range_q.at(0), range_p.at(0), range_q.at(1));
+                    int const side_pj_y = sides.apply(range_p.at(0), range_q.at(1), range_p.at(1));
+                    int const side_pj_x = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
+                    int const side_qj_x = sides.apply(range_q.at(0), range_p.at(0), range_q.at(1));
 
                     std::pair<operation_type, operation_type> operations
-                        = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
+                        = get_info_e::operations_of_equal(side_pj_y, side_pj_x, side_qj_x);
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -792,12 +792,12 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                int const side_pk_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(0));
-                int const side_pk_p = sides.apply(range_q.at(0), range_p.at(1), range_p.at(0));
-                int const side_qk_p = sides.apply(range_q.at(0), range_p.at(1), range_q.at(2));
+                int const side_pi_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(0));
+                int const side_pi_x = sides.apply(range_q.at(0), range_p.at(1), range_p.at(0));
+                int const side_qk_x = sides.apply(range_q.at(0), range_p.at(1), range_q.at(2));
 
                 std::pair<operation_type, operation_type> operations
-                    = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
+                    = get_info_e::operations_of_equal(side_pi_q2, side_pi_x, side_qk_x);
 
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;
