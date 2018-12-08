@@ -143,11 +143,14 @@ struct touch_interior : public base_turn_handler
     template
     <
         unsigned int Index,
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy
     >
-    static inline void apply(
+    static inline void apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -165,8 +168,9 @@ struct touch_interior : public base_turn_handler
         static unsigned int const index_p = Index;
         static unsigned int const index_q = 1 - Index;
 
+        bool const has_k = ! range_q.is_last_segment();
         int const side_qi_p = dir_info.sides.template get<index_q, 0>();
-        int const side_qk_p = side.qk_wrt_p1();
+        int const side_qk_p = has_k ? side.qk_wrt_p1() : 0;
 
         if (side_qi_p == -side_qk_p)
         {
@@ -179,7 +183,7 @@ struct touch_interior : public base_turn_handler
             return;
         }
 
-        int const side_qk_q = side.qk_wrt_q1();
+        int const side_qk_q = has_k ? side.qk_wrt_q1() : 0;
 
         if (side_qi_p == -1 && side_qk_p == -1 && side_qk_q == 1)
         {
@@ -262,28 +266,35 @@ struct touch : public base_turn_handler
 
     template
     <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy
     >
-    static inline void apply(TurnInfo& ti,
+    static inline void apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
+                TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
         assign_point(ti, method_touch, intersection_info, 0);
 
+        bool const has_pk = ! range_p.is_last_segment();
+        bool const has_qk = ! range_q.is_last_segment();
+
         int const side_qi_p1 = dir_info.sides.template get<1, 0>();
-        int const side_qk_p1 = side.qk_wrt_p1();
+        int const side_qk_p1 = has_qk ? side.qk_wrt_p1() : 0;
 
 
         // If Qi and Qk are both at same side of Pi-Pj,
         // or collinear (so: not opposite sides)
         if (! opposite(side_qi_p1, side_qk_p1))
         {
-            int const side_pk_q2 = side.pk_wrt_q2();
-            int const side_pk_p  = side.pk_wrt_p1();
-            int const side_qk_q  = side.qk_wrt_q1();
+            int const side_pk_q2 = has_pk && has_qk ? side.pk_wrt_q2() : 0;
+            int const side_pk_p  = has_pk ? side.pk_wrt_p1() : 0;
+            int const side_qk_q  = has_qk ? side.qk_wrt_q1() : 0;
 
             bool const q_turns_left = side_qk_q == 1;
             bool const block_q = side_qk_p1 == 0
@@ -306,7 +317,7 @@ struct touch : public base_turn_handler
                     return;
                 }
 
-                int const side_pk_q1 = side.pk_wrt_q1();
+                int const side_pk_q1 = has_pk && has_qk ? side.pk_wrt_q1() : 0;
 
 
                 // Collinear opposite case -> block P
@@ -383,13 +394,13 @@ struct touch : public base_turn_handler
         else
         {
             // From left to right or from right to left
-            int const side_pk_p = side.pk_wrt_p1();
+            int const side_pk_p = has_pk ? side.pk_wrt_p1() : 0;
             bool const right_to_left = side_qk_p1 == 1;
 
             // If p turns into direction of qi (1,2)
             if (side_pk_p == side_qi_p1)
             {
-                int const side_pk_q1 = side.pk_wrt_q1();
+                int const side_pk_q1 = has_pk ? side.pk_wrt_q1() : 0;
 
                 // Collinear opposite case -> block P
                 if (side_pk_q1 == 0)
@@ -411,7 +422,7 @@ struct touch : public base_turn_handler
             // If p turns into direction of qk (4,5)
             if (side_pk_p == side_qk_p1)
             {
-                int const side_pk_q2 = side.pk_wrt_q2();
+                int const side_pk_q2 = has_pk ? side.pk_wrt_q2() : 0;
 
                 // Collinear case -> lines join, continue
                 if (side_pk_q2 == 0)
@@ -430,21 +441,6 @@ struct touch : public base_turn_handler
             ui_else_iu(! right_to_left, ti);
             return;
         }
-
-#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS
-        // Normally a robustness issue.
-        // TODO: more research if still occuring
-        std::cout << "Not yet handled" << std::endl
-            << "pi " << get<0>(pi) << " , " << get<1>(pi)
-            << " pj " << get<0>(pj) << " , " << get<1>(pj)
-            << " pk " << get<0>(pk) << " , " << get<1>(pk)
-            << std::endl
-            << "qi " << get<0>(qi) << " , " << get<1>(qi)
-            << " qj " << get<0>(qj) << " , " << get<1>(qj)
-            << " qk " << get<0>(qk) << " , " << get<1>(qk)
-            << std::endl;
-#endif
-
     }
 };
 
@@ -457,11 +453,15 @@ struct equal : public base_turn_handler
 {
     template
     <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy
     >
-    static inline void apply(TurnInfo& ti,
+    static inline void apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
+                TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const&  ,
                 SidePolicy const& side)
@@ -469,10 +469,12 @@ struct equal : public base_turn_handler
         // Copy the intersection point in TO direction
         assign_point(ti, method_equal, info, non_opposite_to_index(info));
 
-        int const side_pk_q2 = side.pk_wrt_q2();
-        int const side_pk_p = side.pk_wrt_p1();
-        int const side_qk_p = side.qk_wrt_p1();
+        bool const has_pk = ! range_p.is_last_segment();
+        bool const has_qk = ! range_q.is_last_segment();
 
+        int const side_pk_q2 = has_pk && has_qk ? side.pk_wrt_q2() : 0;
+        int const side_pk_p = has_pk ? side.pk_wrt_p1() : 0;
+        int const side_qk_p = has_qk ? side.qk_wrt_p1() : 0;
 
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear
@@ -959,13 +961,13 @@ struct get_turn_info
                 // If Q (1) arrives (1)
                 if ( inters.d_info().arrival[1] == 1 )
                 {
-                    policy::template apply<0>(tp, inters.i_info(), inters.d_info(),
+                    policy::template apply<0>(range_p, range_q, tp, inters.i_info(), inters.d_info(),
                                 inters.sides());
                 }
                 else
                 {
                     // Swap p/q
-                    policy::template apply<1>(tp, inters.i_info(), inters.d_info(),
+                    policy::template apply<1>(range_q, range_p, tp, inters.i_info(), inters.d_info(),
                                 inters.get_swapped_sides());
                 }
                 *out++ = tp;
@@ -980,7 +982,7 @@ struct get_turn_info
             case 't' :
             {
                 // Both touch (both arrive there)
-                touch<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides());
                 *out++ = tp;
             }
             break;
@@ -990,7 +992,7 @@ struct get_turn_info
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
-                    equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                    equal<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides());
                     *out++ = tp;
                 }
                 else
@@ -1012,15 +1014,16 @@ struct get_turn_info
                     if ( inters.d_info().arrival[0] == 0 )
                     {
                         // Collinear, but similar thus handled as equal
-                        equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                        equal<TurnInfo>::apply(range_p, range_q, tp,
+                                inters.i_info(), inters.d_info(), inters.sides());
 
                         // override assigned method
                         tp.method = method_collinear;
                     }
                     else
                     {
-                        collinear<TurnInfo>::apply(range_p, range_q,
-                                tp, inters.i_info(), inters.d_info(), inters.sides());
+                        collinear<TurnInfo>::apply(range_p, range_q, tp,
+                                inters.i_info(), inters.d_info(), inters.sides());
                     }
 
                     *out++ = tp;

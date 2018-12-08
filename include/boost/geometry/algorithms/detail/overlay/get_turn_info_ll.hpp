@@ -98,13 +98,15 @@ struct get_turn_info_linear_linear
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1)
                     {
-                        policy::template apply<0>(tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<0>(range_p, range_q, tp,
+                                                  inters.i_info(), inters.d_info(),
                                                   inters.sides());
                     }
                     else
                     {
                         // Swap p/q
-                        policy::template apply<1>(tp, inters.i_info(), inters.d_info(),
+                        policy::template apply<1>(range_q, range_p, tp,
+                                                  inters.i_info(), inters.d_info(),
                                                   inters.get_swapped_sides());
                     }
                     
@@ -145,7 +147,8 @@ struct get_turn_info_linear_linear
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                    touch<TurnInfo>::apply(range_p, range_q, tp,
+                                           inters.i_info(), inters.d_info(), inters.sides());
 
                     // workarounds for touch<> not taking spikes into account starts here
                     // those was discovered empirically
@@ -280,7 +283,8 @@ struct get_turn_info_linear_linear
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                        equal<TurnInfo>::apply(range_p, range_q, tp,
+                            inters.i_info(), inters.d_info(), inters.sides());
 
                         operation_type spike_op
                             = ( tp.operations[0].operation != operation_continue
@@ -337,7 +341,8 @@ struct get_turn_info_linear_linear
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(tp, inters.i_info(), inters.d_info(), inters.sides());
+                            equal<TurnInfo>::apply(range_p, range_q, tp,
+                                inters.i_info(), inters.d_info(), inters.sides());
 
                             method_replace = method_touch;
                             if ( tp.operations[0].operation != operation_continue
