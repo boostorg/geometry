@@ -428,8 +428,10 @@ public:
                 return false;
             }
 
-            int const qk_p1 = base::sides().qk_wrt_p1();
-            int const qk_p2 = base::sides().qk_wrt_p2();
+            // TODO: why is q used to determine spike property in p?
+            bool const has_qk = base::m_range_q.size() != 2u;
+            int const qk_p1 = has_qk ? base::sides().qk_wrt_p1() : 0;
+            int const qk_p2 = has_qk ? base::sides().qk_wrt_p2() : 0;
 
             if (qk_p1 == -qk_p2)
             {
@@ -464,8 +466,10 @@ public:
                 return false;
             }
 
-            int const pk_q1 = base::sides().pk_wrt_q1();
-            int const pk_q2 = base::sides().pk_wrt_q2();
+            // TODO: why is p used to determine spike property in q?
+            bool const has_pk = base::m_range_p.size() != 2u;
+            int const pk_q1 = has_pk ? base::sides().pk_wrt_q1() : 0;
+            int const pk_q2 = has_pk ? base::sides().pk_wrt_q2() : 0;
                 
             if (pk_q1 == -pk_q2)
             {

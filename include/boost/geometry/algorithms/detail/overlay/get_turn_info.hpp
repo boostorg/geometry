@@ -601,8 +601,10 @@ struct collinear : public base_turn_handler
         // Should not be 0, this is checked before
         BOOST_GEOMETRY_ASSERT(arrival != 0);
 
-        int const side_p = side.pk_wrt_p1();
-        int const side_q = side.qk_wrt_q1();
+        bool const has_pk = range_p.size() != 2u;
+        bool const has_qk = range_q.size() != 2u;
+        int const side_p = has_pk ? side.pk_wrt_p1() : 0;
+        int const side_q = has_qk ? side.qk_wrt_q1() : 0;
 
         // If p arrives, use p, else use q
         int const side_p_or_q = arrival == 1
@@ -629,11 +631,11 @@ struct collinear : public base_turn_handler
         // Calculate remaining distance. If it continues collinearly it is
         // measured until the end of the next segment
         ti.operations[0].remaining_distance
-                = side_p == 0
+                = side_p == 0 && has_pk
                 ? distance_measure(ti.point, range_p.at(2))
                 : distance_measure(ti.point, range_p.at(1));
         ti.operations[1].remaining_distance
-                = side_q == 0
+                = side_q == 0 && has_qk
                 ? distance_measure(ti.point, range_q.at(2))
                 : distance_measure(ti.point, range_q.at(1));
     }
