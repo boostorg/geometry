@@ -43,7 +43,8 @@ struct sub_range_from_points
         m_points[2] = k;
     }
 
-    static inline bool is_first() { return false; }
+    static inline bool is_first_segment() { return false; }
+    static inline bool is_last_segment() { return false; }
 
     static inline std::size_t size() { return 3; }
 
