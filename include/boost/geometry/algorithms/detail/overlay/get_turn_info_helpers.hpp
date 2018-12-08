@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 
@@ -103,6 +104,7 @@ struct robust_subrange_adapter
     //! Get precalculated point
     Point const& at(std::size_t index) const
     {
+        BOOST_GEOMETRY_ASSERT(index < size());
         switch (index)
         {
             case 0 : return m_robust_point_i;

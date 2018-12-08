@@ -17,6 +17,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
@@ -57,6 +58,7 @@ struct unique_sub_range_from_piece
 
     inline point_type const& at(std::size_t index) const
     {
+        BOOST_GEOMETRY_ASSERT(index < size());
         switch (index)
         {
             case 0 : return *m_iterator_at_i;

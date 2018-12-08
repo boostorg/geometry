@@ -27,6 +27,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -140,6 +141,7 @@ struct unique_sub_range_from_section
 
     inline Point const& at(std::size_t index) const
     {
+        BOOST_GEOMETRY_ASSERT(index < size());
         switch (index)
         {
             case 0 : return m_previous_point;
@@ -627,6 +629,7 @@ struct get_turns_cs
 
         inline box_point_type const& at(std::size_t index) const
         {
+            BOOST_GEOMETRY_ASSERT(index < size());
             return m_box[(m_index + index) % 4];
         }
 
@@ -658,6 +661,7 @@ struct get_turns_cs
 
         inline point_type const& at(std::size_t index) const
         {
+            BOOST_GEOMETRY_ASSERT(index < size());
             switch (index)
             {
                 case 0 : return m_pi;
