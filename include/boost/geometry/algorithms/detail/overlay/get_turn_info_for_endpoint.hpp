@@ -582,27 +582,29 @@ struct get_turn_info_for_endpoint
         BOOST_STATIC_ASSERT(Index2 <= 1);
         BOOST_STATIC_ASSERT(Index1 + Index2 == 1);
 
-        // This code assumes that range 2 (aka "q") has at least 3 points
+        // This code assumes that range 2 has at least 3 points
         BOOST_GEOMETRY_ASSERT(range2.size() >= 3);
 
-        int const side_pk_q2 = side.apply(range2.at(1), range2.at(2), range1.at(Index2));
-        int const side_pk_p = side.apply(range2.at(0), range1.at(Index1), range1.at(Index2));
-        int const side_qk_p = side.apply(range2.at(0), range1.at(Index1), range2.at(2));
+        // Calculate three relevant sides (to be documented, originally they were named
+        // but because ranges and indices are swapped, this was confusing)
+        int const side_1 = side.apply(range2.at(1), range2.at(2), range1.at(Index2));
+        int const side_2 = side.apply(range2.at(0), range1.at(Index1), range1.at(Index2));
+        int const side_3 = side.apply(range2.at(0), range1.at(Index1), range2.at(2));
 
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear
         // The second condition checks if they do not continue
         // oppositely
-        if ( side_pk_q2 == 0 && side_pk_p == side_qk_p )
+        if ( side_1 == 0 && side_2 == side_3 )
         {
             return std::make_pair(operation_continue, operation_continue);
         }
 
         // If they turn to same side (not opposite sides)
-        if ( ! base_turn_handler::opposite(side_pk_p, side_qk_p) )
+        if ( ! base_turn_handler::opposite(side_2, side_3) )
         {
             // If pk is left of q2 or collinear: p: union, q: intersection
-            if ( side_pk_q2 != -1 )
+            if ( side_1 != -1 )
             {
                 return std::make_pair(operation_union, operation_intersection);
             }
@@ -615,7 +617,7 @@ struct get_turn_info_for_endpoint
         {
             // They turn opposite sides. If p turns left (or collinear),
            // p: union, q: intersection
-            if ( side_pk_p != -1 )
+            if ( side_2 != -1 )
             {
                 return std::make_pair(operation_union, operation_intersection);
             }
