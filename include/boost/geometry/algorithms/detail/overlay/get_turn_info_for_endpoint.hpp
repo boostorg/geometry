@@ -390,6 +390,9 @@ struct get_turn_info_for_endpoint
     {
         boost::ignore_unused(ip_index, tp_model);
 
+        typename IntersectionInfo::side_strategy_type const& sides
+                = inters.get_side_strategy();
+
         if ( !first2 && !last2 )
         {
             if ( first1 )
@@ -410,8 +413,12 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
+                    int const side_pk_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(1));
+                    int const side_pk_p = sides.apply(range2.at(0), range1.at(0), range1.at(1));
+                    int const side_qk_p = sides.apply(range2.at(0), range1.at(0), range2.at(2));
+
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal<0, 1>(range1, range2, inters.get_side_strategy());
+                        operations = operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -458,8 +465,12 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
+                    int const side_pk_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(0));
+                    int const side_pk_p = sides.apply(range2.at(0), range1.at(1), range1.at(0));
+                    int const side_qk_p = sides.apply(range2.at(0), range1.at(1), range2.at(2));
+
                     std::pair<operation_type, operation_type>
-                        operations = operations_of_equal<1, 0>(range1, range2, inters.get_side_strategy());
+                        operations = operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -565,32 +576,9 @@ struct get_turn_info_for_endpoint
         *out++ = tp;
     }
 
-    template
-    <
-        std::size_t Index1,
-        std::size_t Index2,
-        typename UniqueRange1,
-        typename UniqueRange2,
-        typename SideStrategy
-    >
     static inline std::pair<operation_type, operation_type>
-    operations_of_equal(UniqueRange1 const& range1,
-                        UniqueRange2 const& range2,
-                        SideStrategy const& side)
+    operations_of_equal(int side_1, int side_2, int side_3)
     {
-        BOOST_STATIC_ASSERT(Index1 <= 1);
-        BOOST_STATIC_ASSERT(Index2 <= 1);
-        BOOST_STATIC_ASSERT(Index1 + Index2 == 1);
-
-        // This code assumes that range 2 has at least 3 points
-        BOOST_GEOMETRY_ASSERT(range2.size() >= 3);
-
-        // Calculate three relevant sides (to be documented, originally they were named
-        // but because ranges and indices are swapped, this was confusing)
-        int const side_1 = side.apply(range2.at(1), range2.at(2), range1.at(Index2));
-        int const side_2 = side.apply(range2.at(0), range1.at(Index1), range1.at(Index2));
-        int const side_3 = side.apply(range2.at(0), range1.at(Index1), range2.at(2));
-
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear
         // The second condition checks if they do not continue

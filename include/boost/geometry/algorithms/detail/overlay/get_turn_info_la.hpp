@@ -688,6 +688,9 @@ struct get_turn_info_linear_areal
             return false;
         }
 
+        typename IntersectionInfo::side_strategy_type const& sides
+                = inters.get_side_strategy();
+
         linear_intersections intersections(range_p.at(0),
                                            range_q.at(0),
                                            inters.result(),
@@ -729,9 +732,12 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
+                    int const side_pk_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(1));
+                    int const side_pk_p = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
+                    int const side_qk_p = sides.apply(range_q.at(0), range_p.at(0), range_q.at(2));
+
                     std::pair<operation_type, operation_type> operations
-                        = get_info_e::template operations_of_equal<0, 1>(
-                            range_p, range_q, inters.get_side_strategy());
+                        = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -740,9 +746,12 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
+                    int const side_pk_q2 = sides.apply(range_p.at(0), range_q.at(1), range_p.at(1));
+                    int const side_pk_p = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
+                    int const side_qk_p = sides.apply(range_q.at(0), range_p.at(0), range_q.at(1));
+
                     std::pair<operation_type, operation_type> operations
-                        = get_info_e::template operations_of_equal<0, 1>(
-                            range_p, range_q, inters.get_side_strategy());
+                        = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
 
                     tp.operations[0].operation = operations.first;
                     tp.operations[1].operation = operations.second;
@@ -783,9 +792,12 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
+                int const side_pk_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(0));
+                int const side_pk_p = sides.apply(range_q.at(0), range_p.at(1), range_p.at(0));
+                int const side_qk_p = sides.apply(range_q.at(0), range_p.at(1), range_q.at(2));
+
                 std::pair<operation_type, operation_type> operations
-                    = get_info_e::template operations_of_equal<1, 0>(
-                        range_p, range_q, inters.get_side_strategy());
+                    = get_info_e::operations_of_equal(side_pk_q2, side_pk_p, side_qk_p);
 
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;
