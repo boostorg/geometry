@@ -44,12 +44,16 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename Strategy, typename RobustPolicy, typename OutputIterator>
-    static inline OutputIterator apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& /*pk*/,
-                Point2 const& qi, Point2 const& qj, Point2 const& /*qk*/,
-                bool /*is_p_first*/, bool /*is_p_last*/,
-                bool /*is_q_first*/, bool /*is_q_last*/,
+    template
+    <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Strategy,
+        typename RobustPolicy,
+        typename OutputIterator
+    >
+    static inline OutputIterator apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
                 TurnInfo const& ,
                 Strategy const& strategy,
                 RobustPolicy const& robust_policy,
@@ -71,6 +75,10 @@ struct get_turn_without_info
 
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
+        Point1 const& pi = range_p.at(0);
+        Point1 const& pj = range_p.at(1);
+        Point2 const& qi = range_q.at(0);
+        Point2 const& qj = range_q.at(1);
         segment_type1 p1(pi, pj);
         segment_type2 q1(qi, qj);
 
