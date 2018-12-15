@@ -725,8 +725,6 @@ struct get_turn_info_linear_areal
             }
             else
             {
-                method_type replaced_method = method_touch_interior;
-
                 // The code below should avoid using a side_calculator.
                 // Mainly because it is constructed with the wrong points.
                 // It should never be constructed other than pi,pj,pk / qi,qj,qk
@@ -735,32 +733,39 @@ struct get_turn_info_linear_areal
                 // (and that method can assign the operations, no need to return
                 //  a pair, that is not done anywhere in all turns/operations)
 
+                // pi is the intersection point at qj or in the middle of q1
+                // so consider segments
+                // 1. pi at qj: qi-qj-pj and qi-qj-qk
+                //    x: qi-qj, y: qj-qk, qz: qk
+                // 2. pi in the middle of q1: qi-pi-pj and qi-pi-qj
+                //    x: qi-pi, y: pi-qj, qz: qj
+                //    qi-pi, side the same as WRT q1
+                //    pi-qj, side the same as WRT q1
+                //    qj WRT q1 is 0
+                method_type replaced_method = method_none;
+                int side_pj_y = 0, side_pj_x = 0, side_qz_x = 0;
+                // 1. ip0 or pi at qj
                 if ( ip0.is_qj )
                 {
-                    int const side_pj_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(1));
-                    int const side_pj_x = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
-                    int const side_qk_x = sides.apply(range_q.at(0), range_p.at(0), range_q.at(2));
-
-                    std::pair<operation_type, operation_type> operations
-                        = get_info_e::operations_of_equal(side_pj_q2, side_pj_x, side_qk_x);
-
-                    tp.operations[0].operation = operations.first;
-                    tp.operations[1].operation = operations.second;
-
                     replaced_method = method_touch;
+                    side_pj_y = sides.apply(range_q.at(1), range_q.at(2), range_p.at(1)); // pj wrt q2
+                    side_pj_x = sides.apply(range_q.at(0), range_q.at(1), range_p.at(1)); // pj wrt q1
+                    side_qz_x = sides.apply(range_q.at(0), range_q.at(1), range_q.at(2)); // qk wrt q1
                 }
+                // 2. ip0 or pi in the middle of q1
                 else
                 {
-                    int const side_pj_y = sides.apply(range_p.at(0), range_q.at(1), range_p.at(1));
-                    int const side_pj_x = sides.apply(range_q.at(0), range_p.at(0), range_p.at(1));
-                    int const side_qj_x = sides.apply(range_q.at(0), range_p.at(0), range_q.at(1));
-
-                    std::pair<operation_type, operation_type> operations
-                        = get_info_e::operations_of_equal(side_pj_y, side_pj_x, side_qj_x);
-
-                    tp.operations[0].operation = operations.first;
-                    tp.operations[1].operation = operations.second;
+                    replaced_method = method_touch_interior;
+                    side_pj_y = sides.apply(range_q.at(0), range_q.at(1), range_p.at(1)); // pj wrt q1
+                    side_pj_x = side_pj_y; // pj wrt q1
+                    side_qz_x = 0; // qj wrt q1
                 }
+
+                std::pair<operation_type, operation_type> operations
+                    = get_info_e::operations_of_equal(side_pj_y, side_pj_x, side_qz_x);
+
+                tp.operations[0].operation = operations.first;
+                tp.operations[1].operation = operations.second;
 
                 turn_transformer_ec<true> transformer(replaced_method);
                 transformer(tp);
@@ -797,12 +802,33 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                int const side_pi_q2 = sides.apply(range_q.at(1), range_q.at(2), range_p.at(0));
-                int const side_pi_x = sides.apply(range_q.at(0), range_p.at(1), range_p.at(0));
-                int const side_qk_x = sides.apply(range_q.at(0), range_p.at(1), range_q.at(2));
+                // pj is the intersection point at qj or in the middle of q1
+                // so consider segments
+                // 1. pj at qj: qi-qj-pi and qi-qj-qk
+                //    x: qi-qj, y: qj-qk, qz: qk
+                // 2. pj in the middle of q1: qi-pj-pi and qi-pj-qj
+                //    x: qi-pj, y: pj-qj, qz: qj
+                //    qi-pj, the side is the same as WRT q1
+                //    pj-qj, the side is the same as WRT q1
+                //    side of qj WRT q1 is 0
+                int side_pi_y = 0, side_pi_x = 0, side_qz_x = 0;
+                // 1. ip0 or pj at qj
+                if ( ip0.is_qj )
+                {
+                    side_pi_y = sides.apply(range_q.at(1), range_q.at(2), range_p.at(0)); // pi wrt q2
+                    side_pi_x = sides.apply(range_q.at(0), range_q.at(1), range_p.at(0)); // pi wrt q1
+                    side_qz_x = sides.apply(range_q.at(0), range_q.at(1), range_q.at(2)); // qk wrt q1   
+                }
+                // 2. ip0 or pj in the middle of q1
+                else
+                {
+                    side_pi_y = sides.apply(range_q.at(0), range_q.at(1), range_p.at(0)); // pi wrt q1
+                    side_pi_x = side_pi_y; // pi wrt q1
+                    side_qz_x = 0; // qj wrt q1
+                }
 
                 std::pair<operation_type, operation_type> operations
-                    = get_info_e::operations_of_equal(side_pi_q2, side_pi_x, side_qk_x);
+                    = get_info_e::operations_of_equal(side_pi_y, side_pi_x, side_qz_x);
 
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;

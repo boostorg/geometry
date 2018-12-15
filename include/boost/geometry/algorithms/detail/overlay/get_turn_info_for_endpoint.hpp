@@ -225,6 +225,8 @@ private:
 template <bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
+    typedef std::pair<operation_type, operation_type> operations_pair;
+
     BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
 
     template<typename UniqueSubRange1,
@@ -413,14 +415,11 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    // TODO: find out why side is used with respect to non-segments
-                    // (that is: range2.at(0) to range1.at(0), denoted as x)
                     int const side_pj_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(1));
-                    int const side_pj_x = sides.apply(range2.at(0), range1.at(0), range1.at(1));
-                    int const side_qk_x = sides.apply(range2.at(0), range1.at(0), range2.at(2));
+                    int const side_pj_q1 = sides.apply(range2.at(0), range2.at(1), range1.at(1));
+                    int const side_qk_q1 = sides.apply(range2.at(0), range2.at(1), range2.at(2));
 
-                    std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_pj_q2, side_pj_x, side_qk_x);
+                    operations_pair operations = operations_of_equal(side_pj_q2, side_pj_q1, side_qk_q1);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -468,11 +467,10 @@ struct get_turn_info_for_endpoint
                 else if ( ip_j2 )
                 {
                     int const side_pi_q2 = sides.apply(range2.at(1), range2.at(2), range1.at(0));
-                    int const side_pi_x = sides.apply(range2.at(0), range1.at(1), range1.at(0));
-                    int const side_qk_x = sides.apply(range2.at(0), range1.at(1), range2.at(2));
+                    int const side_pi_q1 = sides.apply(range2.at(0), range2.at(1), range1.at(0));
+                    int const side_qk_q1 = sides.apply(range2.at(0), range2.at(1), range2.at(2));
 
-                    std::pair<operation_type, operation_type>
-                        operations = operations_of_equal(side_pi_q2, side_pi_x, side_qk_x);
+                    operations_pair operations = operations_of_equal(side_pi_q2, side_pi_q1, side_qk_q1);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
@@ -578,23 +576,24 @@ struct get_turn_info_for_endpoint
         *out++ = tp;
     }
 
-    static inline std::pair<operation_type, operation_type>
-    operations_of_equal(int side_1, int side_2, int side_3)
+    static inline operations_pair operations_of_equal(int side_px_q2,
+                                                      int side_px_q1,
+                                                      int side_qk_q1)
     {
-        // If pk is collinear with qj-qk, they continue collinearly.
-        // This can be on either side of p1 (== q1), or collinear
+        // If px (pi or pj) is collinear with qj-qk (q2), they continue collinearly.
+        // This can be on either side of q1, or collinear
         // The second condition checks if they do not continue
         // oppositely
-        if ( side_1 == 0 && side_2 == side_3 )
+        if (side_px_q2 == 0 && side_px_q1 == side_qk_q1)
         {
             return std::make_pair(operation_continue, operation_continue);
         }
 
         // If they turn to same side (not opposite sides)
-        if ( ! base_turn_handler::opposite(side_2, side_3) )
+        if ( ! base_turn_handler::opposite(side_px_q1, side_qk_q1) )
         {
-            // If pk is left of q2 or collinear: p: union, q: intersection
-            if ( side_1 != -1 )
+            // If px is left of q2 or collinear: p: union, q: intersection
+            if (side_px_q2 != -1 )
             {
                 return std::make_pair(operation_union, operation_intersection);
             }
@@ -607,7 +606,7 @@ struct get_turn_info_for_endpoint
         {
             // They turn opposite sides. If p turns left (or collinear),
            // p: union, q: intersection
-            if ( side_2 != -1 )
+            if (side_px_q1 != -1 )
             {
                 return std::make_pair(operation_union, operation_intersection);
             }
@@ -618,16 +617,15 @@ struct get_turn_info_for_endpoint
         }
    }
 
-    static inline bool operations_both(
-                            std::pair<operation_type, operation_type> const& operations,
-                            operation_type const op)
+    static inline bool operations_both(operations_pair const& operations,
+                                       operation_type const op)
     {
         return operations.first == op && operations.second == op;
     }
 
-    static inline bool operations_combination(
-                            std::pair<operation_type, operation_type> const& operations,
-                            operation_type const op1, operation_type const op2)
+    static inline bool operations_combination(operations_pair const& operations,
+                                              operation_type const op1,
+                                              operation_type const op2)
     {
         return ( operations.first == op1 && operations.second == op2 )
             || ( operations.first == op2 && operations.second == op1 );
