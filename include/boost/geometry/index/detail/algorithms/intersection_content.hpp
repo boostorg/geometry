@@ -24,7 +24,12 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template <typename Box>
 inline typename default_content_result<Box>::type intersection_content(Box const& box1, Box const& box2)
 {
-    bool const intersects = ! geometry::detail::disjoint::box_box<Box, Box>::apply(box1, box2);
+    typedef strategy::disjoint::services::default_strategy
+        <
+            Box, Box
+        > strategy_type;
+
+    bool const intersects = ! geometry::detail::disjoint::disjoint_box_box(box1, box2, strategy_type());
 
     if ( intersects )
     {

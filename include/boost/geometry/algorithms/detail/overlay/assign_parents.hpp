@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -135,12 +135,14 @@ struct ring_info_helper_get_box
     }
 };
 
+template <typename DisjointBoxBoxStrategy>
 struct ring_info_helper_ovelaps_box
 {
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
     {
-        return ! geometry::detail::disjoint::disjoint_box_box(box, item.envelope);
+        return ! geometry::detail::disjoint::disjoint_box_box(
+                    box, item.envelope, DisjointBoxBoxStrategy());
     }
 };
 
@@ -328,11 +330,16 @@ inline void assign_parents(Geometry1 const& geometry1,
                 Strategy
             > visitor(geometry1, geometry2, collection, ring_map, strategy, check_for_orientation);
 
+        typedef ring_info_helper_ovelaps_box
+            <
+                typename Strategy::disjoint_box_box_strategy_type
+            > overlaps_box_type;
+
         geometry::partition
             <
                 box_type
             >::apply(vector, visitor, ring_info_helper_get_box(),
-                     ring_info_helper_ovelaps_box());
+                     overlaps_box_type());
     }
 
     if (check_for_orientation)

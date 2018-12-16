@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -159,7 +159,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
-        typename SideStrategy,
+        typename Strategy,
         typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
@@ -167,13 +167,13 @@ struct action_selector<overlay_intersection, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type , Point const& point,
                 Operation const& operation,
-                SideStrategy const& ,
+                Strategy const& strategy,
                 RobustPolicy const& ,
                 OutputIterator& )
     {
         // On enter, append the intersection point and remember starting point
         // TODO: we don't check on spikes for linestrings (?). Consider this.
-        detail::overlay::append_no_duplicates(current_piece, point);
+        detail::overlay::append_no_duplicates(current_piece, point, strategy.get_equals_point_point_strategy());
         segment_id = operation.seg_id;
     }
 
@@ -184,7 +184,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
-        typename SideStrategy,
+        typename Strategy,
         typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
@@ -192,7 +192,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& ,
-                SideStrategy const& strategy,
+                Strategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
@@ -202,7 +202,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
             <
                 false, RemoveSpikes
             >::apply(linestring, segment_id, index, strategy, robust_policy, current_piece);
-        detail::overlay::append_no_duplicates(current_piece, point);
+        detail::overlay::append_no_duplicates(current_piece, point, strategy.get_equals_point_point_strategy());
         if (::boost::size(current_piece) > 1)
         {
             *out++ = current_piece;
@@ -260,7 +260,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
-        typename SideStrategy,
+        typename Strategy,
         typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
@@ -268,7 +268,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& operation,
-                SideStrategy const& strategy,
+                Strategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
@@ -283,7 +283,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         typename LineString,
         typename Point,
         typename Operation,
-        typename SideStrategy,
+        typename Strategy,
         typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
@@ -291,7 +291,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
                 Operation const& operation,
-                SideStrategy const& strategy,
+                Strategy const& strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {

@@ -38,10 +38,13 @@
 
 #include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
+#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
+#include <boost/geometry/strategies/spherical/expand_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
@@ -141,13 +144,45 @@ struct geographic_segments
         return strategy_type(m_spheroid);
     }
 
-    typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType>
+    typedef envelope::geographic<FormulaPolicy, Spheroid, CalculationType>
         envelope_strategy_type;
 
     inline envelope_strategy_type get_envelope_strategy() const
     {
         return envelope_strategy_type(m_spheroid);
     }
+
+    typedef expand::geographic_segment<FormulaPolicy, Spheroid, CalculationType>
+        expand_strategy_type;
+
+    inline expand_strategy_type get_expand_strategy() const
+    {
+        return expand_strategy_type(m_spheroid);
+    }
+
+    typedef within::spherical_point_point point_in_point_strategy_type;
+
+    static inline point_in_point_strategy_type get_point_in_point_strategy()
+    {
+        return point_in_point_strategy_type();
+    }
+
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
+    }
+
+    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
+
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -285,7 +320,6 @@ private:
         spheroid_type spheroid = formula::unit_spheroid<spheroid_type>(m_spheroid);
 
         // TODO: check only 2 first coordinates here?
-        using geometry::detail::equals::equals_point_point;
         bool a_is_point = equals_point_point(a1, a2);
         bool b_is_point = equals_point_point(b1, b2);
 
@@ -688,7 +722,6 @@ private:
         dist_b1_b2 = res_b1_b2.distance;
 
         // assign the IP if some endpoints overlap
-        using geometry::detail::equals::equals_point_point;
         if (equals_point_point(a1, b1))
         {
             lon = a1_lon;
@@ -888,7 +921,6 @@ private:
                                          P1 const& ai, P2 const& b1)
     {
         static CalcT const c0 = 0;
-        using geometry::detail::equals::equals_point_point;
         return is_near(dist) && (math::equals(dist, c0) || equals_point_point(ai, b1));
     }
 
@@ -946,6 +978,13 @@ private:
         ip_flag = ip_flag == ipi_at_p1 ? ipi_at_p2 :
                   ip_flag == ipi_at_p2 ? ipi_at_p1 :
                   ip_flag;
+    }
+
+    template <typename Point1, typename Point2>
+    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
+    {
+        return detail::equals::equals_point_point(point1, point2,
+                                                  point_in_point_strategy_type());
     }
 
 private:
