@@ -738,14 +738,6 @@ struct get_turn_info_linear_areal
             }
             else
             {
-                // The code below should avoid using a side_calculator.
-                // Mainly because it is constructed with the wrong points.
-                // It should never be constructed other than pi,pj,pk / qi,qj,qk
-                // That side calculator might not be necessary here.
-                // Relevant sides can be passed to the method operations_and_equal
-                // (and that method can assign the operations, no need to return
-                //  a pair, that is not done anywhere in all turns/operations)
-
                 // pi is the intersection point at qj or in the middle of q1
                 // so consider segments
                 // 1. pi at qj: qi-qj-pj and qi-qj-qk
