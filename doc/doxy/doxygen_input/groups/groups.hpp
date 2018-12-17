@@ -38,6 +38,7 @@
 \defgroup discrete_hausdorff_distance discrete_hausdorff_distance : calculate discrete hausdorff distance between two geometries
 \defgroup disjoint disjoint: detect if geometries are not spatially related
 \defgroup distance distance: calculate distance between two geometries
+\defgroup dsv: stream DSV (Delimiter-Separated Values)
 \defgroup enum enum: enumerations
 \defgroup envelope envelope: calculate envelope (minimum bounding rectangle) of a geometry
 \defgroup equals equals: detect if two geometries are spatially equal

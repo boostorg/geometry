@@ -826,8 +826,8 @@ inline bool pj_gridinfo_init_ctable2(std::string const& gridname,
     memcpy( &ct.ll,  header +  96, 40 );
 
     // do some minimal validation to ensure the structure isn't corrupt
-    if ( ct.lim.lam < 1 || ct.lim.lam > 100000 
-      || ct.lim.phi < 1 || ct.lim.phi > 100000 )
+    if ( (ct.lim.lam < 1) || (ct.lim.lam > 100000) 
+      || (ct.lim.phi < 1) || (ct.lim.phi > 100000) )
     {
         return false;
     }
@@ -878,8 +878,8 @@ inline bool pj_gridinfo_init_ctable(std::string const& gridname,
     memcpy( &ct.ll, header + 80, 40 );
 
     // do some minimal validation to ensure the structure isn't corrupt
-    if ( ct.lim.lam < 1 || ct.lim.lam > 100000 
-      || ct.lim.phi < 1 || ct.lim.phi > 100000 )
+    if ( (ct.lim.lam < 1) || (ct.lim.lam > 100000) 
+      || (ct.lim.phi < 1) || (ct.lim.phi > 100000) )
     {
         return false;
     }

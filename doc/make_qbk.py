@@ -192,6 +192,7 @@ for i in views:
 model_to_quickbook2("d2_1_1point__xy", "point_xy")
 
 group_to_quickbook("arithmetic")
+group_to_quickbook("dsv")
 group_to_quickbook("enum")
 group_to_quickbook("register")
 group_to_quickbook("svg")

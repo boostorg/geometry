@@ -139,18 +139,6 @@ protected:
         static bool const include_no_turn = false;
         static bool const include_degenerate = EnableDegenerateTurns;
         static bool const include_opposite = false;
-
-        template
-        <
-            typename Info,
-            typename Point1,
-            typename Point2,
-            typename IntersectionInfo
-        >
-        static inline void apply(Info& , Point1 const& , Point2 const& ,
-                                 IntersectionInfo const& )
-        {
-        }
     };
 
 

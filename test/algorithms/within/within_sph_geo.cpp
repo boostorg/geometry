@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,7 +19,7 @@ void test_point_box_by_side()
     // Test spherical boxes
     // See also http://www.gcmap.com/mapui?P=1E45N-19E45N-19E55N-1E55N-1E45N,10E55.1N,10E45.1N
     typedef bg::model::box<Point> box_t;
-    bg::strategy::within::point_in_box_by_side<Point, box_t> by_side;
+    bg::strategy::within::point_in_box_by_side<> by_side;
     box_t box;
     bg::read_wkt("POLYGON((1 45,19 55))", box);
     BOOST_CHECK_EQUAL(bg::within(Point(10, 55.1), box, by_side), true);

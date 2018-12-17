@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -345,6 +345,11 @@ inline void test_open_rings()
 
     // wrong orientation
     test::apply("r33", "POLYGON((0 0,0 1,1 1))", false);
+
+    // Normal case, plus spikes formed in two different ways
+    test::apply("r34", "POLYGON((0 0,4 0,4 4,0 4,0 0))", true);
+    test::apply("r35", "POLYGON((0 0,5 0,4 0,4 4,0 4,0 0))", false);
+    test::apply("r36", "POLYGON((0 0,4 0,4 -1,4 4,0 4,0 0))", false);
 }
 
 
@@ -868,6 +873,9 @@ inline void test_open_multipolygons()
     // one polygon inside another and boundaries touching
     test::apply("mpg09",
                 "MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((0 0,9 1,9 2)))",
+                false);
+    test::apply("mpg09_2",
+                "MULTIPOLYGON(((0 0,5 1,10 0,10 10,0 10)),((1 1,9 1,9 2)))",
                 false);
 
     // one polygon inside another and boundaries not touching

@@ -203,6 +203,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/geometries/adapted \
                          ../../../../boost/geometry/geometries/register \
                          ../../../../boost/geometry/iterators \
+                         ../../../../boost/geometry/io/dsv \
                          ../../../../boost/geometry/io/wkt \
                          ../../../../boost/geometry/io/svg \
                          ../../../../boost/geometry/policies \

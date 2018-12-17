@@ -288,6 +288,9 @@
 
 
 [section:io IO (input/output)]
+[section:dsv DSV (Delimiter-Separated Values)]
+[include generated/dsv.qbk]
+[endsect]
 [section:wkt WKT (Well-Known Text)]
 [include reference/io/wkt_format.qbk]
 [include generated/wkt.qbk]

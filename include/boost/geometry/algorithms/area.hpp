@@ -216,15 +216,20 @@ struct area<MultiGeometry, multi_polygon_tag> : detail::multi_sum
 namespace resolve_strategy
 {
 
+template <typename Strategy>
 struct area
 {
-    template <typename Geometry, typename Strategy>
+    template <typename Geometry>
     static inline typename area_result<Geometry, Strategy>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         return dispatch::area<Geometry>::apply(geometry, strategy);
     }
+};
 
+template <>
+struct area<default_strategy>
+{
     template <typename Geometry>
     static inline typename area_result<Geometry>::type
     apply(Geometry const& geometry, default_strategy)
@@ -252,7 +257,7 @@ struct area
     static inline typename area_result<Geometry, Strategy>::type
         apply(Geometry const& geometry, Strategy const& strategy)
     {
-        return resolve_strategy::area::apply(geometry, strategy);
+        return resolve_strategy::area<Strategy>::apply(geometry, strategy);
     }
 };
 
