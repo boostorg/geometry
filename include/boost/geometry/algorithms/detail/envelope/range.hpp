@@ -29,6 +29,7 @@
 
 #include <boost/geometry/algorithms/is_empty.hpp>
 
+#include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 #include <boost/geometry/algorithms/detail/expand/box.hpp>
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 #include <boost/geometry/algorithms/detail/expand/segment.hpp>
