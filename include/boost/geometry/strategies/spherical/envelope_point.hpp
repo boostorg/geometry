@@ -67,8 +67,8 @@ struct spherical_point
             <
                 2, dimension<Point>::value
             > per_corner;
-        per_corner::apply<min_corner>(normalized_point, mbr);
-        per_corner::apply<max_corner>(normalized_point, mbr);
+        per_corner::template apply<min_corner>(normalized_point, mbr);
+        per_corner::template apply<max_corner>(normalized_point, mbr);
     }
 };
 

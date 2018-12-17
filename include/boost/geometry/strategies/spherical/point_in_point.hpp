@@ -32,21 +32,19 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/strategies/strategy_transform.hpp>
+#include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
-#include <boost/geometry/algorithms/transform.hpp>
-
-#include <boost/geometry/algorithms/detail/normalize.hpp>
-
-#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
+#include <boost/geometry/strategies/strategy_transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
+
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 
 namespace boost { namespace geometry

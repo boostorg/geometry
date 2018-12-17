@@ -29,6 +29,8 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
+// TODO: spherical_point_box currently defined in the same file as cartesian
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
