@@ -190,7 +190,7 @@ struct relate_point_box_loop<SubStrategy, CSTag, DimensionCount, DimensionCount>
 };
 
 } // namespace detail
-#endif DOXYGEN_NO_DETAIL
+#endif // DOXYGEN_NO_DETAIL
 
 struct cartesian_point_box
 {
@@ -252,7 +252,7 @@ struct default_strategy
 
 
 } // namespace services
-#endif DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 } // namespace within
 
