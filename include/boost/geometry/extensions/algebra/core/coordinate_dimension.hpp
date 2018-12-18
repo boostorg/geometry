@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,11 +19,27 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_DIMENSION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_DIMENSION_HPP
 
-#include <boost/geometry/core/coordinate_system.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
+#include <boost/geometry/util/bare_type.hpp>
+
+#include <boost/mpl/assert.hpp>
+
 namespace boost { namespace geometry {
+
+namespace traits {
+
+template <typename Geometry, std::size_t Index>
+struct indexed_dimension
+{
+     BOOST_MPL_ASSERT_MSG(false,
+                          NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEX,
+                          (Geometry, boost::integral_constant<std::size_t, Index>));
+};
+
+} // namespace traits
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch {
@@ -33,6 +53,14 @@ template <typename G>
 struct dimension<quaternion_tag, G>
     : traits::dimension<typename geometry::util::bare_type<G>::type>
 {};
+
+template <typename T, typename G, std::size_t Index>
+struct indexed_dimension
+{
+    BOOST_MPL_ASSERT_MSG(false,
+                         NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEX,
+                         (G, boost::integral_constant<std::size_t, Index>));
+};
 
 template <typename G, std::size_t Index>
 struct indexed_dimension<matrix_tag, G, Index>
