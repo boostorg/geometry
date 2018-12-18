@@ -42,6 +42,8 @@
 
 #include <cmath>
 
+#include <boost/geometry/srs/projections/exception.hpp>
+#include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 #include <boost/geometry/util/math.hpp>
 
 

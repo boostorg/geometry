@@ -44,7 +44,10 @@
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
+#include <boost/geometry/srs/projections/impl/adjlon.hpp>
 #include <boost/geometry/srs/projections/impl/pj_gridlist.hpp>
+
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
