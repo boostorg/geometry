@@ -22,6 +22,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
+#include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/strategies/spherical/get_radius.hpp>
