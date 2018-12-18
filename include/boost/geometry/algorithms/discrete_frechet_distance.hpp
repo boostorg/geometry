@@ -1,8 +1,12 @@
 // Boost.Geometry
 
 // Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
+// Contributed and/or modified by Yaghyavardhan Singh Khangarot,
+//   as part of Google Summer of Code 2018 program.
 
-// Contributed and/or modified by Yaghyavardhan Singh Khangarot, as part of Google Summer of Code 2018 program.
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,13 +26,15 @@
 #include <vector>
 #include <limits>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/range.hpp>
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -48,7 +54,7 @@ public:
 
     result_type & operator()(size_type1 i, size_type2 j)
     {
-        BOOST_ASSERT(i < m_width && j < m_height);
+        BOOST_GEOMETRY_ASSERT(i < m_width && j < m_height);
         return m_data[j * m_width + i];
     }
 
@@ -86,28 +92,31 @@ struct linestring_linestring
 
 
         //Coupling Matrix CoupMat(a,b,-1);
-        coup_mat<size_type1,size_type2,result_type>  coup_matrix(a,b);
+        coup_mat<size_type1,size_type2,result_type> coup_matrix(a,b);
 
         result_type const not_feasible = -100;
         //findin the Coupling Measure
-        for(size_type1 i=0;i<a;i++)
+        for (size_type1 i = 0 ; i < a ; i++ )
         {
             for(size_type2 j=0;j<b;j++)
             {
-                result_type dis = geometry::distance(range::at(ls1,i),range::at(ls2,j),strategy);
+                result_type dis = strategy.apply(range::at(ls1,i), range::at(ls2,j));
                 if(i==0 && j==0)
-                    coup_matrix(i,j)= dis;
+                    coup_matrix(i,j) = dis;
                 else if(i==0 && j>0)
-                    coup_matrix(i,j)=
-                    (std::max)(coup_matrix(i,j-1),dis);
+                    coup_matrix(i,j) =
+                        (std::max)(coup_matrix(i,j-1), dis);
                 else if(i>0 && j==0)
-                    coup_matrix(i,j)=
-                    (std::max)(coup_matrix(i-1,j),dis);
+                    coup_matrix(i,j) =
+                        (std::max)(coup_matrix(i-1,j), dis);
                 else if(i>0 && j>0)
-                    coup_matrix(i,j)=
-                    (std::max)((std::min)(coup_matrix(i,j-1),(std::min)(coup_matrix(i-1,j),coup_matrix(i-1,j-1))),dis);
+                    coup_matrix(i,j) =
+                        (std::max)((std::min)(coup_matrix(i,j-1),
+                                              (std::min)(coup_matrix(i-1,j),
+                                                         coup_matrix(i-1,j-1))),
+                                   dis);
                 else
-                    coup_matrix(i,j)=not_feasible;
+                    coup_matrix(i,j) = not_feasible;
             }
         }
 
@@ -140,8 +149,15 @@ template
 >
 struct discrete_frechet_distance : not_implemented<Tag1, Tag2>
 {};
+
 template <typename Linestring1, typename Linestring2>
-struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestring_tag>
+struct discrete_frechet_distance
+    <
+        Linestring1,
+        Linestring2,
+        linestring_tag,
+        linestring_tag
+    >
     : detail::discrete_frechet_distance::linestring_linestring
 {};
 
@@ -151,7 +167,7 @@ struct discrete_frechet_distance<Linestring1,Linestring2,linestring_tag,linestri
 
 /*!
 \brief Calculate discrete Frechet distance between two geometries (currently
-    works for LineString-LineString) using specified strategy.
+       works for LineString-LineString) using specified strategy.
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -181,16 +197,21 @@ inline typename distance_result
             typename point_type<Geometry2>::type,
             Strategy
         >::type
-discrete_frechet_distance(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+discrete_frechet_distance(Geometry1 const& geometry1,
+                          Geometry2 const& geometry2,
+                          Strategy const& strategy)
 {
-    return dispatch::discrete_frechet_distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    return dispatch::discrete_frechet_distance
+            <
+                Geometry1, Geometry2
+            >::apply(geometry1, geometry2, strategy);
 }
 
 // Algorithm overload using default Pt-Pt distance strategy
 
 /*!
 \brief Calculate discrete Frechet distance between two geometries (currently
-    work for LineString-LineString).
+       work for LineString-LineString).
 \ingroup discrete_frechet_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
