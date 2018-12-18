@@ -16,6 +16,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp> // spherical
 
 namespace boost { namespace geometry

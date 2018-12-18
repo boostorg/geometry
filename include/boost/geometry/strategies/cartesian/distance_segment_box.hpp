@@ -2,6 +2,7 @@
 
 // Copyright (c) 2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,6 +12,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_SEGMENT_BOX_HPP
 
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+
+#include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 
 namespace boost { namespace geometry
 {
