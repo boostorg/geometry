@@ -13,13 +13,14 @@
 
 #include <boost/core/ignore_unused.hpp>
 
-#include <boost/geometry/util/range.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/detail/sub_range.hpp>
-
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/util/has_nan_coordinate.hpp>
+#include <boost/geometry/util/range.hpp>
 
 namespace boost { namespace geometry
 {

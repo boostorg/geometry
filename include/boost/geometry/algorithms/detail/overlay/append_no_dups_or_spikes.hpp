@@ -21,6 +21,8 @@
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
+#include <boost/geometry/core/closure.hpp>
+
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 

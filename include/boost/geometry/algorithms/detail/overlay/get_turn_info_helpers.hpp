@@ -16,6 +16,7 @@
 
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/geometries/segment.hpp> // referring_segment
 #include <boost/geometry/policies/relate/direction.hpp>

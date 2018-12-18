@@ -51,10 +51,10 @@ namespace detail { namespace overlay
                 << (info.opposite ? " o" : "")
                 << "]"
             << " sd "
-                << dir(info.sides.get<0,0>())
-                << dir(info.sides.get<0,1>())
-                << dir(info.sides.get<1,0>())
-                << dir(info.sides.get<1,1>())
+                << dir(info.sides.template get<0,0>())
+                << dir(info.sides.template get<0,1>())
+                << dir(info.sides.template get<1,0>())
+                << dir(info.sides.template get<1,1>())
             << " nxt seg " << info.travels_to_vertex_index
             << " , ip " << info.travels_to_ip_index
             << " , or " << info.next_ip_index

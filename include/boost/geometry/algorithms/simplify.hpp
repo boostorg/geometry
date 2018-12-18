@@ -20,6 +20,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 
 #include <cstddef>
+#include <set>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
