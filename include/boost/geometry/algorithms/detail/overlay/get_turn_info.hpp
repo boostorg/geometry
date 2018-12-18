@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2018.
+// Modifications copyright (c) 2015-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,6 +21,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>

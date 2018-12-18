@@ -4,12 +4,14 @@
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_SEGMENT_TO_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_SEGMENT_TO_BOX_HPP
+
 #include <cstddef>
 
 #include <functional>
@@ -27,25 +29,24 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
+
 #include <boost/geometry/util/calculation_type.hpp>
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-
-#include <boost/geometry/policies/compare.hpp>
-
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/intersects.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
-
-#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
-#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 
 namespace boost { namespace geometry
