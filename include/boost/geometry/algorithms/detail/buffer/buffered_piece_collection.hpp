@@ -924,6 +924,7 @@ struct buffered_piece_collection
             // Check if it is inside any of the pieces
             turn_in_piece_visitor
                 <
+                    typename geometry::cs_tag<point_type>::type,
                     turn_vector_type, piece_vector_type
                 > visitor(m_turns, m_pieces);
 

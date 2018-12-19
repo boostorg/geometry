@@ -118,15 +118,18 @@ inline bool in_box(Point const& previous,
     return geometry::covered_by(point, box);
 }
 
-struct check_segment
+template <bool UseSideOfIntersection>
+struct check_segment {};
+
+// Implementation using side-of-intersection
+template <>
+struct check_segment<true>
 {
     template <typename Point, typename Turn>
     static inline analyse_result apply(Point const& previous,
             Point const& current, Turn const& turn,
             bool from_monotonic)
     {
-
-    #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         typedef geometry::model::referring_segment<Point const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
         segment_type const q(turn.rob_qi, turn.rob_qj);
@@ -147,9 +150,17 @@ struct check_segment
             return analyse_disjoint;
         }
         return analyse_continue;
+    }
+};
 
-    #else
-
+template <>
+struct check_segment<false>
+{
+    template <typename Point, typename Turn>
+    static inline analyse_result apply(Point const& previous,
+            Point const& current, Turn const& turn,
+            bool from_monotonic)
+    {
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Point>::type
@@ -194,12 +205,14 @@ struct check_segment
 
         // Not monotonic, on left or right side: continue analysing
         return analyse_continue;
-    #endif
     }
 };
 
+template <bool UseSideOfIntersection>
+class analyse_turn_wrt_point_piece {};
 
-class analyse_turn_wrt_point_piece
+template <>
+class analyse_turn_wrt_point_piece<true>
 {
 public :
     template <typename Turn, typename Piece>
@@ -209,17 +222,9 @@ public :
         typedef typename Turn::robust_point_type point_type;
         typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         typedef geometry::model::referring_segment<point_type const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
         segment_type const q(turn.rob_qi, turn.rob_qj);
-#else
-        typedef strategy::within::winding<point_type> strategy_type;
-
-        typename strategy_type::state_type state;
-        strategy_type strategy;
-        boost::ignore_unused(strategy);
-#endif
 
         BOOST_GEOMETRY_ASSERT(! piece.sections.empty());
 
@@ -239,7 +244,6 @@ public :
                     point_type const& previous = piece.robust_ring[i - 1];
                     point_type const& current = piece.robust_ring[i];
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
 
                     // First check if it is in range - if it is not, the
                     // expensive side_of_intersection does not need to be
@@ -270,8 +274,51 @@ public :
                             return analyse_on_offsetted;
                         }
                     }
-#else
-                    analyse_result code = check_segment::apply(previous, current, turn, false);
+                }
+            }
+        }
+
+        // It is nowhere outside, and not on segment, so it is within
+        return analyse_within;
+    }
+
+};
+
+template <>
+class analyse_turn_wrt_point_piece<false>
+{
+public :
+    template <typename Turn, typename Piece>
+    static inline analyse_result apply(Turn const& turn, Piece const& piece)
+    {
+        typedef typename Piece::section_type section_type;
+        typedef typename Turn::robust_point_type point_type;
+        typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
+
+        typedef strategy::within::winding<point_type> strategy_type;
+
+        typename strategy_type::state_type state;
+        strategy_type strategy;
+
+        BOOST_GEOMETRY_ASSERT(! piece.sections.empty());
+
+        coordinate_type const point_x = geometry::get<0>(turn.robust_point);
+
+        for (std::size_t s = 0; s < piece.sections.size(); s++)
+        {
+            section_type const& section = piece.sections[s];
+            // If point within horizontal range of monotonic section:
+            if (! section.duplicate
+                && section.begin_index < section.end_index
+                && point_x >= geometry::get<min_corner, 0>(section.bounding_box) - 1
+                && point_x <= geometry::get<max_corner, 0>(section.bounding_box) + 1)
+            {
+                for (signed_size_type i = section.begin_index + 1; i <= section.end_index; i++)
+                {
+                    point_type const& previous = piece.robust_ring[i - 1];
+                    point_type const& current = piece.robust_ring[i];
+
+                    analyse_result code = check_segment<false>::apply(previous, current, turn, false);
                     if (code != analyse_continue)
                     {
                         return code;
@@ -280,15 +327,10 @@ public :
                     // Get the state (to determine it is within), we don't have
                     // to cover the on-segment case (covered above)
                     strategy.apply(turn.robust_point, previous, current, state);
-#endif
                 }
             }
         }
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-        // It is nowhere outside, and not on segment, so it is within
-        return analyse_within;
-#else
         int const code = strategy.result(state);
         if (code == 1)
         {
@@ -301,11 +343,11 @@ public :
 
         // Should normally not occur - on-segment is covered
         return analyse_unknown;
-#endif
     }
 
 };
 
+template <bool UseSideOfIntersection>
 class analyse_turn_wrt_piece
 {
     template <typename Point, typename Turn>
@@ -530,7 +572,7 @@ class analyse_turn_wrt_piece
             // w.r.t. specified direction, and prev points to a point smaller
             // We now know if it is inside/outside
             it_type prev = it - 1;
-            return check_segment::apply(*prev, *it, turn, true);
+            return check_segment<UseSideOfIntersection>::apply(*prev, *it, turn, true);
         }
         return analyse_continue;
     }
@@ -587,7 +629,7 @@ public :
             // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                code = check_segment::apply(previous, current, turn, false);
+                code = check_segment<UseSideOfIntersection>::apply(previous, current, turn, false);
                 if (code != analyse_continue)
                 {
                     return code;
@@ -600,12 +642,15 @@ public :
 
 };
 
-struct turn_in_piece
+// Helper Structure, of which the apply method returns a side value in {-1, 0, 1}
+template <bool UseSideOfIntersection>
+struct turn_in_piece {};
+
+template <>
+struct turn_in_piece<true>
 {
 
 private :
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-    // NOTE: this function returns a side value in {-1, 0, 1}
     template <typename Turn, typename Piece>
     static inline int in_convex_piece(Turn const& turn, Piece const& piece)
     {
@@ -656,16 +701,13 @@ private :
         }
         return 1; // inside
     }
-#endif
+
 public :
 
-    // NOTE: this function returns a side value in {-1, 0, 1}
     template <typename Turn, typename Piece>
     static inline int apply(Turn const& turn, Piece const& piece)
     {
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         // We don't know (yet)
-        int geometry_code = 0;
         if (piece.is_convex)
         {
             return in_convex_piece(turn, piece);
@@ -677,18 +719,37 @@ public :
             // will be replaced completely by extending analyse_piece functionality
             return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
         }
-#else
-        return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
-#endif
-
     }
+};
 
+template <>
+struct turn_in_piece<false>
+{
+public :
+
+    template <typename Turn, typename Piece>
+    static inline int apply(Turn const& turn, Piece const& piece)
+    {
+        return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+    }
 };
 
 
-template <typename Turns, typename Pieces>
+template <typename CsTag, typename Turns, typename Pieces>
 class turn_in_piece_visitor
 {
+    // meta-programming-structure defining UseSideOfIntersection
+    template <typename Tag>
+    struct side_implementation { static bool const value = false; };
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // With robustness, let Cartesian use side-of-intersection
+    template <>
+    struct side_implementation<cs::cartesian> { static bool const value = true; };
+#endif
+
+    static const bool UseSideOfIntersection = side_implementation<CsTag>::value;
+
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
 
@@ -785,8 +846,8 @@ public:
 
         analyse_result analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
-                ? analyse_turn_wrt_point_piece::apply(turn, piece)
-                : analyse_turn_wrt_piece::apply(turn, piece);
+                ? analyse_turn_wrt_point_piece<UseSideOfIntersection>::apply(turn, piece)
+                : analyse_turn_wrt_piece<UseSideOfIntersection>::apply(turn, piece);
 
         switch(analyse_code)
         {
@@ -808,7 +869,7 @@ public:
                 break;
         }
 
-        int const geometry_code = turn_in_piece::apply(turn, piece);
+        int const geometry_code = turn_in_piece<UseSideOfIntersection>::apply(turn, piece);
 
         if (geometry_code == 1)
         {
