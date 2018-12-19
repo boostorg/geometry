@@ -85,7 +85,8 @@ void test_all()
     {
         multi_point_type g;
         bg::read_wkt(mysql_report_3, g);
-        test_buffer<polygon>("mysql_report_3", g,
+        bg::model::multi_polygon<polygon> buffered;
+        test_buffer<polygon>("mysql_report_3", buffered, g,
             bg::strategy::buffer::join_round(36),
             bg::strategy::buffer::end_round(36),
             distance_strategy(1),

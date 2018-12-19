@@ -137,7 +137,9 @@ template
     typename PointStrategy,
     typename Geometry
 >
-void test_buffer(std::string const& caseid, Geometry const& geometry,
+void test_buffer(std::string const& caseid,
+            bg::model::multi_polygon<GeometryOut>& buffered,
+            Geometry const& geometry,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
             DistanceStrategy const& distance_strategy,
@@ -236,8 +238,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(envelope);
 
-    bg::model::multi_polygon<GeometryOut> buffered;
-
+    buffered.clear();
     bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
                         std::back_inserter(buffered),
                         distance_strategy,
@@ -362,7 +363,7 @@ template
     typename PointStrategy,
     typename Geometry
 >
-void test_buffer(std::string const& caseid, Geometry const& geometry,
+void test_buffer(std::string const& caseid, bg::model::multi_polygon<GeometryOut>& buffered, Geometry const& geometry,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
             DistanceStrategy const& distance_strategy,
@@ -371,7 +372,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             double expected_area,
             ut_settings const& settings = ut_settings())
 {
-    test_buffer<GeometryOut>(caseid, geometry,
+    test_buffer<GeometryOut>(caseid, buffered, geometry,
         join_strategy, end_strategy, distance_strategy, side_strategy, point_strategy,
         -1, -1, expected_area, settings);
 }
@@ -398,7 +399,6 @@ void test_one(std::string const& caseid, std::string const& wkt,
     bg::read_wkt(wkt, g);
     bg::correct(g);
 
-
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
     std::cout
         << (counter > 0 ? "union " : "")
@@ -422,8 +422,9 @@ void test_one(std::string const& caseid, std::string const& wkt,
                         bg::math::equals(distance_right, same_distance)
                         ? distance_left : distance_right);
 
+    bg::model::multi_polygon<GeometryOut> buffered;
     test_buffer<GeometryOut>
-            (caseid, g,
+            (caseid, buffered, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
             expected_count, expected_holes_count, expected_area,
@@ -441,7 +442,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
         > sym_distance_strategy(distance_left);
 
         test_buffer<GeometryOut>
-                (caseid + "_sym", g,
+                (caseid + "_sym", buffered, g,
                 join_strategy, end_strategy,
                 sym_distance_strategy, side_strategy, circle_strategy,
                 expected_count, expected_holes_count, expected_area,
@@ -494,8 +495,10 @@ void test_with_custom_strategies(std::string const& caseid,
     bg::read_wkt(wkt, g);
     bg::correct(g);
 
+    bg::model::multi_polygon<GeometryOut> buffered;
+
     test_buffer<GeometryOut>
-            (caseid, g,
+            (caseid, buffered, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, point_strategy,
             expected_area, settings);
