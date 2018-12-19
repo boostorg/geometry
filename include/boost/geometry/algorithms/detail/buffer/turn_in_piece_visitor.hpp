@@ -118,6 +118,18 @@ inline bool in_box(Point const& previous,
     return geometry::covered_by(point, box);
 }
 
+// meta-programming-structure defining if to use side-of-intersection
+// (only for cartesian / only necessary with rescaling)
+template <typename Tag>
+struct use_side_of_intersection { static bool const value = false; };
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+// With rescaling, let Cartesian use side-of-intersection
+template <>
+struct use_side_of_intersection<cs::cartesian> { static bool const value = true; };
+#endif
+
+
 template <bool UseSideOfIntersection>
 struct check_segment {};
 
@@ -757,18 +769,6 @@ public :
 template <typename CsTag, typename Turns, typename Pieces>
 class turn_in_piece_visitor
 {
-    // meta-programming-structure defining UseSideOfIntersection
-    template <typename Tag>
-    struct side_implementation { static bool const value = false; };
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    // With robustness, let Cartesian use side-of-intersection
-    template <>
-    struct side_implementation<cs::cartesian> { static bool const value = true; };
-#endif
-
-    static const bool UseSideOfIntersection = side_implementation<CsTag>::value;
-
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
 
@@ -863,10 +863,13 @@ public:
             }
         }
 
+        static const bool use_soi = use_side_of_intersection<CsTag>::value;
+        boost::ignore_unused(use_soi);
+
         analyse_result analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
-                ? analyse_turn_wrt_point_piece<UseSideOfIntersection>::apply(turn, piece)
-                : analyse_turn_wrt_piece<UseSideOfIntersection>::apply(turn, piece);
+                ? analyse_turn_wrt_point_piece<use_soi>::apply(turn, piece)
+                : analyse_turn_wrt_piece<use_soi>::apply(turn, piece);
 
         switch(analyse_code)
         {
@@ -888,7 +891,7 @@ public:
                 break;
         }
 
-        int const geometry_code = turn_in_piece<UseSideOfIntersection>::apply(turn, piece);
+        int const geometry_code = turn_in_piece<use_soi>::apply(turn, piece);
 
         if (geometry_code == 1)
         {

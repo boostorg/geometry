@@ -725,46 +725,47 @@ struct buffered_piece_collection
             }
         }
 
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-        // Insert all rescaled turn-points into these rings, to form a
-        // reliable integer-based ring. All turns can be compared (inside) to this
-        // rings to see if they are inside.
-
-        for (typename boost::range_iterator<piece_vector_type>::type
-                it = boost::begin(m_pieces); it != boost::end(m_pieces); ++it)
+        if (! use_side_of_intersection<typename geometry::cs_tag<point_type>::type>::value)
         {
-            piece& pc = *it;
-            signed_size_type piece_segment_index = pc.first_seg_id.segment_index;
-            if (! pc.robust_turns.empty())
+            // Insert all rescaled turn-points into these rings, to form a
+            // reliable integer-based ring. All turns can be compared (inside) to this
+            // rings to see if they are inside.
+
+            for (typename boost::range_iterator<piece_vector_type>::type
+                    it = boost::begin(m_pieces); it != boost::end(m_pieces); ++it)
             {
-                if (pc.robust_turns.size() > 1u)
+                piece& pc = *it;
+                signed_size_type piece_segment_index = pc.first_seg_id.segment_index;
+                if (! pc.robust_turns.empty())
                 {
-                    std::sort(pc.robust_turns.begin(), pc.robust_turns.end(), buffer_operation_less());
-                }
-                // Walk through them, in reverse to insert at right index
-                signed_size_type index_offset = static_cast<signed_size_type>(pc.robust_turns.size()) - 1;
-                for (typename boost::range_reverse_iterator<const std::vector<robust_turn> >::type
-                        rit = boost::const_rbegin(pc.robust_turns);
-                    rit != boost::const_rend(pc.robust_turns);
-                    ++rit, --index_offset)
-                {
-                    signed_size_type const index_in_vector = 1 + rit->seg_id.segment_index - piece_segment_index;
-                    BOOST_GEOMETRY_ASSERT
-                    (
-                        index_in_vector > 0
-                        && index_in_vector < pc.offsetted_count
-                    );
+                    if (pc.robust_turns.size() > 1u)
+                    {
+                        std::sort(pc.robust_turns.begin(), pc.robust_turns.end(), buffer_operation_less());
+                    }
+                    // Walk through them, in reverse to insert at right index
+                    signed_size_type index_offset = static_cast<signed_size_type>(pc.robust_turns.size()) - 1;
+                    for (typename boost::range_reverse_iterator<const std::vector<robust_turn> >::type
+                            rit = boost::const_rbegin(pc.robust_turns);
+                        rit != boost::const_rend(pc.robust_turns);
+                        ++rit, --index_offset)
+                    {
+                        signed_size_type const index_in_vector = 1 + rit->seg_id.segment_index - piece_segment_index;
+                        BOOST_GEOMETRY_ASSERT
+                        (
+                            index_in_vector > 0
+                            && index_in_vector < pc.offsetted_count
+                        );
 
-                    pc.robust_ring.insert(boost::begin(pc.robust_ring) + index_in_vector, rit->point);
-                    pc.offsetted_count++;
+                        pc.robust_ring.insert(boost::begin(pc.robust_ring) + index_in_vector, rit->point);
+                        pc.offsetted_count++;
 
-                    m_turns[rit->turn_index].operations[rit->operation_index].index_in_robust_ring = index_in_vector + index_offset;
+                        m_turns[rit->turn_index].operations[rit->operation_index].index_in_robust_ring = index_in_vector + index_offset;
+                    }
                 }
             }
-        }
 
-        BOOST_GEOMETRY_ASSERT(assert_indices_in_robust_rings());
-#endif
+            BOOST_GEOMETRY_ASSERT(assert_indices_in_robust_rings());
+        }
     }
 
     template <std::size_t Dimension>
