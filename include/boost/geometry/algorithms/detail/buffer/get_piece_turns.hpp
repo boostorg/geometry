@@ -254,10 +254,8 @@ class piece_turn_visitor
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
             geometry::recalculate(the_model.rob_pi, *prev1, m_robust_policy);
             geometry::recalculate(the_model.rob_pj, *it1, m_robust_policy);
-#endif
 
             unique_sub_range_from_piece<ring_type> unique_sub_range1(ring1, prev1, it1);
 

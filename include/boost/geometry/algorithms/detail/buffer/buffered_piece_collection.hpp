@@ -529,7 +529,6 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
             if (it->count_within_near_offsetted > 0)
             {
                 // Within can have in rare cases a rounding issue. We don't discard this
@@ -538,7 +537,6 @@ struct buffered_piece_collection
                 it->operations[0].enriched.startable = false;
                 it->operations[1].enriched.startable = false;
             }
-#endif
         }
     }
 

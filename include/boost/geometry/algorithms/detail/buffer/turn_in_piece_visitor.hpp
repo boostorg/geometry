@@ -34,11 +34,8 @@
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
 #include <boost/geometry/strategies/cartesian/side_of_intersection.hpp>
-#else
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
-#endif
 
 
 namespace boost { namespace geometry
@@ -103,10 +100,8 @@ enum analyse_result
     analyse_disjoint,
     analyse_within,
     analyse_on_original_boundary,
-    analyse_on_offsetted
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-    , analyse_near_offsetted
-#endif
+    analyse_on_offsetted,
+    analyse_near_offsetted
 };
 
 template <typename Point>
@@ -123,82 +118,85 @@ inline bool in_box(Point const& previous,
     return geometry::covered_by(point, box);
 }
 
-template <typename Point, typename Turn>
-inline analyse_result check_segment(Point const& previous,
-        Point const& current, Turn const& turn,
-        bool from_monotonic)
+struct check_segment
 {
-
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-    typedef geometry::model::referring_segment<Point const> segment_type;
-    segment_type const p(turn.rob_pi, turn.rob_pj);
-    segment_type const q(turn.rob_qi, turn.rob_qj);
-    segment_type const r(previous, current);
-    int const side = strategy::side::side_of_intersection::apply(p, q, r,
-                turn.robust_point);
-
-    if (side == 0)
+    template <typename Point, typename Turn>
+    static inline analyse_result apply(Point const& previous,
+            Point const& current, Turn const& turn,
+            bool from_monotonic)
     {
-        return analyse_on_offsetted;
-    }
-    if (side == -1 && from_monotonic)
-    {
-        return analyse_within;
-    }
-    if (side == 1 && from_monotonic)
-    {
-        return analyse_disjoint;
-    }
-    return analyse_continue;
 
-#else
+    #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        typedef geometry::model::referring_segment<Point const> segment_type;
+        segment_type const p(turn.rob_pi, turn.rob_pj);
+        segment_type const q(turn.rob_qi, turn.rob_qj);
+        segment_type const r(previous, current);
+        int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                    turn.robust_point);
 
-    typedef typename strategy::side::services::default_strategy
-        <
-            typename cs_tag<Point>::type
-        >::type side_strategy;
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-    coordinate_type const twice_area
-        = side_strategy::template side_value
-            <
-                coordinate_type,
-                coordinate_type
-            >(previous, current, turn.robust_point);
-
-    if (twice_area == 0)
-    {
-        // Collinear, only on segment if it is covered by its bbox
-        if (in_box(previous, current, turn.robust_point))
+        if (side == 0)
         {
             return analyse_on_offsetted;
         }
-    }
-    else if (twice_area < 0)
-    {
-        // It is in the triangle right-of the segment where the
-        // segment is the hypothenusa. Check if it is close
-        // (within rounding-area)
-        if (twice_area * twice_area < geometry::comparable_distance(previous, current)
-            && in_box(previous, current, turn.robust_point))
-        {
-            return analyse_near_offsetted;
-        }
-        else if (from_monotonic)
+        if (side == -1 && from_monotonic)
         {
             return analyse_within;
         }
-    }
-    else if (twice_area > 0 && from_monotonic)
-    {
-        // Left of segment
-        return analyse_disjoint;
-    }
+        if (side == 1 && from_monotonic)
+        {
+            return analyse_disjoint;
+        }
+        return analyse_continue;
 
-    // Not monotonic, on left or right side: continue analysing
-    return analyse_continue;
-#endif
-}
+    #else
+
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<Point>::type
+            >::type side_strategy;
+        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+
+        coordinate_type const twice_area
+            = side_strategy::template side_value
+                <
+                    coordinate_type,
+                    coordinate_type
+                >(previous, current, turn.robust_point);
+
+        if (twice_area == 0)
+        {
+            // Collinear, only on segment if it is covered by its bbox
+            if (in_box(previous, current, turn.robust_point))
+            {
+                return analyse_on_offsetted;
+            }
+        }
+        else if (twice_area < 0)
+        {
+            // It is in the triangle right-of the segment where the
+            // segment is the hypothenusa. Check if it is close
+            // (within rounding-area)
+            if (twice_area * twice_area < geometry::comparable_distance(previous, current)
+                && in_box(previous, current, turn.robust_point))
+            {
+                return analyse_near_offsetted;
+            }
+            else if (from_monotonic)
+            {
+                return analyse_within;
+            }
+        }
+        else if (twice_area > 0 && from_monotonic)
+        {
+            // Left of segment
+            return analyse_disjoint;
+        }
+
+        // Not monotonic, on left or right side: continue analysing
+        return analyse_continue;
+    #endif
+    }
+};
 
 
 class analyse_turn_wrt_point_piece
@@ -273,7 +271,7 @@ public :
                         }
                     }
 #else
-                    analyse_result code = check_segment(previous, current, turn, false);
+                    analyse_result code = check_segment::apply(previous, current, turn, false);
                     if (code != analyse_continue)
                     {
                         return code;
@@ -313,11 +311,7 @@ class analyse_turn_wrt_piece
     template <typename Point, typename Turn>
     static inline analyse_result check_helper_segment(Point const& s1,
                 Point const& s2, Turn const& turn,
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-                bool , // is on original, to be reused
-#else
                 bool is_original,
-#endif
                 Point const& offsetted)
     {
         boost::ignore_unused(offsetted);
@@ -536,7 +530,7 @@ class analyse_turn_wrt_piece
             // w.r.t. specified direction, and prev points to a point smaller
             // We now know if it is inside/outside
             it_type prev = it - 1;
-            return check_segment(*prev, *it, turn, true);
+            return check_segment::apply(*prev, *it, turn, true);
         }
         return analyse_continue;
     }
@@ -593,7 +587,7 @@ public :
             // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                code = check_segment(previous, current, turn, false);
+                code = check_segment::apply(previous, current, turn, false);
                 if (code != analyse_continue)
                 {
                     return code;
@@ -606,45 +600,14 @@ public :
 
 };
 
-
-template <typename Turns, typename Pieces>
-class turn_in_piece_visitor
+struct turn_in_piece
 {
-    Turns& m_turns; // because partition is currently operating on const input only
-    Pieces const& m_pieces; // to check for piece-type
 
-    template <typename Operation, typename Piece>
-    inline bool skip(Operation const& op, Piece const& piece) const
-    {
-        if (op.piece_index == piece.index)
-        {
-            return true;
-        }
-        Piece const& pc = m_pieces[op.piece_index];
-        if (pc.left_index == piece.index || pc.right_index == piece.index)
-        {
-            if (pc.type == strategy::buffer::buffered_flat_end)
-            {
-                // If it is a flat end, don't compare against its neighbor:
-                // it will always be located on one of the helper segments
-                return true;
-            }
-            if (pc.type == strategy::buffer::buffered_concave)
-            {
-                // If it is concave, the same applies: the IP will be
-                // located on one of the helper segments
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+private :
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
     // NOTE: this function returns a side value in {-1, 0, 1}
     template <typename Turn, typename Piece>
-    static inline int turn_in_convex_piece(Turn const& turn,
-            Piece const& piece)
+    static inline int in_convex_piece(Turn const& turn, Piece const& piece)
     {
         typedef typename Turn::robust_point_type point_type;
         typedef typename Piece::piece_robust_ring_type ring_type;
@@ -694,6 +657,67 @@ class turn_in_piece_visitor
         return 1; // inside
     }
 #endif
+public :
+
+    // NOTE: this function returns a side value in {-1, 0, 1}
+    template <typename Turn, typename Piece>
+    static inline int apply(Turn const& turn, Piece const& piece)
+    {
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        // We don't know (yet)
+        int geometry_code = 0;
+        if (piece.is_convex)
+        {
+            return in_convex_piece(turn, piece);
+        }
+        else
+        {
+
+            // TODO: this point_in_geometry is a performance-bottleneck here and
+            // will be replaced completely by extending analyse_piece functionality
+            return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+        }
+#else
+        return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+#endif
+
+    }
+
+};
+
+
+template <typename Turns, typename Pieces>
+class turn_in_piece_visitor
+{
+    Turns& m_turns; // because partition is currently operating on const input only
+    Pieces const& m_pieces; // to check for piece-type
+
+    template <typename Operation, typename Piece>
+    inline bool skip(Operation const& op, Piece const& piece) const
+    {
+        if (op.piece_index == piece.index)
+        {
+            return true;
+        }
+        Piece const& pc = m_pieces[op.piece_index];
+        if (pc.left_index == piece.index || pc.right_index == piece.index)
+        {
+            if (pc.type == strategy::buffer::buffered_flat_end)
+            {
+                // If it is a flat end, don't compare against its neighbor:
+                // it will always be located on one of the helper segments
+                return true;
+            }
+            if (pc.type == strategy::buffer::buffered_concave)
+            {
+                // If it is concave, the same applies: the IP will be
+                // located on one of the helper segments
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 
 public:
@@ -777,32 +801,14 @@ public:
             case analyse_within :
                 mutable_turn.count_within++;
                 return true;
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
             case analyse_near_offsetted :
                 mutable_turn.count_within_near_offsetted++;
                 return true;
-#endif
             default :
                 break;
         }
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-        // We don't know (yet)
-        int geometry_code = 0;
-        if (piece.is_convex)
-        {
-            geometry_code = turn_in_convex_piece(turn, piece);
-        }
-        else
-        {
-
-            // TODO: this point_in_geometry is a performance-bottleneck here and
-            // will be replaced completely by extending analyse_piece functionality
-            geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
-        }
-#else
-        int geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
-#endif
+        int const geometry_code = turn_in_piece::apply(turn, piece);
 
         if (geometry_code == 1)
         {
