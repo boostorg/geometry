@@ -348,7 +348,10 @@ public :
 };
 
 template <bool UseSideOfIntersection>
-struct check_helper_segment
+struct check_helper_segment {};
+
+template <>
+struct check_helper_segment<true>
 {
     template <typename Point, typename Turn>
     static inline analyse_result apply(Point const& s1,
@@ -357,7 +360,7 @@ struct check_helper_segment
                 Point const& offsetted)
     {
         boost::ignore_unused(offsetted);
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        boost::ignore_unused(is_original);
         typedef geometry::model::referring_segment<Point const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
         segment_type const q(turn.rob_qi, turn.rob_qj);
@@ -396,7 +399,20 @@ struct check_helper_segment
 
         // right of segment
         return analyse_continue;
-#else
+    }
+
+};
+
+template <>
+struct check_helper_segment<false>
+{
+    template <typename Point, typename Turn>
+    static inline analyse_result apply(Point const& s1,
+                Point const& s2, Turn const& turn,
+                bool is_original,
+                Point const& offsetted)
+    {
+        boost::ignore_unused(offsetted);
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Point>::type
@@ -445,9 +461,7 @@ struct check_helper_segment
 
         // right of segment
         return analyse_continue;
-#endif
     }
-
 };
 
 template <bool UseSideOfIntersection>
