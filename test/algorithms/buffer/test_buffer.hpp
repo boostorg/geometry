@@ -100,11 +100,13 @@ struct ut_settings
     double tolerance;
     bool test_validity;
     bool test_area;
+    int points_per_circle;
 
-    explicit ut_settings(double tol = 0.01, bool val = true)
+    explicit ut_settings(double tol = 0.01, bool val = true, int points = 88)
         : tolerance(tol)
         , test_validity(val)
         , test_area(true)
+        , points_per_circle(points)
     {}
 
     static inline ut_settings ignore_validity()
@@ -411,7 +413,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
 
     bg::strategy::buffer::side_straight side_strategy;
-    bg::strategy::buffer::point_circle circle_strategy(88);
+    bg::strategy::buffer::point_circle circle_strategy(settings.points_per_circle);
 
     bg::strategy::buffer::distance_asymmetric
     <
