@@ -265,10 +265,8 @@ class piece_turn_visitor
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
                 geometry::recalculate(the_model.rob_qi, *prev2, m_robust_policy);
                 geometry::recalculate(the_model.rob_qj, *it2, m_robust_policy);
-#endif
 
                 // TODO: internally get_turn_info calculates robust points.
                 // But they are already calculated.
