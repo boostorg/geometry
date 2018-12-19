@@ -348,10 +348,10 @@ public :
 };
 
 template <bool UseSideOfIntersection>
-class analyse_turn_wrt_piece
+struct check_helper_segment
 {
     template <typename Point, typename Turn>
-    static inline analyse_result check_helper_segment(Point const& s1,
+    static inline analyse_result apply(Point const& s1,
                 Point const& s2, Turn const& turn,
                 bool is_original,
                 Point const& offsetted)
@@ -448,6 +448,11 @@ class analyse_turn_wrt_piece
 #endif
     }
 
+};
+
+template <bool UseSideOfIntersection>
+class analyse_turn_wrt_piece
+{
     template <typename Turn, typename Piece>
     static inline analyse_result check_helper_segments(Turn const& turn, Piece const& piece)
     {
@@ -507,7 +512,7 @@ class analyse_turn_wrt_piece
 
         // Right side of the piece
         analyse_result result
-            = check_helper_segment(points[0], points[1], turn,
+            = check_helper_segment<UseSideOfIntersection>::apply(points[0], points[1], turn,
                     false, points[0]);
         if (result != analyse_continue)
         {
@@ -515,7 +520,7 @@ class analyse_turn_wrt_piece
         }
 
         // Left side of the piece
-        result = check_helper_segment(points[2], points[3], turn,
+        result = check_helper_segment<UseSideOfIntersection>::apply(points[2], points[3], turn,
                     false, points[3]);
         if (result != analyse_continue)
         {
@@ -525,7 +530,7 @@ class analyse_turn_wrt_piece
         if (! comparator(points[1], points[2]))
         {
             // Side of the piece at side of original geometry
-            result = check_helper_segment(points[1], points[2], turn,
+            result = check_helper_segment<UseSideOfIntersection>::apply(points[1], points[2], turn,
                         true, point);
             if (result != analyse_continue)
             {
