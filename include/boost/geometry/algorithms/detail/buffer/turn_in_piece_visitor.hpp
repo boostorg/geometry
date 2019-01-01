@@ -121,13 +121,22 @@ inline bool in_box(Point const& previous,
 // meta-programming-structure defining if to use side-of-intersection
 // (only for cartesian / only necessary with rescaling)
 template <typename Tag>
-struct use_side_of_intersection { static bool const value = false; };
+struct use_side_of_intersection {};
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+template <>
+struct use_side_of_intersection<cartesian_tag> { static bool const value = false; };
+#else
 // With rescaling, let Cartesian use side-of-intersection
 template <>
-struct use_side_of_intersection<cs::cartesian> { static bool const value = true; };
+struct use_side_of_intersection<cartesian_tag> { static bool const value = true; };
 #endif
+
+template <>
+struct use_side_of_intersection<spherical_tag> { static bool const value = false; };
+
+template <>
+struct use_side_of_intersection<geographic_tag> { static bool const value = false; };
 
 
 template <bool UseSideOfIntersection>
