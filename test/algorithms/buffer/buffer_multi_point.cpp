@@ -68,12 +68,9 @@ void test_all()
                 grid_a, join, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join, end_flat,
                 distance_strategy(0.54), side_strategy, point_strategy, 7.819);
-#endif
-
     }
 
     test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
