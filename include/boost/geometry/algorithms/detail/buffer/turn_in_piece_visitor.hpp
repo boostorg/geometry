@@ -186,16 +186,10 @@ struct check_segment<false>
             <
                 typename cs_tag<Point>::type
             >::type side_strategy;
-        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
-        coordinate_type const twice_area
-            = side_strategy::template side_value
-                <
-                    coordinate_type,
-                    coordinate_type
-                >(previous, current, turn.robust_point);
+        int const side = side_strategy::apply(previous, current, turn.robust_point);
 
-        if (twice_area == 0)
+        if (side == 0)
         {
             // Collinear, only on segment if it is covered by its bbox
             if (in_box(previous, current, turn.robust_point))
@@ -203,13 +197,12 @@ struct check_segment<false>
                 return analyse_on_offsetted;
             }
         }
-        else if (twice_area < 0)
+        else if (side == -1)
         {
             // It is in the triangle right-of the segment where the
             // segment is the hypothenusa. Check if it is close
             // (within rounding-area)
-            if (twice_area * twice_area < geometry::comparable_distance(previous, current)
-                && in_box(previous, current, turn.robust_point))
+            if (in_box(previous, current, turn.robust_point))
             {
                 return analyse_near_offsetted;
             }
@@ -218,7 +211,7 @@ struct check_segment<false>
                 return analyse_within;
             }
         }
-        else if (twice_area > 0 && from_monotonic)
+        else if (from_monotonic)
         {
             // Left of segment
             return analyse_disjoint;
