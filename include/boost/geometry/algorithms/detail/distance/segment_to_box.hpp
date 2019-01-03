@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2018 Oracle and/or its affiliates.
+// Copyright (c) 2014-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -32,11 +32,11 @@
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
@@ -45,6 +45,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
@@ -56,6 +57,20 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace distance
 {
+
+
+// TODO: Take strategy
+template <typename Segment, typename Box>
+inline bool intersects_segment_box(Segment const& segment, Box const& box)
+{
+    typedef typename strategy::disjoint::services::default_strategy
+        <
+            Segment, Box
+        >::type strategy_type;
+
+    return ! detail::disjoint::disjoint_segment_box::apply(segment, box,
+                                                           strategy_type());
+}
 
 
 template
@@ -100,7 +115,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if (check_intersection && geometry::intersects(segment, box))
+        if (check_intersection && intersects_segment_box(segment, box))
         {
             return 0;
         }
@@ -215,7 +230,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if (check_intersection && geometry::intersects(segment, box))
+        if (check_intersection && intersects_segment_box(segment, box))
         {
             return 0;
         }
@@ -754,7 +769,8 @@ public:
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
 
-        if (geometry::equals(p[0], p[1]))
+        if (detail::equals::equals_point_point(p[0], p[1],
+                sb_strategy.get_equals_point_point_strategy()))
         {
             typedef typename boost::mpl::if_
                 <

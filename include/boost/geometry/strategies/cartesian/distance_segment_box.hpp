@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,6 +14,7 @@
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -61,6 +62,13 @@ struct cartesian_segment_box
     inline typename distance_ps_strategy::type get_distance_ps_strategy() const
     {
         return typename distance_ps_strategy::type();
+    }
+
+    typedef within::cartesian_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
     }
 
     template <typename LessEqual, typename ReturnType,

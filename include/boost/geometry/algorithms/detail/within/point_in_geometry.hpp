@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
-// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -380,6 +380,30 @@ inline int point_in_geometry(Point const& point, Geometry const& geometry)
         >::type strategy_type;
 
     return point_in_geometry(point, geometry, strategy_type());
+}
+
+template <typename Point, typename Geometry, typename Strategy>
+inline bool within_point_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
+{
+    return point_in_geometry(point, geometry, strategy) > 0;
+}
+
+template <typename Point, typename Geometry>
+inline bool within_point_geometry(Point const& point, Geometry const& geometry)
+{
+    return point_in_geometry(point, geometry) > 0;
+}
+
+template <typename Point, typename Geometry, typename Strategy>
+inline bool covered_by_point_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
+{
+    return point_in_geometry(point, geometry, strategy) >= 0;
+}
+
+template <typename Point, typename Geometry>
+inline bool covered_by_point_geometry(Point const& point, Geometry const& geometry)
+{
+    return point_in_geometry(point, geometry) >= 0;
 }
 
 }} // namespace detail::within
