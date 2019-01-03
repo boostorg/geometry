@@ -43,6 +43,7 @@
 
 #include <boost/geometry/util/calculation_type.hpp>
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/disjoint.hpp>
