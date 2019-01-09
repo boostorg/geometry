@@ -2,6 +2,7 @@
 
 // Copyright (c) 2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,6 +12,11 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_SEGMENT_BOX_HPP
 
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp> // spherical
 
 namespace boost { namespace geometry
 {
@@ -29,7 +35,10 @@ struct generic_segment_box
             typename BoxPoint,
             typename SegmentBoxStrategy,
             typename AzimuthStrategy,
-            typename EnvelopeSegmentStrategy
+            typename EnvelopeSegmentStrategy,
+            typename NormalizePointStrategy,
+            typename DisjointPointBoxStrategy,
+            typename DisjointBoxBoxStrategy
     >
     static inline ReturnType segment_below_of_box(
             SegmentPoint const& p0,
@@ -39,8 +48,11 @@ struct generic_segment_box
             BoxPoint const& bottom_left,
             BoxPoint const& bottom_right,
             SegmentBoxStrategy const& sb_strategy,
-            AzimuthStrategy & az_strategy,
-            EnvelopeSegmentStrategy & es_strategy)
+            AzimuthStrategy const& az_strategy,
+            EnvelopeSegmentStrategy const& es_strategy,
+            NormalizePointStrategy const& np_strategy,
+            DisjointPointBoxStrategy const& dpb_strategy,
+            DisjointBoxBoxStrategy const& dbb_strategy)
     {
         ReturnType result;
         typename LessEqual::other less_equal;
@@ -66,7 +78,8 @@ struct generic_segment_box
         SegmentPoint p_max;
 
         disjoint_info_type disjoint_result = disjoint_sb::
-                apply(seg, input_box, az_strategy, p_max);
+                apply(seg, input_box, p_max,
+                      az_strategy, np_strategy, dpb_strategy, dbb_strategy);
 
         if (disjoint_result == disjoint_info_type::intersect) //intersect
         {
@@ -222,7 +235,10 @@ struct spherical_segment_box
                     ReturnType
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
                  spherical_segment_box<CalculationType>(),
-                 az_strategy, es_strategy);
+                 az_strategy, es_strategy,
+                 normalize::spherical_point(),
+                 covered_by::spherical_point_box(),
+                 disjoint::spherical_box_box());
     }
 
     template <typename SPoint, typename BPoint>

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -29,8 +29,13 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
-#include <boost/geometry/strategies/spherical/azimuth.hpp>
+// TODO: spherical_point_box currently defined in the same file as cartesian
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/azimuth.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
 {
@@ -67,7 +72,13 @@ struct segment_box_spherical
         geometry::strategy::azimuth::spherical<CT> azimuth_strategy;
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <spherical_equatorial_tag>::apply(segment, box, azimuth_strategy);
+                <
+                    spherical_equatorial_tag
+                >::apply(segment, box,
+                         azimuth_strategy,
+                         strategy::normalize::spherical_point(),
+                         strategy::covered_by::spherical_point_box(),
+                         strategy::disjoint::spherical_box_box());
     }
 };
 

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -109,11 +109,12 @@ namespace detail { namespace overlay {
 class linear_intersections
 {
 public:
-    template <typename Point1, typename Point2, typename IntersectionResult>
+    template <typename Point1, typename Point2, typename IntersectionResult, typename EqPPStrategy>
     linear_intersections(Point1 const& pi,
                          Point2 const& qi,
                          IntersectionResult const& result,
-                         bool is_p_last, bool is_q_last)
+                         bool is_p_last, bool is_q_last,
+                         EqPPStrategy const& strategy)
     {
         int arrival_a = result.template get<1>().arrival[0];
         int arrival_b = result.template get<1>().arrival[1];
@@ -133,10 +134,10 @@ public:
 
                     ips[0].is_pi
                         = equals::equals_point_point(
-                            pi, result.template get<0>().intersections[0]);
+                            pi, result.template get<0>().intersections[0], strategy);
                     ips[0].is_qi
                         = equals::equals_point_point(
-                            qi, result.template get<0>().intersections[0]);
+                            qi, result.template get<0>().intersections[0], strategy);
                     ips[1].is_pj = arrival_a != -1;
                     ips[1].is_qj = arrival_b != -1;
                 }
@@ -233,14 +234,16 @@ struct get_turn_info_for_endpoint
              typename UniqueSubRange2,
              typename TurnInfo,
              typename IntersectionInfo,
-             typename OutputIterator
+             typename OutputIterator,
+             typename EqPPStrategy
     >
     static inline bool apply(UniqueSubRange1 const& range_p,
                              UniqueSubRange2 const& range_q,
                              TurnInfo const& tp_model,
                              IntersectionInfo const& inters,
                              method_type /*method*/,
-                             OutputIterator out)
+                             OutputIterator out,
+                             EqPPStrategy const& strategy)
     {
         std::size_t ip_count = inters.i_info().count;
         // no intersection points
@@ -262,7 +265,8 @@ struct get_turn_info_for_endpoint
                                            range_q.at(0),
                                            inters.result(),
                                            range_p.is_last_segment(),
-                                           range_q.is_last_segment());
+                                           range_q.is_last_segment(),
+                                           strategy);
 
         bool append0_last
             = analyse_segment_and_assign_ip(range_p, range_q,

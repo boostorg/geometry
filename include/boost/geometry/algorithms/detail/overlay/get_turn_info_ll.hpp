@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -74,7 +74,8 @@ struct get_turn_info_linear_linear
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<true, true>
                     ::apply(range_p, range_q,
-                            tp_model, inters, method_none, out);
+                            tp_model, inters, method_none, out,
+                            strategy.get_point_in_point_strategy());
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -84,7 +85,8 @@ struct get_turn_info_linear_linear
             {
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
-                                tp_model, inters, method_touch_interior, out) )
+                                tp_model, inters, method_touch_interior, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -141,7 +143,8 @@ struct get_turn_info_linear_linear
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
-                                tp_model, inters, method_touch, out) )
+                                tp_model, inters, method_touch, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -270,7 +273,8 @@ struct get_turn_info_linear_linear
             {
                 if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
-                                tp_model, inters, method_equal, out) )
+                                tp_model, inters, method_equal, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -323,7 +327,8 @@ struct get_turn_info_linear_linear
                 // Collinear
                 if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
-                                tp_model, inters,  method_collinear, out) )
+                                tp_model, inters,  method_collinear, out,
+                                strategy.get_point_in_point_strategy()) )
                 {
                     // do nothing
                 }
@@ -405,26 +410,29 @@ struct get_turn_info_linear_linear
                 // degenerate points
                 if ( BOOST_GEOMETRY_CONDITION(AssignPolicy::include_degenerate) )
                 {
+                    typedef typename IntersectionStrategy::point_in_point_strategy_type
+                        equals_strategy_type;
+
                     only_convert::apply(tp, inters.i_info());
 
                     // if any, only one of those should be true
                     if ( range_p.is_first_segment()
-                      && equals::equals_point_point(range_p.at(0), tp.point) )
+                      && equals::equals_point_point(range_p.at(0), tp.point, equals_strategy_type()) )
                     {
                         tp.operations[0].position = position_front;
                     }
                     else if ( range_p.is_last_segment()
-                           && equals::equals_point_point(range_p.at(1), tp.point) )
+                           && equals::equals_point_point(range_p.at(1), tp.point, equals_strategy_type()) )
                     {
                         tp.operations[0].position = position_back;
                     }
                     else if ( range_q.is_first_segment()
-                           && equals::equals_point_point(range_q.at(0), tp.point) )
+                           && equals::equals_point_point(range_q.at(0), tp.point, equals_strategy_type()) )
                     {
                         tp.operations[1].position = position_front;
                     }
                     else if ( range_q.is_last_segment()
-                           && equals::equals_point_point(range_q.at(1), tp.point) )
+                           && equals::equals_point_point(range_q.at(1), tp.point, equals_strategy_type()) )
                     {
                         tp.operations[1].position = position_back;
                     }

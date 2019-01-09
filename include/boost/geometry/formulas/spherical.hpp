@@ -13,6 +13,7 @@
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
@@ -98,7 +99,7 @@ static inline PointSph cart3d_to_sph(Point3d const& point_3d)
 
     math::normalize_spheroidal_coordinates
         <
-            typename coordinate_system<PointSph>::type::units,
+            typename detail::cs_angular_units<PointSph>::type,
             coord_t
         >(lon, lat);
 
@@ -183,6 +184,7 @@ inline T spherical_azimuth(T const& lon1, T const& lat1, T const& lon2, T const&
 template <typename T>
 inline int azimuth_side_value(T const& azi_a1_p, T const& azi_a1_a2)
 {
+    T const c0 = 0;
     T const pi = math::pi<T>();
     T const two_pi = math::two_pi<T>();
 
@@ -213,7 +215,7 @@ inline int azimuth_side_value(T const& azi_a1_p, T const& azi_a1_a2)
     // the difference to 0 as well
 
     // positive azimuth is on the right side
-    return math::equals(a_diff, 0)
+    return math::equals(a_diff, c0)
         || math::equals(a_diff, pi)
         || math::equals(a_diff, -pi) ? 0
         : a_diff > 0 ? -1 // right

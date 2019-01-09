@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2017.
-// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2017, 2018.
+// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -39,9 +39,9 @@ struct point_point
     template <typename Result, typename Strategy>
     static inline void apply(Point1 const& point1, Point2 const& point2,
                              Result & result,
-                             Strategy const& /*strategy*/)
+                             Strategy const& strategy)
     {
-        bool equal = detail::equals::equals_point_point(point1, point2);
+        bool equal = detail::equals::equals_point_point(point1, point2, strategy);
         if ( equal )
         {
             relate::set<interior, interior, '0'>(result);
@@ -56,8 +56,10 @@ struct point_point
     }
 };
 
-template <typename Point, typename MultiPoint>
-std::pair<bool, bool> point_multipoint_check(Point const& point, MultiPoint const& multi_point)
+template <typename Point, typename MultiPoint, typename EqPPStrategy>
+std::pair<bool, bool> point_multipoint_check(Point const& point,
+                                             MultiPoint const& multi_point,
+                                             EqPPStrategy const& strategy)
 {
     bool found_inside = false;
     bool found_outside = false;
@@ -70,7 +72,7 @@ std::pair<bool, bool> point_multipoint_check(Point const& point, MultiPoint cons
     iterator last = boost::end(multi_point);
     for ( ; it != last ; ++it )
     {
-        bool ii = detail::equals::equals_point_point(point, *it);
+        bool ii = detail::equals::equals_point_point(point, *it, strategy);
 
         if ( ii )
             found_inside = true;
@@ -92,7 +94,7 @@ struct point_multipoint
     template <typename Result, typename Strategy>
     static inline void apply(Point const& point, MultiPoint const& multi_point,
                              Result & result,
-                             Strategy const& /*strategy*/)
+                             Strategy const& strategy)
     {
         if ( boost::empty(multi_point) )
         {
@@ -101,7 +103,7 @@ struct point_multipoint
             return;
         }
 
-        std::pair<bool, bool> rel = point_multipoint_check(point, multi_point);
+        std::pair<bool, bool> rel = point_multipoint_check(point, multi_point, strategy);
 
         if ( rel.first ) // some point of MP is equal to P
         {

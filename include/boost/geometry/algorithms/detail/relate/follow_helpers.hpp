@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -333,8 +333,9 @@ private:
     std::vector<point_info> m_other_entry_points; // TODO: use map here or sorted vector?
 };
 
-template <std::size_t OpId, typename Turn>
-inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn)
+template <std::size_t OpId, typename Turn, typename EqPPStrategy>
+inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
+                                EqPPStrategy const& strategy)
 {
     segment_identifier const& prev_seg_id = prev_turn.operations[OpId].seg_id;
     segment_identifier const& curr_seg_id = curr_turn.operations[OpId].seg_id;
@@ -354,7 +355,7 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn)
         return false;
     }
 
-    return detail::equals::equals_point_point(prev_turn.point, curr_turn.point);
+    return detail::equals::equals_point_point(prev_turn.point, curr_turn.point, strategy);
 }
 
 template <boundary_query BoundaryQuery,

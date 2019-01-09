@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -108,6 +108,7 @@ template
     typename Section,
     typename Point,
     typename CircularIterator,
+    typename IntersectionStrategy,
     typename RobustPolicy
 >
 struct unique_sub_range_from_section
@@ -169,6 +170,7 @@ private :
 
     inline void advance_to_non_duplicate_next(Point const& current, CircularIterator& circular_iterator) const
     {
+        typedef typename IntersectionStrategy::point_in_point_strategy_type disjoint_strategy_type;
         typedef typename robust_point_type<Point, RobustPolicy>::type robust_point_type;
         robust_point_type current_robust_point;
         robust_point_type next_robust_point;
@@ -187,7 +189,8 @@ private :
         std::size_t check = 0;
         while(! detail::disjoint::disjoint_point_point
                 (
-                    current_robust_point, next_robust_point
+                    current_robust_point, next_robust_point,
+                    disjoint_strategy_type()
                 )
             && check++ < m_section.range_count)
         {
@@ -349,8 +352,14 @@ public :
             it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec1.bounding_box, sec2.bounding_box, robust_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
-            unique_sub_range_from_section<areal1, Section1, point1_type, circular1_iterator, RobustPolicy> unique_sub_range1(sec1, index1,
-                circular1_iterator(begin_range_1, end_range_1, next1, true), *prev1, *it1, robust_policy);
+            unique_sub_range_from_section
+                <
+                    areal1, Section1, point1_type, circular1_iterator,
+                    IntersectionStrategy, RobustPolicy
+                > unique_sub_range1(sec1, index1,
+                                    circular1_iterator(begin_range_1, end_range_1, next1, true),
+                                    *prev1, *it1,
+                                    robust_policy);
 
             signed_size_type index2 = sec2.begin_index;
             signed_size_type ndi2 = sec2.non_duplicate_index;
@@ -396,8 +405,14 @@ public :
 
                 if (! skip)
                 {
-                    unique_sub_range_from_section<areal2, Section2, point2_type, circular2_iterator, RobustPolicy> unique_sub_range2(sec2, index2,
-                        circular2_iterator(begin_range_2, end_range_2, next2), *prev2, *it2, robust_policy);
+                    unique_sub_range_from_section
+                        <
+                            areal2, Section2, point2_type, circular2_iterator,
+                            IntersectionStrategy, RobustPolicy
+                        > unique_sub_range2(sec2, index2,
+                                            circular2_iterator(begin_range_2, end_range_2, next2),
+                                            *prev2, *it2,
+                                            robust_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
 
@@ -502,7 +517,9 @@ struct section_visitor
     template <typename Section>
     inline bool apply(Section const& sec1, Section const& sec2)
     {
-        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box))
+        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
+                                                 sec2.bounding_box,
+                                                 m_intersection_strategy.get_disjoint_box_box_strategy()))
         {
             // false if interrupted
             return get_turns_in_sections
@@ -561,11 +578,13 @@ public:
 
         typename IntersectionStrategy::envelope_strategy_type const
             envelope_strategy = intersection_strategy.get_envelope_strategy();
+        typename IntersectionStrategy::expand_strategy_type const
+            expand_strategy = intersection_strategy.get_expand_strategy();
 
         geometry::sectionalize<Reverse1, dimensions>(geometry1, robust_policy,
-                sec1, envelope_strategy, 0);
+                sec1, envelope_strategy, expand_strategy, 0);
         geometry::sectionalize<Reverse2, dimensions>(geometry2, robust_policy,
-                sec2, envelope_strategy, 1);
+                sec2, envelope_strategy, expand_strategy, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor
@@ -579,12 +598,21 @@ public:
                       intersection_strategy, robust_policy,
                       turns, interrupt_policy);
 
+        typedef detail::section::get_section_box
+            <
+                typename IntersectionStrategy::expand_box_strategy_type
+            > get_section_box_type;
+        typedef detail::section::overlaps_section_box
+            <
+                typename IntersectionStrategy::disjoint_box_box_strategy_type
+            > overlaps_section_box_type;
+
         geometry::partition
             <
                 box_type
             >::apply(sec1, sec2, visitor,
-                     detail::section::get_section_box(),
-                     detail::section::overlaps_section_box());
+                     get_section_box_type(),
+                     overlaps_section_box_type());
     }
 };
 
