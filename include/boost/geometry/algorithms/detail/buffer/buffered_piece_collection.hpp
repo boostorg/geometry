@@ -145,6 +145,8 @@ struct buffered_piece_collection
         >::type robust_comparable_radius_type;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
+    typedef typename IntersectionStrategy::envelope_strategy_type envelope_strategy_type;
+    typedef typename IntersectionStrategy::expand_strategy_type expand_strategy_type;
 
     typedef typename IntersectionStrategy::template area_strategy
         <
@@ -280,12 +282,18 @@ struct buffered_piece_collection
         {}
 
         inline robust_original(robust_ring_type const& ring,
-                bool is_interior, bool has_interiors)
+                bool is_interior, bool has_interiors,
+                IntersectionStrategy const& intersection_strategy)
             : m_ring(ring)
             , m_is_interior(is_interior)
             , m_has_interiors(has_interiors)
         {
-            geometry::envelope(m_ring, m_box);
+            typename IntersectionStrategy::envelope_strategy_type const
+                envelope_strategy = intersection_strategy.get_envelope_strategy();
+            typename IntersectionStrategy::expand_strategy_type const
+                expand_strategy = intersection_strategy.get_expand_strategy();
+
+            geometry::envelope(m_ring, m_box, envelope_strategy);
 
             // create monotonic sections in x-dimension
             // The dimension is critical because the direction is later used
@@ -293,7 +301,8 @@ struct buffered_piece_collection
             // and this strategy is scanning in x direction.
             typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
             geometry::sectionalize<false, dimensions>(m_ring,
-                    detail::no_rescale_policy(), m_sections);
+                    detail::no_rescale_policy(), m_sections,
+                    envelope_strategy, expand_strategy);
         }
 
         robust_ring_type m_ring;
@@ -335,6 +344,9 @@ struct buffered_piece_collection
     IntersectionStrategy m_intersection_strategy;
     side_strategy_type m_side_strategy;
     area_strategy_type m_area_strategy;
+    envelope_strategy_type m_envelope_strategy;
+    expand_strategy_type m_expand_strategy;
+
     robust_area_strategy_type m_robust_area_strategy;
     RobustPolicy const& m_robust_policy;
 
@@ -354,6 +366,8 @@ struct buffered_piece_collection
         , m_intersection_strategy(intersection_strategy)
         , m_side_strategy(intersection_strategy.get_side_strategy())
         , m_area_strategy(intersection_strategy.template get_area_strategy<point_type>())
+        , m_envelope_strategy(intersection_strategy.get_envelope_strategy())
+        , m_expand_strategy(intersection_strategy.get_expand_strategy())
         , m_robust_area_strategy(intersection_strategy.template get_area_strategy<robust_point_type>())
         , m_robust_policy(robust_policy)
     {}
@@ -850,7 +864,8 @@ struct buffered_piece_collection
         // create monotonic sections in y-dimension
         typedef boost::mpl::vector_c<std::size_t, 1> dimensions;
         geometry::sectionalize<false, dimensions>(pc.robust_ring,
-                detail::no_rescale_policy(), pc.sections);
+                detail::no_rescale_policy(), pc.sections,
+                m_envelope_strategy, m_expand_strategy);
 
         // Determine min/max radius
         typedef geometry::model::referring_segment<robust_point_type const>
@@ -1084,7 +1099,7 @@ struct buffered_piece_collection
 
             robust_originals.push_back(
                 robust_original(current_robust_ring,
-                    is_interior, has_interiors));
+                    is_interior, has_interiors, m_intersection_strategy));
         }
     }
 
@@ -1201,7 +1216,7 @@ struct buffered_piece_collection
             return;
         }
 
-        geometry::envelope(pc.robust_ring, pc.robust_envelope);
+        geometry::envelope(pc.robust_ring, pc.robust_envelope, m_envelope_strategy);
 
         geometry::assign_inverse(pc.robust_offsetted_envelope);
         for (signed_size_type i = 0; i < pc.offsetted_count; i++)
