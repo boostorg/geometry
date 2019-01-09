@@ -232,6 +232,7 @@ void test_buffer(std::string const& caseid,
         <
             typename bg::cs_tag<Geometry>::type
         >::type strategy_type;
+    typedef typename strategy_type::envelope_strategy_type envelope_strategy_type;
 
     // Enlarge the box to get a proper rescale policy
     bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
@@ -239,6 +240,8 @@ void test_buffer(std::string const& caseid,
     strategy_type strategy;
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(envelope);
+
+    envelope_strategy_type envelope_strategy;
 
     buffered.clear();
     bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
@@ -277,7 +280,7 @@ void test_buffer(std::string const& caseid,
 
     bg::model::box<point_type> envelope_output;
     bg::assign_values(envelope_output, 0, 0, 1,  1);
-    bg::envelope(buffered, envelope_output);
+    bg::envelope(buffered, envelope_output, envelope_strategy);
 
     //    std::cout << caseid << std::endl;
     //    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
