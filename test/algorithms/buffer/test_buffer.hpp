@@ -135,6 +135,7 @@ template
     typename DistanceStrategy,
     typename SideStrategy,
     typename PointStrategy,
+    typename AreaStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid,
@@ -145,6 +146,7 @@ void test_buffer(std::string const& caseid,
             DistanceStrategy const& distance_strategy,
             SideStrategy const& side_strategy,
             PointStrategy const& point_strategy,
+            AreaStrategy const& area_strategy,
             int expected_count,
             int expected_holes_count,
             double expected_area,
@@ -308,7 +310,7 @@ void test_buffer(std::string const& caseid,
 
     if (settings.test_area)
     {
-        typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
+        typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered, area_strategy);
         double const difference = area - expected_area;
         BOOST_CHECK_MESSAGE
             (
@@ -372,8 +374,14 @@ void test_buffer(std::string const& caseid, bg::model::multi_polygon<GeometryOut
             double expected_area,
             ut_settings const& settings = ut_settings())
 {
+    typename bg::strategy::area::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry>::type
+        >::type area_strategy;
+
     test_buffer<GeometryOut>(caseid, buffered, geometry,
         join_strategy, end_strategy, distance_strategy, side_strategy, point_strategy,
+        area_strategy,
         -1, -1, expected_area, settings);
 }
 
@@ -422,11 +430,17 @@ void test_one(std::string const& caseid, std::string const& wkt,
                         bg::math::equals(distance_right, same_distance)
                         ? distance_left : distance_right);
 
+    typename bg::strategy::area::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry>::type
+        >::type area_strategy;
+
     bg::model::multi_polygon<GeometryOut> buffered;
     test_buffer<GeometryOut>
             (caseid, buffered, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
+            area_strategy,
             expected_count, expected_holes_count, expected_area,
             settings);
 
@@ -445,6 +459,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
                 (caseid + "_sym", buffered, g,
                 join_strategy, end_strategy,
                 sym_distance_strategy, side_strategy, circle_strategy,
+                area_strategy,
                 expected_count, expected_holes_count, expected_area,
                 settings);
 
