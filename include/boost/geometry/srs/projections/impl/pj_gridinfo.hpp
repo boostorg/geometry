@@ -44,6 +44,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/cstdint.hpp>
 

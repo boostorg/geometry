@@ -3,6 +3,7 @@
 // Copyright (c) 2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -15,13 +16,14 @@
 
 #include <boost/geometry/core/radius.hpp>
 
-#include <boost/geometry/util/condition.hpp>
-#include <boost/geometry/util/math.hpp>
-
-#include <boost/geometry/formulas/meridian_inverse.hpp>
+#include <boost/geometry/formulas/differential_quantities.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/meridian_inverse.hpp>
 #include <boost/geometry/formulas/quarter_meridian.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
+
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {

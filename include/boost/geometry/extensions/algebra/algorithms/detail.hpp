@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -12,7 +16,14 @@
 // TODO - for multiplication of coordinates
 // if coordinate_type is_integral - use double as the result type
 
+#include <boost/geometry/extensions/algebra/core/access.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_type.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
+
+#include <boost/static_assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -37,8 +48,8 @@ struct dot_impl
     BOOST_STATIC_ASSERT(0 < N);
 
     typedef typename geometry::select_most_precise<
-        typename traits::coordinate_type<S1>::type,
-        typename traits::coordinate_type<S2>::type
+        typename geometry::coordinate_type<S1>::type,
+        typename geometry::coordinate_type<S2>::type
     >::type coordinate_type;
 
     static inline coordinate_type apply(S1 const& s1, S2 const& s2)
@@ -51,8 +62,8 @@ template <typename S1, typename S2, std::size_t IS1, std::size_t IS2>
 struct dot_impl<S1, S2, IS1, IS2, 1>
 {
     typedef typename geometry::select_most_precise<
-        typename traits::coordinate_type<S1>::type,
-        typename traits::coordinate_type<S2>::type
+        typename geometry::coordinate_type<S1>::type,
+        typename geometry::coordinate_type<S2>::type
     >::type coordinate_type;
 
     static inline coordinate_type apply(S1 const& s1, S2 const& s2)
@@ -64,8 +75,8 @@ struct dot_impl<S1, S2, IS1, IS2, 1>
 template <std::size_t IS1, std::size_t IS2, std::size_t N, typename S1, typename S2>
 inline static
 typename geometry::select_most_precise<
-    typename traits::coordinate_type<S1>::type,
-    typename traits::coordinate_type<S2>::type
+    typename geometry::coordinate_type<S1>::type,
+    typename geometry::coordinate_type<S2>::type
 >::type
 dot(S1 const& s1, S2 const& s2)
 {
@@ -143,7 +154,7 @@ struct matrix_mul_row_impl
 {
     BOOST_STATIC_ASSERT(0 < N);
 
-    static const std::size_t dimension = traits::dimension<M>::value;
+    static const std::size_t dimension = geometry::dimension<M>::value;
 
     static inline
     typename traits::coordinate_type<VD>::type
@@ -156,7 +167,7 @@ struct matrix_mul_row_impl
 template <typename M, typename V, typename VD, std::size_t I>
 struct matrix_mul_row_impl<M, V, VD, I, 1>
 {
-    static const std::size_t dimension = traits::dimension<M>::value;
+    static const std::size_t dimension = geometry::dimension<M>::value;
 
     static inline
     typename traits::coordinate_type<VD>::type
@@ -187,7 +198,7 @@ struct matrix_mul_impl<M, V, VD, N, N>
 template <typename M, typename V, typename VD>
 inline static void matrix_rotate(M const& m, V const& v, VD & vd)
 {
-    static const std::size_t dimension = traits::dimension<M>::value;
+    static const std::size_t dimension = geometry::dimension<M>::value;
 
     matrix_mul_impl<M, V, VD, 0, dimension>::apply(m, v, vd);
 }
@@ -200,8 +211,8 @@ inline static void quaternion_rotate(V & v, Q const& r)
     // TODO - choose more precise type?
 
     typedef typename geometry::select_most_precise<
-        typename traits::coordinate_type<V>::type,
-        typename traits::coordinate_type<Q>::type
+        typename geometry::coordinate_type<V>::type,
+        typename geometry::coordinate_type<Q>::type
     >::type T;
 
     // Hamilton product T=Q*V

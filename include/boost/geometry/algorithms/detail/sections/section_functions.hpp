@@ -22,6 +22,8 @@
 // For spherical/geographic longitudes covered_by point/box
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 
+#include <boost/geometry/util/select_coordinate_type.hpp>
+
 
 namespace boost { namespace geometry
 {
