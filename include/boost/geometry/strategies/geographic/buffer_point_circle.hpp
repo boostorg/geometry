@@ -25,12 +25,21 @@ namespace strategy { namespace buffer
 {
 
 /*!
-\brief Create a circular buffer around a point, on the earth
+\brief Create a circular buffer around a point, on the Earth
 \ingroup strategies
 \details This strategy can be used as PointStrategy for the buffer algorithm.
-    It creates a circular buffer around a point, on the earth. It can be applied
-    for points and multi_points, but also for a linestring (if it is degenerate,
-    so consisting of only one point) and for polygons (if it is degenerate).
+    It creates a circular buffer around a point, on the Earth. It can be applied
+    for points and multi_points.
+
+\qbk{
+[heading Example]
+[buffer_point_circle_geographic]
+[buffer_point_circle_geographic_output]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_point_circle point_circle]
+\* [link geometry.reference.strategies.strategy_buffer_point_square point_square]
+}
  */
 template
 <
