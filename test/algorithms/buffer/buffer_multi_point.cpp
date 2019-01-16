@@ -80,6 +80,11 @@ void test_all()
             115057490003226.125, ut_settings(1.0));
 
     {
+        typename bg::strategy::area::services::default_strategy
+            <
+                typename bg::cs_tag<P>::type
+            >::type area_strategy;
+
         multi_point_type g;
         bg::read_wkt(mysql_report_3, g);
         bg::model::multi_polygon<polygon> buffered;
@@ -89,6 +94,7 @@ void test_all()
             distance_strategy(1),
             side_strategy,
             bg::strategy::buffer::point_circle(36),
+            area_strategy,
             1, 0, 3.12566719800474635, ut_settings(1.0));
     }
 }
