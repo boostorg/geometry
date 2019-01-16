@@ -362,6 +362,7 @@
 [include generated/buffer_distance_symmetric.qbk]
 [include generated/buffer_distance_asymmetric.qbk]
 [include generated/buffer_point_circle.qbk]
+[include generated/buffer_point_circle_geographic.qbk]
 [include generated/buffer_point_square.qbk]
 [include generated/buffer_side_straight.qbk]
 [include generated/centroid_average.qbk]
