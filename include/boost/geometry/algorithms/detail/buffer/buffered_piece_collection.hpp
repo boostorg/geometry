@@ -283,16 +283,12 @@ struct buffered_piece_collection
 
         inline robust_original(robust_ring_type const& ring,
                 bool is_interior, bool has_interiors,
-                IntersectionStrategy const& intersection_strategy)
+                envelope_strategy_type const& envelope_strategy,
+                expand_strategy_type const& expand_strategy)
             : m_ring(ring)
             , m_is_interior(is_interior)
             , m_has_interiors(has_interiors)
         {
-            typename IntersectionStrategy::envelope_strategy_type const
-                envelope_strategy = intersection_strategy.get_envelope_strategy();
-            typename IntersectionStrategy::expand_strategy_type const
-                expand_strategy = intersection_strategy.get_expand_strategy();
-
             geometry::envelope(m_ring, m_box, envelope_strategy);
 
             // create monotonic sections in x-dimension
@@ -1099,7 +1095,7 @@ struct buffered_piece_collection
 
             robust_originals.push_back(
                 robust_original(current_robust_ring,
-                    is_interior, has_interiors, m_intersection_strategy));
+                    is_interior, has_interiors, m_envelope_strategy, m_expand_strategy));
         }
     }
 
