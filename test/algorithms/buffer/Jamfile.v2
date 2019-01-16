@@ -1,6 +1,6 @@
 # Boost.Geometry (aka GGL, Generic Geometry Library)
 #
-# Copyright (c) 2011-2013 Barend Gehrels, Amsterdam, the Netherlands.
+# Copyright (c) 2011-2019 Barend Gehrels, Amsterdam, the Netherlands.
 #
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,6 +17,7 @@ test-suite boost-geometry-algorithms-buffer
     [ run buffer.cpp                  : : : : algorithms_buffer ]
     [ run buffer_with_strategies.cpp  : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_with_strategies ]
     [ run buffer_point.cpp            : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_point ]
+    [ run buffer_point_geo.cpp        : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_point_geo ]
     [ run buffer_linestring.cpp       : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_linestring ]
     [ run buffer_ring.cpp             : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_ring ]
     [ run buffer_polygon.cpp          : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_polygon ]
