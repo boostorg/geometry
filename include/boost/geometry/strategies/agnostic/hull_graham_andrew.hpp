@@ -192,9 +192,6 @@ static inline void sort(Range& range)
 /*!
 \brief Graham scan strategy to calculate convex hull
 \ingroup strategies
-\note Completely reworked version inspired on the sources listed below
-\see http://www.ddj.com/architect/201806315
-\see http://marknelson.us/2007/08/22/convex
  */
 template <typename InputGeometry, typename OutputPoint>
 class graham_andrew
