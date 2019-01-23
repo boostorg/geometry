@@ -26,16 +26,18 @@
 #include <vector>
 #include <limits>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/range.hpp>
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/util/range.hpp>
 
-namespace bgi = boost::geometry::index;
+#ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
+#include <boost/geometry/index/rtree.hpp>
+#endif // BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
 
 namespace boost { namespace geometry
 {
@@ -70,7 +72,7 @@ struct point_range
 
         for (size_type i = 0 ; i < n ; i++)
         {
-            result_type dis_temp = geometry::distance(pnt, range::at(rng, i), strategy);
+            result_type dis_temp = strategy.apply(pnt, range::at(rng, i));
             if (! is_dis_min_set || dis_temp < dis_min)
             {
                 dis_min = dis_temp;
@@ -110,6 +112,7 @@ struct range_range
         result_type dis_max = 0;
 
 #ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
+        namespace bgi = boost::geometry::index;
         typedef typename point_type<Range1>::type point_t;
         typedef bgi::rtree<point_t, bgi::linear<4> > rtree_type;
         rtree_type rtree(boost::begin(r2), boost::end(r2));
@@ -120,7 +123,7 @@ struct range_range
         {
 #ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
             size_type found = rtree.query(bgi::nearest(range::at(r1, i), 1), &res);
-            result_type dis_min = geometry::distance(range::at(r1,i), res);
+            result_type dis_min = strategy.apply(range::at(r1,i), res);
 #else
             result_type dis_min = point_range::apply(range::at(r1, i), r2, strategy);
 #endif
@@ -246,15 +249,15 @@ struct discrete_hausdorff_distance<MultiPoint1, MultiPoint2, multi_point_tag, mu
     : detail::discrete_hausdorff_distance::range_range
 {};
 
-// Specialization for linestring and multi_linestring
-template <typename linestring, typename multi_linestring>
-struct discrete_hausdorff_distance<linestring, multi_linestring, linestring_tag, multi_linestring_tag>
+// Specialization for Linestring and MultiLinestring
+template <typename Linestring, typename MultiLinestring>
+struct discrete_hausdorff_distance<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
     : detail::discrete_hausdorff_distance::range_multi_range
 {};
 
-// Specialization for multi_linestring and multi_linestring
-template <typename multi_linestring1, typename multi_linestring2>
-struct discrete_hausdorff_distance<multi_linestring1, multi_linestring2, multi_linestring_tag, multi_linestring_tag>
+// Specialization for MultiLinestring and MultiLinestring
+template <typename MultiLinestring1, typename MultiLinestring2>
+struct discrete_hausdorff_distance<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
     : detail::discrete_hausdorff_distance::multi_range_multi_range
 {};
 

@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -23,6 +23,8 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
+#include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -42,8 +44,6 @@ namespace strategy { namespace within
 \tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
-\note The implementation is inspired by terralib http://www.terralib.org (LGPL)
-\note but totally revised afterwards, especially for cases on segments
 
 \qbk{
 [heading See also]
@@ -102,6 +102,20 @@ public:
     {
         return side_strategy_type::get_disjoint_strategy();
     }
+
+    typedef typename side_strategy_type::equals_point_point_strategy_type equals_point_point_strategy_type;
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return side_strategy_type::get_equals_point_point_strategy();
+    }
+
+    typedef disjoint::cartesian_box_box disjoint_box_box_strategy_type;
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
+    }
+
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
 
     // Typedefs and static methods to fulfill the concept
     typedef Point point_type;

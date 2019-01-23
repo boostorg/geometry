@@ -2,7 +2,7 @@
 //
 // boxes union/intersection area/volume
 //
-// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -24,7 +24,12 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template <typename Box>
 inline typename default_content_result<Box>::type intersection_content(Box const& box1, Box const& box2)
 {
-    bool const intersects = ! geometry::detail::disjoint::box_box<Box, Box>::apply(box1, box2);
+    typedef typename strategy::disjoint::services::default_strategy
+        <
+            Box, Box
+        >::type strategy_type;
+
+    bool const intersects = ! geometry::detail::disjoint::disjoint_box_box(box1, box2, strategy_type());
 
     if ( intersects )
     {
