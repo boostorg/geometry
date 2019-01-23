@@ -336,6 +336,8 @@ inline void self_turns(Geometry const& geometry,
     \param turns container which will contain intersection points
     \param interrupt_policy policy determining if process is stopped
         when intersection is found
+    \param source_index source index for generated turns
+    \param skip_adjacent indicates if adjacent turns should be skipped
  */
 template
 <
