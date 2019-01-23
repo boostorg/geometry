@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -29,9 +29,14 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
+#include <boost/geometry/srs/spheroid.hpp>
+
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint
@@ -89,7 +94,13 @@ public:
             > azimuth_geographic(m_spheroid);
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
-                <geographic_tag>::apply(segment, box, azimuth_geographic);
+                <
+                    geographic_tag
+                >::apply(segment, box,
+                         azimuth_geographic,
+                         strategy::normalize::spherical_point(),
+                         strategy::covered_by::spherical_point_box(),
+                         strategy::disjoint::spherical_box_box());
     }
 
 private:

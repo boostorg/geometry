@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,6 +17,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
@@ -40,20 +41,21 @@ namespace detail { namespace relate
 template
 <
     typename Geometry,
+    typename EqPPStrategy,
     typename Tag = typename tag<Geometry>::type
 >
 struct multi_point_geometry_eb
 {
     template <typename MultiPoint>
     static inline bool apply(MultiPoint const& ,
-                             detail::relate::topology_check<Geometry> const& )
+                             detail::relate::topology_check<Geometry, EqPPStrategy> const& )
     {
         return true;
     }
 };
 
-template <typename Geometry>
-struct multi_point_geometry_eb<Geometry, linestring_tag>
+template <typename Geometry, typename EqPPStrategy>
+struct multi_point_geometry_eb<Geometry, EqPPStrategy, linestring_tag>
 {
     template <typename Points>
     struct boundary_visitor
@@ -73,7 +75,7 @@ struct multi_point_geometry_eb<Geometry, linestring_tag>
             template <typename Pt>
             bool operator()(Pt const& pt) const
             {
-                return detail::equals::equals_point_point(pt, m_point);
+                return detail::equals::equals_point_point(pt, m_point, EqPPStrategy());
             }
 
             Point const& m_point;
@@ -99,7 +101,7 @@ struct multi_point_geometry_eb<Geometry, linestring_tag>
 
     template <typename MultiPoint>
     static inline bool apply(MultiPoint const& multi_point,
-                             detail::relate::topology_check<Geometry> const& tc)
+                             detail::relate::topology_check<Geometry, EqPPStrategy> const& tc)
     {
         boundary_visitor<MultiPoint> visitor(multi_point);
         tc.for_each_boundary_point(visitor);
@@ -107,9 +109,12 @@ struct multi_point_geometry_eb<Geometry, linestring_tag>
     }
 };
 
-template <typename Geometry>
-struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
+template <typename Geometry, typename EqPPStrategy>
+struct multi_point_geometry_eb<Geometry, EqPPStrategy, multi_linestring_tag>
 {
+    // TODO: CS-specific less compare strategy derived from EqPPStrategy
+    typedef geometry::less<> less_type;
+
     template <typename Points>
     struct boundary_visitor
     {
@@ -121,7 +126,7 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         template <typename Point>
         bool apply(Point const& boundary_point)
         {
-            if (! std::binary_search(m_points.begin(), m_points.end(), boundary_point, geometry::less<>()))
+            if (! std::binary_search(m_points.begin(), m_points.end(), boundary_point, less_type()))
             {
                 m_boundary_found = true;
                 return false;
@@ -138,12 +143,12 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
 
     template <typename MultiPoint>
     static inline bool apply(MultiPoint const& multi_point,
-                             detail::relate::topology_check<Geometry> const& tc)
+                             detail::relate::topology_check<Geometry, EqPPStrategy> const& tc)
     {
         typedef typename boost::range_value<MultiPoint>::type point_type;
         typedef std::vector<point_type> points_type;
         points_type points(boost::begin(multi_point), boost::end(multi_point));
-        std::sort(points.begin(), points.end(), geometry::less<>());
+        std::sort(points.begin(), points.end(), less_type());
 
         boundary_visitor<points_type> visitor(points);
         tc.for_each_boundary_point(visitor);
@@ -165,6 +170,8 @@ struct multi_point_single_geometry
     {
         typedef typename point_type<SingleGeometry>::type point2_type;
         typedef model::box<point2_type> box2_type;
+        typedef typename Strategy::equals_point_point_strategy_type eq_pp_strategy_type;
+        typedef typename Strategy::disjoint_point_box_strategy_type d_pb_strategy_type;
         
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy.get_envelope_strategy());
@@ -181,7 +188,7 @@ struct multi_point_single_geometry
             }
 
             // The default strategy is enough for Point/Box
-            if (detail::disjoint::disjoint_point_box(*it, box2))
+            if (detail::disjoint::disjoint_point_box(*it, box2, d_pb_strategy_type()))
             {
                 relate::set<interior, exterior, '0', Transpose>(result);
             }
@@ -209,7 +216,10 @@ struct multi_point_single_geometry
             }
         }
 
-        typedef detail::relate::topology_check<SingleGeometry> tc_t;
+        typedef detail::relate::topology_check
+            <
+                SingleGeometry, eq_pp_strategy_type
+            > tc_t;
         if ( relate::may_update<exterior, interior, tc_t::interior, Transpose>(result)
           || relate::may_update<exterior, boundary, tc_t::boundary, Transpose>(result) )
         {
@@ -226,8 +236,13 @@ struct multi_point_single_geometry
             if ( relate::may_update<exterior, boundary, tc_t::boundary, Transpose>(result)
               && tc.has_boundary() )
             {
-                if (multi_point_geometry_eb<SingleGeometry>::apply(multi_point, tc))
+                if (multi_point_geometry_eb
+                        <
+                            SingleGeometry, eq_pp_strategy_type
+                        >::apply(multi_point, tc))
+                {
                     relate::set<exterior, boundary, tc_t::boundary, Transpose>(result);
+                }
             }
         }
 
@@ -260,32 +275,40 @@ class multi_point_multi_geometry_ii_ib
         }
     };
 
+    template <typename DisjointPointBoxStrategy>
     struct overlaps_box_point
     {
         template <typename Box, typename Point>
         static inline bool apply(Box const& box, Point const& point)
         {
             // The default strategy is enough for Point/Box
-            return ! detail::disjoint::disjoint_point_box(point, box);
+            return ! detail::disjoint::disjoint_point_box(point, box,
+                                                          DisjointPointBoxStrategy());
         }
     };
 
+    template <typename DisjointBoxBoxStrategy>
     struct overlaps_box_box_pair
     {
         template <typename Box, typename BoxPair>
         static inline bool apply(Box const& box, BoxPair const& box_pair)
         {
             // The default strategy is enough for Box/Box
-            return ! detail::disjoint::disjoint_box_box(box_pair.first, box);
+            return ! detail::disjoint::disjoint_box_box(box_pair.first, box,
+                                                        DisjointBoxBoxStrategy());
         }
     };
 
     template <typename Result, typename PtSegStrategy>
     class item_visitor_type
     {
+        typedef typename PtSegStrategy::equals_point_point_strategy_type pp_strategy_type;
+        typedef typename PtSegStrategy::disjoint_point_box_strategy_type d_pp_strategy_type;
+        typedef detail::relate::topology_check<MultiGeometry, pp_strategy_type> topology_check_type;
+
     public:
         item_visitor_type(MultiGeometry const& multi_geometry,
-                          detail::relate::topology_check<MultiGeometry> const& tc,
+                          topology_check_type const& tc,
                           Result & result,
                           PtSegStrategy const& strategy)
             : m_multi_geometry(multi_geometry)
@@ -298,7 +321,7 @@ class multi_point_multi_geometry_ii_ib
         inline bool apply(Point const& point, BoxPair const& box_pair)
         {
             // The default strategy is enough for Point/Box
-            if (! detail::disjoint::disjoint_point_box(point, box_pair.first))
+            if (! detail::disjoint::disjoint_point_box(point, box_pair.first, d_pp_strategy_type()))
             {
                 typename boost::range_value<MultiGeometry>::type const&
                     single = range::at(m_multi_geometry, box_pair.second);
@@ -335,7 +358,7 @@ class multi_point_multi_geometry_ii_ib
 
     private:
         MultiGeometry const& m_multi_geometry;
-        detail::relate::topology_check<MultiGeometry> const& m_tc;
+        topology_check_type const& m_tc;
         Result & m_result;
         PtSegStrategy const& m_strategy;
     };
@@ -351,20 +374,33 @@ public:
     static inline void apply(MultiPoint const& multi_point,
                              MultiGeometry const& multi_geometry,
                              std::vector<box_pair_type> const& boxes,
-                             detail::relate::topology_check<MultiGeometry> const& tc,
+                             detail::relate::topology_check
+                                <
+                                    MultiGeometry,
+                                    typename Strategy::equals_point_point_strategy_type
+                                > const& tc,
                              Result & result,
                              Strategy const& strategy)
     {
         item_visitor_type<Result, Strategy> visitor(multi_geometry, tc, result, strategy);
+
+        typedef overlaps_box_point
+            <
+                typename Strategy::disjoint_point_box_strategy_type
+            > overlaps_box_point_type;
+        typedef overlaps_box_box_pair
+            <
+                typename Strategy::disjoint_box_box_strategy_type
+            > overlaps_box_box_pair_type;
 
         geometry::partition
             <
                 box1_type
             >::apply(multi_point, boxes, visitor,
                      expand_box_point(),
-                     overlaps_box_point(),
+                     overlaps_box_point_type(),
                      expand_box_box_pair(),
-                     overlaps_box_box_pair());
+                     overlaps_box_box_pair_type());
     }
 
 };
@@ -387,7 +423,11 @@ struct multi_point_multi_geometry_ii_ib_ie
     static inline void apply(MultiPoint const& multi_point,
                              MultiGeometry const& multi_geometry,
                              std::vector<box_pair_type> const& boxes,
-                             detail::relate::topology_check<MultiGeometry> const& tc,
+                             detail::relate::topology_check
+                                <
+                                    MultiGeometry,
+                                    typename Strategy::equals_point_point_strategy_type
+                                > const& tc,
                              Result & result,
                              Strategy const& strategy)
     {
@@ -461,6 +501,8 @@ struct multi_point_multi_geometry
         typedef model::box<point2_type> box2_type;
         typedef std::pair<box2_type, std::size_t> box_pair_type;
 
+        typedef typename Strategy::equals_point_point_strategy_type eq_pp_strategy_type;
+
         typename Strategy::envelope_strategy_type const
             envelope_strategy = strategy.get_envelope_strategy();
         
@@ -473,7 +515,7 @@ struct multi_point_multi_geometry
             boxes[i].second = i;
         }
 
-        typedef detail::relate::topology_check<MultiGeometry> tc_t;
+        typedef detail::relate::topology_check<MultiGeometry, eq_pp_strategy_type> tc_t;
         tc_t tc(multi_geometry);
 
         if ( relate::may_update<interior, interior, '0', Transpose>(result)
@@ -512,8 +554,13 @@ struct multi_point_multi_geometry
             if ( relate::may_update<exterior, boundary, tc_t::boundary, Transpose>(result)
               && tc.has_boundary() )
             {
-                if (multi_point_geometry_eb<MultiGeometry>::apply(multi_point, tc))
+                if (multi_point_geometry_eb
+                        <
+                            MultiGeometry, eq_pp_strategy_type
+                        >::apply(multi_point, tc))
+                {
                     relate::set<exterior, boundary, tc_t::boundary, Transpose>(result);
+                }
             }
         }
 

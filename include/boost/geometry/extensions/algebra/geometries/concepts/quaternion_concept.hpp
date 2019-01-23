@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -78,7 +82,7 @@ class ConstQuaternion
         static void apply()
         {
             const G* g = 0;
-            ctype coord(geometry::get<I>(*g));
+            typename coordinate_type<Geometry>::type coord(geometry::get<I>(*g));
             boost::ignore_unused(coord);
             dimension_checker<G, I+1, N>::apply();
         }

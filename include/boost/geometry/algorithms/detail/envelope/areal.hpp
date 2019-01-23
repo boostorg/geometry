@@ -3,6 +3,7 @@
 // Copyright (c) 2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -28,7 +29,6 @@ namespace boost { namespace geometry
 namespace detail { namespace envelope
 {
 
-template <typename EnvelopePolicy>
 struct envelope_polygon
 {
     template <typename Polygon, typename Box, typename Strategy>
@@ -42,13 +42,13 @@ struct envelope_polygon
             // if the exterior ring is empty, consider the interior rings
             envelope_multi_range
                 <
-                    EnvelopePolicy
+                    envelope_range
                 >::apply(interior_rings(polygon), mbr, strategy);
         }
         else
         {
             // otherwise, consider only the exterior ring
-            EnvelopePolicy::apply(ext_ring, mbr, strategy);
+            envelope_range::apply(ext_ring, mbr, strategy);
         }
     }
 };
@@ -62,77 +62,21 @@ namespace dispatch
 {
 
 
-template <typename Ring, typename CS_Tag>
-struct envelope<Ring, ring_tag, CS_Tag>
+template <typename Ring>
+struct envelope<Ring, ring_tag>
     : detail::envelope::envelope_range
 {};
 
-template <typename Ring>
-struct envelope<Ring, ring_tag, spherical_equatorial_tag>
-    : detail::envelope::envelope_linestring_or_ring_on_spheroid
-{};
-
-template <typename Ring>
-struct envelope<Ring, ring_tag, geographic_tag>
-    : detail::envelope::envelope_linestring_or_ring_on_spheroid
-{};
-
-
-template <typename Polygon, typename CS_Tag>
-struct envelope<Polygon, polygon_tag, CS_Tag>
-    : detail::envelope::envelope_polygon
-        <
-            detail::envelope::envelope_range
-        >
-{};
-
 template <typename Polygon>
-struct envelope<Polygon, polygon_tag, spherical_equatorial_tag>
+struct envelope<Polygon, polygon_tag>
     : detail::envelope::envelope_polygon
-        <
-            detail::envelope::envelope_linestring_or_ring_on_spheroid
-        >
-{};
-
-template <typename Polygon>
-struct envelope<Polygon, polygon_tag, geographic_tag>
-    : detail::envelope::envelope_polygon
-        <
-            detail::envelope::envelope_linestring_or_ring_on_spheroid
-        >
-{};
-
-
-template <typename MultiPolygon, typename CS_Tag>
-struct envelope<MultiPolygon, multi_polygon_tag, CS_Tag>
-    : detail::envelope::envelope_multi_range
-        <
-            detail::envelope::envelope_polygon
-              <
-                  detail::envelope::envelope_range
-              >
-        >
 {};
 
 template <typename MultiPolygon>
-struct envelope<MultiPolygon, multi_polygon_tag, spherical_equatorial_tag>
+struct envelope<MultiPolygon, multi_polygon_tag>
     : detail::envelope::envelope_multi_range
         <
             detail::envelope::envelope_polygon
-              <
-                  detail::envelope::envelope_linestring_or_ring_on_spheroid
-              >
-        >
-{};
-
-template <typename MultiPolygon>
-struct envelope<MultiPolygon, multi_polygon_tag, geographic_tag>
-    : detail::envelope::envelope_multi_range
-        <
-            detail::envelope::envelope_polygon
-              <
-                  detail::envelope::envelope_linestring_or_ring_on_spheroid
-              >
         >
 {};
 

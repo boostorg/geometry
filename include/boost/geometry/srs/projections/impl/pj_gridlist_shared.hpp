@@ -43,6 +43,7 @@
 
 #include <boost/geometry/srs/projections/shared_grids.hpp>
 #include <boost/geometry/srs/projections/impl/pj_gridinfo.hpp>
+#include <boost/geometry/srs/projections/impl/pj_gridlist.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
