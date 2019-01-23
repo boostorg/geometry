@@ -352,35 +352,52 @@ struct traversal
         // If both are valid candidates, take the one with minimal remaining
         // distance (important for #mysql_23023665 in buffer).
 
-        // Initialize with 0, automatically assigned on first result
+        turn_operation_type const& op0 = turn.operations[0];
+        turn_operation_type const& op1 = turn.operations[1];
+        signed_size_type const next0 = op0.enriched.get_next_turn_index();
+        signed_size_type const next1 = op1.enriched.get_next_turn_index();
+
+        bool possible[2];
+        possible[0] = traverse_possible(next0);
+        possible[1] = traverse_possible(next1);
+
+        bool const close0 = possible[0] && next0 == start_turn_index;
+        bool const close1 = possible[1] && next1 == start_turn_index;
+
+        if (close0 != close1)
+        {
+            // One of the operations will finish the ring. Take that one.
+            selected_op_index = close0 ? 0 : 1;
+            debug_traverse(turn, turn.operations[selected_op_index], "Candidate cc closing");
+            return true;
+        }
+
+        static bool const is_union = target_operation == operation_union;
+
         typename turn_operation_type::comparable_distance_type
-                min_remaining_distance = 0;
+                best_remaining_distance = 0;
 
         bool result = false;
 
         for (int i = 0; i < 2; i++)
         {
-            turn_operation_type const& op = turn.operations[i];
-
-            signed_size_type const next_turn_index = op.enriched.get_next_turn_index();
-
-            if (! traverse_possible(next_turn_index))
+            if (!possible[i])
             {
                 continue;
             }
 
+            turn_operation_type const& op = turn.operations[i];
+
             if (! result
-                || next_turn_index == start_turn_index
-                || op.remaining_distance < min_remaining_distance)
+                || (is_union && op.remaining_distance > best_remaining_distance)
+                || (!is_union && op.remaining_distance < best_remaining_distance))
             {
                 debug_traverse(turn, op, "First candidate cc", ! result);
-                debug_traverse(turn, op, "Candidate cc override (start)",
-                    result && next_turn_index == start_turn_index);
                 debug_traverse(turn, op, "Candidate cc override (remaining)",
-                    result && op.remaining_distance < min_remaining_distance);
+                    result && op.remaining_distance < best_remaining_distance);
 
                 selected_op_index = i;
-                min_remaining_distance = op.remaining_distance;
+                best_remaining_distance = op.remaining_distance;
                 result = true;
             }
         }
