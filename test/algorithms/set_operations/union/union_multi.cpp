@@ -460,6 +460,9 @@ void test_areal()
 
     TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
 
+    // Generates two polygons, which should (without rescaling) be merged into one
+    TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
+
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
 #else
