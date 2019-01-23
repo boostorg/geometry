@@ -208,10 +208,11 @@ struct traversal_ring_creator
 
         if (start_turn.is_clustered())
         {
-            turn_type const& turn = m_turns[current_turn_index];
-            if (turn.cluster_id == start_turn.cluster_id)
+            turn_type& turn = m_turns[current_turn_index];
+            turn_operation_type& op = turn.operations[current_op_index];
+            if (turn.cluster_id == start_turn.cluster_id
+                && op.enriched.get_next_turn_index() == start_turn_index)
             {
-                turn_operation_type& op = m_turns[start_turn_index].operations[current_op_index];
                 op.visited.set_finished();
                 m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish (cluster)");
                 return traverse_error_none;
