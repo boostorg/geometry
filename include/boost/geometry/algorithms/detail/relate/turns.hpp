@@ -48,7 +48,11 @@ template
         <
             Geometry1, Geometry2, assign_policy<>
         >,
-    typename RobustPolicy = detail::no_rescale_policy
+    typename RobustPolicy = typename geometry::rescale_overlay_policy_type
+                                <
+                                    Geometry1,
+                                    Geometry2
+                                >::type
 >
 struct get_turns
 {
