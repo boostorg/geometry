@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -51,7 +51,7 @@ struct convert_and_push_back
 struct convert_and_assign
 {
     template <typename Point1, typename Point2>
-    inline void apply(Point1& p1, Point2& p2)
+    inline void apply(Point1 const& p1, Point2& p2)
     {
         geometry::detail::conversion::convert_point_to_point(p1, p2);
     }
