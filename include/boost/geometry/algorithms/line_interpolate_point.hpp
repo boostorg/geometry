@@ -66,10 +66,10 @@ struct convert_and_assign
 template <typename Policy>
 struct range
 {
-    template <typename Range, typename PointType, typename Strategy>
+    template <typename Range, typename PointLike, typename Strategy>
     static inline void apply(Range const& range,
                              double const& fraction,
-                             PointType & p_or_mp,
+                             PointLike & pointlike,
                              Strategy const& strategy)
     {
         Policy policy;
@@ -96,12 +96,12 @@ struct range
         }
         if (fraction == 0)
         {
-            policy.apply(*it, p_or_mp);
+            policy.apply(*it, pointlike);
             return;
         }
         if (fraction == 1)
         {
-            policy.apply(*(end-1), p_or_mp);
+            policy.apply(*(end-1), pointlike);
             return;
         }
             
@@ -139,7 +139,7 @@ struct range
                                (repeated_fraction - prev_fraction) / seg_fraction,
                                p, *vit);
                 single_point = boost::is_same<Policy, convert_and_assign>::value;
-                policy.apply(p, p_or_mp);
+                policy.apply(p, pointlike);
 
                 repeated_fraction = ++i * fraction;
             }
