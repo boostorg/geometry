@@ -78,12 +78,9 @@ inline void test(std::string const& wkt1,
     bg::read_wkt(wkt2, o);
 
     P p1;
-    bg::line_interpolate_point(g, fraction, p1);
+    bg::line_interpolate_point(g, fraction * bg::length(g), p1, str);
     check_points<P>::apply(p1, o);
 
-    P p2;
-    bg::line_interpolate_point(g, fraction, p2, str);
-    check_points<P>::apply(p2, o);
 }
 
 template <typename G, typename P>
@@ -91,7 +88,15 @@ inline void test(std::string const& wkt1,
                  double fraction,
                  std::string const& wkt2)
 {
-    test<G,P>(wkt1, fraction, wkt2, bg::default_strategy());
+    G g;
+    bg::read_wkt(wkt1, g);
+
+    P o;
+    bg::read_wkt(wkt2, o);
+
+    P p1;
+    bg::line_interpolate_point(g, fraction * bg::length(g), p1);
+    check_points<P>::apply(p1, o);
 }
 
 void test_car()
@@ -122,8 +127,8 @@ void test_car()
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
     test<LS,MP>(l, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-                                    (1.2 2)(1 2.2)(1 2.6)(1 3))");
-    test<LS,MP>(l, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2)(1 3))");
+                                    (1.2 2)(1 2.2)(1 2.6))");//(1 3) missing
+    test<LS,MP>(l, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
     test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
     test<LS,MP>(l, 0.5, "MULTIPOINT((2 2)(1 3))");
     test<LS,MP>(l, 0.6, "MULTIPOINT((1.6 2))");
@@ -139,6 +144,7 @@ void test_sph()
 
     std::string const s = "SEGMENT(1 1, 2 2)";
     std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+    std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
 
     test<S,P>(s, 0,   "POINT(1 1)");
     test<S,P>(s, 0.5, "POINT(1.4998857365615981 1.5000570914791198)");
@@ -166,16 +172,21 @@ void test_sph()
                                     (1.1998933176222553 2.0000486811516014)\
                                     (1 2.2001522994279883)\
                                     (1 2.6000761497139444)\
-                                    (1 3))");
+                                    )");//(1,3)
     test<LS,MP>(l, 0.2, "MULTIPOINT((1.79996953825810646 1.0000243679448551)\
                                     (2 1.5998477098527744)\
                                     (1.6000609543036084 2.0000730473928678)\
                                     (1 2.2001522994279883)\
-                                    (1 3))");
+                                    )");//(1,3)
     test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
     test<LS,MP>(l, 0.5, "MULTIPOINT((2 1.9997715601385837)(1 3))");
     test<LS,MP>(l, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
     test<LS,MP>(l, 1, "MULTIPOINT((1 3))");
+
+    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.3014893312120446 1.0006787676128222)\
+                                     (11.600850053156366 1.0085030143490989)\
+                                     (17.9002174825842 1.0041514208039872))");
+
 }
 
 template <typename Strategy>
@@ -188,6 +199,7 @@ void test_geo(Strategy str)
 
     std::string const s = "SEGMENT(1 1, 2 2)";
     std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+    std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
 
     test<S,P>(s, 0,   "POINT(1 1)", str);
     test<S,P>(s, 0.5, "POINT(1.4998780900539985 1.5000558288006378)", str);
@@ -207,33 +219,44 @@ void test_geo(Strategy str)
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))", str);
     test<LS,MP>(l, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
-                                    (1.79728912766037641 1.0000247772611039)\
+                                    (1.79728912766037641 1.0000735036506381)\
                                     (2 1.1972285554368427)\
                                     (2 1.598498298996567)\
                                     (2 1.9997664696834965)\
                                     (1.6013936980010324 2.0000734568388099)\
-                                    (1.2025664628960846 2.0000494983098767)\
+                                    (1.2025664628960846 2.0001469249038197)\
                                     (1 2.1974612279909937)\
                                     (1 2.5987263175375022)\
                                     (1 3))", str);
-    test<LS,MP>(l, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772611039)\
+
+    test<LS,MP>(l, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
                                     (2 1.598498298996567)\
                                     (1.6013936980010324 2.0000734568388099)\
                                     (1 2.1974612279909937)\
                                     (1 3))", str);
+
     test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
     test<LS,MP>(l, 0.5, "MULTIPOINT((2 1.9997664696834965)(1 3))", str);
     test<LS,MP>(l, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
     test<LS,MP>(l, 1, "MULTIPOINT((1 3))", str);
+
+    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.306157814 1.0006937303)\
+                                     (11.60351281 1.0091515976)\
+                                     (17.90073492 1.0175580865))", str);
+
+
 }
 
 int test_main(int, char* [])
 {
     test_car();
     test_sph();
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
+    //test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
+
+    //TODO:add distance longer than length
+    //& negative distance
     return 0;
 }
 

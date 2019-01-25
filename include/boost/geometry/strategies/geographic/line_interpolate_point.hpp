@@ -98,10 +98,33 @@ public:
         return result_type<Point>(inv_r.distance, inv_r.azimuth);
     }
 
-    template <typename Point, typename T1>
+    template <typename Point, typename T1, typename Distance>
     inline void apply(Point const& p0,
                       Point const&,
-                      T1 const& fraction,
+                      T1 const& fraction, //fraction of segment
+                      Point & p,
+                      Distance const& distance,
+                      result_type<Point> const& res) const
+    {
+        typedef typename result_type<Point>::calc_t calc_t;
+
+        typedef typename FormulaPolicy::template direct
+                <calc_t, true, false, false, false> direct_t;
+
+        typename direct_t::result_type
+        dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
+                                distance * fraction, res.azimuth,
+                                m_spheroid);
+
+        set_from_radian<0>(p, dir_r.lon2);
+        set_from_radian<1>(p, dir_r.lat2);
+    }
+
+/*
+    template <typename Point, typename Distance>
+    inline void apply(Point const& p0,
+                      Point const&,
+                      Distance const& distance,
                       Point & p,
                       result_type<Point> const& dist_az) const
     {
@@ -112,13 +135,13 @@ public:
 
         typename direct_t::result_type
         dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                dist_az.distance * fraction, dist_az.azimuth,
+                                distance, dist_az.azimuth,
                                 m_spheroid);
 
         set_from_radian<0>(p, dir_r.lon2);
         set_from_radian<1>(p, dir_r.lat2);
     }
-
+*/
 private:
     Spheroid m_spheroid;
 };

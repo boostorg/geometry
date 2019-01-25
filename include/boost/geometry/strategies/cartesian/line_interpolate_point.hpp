@@ -74,12 +74,13 @@ public:
         return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }
 
-    template <typename Point, typename T1, typename T2>
+    template <typename Point, typename T1, typename T2, typename T3>
     inline void apply(Point const& p0,
                       Point const& p1,
                       T1 const& fraction,
                       Point & p,
-                      T2 const&) const
+                      T2 const&,
+                      T3 const&) const
     {
         typedef typename select_most_precise
             <

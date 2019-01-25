@@ -66,9 +66,15 @@ struct convert_and_assign
 template <typename Policy>
 struct range
 {
-    template <typename Range, typename PointLike, typename Strategy>
+    template
+    <
+        typename Range,
+        typename Distance,
+        typename PointLike,
+        typename Strategy
+    >
     static inline void apply(Range const& range,
-                             double const& fraction,
+                             Distance const& max_distance,
                              PointLike & pointlike,
                              Strategy const& strategy)
     {
@@ -94,25 +100,27 @@ struct range
         {
             return;
         }
-        if (fraction == 0)
+        if (max_distance <= 0)
         {
             policy.apply(*it, pointlike);
             return;
         }
-        if (fraction == 1)
+
+
+/*        if (fraction == 1)
         {
             policy.apply(*(end-1), pointlike);
             return;
         }
-            
+*/
         // compute lengths of segments and their sum
-        calc_t tot_len = 0;
+/*        calc_t tot_len = 0;
         vector_t lengths;
         iterator_t prev = it++;
         do {
-            result_type len = strategy.compute(*prev, *it);
-            lengths.push_back(len);
-            tot_len += len.distance;
+            result_type result = strategy.compute(*prev, *it);
+            lengths.push_back(result);
+            tot_len += result.distance;
             prev = it++;
         } while (it != end);
 
@@ -150,19 +158,57 @@ struct range
 
         } while (it != end && !single_point);
     }
+*/
+        iterator_t prev = it++;
+        Distance repeated_distance = max_distance;
+        Distance prev_distance = 0;
+        Distance current_distance = 0;
+        auto start_p = *prev;
+        bool single_point = false;
+
+        do {
+            result_type res = strategy.compute(*prev, *it);
+            //seg_distance += res.distance;
+
+//            current_distance = (it + 1 == end) ? 1 : prev_distance + res.distance;
+            current_distance = prev_distance + res.distance;
+
+            while (current_distance >= repeated_distance && !single_point)
+            {
+                point_t p;
+                strategy.apply(start_p, *it,
+                               //repeated_distance - prev_distance,
+                               (repeated_distance - prev_distance)
+                               /(current_distance - prev_distance),
+                               p,
+                               current_distance - prev_distance,
+                               res);
+                single_point = boost::is_same<Policy, convert_and_assign>::value;
+                policy.apply(p, pointlike);
+                start_p = p;
+                prev_distance = repeated_distance;
+                repeated_distance += max_distance;
+            }
+
+            prev_distance = current_distance;
+            prev = it++;
+            start_p = *prev;
+
+        } while (it != end && !single_point);
+    }
 };
 
 template <typename Policy>
 struct segment
 {
-    template <typename Segment, typename PointType, typename Strategy>
+    template <typename Segment, typename Distance, typename Pointlike, typename Strategy>
     static inline void apply(Segment const& segment,
-                             double const& fraction,
-                             PointType & point,
+                             Distance const& max_distance,
+                             Pointlike & point,
                              Strategy const& strategy)
     {
         range<Policy>().apply(segment_view<Segment>(segment),
-                              fraction, point, strategy);
+                              max_distance, point, strategy);
     }
 };
 
@@ -178,9 +224,9 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename PointType,
+    typename Pointlike,
     typename Tag1 = typename tag<Geometry>::type,
-    typename Tag2 = typename tag<PointType>::type
+    typename Tag2 = typename tag<Pointlike>::type
 >
 struct line_interpolate_point
 {
@@ -192,32 +238,32 @@ struct line_interpolate_point
 };
 
 
-template <typename Geometry, typename PointType>
-struct line_interpolate_point<Geometry, PointType, linestring_tag, point_tag>
+template <typename Geometry, typename Pointlike>
+struct line_interpolate_point<Geometry, Pointlike, linestring_tag, point_tag>
     : detail::interpolate_point::range
         <
             detail::interpolate_point::convert_and_assign
         >
 {};
 
-template <typename Geometry, typename PointType>
-struct line_interpolate_point<Geometry, PointType, linestring_tag, multi_point_tag>
+template <typename Geometry, typename Pointlike>
+struct line_interpolate_point<Geometry, Pointlike, linestring_tag, multi_point_tag>
     : detail::interpolate_point::range
         <
             detail::interpolate_point::convert_and_push_back
         >
 {};
 
-template <typename Geometry, typename PointType>
-struct line_interpolate_point<Geometry, PointType, segment_tag, point_tag>
+template <typename Geometry, typename Pointlike>
+struct line_interpolate_point<Geometry, Pointlike, segment_tag, point_tag>
     : detail::interpolate_point::segment
         <
             detail::interpolate_point::convert_and_assign
         >
 {};
 
-template <typename Geometry, typename PointType>
-struct line_interpolate_point<Geometry, PointType, segment_tag, multi_point_tag>
+template <typename Geometry, typename Pointlike>
+struct line_interpolate_point<Geometry, Pointlike, segment_tag, multi_point_tag>
     : detail::interpolate_point::segment
         <
             detail::interpolate_point::convert_and_push_back
@@ -232,22 +278,28 @@ namespace resolve_strategy {
 
 struct line_interpolate_point
 {
-    template <typename Geometry, typename PointType, typename Strategy>
+    template
+    <
+        typename Geometry,
+        typename Distance,
+        typename Pointlike,
+        typename Strategy
+    >
     static inline void apply(Geometry const& geometry,
-                             double const& fraction,
-                             PointType & mp,
+                             Distance const& max_distance,
+                             Pointlike & pointlike,
                              Strategy const& strategy)
     {
-        dispatch::line_interpolate_point<Geometry, PointType>::apply(geometry,
-                                                                     fraction,
-                                                                     mp,
+        dispatch::line_interpolate_point<Geometry, Pointlike>::apply(geometry,
+                                                                     max_distance,
+                                                                     pointlike,
                                                                      strategy);
     }
 
-    template <typename Geometry, typename PointType>
+    template <typename Geometry, typename Distance, typename Pointlike>
     static inline void apply(Geometry const& geometry,
-                             double const& fraction,
-                             PointType & mp,
+                             Distance const& max_distance,
+                             Pointlike & pointlike,
                              default_strategy)
     {        
         typedef typename strategy::line_interpolate_point::services::default_strategy
@@ -255,9 +307,9 @@ struct line_interpolate_point
                 typename cs_tag<Geometry>::type
             >::type strategy_type;
 
-        dispatch::line_interpolate_point<Geometry, PointType>::apply(geometry,
-                                                                    fraction,
-                                                                    mp,
+        dispatch::line_interpolate_point<Geometry, Pointlike>::apply(geometry,
+                                                                    max_distance,
+                                                                    pointlike,
                                                                     strategy_type());
     }
 };
@@ -270,15 +322,15 @@ namespace resolve_variant {
 template <typename Geometry>
 struct line_interpolate_point
 {
-    template <typename PointType, typename Strategy>
+    template <typename Distance, typename Pointlike, typename Strategy>
     static inline void apply(Geometry const& geometry,
-                             double const& fraction,
-                             PointType & mp,
+                             Distance const& max_distance,
+                             Pointlike & pointlike,
                              Strategy const& strategy)
     {
         return resolve_strategy::line_interpolate_point::apply(geometry,
-                                                               fraction,
-                                                               mp,
+                                                               max_distance,
+                                                               pointlike,
                                                                strategy);
     }
 };
@@ -286,36 +338,36 @@ struct line_interpolate_point
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename PointType, typename Strategy>
+    template <typename Pointlike, typename Strategy>
     struct visitor: boost::static_visitor<void>
     {
-        PointType const& m_mp;
+        Pointlike const& m_pointlike;
         Strategy const& m_strategy;
 
-        visitor(PointType const& mp, Strategy const& strategy)
-            : m_mp(mp)
+        visitor(Pointlike const& pointlike, Strategy const& strategy)
+            : m_pointlike(pointlike)
             , m_strategy(strategy)
         {}
 
-        template <typename Geometry>
-        void operator()(Geometry const& geometry, double const& fraction) const
+        template <typename Geometry, typename Distance>
+        void operator()(Geometry const& geometry, Distance const& max_distance) const
         {
-            line_interpolate_point<Geometry>::apply(geometry, fraction,
-                                                    m_mp, m_strategy);
+            line_interpolate_point<Geometry>::apply(geometry, max_distance,
+                                                    m_pointlike, m_strategy);
         }
     };
 
-    template <typename PointType, typename Strategy>
+    template <typename Distance, typename Pointlike, typename Strategy>
     static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          double const& fraction,
-          PointType & mp,
+          double const& max_distance,
+          Pointlike & pointlike,
           Strategy const& strategy)
     {
         boost::apply_visitor(
-            visitor<PointType, Strategy>(mp, strategy),
+            visitor<Pointlike, Strategy>(pointlike, strategy),
             geometry,
-            fraction
+            max_distance
         );
     }
 };
@@ -326,13 +378,14 @@ struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \brief 	Returns one or more points interpolated along a LineString \brief_strategy
 \ingroup line_interpolate_point
 \tparam Geometry Any type fulfilling a LineString concept
-\tparam PointType Any type fulfilling Point or Multipoint concept
+\tparam Distance A numerical distance measure
+\tparam Pointlike Any type fulfilling Point or Multipoint concept
 \tparam Strategy A type fulfilling a LineInterpolatePointStrategy concept
 \param geometry Input geometry
-\param fraction Number between 0 and 1 representing the spacing between the
-points as a fraction of total LineString length
-\param mp Output: either a Point (exactly one point will be constructed) or
-a MultiPoint (depending on the fraction one or more points will be constructed)
+\param max_distance Distance threshold (in units depending on coordinate system)
+representing the spacing between the points
+\param pointlike Output: either a Point (exactly one point will be constructed) or
+a MultiPoint (depending on the max_distance one or more points will be constructed)
 \param strategy Line_interpolate_point strategy to be used for interpolation of
 points
 
@@ -351,10 +404,16 @@ points
 [line_interpolate_point_strategy_output]
 }
  */
-template<typename Geometry, typename PointType, typename Strategy>
+template
+<
+    typename Geometry,
+    typename Distance,
+    typename Pointlike,
+    typename Strategy
+>
 inline void line_interpolate_point(Geometry const& geometry,
-                                   double const& fraction,
-                                   PointType & mp,
+                                   Distance const& max_distance,
+                                   Pointlike & pointlike,
                                    Strategy const& strategy)
 {
     concepts::check<Geometry const>();
@@ -362,7 +421,7 @@ inline void line_interpolate_point(Geometry const& geometry,
     // detail::throw_on_empty_input(geometry);
 
     return resolve_variant::line_interpolate_point<Geometry>
-                          ::apply(geometry, fraction, mp, strategy);
+                          ::apply(geometry, max_distance, pointlike, strategy);
 }
 
 
@@ -370,12 +429,13 @@ inline void line_interpolate_point(Geometry const& geometry,
 \brief 	Returns one or more points interpolated along a LineString.
 \ingroup line_interpolate_point
 \tparam Geometry Any type fulfilling a LineString concept
-\tparam PointType Any type fulfilling Point or Multipoint concept
+\tparam Distance A numerical distance measure
+\tparam Pointlike Any type fulfilling Point or Multipoint concept
 \param geometry Input geometry
-\param fraction Number between 0 and 1 representing the spacing between the
-points as a fraction of total LineString length
-\param mp Output: either a Point (exactly one point will be constructed) or
-a MultiPoint (depending on the fraction one or more points will be constructed)
+\param max_distance Distance threshold (in units depending on coordinate system)
+representing the spacing between the points
+\param pointlike Output: either a Point (exactly one point will be constructed) or
+a MultiPoint (depending on the max_distance one or more points will be constructed)
 
 \qbk{[include reference/algorithms/line_interpolate_point.qbk]
 
@@ -384,17 +444,17 @@ a MultiPoint (depending on the fraction one or more points will be constructed)
 [line_interpolate_point_output]
 }
  */
-template<typename Geometry, typename PointType>
+template<typename Geometry, typename Distance, typename Pointlike>
 inline void line_interpolate_point(Geometry const& geometry,
-                                   double const& fraction,
-                                   PointType & mp)
+                                   Distance const& max_distance,
+                                   Pointlike & pointlike)
 {
     concepts::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
 
     return resolve_variant::line_interpolate_point<Geometry>
-                          ::apply(geometry, fraction, mp, default_strategy());
+                          ::apply(geometry, max_distance, pointlike, default_strategy());
 }
 
 }} // namespace boost::geometry

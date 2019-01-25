@@ -72,12 +72,13 @@ public:
         return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }   
 
-    template <typename Point, typename T1, typename T2>
+    template <typename Point, typename T1, typename Distance>
     inline void apply(Point const& p0,
                       Point const& p1,
                       T1 const& fraction,
                       Point & p,
-                      T2 const& dist_az) const
+                      Distance const& distance,
+                      result_type<Point> const&) const
     {
         typedef typename select_most_precise
             <
@@ -94,7 +95,7 @@ public:
         point3d_t const xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
         //calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
         //calc_t const angle01 = acos(dot01);
-        calc_t const angle01 = dist_az.distance;
+        calc_t const angle01 = distance;
 
         point3d_t axis;
         if (! math::equals(angle01, pi))
