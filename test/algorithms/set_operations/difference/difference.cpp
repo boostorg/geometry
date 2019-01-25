@@ -63,6 +63,11 @@ void test_all()
     sym_settings.sym_difference = false;
 #endif
 
+    ut_settings ignore_validity_settings;
+#ifndef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    ignore_validity_settings.test_validity = false;
+#endif
+
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
@@ -156,12 +161,14 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
         intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
         2, 16, 15.75,
-        3, 17, 6.75);
+        3, 17, 6.75,
+        ignore_validity_settings);
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
         intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
         3, 21, 16.25,
-        3, 17, 6.25);
+        3, 17, 6.25,
+        ignore_validity_settings);
 
     {
         ut_settings settings = sym_settings;
@@ -186,7 +193,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
         2, 16, 15.75,
-        2, 12, 5.75);
+        2, 12, 5.75,
+        ignore_validity_settings);
 
     test_one<polygon, polygon, polygon>(
             "case4", case_4[0], case_4[1],
