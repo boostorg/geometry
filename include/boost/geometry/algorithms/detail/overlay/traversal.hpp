@@ -392,6 +392,25 @@ public :
             return true;
         }
 
+        if (OverlayType == overlay_buffer && possible[0] && possible[1])
+        {
+            // Buffers sometimes have multiple overlapping pieces, where remaining
+            // distance could lead to the wrong choice. Take the matcing operation.
+            turn_operation_type const& next_op0 = m_turns[next0].operations[0];
+            turn_operation_type const& next_op1 = m_turns[next1].operations[1];
+
+            bool const is_target0 = next_op0.operation == target_operation;
+            bool const is_target1 = next_op1.operation == target_operation;
+
+            if (is_target0 != is_target1)
+            {
+                // One of the operations will finish the ring. Take that one.
+                selected_op_index = is_target0 ? 0 : 1;
+                debug_traverse(turn, turn.operations[selected_op_index], "Candidate cc target");
+                return true;
+            }
+        }
+
         static bool const is_union = target_operation == operation_union;
 
         typename turn_operation_type::comparable_distance_type
