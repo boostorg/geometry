@@ -296,15 +296,17 @@ void test_all()
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
+
+        // SQL Server gives:    0.279121891701124 and 224.889211358929
+        // PostGIS gives:       0.279121991127244 and 224.889205853156
+        // No robustness gives: 0.279121991127106 and 224.825363749290
+
         test_one<polygon, polygon, polygon>("isovist",
             isovist1[0], isovist1[1],
             -1, -1, 0.279132,
             -1, -1, 224.8892,
             settings);
     }
-    // SQL Server gives:    0.279121891701124 and 224.889211358929
-    // PostGIS gives:       0.279121991127244 and 224.889205853156
-    // No robustness gives: 0.279121991127106 and 224.825363749290
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",

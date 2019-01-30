@@ -273,7 +273,15 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
                 );
     }
 
-    BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
+    if (expected_area > 0)
+    {
+        BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
+    }
+    else
+    {
+        // Compare 0 with 0 or a very small detected area
+        BOOST_CHECK_LE(area, settings.percentage);
+    }
 #endif
 
 
