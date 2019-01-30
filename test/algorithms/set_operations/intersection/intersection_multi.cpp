@@ -379,6 +379,11 @@ void test_areal()
         ticket_9081[0], ticket_9081[1],
         2, 10, 0.0019812556);
 
+    // Should generate output, even for <float>
+    test_one<Polygon, MultiPolygon, MultiPolygon>("mail_2019_01_21_johan",
+        mail_2019_01_21_johan[2], mail_2019_01_21_johan[3],
+        2, -1, 0.0005889587);
+
     // qcc-arm reports 1.7791215549400884e-14
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],
