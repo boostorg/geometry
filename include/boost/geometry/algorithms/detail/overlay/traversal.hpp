@@ -842,7 +842,7 @@ public :
 
         if (! blocked.empty())
         {
-        sbs_type sbs(m_strategy);
+            sbs_type sbs(m_strategy);
 
             if (! fill_sbs(sbs, turn_index, ids, previous_seg_id))
             {
@@ -894,8 +894,16 @@ public :
                 if (target.turn_index >= 0
                     && target.next_turn_index != lti.next_turn_index)
                 {
+                    // Points to different target
                     return false;
                 }
+                if (OverlayType == overlay_buffer && target.turn_index > 0)
+                {
+                    // Target already assigned, so there are more targets
+                    // or more ways to the same target
+                    return false;
+                }
+
                 target = lti;
             }
         }
