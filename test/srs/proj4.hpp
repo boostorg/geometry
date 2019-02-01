@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -115,8 +115,24 @@ struct pj_transformation
     {
         assert(in_x.size() == in_y.size());
         pj_transform(m_from.get(), m_to.get(), in_x.size(), 1, &in_x[0], &in_y[0], NULL);
-        out_x = in_x;
-        out_y = in_y;
+        out_x = std::move(in_x);
+        out_y = std::move(in_y);
+    }
+
+    void forward(std::vector<double> in_xy,
+                 std::vector<double> & out_xy) const
+    {
+        assert(in_xy.size() % 2 == 0);
+        pj_transform(m_from.get(), m_to.get(), in_xy.size() / 2, 2, &in_xy[0], &in_xy[1], NULL);
+        out_xy = std::move(in_xy);
+    }
+
+    void forward(std::vector<std::vector<double> > const& in_xy,
+                 std::vector<std::vector<double> > & out_xy) const
+    {
+        out_xy.resize(in_xy.size());
+        for (size_t i = 0 ; i < in_xy.size(); ++i)
+            forward(in_xy[i], out_xy[i]);
     }
 
 private:
