@@ -52,8 +52,8 @@ struct pj_projection
     template <typename In, typename Out>
     void forward(In const& in, Out & out) const
     {
-        double x = bg::get_as_radian<0>(in);
-        double y = bg::get_as_radian<1>(in);
+        double x = boost::geometry::get_as_radian<0>(in);
+        double y = boost::geometry::get_as_radian<1>(in);
     
         projUV p1;
         projUV p2;
@@ -63,15 +63,15 @@ struct pj_projection
 
         p2 = pj_fwd(p1, m_ptr.get());
 
-        bg::set_from_radian<0>(out, p2.u);
-        bg::set_from_radian<1>(out, p2.v);
+        boost::geometry::set_from_radian<0>(out, p2.u);
+        boost::geometry::set_from_radian<1>(out, p2.v);
     }
 
     template <typename In, typename Out>
     void inverse(In const& in, Out & out) const
     {
-        double lon = bg::get_as_radian<0>(in);
-        double lat = bg::get_as_radian<1>(in);
+        double lon = boost::geometry::get_as_radian<0>(in);
+        double lat = boost::geometry::get_as_radian<1>(in);
     
         projUV p1;
         projUV p2;
@@ -79,10 +79,10 @@ struct pj_projection
         p1.u = lon;
         p1.v = lat;
 
-        p2 = pj_inv(p1, pj_prj.get());
+        p2 = pj_inv(p1, m_ptr.get());
 
-        bg::set_from_radian<0>(out, p2.u);
-        bg::set_from_radian<1>(out, p2.v);
+        boost::geometry::set_from_radian<0>(out, p2.u);
+        boost::geometry::set_from_radian<1>(out, p2.v);
     }
 
 private:
@@ -99,13 +99,13 @@ struct pj_transformation
     template <typename In, typename Out>
     void forward(In const& in, Out & out) const
     {
-        double x = bg::get_as_radian<0>(in);
-        double y = bg::get_as_radian<1>(in);
+        double x = boost::geometry::get_as_radian<0>(in);
+        double y = boost::geometry::get_as_radian<1>(in);
     
         pj_transform(m_from.get(), m_to.get(), 1, 0, &x, &y, NULL);
 
-        bg::set_from_radian<0>(out, x);
-        bg::set_from_radian<1>(out, y);
+        boost::geometry::set_from_radian<0>(out, x);
+        boost::geometry::set_from_radian<1>(out, y);
     }
 
     void forward(std::vector<double> in_x,
