@@ -135,7 +135,7 @@ template
 struct pj_datum_find_datum_static
 {
     template <typename T>
-    static const pj_datums_type<T>* apply(Params const& params)
+    static const pj_datums_type<T>* apply(Params const& )
     {
         const pj_datums_type<T>* pj_datums = pj_get_datums<T>().first;
         const int n = pj_get_datums<T>().second;
