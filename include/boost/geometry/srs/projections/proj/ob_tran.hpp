@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -128,7 +128,7 @@ namespace projections
             }
 
             template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename Parameters>
-            inline Parameters o_proj_parameters(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& params,
+            inline Parameters o_proj_parameters(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& /*params*/,
                                                 Parameters const& par)
             {
                 /* copy existing header into new */
@@ -292,7 +292,7 @@ namespace projections
 
             // General Oblique Transformation
             template <typename T, typename Params, typename Parameters, typename ProjParameters>
-            inline T setup_ob_tran(Params const& params, Parameters & par, ProjParameters& proj_parm)
+            inline T setup_ob_tran(Params const& params, Parameters & /*par*/, ProjParameters& proj_parm)
             {
                 static const T half_pi = detail::half_pi<T>();
 
