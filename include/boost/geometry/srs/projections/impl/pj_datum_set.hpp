@@ -225,7 +225,7 @@ struct pj_datum_find_nadgrids_static
 {
     static void apply(Params const& params, srs::detail::nadgrids & out)
     {
-        out = boost::tuples::get<I>();
+        out = boost::tuples::get<I>(params);
     }
 };
 template <typename Params, int N>
