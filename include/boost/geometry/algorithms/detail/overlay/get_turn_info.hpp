@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2017, 2018.
-// Modifications copyright (c) 2015-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -150,7 +150,7 @@ struct touch_interior : public base_turn_handler
         typename DirInfo,
         typename SidePolicy
     >
-    static inline void apply(UniqueSubRange1 const& range_p,
+    static inline void apply(UniqueSubRange1 const& /*range_p*/,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
@@ -520,8 +520,8 @@ struct equal_opposite : public base_turn_handler
         typename IntersectionInfo
     >
     static inline void apply(
-                UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
+                UniqueSubRange1 const& /*range_p*/,
+                UniqueSubRange2 const& /*range_q*/,
                 /* by value: */ TurnInfo tp,
                 OutputIterator& out,
                 IntersectionInfo const& intersection_info)
