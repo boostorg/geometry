@@ -682,4 +682,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
     test_all_pl_ar<geo_point>(vincenty_pp(), vincenty_ps(), vincenty_pb());
     test_all_pl_ar<geo_point>(thomas_pp(), thomas_ps(), thomas_pb());
     test_all_pl_ar<geo_point>(andoyer_pp(), andoyer_ps(), andoyer_pb());
+
+    // test with different spheroid
+    stype spheroid(6372000, 6370000);
+    test_all_pl_ar<geo_point>(andoyer_pp(spheroid), andoyer_ps(spheroid),  andoyer_pb(spheroid));
 }
