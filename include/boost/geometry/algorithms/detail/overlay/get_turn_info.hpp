@@ -211,10 +211,10 @@ struct touch_interior : public base_turn_handler
         {
             if (side_pj_q2 == -1)
             {
-            // Q turns right on the left side of P (test "ML3")
+                // Q turns right on the left side of P (test "ML3")
                 // Union: take both operations
-            // Intersection: skip
-            both(ti, operation_union);
+                // Intersection: skip
+                both(ti, operation_union);
             }
             else
             {
