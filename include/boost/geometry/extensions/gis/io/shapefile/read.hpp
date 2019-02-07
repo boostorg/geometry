@@ -195,207 +195,256 @@ inline void read_parts(IStream & is,
     }
 }
 
-// Range of Points
-template <typename IStream, typename Points>
-inline void read_point(IStream & is, Points & points)
+struct read_point_policy
 {
-    boost::int32_t type;
-    read_little(is, type);
-    if (type != shape_type::point)
+    template <typename IStream, typename Points>
+    static inline void apply(IStream & is, Points & points)
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Point expected"));
+        boost::int32_t type;
+        read_little(is, type);
+        if (type != shape_type::point)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Point expected"));
+        }
+
+        read_and_push_back_point(is, points);
+
+        if (!is.good())
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
+        }
     }
+};
 
-    read_and_push_back_point(is, points);
-
-    if (!is.good())
-    {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
-    }
-}
-
-// Range of Points
-template <typename IStream, typename Points>
-inline void read_multipoint(IStream & is, Points & points)
+struct read_multipoint_policy
 {
-    typedef typename boost::range_value<Points>::type pt_type;
-
-    boost::int32_t type;
-    read_little(is, type);
-    if (type != shape_type::multipoint)
+    template <typename IStream, typename Points>
+    static inline void apply(IStream & is, Points & points)
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Multipoint expected"));
+        typedef typename boost::range_value<Points>::type pt_type;
+
+        boost::int32_t type;
+        read_little(is, type);
+        if (type != shape_type::multipoint)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Multipoint expected"));
+        }
+
+        is.seekg(4 * sizeof(double), IStream::cur);
+
+        boost::int32_t num_points;
+        read_little(is, num_points);
+
+        if (num_points < 0)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Points number lesser than 0"));
+        }
+
+        std::size_t old_size = boost::size(points);
+        range::resize(points, old_size + num_points);
+        for (boost::int32_t i = 0; i < num_points; ++i)
+        {
+            read_and_set_point_at(is, points, old_size + i);
+        }
+
+        if (!is.good())
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
+        }
     }
+};
 
-    is.seekg(4 * sizeof(double), IStream::cur);
-
-    boost::int32_t num_points;
-    read_little(is, num_points);
-
-    if (num_points < 0)
-    {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Points number lesser than 0"));
-    }
-
-    std::size_t old_size = boost::size(points);
-    range::resize(points, old_size + num_points);
-    for (boost::int32_t i = 0; i < num_points; ++i)
-    {
-        read_and_set_point_at(is, points, old_size + i);
-    }
-
-    if (!is.good())
-    {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
-    }
-}
-
-// Range of Linestrings
-template <typename IStream, typename Linestrings>
-inline void read_polyline(IStream &is, Linestrings & linestrings)
+struct read_polyline_policy
 {
-    typedef typename boost::range_value<Linestrings>::type ls_type;
-    typedef typename boost::range_value<ls_type>::type pt_type;
-
-    boost::int32_t type;
-    //double min_x, min_y, max_x, max_y;
-    boost::int32_t num_parts;
-    boost::int32_t num_points;
-    std::vector<boost::int32_t> parts;
-
-    read_little(is, type);
-    if (type != shape_type::polyline)
+    template <typename IStream, typename Linestrings>
+    static inline void apply(IStream &is, Linestrings & linestrings)
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Polyline expected"));
-    }
+        typedef typename boost::range_value<Linestrings>::type ls_type;
+        typedef typename boost::range_value<ls_type>::type pt_type;
 
-    // TODO: support filtering
-    //read_little(is, min_x);
-    //read_little(is, min_y);
-    //read_little(is, max_x);
-    //read_little(is, max_y);
-    is.seekg(4 * sizeof(double), IStream::cur);
-    read_little(is, num_parts);
-    read_little(is, num_points);
+        boost::int32_t type;
+        //double min_x, min_y, max_x, max_y;
+        boost::int32_t num_parts;
+        boost::int32_t num_points;
+        std::vector<boost::int32_t> parts;
 
-    if (num_parts < 0 || num_points < 0)
-    {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Parts or points number lesser than 0"));
-    }
+        read_little(is, type);
+        if (type != shape_type::polyline)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Polyline expected"));
+        }
 
-    read_parts(is, parts, num_parts);
+        // TODO: support filtering
+        //read_little(is, min_x);
+        //read_little(is, min_y);
+        //read_little(is, max_x);
+        //read_little(is, max_y);
+        is.seekg(4 * sizeof(double), IStream::cur);
+        read_little(is, num_parts);
+        read_little(is, num_points);
+
+        if (num_parts < 0 || num_points < 0)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Parts or points number lesser than 0"));
+        }
+
+        read_parts(is, parts, num_parts);
     
-    for (boost::int32_t i = 0; i < num_parts; ++i)
-    {
-        boost::int32_t f = parts[i];
-        boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
-
-        if (f >= num_points || l > num_points || f > l)
+        for (boost::int32_t i = 0; i < num_parts; ++i)
         {
-            BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
+            boost::int32_t f = parts[i];
+            boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
+
+            if (f >= num_points || l > num_points || f > l)
+            {
+                BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
+            }
+
+            ls_type & ls = push_back(linestrings, ls_type());
+
+            std::size_t ls_size = l - f;
+        
+            range::resize(ls, ls_size);
+        
+            for (std::size_t j = 0; j < ls_size; ++j)
+            {
+                read_and_set_point_at(is, ls, j);
+            }
         }
 
-        ls_type & ls = push_back(linestrings, ls_type());
-
-        std::size_t ls_size = l - f;
-        
-        range::resize(ls, ls_size);
-        
-        for (std::size_t j = 0; j < ls_size; ++j)
+        if (!is.good())
         {
-            read_and_set_point_at(is, ls, j);
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
         }
     }
+};
 
-    if (!is.good())
+struct read_polygon_policy
+{
+    template <typename IStream, typename Polygons>
+    static inline void apply(IStream &is, Polygons & polygons)
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
+        typedef typename boost::range_value<Polygons>::type poly_type;
+        typedef typename geometry::point_type<poly_type>::type pt_type;
+        typedef typename geometry::ring_type<poly_type>::type ring_type;
+
+        static const bool is_ccw = geometry::point_order<poly_type>::value == geometry::counterclockwise;
+        static const bool is_open = geometry::closure<poly_type>::value == geometry::open;
+
+        boost::int32_t type;
+        //double min_x, min_y, max_x, max_y;
+        boost::int32_t num_parts;
+        boost::int32_t num_points;
+        std::vector<boost::int32_t> parts;
+
+        read_little(is, type);
+        if (type != shape_type::polygon)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Polygon expected"));
+        }
+
+        // TODO: support filtering
+        //read_little(is, min_x);
+        //read_little(is, min_y);
+        //read_little(is, max_x);
+        //read_little(is, max_y);
+        is.seekg(4 * sizeof(double), IStream::cur);
+        read_little(is, num_parts);
+        read_little(is, num_points);
+
+        if (num_parts < 0 || num_points < 0)
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Parts or points number lesser than 0"));
+        }
+
+        read_parts(is, parts, num_parts);
+
+        poly_type & poly = push_back(polygons, poly_type());
+
+        for (boost::int32_t i = 0; i < num_parts; ++i)
+        {
+            boost::int32_t f = parts[i];
+            boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
+
+            if (f >= num_points || l > num_points || f > l)
+            {
+                BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
+            }
+
+            ring_type & ring = (i == 0)
+                             ? geometry::exterior_ring(poly)
+                             : push_back(geometry::interior_rings(poly), ring_type());
+
+            std::size_t ring_size = l - f - (is_open ? 1 : 0);
+        
+            range::resize(ring, ring_size);
+
+            for (std::size_t j = 0; j < ring_size; ++j)
+            {
+                read_and_set_point_at(is, ring, j);
+            }
+
+            // if ring is open ignore the last point
+            if (is_open)
+            {
+                is.seekg(2 * sizeof(double), IStream::cur);
+            }
+
+            // if ring is ccw reverse leaving the first point untouched
+            if (is_ccw)
+            {
+                typename boost::range_iterator<ring_type>::type
+                    b = boost::begin(ring),
+                    e = boost::end(ring);
+                std::reverse(++b, is_open ? e : (--e));
+            }
+        }
+
+        if (!is.good())
+        {
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
+        }
+    }
+};
+
+template <typename Policy, typename IStream, typename Range>
+inline void add_records(IStream & is, Range & rng)
+{
+    while (read_record_header(is))
+    {
+        Policy::apply(is, rng);
     }
 }
 
-// Range of Polygons
-template <typename IStream, typename Polygons>
-inline void read_polygon(IStream &is, Polygons & polygons)
+template <typename Policy, typename IStream, typename Range>
+inline void add_records_as_new_element(IStream & is, Range & rng)
 {
-    typedef typename boost::range_value<Polygons>::type poly_type;
-    typedef typename geometry::point_type<poly_type>::type pt_type;
-    typedef typename geometry::ring_type<poly_type>::type ring_type;
+    typedef typename boost::range_value<Range>::type val_type;
 
-    static const bool is_ccw = geometry::point_order<poly_type>::value == geometry::counterclockwise;
-    static const bool is_open = geometry::closure<poly_type>::value == geometry::open;
-
-    boost::int32_t type;
-    //double min_x, min_y, max_x, max_y;
-    boost::int32_t num_parts;
-    boost::int32_t num_points;
-    std::vector<boost::int32_t> parts;
-
-    read_little(is, type);
-    if (type != shape_type::polygon)
+    if (! read_record_header(is))
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Polygon expected"));
+        return;
     }
 
-    // TODO: support filtering
-    //read_little(is, min_x);
-    //read_little(is, min_y);
-    //read_little(is, max_x);
-    //read_little(is, max_y);
-    is.seekg(4 * sizeof(double), IStream::cur);
-    read_little(is, num_parts);
-    read_little(is, num_points);
+    val_type & elem = shapefile::push_back(rng, val_type());
 
-    if (num_parts < 0 || num_points < 0)
+    do
     {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Parts or points number lesser than 0"));
+        Policy::apply(is, elem);
     }
+    while (read_record_header(is));
+}
 
-    read_parts(is, parts, num_parts);
+template <typename Policy, typename IStream, typename Range>
+inline void add_records_as_new_elements(IStream & is, Range & rng)
+{
+    typedef typename boost::range_value<Range>::type val_type;
 
-    poly_type & poly = push_back(polygons, poly_type());
-
-    for (boost::int32_t i = 0; i < num_parts; ++i)
+    while (read_record_header(is))
     {
-        boost::int32_t f = parts[i];
-        boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
+        val_type & elem = shapefile::push_back(rng, val_type());
 
-        if (f >= num_points || l > num_points || f > l)
-        {
-            BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
-        }
-
-        ring_type & ring = (i == 0)
-                         ? geometry::exterior_ring(poly)
-                         : push_back(geometry::interior_rings(poly), ring_type());
-
-        std::size_t ring_size = l - f - (is_open ? 1 : 0);
-        
-        range::resize(ring, ring_size);
-
-        for (std::size_t j = 0; j < ring_size; ++j)
-        {
-            read_and_set_point_at(is, ring, j);
-        }
-
-        // if ring is open ignore the last point
-        if (is_open)
-        {
-            is.seekg(2 * sizeof(double), IStream::cur);
-        }
-
-        // if ring is ccw reverse leaving the first point untouched
-        if (is_ccw)
-        {
-            typename boost::range_iterator<ring_type>::type
-                b = boost::begin(ring),
-                e = boost::end(ring);
-            std::reverse(++b, is_open ? e : (--e));
-        }
-    }
-
-    if (!is.good())
-    {
-        BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
+        Policy::apply(is, elem);
     }
 }
 
@@ -419,27 +468,17 @@ struct read_shapefile<Geometry, point_tag>
     template <typename IStream, typename Points>
     static inline void apply(IStream &is, Points & points)
     {
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
+        namespace shp = detail::shapefile;
+        
+        boost::int32_t const type = shp::reset_and_read_header(is);
 
-        if (type == detail::shapefile::shape_type::point)
+        if (type == shp::shape_type::point)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                detail::shapefile::read_point(is, points);
-            }
+            shp::add_records<shp::read_point_policy>(is, points);
         }
         else if (type == detail::shapefile::shape_type::multipoint)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                detail::shapefile::read_multipoint(is, points);
-            }
+            shp::add_records<shp::read_multipoint_policy>(is, points);
         }
     }
 };
@@ -450,33 +489,17 @@ struct read_shapefile<Geometry, multi_point_tag>
     template <typename IStream, typename MultiPoints>
     static inline void apply(IStream &is, MultiPoints & multi_points)
     {
-        typedef typename boost::range_value<MultiPoints>::type mpt_type;
+        namespace shp = detail::shapefile;
+        
+        boost::int32_t const type = shp::reset_and_read_header(is);
 
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
-
-        if (type == detail::shapefile::shape_type::point)
+        if (type == shp::shape_type::point)
         {
-            mpt_type & mpt = detail::shapefile::push_back(multi_points, mpt_type());
-            
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                detail::shapefile::read_point(is, mpt);
-            }
+            shp::add_records_as_new_element<shp::read_point_policy>(is, multi_points);
         }
         else if (type == detail::shapefile::shape_type::multipoint)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                mpt_type & mpt = detail::shapefile::push_back(multi_points, mpt_type());
-
-                detail::shapefile::read_multipoint(is, mpt);
-            }
+            shp::add_records_as_new_elements<shp::read_multipoint_policy>(is, multi_points);
         }
     }
 };
@@ -487,17 +510,13 @@ struct read_shapefile<Geometry, linestring_tag>
     template <typename IStream, typename Linestrings>
     static inline void apply(IStream &is, Linestrings & linestrings)
     {
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
+        namespace shp = detail::shapefile;
 
-        if (type == detail::shapefile::shape_type::polyline)
+        boost::int32_t const type = shp::reset_and_read_header(is);
+
+        if (type == shp::shape_type::polyline)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                detail::shapefile::read_polyline(is, linestrings);
-            }
+            shp::add_records<shp::read_polyline_policy>(is, linestrings);
         }
     }
 };
@@ -508,21 +527,13 @@ struct read_shapefile<Geometry, multi_linestring_tag>
     template <typename IStream, typename MultiLinestrings>
     static inline void apply(IStream &is, MultiLinestrings & multi_linestrings)
     {
-        typedef typename boost::range_value<MultiLinestrings>::type mls_type;
+        namespace shp = detail::shapefile;
 
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
+        boost::int32_t const type = shp::reset_and_read_header(is);
 
-        if (type == detail::shapefile::shape_type::polyline)
+        if (type == shp::shape_type::polyline)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                mls_type & mls = detail::shapefile::push_back(multi_linestrings, mls_type());
-
-                detail::shapefile::read_polyline(is, mls);
-            }
+            shp::add_records_as_new_elements<shp::read_polyline_policy>(is, multi_linestrings);
         }
     }
 };
@@ -533,17 +544,13 @@ struct read_shapefile<Geometry, polygon_tag>
     template <typename IStream, typename Polygons>
     static inline void apply(IStream &is, Polygons & polygons)
     {
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
+        namespace shp = detail::shapefile;
 
-        if (type == detail::shapefile::shape_type::polygon)
+        boost::int32_t const type = shp::reset_and_read_header(is);
+
+        if (type == shp::shape_type::polygon)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                detail::shapefile::read_polygon(is, polygons);
-            }
+            shp::add_records<shp::read_polygon_policy>(is, polygons);
         }
     }
 };
@@ -554,21 +561,13 @@ struct read_shapefile<Geometry, multi_polygon_tag>
     template <typename IStream, typename MultiPolygons>
     static inline void apply(IStream &is, MultiPolygons & multi_polygons)
     {
-        typedef typename boost::range_value<MultiPolygons>::type mpoly_type;
+        namespace shp = detail::shapefile;
 
-        boost::int32_t const type = detail::shapefile::reset_and_read_header(is);
+        boost::int32_t const type = shp::reset_and_read_header(is);
 
-        if (type == detail::shapefile::shape_type::polygon)
+        if (type == shp::shape_type::polygon)
         {
-            for (;;)
-            {
-                if (! detail::shapefile::read_record_header(is))
-                    break;
-
-                mpoly_type & mpoly = detail::shapefile::push_back(multi_polygons, mpoly_type());
-
-                detail::shapefile::read_polygon(is, mpoly);
-            }
+            shp::add_records_as_new_elements<shp::read_polygon_policy>(is, multi_polygons);
         }
     }
 };
@@ -577,6 +576,7 @@ struct read_shapefile<Geometry, multi_polygon_tag>
 } // namespace dispatch
 
 
+// Note: if an exception is thrown the output range may contain partial data
 template <typename IStream, typename RangeOfGeometries>
 inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries)
 {
