@@ -1323,6 +1323,18 @@ static std::string pie_7_2_1_0_15[2] =
     "MULTIPOLYGON(((2500 2500,2791 3586,3062 3474,2500 2500)),((2500 2500,3474 3062,3586 2791,3625 2500,3586 2208,3474 1937,3295 1704,3062 1525,2791 1413,2499 1375,2208 1413,1937 1525,1704 1704,1525 1937,1413 2208,1375 2500,2500 2500)))"
 };
 
+static std::string case_precision_m1[2] =
+{
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 3,4 3,4 0,0 0)))",
+    "MULTIPOLYGON(((-1 -1,-1 8,2 8,2 7,2 3,4.0000005 2.9999995,4 7,4 8,8 8,8 -1,-1 -1)))"
+};
+
+static std::string case_precision_m2[2] =
+{
+    "MULTIPOLYGON(((0 0,0 4,2 4,2 3,4 3,4 0,0 0)),((3 6,3 7.5,4.5 7.5,4.5 6,3 6)))",
+    "MULTIPOLYGON(((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4.0000005 2.9999995,4 7,2 7)))"
+};
+
 // Case, not literally on this list but derived, to mix polygon/multipolygon in call to difference
 static std::string ggl_list_20111025_vd[4] =
     {

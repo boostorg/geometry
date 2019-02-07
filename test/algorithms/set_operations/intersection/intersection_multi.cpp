@@ -32,6 +32,10 @@
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
+#define TEST_INTERSECTION_REV(caseid, clips, points, area) \
+    (test_one<Polygon, MultiPolygon, MultiPolygon>) \
+    ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
+
 #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
     { ut_settings ignore_validity; ignore_validity.test_validity = false; \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
@@ -367,6 +371,17 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
     TEST_INTERSECTION(case_recursive_boxes_87, 0, -1, 0.0);
     TEST_INTERSECTION(case_recursive_boxes_88, 4, -1, 3.5);
+
+#ifndef BOOST_GEOMETRY_NO_ROBUSTNESS
+    TEST_INTERSECTION(case_precision_m1, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_m2, 2, -1, 15.25);
+    TEST_INTERSECTION_REV(case_precision_m1, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_m2, 2, -1, 15.25);
+#else
+    // Validity: false positives (very small triangles looking like a line)
+    TEST_INTERSECTION_IGNORE(case_precision_m1, 1, -1, 14.0);
+    TEST_INTERSECTION_IGNORE(case_precision_m2, 2, -1, 15.25);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],

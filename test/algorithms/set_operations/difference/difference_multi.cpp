@@ -463,6 +463,11 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_87, 4, 2.0, 4, 2.5, 8);
     TEST_DIFFERENCE(case_recursive_boxes_88, 3, 4.75, 5, 6.75, 4);
 
+    // Output of A can be 0 or 1 polygons (with a very small area)
+    TEST_DIFFERENCE(case_precision_m1, -1, 0.0, 1, 57.0, -1);
+    // Output of A can be 1 or 2 polygons (one with a very small area)
+    TEST_DIFFERENCE(case_precision_m2, -1, 1.0, 1, 57.75, -1);
+
     {
         ut_settings sym_settings;
     #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
