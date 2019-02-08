@@ -157,13 +157,11 @@ struct comparable_type<geographic_cross_track_point_box<Strategy, Spheroid, Calc
 template <typename Strategy, typename Spheroid, typename CalculationType>
 struct get_comparable<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
 {
-    typedef geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> this_strategy;
-    typedef typename comparable_type<this_strategy>::type comparable_type;
-
 public:
-    static inline comparable_type apply(this_strategy const&)
+    static inline geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>
+    apply(geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> const& str)
     {
-        return comparable_type();
+        return str;
     }
 };
 
