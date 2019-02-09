@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer_geo.hpp>
+#include "test_buffer_geo.hpp"
 
 static std::string const simplex = "POINT(4.9 52.0)";
 

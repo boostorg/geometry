@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test Helper
 
-// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2016-2017.
 // Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
@@ -25,7 +25,7 @@
 #include <iomanip>
 
 #include <boost/foreach.hpp>
-#include <geometry_test_common.hpp>
+#include "geometry_test_common.hpp"
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
@@ -54,8 +54,8 @@
 const double same_distance = -999;
 
 #if defined(TEST_WITH_SVG)
-#  include <test_buffer_svg.hpp>
-#  include <test_buffer_svg_per_turn.hpp>
+#  include "test_buffer_svg.hpp"
+#  include "test_buffer_svg_per_turn.hpp"
 #endif
 
 //-----------------------------------------------------------------------------
